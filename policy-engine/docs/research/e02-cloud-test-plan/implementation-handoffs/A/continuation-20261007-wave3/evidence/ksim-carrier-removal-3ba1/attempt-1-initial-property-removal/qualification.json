@@ -1,0 +1,151 @@
+{
+  "collected_nodeids": [
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection"
+  ],
+  "counts": {
+    "actual_content_bound_n8_cas_reads": 1,
+    "actual_default_n8_consumer_calls": 0,
+    "actual_n5_joint_simulation_producer_calls": 1,
+    "other_failed_test_reports": 0,
+    "other_test_targets": 0,
+    "test_readback_cas_reads": 0,
+    "test_targets": 1
+  },
+  "environment": {
+    "JAX_PLATFORMS": "cpu",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__main__.py",
+      "-p",
+      "e02_origin",
+      "-o",
+      "addopts=",
+      "--import-mode=importlib",
+      "--strict-markers",
+      "-q",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/junit.xml",
+      "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/pytest-basetemp",
+      "-p",
+      "pytest_ksim_persisted_blocker_removal",
+      "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+    "pytest_version": "9.0.2",
+    "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+    "python_version": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]"
+  },
+  "expected_unchanged_assertion": {
+    "expression": "\"simulation_only_k_sim_not_world_evidence\" in value.authority_blockers",
+    "failed_as_expected": false,
+    "file": "tests/unit/runtime/quality/test_generation_cycle.py",
+    "line": 4718
+  },
+  "property_removal": {
+    "frozen_candidate_unchanged": true,
+    "kind": "in_memory_single_statement_property_removal",
+    "mutant_removed_from_n8_output": false,
+    "original": "    blockers.update(persisted_blockers)",
+    "production_and_test_files_written": false,
+    "raw_cas_marker_preserved": true,
+    "removed_only": "simulation_only_k_sim_not_world_evidence",
+    "replacement": "    blockers.update(persisted_blockers - {\"simulation_only_k_sim_not_world_evidence\"})",
+    "retained_all_other_bindings_and_blockers": true,
+    "retained_cas_payload_and_markers": true,
+    "same_n5_result_ref_produced_read_by_n8_and_test": false,
+    "tracked_runtime_and_test_sources_unchanged": true
+  },
+  "qualification_status": "INCOMPLETE_OR_UNEXPECTED_RESULT",
+  "reports": [
+    {
+      "longrepr": null,
+      "nodeid": "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection",
+      "outcome": "passed",
+      "when": "setup"
+    },
+    {
+      "longrepr": "tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/pytest-basetemp/test_n8_recovers_persisted_can0')\n\n    @pytest.mark.asyncio\n    async def test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection(\n        tmp_path: Path,\n    ) -> None:\n        \"\"\"N8 restores the persisted K_sim limitation lost by an injected N5 projection.\"\"\"\n    \n        from polisyos.core.security.tenant_context import tenant_scope\n        from polisyos.runtime.quality.generation_cycle import (\n            load_joint_simulation_result,\n            simulation_evaluation_input_ref,\n            simulation_value_execution_context,\n        )\n    \n        store, _expected_ncm, ncm_ref = _runtime_ncm_fixture_store(tmp_path)\n        hints = {\n            \"joint_simulation_horizon\": {\"start\": 0, \"end\": 0, \"step\": 1},\n            \"joint_simulation_baseline_state\": {\"firm_survival\": 0.0},\n        }\n        problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(\n            ncm_ref,\n            runtime_hints=hints,\n        )\n    \n        class _ControlledN4:\n            async def __call__(self, generated_problem: DesignProblem, *, cycle_index: int) -> Any:\n                assert generated_problem.design_problem_id == problem.design_problem_id\n                assert cycle_index == 0\n                return _GenerationResult(\n                    status=\"generated\",\n                    candidates=(candidate,),\n                    surrogate_rankings=(\n                        _Ranking(candidate_id=candidate.candidate_id, score=0.9, voi_estimate=4.0),\n                    ),\n                )\n    \n        def limited_candidate_grounding(\n            *,\n            candidate: Any,\n            problem: DesignProblem,\n            cycle_index: int,\n            generation_result: Any | None = None,\n        ) -> CandidateGroundingObservation:\n            del problem, cycle_index, generation_result\n            return CandidateGroundingObservation(\n                candidate_id=candidate.candidate_id,\n                status=\"grounding_unavailable\",\n                grounding_score=0.2,\n                issue_codes=(\"controlled_profile_grounding_unavailable\",),\n                grounding_source=\"grounding_unavailable\",\n            )\n    \n        producer = JointSimulationPort(\n            repo_root=tmp_path,\n            cycle_substrate_context=context,\n            artifact_store=store,\n        )\n    \n        class _LossySimulationPort:\n            def __init__(self) -> None:\n                self.original_authority_blockers: tuple[str, ...] = ()\n    \n            def __call__(\n                self,\n                *,\n                candidate: object,\n                problem: DesignProblem,\n                cycle_index: int,\n            ) -> SimulationPortObservation:\n                observation = producer(\n                    candidate=candidate,\n                    problem=problem,\n                    cycle_index=cycle_index,\n                )\n                self.original_authority_blockers = observation.authority_blockers\n                return observation.model_copy(\n                    update={\n                        \"authority_blockers\": tuple(\n                            blocker\n                            for blocker in observation.authority_blockers\n                            if blocker != \"simulation_only_k_sim_not_world_evidence\"\n                        )\n                    }\n                )\n    \n        lossy_port = _LossySimulationPort()\n        controller = GenerationCycleController(\n            generation_port=_ControlledN4(),\n            grounding_port=limited_candidate_grounding,\n            simulation_port=lossy_port,\n            repo_root=tmp_path,\n            cycle_substrate_context=context,\n            artifact_store=store,\n            authority_scope=\"contract_testing\",\n        )\n        assert controller._simulation_port is lossy_port\n        assert controller._value_port.artifact_store is store\n    \n        try:\n            with tenant_scope(None, tenant_id=\"tenant-n5-owner\", cell_id=\"cell-n5-owner\"):\n>               run = await controller.run(\n                    problem,\n                    budget_state=_budget(),\n                    min_cycles=1,\n                    max_cycles=1,\n                )\n\ntests/unit/runtime/quality/test_generation_cycle.py:4668: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nsrc/polisyos/runtime/quality/generation_cycle.py:6430: in run\n    cycle, cycle_summaries = await self._run_cycle(\nsrc/polisyos/runtime/quality/generation_cycle.py:7371: in _run_cycle\n    finished = await self._engine.run_async(state)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/scientist/orchestration/workflows/engine_simple.py:51: in run_async\n    next_state = fn(state)\n                 ^^^^^^^^^\nsrc/polisyos/runtime/quality/generation_cycle.py:9295: in _joint_value_node\n    value = value_port(\n_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/pytest_ksim_persisted_blocker_removal.py:245: in observed_n8_call\n    result = original_n8_call(self, *args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/runtime/quality/generation_cycle.py:5920: in __call__\n    conditional = _conditional_simulation_value_observation(\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\n    \"\"\"Generation-cycle controller for revising design candidates under A.\n    \n    The controller owns the N6 loop shape only. It runs the existing simple workflow\n    engine over N4 generation, A-side grounding, N5 simulation/value ports, S2\n    counterexample/refinement records, and VOI routing. It never promotes a\n    candidate and it never fabricates value; missing N8/N9 organs are explicit ports.\n    \n    Owner breadcrumbs: N4 lives in ``runtime.quality.design_generation``, CGF\n    grounding dispositions in the same N4 result, N5 in\n    ``runtime.quality.joint_simulation_horizon``, S2 records in\n    ``pdc._impl.layer2_design_search``, and VOI routing in\n    ``scientist.methods.search.voi_scheduler``. This module is the thin N6\n    controller over those owners, not a second grounding or search engine.\n    \"\"\"\n    \n    from __future__ import annotations\n    \n    import ast\n    import hashlib\n    import inspect\n    import itertools\n    import json\n    import math\n    import os\n    import re\n    import stat\n    import time\n    from collections.abc import Awaitable, Callable, Mapping, Sequence\n    from contextlib import suppress\n    from dataclasses import dataclass, replace\n    from datetime import UTC, datetime\n    from decimal import Decimal\n    from enum import Enum\n    from functools import cache\n    from numbers import Real\n    from pathlib import Path\n    from types import UnionType\n    from typing import TYPE_CHECKING, Any, Literal, Protocol, Union, get_args, get_origin\n    \n    from pydantic import (\n        BaseModel,\n        ConfigDict,\n        Field,\n        RootModel,\n        SerializerFunctionWrapHandler,\n        model_serializer,\n        model_validator,\n    )\n    \n    from polisyos.core import components as core_components\n    from polisyos.core import contracts as core_contracts\n    from polisyos.core.artifacts import (\n        ArtifactIntegrityError,\n        ArtifactOwnershipError,\n        ArtifactStore,\n        FileSystemCAS,\n        PutOptions,\n        SchemaInfo,\n    )\n    from polisyos.core.artifacts import (\n        ArtifactRef as CASArtifactRef,\n    )\n    from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store\n    from polisyos.core.artifacts.manifest import artifact_ref_identity_key\n    from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes\n    from polisyos.core.contracts import ConditionalSimulationInteractionEvidence\n    from polisyos.core.contracts.value_outer_set import (\n        DataTrust,\n        ValueOuterSet,\n        ValueOuterSetIdentificationStatus,\n    )\n    from polisyos.data_forge import read_api as data_forge_read_api\n    from polisyos.data_requirement.compiler import DataRequirementCompiler\n    from polisyos.foundry.methods.selection import MethodSelectionReceipt\n    from polisyos.pdc import (\n        ArtifactRef,\n        CounterexampleRecord,\n        RefinementDecision,\n        SearchIteration,\n        SearchTerminalKind,\n        SearchTerminalState,\n        TypedDiagnosticRecord,\n        ValueOfInformationEstimate,\n        gy_artifact_self_identity_projection,\n        gy_content_hash,\n        gy_recorded_content_hash,\n    )\n    from polisyos.runtime.http.errors import RuntimeDependencyError\n    from polisyos.runtime.quality._generation_cycle_history_schema import (\n        FROZEN_DESIGN_PROBLEM_OUTCOME_FIELD_EDGES,\n        FROZEN_DESIGN_PROBLEM_OUTCOME_OWNER_VARIANTS,\n        FROZEN_DESIGN_PROBLEM_SLOT_PATTERNS,\n        FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION,\n        FROZEN_DESIGN_PROBLEM_V3_SCHEMA_VERSION,\n        FROZEN_N6_HISTORY_SCHEMA,\n    )\n    from polisyos.runtime.quality.acquisition_planner import (\n        AcquisitionCostBasisRecord,\n        AcquisitionPlannerReport,\n        AcquisitionReceipt,\n        AcquisitionRequirementGap,\n        AcquisitionWorldSnapshot,\n        RealAcquisitionOwnerGateway,\n        acquisition_receipt_has_verified_emission,\n        grounding_coverage_requirement_gap,\n        l1_variable_availability_requirement_gap,\n        plan_requirement_gap_acquisition,\n        produce_acquisition_cost_basis_record,\n        run_acquisition_closed_loop,\n        value_input_world_knowledge_requirement_gap,\n    )\n    from polisyos.runtime.quality.confidence_ledger import (\n        N6DeploymentCurrentnessObservation,\n        observe_n6_deployment_currentness,\n    )\n    from polisyos.runtime.quality.design_problem import (\n        DesignProblem,\n        _QualifiedOutcomeOfInterestV3,\n    )\n    from polisyos.runtime.quality.evaluation_modes import (\n        EvaluationMode as ValueEvaluationMode,\n    )\n    from polisyos.runtime.quality.evaluation_modes import (\n        EvaluationModeResolution,\n        ExecutionIntentBand,\n>       execution_intent_band_for_mode,\n        resolve_evaluation_mode,\n    )\nE   pydantic_core._pydantic_core.ValidationError: 1 validation error for ValuePortObservation\nE     Value error, value_conditional_requires_simulation_limitation [type=value_error, input_value={'status': 'value_conditi...ms': 3.5367500386200845}, input_type=dict]\nE       For further information visit https://errors.pydantic.dev/2.12/v/value_error\n\nsrc/polisyos/runtime/quality/generation_cycle.py:126: ValidationError",
+      "nodeid": "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection",
+      "outcome": "failed",
+      "when": "call"
+    },
+    {
+      "longrepr": null,
+      "nodeid": "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection",
+      "outcome": "passed",
+      "when": "teardown"
+    }
+  ],
+  "run_exit_code": 1,
+  "runtime_observations": {
+    "default_n8_calls": [],
+    "n5_producer_calls": [
+      {
+        "producer_authority_blockers": [
+          "simulation_only_k_sim_not_world_evidence"
+        ],
+        "producer_class": "JointSimulationPort",
+        "producer_k_sim_marker_present": true,
+        "simulation_result_ref": {
+          "artifact_id": "sha256:c20dd9d866d5afbabb99aa635607e8b41da45085cb5cbc852574c616bedce983",
+          "kind": "polisyos.runtime.joint_simulation_result",
+          "media_type": "application/json"
+        },
+        "simulation_result_ref_key": "{\"artifact_id\":\"sha256:c20dd9d866d5afbabb99aa635607e8b41da45085cb5cbc852574c616bedce983\",\"kind\":\"polisyos.runtime.joint_simulation_result\",\"media_type\":\"application/json\"}",
+        "status": "joint_simulated"
+      }
+    ],
+    "n8_cas_reads": [
+      {
+        "caller": "_conditional_simulation_value_observation",
+        "persisted_k_sim_marker_present": true,
+        "persisted_packet_blockers": [
+          "simulation_only_k_sim_not_world_evidence"
+        ],
+        "simulation_result_ref": {
+          "artifact_id": "sha256:c20dd9d866d5afbabb99aa635607e8b41da45085cb5cbc852574c616bedce983",
+          "kind": "polisyos.runtime.joint_simulation_result",
+          "media_type": "application/json"
+        },
+        "simulation_result_ref_key": "{\"artifact_id\":\"sha256:c20dd9d866d5afbabb99aa635607e8b41da45085cb5cbc852574c616bedce983\",\"kind\":\"polisyos.runtime.joint_simulation_result\",\"media_type\":\"application/json\"}"
+      }
+    ],
+    "test_cas_readbacks": []
+  },
+  "schema": "e02-r1-ksim-persisted-blocker-removal-v1",
+  "scope": {
+    "authority_claim": "This test remains a candidate-grade simulation limitation test; it does not establish N9 signature/currentness or production authority.",
+    "mutation_is_in_memory_only": true,
+    "semantic_claim": "N8's persisted K_sim blocker propagation is required by the unchanged assertion in this real N5->CAS->default-N8 fixture.",
+    "tests_executed_other_than_exact_target": false,
+    "tracked_runtime_or_test_file_modified": false
+  },
+  "source_identity": {
+    "candidate_sha_before_and_after": {
+      "after": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+      "before": "3ba1deaa55c54971c3200269dc1c81680e3d7167"
+    },
+    "candidate_tree_before_and_after": {
+      "after": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+      "before": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033"
+    },
+    "derived_value_blocker_assertion_line": 4718,
+    "plugin_file": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/pytest_ksim_persisted_blocker_removal.py",
+    "plugin_sha256": "5158c91a169dae58e54a41ad6730f6b591d4d6b2f285ae2a845c86027c2bd869",
+    "runtime_file": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "runtime_sha256_before_and_after": {
+      "after": "a1b87490e228fc9364ef77955bb0d911eaa4571e093ee7183108d91b37681f6b",
+      "before": "a1b87490e228fc9364ef77955bb0d911eaa4571e093ee7183108d91b37681f6b"
+    },
+    "target_test_file": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+    "target_test_function_ast_sha256": "e67818e51a55d5a6771121960f0011a15c3fb989509a9781f8acbea042a6be19",
+    "target_test_sha256_before_and_after": {
+      "after": "d3dcd61ca85d388f346d3a6fbecfac15163c7ad0cdfe92db86c3c7ae66820b04",
+      "before": "d3dcd61ca85d388f346d3a6fbecfac15163c7ad0cdfe92db86c3c7ae66820b04"
+    }
+  },
+  "target": "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection"
+}

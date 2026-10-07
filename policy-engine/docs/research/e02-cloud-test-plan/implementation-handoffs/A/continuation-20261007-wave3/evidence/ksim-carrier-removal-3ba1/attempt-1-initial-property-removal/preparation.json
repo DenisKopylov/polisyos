@@ -1,0 +1,77 @@
+{
+  "candidate_at_preparation": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+  "candidate_guard_checks_before_and_after": true,
+  "candidate_guard_in_plugin": true,
+  "candidate_tree_at_preparation": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+  "expected_run_contract": {
+    "exact_pytest_target_only": "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection",
+    "expected_observation_counts": {
+      "content_bound_n8_cas_reads": 1,
+      "default_n8_calls": 1,
+      "n5_producer_calls": 1,
+      "other_test_targets": 0,
+      "target_test_cas_readbacks": 1
+    },
+    "expected_result": "Expected property-removal red at unchanged K_sim assertion; no unrelated tests selected.",
+    "expected_unchanged_assertion_line_derived_from_ast": 4718,
+    "no_run_performed_by_preparer": true
+  },
+  "immutable_source_ref": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+  "mutation_design": {
+    "expected_assertion_line_is_hardcoded": false,
+    "expected_behavior": "The plugin derives the exact value.authority_blockers assertion line (4718 for this frozen source) from the target function AST; that assertion fails after N8 returns without the blocker while the CAS marker remains.",
+    "property": "N8 must union the K_sim limitation recovered from the content-bound persisted N5 result into its conditional ValuePortObservation.",
+    "retained": [
+      "real JointSimulationPort producer",
+      "CAS-persisted N5 result and content-bound N8 read",
+      "persisted K_sim marker",
+      "other blocker and bindings",
+      "default N8 consumer",
+      "unchanged assertions/test source"
+    ],
+    "single_mutation": "Replace blockers.update(persisted_blockers) with blockers.update(persisted_blockers - {\"simulation_only_k_sim_not_world_evidence\"}) in memory.",
+    "test_target_guard": "Plugin aborts collection unless the selected node set is exactly the one target above."
+  },
+  "n8_function_source_equivalence": {
+    "all_compared_match": true,
+    "compared_commits": [
+      "4c4e37d0d0bde0cc8e825af011539c3cb5fc84f5",
+      "d273659a117d20c70f2598309fec558c8e753b77",
+      "1a520b209ce4bac86204137d15e765de05c08a73",
+      "3ba1deaa55c54971c3200269dc1c81680e3d7167"
+    ],
+    "function": "_conditional_simulation_value_observation",
+    "function_source_sha256": "45a00dcb9ca34fdaebf5de0a00c128149bad82864c820e6d0ce281601d86d1fb"
+  },
+  "only_write_locations": [
+    "_build/e02-A-continuation-20261007/ksim-persisted-blocker-removal"
+  ],
+  "plugin": "_build/e02-A-continuation-20261007/ksim-persisted-blocker-removal/pytest_ksim_persisted_blocker_removal.py",
+  "plugin_sha256": "5158c91a169dae58e54a41ad6730f6b591d4d6b2f285ae2a845c86027c2bd869",
+  "prior_positive_control": {
+    "candidate_sha": "4c4e37d0d0bde0cc8e825af011539c3cb5fc84f5",
+    "candidate_tree": "9e33704fce12fed2e54bd81bb73354a0aa4eb433",
+    "caveat": "The exact positive target passed in the 326-test receipt; the containing suite exited 1 for other failures, so this is a scoped testcase receipt, not a clean-wave claim.",
+    "junit_sha256": "7dbd24a31212ca6c702baf0b283f844e5f9b6f3266d494cd57ce0ce926a8f9f5",
+    "receipt": "_build/e02-A-continuation-20261007/persisted-reader-wave-4c4e/receipt.json",
+    "suite_exit_code": 1,
+    "suite_testcase_count": 326,
+    "target_errored": false,
+    "target_failed": false,
+    "testcase_name": "test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection",
+    "testcase_time_seconds": "0.958"
+  },
+  "runtime_source_sha256": "a1b87490e228fc9364ef77955bb0d911eaa4571e093ee7183108d91b37681f6b",
+  "status": "PREPARED_NOT_RUN",
+  "target": "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection",
+  "target_function_equivalence": {
+    "assertion_expression": "\"simulation_only_k_sim_not_world_evidence\" in value.authority_blockers",
+    "assertion_line_derived_from_ast": 4718,
+    "ast_sha256": "e67818e51a55d5a6771121960f0011a15c3fb989509a9781f8acbea042a6be19",
+    "function": "test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection",
+    "matches_prior_positive_control_ast": true,
+    "source_sha256": "8cf4f4666debb14d7496982c0223e02d1eb22bf74bb1e2378e270f4fcfee1046",
+    "test_file_added_fallback_prefix_lines": 239
+  },
+  "test_source_sha256": "d3dcd61ca85d388f346d3a6fbecfac15163c7ad0cdfe92db86c3c7ae66820b04"
+}

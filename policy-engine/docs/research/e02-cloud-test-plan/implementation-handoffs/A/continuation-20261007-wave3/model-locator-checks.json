@@ -1,0 +1,359 @@
+{
+  "schema": "policyos.e02.A.model_locator_checks.v1",
+  "unit": "A",
+  "slice": "model-revision-locator-control",
+  "finding_id": "B09",
+  "bundle_id": "CYC-03",
+  "slice_base": {
+    "sha": "cfeaecf1ab4390abd91f5ee82e9e289811f7ff41",
+    "tree_sha": "044ac2581a609badbf9ae3d3278e0c9111297d09"
+  },
+  "final_test_candidate": {
+    "sha": "ec5d9b0308b94d439d16eb900990cdc880f12547",
+    "tree_sha": "f049cdfd8859e2fdfecfcfad11e0e9cd6417d343"
+  },
+  "focus_lease": {
+    "only_test_path": "policy-engine/tests/integration/runtime_quality/test_e02_candidate_model_revision.py",
+    "selector": "tests/integration/runtime_quality/test_e02_candidate_model_revision.py::test_same_candidate_model_revision_reenters_only_for_changed_semantics",
+    "scope": "This locator-control test only. The full base-to-candidate footprint is recorded separately; no other path is credited to this focused selector."
+  },
+  "criterion": {
+    "finding_id": "B09",
+    "bundle_id": "CYC-03",
+    "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+    "source_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+    "lines": [
+      301,
+      312
+    ],
+    "criterion_block_sha256": "62b0ba80257fe40aee4e48fda73caf00a617fa55d29c54693185e6996b0ce64c",
+    "criterion_title": "B09. Полезное продолжение не обязано расширять грамматику",
+    "criterion": "The same candidate may be reevaluated after substantive new data, linked model, applicable method, corrected constraint, or expressly authorized robustness basis; a new timestamp/UUID alone is insufficient. Both the transition and subsequent validator must be updated, and source/revised task identity retained."
+  },
+  "checks": [
+    {
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/owner-admitted-locator-only-model-revision/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/owner-admitted-locator-only-model-revision/pytest-basetemp",
+          "tests/integration/runtime_quality/test_e02_candidate_model_revision.py::test_same_candidate_model_revision_reenters_only_for_changed_semantics"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "target_sha": "ce57f1fd4a51227e90f168976b62ca5159740a8e",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/owner-admitted-locator-only-model-revision:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {},
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        },
+        "wall_seconds": 21.15483250003308
+      },
+      "input_closure": {
+        "finding": {
+          "finding_id": "B09",
+          "bundle_id": "CYC-03",
+          "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+          "lines": [
+            301,
+            312
+          ],
+          "criterion_block_sha256": "62b0ba80257fe40aee4e48fda73caf00a617fa55d29c54693185e6996b0ce64c",
+          "criterion_title": "B09. Полезное продолжение не обязано расширять грамматику",
+          "criterion": "The same candidate may be reevaluated after substantive new data, linked model, applicable method, corrected constraint, or expressly authorized robustness basis; a new timestamp/UUID alone is insufficient. Both the transition and subsequent validator must be updated, and source/revised task identity retained."
+        },
+        "test_selector": "tests/integration/runtime_quality/test_e02_candidate_model_revision.py::test_same_candidate_model_revision_reenters_only_for_changed_semantics",
+        "test_source": {
+          "path": "policy-engine/tests/integration/runtime_quality/test_e02_candidate_model_revision.py",
+          "git_blob": "970ee0ae04ec0056d7931ac1975affbe4716dca5",
+          "bytes": 47021,
+          "sha256": "28f1e58d2b334d42304dc0f6a48097cc2a8db7dad58bb5353db4f60b8595ffaa",
+          "candidate_sha": "ce57f1fd4a51227e90f168976b62ca5159740a8e"
+        },
+        "runtime_source_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob": "c970465dd426bc29495ea6dbbff9d1f1cbcd8cb8",
+            "bytes": 644405,
+            "sha256": "899159c295220e43b464ce34ef2de4549b2c78804e8ffbb4a77a58eb3acef691"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_source.py",
+            "git_blob": "1b82d0c1a7935649b6315ea34bdab2f8a618fb83",
+            "bytes": 167385,
+            "sha256": "903a18803b93f1bdb6ea249ea9668167de1df5d022817214d1d5621b47339960"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/candidate_simulation.py",
+            "git_blob": "9435d465d5035e658e66d6cbd0aa78452a2ecac6",
+            "bytes": 46974,
+            "sha256": "993866948d5cd9aac4fe89edf51d2365e647ae6d17df4316ccddd0cef31e8c24"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/cycle_substrate.py",
+            "git_blob": "932fd33fef285dbb87c7a9a670a78d741829df09",
+            "bytes": 126314,
+            "sha256": "d16440eff59fb66d98a9eabeb9437e120085fe46bbc015538c399d650ce19e74"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/ncm.py",
+            "git_blob": "f31f6be40822073ae45aa110736c5985a3a6c108",
+            "bytes": 18056,
+            "sha256": "f2d30baf854fc5fa6aa940a6c13128f01b359cac97c870cecbfc0ca3d4cdae09"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+            "git_blob": "77f0743bebfdf72f635a0f0477884c279b865da6",
+            "bytes": 144450,
+            "sha256": "c6c4ad3445184622fc02c787b3e3852e8b511e4a2fdd323bd8f869bc16a71a07"
+          }
+        ],
+        "origin_capture": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/model-revision-locator-control/owner-admitted-locator-only-model-revision/origins.json",
+          "bytes": 1095,
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+          "scope_note": "The e02_origin snapshot is bounded; runtime source pins above are not a complete transitive import closure."
+        },
+        "fixture_scope": "Bounded synthetic candidate-only model revision through a served control job, configured typed context/profile owner, current-job context CAS, N4 source V3/V5 artifacts, N5, and serialized receipt reconciliation. Recorded initial N4 responses and fixture catalog are not production factual inputs."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "result": "The first expected candidate_model_revision_basis_unchanged, but the existing runtime returned candidate_model_revision_candidate_changed for a profile-ID-only candidate identity change. This is a test expectation mismatch at the earlier candidate-identity gate; it does not show a production source failure.",
+        "exit_code": 1,
+        "files": {
+          "stdout.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/model-revision-locator-control/owner-admitted-locator-only-model-revision/stdout.txt",
+            "bytes": 129302,
+            "sha256": "d5e058e7c532b25124b35ff9269141b35d72a65294754e62dd021fe12931c1d0"
+          },
+          "stderr.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/model-revision-locator-control/owner-admitted-locator-only-model-revision/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit.xml": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/model-revision-locator-control/owner-admitted-locator-only-model-revision/junit.xml",
+            "bytes": 50865,
+            "sha256": "b0c5f4b93c74fb0a523359b549a93768a9005c2fd943a006f33fa4e30031f5de"
+          },
+          "e02_origin.py": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/model-revision-locator-control/owner-admitted-locator-only-model-revision/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          },
+          "origins.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/model-revision-locator-control/owner-admitted-locator-only-model-revision/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          }
+        },
+        "full_output_note": "Copied deciding output files are byte-identical to the local run outputs; stdout is complete, including the full traceback on FAIL.",
+        "failure_classification": "Expected basis unchanged; runtime candidate changed; corrected final test records the actual candidate identity boundary without weakening it."
+      }
+    },
+    {
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/locator-only-typed-candidate-refusal/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/locator-only-typed-candidate-refusal/pytest-basetemp",
+          "tests/integration/runtime_quality/test_e02_candidate_model_revision.py::test_same_candidate_model_revision_reenters_only_for_changed_semantics"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "target_sha": "ec5d9b0308b94d439d16eb900990cdc880f12547",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/locator-only-typed-candidate-refusal:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {},
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        },
+        "wall_seconds": 26.695643374987412
+      },
+      "input_closure": {
+        "finding": {
+          "finding_id": "B09",
+          "bundle_id": "CYC-03",
+          "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+          "lines": [
+            301,
+            312
+          ],
+          "criterion_block_sha256": "62b0ba80257fe40aee4e48fda73caf00a617fa55d29c54693185e6996b0ce64c",
+          "criterion_title": "B09. Полезное продолжение не обязано расширять грамматику",
+          "criterion": "The same candidate may be reevaluated after substantive new data, linked model, applicable method, corrected constraint, or expressly authorized robustness basis; a new timestamp/UUID alone is insufficient. Both the transition and subsequent validator must be updated, and source/revised task identity retained."
+        },
+        "test_selector": "tests/integration/runtime_quality/test_e02_candidate_model_revision.py::test_same_candidate_model_revision_reenters_only_for_changed_semantics",
+        "test_source": {
+          "path": "policy-engine/tests/integration/runtime_quality/test_e02_candidate_model_revision.py",
+          "git_blob": "400ee85891d1b28e2679992cd07fee30ec7393d5",
+          "bytes": 48839,
+          "sha256": "ce95e24af6b1d0d22d8442666324a6116b07d0944bcaeb49012ef54384c46255",
+          "candidate_sha": "ec5d9b0308b94d439d16eb900990cdc880f12547"
+        },
+        "runtime_source_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob": "c970465dd426bc29495ea6dbbff9d1f1cbcd8cb8",
+            "bytes": 644405,
+            "sha256": "899159c295220e43b464ce34ef2de4549b2c78804e8ffbb4a77a58eb3acef691"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_source.py",
+            "git_blob": "1b82d0c1a7935649b6315ea34bdab2f8a618fb83",
+            "bytes": 167385,
+            "sha256": "903a18803b93f1bdb6ea249ea9668167de1df5d022817214d1d5621b47339960"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/candidate_simulation.py",
+            "git_blob": "9435d465d5035e658e66d6cbd0aa78452a2ecac6",
+            "bytes": 46974,
+            "sha256": "993866948d5cd9aac4fe89edf51d2365e647ae6d17df4316ccddd0cef31e8c24"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/cycle_substrate.py",
+            "git_blob": "932fd33fef285dbb87c7a9a670a78d741829df09",
+            "bytes": 126314,
+            "sha256": "d16440eff59fb66d98a9eabeb9437e120085fe46bbc015538c399d650ce19e74"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/ncm.py",
+            "git_blob": "f31f6be40822073ae45aa110736c5985a3a6c108",
+            "bytes": 18056,
+            "sha256": "f2d30baf854fc5fa6aa940a6c13128f01b359cac97c870cecbfc0ca3d4cdae09"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+            "git_blob": "77f0743bebfdf72f635a0f0477884c279b865da6",
+            "bytes": 144450,
+            "sha256": "c6c4ad3445184622fc02c787b3e3852e8b511e4a2fdd323bd8f869bc16a71a07"
+          }
+        ],
+        "origin_capture": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/model-revision-locator-control/locator-only-typed-candidate-refusal/origins.json",
+          "bytes": 1095,
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+          "scope_note": "The e02_origin snapshot is bounded; runtime source pins above are not a complete transitive import closure."
+        },
+        "fixture_scope": "Bounded synthetic candidate-only model revision through a served control job, configured typed context/profile owner, current-job context CAS, N4 source V3/V5 artifacts, N5, and serialized receipt reconciliation. Recorded initial N4 responses and fixture catalog are not production factual inputs."
+      },
+      "outcome": "PASS",
+      "output": {
+        "result": "One bounded integration test passed. Changed declared coefficient 0.5→1.0 reentered N5 for the same stable candidate and retained source occurrence; exact unchanged declaration stopped before N5; profile-ID-only owner-admitted variant stopped as candidate_model_revision_candidate_changed before N5. The test reconciled typed stored artifacts from a fresh CAS handle and compared actual N5 trajectory effects/outcomes.",
+        "exit_code": 0,
+        "files": {
+          "stdout.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/model-revision-locator-control/locator-only-typed-candidate-refusal/stdout.txt",
+            "bytes": 3154,
+            "sha256": "4206d92b7489e5359b2ed752763bafcde05ccee03daa0a42ad08274e2e489075"
+          },
+          "stderr.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/model-revision-locator-control/locator-only-typed-candidate-refusal/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit.xml": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/model-revision-locator-control/locator-only-typed-candidate-refusal/junit.xml",
+            "bytes": 444,
+            "sha256": "49972cf58d6b801056f913e55cb12d1b8d082679cec556d46dc44d5dc6094723"
+          },
+          "e02_origin.py": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/model-revision-locator-control/locator-only-typed-candidate-refusal/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          },
+          "origins.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/model-revision-locator-control/locator-only-typed-candidate-refusal/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          }
+        },
+        "full_output_note": "Copied deciding output files are byte-identical to the local run outputs; stdout is complete, including the full traceback on FAIL."
+      }
+    }
+  ],
+  "independent_source_review": {
+    "outcome": "UNRUN",
+    "scope": "No independent source-only review receipt was produced for this locator-control candidate.",
+    "candidate_sha": "ec5d9b0308b94d439d16eb900990cdc880f12547"
+  },
+  "interpretation": {
+    "bounded_positive": "The same stable candidate and same N5 intervention were evaluated using actual admitted NCM declarations with coefficient 0.5 then 1.0. The resulting N5 effect and outcome differed; source/execution/NCM/N5 CAS readback and receipt reconciliation were asserted.",
+    "negative_controls": [
+      "Reissuing the identical owner-accepted declaration/refusal basis was rejected with candidate_model_revision_basis_unchanged before a second N5 call.",
+      "A fresh, owner-admitted profile/configuration occurrence with the same model-semantic declaration projection but changed profile identity was refused with candidate_model_revision_candidate_changed before N5. It did not reach the basis-unchanged gate."
+    ],
+    "proxy_divergence": "A new profile UUID/reference is not scientific model progress: the model projection stayed equal, while runtime candidate identity includes profile_id and therefore rejected this specific variant earlier. That behavior does not establish general UUID-only, transaction-time-only, or order-only semantics.",
+    "B09_boundary": "B09 remains OPEN. This bounded synthetic model-only N5 path does not ratify an ObservationToWMRRule, substantive data-row basis, applicable-method or corrected-constraint basis, robustness authorization, ordinary N6 transition wiring, or the subsequent validator behavior required by the original criterion. The recorded initial N4 responses and fixture catalog are not factual production inputs."
+  },
+  "evidence_copy_method": "Raw stdout.txt, stderr.txt, junit.xml, e02_origin.py, and origins.json were copied from each exact local run directory into the adjacent evidence directory and byte/hash checked. No summary replaces the deciding stdout or JUnit output."
+}

@@ -1,0 +1,179 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "informative-voi-artifact-readback",
+  "closure_ids": [],
+  "bundle_ids": [
+    "CYC-04"
+  ],
+  "slice_base_sha": "2aaf0651ac59d50395f077a6ca1c5033a1bf0d90",
+  "implementation_commits": [
+    "4bea6beadcd86c34446ba0f8fd85aa65831bb1b6",
+    "85bf5baac393757174ff9701d8d895803254e860",
+    "12ea9e5be60d45d53cd3e49493de3e76f766c2e4",
+    "6bb56e26dda7d7bb76b7a756e972b0a9bcc04e75",
+    "267f024a994e25aa9a496851bc2a8f4ce5a9b953",
+    "ca038ac238af074b938ea532f0182664fe611b41",
+    "cfeaecf1ab4390abd91f5ee82e9e289811f7ff41"
+  ],
+  "candidate_tree_sha": "044ac2581a609badbf9ae3d3278e0c9111297d09",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_voi_artifact_projection.py",
+    "policy-engine/tests/unit/remediation/test_emp_01.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/sparse-and-voi-owned-readback-final/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/sparse-and-voi-owned-readback-final/pytest-basetemp",
+        "tests/unit/remediation/test_emp_01.py::test_default_cycle_value_refusal_survives_persisted_run_readback",
+        "tests/integration/core_runtime/test_e02_voi_artifact_projection.py::test_informative_voi_candidate_core_readback_and_preview_refusal"
+      ],
+      "target_sha": "cfeaecf1ab4390abd91f5ee82e9e289811f7ff41",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/sparse-and-voi-owned-readback-final:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "input_closure": {
+        "slice_base": {
+          "sha": "2aaf0651ac59d50395f077a6ca1c5033a1bf0d90",
+          "tree": "5ab91bbec1308c16ccf90f8d02bbce38c9d3008a"
+        },
+        "candidate": {
+          "sha": "cfeaecf1ab4390abd91f5ee82e9e289811f7ff41",
+          "tree": "044ac2581a609badbf9ae3d3278e0c9111297d09"
+        },
+        "focus_commits": [
+          "4bea6beadcd86c34446ba0f8fd85aa65831bb1b6",
+          "12ea9e5be60d45d53cd3e49493de3e76f766c2e4",
+          "6bb56e26dda7d7bb76b7a756e972b0a9bcc04e75",
+          "267f024a994e25aa9a496851bc2a8f4ce5a9b953",
+          "cfeaecf1ab4390abd91f5ee82e9e289811f7ff41"
+        ],
+        "focus_test": {
+          "path": "policy-engine/tests/integration/core_runtime/test_e02_voi_artifact_projection.py",
+          "base_state": "absent at slice base",
+          "candidate_git_blob": "4527f53ad773104bf79e5f52d0e50023e8edda69",
+          "nodeid": "tests/integration/core_runtime/test_e02_voi_artifact_projection.py::test_informative_voi_candidate_core_readback_and_preview_refusal"
+        },
+        "supporting_runtime_blobs": {
+          "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": "c970465dd426bc29495ea6dbbff9d1f1cbcd8cb8",
+          "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py": "ea382413f735bd9f9af3dbd000bff08242626b8d",
+          "policy-engine/src/polisyos/runtime/http/routes/artifacts.py": "f20a3db2df9cdb3f74c1ad7bf6728d8d1bcb9ca3"
+        },
+        "test_command_scope": "The command names EMP-01 and the B11 projection node; pytest expands EMP-01 into three cases. The B11 node is separable in the complete JUnit output.",
+        "worktree_observation": "The deciding receipt records identical before/after status lists of 22 untracked handoff paths and no tracked dirty path. The exact focus test and runtime inputs are pinned by candidate tree/blob.",
+        "candidate_blobs_for_full_changed_path_set": {
+          "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": "c970465dd426bc29495ea6dbbff9d1f1cbcd8cb8",
+          "policy-engine/tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py": "a23d4b137da02b8b4fc909904e21abbb31140b98",
+          "policy-engine/tests/integration/core_runtime/test_e02_voi_artifact_projection.py": "4527f53ad773104bf79e5f52d0e50023e8edda69",
+          "policy-engine/tests/unit/remediation/test_emp_01.py": "935a57fff2da14e6811a51395a35ab1ff251cde1"
+        }
+      },
+      "outcome": "FAIL",
+      "output": {
+        "aggregate": "pytest exit 1; JUnit reports 3 failed, 1 passed in 27.45s. The three failures are EMP-01 parameter cases [1], [2], [3].",
+        "B11_node": "PASS: the exact artifact-projection testcase has no failure element in JUnit.",
+        "full_outputs": {
+          "receipt": "continuation-20261007-wave3/evidence/informative-voi-artifact-readback-cfeaecf1/deciding-cfeaecf1/receipt.json",
+          "stdout": "continuation-20261007-wave3/evidence/informative-voi-artifact-readback-cfeaecf1/deciding-cfeaecf1/stdout.txt",
+          "stderr": "continuation-20261007-wave3/evidence/informative-voi-artifact-readback-cfeaecf1/deciding-cfeaecf1/stderr.txt",
+          "junit": "continuation-20261007-wave3/evidence/informative-voi-artifact-readback-cfeaecf1/deciding-cfeaecf1/junit.xml",
+          "import_origin": "continuation-20261007-wave3/evidence/informative-voi-artifact-readback-cfeaecf1/deciding-cfeaecf1/e02_origin.py",
+          "module_origins": "continuation-20261007-wave3/evidence/informative-voi-artifact-readback-cfeaecf1/deciding-cfeaecf1/origins.json"
+        },
+        "output_integrity": "The copied files were byte-checked against the runner receipt output sizes and SHA-256 values; each original receipt is retained beside those files."
+      }
+    }
+  ],
+  "property": {
+    "candidate": {
+      "sha": "cfeaecf1ab4390abd91f5ee82e9e289811f7ff41",
+      "tree": "044ac2581a609badbf9ae3d3278e0c9111297d09"
+    },
+    "statement": "The bounded B11 test runs the real default SimpleVOIScheduler/GenerationCycleController with an informative low-proxy candidate, persists the resulting compiled recursive run through a Core-owned control-job callback, freshly resolves the Core manifest and CAS bytes, and observes the generic artifact-content endpoint refuse preview when the artifact has no admitted surface signal.",
+    "source_criteria": {
+      "finding": "B11",
+      "bundle": "CYC-04",
+      "original_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a#L325-L336",
+      "criterion_summary": "A permitted informative check runs within its bounded budget even without a large value-proxy; actual exhaustion stops work; the heuristic score must not be published as measured monetary VOI or probability of usefulness; do not generalize the defect to every planner.",
+      "current_A_decision": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md@68fcdf9337eb4b0f268d5c2c786e2900edf28a2b#L74-L79"
+    },
+    "runtime_path": [
+      "Real default GenerationCycleController with exact SimpleVOIScheduler and JointSimulationPort; one-node RecursiveGenerationCycleController.for_contract_testing wrapper; actual N5 call and default N8 value result.",
+      "Candidate summary carries the actual selected candidate ID/content hash, proxy_score=0.0, voi_estimate=0.4, certified_by_n9=false. The 0.4 value is fixture-supplied and uncalibrated.",
+      "The test manually dispatches an accepted Core control-job callback and uses the canonical compiled-recursive artifact writer; this is not an ordinary NL-worker producer route.",
+      "Fresh runtime context resolves the completed Core job from its attempt manifest, verifies the same ArtifactRef and CAS bytes, decodes the compiled run, and rechecks candidate ID/hash/proxy/estimate/N9 state.",
+      "HTTP GET /api/v1/artifacts/{id}/content returns 409 authority_surface_admission_blocked with authority_surface_signal_missing; a foreign tenant receives 403 artifact_tenant_mismatch."
+    ],
+    "proxy_divergence": "Reading the mutable job progress summary or trusting a candidate ID/ref marker could agree while stored bytes differ. The test resolves the Core attempt manifest and reads fresh CAS bytes before comparing the candidate summary. The 409 is a typed refusal; it is not a positive semantic projection of the heuristic.",
+    "negative_controls": [
+      "Current generic preview is rejected with the exact typed signal-missing decision (409).",
+      "The same artifact requested under a foreign tenant is rejected with artifact_tenant_mismatch (403).",
+      "The persisted candidate is explicitly not certified by N9; the test does not infer N9 or publication authority."
+    ],
+    "evidence_packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/voi-projection-checks.json",
+    "focus_scope": {
+      "B11_test_commits": [
+        "4bea6beadcd86c34446ba0f8fd85aa65831bb1b6",
+        "12ea9e5be60d45d53cd3e49493de3e76f766c2e4",
+        "6bb56e26dda7d7bb76b7a756e972b0a9bcc04e75",
+        "267f024a994e25aa9a496851bc2a8f4ce5a9b953",
+        "cfeaecf1ab4390abd91f5ee82e9e289811f7ff41"
+      ],
+      "full_base_to_candidate_paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py (A root-owned source change in the candidate range)",
+        "policy-engine/tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py (separate candidate-range test change)",
+        "policy-engine/tests/integration/core_runtime/test_e02_voi_artifact_projection.py (this slice; introduced at 4bea)",
+        "policy-engine/tests/unit/remediation/test_emp_01.py (separate candidate-range test change and the three failing nodes in the aggregate check)"
+      ],
+      "other_intervening_commits": {
+        "85bf5baac393757174ff9701d8d895803254e860": "A-owned generation_cycle.py context-revision change, outside the B11 projection test lease.",
+        "ca038ac238af074b938ea532f0182664fe611b41": "EMP-01 test change, outside the B11 projection test lease."
+      }
+    },
+    "predicate_basis_by_claim": {
+      "stored_candidate_values_and_CAS_identity": "recomputed for this fixture via Core manifest resolution, CAS verify/get_bytes, and typed decode",
+      "surface_refusal_and_tenant_isolation": "recomputed for the tested generic content route and fixture identities",
+      "ordinary_served_B11_producer_bridge": "not_established; callback manually persists the B11 run",
+      "positive candidate-inspection projection and heuristic caveat": "not_established; this endpoint refuses content instead of showing a positive inspection view",
+      "signal meaning and monetary/probability calibration": "not_established; 0.4 is a test fixture value"
+    },
+    "pattern_pass": {
+      "P01_P02": "Core persistence and fresh readback are exercised, but the ordinary producer-to-Core route is not established by the manual callback.",
+      "P05_P10": "The tested generic artifact surface fails closed with a typed refusal; no positive semantic surface is demonstrated.",
+      "P29_P38": "The actual stored content is read; the original non-monetary/non-probabilistic public-label criterion remains untested because the available route refuses before rendering."
+    }
+  },
+  "predicate_basis": "not_established",
+  "capability_state_or_finding_state": "B11 limited; closure_ids remain empty. Bounded Core/CAS readback and negative surface refusal are verified, while positive candidate-inspection semantics remain verification_missing.",
+  "limitations_and_next_owner": [
+    "Root owns formal B11 finding adjudication. The original source row remains historical partial/not adjudicated; this packet does not close it.",
+    "This is a negative preview result, not a positive public projection. The generic artifact content route returns 409 authority_surface_signal_missing; it does not expose a candidate-inspection view whose wording could be checked for monetary/probability overclaim.",
+    "The B11 generator is invoked directly through the real default controller inside a one-node contract-testing recursive wrapper, then persisted by a manually invoked Core lease callback. An ordinary NL worker producer-to-Core bridge is not established.",
+    "The tested positive path has fixture budget 1.0, proxy 0.0, and uncalibrated voi_estimate 0.4. This artifact test does not repeat the budget-exhaustion negative from the separate bounded scheduler witness and does not establish actual provider spend, an owner debit, billing, or settlement.",
+    "No N9/currentness or publication-positive requirement is asserted here; candidate inspection is distinct from publication authority.",
+    "The combined deciding command exited 1 because three EMP-01 parameter cases failed; its B11 projection node passed. Do not report the combined command as green or attribute those EMP-01 failures to the B11 node.",
+    "The next B11 projection step needs the actual candidate-inspection surface/owner, then a same-artifact positive readback that checks displayed values and caveat semantics. Do not mint a ranking_basis field or infer authority from DTO presence."
+  ]
+}

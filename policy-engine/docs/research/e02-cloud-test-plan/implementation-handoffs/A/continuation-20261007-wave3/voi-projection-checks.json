@@ -1,0 +1,175 @@
+{
+  "schema": "policyos.e02.slice_checks_packet.v1",
+  "purpose": "B11-only artifact persistence/readback and negative-preview addendum for the limited informational-priority finding.",
+  "source_candidate": {
+    "sha": "cfeaecf1ab4390abd91f5ee82e9e289811f7ff41",
+    "tree": "044ac2581a609badbf9ae3d3278e0c9111297d09",
+    "slice_base_sha": "2aaf0651ac59d50395f077a6ca1c5033a1bf0d90",
+    "slice_base_tree": "5ab91bbec1308c16ccf90f8d02bbce38c9d3008a",
+    "branch": "codex/e02-A-delivery-attached",
+    "full_commit_range": [
+      "4bea6beadcd86c34446ba0f8fd85aa65831bb1b6",
+      "85bf5baac393757174ff9701d8d895803254e860",
+      "12ea9e5be60d45d53cd3e49493de3e76f766c2e4",
+      "6bb56e26dda7d7bb76b7a756e972b0a9bcc04e75",
+      "267f024a994e25aa9a496851bc2a8f4ce5a9b953",
+      "ca038ac238af074b938ea532f0182664fe611b41",
+      "cfeaecf1ab4390abd91f5ee82e9e289811f7ff41"
+    ]
+  },
+  "implementation_focus": {
+    "finding_ids": [
+      "B11"
+    ],
+    "bundle_ids": [
+      "CYC-04"
+    ],
+    "closure_ids": [],
+    "test_path": "policy-engine/tests/integration/core_runtime/test_e02_voi_artifact_projection.py",
+    "test_blob_at_candidate": "4527f53ad773104bf79e5f52d0e50023e8edda69",
+    "test_commits": [
+      "4bea6beadcd86c34446ba0f8fd85aa65831bb1b6",
+      "12ea9e5be60d45d53cd3e49493de3e76f766c2e4",
+      "6bb56e26dda7d7bb76b7a756e972b0a9bcc04e75",
+      "267f024a994e25aa9a496851bc2a8f4ce5a9b953",
+      "cfeaecf1ab4390abd91f5ee82e9e289811f7ff41"
+    ],
+    "full_base_to_candidate_changed_paths": [
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_voi_artifact_projection.py",
+      "policy-engine/tests/unit/remediation/test_emp_01.py"
+    ],
+    "ownership_note": "Only the new artifact projection test is this slice focus. The generation_cycle.py, nonhandoff-context, and EMP-01 changes are present in the exact tested candidate but are separate owner scopes. The aggregate pytest command included EMP-01, accounting for its three unrelated failures.",
+    "related_runtime_blobs": {
+      "generation_cycle.py": "c970465dd426bc29495ea6dbbff9d1f1cbcd8cb8",
+      "control_generation_cycle.py": "ea382413f735bd9f9af3dbd000bff08242626b8d",
+      "artifact_content_route.py": "policy-engine/src/polisyos/runtime/http/routes/artifacts.py@f20a3db2df9cdb3f74c1ad7bf6728d8d1bcb9ca3"
+    },
+    "candidate_blobs_for_full_changed_path_set": {
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": "c970465dd426bc29495ea6dbbff9d1f1cbcd8cb8",
+      "policy-engine/tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py": "a23d4b137da02b8b4fc909904e21abbb31140b98",
+      "policy-engine/tests/integration/core_runtime/test_e02_voi_artifact_projection.py": "4527f53ad773104bf79e5f52d0e50023e8edda69",
+      "policy-engine/tests/unit/remediation/test_emp_01.py": "935a57fff2da14e6811a51395a35ab1ff251cde1"
+    }
+  },
+  "test_mechanism": {
+    "nodeid": "tests/integration/core_runtime/test_e02_voi_artifact_projection.py::test_informative_voi_candidate_core_readback_and_preview_refusal",
+    "producer": "Default SimpleVOIScheduler/GenerationCycleController and JointSimulationPort execute the low-proxy candidate; test asserts scheduler advance_by_information_value, actual N5 call, joint_simulated result, and default N8 value_conditional result.",
+    "artifact_and_bridge": "The recursive run is wrapped by for_contract_testing, then a real accepted Core control-job lease callback manually writes the canonical runtime.compiled_recursive_generation_cycle artifact and completes the Core job.",
+    "fresh_consumer": "A fresh runtime context resolves the completed Core job from its manifest, compares ArtifactRef identity, verifies and reads fresh CAS bytes, decodes the typed compiled run, then checks the same candidate ID/hash/proxy/estimate/certified_by_n9 value.",
+    "surface": "The generic GET /api/v1/artifacts/{artifact_id}/content refuses with typed 409 signal-missing; a foreign tenant gets 403 tenant-mismatch.",
+    "expected_projection_boundary": "No positive public candidate-inspection projection is available in this test. No monetary VOI, probability, ranking_basis, N9, publication, or actual spend claim follows from the fixture fields."
+  },
+  "attempts": [
+    {
+      "id": "4bea-pre-context-guard-harness",
+      "candidate": {
+        "sha": "4bea6beadcd86c34446ba0f8fd85aa65831bb1b6",
+        "tree": "3cebd1c96cc6b4c2f877ae4ea2954076f44339bd"
+      },
+      "outcome": "ERROR",
+      "meaning": "No tests ran: an unrelated selector name was not found; do not count as a product failure or passing probe.",
+      "evidence": "continuation-20261007-wave3/evidence/informative-voi-artifact-readback-cfeaecf1/attempt-4bea-harness"
+    },
+    {
+      "id": "4bea-current-nodes",
+      "candidate": {
+        "sha": "4bea6beadcd86c34446ba0f8fd85aa65831bb1b6",
+        "tree": "3cebd1c96cc6b4c2f877ae4ea2954076f44339bd"
+      },
+      "outcome": "FAIL",
+      "meaning": "The B11 node failed on ArtifactOwnershipError while constructing/reusing a tenant-claimed artifact without the active owner; artifact sha256:6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0. Other selected nodes also failed and are not B11 evidence.",
+      "evidence": "continuation-20261007-wave3/evidence/informative-voi-artifact-readback-cfeaecf1/attempt-4bea-current-nodes"
+    },
+    {
+      "id": "12ea-context-and-voi-readback",
+      "candidate": {
+        "sha": "12ea9e5be60d45d53cd3e49493de3e76f766c2e4",
+        "tree": "75b52c76181589738374933c3fd1384c91cb77d0"
+      },
+      "outcome": "FAIL",
+      "meaning": "The B11 node failed during TestClient lifespan when the N9PromotionEvidenceBridgeRepository attempted to write tenant-claimed CAS artifact sha256:e00e692e91b23b51bda90298ad349be3e728020864dd20c35a975bb7e72c417f without its active owner. The sibling nonhandoff node passed.",
+      "evidence": "continuation-20261007-wave3/evidence/informative-voi-artifact-readback-cfeaecf1/attempt-12ea"
+    },
+    {
+      "id": "6bbf-source-revision",
+      "candidate": {
+        "sha": "6bb56e26dda7d7bb76b7a756e972b0a9bcc04e75",
+        "tree": "6f303b01b7f3f9d379a4d479bea08bb2c77e7f4a"
+      },
+      "outcome": "NO_STANDALONE_RECEIPT",
+      "meaning": "This commit extended the owner scope through app lifespan. No separate pytest receipt for this exact commit was found in the retained _build run set; do not infer it passed. The next captured B11 run is at 267f and still failed at a different owner boundary.",
+      "evidence": null
+    },
+    {
+      "id": "267f-owner-lifespan",
+      "candidate": {
+        "sha": "267f024a994e25aa9a496851bc2a8f4ce5a9b953",
+        "tree": "6d033116b33015854eef421792d0e8a9b9a78063"
+      },
+      "outcome": "FAIL",
+      "meaning": "After app lifespan, Core manifest verification was still performed under the N5 fixture tenant instead of the completed Core job owner aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/cell-a; ArtifactOwnershipError occurred while verifying sha256:d985e16bdd3b4b86130a43dad65e5083c4fcd611f023e6738327b99f7ddfd21b.",
+      "evidence": "continuation-20261007-wave3/evidence/informative-voi-artifact-readback-cfeaecf1/attempt-267f"
+    },
+    {
+      "id": "cfeaecf1-deciding-combined-run",
+      "candidate": {
+        "sha": "cfeaecf1ab4390abd91f5ee82e9e289811f7ff41",
+        "tree": "044ac2581a609badbf9ae3d3278e0c9111297d09"
+      },
+      "outcome": "B11_NODE_PASS_AGGREGATE_FAIL",
+      "meaning": "B11 node passed; aggregate command failed three EMP-01 parameter cases [1], [2], [3]. The B11 node is not treated as inherited from the prior failures; it is a fresh result on this candidate.",
+      "evidence": "continuation-20261007-wave3/evidence/informative-voi-artifact-readback-cfeaecf1/deciding-cfeaecf1"
+    }
+  ],
+  "removal_attempts": [],
+  "predicate_basis": {
+    "artifact_content": "recomputed: manifest-bound ref is verified and same fresh CAS bytes decode to the asserted candidate fields",
+    "generic_surface_refusal": "recomputed: HTTP response carries typed signal-missing refusal; foreign tenant gets typed 403",
+    "real-world source authority and deployment": "not_established",
+    "fixture information score 0.4": "institutionally_supplied fixture value; not calibrated or measured information gain",
+    "public not-monetary/not-probability explanation": "not_established because the endpoint refuses before positive rendering",
+    "actual cost/spend": "not_established and outside this projection witness; no B66 settlement assertion"
+  },
+  "overall_claim": "B11 remains limited. This candidate demonstrates persisted content-bound readback and a typed fail-closed refusal at the generic artifact-content route. It does not demonstrate a positive candidate-inspection projection that labels/caveats the heuristic, and it does not close the B11 finding.",
+  "limitations_and_nonclaims": [
+    "The B11 run is generated through the actual default controller and N5 port, but the recursive wrapper is contract-testing scoped and a manually invoked accepted Core lease callback persists the run; ordinary NL worker production is not established.",
+    "The tested values are proxy_score 0.0 and fixture voi_estimate 0.4; there is no calibrated information value, probability, money-equivalent, or actual spend measurement.",
+    "A generic artifact-content 409 refusal is evidence of safe refusal, not of a positive projection surface or its displayed labels.",
+    "The full cfe command has an aggregate failure. B11 itself is a passing JUnit node; the three failures are EMP-01 parameter cases and are not silently converted into inherited red or B11 failures.",
+    "The four captured failed/harness attempts are kept separate; 6bbf has no standalone runner receipt and is not called a pass.",
+    "No projection removal probe ran; this packet makes no mutation sensitivity claim for public label semantics."
+  ],
+  "output_artifacts": {
+    "attempt-4bea-harness": "continuation-20261007-wave3/evidence/informative-voi-artifact-readback-cfeaecf1/attempt-4bea-harness/receipt.json (sibling stdout/stderr/JUnit/origin files are complete)",
+    "attempt-4bea-current-nodes": "continuation-20261007-wave3/evidence/informative-voi-artifact-readback-cfeaecf1/attempt-4bea-current-nodes/receipt.json (sibling stdout/stderr/JUnit/origin files are complete)",
+    "attempt-12ea": "continuation-20261007-wave3/evidence/informative-voi-artifact-readback-cfeaecf1/attempt-12ea/receipt.json (sibling stdout/stderr/JUnit/origin files are complete)",
+    "attempt-267f": "continuation-20261007-wave3/evidence/informative-voi-artifact-readback-cfeaecf1/attempt-267f/receipt.json (sibling stdout/stderr/JUnit/origin files are complete)",
+    "deciding-cfeaecf1": "continuation-20261007-wave3/evidence/informative-voi-artifact-readback-cfeaecf1/deciding-cfeaecf1/receipt.json (sibling stdout/stderr/JUnit/origin files are complete)"
+  },
+  "surface_trace": {
+    "artifact_kind": "runtime.compiled_recursive_generation_cycle",
+    "fresh_readback": "Core completed-job source is obtained from the attempt manifest; its single output ArtifactRef is identity-equal to the written ref, store.verify succeeds, and persisted bytes are decoded after a fresh context startup.",
+    "tested_fields": [
+      "candidate_id",
+      "content_hash",
+      "proxy_score",
+      "voi_estimate",
+      "certified_by_n9"
+    ],
+    "refusal": {
+      "status": 409,
+      "code": "authority_surface_admission_blocked",
+      "reason": "authority_surface_signal_missing",
+      "blocking": true,
+      "visible_downgrade": true
+    },
+    "foreign_tenant": {
+      "status": 403,
+      "code": "artifact_tenant_mismatch"
+    },
+    "positive_inspection": "not exercised; the content route refuses and no alternate projection is asserted.",
+    "publication_or_N9": "not claimed or required for this candidate-inspection boundary."
+  }
+}

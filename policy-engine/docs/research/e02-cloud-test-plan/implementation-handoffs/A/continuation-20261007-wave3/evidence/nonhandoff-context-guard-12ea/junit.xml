@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="2" time="19.621" timestamp="2026-10-07T21:45:37.098715+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.integration.core_runtime.test_e02_nonhandoff_context_revision" name="test_nonhandoff_revision_blocks_before_stale_context_n4_and_roundtrips_history" time="15.195" /><testcase classname="tests.integration.core_runtime.test_e02_voi_artifact_projection" name="test_informative_voi_candidate_core_readback_and_preview_refusal" time="3.932"><failure message="polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:e00e692e91b23b51bda90298ad349be3e728020864dd20c35a975bb7e72c417f has tenant ownership claims; an active owner is required for write">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/context-and-voi-readback-12ea/pytest-basetemp/test_informative_voi_candidate0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x10982dc70&gt;
+
+    @pytest.mark.asyncio
+    async def test_informative_voi_candidate_core_readback_and_preview_refusal(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """Read back actual B11 values, then assert the unowned preview is refused.
+    
+        The B11 N6 producer run is real. This fixture manually dispatches a Core
+        control-job lease callback to persist that run through the canonical
+        compiled-recursive artifact writer; it does not claim an ordinary NL
+        request invokes this B11 generator. The recursive wrapper is explicitly
+        contract-testing scoped, and the generic content route's refusal is the
+        expected boundary until an artifact owner supplies preview authority.
+        """
+    
+        pytest.importorskip("fastapi.testclient")
+        from fastapi.testclient import TestClient
+    
+        from polisyos.core import canon
+        from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+        from polisyos.core.security.tenant_context import tenant_scope
+        from polisyos.data_forge.read_api import catalog as catalog_api
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.http import dev_identity_middleware
+        from polisyos.runtime.http.app import create_runtime_api_app
+        from polisyos.runtime.http.container import RuntimeContainerOverrides
+        from polisyos.runtime.http.dependencies import build_runtime_api_context
+        from polisyos.runtime.http.security import build_fixture_identity_claims
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+            CompiledRecursiveGenerationCycleRun,
+        )
+        from polisyos.runtime.quality import substrate_registry
+        from polisyos.runtime.quality.design_axes.coupling_composition import (
+            derive_recursive_design_graph,
+        )
+        from polisyos.runtime.quality.generation_cycle import JointSimulationPort
+        from polisyos.runtime.quality.recursive_generation_cycle import (
+            RecursiveCycleBudget,
+            RecursiveGenerationCycleController,
+            RecursiveGenerationCycleRun,
+        )
+        from polisyos.scientist.methods.search.voi_scheduler import SimpleVOIScheduler
+        from tests._helpers.control_worker import dispatch_one_control_job
+        from tests.integration.core_runtime.test_e02_hard_feasibility_before_voi import (
+            _owner_fixture,
+        )
+        from tests.integration.core_runtime.test_e02_informative_voi_execution import (
+            _bounded_budget,
+            _controller,
+        )
+        from tests.unit.runtime.http.test_control_job_execution_intent import (
+            _valid_intake_for_mode,
+        )
+    
+        monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
+        monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+        monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+        monkeypatch.setenv(
+            "POLISYOS_CONTROL_SQLITE_PATH", (tmp_path / "control.sqlite3").as_posix()
+        )
+        monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
+    
+        catalog_root = tmp_path / "voi-preview-catalog"
+        catalog_api.build_slice0_fixture_catalog_graph(catalog_root).close()
+        curated_root = tmp_path / "voi-preview-curated"
+        curated_root.mkdir()
+        monkeypatch.setenv("POLISYOS_CURATED_DIR", curated_root.as_posix())
+        monkeypatch.setattr(
+            catalog_api,
+            "default_acquisition_overlay_path",
+            lambda _root: tmp_path / "absent-acquisition-overlay.duckdb",
+        )
+        default_catalog_paths = substrate_registry.default_substrate_catalog_paths
+        repo_root = Path(__file__).resolve().parents[3]
+        monkeypatch.setattr(
+            substrate_registry,
+            "default_substrate_catalog_paths",
+            lambda root: (
+                replace(
+                    default_catalog_paths(root),
+                    l1_dcat_path=catalog_root / "catalog.duckdb",
+                )
+                if Path(root).resolve() == repo_root
+                else default_catalog_paths(root)
+            ),
+        )
+    
+        producer_root = tmp_path / "b11-producer"
+        producer_store, problem, substrate_context, _high, candidate = _owner_fixture(
+            producer_root
+        )
+        cas_root = producer_root / "runtime-cas"
+        problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+        root_node_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+        graph = derive_recursive_design_graph(
+            design_ref=root_node_ref,
+            module_refs=(),
+            parent_child_edges=(),
+            rule_version_ref="repo://rules/e02-voi-artifact-preview-contract-test",
+        )
+        cycle_controllers: dict[str, Any] = {}
+    
+        def build_cycle_controller(node_ref: str, _problem: object) -&gt; Any:
+            controller = _controller(
+                store=producer_store,
+                problem=problem,
+                context=substrate_context,
+                candidate=candidate,
+                repo_root=repo_root,
+            )
+            cycle_controllers[node_ref] = controller
+            return controller
+    
+        recursive_controller = RecursiveGenerationCycleController.for_contract_testing(
+            cycle_controller_factory=build_cycle_controller,
+            repo_root=repo_root,
+            artifact_store=producer_store,
+        )
+        n5_calls: list[str] = []
+        original_n5_call = JointSimulationPort.__call__
+    
+        def observe_real_n5_call(self: JointSimulationPort, **kwargs: Any) -&gt; Any:
+            n5_calls.append(str(kwargs["candidate"].candidate_id))
+            return original_n5_call(self, **kwargs)
+    
+        monkeypatch.setattr(JointSimulationPort, "__call__", observe_real_n5_call)
+        try:
+            with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+                recursive_run = await recursive_controller.run(
+                    graph,
+                    problems_by_node={root_node_ref: problem},
+                    budget_state=_bounded_budget("1.0"),
+                    recursive_budget=RecursiveCycleBudget(
+                        max_depth=0,
+                        max_nodes=1,
+                        min_cycles_per_leaf=1,
+                        max_cycles_per_leaf=1,
+                    ),
+                    cycle_substrate_contexts_by_node={root_node_ref: substrate_context},
+                    execution_intents_by_node={root_node_ref: "candidate_only"},
+                )
+    
+            assert isinstance(recursive_run, RecursiveGenerationCycleRun)
+            assert recursive_run.authority_scope == "contract_testing"
+            leaf = recursive_run.leaf_nodes[0]
+            assert leaf.cycle_run is not None
+            n6_run = leaf.cycle_run
+            summary = next(
+                row
+                for row in n6_run.candidate_summaries
+                if row.candidate_id == candidate.candidate_id
+            )
+            cycle = n6_run.cycles[0]
+            assert type(cycle_controllers[root_node_ref]._voi_scheduler) is SimpleVOIScheduler
+            assert cycle.voi_decision.scheduler_action == "advance"
+            assert cycle.voi_decision.scheduler_reason == "advance_by_information_value"
+            assert cycle.simulation.status == "joint_simulated"
+            assert cycle.value_port.status == "value_conditional"
+            assert summary.proxy_score == 0.0
+            assert summary.voi_estimate == 0.4
+            assert not summary.certified_by_n9
+            assert n5_calls == [candidate.candidate_id]
+    
+            compiled_payload = {
+                "schema_version": COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+                "design_problem_ref": problem_ref,
+                "design_problem": problem.model_dump(mode="json"),
+                "cycle_substrate_context_ref": None,
+                "recursive_run": recursive_run.model_dump(
+                    mode="json", exclude={"leaf_nodes"}
+                ),
+            }
+            compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+                {**compiled_payload, "content_hash": gy_content_hash(compiled_payload)}
+            )
+    
+            first_context = build_runtime_api_context(
+                cas_root=cas_root,
+                core_runs_root=cas_root / "runs",
+            )
+            # RuntimeServiceContainer owns a shared verifier-provenance artifact
+            # whose bytes were first written by the B11 producer under this tenant.
+            # Keep that existing owner active while the app container reuses CAS.
+            with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+                first_app = create_runtime_api_app(
+                    cas_root=cas_root,
+                    container_overrides=RuntimeContainerOverrides(
+                        runtime_api_context=first_context
+                    ),
+                    allow_fixture_identity=True,
+                )
+&gt;           with TestClient(first_app) as client:
+                 ^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/core_runtime/test_e02_voi_artifact_projection.py:209: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/starlette/testclient.py:688: in __enter__
+    portal.call(self.wait_startup)
+.venv/lib/python3.14/site-packages/anyio/from_thread.py:326: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+.venv/lib/python3.14/site-packages/anyio/from_thread.py:257: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/starlette/testclient.py:723: in wait_startup
+    await receive()
+.venv/lib/python3.14/site-packages/starlette/testclient.py:714: in receive
+    self.task.result()
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:443: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+.venv/lib/python3.14/site-packages/anyio/from_thread.py:257: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/starlette/testclient.py:704: in lifespan
+    await self.app(scope, self.stream_receive.receive, self.stream_send.send)
+.venv/lib/python3.14/site-packages/fastapi/applications.py:1138: in __call__
+    await super().__call__(scope, receive, send)
+.venv/lib/python3.14/site-packages/starlette/applications.py:107: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv/lib/python3.14/site-packages/starlette/middleware/errors.py:151: in __call__
+    await self.app(scope, receive, send)
+.venv/lib/python3.14/site-packages/starlette/middleware/base.py:103: in __call__
+    await self.app(scope, receive, send)
+.venv/lib/python3.14/site-packages/starlette/middleware/base.py:103: in __call__
+    await self.app(scope, receive, send)
+src/polisyos/runtime/http/authz_middleware.py:568: in __call__
+    await self._app(scope, receive, send)
+.venv/lib/python3.14/site-packages/starlette/middleware/base.py:103: in __call__
+    await self.app(scope, receive, send)
+.venv/lib/python3.14/site-packages/starlette/middleware/gzip.py:19: in __call__
+    await self.app(scope, receive, send)
+.venv/lib/python3.14/site-packages/starlette/middleware/base.py:103: in __call__
+    await self.app(scope, receive, send)
+.venv/lib/python3.14/site-packages/starlette/middleware/exceptions.py:49: in __call__
+    await self.app(scope, receive, send)
+.venv/lib/python3.14/site-packages/fastapi/middleware/asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+.venv/lib/python3.14/site-packages/starlette/routing.py:716: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv/lib/python3.14/site-packages/starlette/routing.py:725: in app
+    await self.lifespan(scope, receive, send)
+.venv/lib/python3.14/site-packages/starlette/routing.py:694: in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/app.py:261: in _runtime_lifespan
+    await runtime_container.startup(app)
+src/polisyos/runtime/http/container.py:387: in startup
+    control_service = ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2255: in __init__
+    promotion_evidence_resolver=N9PromotionEvidenceBridgeRepository(
+src/polisyos/runtime/quality/promotion_sequence.py:756: in __init__
+    self._verifier_provenance_ref = store.put_bytes(
+src/polisyos/runtime/http/resilience.py:282: in _wrapped
+    return self._guard.run(attr, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:146: in run
+    result = future.result(timeout=self._timeout_seconds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:134: in _invoke
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2409: in put_bytes
+    deduplicated, ref_profile_sha256 = self._put_blob_and_manifest_once(
+src/polisyos/core/artifacts/store.py:2167: in _put_blob_and_manifest_once
+    self._require_unclaimed_target_if_unscoped(aid, operation="write")
+src/polisyos/core/artifacts/store.py:1142: in _require_unclaimed_target_if_unscoped
+    self._require_unclaimed_without_owner(artifact_id, operation=operation)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x13d41caf0&gt;
+artifact_id = ArtifactID(root='sha256:e00e692e91b23b51bda90298ad349be3e728020864dd20c35a975bb7e72c417f')
+
+    def _require_unclaimed_without_owner(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        operation: str,
+        ref: ArtifactRef | None = None,
+        manifest_profile_sha256: str | None = None,
+    ) -&gt; None:
+        if _GOVERNED_PUBLIC_READ.get() is not None:
+            self._require_governed_public_read(
+                artifact_id,
+                manifest_profile_sha256,
+                operation=operation,
+                ref=ref,
+            )
+            return
+        if self._ownership_index.has_any_tenant_claim(artifact_id):
+&gt;           raise ArtifactOwnershipError(
+                f"Artifact {artifact_id} has tenant ownership claims; an active owner "
+                f"is required for {operation}"
+            )
+E           polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:e00e692e91b23b51bda90298ad349be3e728020864dd20c35a975bb7e72c417f has tenant ownership claims; an active owner is required for write
+
+src/polisyos/core/artifacts/store.py:1034: ArtifactOwnershipError</failure></testcase></testsuite></testsuites>

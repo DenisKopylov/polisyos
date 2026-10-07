@@ -1,0 +1,1178 @@
+..FFFFF                                                                  [100%]
+=================================== FAILURES ===================================
+_____ test_default_cycle_value_refusal_survives_persisted_run_readback[1] ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13d9d7d10>
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/affected-consumers-current-nodes-4bea/pytest-basetemp/test_default_cycle_value_refus0')
+row_count = 1
+
+    @pytest.mark.parametrize("row_count", [1, 2, 3])
+    @pytest.mark.asyncio
+    async def test_default_cycle_value_refusal_survives_persisted_run_readback(
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+        row_count: int,
+    ) -> None:
+        """The real default N8 path persists a sparse-profile refusal without acquisition claims."""
+    
+        problem = DesignProblem(
+            design_problem_id="emp01_sparse_profile_cycle",
+            problem_statement="Synthetic EMP01 owner-profile boundary fixture.",
+            domain="synthetic_emp01",
+            nl_provenance=NLProvenance(
+                raw_request="Fixture only; no policy evidence is asserted.",
+                source_surface="test_emp_01",
+            ),
+            authority_profile=AuthorityProfile(
+                requester_authority="research_lab",
+                requested_authority_level="research",
+                mandate="Synthetic test fixture only.",
+            ),
+            jurisdiction_time=JurisdictionTimeSemantics(
+                region="UA",
+                valid_time="synthetic_test_only",
+                as_of="synthetic_test_only",
+                policy_time="synthetic_test_only",
+                data_time="synthetic_test_only",
+            ),
+            objectives=[
+                DesignObjective(
+                    objective_id="outcome_improvement",
+                    description="Exercise the default value-owner boundary.",
+                    metric_id="outcome",
+                )
+            ],
+            stakeholders=[
+                DesignStakeholder(
+                    stakeholder_id="fixture_population",
+                    name="Synthetic fixture population",
+                    role="test_only",
+                )
+            ],
+            outcome_of_interest=OutcomeOfInterest(
+                target_variable="outcome",
+                metric_id="outcome",
+                estimand="synthetic_test_only",
+            ),
+            candidate_lever_space=CandidateLeverSpace(
+                allowed_operator_kinds=["grant"],
+                candidate_levers=[
+                    CandidateLever(
+                        lever_id="fixture_grant",
+                        operator_kind="grant",
+                        instrument="Synthetic fixture instrument",
+                        target_slot="outcome",
+                    )
+                ],
+            ),
+            evidence_acquisition_needs=EvidenceAcquisitionNeeds(
+                needs=[
+                    EvidenceNeed(
+                        need_id="fixture_owner_rows",
+                        question="Are enough synthetic owner rows available?",
+                        required_for="test fixture behavior",
+                    )
+                ]
+            ),
+        )
+        registration = substrate_registry.SubstrateRegistration(
+            source_id="emp01_synthetic_fixture",
+            family_id="emp01_synthetic_fixture",
+            layer=substrate_registry.SubstrateLayer.L2,
+            coverage=substrate_registry.SubstrateCoverage(
+                coverage_score=0.1,
+                coverage_kind="synthetic_test_fixture",
+                coverage_rule_ref="synthetic_test_only",
+                dataset_count=1,
+                metric_binding_count=1,
+                observation_count=row_count,
+            ),
+            trust_tier=substrate_registry.SubstrateTrustTier(
+                tier="synthetic_test_only",
+                trust_cap=0.1,
+                trust_multiplier=0.1,
+                min_coverage=0.0,
+                max_coverage=1.0,
+                authority_ref="synthetic_test_only",
+            ),
+            identification_mode="synthetic_test_only",
+            schema_regime=substrate_registry.SubstrateSchemaRegime(
+                schema_regime_id="synthetic_test_only",
+                authority_ref="synthetic_test_only",
+            ),
+            data_version="synthetic_test_only",
+            snapshot_id="synthetic_test_only",
+            source_snapshot_id="synthetic_test_only",
+            provenance_refs=("synthetic-fixture://emp01",),
+            authority_refs=("synthetic-fixture://emp01",),
+        )
+        entry = substrate_registry.build_substrate_registry_entry(registration)
+        registry = substrate_registry.build_substrate_registry(
+            (entry,),
+            producer_ref="test_emp_01.synthetic_fixture",
+            source_catalog_refs=("synthetic-fixture://emp01",),
+        )
+        monkeypatch.setattr(
+            generation_cycle,
+            "build_substrate_registry_from_existing_catalogs",
+            lambda _repo_root: registry,
+        )
+        world_record = generation_cycle._build_boundary_world_model_record(
+            repo_root=tmp_path,
+            problem=problem,
+            outcome="outcome",
+            policy_slot_ids=("outcome",),
+            substrate_registry=registry,
+            selected_registry_entry_hashes=(entry.entry_content_hash,),
+        )
+    
+        catalog_path = tmp_path / "l1.duckdb"
+        _seed_synthetic_baseline_identity(catalog_path)
+        rows = tuple(
+            (
+                "UA",
+                2020 + index,
+                10.0 + index,
+                "dataset-ratio",
+                f"obs-ua-{2020 + index}",
+                '{"unit":"ratio"}',
+            )
+            for index in range(row_count)
+        )
+        connection = _RowsConnection(rows)
+        monkeypatch.setattr(
+            substrate_registry,
+            "default_substrate_catalog_paths",
+            lambda _repo_root: SimpleNamespace(l1_dcat_path=catalog_path),
+        )
+        monkeypatch.setattr(
+            read_api.catalog,
+            "default_acquisition_overlay_path",
+            lambda _repo_root: None,
+        )
+        monkeypatch.setattr(
+            read_api.catalog,
+            "open_catalog_read_session",
+            lambda _path, overlay_path=None: connection,
+        )
+        monkeypatch.setattr(
+            data_state_substrate,
+            "l1_dcat_variable_availability",
+            lambda *_args, **_kwargs: SimpleNamespace(
+                status="available",
+                coverage_ref="catalog://emp01/outcome",
+                dataset_count=1,
+                metric_binding_count=1,
+                observation_count=row_count,
+            ),
+        )
+    
+        candidate = SimpleNamespace(
+            candidate_id="candidate_emp01_sparse_profile",
+            atom=SimpleNamespace(
+                intervention_id="intervention_emp01_sparse_profile",
+                content_hash="sha256:" + "a" * 64,
+                target_world_slots=("outcome",),
+                world_model_record_ref=world_record.world_model_record_id,
+            ),
+            diversity_key=("grant", "fixture_population", "synthetic", "baseline"),
+        )
+    
+        class _FixtureGenerationPort:
+            async def __call__(self, _problem: DesignProblem, *, cycle_index: int) -> Any:
+                del cycle_index
+                return SimpleNamespace(
+                    status="generated",
+                    candidates=(candidate,),
+                    surrogate_rankings=(
+                        SimpleNamespace(
+                            candidate_id=candidate.candidate_id,
+                            score=0.9,
+                            voi_estimate=10.0,
+                        ),
+                    ),
+                    grounding_dispositions=(),
+                )
+    
+        class _FixtureGroundingPort:
+            def __call__(self, *, candidate: Any, **_kwargs: Any) -> Any:
+                return generation_cycle.CandidateGroundingObservation(
+                    candidate_id=str(candidate.candidate_id),
+                    status="grounded_shadow",
+                    grounding_score=0.8,
+                    current_valid=False,
+                    grounding_source="cgf_firewall",
+                    grounding_disposition="synthetic_test_only",
+                    report_ref="synthetic-fixture://emp01/grounding",
+                )
+    
+        class _FixtureSimulationPort:
+            def __call__(self, *, candidate: Any, **_kwargs: Any) -> Any:
+                return generation_cycle.SimulationPortObservation(
+                    candidate_id=str(candidate.candidate_id),
+                    status="joint_simulated",
+                    simulation_ref="sha256:" + "b" * 64,
+                    world_model_record=world_record,
+                    k_world_ref_before=world_record.content_hash,
+                    k_world_ref_after=world_record.content_hash,
+                )
+    
+        class _FixturePromotionPort:
+            def __call__(self, **_kwargs: Any) -> Any:
+                return generation_cycle.PromotionPortObservation(
+                    status="not_promoted",
+                    reason="synthetic_emp01_test_only",
+                )
+    
+        controller = generation_cycle.GenerationCycleController(
+            generation_port=_FixtureGenerationPort(),
+            grounding_port=_FixtureGroundingPort(),
+            simulation_port=_FixtureSimulationPort(),
+            promotion_port=_FixturePromotionPort(),
+            repo_root=tmp_path,
+            authority_scope="contract_testing",
+        )
+        assert isinstance(
+            controller._value_port,
+            generation_cycle._DefaultSimulationBoundFoundryValuePort,
+        )
+        run = await controller.run(
+            problem,
+            budget_state=BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+            ),
+            min_cycles=1,
+            max_cycles=1,
+        )
+    
+        expected_reason = (
+            f"selected owner profile has {row_count} usable rows; at least 4 are required "
+            "owner_access_ref=catalog://emp01/outcome#selected-row-count"
+        )
+>       assert len(connection.calls) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <tests.unit.remediation.test_emp_01._RowsConnection object at 0x13e2dc2f0>.calls
+
+tests/unit/remediation/test_emp_01.py:797: AssertionError
+_____ test_default_cycle_value_refusal_survives_persisted_run_readback[2] ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13dd5f240>
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/affected-consumers-current-nodes-4bea/pytest-basetemp/test_default_cycle_value_refus1')
+row_count = 2
+
+    @pytest.mark.parametrize("row_count", [1, 2, 3])
+    @pytest.mark.asyncio
+    async def test_default_cycle_value_refusal_survives_persisted_run_readback(
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+        row_count: int,
+    ) -> None:
+        """The real default N8 path persists a sparse-profile refusal without acquisition claims."""
+    
+        problem = DesignProblem(
+            design_problem_id="emp01_sparse_profile_cycle",
+            problem_statement="Synthetic EMP01 owner-profile boundary fixture.",
+            domain="synthetic_emp01",
+            nl_provenance=NLProvenance(
+                raw_request="Fixture only; no policy evidence is asserted.",
+                source_surface="test_emp_01",
+            ),
+            authority_profile=AuthorityProfile(
+                requester_authority="research_lab",
+                requested_authority_level="research",
+                mandate="Synthetic test fixture only.",
+            ),
+            jurisdiction_time=JurisdictionTimeSemantics(
+                region="UA",
+                valid_time="synthetic_test_only",
+                as_of="synthetic_test_only",
+                policy_time="synthetic_test_only",
+                data_time="synthetic_test_only",
+            ),
+            objectives=[
+                DesignObjective(
+                    objective_id="outcome_improvement",
+                    description="Exercise the default value-owner boundary.",
+                    metric_id="outcome",
+                )
+            ],
+            stakeholders=[
+                DesignStakeholder(
+                    stakeholder_id="fixture_population",
+                    name="Synthetic fixture population",
+                    role="test_only",
+                )
+            ],
+            outcome_of_interest=OutcomeOfInterest(
+                target_variable="outcome",
+                metric_id="outcome",
+                estimand="synthetic_test_only",
+            ),
+            candidate_lever_space=CandidateLeverSpace(
+                allowed_operator_kinds=["grant"],
+                candidate_levers=[
+                    CandidateLever(
+                        lever_id="fixture_grant",
+                        operator_kind="grant",
+                        instrument="Synthetic fixture instrument",
+                        target_slot="outcome",
+                    )
+                ],
+            ),
+            evidence_acquisition_needs=EvidenceAcquisitionNeeds(
+                needs=[
+                    EvidenceNeed(
+                        need_id="fixture_owner_rows",
+                        question="Are enough synthetic owner rows available?",
+                        required_for="test fixture behavior",
+                    )
+                ]
+            ),
+        )
+        registration = substrate_registry.SubstrateRegistration(
+            source_id="emp01_synthetic_fixture",
+            family_id="emp01_synthetic_fixture",
+            layer=substrate_registry.SubstrateLayer.L2,
+            coverage=substrate_registry.SubstrateCoverage(
+                coverage_score=0.1,
+                coverage_kind="synthetic_test_fixture",
+                coverage_rule_ref="synthetic_test_only",
+                dataset_count=1,
+                metric_binding_count=1,
+                observation_count=row_count,
+            ),
+            trust_tier=substrate_registry.SubstrateTrustTier(
+                tier="synthetic_test_only",
+                trust_cap=0.1,
+                trust_multiplier=0.1,
+                min_coverage=0.0,
+                max_coverage=1.0,
+                authority_ref="synthetic_test_only",
+            ),
+            identification_mode="synthetic_test_only",
+            schema_regime=substrate_registry.SubstrateSchemaRegime(
+                schema_regime_id="synthetic_test_only",
+                authority_ref="synthetic_test_only",
+            ),
+            data_version="synthetic_test_only",
+            snapshot_id="synthetic_test_only",
+            source_snapshot_id="synthetic_test_only",
+            provenance_refs=("synthetic-fixture://emp01",),
+            authority_refs=("synthetic-fixture://emp01",),
+        )
+        entry = substrate_registry.build_substrate_registry_entry(registration)
+        registry = substrate_registry.build_substrate_registry(
+            (entry,),
+            producer_ref="test_emp_01.synthetic_fixture",
+            source_catalog_refs=("synthetic-fixture://emp01",),
+        )
+        monkeypatch.setattr(
+            generation_cycle,
+            "build_substrate_registry_from_existing_catalogs",
+            lambda _repo_root: registry,
+        )
+        world_record = generation_cycle._build_boundary_world_model_record(
+            repo_root=tmp_path,
+            problem=problem,
+            outcome="outcome",
+            policy_slot_ids=("outcome",),
+            substrate_registry=registry,
+            selected_registry_entry_hashes=(entry.entry_content_hash,),
+        )
+    
+        catalog_path = tmp_path / "l1.duckdb"
+        _seed_synthetic_baseline_identity(catalog_path)
+        rows = tuple(
+            (
+                "UA",
+                2020 + index,
+                10.0 + index,
+                "dataset-ratio",
+                f"obs-ua-{2020 + index}",
+                '{"unit":"ratio"}',
+            )
+            for index in range(row_count)
+        )
+        connection = _RowsConnection(rows)
+        monkeypatch.setattr(
+            substrate_registry,
+            "default_substrate_catalog_paths",
+            lambda _repo_root: SimpleNamespace(l1_dcat_path=catalog_path),
+        )
+        monkeypatch.setattr(
+            read_api.catalog,
+            "default_acquisition_overlay_path",
+            lambda _repo_root: None,
+        )
+        monkeypatch.setattr(
+            read_api.catalog,
+            "open_catalog_read_session",
+            lambda _path, overlay_path=None: connection,
+        )
+        monkeypatch.setattr(
+            data_state_substrate,
+            "l1_dcat_variable_availability",
+            lambda *_args, **_kwargs: SimpleNamespace(
+                status="available",
+                coverage_ref="catalog://emp01/outcome",
+                dataset_count=1,
+                metric_binding_count=1,
+                observation_count=row_count,
+            ),
+        )
+    
+        candidate = SimpleNamespace(
+            candidate_id="candidate_emp01_sparse_profile",
+            atom=SimpleNamespace(
+                intervention_id="intervention_emp01_sparse_profile",
+                content_hash="sha256:" + "a" * 64,
+                target_world_slots=("outcome",),
+                world_model_record_ref=world_record.world_model_record_id,
+            ),
+            diversity_key=("grant", "fixture_population", "synthetic", "baseline"),
+        )
+    
+        class _FixtureGenerationPort:
+            async def __call__(self, _problem: DesignProblem, *, cycle_index: int) -> Any:
+                del cycle_index
+                return SimpleNamespace(
+                    status="generated",
+                    candidates=(candidate,),
+                    surrogate_rankings=(
+                        SimpleNamespace(
+                            candidate_id=candidate.candidate_id,
+                            score=0.9,
+                            voi_estimate=10.0,
+                        ),
+                    ),
+                    grounding_dispositions=(),
+                )
+    
+        class _FixtureGroundingPort:
+            def __call__(self, *, candidate: Any, **_kwargs: Any) -> Any:
+                return generation_cycle.CandidateGroundingObservation(
+                    candidate_id=str(candidate.candidate_id),
+                    status="grounded_shadow",
+                    grounding_score=0.8,
+                    current_valid=False,
+                    grounding_source="cgf_firewall",
+                    grounding_disposition="synthetic_test_only",
+                    report_ref="synthetic-fixture://emp01/grounding",
+                )
+    
+        class _FixtureSimulationPort:
+            def __call__(self, *, candidate: Any, **_kwargs: Any) -> Any:
+                return generation_cycle.SimulationPortObservation(
+                    candidate_id=str(candidate.candidate_id),
+                    status="joint_simulated",
+                    simulation_ref="sha256:" + "b" * 64,
+                    world_model_record=world_record,
+                    k_world_ref_before=world_record.content_hash,
+                    k_world_ref_after=world_record.content_hash,
+                )
+    
+        class _FixturePromotionPort:
+            def __call__(self, **_kwargs: Any) -> Any:
+                return generation_cycle.PromotionPortObservation(
+                    status="not_promoted",
+                    reason="synthetic_emp01_test_only",
+                )
+    
+        controller = generation_cycle.GenerationCycleController(
+            generation_port=_FixtureGenerationPort(),
+            grounding_port=_FixtureGroundingPort(),
+            simulation_port=_FixtureSimulationPort(),
+            promotion_port=_FixturePromotionPort(),
+            repo_root=tmp_path,
+            authority_scope="contract_testing",
+        )
+        assert isinstance(
+            controller._value_port,
+            generation_cycle._DefaultSimulationBoundFoundryValuePort,
+        )
+        run = await controller.run(
+            problem,
+            budget_state=BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+            ),
+            min_cycles=1,
+            max_cycles=1,
+        )
+    
+        expected_reason = (
+            f"selected owner profile has {row_count} usable rows; at least 4 are required "
+            "owner_access_ref=catalog://emp01/outcome#selected-row-count"
+        )
+>       assert len(connection.calls) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <tests.unit.remediation.test_emp_01._RowsConnection object at 0x13db45bd0>.calls
+
+tests/unit/remediation/test_emp_01.py:797: AssertionError
+_____ test_default_cycle_value_refusal_survives_persisted_run_readback[3] ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13e3c4950>
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/affected-consumers-current-nodes-4bea/pytest-basetemp/test_default_cycle_value_refus2')
+row_count = 3
+
+    @pytest.mark.parametrize("row_count", [1, 2, 3])
+    @pytest.mark.asyncio
+    async def test_default_cycle_value_refusal_survives_persisted_run_readback(
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+        row_count: int,
+    ) -> None:
+        """The real default N8 path persists a sparse-profile refusal without acquisition claims."""
+    
+        problem = DesignProblem(
+            design_problem_id="emp01_sparse_profile_cycle",
+            problem_statement="Synthetic EMP01 owner-profile boundary fixture.",
+            domain="synthetic_emp01",
+            nl_provenance=NLProvenance(
+                raw_request="Fixture only; no policy evidence is asserted.",
+                source_surface="test_emp_01",
+            ),
+            authority_profile=AuthorityProfile(
+                requester_authority="research_lab",
+                requested_authority_level="research",
+                mandate="Synthetic test fixture only.",
+            ),
+            jurisdiction_time=JurisdictionTimeSemantics(
+                region="UA",
+                valid_time="synthetic_test_only",
+                as_of="synthetic_test_only",
+                policy_time="synthetic_test_only",
+                data_time="synthetic_test_only",
+            ),
+            objectives=[
+                DesignObjective(
+                    objective_id="outcome_improvement",
+                    description="Exercise the default value-owner boundary.",
+                    metric_id="outcome",
+                )
+            ],
+            stakeholders=[
+                DesignStakeholder(
+                    stakeholder_id="fixture_population",
+                    name="Synthetic fixture population",
+                    role="test_only",
+                )
+            ],
+            outcome_of_interest=OutcomeOfInterest(
+                target_variable="outcome",
+                metric_id="outcome",
+                estimand="synthetic_test_only",
+            ),
+            candidate_lever_space=CandidateLeverSpace(
+                allowed_operator_kinds=["grant"],
+                candidate_levers=[
+                    CandidateLever(
+                        lever_id="fixture_grant",
+                        operator_kind="grant",
+                        instrument="Synthetic fixture instrument",
+                        target_slot="outcome",
+                    )
+                ],
+            ),
+            evidence_acquisition_needs=EvidenceAcquisitionNeeds(
+                needs=[
+                    EvidenceNeed(
+                        need_id="fixture_owner_rows",
+                        question="Are enough synthetic owner rows available?",
+                        required_for="test fixture behavior",
+                    )
+                ]
+            ),
+        )
+        registration = substrate_registry.SubstrateRegistration(
+            source_id="emp01_synthetic_fixture",
+            family_id="emp01_synthetic_fixture",
+            layer=substrate_registry.SubstrateLayer.L2,
+            coverage=substrate_registry.SubstrateCoverage(
+                coverage_score=0.1,
+                coverage_kind="synthetic_test_fixture",
+                coverage_rule_ref="synthetic_test_only",
+                dataset_count=1,
+                metric_binding_count=1,
+                observation_count=row_count,
+            ),
+            trust_tier=substrate_registry.SubstrateTrustTier(
+                tier="synthetic_test_only",
+                trust_cap=0.1,
+                trust_multiplier=0.1,
+                min_coverage=0.0,
+                max_coverage=1.0,
+                authority_ref="synthetic_test_only",
+            ),
+            identification_mode="synthetic_test_only",
+            schema_regime=substrate_registry.SubstrateSchemaRegime(
+                schema_regime_id="synthetic_test_only",
+                authority_ref="synthetic_test_only",
+            ),
+            data_version="synthetic_test_only",
+            snapshot_id="synthetic_test_only",
+            source_snapshot_id="synthetic_test_only",
+            provenance_refs=("synthetic-fixture://emp01",),
+            authority_refs=("synthetic-fixture://emp01",),
+        )
+        entry = substrate_registry.build_substrate_registry_entry(registration)
+        registry = substrate_registry.build_substrate_registry(
+            (entry,),
+            producer_ref="test_emp_01.synthetic_fixture",
+            source_catalog_refs=("synthetic-fixture://emp01",),
+        )
+        monkeypatch.setattr(
+            generation_cycle,
+            "build_substrate_registry_from_existing_catalogs",
+            lambda _repo_root: registry,
+        )
+        world_record = generation_cycle._build_boundary_world_model_record(
+            repo_root=tmp_path,
+            problem=problem,
+            outcome="outcome",
+            policy_slot_ids=("outcome",),
+            substrate_registry=registry,
+            selected_registry_entry_hashes=(entry.entry_content_hash,),
+        )
+    
+        catalog_path = tmp_path / "l1.duckdb"
+        _seed_synthetic_baseline_identity(catalog_path)
+        rows = tuple(
+            (
+                "UA",
+                2020 + index,
+                10.0 + index,
+                "dataset-ratio",
+                f"obs-ua-{2020 + index}",
+                '{"unit":"ratio"}',
+            )
+            for index in range(row_count)
+        )
+        connection = _RowsConnection(rows)
+        monkeypatch.setattr(
+            substrate_registry,
+            "default_substrate_catalog_paths",
+            lambda _repo_root: SimpleNamespace(l1_dcat_path=catalog_path),
+        )
+        monkeypatch.setattr(
+            read_api.catalog,
+            "default_acquisition_overlay_path",
+            lambda _repo_root: None,
+        )
+        monkeypatch.setattr(
+            read_api.catalog,
+            "open_catalog_read_session",
+            lambda _path, overlay_path=None: connection,
+        )
+        monkeypatch.setattr(
+            data_state_substrate,
+            "l1_dcat_variable_availability",
+            lambda *_args, **_kwargs: SimpleNamespace(
+                status="available",
+                coverage_ref="catalog://emp01/outcome",
+                dataset_count=1,
+                metric_binding_count=1,
+                observation_count=row_count,
+            ),
+        )
+    
+        candidate = SimpleNamespace(
+            candidate_id="candidate_emp01_sparse_profile",
+            atom=SimpleNamespace(
+                intervention_id="intervention_emp01_sparse_profile",
+                content_hash="sha256:" + "a" * 64,
+                target_world_slots=("outcome",),
+                world_model_record_ref=world_record.world_model_record_id,
+            ),
+            diversity_key=("grant", "fixture_population", "synthetic", "baseline"),
+        )
+    
+        class _FixtureGenerationPort:
+            async def __call__(self, _problem: DesignProblem, *, cycle_index: int) -> Any:
+                del cycle_index
+                return SimpleNamespace(
+                    status="generated",
+                    candidates=(candidate,),
+                    surrogate_rankings=(
+                        SimpleNamespace(
+                            candidate_id=candidate.candidate_id,
+                            score=0.9,
+                            voi_estimate=10.0,
+                        ),
+                    ),
+                    grounding_dispositions=(),
+                )
+    
+        class _FixtureGroundingPort:
+            def __call__(self, *, candidate: Any, **_kwargs: Any) -> Any:
+                return generation_cycle.CandidateGroundingObservation(
+                    candidate_id=str(candidate.candidate_id),
+                    status="grounded_shadow",
+                    grounding_score=0.8,
+                    current_valid=False,
+                    grounding_source="cgf_firewall",
+                    grounding_disposition="synthetic_test_only",
+                    report_ref="synthetic-fixture://emp01/grounding",
+                )
+    
+        class _FixtureSimulationPort:
+            def __call__(self, *, candidate: Any, **_kwargs: Any) -> Any:
+                return generation_cycle.SimulationPortObservation(
+                    candidate_id=str(candidate.candidate_id),
+                    status="joint_simulated",
+                    simulation_ref="sha256:" + "b" * 64,
+                    world_model_record=world_record,
+                    k_world_ref_before=world_record.content_hash,
+                    k_world_ref_after=world_record.content_hash,
+                )
+    
+        class _FixturePromotionPort:
+            def __call__(self, **_kwargs: Any) -> Any:
+                return generation_cycle.PromotionPortObservation(
+                    status="not_promoted",
+                    reason="synthetic_emp01_test_only",
+                )
+    
+        controller = generation_cycle.GenerationCycleController(
+            generation_port=_FixtureGenerationPort(),
+            grounding_port=_FixtureGroundingPort(),
+            simulation_port=_FixtureSimulationPort(),
+            promotion_port=_FixturePromotionPort(),
+            repo_root=tmp_path,
+            authority_scope="contract_testing",
+        )
+        assert isinstance(
+            controller._value_port,
+            generation_cycle._DefaultSimulationBoundFoundryValuePort,
+        )
+        run = await controller.run(
+            problem,
+            budget_state=BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+            ),
+            min_cycles=1,
+            max_cycles=1,
+        )
+    
+        expected_reason = (
+            f"selected owner profile has {row_count} usable rows; at least 4 are required "
+            "owner_access_ref=catalog://emp01/outcome#selected-row-count"
+        )
+>       assert len(connection.calls) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <tests.unit.remediation.test_emp_01._RowsConnection object at 0x13de434d0>.calls
+
+tests/unit/remediation/test_emp_01.py:797: AssertionError
+_ test_nonhandoff_revision_blocks_before_stale_context_n4_and_roundtrips_history _
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/affected-consumers-current-nodes-4bea/pytest-basetemp/test_nonhandoff_revision_block0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13e38c320>
+
+    @pytest.mark.asyncio
+    async def test_nonhandoff_revision_blocks_before_stale_context_n4_and_roundtrips_history(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Retain the first conditional N5 when its revised problem lacks a context."""
+    
+        from polisyos.core.security.tenant_context import tenant_scope
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.quality import design_generation
+        from polisyos.runtime.quality.generation_cycle import (
+            GenerationCycleController,
+            GenerationCycleRun,
+            JointSimulationPort,
+            N4GenerationPort,
+        )
+        from polisyos.runtime.quality.open_world_risk import PromotionRuntime
+        from tests.integration.core_runtime.test_e02_hard_feasibility_before_voi import (
+            _FixtureGrounding,
+            _owner_fixture,
+        )
+        from tests.integration.core_runtime.test_e02_informative_voi_execution import (
+            _bounded_budget,
+            _LowProxyInformationGenerator,
+        )
+    
+        repo_root = Path(__file__).resolve().parents[3]
+        store, problem, context, _high, candidate = _owner_fixture(tmp_path / "owner")
+        first_n4 = _LowProxyInformationGenerator(candidate)
+        default_n4 = N4GenerationPort(
+            model_id="gpt-4o-mini",
+            llm_client=object(),
+            repo_root=repo_root,
+            cycle_substrate_context=context,
+        )
+        dispatched_cycles: list[int] = []
+        default_n4_inputs: list[tuple[Any, Any]] = []
+    
+        async def bounded_default_n4_context_boundary(
+            revised_problem: Any,
+            *,
+            cycle_substrate_context: Any,
+            **kwargs: Any,
+        ) -> Any:
+            """Use the real N4 context check without invoking external generation."""
+    
+            del kwargs
+            default_n4_inputs.append((revised_problem, cycle_substrate_context))
+            return design_generation._cycle_substrate_context_for_problem(
+                cycle_substrate_context,
+                design_problem=revised_problem,
+            )
+    
+        # A full second N4 would make LLM and production-reference setup part of
+        # this context-boundary test. Preserve the real default port and its real
+        # context validator, while stopping at the validator before either owner
+        # dependency is contacted. This is not a full second default N4 run.
+        monkeypatch.setattr(
+            design_generation,
+            "generate_design_candidate_bundle_under_a",
+            bounded_default_n4_context_boundary,
+        )
+    
+        class _FirstFixtureThenDefaultN4:
+            async def __call__(self, candidate_problem: Any, *, cycle_index: int) -> Any:
+                dispatched_cycles.append(cycle_index)
+                if cycle_index == 0:
+                    return await first_n4(candidate_problem, cycle_index=cycle_index)
+                return await default_n4(candidate_problem, cycle_index=cycle_index)
+    
+        n5_observations: list[Any] = []
+        original_n5_call = JointSimulationPort.__call__
+    
+        def observe_real_n5_call(self: JointSimulationPort, **kwargs: Any) -> Any:
+            n5_observations.append(kwargs)
+            return original_n5_call(self, **kwargs)
+    
+        monkeypatch.setattr(JointSimulationPort, "__call__", observe_real_n5_call)
+    
+        try:
+            original_problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+            assert context.design_problem_ref == original_problem_ref
+            controller = GenerationCycleController(
+                generation_port=_FirstFixtureThenDefaultN4(),
+                grounding_port=_FixtureGrounding(),
+                repo_root=repo_root,
+                cycle_substrate_context=context,
+                promotion_runtime=PromotionRuntime(store=store),
+                authority_scope="production",
+            )
+            assert controller._candidate_simulation_handoff is None
+            assert type(controller._simulation_port) is JointSimulationPort
+            assert controller._simulation_port.supports_applicability_preflight(problem)
+    
+            with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+>               run = await controller.run(
+                    problem,
+                    budget_state=_bounded_budget("1.0"),
+                    min_cycles=1,
+                    max_cycles=2,
+                )
+
+tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py:109: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/quality/generation_cycle.py:6430: in run
+    cycle, cycle_summaries = await self._run_cycle(
+src/polisyos/runtime/quality/generation_cycle.py:7371: in _run_cycle
+    finished = await self._engine.run_async(state)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/workflows/engine_simple.py:53: in run_async
+    next_state = await next_state
+                 ^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/generation_cycle.py:8950: in _generate_node
+    result = await result
+             ^^^^^^^^^^^^
+tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py:82: in __call__
+    return await default_n4(candidate_problem, cycle_index=cycle_index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/generation_cycle.py:2806: in __call__
+    organ_run = await generate_design_candidate_bundle_under_a(
+tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py:62: in bounded_default_n4_context_boundary
+    return design_generation._cycle_substrate_context_for_problem(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cycle_substrate_context = CycleSubstrateContext(schema_version='policyos.runtime.cycle_substrate_context.v1', design_problem_ref='sha256:b8dd548...ff5c43fc0298e303318b4ef12221f', content_hash='sha256:7f98ec7c3878ec7e1d7cd0fa7dc92538bc1d63b720da9d3bec5484a9ac94f5a3')
+
+    def _cycle_substrate_context_for_problem(
+        cycle_substrate_context: CycleSubstrateContext,
+        *,
+        design_problem: DesignProblem,
+    ) -> CycleSubstrateContext:
+        """Revalidate one context and reject cross-problem substitution."""
+    
+        from polisyos.runtime.quality.cycle_substrate import (
+            revalidate_cycle_substrate_context,
+        )
+    
+        context = revalidate_cycle_substrate_context(cycle_substrate_context)
+        expected_problem_ref = gy_content_hash(design_problem.model_dump(mode="json"))
+        if context.design_problem_ref != expected_problem_ref:
+>           raise DesignGenerationError("cycle_substrate_design_problem_mismatch")
+E           polisyos.runtime.quality.design_generation.DesignGenerationError: cycle_substrate_design_problem_mismatch: cycle_substrate_design_problem_mismatch
+
+src/polisyos/runtime/quality/design_generation.py:3572: DesignGenerationError
+_______ test_informative_voi_candidate_core_readback_and_preview_refusal _______
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/affected-consumers-current-nodes-4bea/pytest-basetemp/test_informative_voi_candidate0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13e465010>
+
+    @pytest.mark.asyncio
+    async def test_informative_voi_candidate_core_readback_and_preview_refusal(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Read back actual B11 values, then assert the unowned preview is refused.
+    
+        The B11 N6 producer run is real. This fixture manually dispatches a Core
+        control-job lease callback to persist that run through the canonical
+        compiled-recursive artifact writer; it does not claim an ordinary NL
+        request invokes this B11 generator. The recursive wrapper is explicitly
+        contract-testing scoped, and the generic content route's refusal is the
+        expected boundary until an artifact owner supplies preview authority.
+        """
+    
+        pytest.importorskip("fastapi.testclient")
+        from fastapi.testclient import TestClient
+    
+        from polisyos.core import canon
+        from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+        from polisyos.core.security.tenant_context import tenant_scope
+        from polisyos.data_forge.read_api import catalog as catalog_api
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.http import dev_identity_middleware
+        from polisyos.runtime.http.app import create_runtime_api_app
+        from polisyos.runtime.http.container import RuntimeContainerOverrides
+        from polisyos.runtime.http.dependencies import build_runtime_api_context
+        from polisyos.runtime.http.security import build_fixture_identity_claims
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+            CompiledRecursiveGenerationCycleRun,
+        )
+        from polisyos.runtime.quality import substrate_registry
+        from polisyos.runtime.quality.design_axes.coupling_composition import (
+            derive_recursive_design_graph,
+        )
+        from polisyos.runtime.quality.generation_cycle import JointSimulationPort
+        from polisyos.runtime.quality.recursive_generation_cycle import (
+            RecursiveCycleBudget,
+            RecursiveGenerationCycleController,
+            RecursiveGenerationCycleRun,
+        )
+        from polisyos.scientist.methods.search.voi_scheduler import SimpleVOIScheduler
+        from tests._helpers.control_worker import dispatch_one_control_job
+        from tests.integration.core_runtime.test_e02_hard_feasibility_before_voi import (
+            _owner_fixture,
+        )
+        from tests.integration.core_runtime.test_e02_informative_voi_execution import (
+            _bounded_budget,
+            _controller,
+        )
+        from tests.unit.runtime.http.test_control_job_execution_intent import (
+            _valid_intake_for_mode,
+        )
+    
+        monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
+        monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+        monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+        monkeypatch.setenv(
+            "POLISYOS_CONTROL_SQLITE_PATH", (tmp_path / "control.sqlite3").as_posix()
+        )
+        monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
+    
+        catalog_root = tmp_path / "voi-preview-catalog"
+        catalog_api.build_slice0_fixture_catalog_graph(catalog_root).close()
+        curated_root = tmp_path / "voi-preview-curated"
+        curated_root.mkdir()
+        monkeypatch.setenv("POLISYOS_CURATED_DIR", curated_root.as_posix())
+        monkeypatch.setattr(
+            catalog_api,
+            "default_acquisition_overlay_path",
+            lambda _root: tmp_path / "absent-acquisition-overlay.duckdb",
+        )
+        default_catalog_paths = substrate_registry.default_substrate_catalog_paths
+        repo_root = Path(__file__).resolve().parents[3]
+        monkeypatch.setattr(
+            substrate_registry,
+            "default_substrate_catalog_paths",
+            lambda root: (
+                replace(
+                    default_catalog_paths(root),
+                    l1_dcat_path=catalog_root / "catalog.duckdb",
+                )
+                if Path(root).resolve() == repo_root
+                else default_catalog_paths(root)
+            ),
+        )
+    
+        producer_root = tmp_path / "b11-producer"
+        producer_store, problem, substrate_context, _high, candidate = _owner_fixture(
+            producer_root
+        )
+        cas_root = producer_root / "runtime-cas"
+        problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+        root_node_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+        graph = derive_recursive_design_graph(
+            design_ref=root_node_ref,
+            module_refs=(),
+            parent_child_edges=(),
+            rule_version_ref="repo://rules/e02-voi-artifact-preview-contract-test",
+        )
+        cycle_controllers: dict[str, Any] = {}
+    
+        def build_cycle_controller(node_ref: str, _problem: object) -> Any:
+            controller = _controller(
+                store=producer_store,
+                problem=problem,
+                context=substrate_context,
+                candidate=candidate,
+                repo_root=repo_root,
+            )
+            cycle_controllers[node_ref] = controller
+            return controller
+    
+        recursive_controller = RecursiveGenerationCycleController.for_contract_testing(
+            cycle_controller_factory=build_cycle_controller,
+            repo_root=repo_root,
+            artifact_store=producer_store,
+        )
+        n5_calls: list[str] = []
+        original_n5_call = JointSimulationPort.__call__
+    
+        def observe_real_n5_call(self: JointSimulationPort, **kwargs: Any) -> Any:
+            n5_calls.append(str(kwargs["candidate"].candidate_id))
+            return original_n5_call(self, **kwargs)
+    
+        monkeypatch.setattr(JointSimulationPort, "__call__", observe_real_n5_call)
+        try:
+            with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+                recursive_run = await recursive_controller.run(
+                    graph,
+                    problems_by_node={root_node_ref: problem},
+                    budget_state=_bounded_budget("1.0"),
+                    recursive_budget=RecursiveCycleBudget(
+                        max_depth=0,
+                        max_nodes=1,
+                        min_cycles_per_leaf=1,
+                        max_cycles_per_leaf=1,
+                    ),
+                    cycle_substrate_contexts_by_node={root_node_ref: substrate_context},
+                    execution_intents_by_node={root_node_ref: "candidate_only"},
+                )
+    
+            assert isinstance(recursive_run, RecursiveGenerationCycleRun)
+            assert recursive_run.authority_scope == "contract_testing"
+            leaf = recursive_run.leaf_nodes[0]
+            assert leaf.cycle_run is not None
+            n6_run = leaf.cycle_run
+            summary = next(
+                row
+                for row in n6_run.candidate_summaries
+                if row.candidate_id == candidate.candidate_id
+            )
+            cycle = n6_run.cycles[0]
+            assert type(cycle_controllers[root_node_ref]._voi_scheduler) is SimpleVOIScheduler
+            assert cycle.voi_decision.scheduler_action == "advance"
+            assert cycle.voi_decision.scheduler_reason == "advance_by_information_value"
+            assert cycle.simulation.status == "joint_simulated"
+            assert cycle.value_port.status == "value_conditional"
+            assert summary.proxy_score == 0.0
+            assert summary.voi_estimate == 0.4
+            assert not summary.certified_by_n9
+            assert n5_calls == [candidate.candidate_id]
+    
+            compiled_payload = {
+                "schema_version": COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+                "design_problem_ref": problem_ref,
+                "design_problem": problem.model_dump(mode="json"),
+                "cycle_substrate_context_ref": None,
+                "recursive_run": recursive_run.model_dump(
+                    mode="json", exclude={"leaf_nodes"}
+                ),
+            }
+            compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+                {**compiled_payload, "content_hash": gy_content_hash(compiled_payload)}
+            )
+    
+            first_context = build_runtime_api_context(
+                cas_root=cas_root,
+                core_runs_root=cas_root / "runs",
+            )
+>           first_app = create_runtime_api_app(
+                cas_root=cas_root,
+                container_overrides=RuntimeContainerOverrides(runtime_api_context=first_context),
+                allow_fixture_identity=True,
+            )
+
+tests/integration/core_runtime/test_e02_voi_artifact_projection.py:198: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/app.py:220: in create_runtime_api_app
+    runtime_container = RuntimeServiceContainer.build(
+src/polisyos/runtime/http/container.py:271: in build
+    promotion_runtime = PromotionRuntime(
+src/polisyos/runtime/quality/open_world_risk.py:1282: in __init__
+    self.verifier_provenance_ref = store.put_bytes(
+src/polisyos/runtime/http/resilience.py:282: in _wrapped
+    return self._guard.run(attr, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:146: in run
+    result = future.result(timeout=self._timeout_seconds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:134: in _invoke
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2409: in put_bytes
+    deduplicated, ref_profile_sha256 = self._put_blob_and_manifest_once(
+src/polisyos/core/artifacts/store.py:2167: in _put_blob_and_manifest_once
+    self._require_unclaimed_target_if_unscoped(aid, operation="write")
+src/polisyos/core/artifacts/store.py:1142: in _require_unclaimed_target_if_unscoped
+    self._require_unclaimed_without_owner(artifact_id, operation=operation)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.store.FileSystemCAS object at 0x13fa3fb50>
+artifact_id = ArtifactID(root='sha256:6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0')
+
+    def _require_unclaimed_without_owner(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        operation: str,
+        ref: ArtifactRef | None = None,
+        manifest_profile_sha256: str | None = None,
+    ) -> None:
+        if _GOVERNED_PUBLIC_READ.get() is not None:
+            self._require_governed_public_read(
+                artifact_id,
+                manifest_profile_sha256,
+                operation=operation,
+                ref=ref,
+            )
+            return
+        if self._ownership_index.has_any_tenant_claim(artifact_id):
+>           raise ArtifactOwnershipError(
+                f"Artifact {artifact_id} has tenant ownership claims; an active owner "
+                f"is required for {operation}"
+            )
+E           polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0 has tenant ownership claims; an active owner is required for write
+
+src/polisyos/core/artifacts/store.py:1034: ArtifactOwnershipError
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_emp_01.py::test_default_cycle_value_refusal_survives_persisted_run_readback[1]
+FAILED tests/unit/remediation/test_emp_01.py::test_default_cycle_value_refusal_survives_persisted_run_readback[2]
+FAILED tests/unit/remediation/test_emp_01.py::test_default_cycle_value_refusal_survives_persisted_run_readback[3]
+FAILED tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py::test_nonhandoff_revision_blocks_before_stale_context_n4_and_roundtrips_history
+FAILED tests/integration/core_runtime/test_e02_voi_artifact_projection.py::test_informative_voi_candidate_core_readback_and_preview_refusal
+5 failed, 2 passed in 20.82s

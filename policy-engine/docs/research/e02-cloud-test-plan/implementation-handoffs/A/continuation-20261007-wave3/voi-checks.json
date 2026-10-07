@@ -1,0 +1,479 @@
+{
+  "schema": "policyos.e02.A.informative_voi_wave3_checks.v1",
+  "purpose": "Record the bounded default-N6 informative-advance witness, its budget-exhaustion control, and the qualifying removal falsifier. Attempts remain separate; the R1 failure is expected-falsifier evidence, not a product PASS.",
+  "source_candidate": {
+    "sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+    "tree": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+    "base_sha": "1a520b209ce4bac86204137d15e765de05c08a73",
+    "base_tree": "1d4b7e814d72248ec96a0b0ec3ad90fe4f97eccb"
+  },
+  "implementation_focus": {
+    "commits": [
+      {
+        "sha": "a6fa9c37c223d99669ad0503216e328c24f9905f",
+        "tree": "ab08eca24c5515c82ca7ad79ca251d9618cb8e37",
+        "change": "Added the B11 integration test only (200 lines in the new test path)."
+      },
+      {
+        "sha": "aaa89a6988ed553310fc7950054e7b6af4a05956",
+        "tree": "783954226a2e68486c7fc8d6b63f5e7f19093097",
+        "change": "Lint-only follow-up: two additions/two deletions in the B11 test plus one unrelated one-line edit in test_emp_01.py."
+      }
+    ],
+    "test_path": "policy-engine/tests/integration/core_runtime/test_e02_informative_voi_execution.py",
+    "test_blob_at_candidate": "9403ab4d41eadca013237847c1bbbe36b38e8d68",
+    "test_blob_at_earlier_positive": "7efd9e17a2acb077edc2074d9a5b52a75a3e78b0",
+    "scheduler_path": "policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py",
+    "scheduler_blob_at_candidate": "c14f3425a40d71ae28278157b9e2293f657c6cb1",
+    "scheduler_sha256": "c67b2f09acca9922950454019e95fa99162a2cc8f775c7ba9c44553ec5349f59",
+    "controller_source_path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "controller_source_blob_at_candidate": "2c0dc500c055624687b3b6f9ab74ebba5b3f6881",
+    "production_change_by_B11_focus_commits": false,
+    "interpretation": "The default SimpleVOIScheduler, GenerationCycleController, JointSimulationPort, and typed budget input are existing production owners. The B11 change is an integration test, not a production scheduler modification."
+  },
+  "test_mechanism": {
+    "generator_fixture": "_LowProxyInformationGenerator supplies one candidate with proxy score 0.0 and fixture voi_estimate 0.4; 0.4 is not empirically calibrated information gain.",
+    "controller": "GenerationCycleController default composition; test asserts exact SimpleVOIScheduler, no candidate simulation handoff, exact JointSimulationPort, and N5 applicability-preflight support.",
+    "positive_case": "BudgetState cap max_usd=1.0; scheduler estimated next-step cost is 0.5 in the R1 observation, so the configured cap fits. Original scheduler selects advance_by_information_value; actual JointSimulationPort call returns a joint-simulation result reference; default value port returns value_conditional and references the same result artifact ID.",
+    "exhaustion_control": "Separate eligible candidate and BudgetState cap max_usd=0.0; scheduler returns defer/budget_exhausted_for_next_level, simulation is blocked with no result reference, and the observed N5 call list remains unchanged.",
+    "cost_and_authority_boundary": "USD cap and estimated stage cost are scheduler fixture inputs/estimate. No provider usage, debit, invoice, settlement, or actual money spend is measured or asserted."
+  },
+  "attempts": [
+    {
+      "id": "informative-voi-execution-5a1f",
+      "role": "Earlier successful positive witness; retained separately, not aggregated with the later candidate.",
+      "candidate": {
+        "sha": "5a1fff2f8c922af8289e5eff9fe7f1545edbd1ee",
+        "tree": "a27d110ef2a426732976914f4e14fc2cca23bc8f",
+        "test_blob": "7efd9e17a2acb077edc2074d9a5b52a75a3e78b0"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 21.30693970900029,
+      "junit_counts": {
+        "tests": 1,
+        "passed": 1,
+        "failures": 0
+      },
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/informative-voi-execution-5a1f/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/informative-voi-execution-5a1f/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_informative_voi_execution.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/informative-voi-execution-5a1f:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "receipt_path": "evidence/informative-voi-execution-5a1f/receipt.json",
+      "receipt_sha256": "ce7e12606435e5245d21ca69613e84ae0ea6871d651331993f7e89a2e26a8ad2",
+      "outputs": {
+        "receipt.json": {
+          "path": "evidence/informative-voi-execution-5a1f/receipt.json",
+          "bytes": 3653,
+          "sha256": "ce7e12606435e5245d21ca69613e84ae0ea6871d651331993f7e89a2e26a8ad2"
+        },
+        "stdout.txt": {
+          "path": "evidence/informative-voi-execution-5a1f/stdout.txt",
+          "bytes": 99,
+          "sha256": "06547a98950e0bd15e3cbb2152b37374f40fba352dca9b9dfa013a4f8600a4f0"
+        },
+        "stderr.txt": {
+          "path": "evidence/informative-voi-execution-5a1f/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "junit.xml": {
+          "path": "evidence/informative-voi-execution-5a1f/junit.xml",
+          "bytes": 447,
+          "sha256": "a62bc76a28f45dd76507b2df504b96aec6c5c84174f0354f5908612cc63b3cef"
+        },
+        "e02_origin.py": {
+          "path": "evidence/informative-voi-execution-5a1f/e02_origin.py",
+          "bytes": 656,
+          "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+        },
+        "origins.json": {
+          "path": "evidence/informative-voi-execution-5a1f/origins.json",
+          "bytes": 1095,
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+        }
+      }
+    },
+    {
+      "id": "informative-voi-execution-final-3ba1",
+      "role": "Deciding native positive witness on the pinned final candidate.",
+      "candidate": {
+        "sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+        "tree": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+        "test_blob": "9403ab4d41eadca013237847c1bbbe36b38e8d68"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 21.598396541026887,
+      "junit_counts": {
+        "tests": 1,
+        "passed": 1,
+        "failures": 0
+      },
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/informative-voi-execution-final-3ba1/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/informative-voi-execution-final-3ba1/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_informative_voi_execution.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/informative-voi-execution-final-3ba1:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "receipt_path": "evidence/informative-voi-execution-final-3ba1/receipt.json",
+      "receipt_sha256": "0a2ec1999c345e745f914b25cf908c7168e8cad95ee1fd4e6b859388f9646f31",
+      "outputs": {
+        "receipt.json": {
+          "path": "evidence/informative-voi-execution-final-3ba1/receipt.json",
+          "bytes": 4506,
+          "sha256": "0a2ec1999c345e745f914b25cf908c7168e8cad95ee1fd4e6b859388f9646f31"
+        },
+        "stdout.txt": {
+          "path": "evidence/informative-voi-execution-final-3ba1/stdout.txt",
+          "bytes": 99,
+          "sha256": "9d190099eb91166abb12ceccb056ec3c0f876566e3040cda3eb6ece34ac7ef8f"
+        },
+        "stderr.txt": {
+          "path": "evidence/informative-voi-execution-final-3ba1/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "junit.xml": {
+          "path": "evidence/informative-voi-execution-final-3ba1/junit.xml",
+          "bytes": 447,
+          "sha256": "5ce003199f0aa0187be8131c9d63bf468847c529888ac5ebd13e60c9394ad69a"
+        },
+        "e02_origin.py": {
+          "path": "evidence/informative-voi-execution-final-3ba1/e02_origin.py",
+          "bytes": 656,
+          "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+        },
+        "origins.json": {
+          "path": "evidence/informative-voi-execution-final-3ba1/origins.json",
+          "bytes": 1095,
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+        }
+      }
+    }
+  ],
+  "removal_attempts": [
+    {
+      "id": "informative-voi-r1-3ba1",
+      "role": "Qualifying removal probe; the target fails after mutation of the default information-advance branch, the expected falsifier outcome.",
+      "candidate": {
+        "sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+        "tree": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+        "test_blob": "9403ab4d41eadca013237847c1bbbe36b38e8d68"
+      },
+      "runner_outcome": "EXPECTED_FALSIFIER",
+      "pytest_exit_code": 1,
+      "wall_seconds": 20.273549625009764,
+      "junit_counts": {
+        "tests": 1,
+        "passed": 0,
+        "failures": 1
+      },
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/informative-voi-r1-3ba1/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/informative-voi-r1-3ba1/pytest-basetemp",
+        "-p",
+        "informative_voi_removal",
+        "tests/integration/core_runtime/test_e02_informative_voi_execution.py::test_default_information_value_advance_executes_real_n5_and_budget_blocks_it"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/informative-voi-r1-3ba1:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "mutation": "The test-only plugin calls the actual default SimpleVOIScheduler decision method, then changes only the eligible positive-information, zero-proxy, within-cap advance to an ROI rejection. Budget priority and N5 hard-feasibility behavior remain in place.",
+      "evidence_verdict": "EXPECTED_FALSIFIER",
+      "qualifying_observations": {
+        "qualified_original_information_advance": true,
+        "expected_assertion_failure_observed": true,
+        "eligible_candidate_blocked_without_n5_execution": true,
+        "observed_scheduler_decisions": [
+          {
+            "budget_fits": true,
+            "budget_remaining": "1.0",
+            "candidate_id": "candidate_feasible_single",
+            "estimated_cost": "0.5",
+            "expected_improvement_per_usd": 0.0,
+            "expected_information_gain": 0.4,
+            "mutated_action": "reject",
+            "mutated_reason": "roi_below_threshold",
+            "mutation_applied": true,
+            "next_level": 3,
+            "original_action": "advance",
+            "original_reason": "advance_by_information_value",
+            "qualified_actual_information_advance": true,
+            "raw_proxy_score_from_scheduler_inputs": 0.0,
+            "scheduler_type": "polisyos.scientist.methods.search.voi_scheduler.SimpleVOIScheduler"
+          },
+          {
+            "budget_fits": true,
+            "budget_remaining": "1.0",
+            "candidate_id": "candidate_feasible_single",
+            "estimated_cost": "0.5",
+            "expected_improvement_per_usd": 0.0,
+            "expected_information_gain": 0.4,
+            "mutated_action": "reject",
+            "mutated_reason": "roi_below_threshold",
+            "mutation_applied": true,
+            "next_level": 3,
+            "original_action": "advance",
+            "original_reason": "advance_by_information_value",
+            "qualified_actual_information_advance": true,
+            "raw_proxy_score_from_scheduler_inputs": 0.0,
+            "scheduler_type": "polisyos.scientist.methods.search.voi_scheduler.SimpleVOIScheduler"
+          }
+        ],
+        "failure_snapshot": {
+          "observed_n5_calls": [],
+          "preflight_status": "eligible",
+          "scheduler_action": "reject",
+          "scheduler_reason": "roi_below_threshold",
+          "simulation_result_ref": "None",
+          "simulation_status": "simulation_blocked",
+          "summary_information_estimate": 0.4,
+          "summary_proxy_score": 0.0
+        },
+        "call_count_note": "Two actual scheduler decision observations are present in this R1 report; no fixed-call-count property is claimed."
+      },
+      "receipt_path": "evidence/informative-voi-r1-3ba1/receipt.json",
+      "receipt_sha256": "f3081d88ed09d79590f29a1621bc841e03d729a91811c4ffa5fa0aa8391d6aa3",
+      "outputs": {
+        "receipt.json": {
+          "path": "evidence/informative-voi-r1-3ba1/receipt.json",
+          "bytes": 4875,
+          "sha256": "f3081d88ed09d79590f29a1621bc841e03d729a91811c4ffa5fa0aa8391d6aa3"
+        },
+        "stdout.txt": {
+          "path": "evidence/informative-voi-r1-3ba1/stdout.txt",
+          "bytes": 55115,
+          "sha256": "eeaa5b00371556f31ae2c324f8edc25343dcb9734ea082d74e5b2d20bfe1fcf8"
+        },
+        "stderr.txt": {
+          "path": "evidence/informative-voi-r1-3ba1/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "junit.xml": {
+          "path": "evidence/informative-voi-r1-3ba1/junit.xml",
+          "bytes": 4110,
+          "sha256": "39a4b40dc4dbf3a81f8838cd9fc282dfe610da852b14366fc686dfdb07abc353"
+        },
+        "e02_origin.py": {
+          "path": "evidence/informative-voi-r1-3ba1/e02_origin.py",
+          "bytes": 656,
+          "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+        },
+        "origins.json": {
+          "path": "evidence/informative-voi-r1-3ba1/origins.json",
+          "bytes": 1095,
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+        },
+        "informative_voi_removal.py": {
+          "path": "evidence/informative-voi-r1-3ba1/informative_voi_removal.py",
+          "bytes": 10909,
+          "sha256": "8d336110fb8466994985719ee6efa1c1392229e1a16b7c1c10c96078e2f351d9"
+        },
+        "r1_evidence.json": {
+          "path": "evidence/informative-voi-r1-3ba1/r1_evidence.json",
+          "bytes": 8184,
+          "sha256": "9c58463cc09e83f4afb94fa9e0ec1124e71b186a283387f12fb67b42e16d9056"
+        }
+      }
+    }
+  ],
+  "predicate_basis": {
+    "candidate_applicability": "recomputed: the default N5 port preflights the actual candidate/problem, test observes eligible status, and positive path executes the same real JointSimulationPort.",
+    "scheduler_outcome": "recomputed: the returned default controller cycle records original scheduler action/reason; R1 mutates that branch and causes the unchanged execution assertion to fail with zero actual N5 calls.",
+    "budget_cap_and_step_cost": "institutionally_supplied test fixture: BudgetState cap and existing stage cost estimate are supplied to scheduler; this does not establish an actual debit or provider spend.",
+    "information_estimate": "institutionally_supplied test fixture: 0.4 is a controlled ranking input, not an independently validated information-gain measurement.",
+    "public_projection_and_claim_label": "not_established: no API/audit/public projection is invoked or asserted."
+  },
+  "overall_claim": "The bounded default SimpleVOIScheduler execution property is demonstrated: with a valid candidate, positive fixture-supplied information signal, zero value proxy, and a cap that fits the estimated step, the default scheduler advances and default N5 executes; an exhausted cap defers and prevents a new N5 call. The R1 removal witness confirms that the informative branch controls execution.",
+  "limitations_and_nonclaims": [
+    "The 0.4 information estimate is fixture-supplied and not empirically calibrated; no true information value or probability of usefulness is established.",
+    "The scheduler budget cap and estimated step cost are not a cost meter. No recorded provider usage, owner debit, billing, settlement, or exactly-once spend is established; B66 remains a separate edge.",
+    "The test asserts typed in-memory cycle outputs and N5 result/value references, not a public HTTP/API/audit/publication projection of VOI terminology. A production projection must not label the heuristic as measured monetary VOI or probability; that surface property remains unverified here.",
+    "This is one existing default SimpleVOIScheduler and bounded NCM fixture path; it does not establish behavior for every scheduler, method, engine, full scientific workflow, or N9/currentness/publication."
+  ],
+  "output_artifacts": {
+    "informative-voi-execution-5a1f": {
+      "receipt.json": {
+        "path": "evidence/informative-voi-execution-5a1f/receipt.json",
+        "bytes": 3653,
+        "sha256": "ce7e12606435e5245d21ca69613e84ae0ea6871d651331993f7e89a2e26a8ad2"
+      },
+      "stdout.txt": {
+        "path": "evidence/informative-voi-execution-5a1f/stdout.txt",
+        "bytes": 99,
+        "sha256": "06547a98950e0bd15e3cbb2152b37374f40fba352dca9b9dfa013a4f8600a4f0"
+      },
+      "stderr.txt": {
+        "path": "evidence/informative-voi-execution-5a1f/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "junit.xml": {
+        "path": "evidence/informative-voi-execution-5a1f/junit.xml",
+        "bytes": 447,
+        "sha256": "a62bc76a28f45dd76507b2df504b96aec6c5c84174f0354f5908612cc63b3cef"
+      },
+      "e02_origin.py": {
+        "path": "evidence/informative-voi-execution-5a1f/e02_origin.py",
+        "bytes": 656,
+        "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+      },
+      "origins.json": {
+        "path": "evidence/informative-voi-execution-5a1f/origins.json",
+        "bytes": 1095,
+        "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+      }
+    },
+    "informative-voi-execution-final-3ba1": {
+      "receipt.json": {
+        "path": "evidence/informative-voi-execution-final-3ba1/receipt.json",
+        "bytes": 4506,
+        "sha256": "0a2ec1999c345e745f914b25cf908c7168e8cad95ee1fd4e6b859388f9646f31"
+      },
+      "stdout.txt": {
+        "path": "evidence/informative-voi-execution-final-3ba1/stdout.txt",
+        "bytes": 99,
+        "sha256": "9d190099eb91166abb12ceccb056ec3c0f876566e3040cda3eb6ece34ac7ef8f"
+      },
+      "stderr.txt": {
+        "path": "evidence/informative-voi-execution-final-3ba1/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "junit.xml": {
+        "path": "evidence/informative-voi-execution-final-3ba1/junit.xml",
+        "bytes": 447,
+        "sha256": "5ce003199f0aa0187be8131c9d63bf468847c529888ac5ebd13e60c9394ad69a"
+      },
+      "e02_origin.py": {
+        "path": "evidence/informative-voi-execution-final-3ba1/e02_origin.py",
+        "bytes": 656,
+        "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+      },
+      "origins.json": {
+        "path": "evidence/informative-voi-execution-final-3ba1/origins.json",
+        "bytes": 1095,
+        "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+      }
+    },
+    "informative-voi-r1-3ba1": {
+      "receipt.json": {
+        "path": "evidence/informative-voi-r1-3ba1/receipt.json",
+        "bytes": 4875,
+        "sha256": "f3081d88ed09d79590f29a1621bc841e03d729a91811c4ffa5fa0aa8391d6aa3"
+      },
+      "stdout.txt": {
+        "path": "evidence/informative-voi-r1-3ba1/stdout.txt",
+        "bytes": 55115,
+        "sha256": "eeaa5b00371556f31ae2c324f8edc25343dcb9734ea082d74e5b2d20bfe1fcf8"
+      },
+      "stderr.txt": {
+        "path": "evidence/informative-voi-r1-3ba1/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "junit.xml": {
+        "path": "evidence/informative-voi-r1-3ba1/junit.xml",
+        "bytes": 4110,
+        "sha256": "39a4b40dc4dbf3a81f8838cd9fc282dfe610da852b14366fc686dfdb07abc353"
+      },
+      "e02_origin.py": {
+        "path": "evidence/informative-voi-r1-3ba1/e02_origin.py",
+        "bytes": 656,
+        "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+      },
+      "origins.json": {
+        "path": "evidence/informative-voi-r1-3ba1/origins.json",
+        "bytes": 1095,
+        "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+      },
+      "informative_voi_removal.py": {
+        "path": "evidence/informative-voi-r1-3ba1/informative_voi_removal.py",
+        "bytes": 10909,
+        "sha256": "8d336110fb8466994985719ee6efa1c1392229e1a16b7c1c10c96078e2f351d9"
+      },
+      "r1_evidence.json": {
+        "path": "evidence/informative-voi-r1-3ba1/r1_evidence.json",
+        "bytes": 8184,
+        "sha256": "9c58463cc09e83f4afb94fa9e0ec1124e71b186a283387f12fb67b42e16d9056"
+      }
+    }
+  },
+  "surface_trace": {
+    "kind": "static type/serializer path trace; no claim of a tested public export",
+    "generation_cycle": {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "git_blob": "2c0dc500c055624687b3b6f9ab74ebba5b3f6881",
+      "locators": [
+        "CandidateSummary.proxy_score and voi_estimate at lines 1512-1529",
+        "GenerationCycleRecord.voi_decision at line 1648",
+        "GenerationCycleRun.cycles and candidate_summaries at lines 2290-2307"
+      ],
+      "meaning": "The internal typed run can retain scheduler decisions and the candidate proxy/estimate."
+    },
+    "compiled_control_projection": {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "git_blob": "ea382413f735bd9f9af3dbd000bff08242626b8d",
+      "locator": "CompiledRecursiveGenerationCycleRun.recursive_run at lines 767-783",
+      "meaning": "The control-layer compiled object carries a recursive run type."
+    },
+    "behavior_exercised_by_b11_test": "GenerationCycleController.run direct return values only; the test checks the typed cycle decision, applicability, N5 result reference, and default value-port reference.",
+    "behavior_not_exercised": "No control HTTP handler, serialized compiled recursive response, audit export, or publication surface is called or asserted; the test therefore does not establish how this estimate is named or caveated outside the direct typed run."
+  }
+}

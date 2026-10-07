@@ -1,0 +1,112 @@
+{
+  "workspace_dirty_before": [
+    " M policy-engine/tests/integration/core_runtime/test_e02_voi_artifact_projection.py",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/LA045-caller-census.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/compiler-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b23-physical-cache-current-3ba1/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-caller-census-1a52/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-global-residual-3ba1/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-native-operational-1a52/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/informative-voi-execution-5a1f/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/informative-voi-execution-final-3ba1/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/informative-voi-r1-3ba1/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/finding-recommendations.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/ksim-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/physical-cache-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/progress-row-adjudication-draft.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/voi-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/informative-voi-execution.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/ksim-carrier-removal.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/physical-cache-current-inputs.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-source-input-gap.json"
+  ],
+  "workspace_dirty_after": [
+    " M policy-engine/tests/integration/core_runtime/test_e02_voi_artifact_projection.py",
+    " M policy-engine/tests/unit/remediation/test_emp_01.py",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/LA045-caller-census.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/compiler-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b23-physical-cache-current-3ba1/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-caller-census-1a52/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-global-residual-3ba1/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-native-operational-1a52/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/informative-voi-execution-5a1f/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/informative-voi-execution-final-3ba1/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/informative-voi-r1-3ba1/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/finding-recommendations.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/ksim-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/physical-cache-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/progress-row-adjudication-draft.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/voi-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/informative-voi-execution.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/ksim-carrier-removal.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/physical-cache-current-inputs.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-source-input-gap.json"
+  ],
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "e02_origin",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "-q",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-guard-r1-ca03/junit.xml",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-guard-r1-ca03/pytest-basetemp",
+    "tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py::test_nonhandoff_revision_blocks_before_stale_context_n4_and_roundtrips_history",
+    "-p",
+    "b27_context_guard_removal_r1"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "ca038ac238af074b938ea532f0182664fe611b41",
+  "candidate_tree": "51d874b3ce4f6c057b7495c312b591d4ad227d23",
+  "exit_code": 1,
+  "wall_s": 19.430989041982684,
+  "environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-guard-r1-ca03:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "JAX_PLATFORMS": "cpu"
+  },
+  "probe_environment": {},
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+    "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 58947,
+      "sha256": "b39fbb787b1bf222e29ffa0fdfd102a6b62888bbb45ed06641d2697a29db53b9"
+    },
+    "r1-receipt.json": {
+      "bytes": 3673,
+      "sha256": "93dda8c71525c5e6821b3bfb6ef8e2e2f52eed41055f15f89c17a34e4f905708"
+    },
+    "b27_context_guard_removal_r1.py": {
+      "bytes": 12089,
+      "sha256": "652f65073cbc9822417716b20fc2e6c250ea2f46aaac3b904108856ff5fc6e4f"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "e02_origin.py": {
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    },
+    "junit.xml": {
+      "bytes": 8016,
+      "sha256": "5647c24b93495f4184252f2bc088c785fca81c953ce1ff79257d9f4b5da10451"
+    },
+    "origins.json": {
+      "bytes": 1095,
+      "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+    }
+  }
+}

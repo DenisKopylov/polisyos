@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="3.172" timestamp="2026-10-07T21:52:10.089814+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.integration.core_runtime.test_e02_nonhandoff_context_revision" name="test_nonhandoff_revision_blocks_before_stale_context_n4_and_roundtrips_history" time="2.897"><failure message="polisyos.runtime.quality.design_generation.DesignGenerationError: cycle_substrate_design_problem_mismatch: cycle_substrate_design_problem_mismatch">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-guard-r1-ca03/pytest-basetemp/test_nonhandoff_revision_block0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x12caf4fc0&gt;
+
+    @pytest.mark.asyncio
+    async def test_nonhandoff_revision_blocks_before_stale_context_n4_and_roundtrips_history(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """Retain the first conditional N5 when its revised problem lacks a context."""
+    
+        from polisyos.core.security.tenant_context import tenant_scope
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.quality import design_generation
+        from polisyos.runtime.quality.generation_cycle import (
+            GenerationCycleController,
+            GenerationCycleRun,
+            JointSimulationPort,
+            N4GenerationPort,
+        )
+        from polisyos.runtime.quality.open_world_risk import PromotionRuntime
+        from tests.integration.core_runtime.test_e02_hard_feasibility_before_voi import (
+            _FixtureGrounding,
+            _owner_fixture,
+        )
+        from tests.integration.core_runtime.test_e02_informative_voi_execution import (
+            _bounded_budget,
+            _LowProxyInformationGenerator,
+        )
+    
+        repo_root = Path(__file__).resolve().parents[3]
+        store, problem, context, _high, candidate = _owner_fixture(tmp_path / "owner")
+        first_n4 = _LowProxyInformationGenerator(candidate)
+        default_n4 = N4GenerationPort(
+            model_id="gpt-4o-mini",
+            llm_client=object(),
+            repo_root=repo_root,
+            cycle_substrate_context=context,
+        )
+        dispatched_cycles: list[int] = []
+        default_n4_inputs: list[tuple[Any, Any]] = []
+    
+        async def bounded_default_n4_context_boundary(
+            revised_problem: Any,
+            *,
+            cycle_substrate_context: Any,
+            **kwargs: Any,
+        ) -&gt; Any:
+            """Use the real N4 context check without invoking external generation."""
+    
+            del kwargs
+            default_n4_inputs.append((revised_problem, cycle_substrate_context))
+            return design_generation._cycle_substrate_context_for_problem(
+                cycle_substrate_context,
+                design_problem=revised_problem,
+            )
+    
+        # A full second N4 would make LLM and production-reference setup part of
+        # this context-boundary test. Preserve the real default port and its real
+        # context validator, while stopping at the validator before either owner
+        # dependency is contacted. This is not a full second default N4 run.
+        monkeypatch.setattr(
+            design_generation,
+            "generate_design_candidate_bundle_under_a",
+            bounded_default_n4_context_boundary,
+        )
+    
+        class _FirstFixtureThenDefaultN4:
+            async def __call__(self, candidate_problem: Any, *, cycle_index: int) -&gt; Any:
+                dispatched_cycles.append(cycle_index)
+                if cycle_index == 0:
+                    return await first_n4(candidate_problem, cycle_index=cycle_index)
+                return await default_n4(candidate_problem, cycle_index=cycle_index)
+    
+        n5_observations: list[Any] = []
+        original_n5_call = JointSimulationPort.__call__
+    
+        def observe_real_n5_call(self: JointSimulationPort, **kwargs: Any) -&gt; Any:
+            n5_observations.append(kwargs)
+            return original_n5_call(self, **kwargs)
+    
+        monkeypatch.setattr(JointSimulationPort, "__call__", observe_real_n5_call)
+    
+        try:
+            original_problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+            assert context.design_problem_ref == original_problem_ref
+            controller = GenerationCycleController(
+                generation_port=_FirstFixtureThenDefaultN4(),
+                grounding_port=_FixtureGrounding(),
+                repo_root=repo_root,
+                cycle_substrate_context=context,
+                promotion_runtime=PromotionRuntime(store=store),
+                authority_scope="production",
+            )
+            assert controller._candidate_simulation_handoff is None
+            assert type(controller._simulation_port) is JointSimulationPort
+            assert controller._simulation_port.supports_applicability_preflight(problem)
+    
+            with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+&gt;               run = await controller.run(
+                    problem,
+                    budget_state=_bounded_budget("1.0"),
+                    min_cycles=1,
+                    max_cycles=2,
+                )
+
+tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py:109: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/quality/generation_cycle.py:6430: in run
+    cycle, cycle_summaries = await self._run_cycle(
+src/polisyos/runtime/quality/generation_cycle.py:7371: in _run_cycle
+    finished = await self._engine.run_async(state)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/workflows/engine_simple.py:53: in run_async
+    next_state = await next_state
+                 ^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/generation_cycle.py:8950: in _generate_node
+    result = await result
+             ^^^^^^^^^^^^
+tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py:82: in __call__
+    return await default_n4(candidate_problem, cycle_index=cycle_index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/generation_cycle.py:2806: in __call__
+    organ_run = await generate_design_candidate_bundle_under_a(
+tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py:62: in bounded_default_n4_context_boundary
+    return design_generation._cycle_substrate_context_for_problem(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cycle_substrate_context = CycleSubstrateContext(schema_version='policyos.runtime.cycle_substrate_context.v1', design_problem_ref='sha256:d1fcc48...18f1b6386082748388256124a2426', content_hash='sha256:8a6831a26767598f54329c5e4c725638ac996f1d1395bc731ce2c1eea76d76d0')
+
+    def _cycle_substrate_context_for_problem(
+        cycle_substrate_context: CycleSubstrateContext,
+        *,
+        design_problem: DesignProblem,
+    ) -&gt; CycleSubstrateContext:
+        """Revalidate one context and reject cross-problem substitution."""
+    
+        from polisyos.runtime.quality.cycle_substrate import (
+            revalidate_cycle_substrate_context,
+        )
+    
+        context = revalidate_cycle_substrate_context(cycle_substrate_context)
+        expected_problem_ref = gy_content_hash(design_problem.model_dump(mode="json"))
+        if context.design_problem_ref != expected_problem_ref:
+&gt;           raise DesignGenerationError("cycle_substrate_design_problem_mismatch")
+E           polisyos.runtime.quality.design_generation.DesignGenerationError: cycle_substrate_design_problem_mismatch: cycle_substrate_design_problem_mismatch
+
+src/polisyos/runtime/quality/design_generation.py:3572: DesignGenerationError</failure></testcase></testsuite></testsuites>

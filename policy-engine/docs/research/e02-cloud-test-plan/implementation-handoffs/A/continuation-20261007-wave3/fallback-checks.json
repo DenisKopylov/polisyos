@@ -1,0 +1,530 @@
+{
+  "schema": "policyos.e02.registered_fallback_checks.v1",
+  "slice": "registered-fallback-n5-n8-wave3-checks",
+  "unit": "A",
+  "closure_ids": [
+    "B06",
+    "B07"
+  ],
+  "bundle_ids": [
+    "SIM-01"
+  ],
+  "slice_base_sha": "b7ec8d8d8104c319d1396d2a95ceaff85d0aad03",
+  "implementation_commits": [
+    "552e24ff822cea3fe2bb0e06b22a98a64efac5e8"
+  ],
+  "candidate_tree_sha": "3cebd1c96cc6b4c2f877ae4ea2954076f44339bd",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py"
+  ],
+  "baseline_cells": {
+    "prior_attempt": {
+      "candidate": "b7ec8d8d8104c319d1396d2a95ceaff85d0aad03",
+      "target_test_blob": "4d309f5c8b400c4c77527954873fa876c83bcb55",
+      "outcome": "FAIL",
+      "meaning": "The actual selected path and default N8 consumer succeeded; the assertion confused an actual two-point static-horizon rejection with a coupling rejection."
+    },
+    "updated_target": {
+      "test_commit": "552e24ff822cea3fe2bb0e06b22a98a64efac5e8",
+      "target_test_blob": "274058481969fb5c2fab9db4edc4833e3a4a6880",
+      "outcome": "2 target cases PASS inside a 7-case aggregate that FAILS 2P/5F",
+      "aggregate_is_green": false
+    },
+    "exact_existing_sim01_subset": {
+      "run_id": "frozen-consumer-wave-d273",
+      "candidate_commit": "d273659a117d20c70f2598309fec558c8e753b77",
+      "candidate_tree_sha": "eb27248291194b311689f2ef3244bc738d1628bd",
+      "whole_command_outcome": "FAIL",
+      "whole_command_counts": {
+        "tests": 355,
+        "passed": 350,
+        "failed": 5,
+        "errors": 0,
+        "skipped": 0,
+        "exit_code": 1
+      },
+      "exact_junit_subset": {
+        "junit_path": "policy-engine/_build/e02-A-continuation-20261007/frozen-consumer-wave-d273/junit.xml",
+        "junit_sha256": "afd6e162e86fef3358f0b7ea14fc2186df43e2d33b8dc9d6f119147488ee8114",
+        "selector": "testsuite/testcase[@classname='tests.unit.remediation.test_sim_01']",
+        "count": 20,
+        "passed": 20,
+        "failed_or_errored_or_skipped": 0,
+        "source_path": "policy-engine/tests/unit/remediation/test_sim_01.py",
+        "source_git_blob_at_d273_and_4bea": "03af57d500d296d00f5ea7733f8fef6e8a1b1fc9",
+        "controller_source_path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "controller_source_git_blob_at_d273_and_4bea": "77f0743bebfdf72f635a0f0477884c279b865da6"
+      },
+      "reuse_scope": "The 20 exact SIM-01 direct-controller testcases provide lower-level fallback, both-rejected, selected-without-trajectory, and input/coupling controls. They do not substitute for this generation-cycle producer→CAS→default-N8 consumer path, and the 355-test wave itself was not green."
+    },
+    "criteria": {
+      "B06": {
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "source_file_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+        "line_span": [
+          265,
+          276
+        ],
+        "criterion_slice_sha256": "5b44bf92e85922ef58847a555400c95c7f2dfee9108946f258d287cd31d161e1",
+        "title": "Rejected alternatives must not invalidate the actually selected and executed plan."
+      },
+      "B07": {
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "source_file_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+        "line_span": [
+          277,
+          288
+        ],
+        "criterion_slice_sha256": "a81abf22f14ad4405e6f867082275cd232a6a18bc591b99a4594cd4613dfc567",
+        "title": "Check coupling and time applicability before final selection; continue to an eligible engine."
+      },
+      "bundle_source": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SIM-01.md",
+        "git_blob": "1b9ab5127e4c1545986fb173ed66dc7b65f04bfd",
+        "file_sha256": "1d031b31a96d09542ac2331681158b33cfae11162673ac44006f68c61a4ba7d8"
+      }
+    }
+  },
+  "checks": [
+    {
+      "name": "Initial isolated target run; records the incorrect coupling-only expectation against the actual two-point horizon",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/coupling-fallback-default-n8-b7ec/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/coupling-fallback-default-n8-b7ec/pytest-basetemp tests/unit/runtime/quality/test_generation_cycle.py::test_generation_cycle_persists_coupling_fallback_for_default_n8",
+      "target_sha": "b7ec8d8d8104c319d1396d2a95ceaff85d0aad03",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/coupling-fallback-default-n8-b7ec:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {},
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "input_closure": {
+        "candidate_commit": "b7ec8d8d8104c319d1396d2a95ceaff85d0aad03",
+        "candidate_tree_sha": "4760b03423e067794932d457e5a314a5cd6a6db8",
+        "branch": "codex/e02-A-delivery-attached",
+        "slice_base_sha": "b7ec8d8d8104c319d1396d2a95ceaff85d0aad03",
+        "target_test": {
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+          "git_blob": "4d309f5c8b400c4c77527954873fa876c83bcb55",
+          "file_sha256": "d3dcd61ca85d388f346d3a6fbecfac15163c7ad0cdfe92db86c3c7ae66820b04",
+          "selectors": [
+            "tests/unit/runtime/quality/test_generation_cycle.py::test_generation_cycle_persists_coupling_fallback_for_default_n8"
+          ],
+          "target_case_outcome": "FAIL"
+        },
+        "runtime_sources": [
+          {
+            "role": "N5 owner request, persisted result readback, default value consumer",
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob": "2c0dc500c055624687b3b6f9ab74ebba5b3f6881"
+          },
+          {
+            "role": "engine selection, coupling checks, time grid and registered execution",
+            "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+            "git_blob": "77f0743bebfdf72f635a0f0477884c279b865da6"
+          },
+          {
+            "role": "actual registered StockFlow estimator called by runtime and direct test oracle",
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+            "git_blob": "00558e4d7a2b01ed0f2aa1c6ec38aa8d1171c76a",
+            "method_fqn": "simulation.system_dynamics.stock_flow@1.0.0"
+          },
+          {
+            "role": "shared coupling-graph test fixture builder",
+            "path": "policy-engine/tools/quality/validation/check_layer3_gy_joint_simulation_horizon_contract.py",
+            "git_blob": "6bb042e28cf756e90a8aa1cae219aea105e40c1a"
+          }
+        ],
+        "criterion_sources": [
+          {
+            "criterion_id": "B06",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+            "file_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+            "lines": [
+              265,
+              276
+            ],
+            "criterion_slice_sha256": "5b44bf92e85922ef58847a555400c95c7f2dfee9108946f258d287cd31d161e1"
+          },
+          {
+            "criterion_id": "B07",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+            "file_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+            "lines": [
+              277,
+              288
+            ],
+            "criterion_slice_sha256": "a81abf22f14ad4405e6f867082275cd232a6a18bc591b99a4594cd4613dfc567"
+          },
+          {
+            "bundle_id": "SIM-01",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SIM-01.md",
+            "git_blob": "1b9ab5127e4c1545986fb173ed66dc7b65f04bfd",
+            "file_sha256": "1d031b31a96d09542ac2331681158b33cfae11162673ac44006f68c61a4ba7d8",
+            "criterion_spans": {
+              "B06": [
+                265,
+                276
+              ],
+              "B07": [
+                277,
+                288
+              ]
+            }
+          }
+        ],
+        "workspace_dirty_before": [
+          " M policy-engine/tests/unit/remediation/test_emp_01.py",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-caller-census-1a52/",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-native-operational-1a52/",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/finding-recommendations.json",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/progress-row-adjudication-draft.json"
+        ],
+        "workspace_dirty_after": [
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-caller-census-1a52/",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-native-operational-1a52/",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/finding-recommendations.json",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/progress-row-adjudication-draft.json"
+        ],
+        "scope_note": "The target test module matches the pinned Git blob. The 4bea aggregate also selected other consumers and was not an aggregate green; its unrelated dirty/untracked inputs are retained above and in the original runner receipt."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "aggregate_result": {
+          "tests": 1,
+          "passed": 0,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0,
+          "pytest_exit_code": 1
+        },
+        "target_case_outcome": "FAIL",
+        "failure_note": "Only the expected engine-history reason assertion failed after N5 execution, CAS verification/readback, and default N8 conditional K_sim checks had passed. On horizon steps (0, 1), the actual first rejection is static_engine_cannot_ground_dynamic_horizon, before coupling is evaluated; the original assertion incorrectly expected coupling_composition_gate_unsupported.",
+        "wall_seconds": 17.869931957975496,
+        "exit_code": 1,
+        "junit_counts_from_complete_file": true,
+        "files": [
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/registered-fallback-n5-n8-b7ec/receipt.json",
+            "bytes": 3824,
+            "sha256": "37a85e15c1e14a03919ff2ef3780120ed8674316a3a0a93dae1375e4e65d17c0"
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/registered-fallback-n5-n8-b7ec/stdout.txt",
+            "bytes": 65608,
+            "sha256": "f4c3e8acf90b8ceed14d8ef516fe6115a6dc610ebea199646358c3a5abe11805"
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/registered-fallback-n5-n8-b7ec/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/registered-fallback-n5-n8-b7ec/junit.xml",
+            "bytes": 10048,
+            "sha256": "3df3ad97f589ee02d4edfde50b7fad5b8aadba7fb1ab6a4077646a985d7f1237"
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/registered-fallback-n5-n8-b7ec/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/registered-fallback-n5-n8-b7ec/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          }
+        ],
+        "raw_receipt_path": "policy-engine/_build/e02-A-continuation-20261007/coupling-fallback-default-n8-b7ec/receipt.json"
+      }
+    },
+    {
+      "name": "Affected-consumer aggregate containing the two B06/B07 fallback parameter cases",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/affected-consumers-current-nodes-4bea/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/affected-consumers-current-nodes-4bea/pytest-basetemp tests/unit/runtime/quality/test_generation_cycle.py::test_generation_cycle_persists_registered_fallback_for_default_n8 tests/unit/remediation/test_emp_01.py::test_default_cycle_value_refusal_survives_persisted_run_readback tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py tests/integration/core_runtime/test_e02_voi_artifact_projection.py",
+      "target_sha": "4bea6beadcd86c34446ba0f8fd85aa65831bb1b6",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/affected-consumers-current-nodes-4bea:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {},
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "input_closure": {
+        "candidate_commit": "4bea6beadcd86c34446ba0f8fd85aa65831bb1b6",
+        "candidate_tree_sha": "3cebd1c96cc6b4c2f877ae4ea2954076f44339bd",
+        "branch": "codex/e02-A-delivery-attached",
+        "slice_base_sha": "b7ec8d8d8104c319d1396d2a95ceaff85d0aad03",
+        "target_test": {
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+          "git_blob": "274058481969fb5c2fab9db4edc4833e3a4a6880",
+          "file_sha256": "3d1d70b4f47bb2115469efc4a726b2bea1aa9ba812f71a25a86b5d617cb1d41c",
+          "selectors": [
+            "tests/unit/runtime/quality/test_generation_cycle.py::test_generation_cycle_persists_registered_fallback_for_default_n8[B06-static-first-rejects-multi-point-horizon]",
+            "tests/unit/runtime/quality/test_generation_cycle.py::test_generation_cycle_persists_registered_fallback_for_default_n8[B07-one-point-request-reaches-coupling-gate]"
+          ],
+          "target_case_outcome": "PASS"
+        },
+        "runtime_sources": [
+          {
+            "role": "N5 owner request, persisted result readback, default value consumer",
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob": "2c0dc500c055624687b3b6f9ab74ebba5b3f6881"
+          },
+          {
+            "role": "engine selection, coupling checks, time grid and registered execution",
+            "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+            "git_blob": "77f0743bebfdf72f635a0f0477884c279b865da6"
+          },
+          {
+            "role": "actual registered StockFlow estimator called by runtime and direct test oracle",
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+            "git_blob": "00558e4d7a2b01ed0f2aa1c6ec38aa8d1171c76a",
+            "method_fqn": "simulation.system_dynamics.stock_flow@1.0.0"
+          },
+          {
+            "role": "shared coupling-graph test fixture builder",
+            "path": "policy-engine/tools/quality/validation/check_layer3_gy_joint_simulation_horizon_contract.py",
+            "git_blob": "6bb042e28cf756e90a8aa1cae219aea105e40c1a"
+          }
+        ],
+        "criterion_sources": [
+          {
+            "criterion_id": "B06",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+            "file_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+            "lines": [
+              265,
+              276
+            ],
+            "criterion_slice_sha256": "5b44bf92e85922ef58847a555400c95c7f2dfee9108946f258d287cd31d161e1"
+          },
+          {
+            "criterion_id": "B07",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+            "file_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+            "lines": [
+              277,
+              288
+            ],
+            "criterion_slice_sha256": "a81abf22f14ad4405e6f867082275cd232a6a18bc591b99a4594cd4613dfc567"
+          },
+          {
+            "bundle_id": "SIM-01",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SIM-01.md",
+            "git_blob": "1b9ab5127e4c1545986fb173ed66dc7b65f04bfd",
+            "file_sha256": "1d031b31a96d09542ac2331681158b33cfae11162673ac44006f68c61a4ba7d8",
+            "criterion_spans": {
+              "B06": [
+                265,
+                276
+              ],
+              "B07": [
+                277,
+                288
+              ]
+            }
+          }
+        ],
+        "workspace_dirty_before": [
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/LA045-caller-census.json",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/compiler-checks.json",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-caller-census-1a52/",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-global-residual-3ba1/",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-native-operational-1a52/",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/informative-voi-execution-5a1f/",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/informative-voi-execution-final-3ba1/",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/informative-voi-r1-3ba1/",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/finding-recommendations.json",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/progress-row-adjudication-draft.json",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/voi-checks.json",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/informative-voi-execution.json"
+        ],
+        "workspace_dirty_after": [
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/LA045-caller-census.json",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/compiler-checks.json",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-caller-census-1a52/",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-global-residual-3ba1/",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-native-operational-1a52/",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/informative-voi-execution-5a1f/",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/informative-voi-execution-final-3ba1/",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/informative-voi-r1-3ba1/",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/finding-recommendations.json",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/progress-row-adjudication-draft.json",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/voi-checks.json",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/informative-voi-execution.json"
+        ],
+        "scope_note": "The target test module matches the pinned Git blob. The 4bea aggregate also selected other consumers and was not an aggregate green; its unrelated dirty/untracked inputs are retained above and in the original runner receipt."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "aggregate_result": {
+          "tests": 7,
+          "passed": 2,
+          "failed": 5,
+          "errors": 0,
+          "skipped": 0,
+          "pytest_exit_code": 1,
+          "target_cases": [
+            {
+              "case": "B06-static-first-rejects-multi-point-horizon",
+              "outcome": "PASS",
+              "seconds": 1.34
+            },
+            {
+              "case": "B07-one-point-request-reaches-coupling-gate",
+              "outcome": "PASS",
+              "seconds": 1.03
+            }
+          ],
+          "other_failed_selectors": [
+            "tests/unit/remediation/test_emp_01.py::test_default_cycle_value_refusal_survives_persisted_run_readback[1]",
+            "tests/unit/remediation/test_emp_01.py::test_default_cycle_value_refusal_survives_persisted_run_readback[2]",
+            "tests/unit/remediation/test_emp_01.py::test_default_cycle_value_refusal_survives_persisted_run_readback[3]",
+            "tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py::test_nonhandoff_revision_blocks_before_stale_context_n4_and_roundtrips_history",
+            "tests/integration/core_runtime/test_e02_voi_artifact_projection.py::test_informative_voi_candidate_core_readback_and_preview_refusal"
+          ],
+          "aggregate_green": false
+        },
+        "target_case_outcome": "PASS",
+        "failure_note": "Both target cases are PASS rows in JUnit. The complete seven-case command remains FAIL (2 passed, 5 failed); no aggregate PASS is claimed.",
+        "wall_seconds": 24.61948975000996,
+        "exit_code": 1,
+        "junit_counts_from_complete_file": true,
+        "files": [
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/registered-fallback-n5-n8-4bea/receipt.json",
+            "bytes": 6228,
+            "sha256": "ace13314fb84e9cfcbec7b427bb80dd77d42c4d99e9a3f9ed91973993aa811ca"
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/registered-fallback-n5-n8-4bea/stdout.txt",
+            "bytes": 52620,
+            "sha256": "d5cef8ad7e5ff5f64b9d538bc2eac52d2f4807aab9ec2edf058beab60387190c"
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/registered-fallback-n5-n8-4bea/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/registered-fallback-n5-n8-4bea/junit.xml",
+            "bytes": 53900,
+            "sha256": "566054ebd58603f060732c19aa461833c09249168d54db59077cb7cc852bf124"
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/registered-fallback-n5-n8-4bea/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/registered-fallback-n5-n8-4bea/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          }
+        ],
+        "raw_receipt_path": "policy-engine/_build/e02-A-continuation-20261007/affected-consumers-current-nodes-4bea/receipt.json"
+      }
+    }
+  ],
+  "property": "The default GenerationCycleController accepts only the selected, actually executed registered fallback whose N5 result is CAS-persisted and read by default N8 as conditional simulate_only value with the K_sim blocker retained; the earlier rejection reason is preserved. The B07 case is deliberately limited to a one-point horizon.",
+  "predicate_basis": {
+    "command_and_target_test_outcomes": {
+      "label": "recomputed",
+      "basis": "Complete retained JUnit output, exact selected node ids and candidate/test Git blob."
+    },
+    "engine_history_and_selected_physical_result": {
+      "label": "recomputed",
+      "basis": "N5 decision history plus exact method identity, physical run refs, CAS verify and CAS readback assertions."
+    },
+    "direct_method_comparison": {
+      "label": "recomputed",
+      "basis": "Direct invocation of the same registered StockFlow pure_step implementation outside N5 selection/controller; this verifies execution wiring but is not an independent scientific/model oracle."
+    },
+    "default_n8_status": {
+      "label": "consumer_asserted",
+      "basis": "The default value port returned value_conditional/simulate_only and retained simulation_only_k_sim_not_world_evidence; no promotion or empirical claim is made."
+    },
+    "b07_producer_time_grid_binding": {
+      "label": "not_established",
+      "basis": "One request point at t=0 projects an internal producer trajectory of two points; t=1 is recorded unrequested, so only the t=0 baseline-consistent point is witnessed."
+    }
+  },
+  "capability_state_or_finding_state": {
+    "B06": {
+      "state": "limited",
+      "recommendation": "limited",
+      "formal_status": "pending",
+      "proposed_gap_update": "The 4bea B06 target case now demonstrates one real multi-point static-first fallback through N5, CAS and default N8; the prior draft gap saying that later supported execution was unestablished is stale. Keep the row limited for single-path and aggregate-verification boundaries pending root adjudication."
+    },
+    "B07": {
+      "state": "limited",
+      "recommendation": "limited",
+      "formal_status": "pending",
+      "proposed_gap": "The 4bea B07 target case reaches coupling rejection before selecting the compatible second engine only on a one-point request; dynamic coupling and producer time-grid binding remain not established."
+    }
+  },
+  "limitations_and_next_owner": [
+    "B06: the generation-cycle witness proves one multi-point static-first fallback through the real N5→CAS→default-N8 route; it does not establish every registered engine, all input applicability combinations, production-data behavior, or a green affected-consumer aggregate.",
+    "B07: the coupling-only first rejection is reached on a one-point static NCM request. The compatible StockFlow producer clamps n_steps=0 to one and returns an extra t=1 state, while the consumer exposes only t=0; the baseline equals the initial stock and measured effect is zero. This is a selection/fallback and bounded consumer witness, not dynamic coupling behavior or effect authority.",
+    "The direct StockFlow oracle calls the same registered algorithm outside the N5 controller; it is not an independent scientific validation of the model, equations, units, calibration, or causal structure.",
+    "N8 remains value_conditional, simulate_only, and blocked from treating K_sim as world evidence; this evidence does not establish publishability or broader production orchestration.",
+    "Next owner: A/Foundry to bind actual producer time-grid semantics and prove the complete coupling/input applicability path beyond this bounded one-point consumer witness; root to adjudicate formal row status."
+  ],
+  "pattern_pass": {
+    "ids": [
+      "P02",
+      "P29",
+      "P37",
+      "P38"
+    ],
+    "anti_pattern_found": "Do not infer coupling-only rejection from a multi-point request when temporal applicability rejects first; do not treat a passed target node as an aggregate-green run or a same-implementation oracle as independent science.",
+    "target_pattern": "Exercise default producer→CAS artifact→consumer path, preserve rejected-plan history and method identity, retain the actual output receipt, and label the one-point time-grid limitation.",
+    "missing_capability_labels": [
+      "verification_missing: general full-applicability coverage",
+      "not_established: producer-time-grid binding for B07"
+    ],
+    "acceptance_signal": "Exact target JUnit cases PASS; aggregate remains FAIL and both finding recommendations remain limited/pending."
+  },
+  "evidence_copy_policy": "Complete stdout, stderr, JUnit, runner hook, import origins, and original runner receipt for b7ec and 4bea are copied byte-exact under continuation-20261007-wave3/evidence/registered-fallback-n5-n8-{b7ec,4bea}/. The larger pytest basetemp CAS artifacts remain in ignored _build and are not copied; the raw commands and output hashes are cited."
+}

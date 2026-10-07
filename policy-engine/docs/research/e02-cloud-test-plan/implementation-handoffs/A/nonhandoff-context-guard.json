@@ -1,0 +1,163 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "nonhandoff-context-guard",
+  "closure_ids": [
+    "B27"
+  ],
+  "bundle_ids": [
+    "CYC-03"
+  ],
+  "slice_base_sha": "d89826093652d1ce9bf563d975570ca04119e2f1",
+  "implementation_commits": [
+    "2aaf0651ac59d50395f077a6ca1c5033a1bf0d90",
+    "4bea6beadcd86c34446ba0f8fd85aa65831bb1b6",
+    "85bf5baac393757174ff9701d8d895803254e860",
+    "12ea9e5be60d45d53cd3e49493de3e76f766c2e4"
+  ],
+  "candidate_tree_sha": "75b52c76181589738374933c3fd1384c91cb77d0",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_voi_artifact_projection.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/context-guard-checks.json#/checks/0/command",
+      "target_sha": "4bea6beadcd86c34446ba0f8fd85aa65831bb1b6",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/context-guard-checks.json#/checks/0/environment",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/context-guard-checks.json#/checks/0/input_closure",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/context-guard-checks.json#/checks/0/output",
+      "outcome": "FAIL"
+    },
+    {
+      "command": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/context-guard-checks.json#/checks/1/command",
+      "target_sha": "85bf5baac393757174ff9701d8d895803254e860",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/context-guard-checks.json#/checks/1/environment",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/context-guard-checks.json#/checks/1/input_closure",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/context-guard-checks.json#/checks/1/output",
+      "outcome": "FAIL"
+    },
+    {
+      "command": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/context-guard-checks.json#/checks/2/command",
+      "target_sha": "12ea9e5be60d45d53cd3e49493de3e76f766c2e4",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/context-guard-checks.json#/checks/2/environment",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/context-guard-checks.json#/checks/2/input_closure",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/context-guard-checks.json#/checks/2/output",
+      "outcome": "FAIL"
+    },
+    {
+      "command": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/context-guard-checks.json#/checks/3/command",
+      "target_sha": "ca038ac238af074b938ea532f0182664fe611b41",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/context-guard-checks.json#/checks/3/environment",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/context-guard-checks.json#/checks/3/input_closure",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/context-guard-checks.json#/checks/3/output",
+      "outcome": "FAIL"
+    },
+    {
+      "command": "Static AST/source review; no executable test command.",
+      "target_sha": "85bf5baac393757174ff9701d8d895803254e860",
+      "environment": "Static source inspection only; tests_run=false.",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/context-guard-checks.json#/source_review",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/context-guard-checks.json#/source_review",
+      "outcome": "PASS"
+    },
+    {
+      "command": "UNRUN: no admitted revised-context producer command exists in this bounded slice.",
+      "target_sha": "12ea9e5be60d45d53cd3e49493de3e76f766c2e4",
+      "environment": "UNRUN; no runtime environment was used.",
+      "input_closure": {
+        "criterion_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a:537-549",
+        "needed_positive": "owner-admitted revised context, second N4/N5, changed basis bindings, and shared persisted original/revised history"
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/context-guard-checks.json#/open_semantic_closure",
+      "outcome": "UNRUN"
+    }
+  ],
+  "property": {
+    "finding_id": "B27",
+    "criterion_source": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_revision": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "source_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "criterion_lines": [
+        537,
+        549
+      ],
+      "criterion_block_sha256": "5d1b81074be737bba40fbc2ddb069f092e6f7fabae3714efd1010a59b2d680da",
+      "lines": [
+        537,
+        549
+      ],
+      "criterion_title": "## B27. Пересмотр меняет идентичность задачи, а контекст остаётся прежним"
+    },
+    "bounded_source_delta": {
+      "source_commit": "85bf5baac393757174ff9701d8d895803254e860",
+      "source_blob_at_source_candidate": "c970465dd426bc29495ea6dbbff9d1f1cbcd8cb8",
+      "source_blob_at_final_test_candidate": "c970465dd426bc29495ea6dbbff9d1f1cbcd8cb8",
+      "source_sha256": "899159c295220e43b464ce34ef2de4549b2c78804e8ffbb4a77a58eb3acef691",
+      "ast_location": "GenerationCycleController._revise_node",
+      "source_lines": [
+        10007,
+        10018
+      ],
+      "effect": "If N6 selected advance and a stored cycle substrate context exists whose design_problem_ref differs from _problem_ref(revision.revised_problem), the action is replaced by blocked with cycle_substrate_context_reissue_required before the decision and next iteration are assembled."
+    },
+    "observed_runtime_path": [
+      "The focused B27 test uses a fixture N4 generator for cycle zero, then retains the default N4 port for a possible second dispatch but replaces its downstream generation function with a bounded context-boundary shim.",
+      "The actual JointSimulationPort performs the one first-cycle N5 call; that cycle retains a conditional value reference and result reference.",
+      "N6 changes the revised problem hash; the guard blocks before a second N4 dispatch or second N5 call.",
+      "The test serializes the typed GenerationCycleRun to a local JSON file and reads it back with GenerationCycleRun.from_persisted_payload, preserving revised-problem and stop-reason fields. This is a local typed history roundtrip, not shared durable history."
+    ],
+    "nonclaims": [
+      "No valid second context is produced or admitted; the guard stops stale reuse and is not a context reissue producer.",
+      "The second default N4 generator is not run: the test boundary prevents external LLM and production-reference dependencies from being contacted.",
+      "The bounded result does not establish a shared persisted original/revised request history, a public/API/audit projection, or finding-wide B27 closure.",
+      "The adjacent B11 Core artifact-projection test is a separate consumer witness; its artifact-owner write failure is not evidence for or against B27.",
+      "N7 remains a separate finding and is not closed by this guard.",
+      "The two default-N8 horizon cases pass in the pre-guard 4bea aggregate, but no post-guard run re-executes that selector; the source delta is localized to GenerationCycleController._revise_node."
+    ]
+  },
+  "predicate_basis": {
+    "stale_context_comparison": {
+      "classification": "recomputed",
+      "basis": "The runtime recomputes _problem_ref from revision.revised_problem and compares it to the active context design_problem_ref at the N6 advance boundary."
+    },
+    "bounded_stop_and_history_assertions": {
+      "classification": "recomputed",
+      "basis": "The focused test observes terminal blocked status, the exact stop reason, one generator dispatch, one real N5 call, changed problem hash, and typed local history readback."
+    },
+    "r1_positive_control": {
+      "classification": "recomputed",
+      "basis": "The removal receipt qualifies the path with generator dispatch [0,1], one real second-N4 context-boundary call, one N5 call, different context/problem hashes, and the exact mismatch exception."
+    },
+    "positive_revised_context_producer": {
+      "classification": "not_established",
+      "basis": "No run admits a new context for the revised problem or completes a valid second cycle."
+    },
+    "ordinary_second_default_n4_llm_execution": {
+      "classification": "not_established",
+      "basis": "The focused positive B27 test deliberately stops before external generation; R1 only removes the guard to reach the real context mismatch validator."
+    }
+  },
+  "capability_state_or_finding_state": {
+    "B27": {
+      "finding_state": "OPEN",
+      "capability_label": "producer_missing",
+      "basis": "The source guard safely refuses stale-context advance, but no producer supplies a valid revised context and supported second iteration required by the original criterion.",
+      "decision_owner": "/root"
+    }
+  },
+  "limitations_and_next_owner": [
+    "Keep B27 OPEN. The next positive witness needs an owner-admitted context bound to the revised problem, a permitted second N4/N5 path, changed basis bindings, and original/revised request history through the shared persistence owner.",
+    "Keep the bounded default-N4 second-boundary shim explicit; do not describe it as a complete second LLM generation.",
+    "The saved R1 expected falsifier proves the 12-line stop guard is exercised. It is not a positive closure case and is not an aggregate test PASS.",
+    "The B11 artifact-owner failure and three EMP-01 failures in the 4bea aggregate remain separate test outcomes; they are not assigned to B27.",
+    "Source reviewer: /root/simulation_grid; B27 state and producer assignment remain owned by /root.",
+    "Do not report the 4bea default-N8 cases as post-guard verification: they ran before the source change; the final focused candidate covers B27 plus adjacent B11 only."
+  ]
+}

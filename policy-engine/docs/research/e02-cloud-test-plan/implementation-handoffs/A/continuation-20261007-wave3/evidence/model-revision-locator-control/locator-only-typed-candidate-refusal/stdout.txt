@@ -1,0 +1,19 @@
+.                                                                        [100%]
+=============================== warnings summary ===============================
+tests/integration/runtime_quality/test_e02_candidate_model_revision.py::test_same_candidate_model_revision_reenters_only_for_changed_semantics
+  /Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `ArtifactRef` - serialized value may not be as expected [field_name='source_n4_source_ref', input_value={'artifact_id': 'sha256:6...pe': 'application/json'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `ArtifactRef` - serialized value may not be as expected [field_name='new_n4_source_ref', input_value={'artifact_id': 'sha256:9...pe': 'application/json'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `ArtifactRef` - serialized value may not be as expected [field_name='source_execution_ref', input_value={'artifact_id': 'sha256:5...pe': 'application/json'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `ArtifactRef` - serialized value may not be as expected [field_name='new_execution_ref', input_value={'artifact_id': 'sha256:4...pe': 'application/json'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `ArtifactRef` - serialized value may not be as expected [field_name='source_model_declaration_ref', input_value={'artifact_id': 'sha256:9...pe': 'application/json'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `ArtifactRef` - serialized value may not be as expected [field_name='new_model_declaration_ref', input_value={'artifact_id': 'sha256:8...pe': 'application/json'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `ArtifactRef` - serialized value may not be as expected [field_name='source_ncm_ref', input_value={'artifact_id': 'sha256:1...pe': 'application/json'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `ArtifactRef` - serialized value may not be as expected [field_name='new_ncm_ref', input_value={'artifact_id': 'sha256:2...pe': 'application/json'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `ArtifactRef` - serialized value may not be as expected [field_name='source_context_job_ref', input_value={'artifact_id': 'sha256:1...pe': 'application/json'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `ArtifactRef` - serialized value may not be as expected [field_name='new_context_job_ref', input_value={'artifact_id': 'sha256:6...pe': 'application/json'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `GenerationSourcePreservationReceipt` - serialized value may not be as expected [field_name='source_preservation_receipt', input_value={'schema_version': 'polic...db29d9e52613fdd798cb28'}, input_type=dict])
+    return self.__pydantic_serializer__.to_python(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1 passed, 1 warning in 22.59s

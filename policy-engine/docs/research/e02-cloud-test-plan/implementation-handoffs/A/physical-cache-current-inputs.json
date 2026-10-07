@@ -1,0 +1,948 @@
+{
+  "schema": "policyos.e02.b23_physical_cache_current_inputs.v1",
+  "unit": "A",
+  "slice": "b23-current-registered-ncm-physical-cache-inputs",
+  "closure_ids": [
+    "B23"
+  ],
+  "bundle_ids": [
+    "SIM-03"
+  ],
+  "criterion": {
+    "criterion_id": "B23",
+    "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "source_commit": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+    "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+    "file_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+    "lines": [
+      477,
+      488
+    ],
+    "criterion_slice_sha256": "af2f16d4d1ff1f7927be15f39270b6032ac27ec95c56b0f20a3f058e8e32f5ae",
+    "criterion_text": "## B23. Один физический подрасчёт может исполняться дважды из-за двух ролей\n\n*Источник карточки: A:B23. Унаследовано из прочитанной сводки A; не новый интеграционный прогон.*\n\n**Подтверждение:** код и P03. `_atom_subsets` создаёт individual, все пары и полный joint. Для одного атома получается два одинаковых физических подмножества; для двух — четыре роли на три подмножества. Для трёх проверенный перечень даёт семь разных подмножеств. [A.R08: 1480–1498]\n\n**Экономное расширение:** исполнить одинаковую фактическую спецификацию один раз, затем дать результату несколько корректных ролей. Ключ reuse обязан включать входное состояние, полную модель/параметры, семантику порядка, seed/replication, версию метода и существенное окружение. Независимые повторения нельзя склеивать только потому, что совпали atom_ids.\n\n**Критерий:** в детерминированном одно-/двухатомном примере дубликат не вызывает второе вычисление, но обе роли сохраняют свои references. Изменённый seed или параметр не даёт ложный cache hit. Если независимость экспериментов требует отдельных runs, выполняются отдельные runs.\n\n**Приоритет и предел:** дешёвое улучшение после исправления семантики. Текущий перебор пар имеет квадратичный, а не экспоненциальный рост; документ не называет его полным перебором всех комбинаций. Общая экономия на реальном workload не измерена."
+  },
+  "candidate": {
+    "commit": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+    "tree": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+    "branch_at_run": "codex/e02-A-delivery-attached",
+    "slice_base_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+    "slice_base_tree_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+    "implementation_commits": [],
+    "source_footprint": {
+      "production_source_changes": 0,
+      "changed_source_paths": []
+    }
+  },
+  "target": {
+    "pytest_node": "tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request",
+    "module": "tests.unit.remediation.test_sim_03",
+    "source_path": "policy-engine/tests/unit/remediation/test_sim_03.py",
+    "source_blob": "4804ffac006db662bbd912ae835c1c8fafbb6f05",
+    "source_sha256": "fa52277ca351e95ae50ed9cea086281036475aae5c8f8ebf4209309c50e333c8",
+    "source_ast_sha256": "8b6ff15d5be27ce98e54e96adbb3dd75f88fe05055ff281b8a1d62c25c6ef65e",
+    "prior_accepted_source_blob": "4804ffac006db662bbd912ae835c1c8fafbb6f05",
+    "prior_accepted_test_ast_sha256": "8b6ff15d5be27ce98e54e96adbb3dd75f88fe05055ff281b8a1d62c25c6ef65e",
+    "exact_test_body_reuse": true,
+    "source_lines": [
+      356,
+      453
+    ]
+  },
+  "runtime_cache_owner": {
+    "source_path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+    "candidate_source_blob": "77f0743bebfdf72f635a0f0477884c279b865da6",
+    "prior_source_blob": "7965deabd278db8a4e9e73092ad3fc7bfaf59545",
+    "full_file_blobs_equal": false,
+    "exact_reused_method_bodies": [
+      {
+        "owner": "module",
+        "function": "_physical_run_ref",
+        "current_source_ast_sha256": "397876eb971000d833736ce3b5a20d5fcfa4b509d08d733e9c26ce04e10257c6",
+        "prior_source_ast_sha256": "397876eb971000d833736ce3b5a20d5fcfa4b509d08d733e9c26ce04e10257c6",
+        "exact_body_reuse": true,
+        "current_source_lines": [
+          519,
+          560
+        ]
+      },
+      {
+        "owner": "module",
+        "function": "_run_or_reuse_physical_spec",
+        "current_source_ast_sha256": "57ba72151ce189a208cb0b25b738437cb87a731cd0c44c5c1237b7c2b8236643",
+        "prior_source_ast_sha256": "57ba72151ce189a208cb0b25b738437cb87a731cd0c44c5c1237b7c2b8236643",
+        "exact_body_reuse": true,
+        "current_source_lines": [
+          820,
+          863
+        ]
+      },
+      {
+        "owner": "module",
+        "function": "_run_cached_replicates",
+        "current_source_ast_sha256": "a41e2abb453d97a271ffdc09bc36185c8a79b7b000acaf4f8403606d3ea009a1",
+        "prior_source_ast_sha256": "a41e2abb453d97a271ffdc09bc36185c8a79b7b000acaf4f8403606d3ea009a1",
+        "exact_body_reuse": true,
+        "current_source_lines": [
+          866,
+          924
+        ]
+      },
+      {
+        "owner": "module",
+        "function": "_atom_subsets",
+        "current_source_ast_sha256": "f952bfec6d2577ced58ec5dca47039c8d15b51b9cd8ac6f215cb02dad55d6e81",
+        "prior_source_ast_sha256": "f952bfec6d2577ced58ec5dca47039c8d15b51b9cd8ac6f215cb02dad55d6e81",
+        "exact_body_reuse": true,
+        "current_source_lines": [
+          2744,
+          2753
+        ]
+      },
+      {
+        "owner": "JointSimulationHorizonController",
+        "function": "run",
+        "current_source_ast_sha256": "409059d562d80d86681427732695963c94f377c5ac8f8d5d30530e297e87b036",
+        "prior_source_ast_sha256": "409059d562d80d86681427732695963c94f377c5ac8f8d5d30530e297e87b036",
+        "exact_body_reuse": true,
+        "current_source_lines": [
+          1435,
+          1649
+        ]
+      },
+      {
+        "owner": "JointSimulationHorizonController",
+        "function": "_run_ncm_horizon",
+        "current_source_ast_sha256": "56fdc2339b6513ef5d722007f26e1eecea6ac2fa69a77eca0f434ed8790b18ce",
+        "prior_source_ast_sha256": "56fdc2339b6513ef5d722007f26e1eecea6ac2fa69a77eca0f434ed8790b18ce",
+        "exact_body_reuse": true,
+        "current_source_lines": [
+          2165,
+          2193
+        ]
+      },
+      {
+        "owner": "JointSimulationHorizonController",
+        "function": "_select_ncm_engine",
+        "current_source_ast_sha256": "6c31b4acb57f0e2ce9ff215a0ad9f646951b287d29b15a1ae67a3bd032128d58",
+        "prior_source_ast_sha256": "6c31b4acb57f0e2ce9ff215a0ad9f646951b287d29b15a1ae67a3bd032128d58",
+        "exact_body_reuse": true,
+        "current_source_lines": [
+          1903,
+          1925
+        ]
+      }
+    ],
+    "changed_adjacent_path_note": "The full controller file differs from 6f1e due system-dynamics input validation; the listed B23 cache and NCM path method bodies are exact. _select_engine has a new validation call, whose helper returns immediately for this fixture engine_kind=ncm_parallel_worlds."
+  },
+  "imported_fixture_helper": {
+    "module": "tests.unit.runtime.quality.test_joint_simulation_horizon",
+    "source_path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+    "candidate_source_blob": "8f432835dbf5db938e2750de5bb50379b7e18ea0",
+    "prior_source_blob": "1fa96c8dc88007f685e267b2d598772139205e64",
+    "full_file_blobs_equal": false,
+    "live_callable_provenance": {
+      "_atom": {
+        "ast": {
+          "function_name": "_atom",
+          "source_ast_sha256": "1b7b4426785bc1d335779bb5ce12310584686e62e7fd85833aa4bccce5a91dc6",
+          "source_line_end": 276,
+          "source_line_start": 230,
+          "source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+          "status": "recorded"
+        },
+        "callable_module": "tests.unit.runtime.quality.test_joint_simulation_horizon",
+        "callable_qualname": "_atom",
+        "co_filename": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "co_firstlineno": 230,
+        "code_bytes_sha256": "4833a71413ca2620597126b855fd3f7b83e32666fbd948e7e7e20db1fed31f2b",
+        "helper_export_present": true,
+        "name": "_atom",
+        "resolved_co_filename": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "target_alias_is_helper_export": true,
+        "target_alias_present": true
+      },
+      "_request": {
+        "ast": {
+          "function_name": "_request",
+          "source_ast_sha256": "c974917314968e4bfdcc66d1fc4279649d659d65480cc8585b4c193d4552f4da",
+          "source_line_end": 504,
+          "source_line_start": 457,
+          "source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+          "status": "recorded"
+        },
+        "callable_module": "tests.unit.runtime.quality.test_joint_simulation_horizon",
+        "callable_qualname": "_request",
+        "co_filename": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "co_firstlineno": 457,
+        "code_bytes_sha256": "8774868193418987b23f117ce031fdbd77cedb152c5c773aecdeb562f3a371c5",
+        "helper_export_present": true,
+        "name": "_request",
+        "resolved_co_filename": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "target_alias_is_helper_export": true,
+        "target_alias_present": true
+      }
+    },
+    "helper_body_reuse": {
+      "_atom": {
+        "current_source_ast_sha256": "1b7b4426785bc1d335779bb5ce12310584686e62e7fd85833aa4bccce5a91dc6",
+        "prior_source_ast_sha256": "1b7b4426785bc1d335779bb5ce12310584686e62e7fd85833aa4bccce5a91dc6",
+        "exact_body_reuse": true,
+        "current_source_lines": [
+          230,
+          276
+        ],
+        "prior_source_lines": [
+          229,
+          275
+        ]
+      },
+      "_request": {
+        "current_source_ast_sha256": "c974917314968e4bfdcc66d1fc4279649d659d65480cc8585b4c193d4552f4da",
+        "prior_source_ast_sha256": "c974917314968e4bfdcc66d1fc4279649d659d65480cc8585b4c193d4552f4da",
+        "exact_body_reuse": true,
+        "current_source_lines": [
+          457,
+          504
+        ],
+        "prior_source_lines": [
+          456,
+          503
+        ]
+      }
+    },
+    "exact_helper_callable_identity": true
+  },
+  "direct_runtime_dependencies": [
+    {
+      "role": "causal_protocols",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+      "bytes": 89157,
+      "sha256": "250497e0024481a5bdc4e0b941fb31e57eaeb841702164490874f3978a3134c1",
+      "candidate_git_blob": "2d35616ebe69a23b820cca258c77cf296d155bef",
+      "working_tree_git_blob": "2d35616ebe69a23b820cca258c77cf296d155bef",
+      "matches_candidate": true
+    },
+    {
+      "role": "causal_registration",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/__init__.py",
+      "bytes": 16099,
+      "sha256": "9988079c7d39566f3c059861759a8027115581ed8d2eaa994a798ce74fd4ed2e",
+      "candidate_git_blob": "bdac41f4fa8589110117966f44731b92c0bd73b2",
+      "working_tree_git_blob": "bdac41f4fa8589110117966f44731b92c0bd73b2",
+      "matches_candidate": true
+    },
+    {
+      "role": "coupling_composition",
+      "path": "policy-engine/src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+      "bytes": 121017,
+      "sha256": "a67ac7883324184c5f353ecd8f2d6c96517befaf03e81b94732d419ae13dd737",
+      "candidate_git_blob": "9494717e0536fe6d9a2bbc360b0a0f5ea1ee0636",
+      "working_tree_git_blob": "9494717e0536fe6d9a2bbc360b0a0f5ea1ee0636",
+      "matches_candidate": true
+    },
+    {
+      "role": "intervention_atom_binding",
+      "path": "policy-engine/src/polisyos/runtime/quality/intervention_atom_binding.py",
+      "bytes": 36958,
+      "sha256": "9d239d7e00a8868eea29ee1e966cdfa7b33b9011d4289fb551775bed137d2256",
+      "candidate_git_blob": "d775ab73429e8c668aa99b91af070e6ef92ad46a",
+      "working_tree_git_blob": "d775ab73429e8c668aa99b91af070e6ef92ad46a",
+      "matches_candidate": true
+    },
+    {
+      "role": "joint_simulation_controller",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "bytes": 144450,
+      "sha256": "c6c4ad3445184622fc02c787b3e3852e8b511e4a2fdd323bd8f869bc16a71a07",
+      "candidate_git_blob": "77f0743bebfdf72f635a0f0477884c279b865da6",
+      "working_tree_git_blob": "77f0743bebfdf72f635a0f0477884c279b865da6",
+      "matches_candidate": true
+    },
+    {
+      "role": "method_registry",
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/registry.py",
+      "bytes": 35936,
+      "sha256": "3250f70d07a658c9beb9b9210254d425715129a1b9eb29cdbbcdc4a208c977b9",
+      "candidate_git_blob": "36ffa3565869a4d0e4f0ab731714300abe65aa9a",
+      "working_tree_git_blob": "36ffa3565869a4d0e4f0ab731714300abe65aa9a",
+      "matches_candidate": true
+    },
+    {
+      "role": "ncm_engine",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
+      "bytes": 41491,
+      "sha256": "6db900ee270a88ef20f9b5c000eb5b612417ce96be2781aab109ea279eb2a948",
+      "candidate_git_blob": "8128f09f62cfc9a3c6a2591097c61d5191243334",
+      "working_tree_git_blob": "8128f09f62cfc9a3c6a2591097c61d5191243334",
+      "matches_candidate": true
+    },
+    {
+      "role": "smm_test_import",
+      "path": "policy-engine/src/polisyos/foundry/coupling/estimation.py",
+      "bytes": 16260,
+      "sha256": "6c53fa2224cd6e7c8333c51db5eb3fee93728a9bde03c01064bd7c757f232205",
+      "candidate_git_blob": "5f574d9aa735d843722b429bb8c00c3721ca6911",
+      "working_tree_git_blob": "5f574d9aa735d843722b429bb8c00c3721ca6911",
+      "matches_candidate": true
+    },
+    {
+      "role": "target_test",
+      "path": "policy-engine/tests/unit/remediation/test_sim_03.py",
+      "bytes": 32928,
+      "sha256": "fa52277ca351e95ae50ed9cea086281036475aae5c8f8ebf4209309c50e333c8",
+      "candidate_git_blob": "4804ffac006db662bbd912ae835c1c8fafbb6f05",
+      "working_tree_git_blob": "4804ffac006db662bbd912ae835c1c8fafbb6f05",
+      "matches_candidate": true
+    },
+    {
+      "role": "test_fixture_helper",
+      "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+      "bytes": 66502,
+      "sha256": "dca7e04d70c7382fa2357a7d20518a192f2258da3dcae94a1c86ca7f3e35e6c8",
+      "candidate_git_blob": "8f432835dbf5db938e2750de5bb50379b7e18ea0",
+      "working_tree_git_blob": "8f432835dbf5db938e2750de5bb50379b7e18ea0",
+      "matches_candidate": true
+    },
+    {
+      "role": "world_model_binding",
+      "path": "policy-engine/src/polisyos/runtime/quality/world_model_record.py",
+      "bytes": 62355,
+      "sha256": "84bbec4b46114d5fb1872c969c0dd374e9de28c183c567c888cca54fefc2f495",
+      "candidate_git_blob": "27c54eb017475c4d7b8054508ae0b88c45be6e2e",
+      "working_tree_git_blob": "27c54eb017475c4d7b8054508ae0b88c45be6e2e",
+      "matches_candidate": true
+    }
+  ],
+  "runtime_module_origin_observation": {
+    "seed_probe": {
+      "snapshots": [
+        {
+          "label": "post_collection_pre_test",
+          "total_matching_modules": 265,
+          "recorded_origins": 80,
+          "truncated_count": 185,
+          "ncm_engine_origin_recorded": false
+        },
+        {
+          "label": "immediately_before_target_call",
+          "total_matching_modules": 265,
+          "recorded_origins": 80,
+          "truncated_count": 185,
+          "ncm_engine_origin_recorded": false
+        },
+        {
+          "label": "immediately_after_target_call",
+          "total_matching_modules": 266,
+          "recorded_origins": 80,
+          "truncated_count": 186,
+          "ncm_engine_origin_recorded": false
+        },
+        {
+          "label": "session_finish",
+          "total_matching_modules": 266,
+          "recorded_origins": 80,
+          "truncated_count": 186,
+          "ncm_engine_origin_recorded": false
+        }
+      ],
+      "total_matching_modules_range": [
+        265,
+        266
+      ],
+      "recorded_origins_per_snapshot": 80,
+      "truncated_count_range": [
+        185,
+        186
+      ],
+      "full_origin_inventory_retained": false,
+      "ncm_engine_loaded_origin_recorded": false,
+      "ncm_engine_source_bytes_pinned_directly": true
+    },
+    "plan_probe": {
+      "snapshots": [
+        {
+          "label": "post_collection_pre_test",
+          "total_matching_modules": 265,
+          "recorded_origins": 80,
+          "truncated_count": 185,
+          "ncm_engine_origin_recorded": false
+        },
+        {
+          "label": "immediately_before_target_call",
+          "total_matching_modules": 265,
+          "recorded_origins": 80,
+          "truncated_count": 185,
+          "ncm_engine_origin_recorded": false
+        },
+        {
+          "label": "immediately_after_target_call",
+          "total_matching_modules": 266,
+          "recorded_origins": 80,
+          "truncated_count": 186,
+          "ncm_engine_origin_recorded": false
+        },
+        {
+          "label": "session_finish",
+          "total_matching_modules": 266,
+          "recorded_origins": 80,
+          "truncated_count": 186,
+          "ncm_engine_origin_recorded": false
+        }
+      ],
+      "total_matching_modules_range": [
+        265,
+        266
+      ],
+      "recorded_origins_per_snapshot": 80,
+      "truncated_count_range": [
+        185,
+        186
+      ],
+      "full_origin_inventory_retained": false,
+      "ncm_engine_loaded_origin_recorded": false,
+      "ncm_engine_source_bytes_pinned_directly": true
+    },
+    "key_project_sources_pinned_explicitly": [
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/__init__.py",
+      "policy-engine/src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+      "policy-engine/src/polisyos/runtime/quality/intervention_atom_binding.py",
+      "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "policy-engine/src/polisyos/foundry/methods/selection/registry.py",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
+      "policy-engine/src/polisyos/foundry/coupling/estimation.py",
+      "policy-engine/src/polisyos/runtime/quality/world_model_record.py"
+    ],
+    "direct_input_coverage": {
+      "direct_source_and_test_files": 11,
+      "clean_candidate_blob_matches": true,
+      "ncm_engine_source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
+      "ncm_engine_source_sha256": "6db900ee270a88ef20f9b5c000eb5b612417ce96be2781aab109ea279eb2a948",
+      "ncm_engine_loaded_origin_in_capped_sample": false,
+      "positive_origins_artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b23-physical-cache-current-3ba1/positive/origins.json",
+        "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+        "module_origin_entries": 4,
+        "ncm_engine_origin_recorded": false,
+        "complete_provenance": false
+      }
+    },
+    "coverage_note": "Each removal probe retains four raw provenance snapshots, each with 11 direct source/test files whose candidate blobs match. Each snapshot records only 80 of 265 modules before the target call and 80 of 266 afterward (185/186 origins omitted). The raw JSON snapshots are retained, but the omitted origins are not. ncm_engine.py bytes and Git blob are pinned as a direct dependency; its loaded origin does not appear in the capped sample. This is not a complete transitive import closure. The positive-run origins.json contains four module-origin entries and is not complete provenance; it also does not list ncm_engine."
+  },
+  "probe_input_provenance": {
+    "seed-removal": {
+      "provenance_artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b23-physical-cache-current-3ba1/seed-removal/input-provenance.json",
+        "bytes": 252595,
+        "sha256": "dc2be5ab53d99f3ea078f6f769a8094673b0c759897ab4bcf3f1965d9cdcdf9b"
+      },
+      "target_and_helper_stability": {
+        "target_test": {
+          "bytes_stable_across_snapshots": true,
+          "loaded_module_name_stable": true,
+          "loaded_module_name_values": [
+            "tests.unit.remediation.test_sim_03",
+            "tests.unit.remediation.test_sim_03",
+            "tests.unit.remediation.test_sim_03",
+            "tests.unit.remediation.test_sim_03"
+          ],
+          "loaded_module_path_stable": true,
+          "loaded_module_path_values": [
+            "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/remediation/test_sim_03.py",
+            "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/remediation/test_sim_03.py",
+            "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/remediation/test_sim_03.py",
+            "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/remediation/test_sim_03.py"
+          ],
+          "sha256_values": [
+            "fa52277ca351e95ae50ed9cea086281036475aae5c8f8ebf4209309c50e333c8",
+            "fa52277ca351e95ae50ed9cea086281036475aae5c8f8ebf4209309c50e333c8",
+            "fa52277ca351e95ae50ed9cea086281036475aae5c8f8ebf4209309c50e333c8",
+            "fa52277ca351e95ae50ed9cea086281036475aae5c8f8ebf4209309c50e333c8"
+          ],
+          "source_commit_stable_across_snapshots": true,
+          "source_commit_values": [
+            "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+            "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+            "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+            "3ba1deaa55c54971c3200269dc1c81680e3d7167"
+          ],
+          "working_tree_blob_stable_across_snapshots": true,
+          "working_tree_git_blob_values": [
+            "4804ffac006db662bbd912ae835c1c8fafbb6f05",
+            "4804ffac006db662bbd912ae835c1c8fafbb6f05",
+            "4804ffac006db662bbd912ae835c1c8fafbb6f05",
+            "4804ffac006db662bbd912ae835c1c8fafbb6f05"
+          ]
+        },
+        "test_fixture_helper": {
+          "bytes_stable_across_snapshots": true,
+          "loaded_module_name_stable": true,
+          "loaded_module_name_values": [
+            "tests.unit.runtime.quality.test_joint_simulation_horizon",
+            "tests.unit.runtime.quality.test_joint_simulation_horizon",
+            "tests.unit.runtime.quality.test_joint_simulation_horizon",
+            "tests.unit.runtime.quality.test_joint_simulation_horizon"
+          ],
+          "loaded_module_path_stable": true,
+          "loaded_module_path_values": [
+            "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+            "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+            "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+            "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py"
+          ],
+          "sha256_values": [
+            "dca7e04d70c7382fa2357a7d20518a192f2258da3dcae94a1c86ca7f3e35e6c8",
+            "dca7e04d70c7382fa2357a7d20518a192f2258da3dcae94a1c86ca7f3e35e6c8",
+            "dca7e04d70c7382fa2357a7d20518a192f2258da3dcae94a1c86ca7f3e35e6c8",
+            "dca7e04d70c7382fa2357a7d20518a192f2258da3dcae94a1c86ca7f3e35e6c8"
+          ],
+          "source_commit_stable_across_snapshots": true,
+          "source_commit_values": [
+            "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+            "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+            "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+            "3ba1deaa55c54971c3200269dc1c81680e3d7167"
+          ],
+          "working_tree_blob_stable_across_snapshots": true,
+          "working_tree_git_blob_values": [
+            "8f432835dbf5db938e2750de5bb50379b7e18ea0",
+            "8f432835dbf5db938e2750de5bb50379b7e18ea0",
+            "8f432835dbf5db938e2750de5bb50379b7e18ea0",
+            "8f432835dbf5db938e2750de5bb50379b7e18ea0"
+          ]
+        }
+      },
+      "source_commit_before_after": [
+        "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+        "3ba1deaa55c54971c3200269dc1c81680e3d7167"
+      ],
+      "head_unchanged": true,
+      "collection_scope_is_exact_target": true,
+      "target_module": {
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/remediation/test_sim_03.py",
+        "module_found_by_native_path": true,
+        "module_name": "tests.unit.remediation.test_sim_03",
+        "resolved_source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/remediation/test_sim_03.py",
+        "selected_test_callable_co_filename": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/remediation/test_sim_03.py",
+        "selected_test_callable_module": "tests.unit.remediation.test_sim_03",
+        "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/remediation/test_sim_03.py"
+      },
+      "helper_module": {
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "module_found_by_native_path": true,
+        "module_name": "tests.unit.runtime.quality.test_joint_simulation_horizon",
+        "resolved_source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py"
+      },
+      "target_test_ast": {
+        "function_name": "test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request",
+        "source_ast_sha256": "8b6ff15d5be27ce98e54e96adbb3dd75f88fe05055ff281b8a1d62c25c6ef65e",
+        "source_line_end": 453,
+        "source_line_start": 356,
+        "source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/remediation/test_sim_03.py",
+        "status": "recorded"
+      },
+      "bound_fixture_callables": {
+        "_atom": {
+          "ast": {
+            "function_name": "_atom",
+            "source_ast_sha256": "1b7b4426785bc1d335779bb5ce12310584686e62e7fd85833aa4bccce5a91dc6",
+            "source_line_end": 276,
+            "source_line_start": 230,
+            "source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+            "status": "recorded"
+          },
+          "callable_module": "tests.unit.runtime.quality.test_joint_simulation_horizon",
+          "callable_qualname": "_atom",
+          "co_filename": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+          "co_firstlineno": 230,
+          "code_bytes_sha256": "4833a71413ca2620597126b855fd3f7b83e32666fbd948e7e7e20db1fed31f2b",
+          "helper_export_present": true,
+          "name": "_atom",
+          "resolved_co_filename": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+          "target_alias_is_helper_export": true,
+          "target_alias_present": true
+        },
+        "_request": {
+          "ast": {
+            "function_name": "_request",
+            "source_ast_sha256": "c974917314968e4bfdcc66d1fc4279649d659d65480cc8585b4c193d4552f4da",
+            "source_line_end": 504,
+            "source_line_start": 457,
+            "source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+            "status": "recorded"
+          },
+          "callable_module": "tests.unit.runtime.quality.test_joint_simulation_horizon",
+          "callable_qualname": "_request",
+          "co_filename": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+          "co_firstlineno": 457,
+          "code_bytes_sha256": "8774868193418987b23f117ce031fdbd77cedb152c5c773aecdeb562f3a371c5",
+          "helper_export_present": true,
+          "name": "_request",
+          "resolved_co_filename": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+          "target_alias_is_helper_export": true,
+          "target_alias_present": true
+        }
+      },
+      "generation_cycle_test_module_if_loaded": {
+        "canonical_name_present": false,
+        "loaded_module_origins": []
+      },
+      "generation_cycle_context_observer": {
+        "loaded_module_origins": [],
+        "scope": "context only; excluded from the B23 direct input closure",
+        "source_file": {
+          "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+          "bytes": 409256,
+          "git_status_for_path": "M policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+          "repository_path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+          "sha256": "3d1d70b4f47bb2115469efc4a726b2bea1aa9ba812f71a25a86b5d617cb1d41c",
+          "source_commit_git_blob": "4d309f5c8b400c4c77527954873fa876c83bcb55",
+          "working_tree_git_blob": "274058481969fb5c2fab9db4edc4833e3a4a6880",
+          "working_tree_matches_source_commit": false
+        }
+      },
+      "loaded_project_module_inventory": {
+        "snapshots": [
+          {
+            "label": "post_collection_pre_test",
+            "total_matching_modules": 265,
+            "recorded_origins": 80,
+            "truncated_count": 185,
+            "ncm_engine_origin_recorded": false
+          },
+          {
+            "label": "immediately_before_target_call",
+            "total_matching_modules": 265,
+            "recorded_origins": 80,
+            "truncated_count": 185,
+            "ncm_engine_origin_recorded": false
+          },
+          {
+            "label": "immediately_after_target_call",
+            "total_matching_modules": 266,
+            "recorded_origins": 80,
+            "truncated_count": 186,
+            "ncm_engine_origin_recorded": false
+          },
+          {
+            "label": "session_finish",
+            "total_matching_modules": 266,
+            "recorded_origins": 80,
+            "truncated_count": 186,
+            "ncm_engine_origin_recorded": false
+          }
+        ],
+        "total_matching_modules_range": [
+          265,
+          266
+        ],
+        "recorded_origins_per_snapshot": 80,
+        "truncated_count_range": [
+          185,
+          186
+        ],
+        "full_origin_inventory_retained": false,
+        "ncm_engine_loaded_origin_recorded": false,
+        "ncm_engine_source_bytes_pinned_directly": true
+      }
+    },
+    "plan-removal": {
+      "provenance_artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b23-physical-cache-current-3ba1/plan-removal/input-provenance.json",
+        "bytes": 252595,
+        "sha256": "c5bf2bbbd75d9f38920bbf89446a3229bf2d0b23d1cf6016d7b8bd2205ee2e68"
+      },
+      "target_and_helper_stability": {
+        "target_test": {
+          "bytes_stable_across_snapshots": true,
+          "loaded_module_name_stable": true,
+          "loaded_module_name_values": [
+            "tests.unit.remediation.test_sim_03",
+            "tests.unit.remediation.test_sim_03",
+            "tests.unit.remediation.test_sim_03",
+            "tests.unit.remediation.test_sim_03"
+          ],
+          "loaded_module_path_stable": true,
+          "loaded_module_path_values": [
+            "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/remediation/test_sim_03.py",
+            "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/remediation/test_sim_03.py",
+            "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/remediation/test_sim_03.py",
+            "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/remediation/test_sim_03.py"
+          ],
+          "sha256_values": [
+            "fa52277ca351e95ae50ed9cea086281036475aae5c8f8ebf4209309c50e333c8",
+            "fa52277ca351e95ae50ed9cea086281036475aae5c8f8ebf4209309c50e333c8",
+            "fa52277ca351e95ae50ed9cea086281036475aae5c8f8ebf4209309c50e333c8",
+            "fa52277ca351e95ae50ed9cea086281036475aae5c8f8ebf4209309c50e333c8"
+          ],
+          "source_commit_stable_across_snapshots": true,
+          "source_commit_values": [
+            "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+            "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+            "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+            "3ba1deaa55c54971c3200269dc1c81680e3d7167"
+          ],
+          "working_tree_blob_stable_across_snapshots": true,
+          "working_tree_git_blob_values": [
+            "4804ffac006db662bbd912ae835c1c8fafbb6f05",
+            "4804ffac006db662bbd912ae835c1c8fafbb6f05",
+            "4804ffac006db662bbd912ae835c1c8fafbb6f05",
+            "4804ffac006db662bbd912ae835c1c8fafbb6f05"
+          ]
+        },
+        "test_fixture_helper": {
+          "bytes_stable_across_snapshots": true,
+          "loaded_module_name_stable": true,
+          "loaded_module_name_values": [
+            "tests.unit.runtime.quality.test_joint_simulation_horizon",
+            "tests.unit.runtime.quality.test_joint_simulation_horizon",
+            "tests.unit.runtime.quality.test_joint_simulation_horizon",
+            "tests.unit.runtime.quality.test_joint_simulation_horizon"
+          ],
+          "loaded_module_path_stable": true,
+          "loaded_module_path_values": [
+            "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+            "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+            "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+            "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py"
+          ],
+          "sha256_values": [
+            "dca7e04d70c7382fa2357a7d20518a192f2258da3dcae94a1c86ca7f3e35e6c8",
+            "dca7e04d70c7382fa2357a7d20518a192f2258da3dcae94a1c86ca7f3e35e6c8",
+            "dca7e04d70c7382fa2357a7d20518a192f2258da3dcae94a1c86ca7f3e35e6c8",
+            "dca7e04d70c7382fa2357a7d20518a192f2258da3dcae94a1c86ca7f3e35e6c8"
+          ],
+          "source_commit_stable_across_snapshots": true,
+          "source_commit_values": [
+            "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+            "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+            "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+            "3ba1deaa55c54971c3200269dc1c81680e3d7167"
+          ],
+          "working_tree_blob_stable_across_snapshots": true,
+          "working_tree_git_blob_values": [
+            "8f432835dbf5db938e2750de5bb50379b7e18ea0",
+            "8f432835dbf5db938e2750de5bb50379b7e18ea0",
+            "8f432835dbf5db938e2750de5bb50379b7e18ea0",
+            "8f432835dbf5db938e2750de5bb50379b7e18ea0"
+          ]
+        }
+      },
+      "source_commit_before_after": [
+        "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+        "3ba1deaa55c54971c3200269dc1c81680e3d7167"
+      ],
+      "head_unchanged": true,
+      "collection_scope_is_exact_target": true,
+      "target_module": {
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/remediation/test_sim_03.py",
+        "module_found_by_native_path": true,
+        "module_name": "tests.unit.remediation.test_sim_03",
+        "resolved_source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/remediation/test_sim_03.py",
+        "selected_test_callable_co_filename": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/remediation/test_sim_03.py",
+        "selected_test_callable_module": "tests.unit.remediation.test_sim_03",
+        "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/remediation/test_sim_03.py"
+      },
+      "helper_module": {
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "module_found_by_native_path": true,
+        "module_name": "tests.unit.runtime.quality.test_joint_simulation_horizon",
+        "resolved_source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py"
+      },
+      "target_test_ast": {
+        "function_name": "test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request",
+        "source_ast_sha256": "8b6ff15d5be27ce98e54e96adbb3dd75f88fe05055ff281b8a1d62c25c6ef65e",
+        "source_line_end": 453,
+        "source_line_start": 356,
+        "source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/remediation/test_sim_03.py",
+        "status": "recorded"
+      },
+      "bound_fixture_callables": {
+        "_atom": {
+          "ast": {
+            "function_name": "_atom",
+            "source_ast_sha256": "1b7b4426785bc1d335779bb5ce12310584686e62e7fd85833aa4bccce5a91dc6",
+            "source_line_end": 276,
+            "source_line_start": 230,
+            "source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+            "status": "recorded"
+          },
+          "callable_module": "tests.unit.runtime.quality.test_joint_simulation_horizon",
+          "callable_qualname": "_atom",
+          "co_filename": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+          "co_firstlineno": 230,
+          "code_bytes_sha256": "4833a71413ca2620597126b855fd3f7b83e32666fbd948e7e7e20db1fed31f2b",
+          "helper_export_present": true,
+          "name": "_atom",
+          "resolved_co_filename": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+          "target_alias_is_helper_export": true,
+          "target_alias_present": true
+        },
+        "_request": {
+          "ast": {
+            "function_name": "_request",
+            "source_ast_sha256": "c974917314968e4bfdcc66d1fc4279649d659d65480cc8585b4c193d4552f4da",
+            "source_line_end": 504,
+            "source_line_start": 457,
+            "source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+            "status": "recorded"
+          },
+          "callable_module": "tests.unit.runtime.quality.test_joint_simulation_horizon",
+          "callable_qualname": "_request",
+          "co_filename": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+          "co_firstlineno": 457,
+          "code_bytes_sha256": "8774868193418987b23f117ce031fdbd77cedb152c5c773aecdeb562f3a371c5",
+          "helper_export_present": true,
+          "name": "_request",
+          "resolved_co_filename": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+          "target_alias_is_helper_export": true,
+          "target_alias_present": true
+        }
+      },
+      "generation_cycle_test_module_if_loaded": {
+        "canonical_name_present": false,
+        "loaded_module_origins": []
+      },
+      "generation_cycle_context_observer": {
+        "loaded_module_origins": [],
+        "scope": "context only; excluded from the B23 direct input closure",
+        "source_file": {
+          "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+          "bytes": 409256,
+          "git_status_for_path": "M policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+          "repository_path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+          "sha256": "3d1d70b4f47bb2115469efc4a726b2bea1aa9ba812f71a25a86b5d617cb1d41c",
+          "source_commit_git_blob": "4d309f5c8b400c4c77527954873fa876c83bcb55",
+          "working_tree_git_blob": "274058481969fb5c2fab9db4edc4833e3a4a6880",
+          "working_tree_matches_source_commit": false
+        }
+      },
+      "loaded_project_module_inventory": {
+        "snapshots": [
+          {
+            "label": "post_collection_pre_test",
+            "total_matching_modules": 265,
+            "recorded_origins": 80,
+            "truncated_count": 185,
+            "ncm_engine_origin_recorded": false
+          },
+          {
+            "label": "immediately_before_target_call",
+            "total_matching_modules": 265,
+            "recorded_origins": 80,
+            "truncated_count": 185,
+            "ncm_engine_origin_recorded": false
+          },
+          {
+            "label": "immediately_after_target_call",
+            "total_matching_modules": 266,
+            "recorded_origins": 80,
+            "truncated_count": 186,
+            "ncm_engine_origin_recorded": false
+          },
+          {
+            "label": "session_finish",
+            "total_matching_modules": 266,
+            "recorded_origins": 80,
+            "truncated_count": 186,
+            "ncm_engine_origin_recorded": false
+          }
+        ],
+        "total_matching_modules_range": [
+          265,
+          266
+        ],
+        "recorded_origins_per_snapshot": 80,
+        "truncated_count_range": [
+          185,
+          186
+        ],
+        "full_origin_inventory_retained": false,
+        "ncm_engine_loaded_origin_recorded": false,
+        "ncm_engine_source_bytes_pinned_directly": true
+      }
+    }
+  },
+  "context_only_observation": {
+    "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+    "imported_by_targeted_test_run": false,
+    "working_tree_changed_at_run": true,
+    "scope": "Recorded as an unrelated dirty-file observer; excluded from the direct B23 selector closure.",
+    "observed_sha256": "3d1d70b4f47bb2115469efc4a726b2bea1aa9ba812f71a25a86b5d617cb1d41c",
+    "candidate_git_blob": "4d309f5c8b400c4c77527954873fa876c83bcb55",
+    "working_tree_git_blob": "274058481969fb5c2fab9db4edc4833e3a4a6880"
+  },
+  "method_scope": {
+    "positive_behavior": "The registered NCM path reuses the identical physical pair calculation across pairwise/joint roles and preserves both role references.",
+    "semantic_misses": "The same test runs baseline, changed-seed, and changed-plan requests through separate controller invocations; distinct refs and the actual NCM seed call sequence are asserted.",
+    "invocation_lifetime": "The NCM controller cache is created per invocation; the target test confirms the three separate calls reach the registered NCM pure_step.",
+    "removal_probe_design": "Seed/replication_seeds and plan are separately removed from the actual emitted _physical_run_ref payload; the mutation-count assertion precedes the reference-collapse assertion.",
+    "limits": [
+      "Bounded to the original registered-NCM local invocation cache and its one-/two-atom role projection.",
+      "No other engine adapter, scientific validity, causal truth, workload-wide savings, or public cache surface is claimed."
+    ]
+  },
+  "related_existing_evidence": [
+    {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/physical-cache.json",
+      "candidate": "9794b716a74aee98545449ac97dc98825d2471de",
+      "check_index": 4,
+      "junit_result": {
+        "tests": 49,
+        "passed": 49,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "output_refs": {
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/physical-cache/positive-and-affected-9794/stdout.txt@sha256:593e20451709ec8e0a23ff4eaf8dcf636a7386e5f0dc402143ec1075e0b136b1",
+        "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/physical-cache/positive-and-affected-9794/junit.xml@sha256:abb6e81c535a7468a987476f1981dbce25b562053222d4dc6db952784e2709ec",
+        "environment_and_inputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/physical-cache/positive-and-affected-9794/environment-and-inputs.json@sha256:812695a31857f813d1390a725caf6c042b3582575bbe78243c60d79779abdc20",
+        "manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/physical-cache/output-hashes.json"
+      },
+      "relationship": "Separate earlier 49/49 positive/affected raw receipt; not added to the current one-test check."
+    },
+    {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/simulation-review/sim-intake-wave-6f9e-addendum.json",
+      "candidate": "6f9e7b3d117be86e244810b57740fe8faaa12c29",
+      "sim_only_result": {
+        "tests": 91,
+        "passed": 91,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "basis": "Five SIM test modules in the addendum’s module breakdown, each passed; this is a scoped subset, not the whole command result."
+      },
+      "registered_singleton_ncm_witness": "PASS per addendum; actual registered ncm_engine@1.0.0 producer path, no producer monkeypatch.",
+      "relationship": "Separate prior raw aggregate; its SIM-only 91/91 module subset is corroboration, while the command as a whole is 98/106 with 8 CYC-02 failures. Not summed with physical-cache or current results.",
+      "command_aggregate": {
+        "tests": 106,
+        "passed": 98,
+        "failed": 8,
+        "errors": 0,
+        "skipped": 0,
+        "interpretation": "The same raw command also included a separate CYC-02 module with 7/15 passing and 8 failing; aggregate exit status is failure."
+      },
+      "raw_receipt_copy": {
+        "path_prefix": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/higher-order-n8/adjacent-cyc02-full-regression-6f9e",
+        "stdout_sha256": "961ccf5693fb7eeb13953f612b82414c7ce1a8d66c6312817deb2f0ac4a95a08",
+        "junit_sha256": "a0e890961fa30de5a0f0167340b62bc5a4b867f20e817b6f36cf7eefdc3022b6",
+        "environment_sha256": "49cf94a6f0fe044eaf2df8fabb776812d2d53a02009edf201019b7b0dd25ae83",
+        "junit_tests": 106,
+        "junit_failures": 8,
+        "identity_note": "These hashes match the preserved adjacent-cyc02 aggregate outputs; use the module breakdown to retain 91/91 SIM subset and 8 CYC-02 failures distinctly."
+      }
+    }
+  ],
+  "reuse_comparison": {
+    "prior_candidate": "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f",
+    "source_body_equality": {
+      "target_test": true,
+      "cache_and_ncm_methods": true,
+      "imported_helper_atom_request": true
+    },
+    "not_inherited": "The 3ba1 candidate has its own current positive and actual seed/plan removal runs; prior checks are references, not substituted for the current run."
+  }
+}

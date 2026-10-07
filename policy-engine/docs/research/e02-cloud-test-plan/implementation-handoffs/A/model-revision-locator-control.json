@@ -1,0 +1,197 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "model-revision-locator-control",
+  "closure_ids": [
+    "B09"
+  ],
+  "bundle_ids": [
+    "CYC-03"
+  ],
+  "slice_base_sha": "cfeaecf1ab4390abd91f5ee82e9e289811f7ff41",
+  "implementation_commits": [
+    "c8f774587013b16b6851fc106192ad55e8b58a7f",
+    "ec5d9b0308b94d439d16eb900990cdc880f12547"
+  ],
+  "candidate_tree_sha": "f049cdfd8859e2fdfecfcfad11e0e9cd6417d343",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/tests/integration/runtime_quality/test_e02_candidate_model_revision.py",
+    "policy-engine/tests/unit/remediation/test_emp_01.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/model-locator-checks.json#/checks/0/command",
+      "target_sha": "ce57f1fd4a51227e90f168976b62ca5159740a8e",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/model-locator-checks.json#/checks/0/environment",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/model-locator-checks.json#/checks/0/input_closure",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/model-locator-checks.json#/checks/0/output"
+    },
+    {
+      "command": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/model-locator-checks.json#/checks/1/command",
+      "target_sha": "ec5d9b0308b94d439d16eb900990cdc880f12547",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/model-locator-checks.json#/checks/1/environment",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/model-locator-checks.json#/checks/1/input_closure",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/model-locator-checks.json#/checks/1/output"
+    },
+    {
+      "command": "Independent source-only review of this locator-control candidate; not run.",
+      "target_sha": "ec5d9b0308b94d439d16eb900990cdc880f12547",
+      "environment": "No runtime environment used; source-only reviewer receipt not present.",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/model-locator-checks.json#/independent_source_review",
+      "outcome": "UNRUN",
+      "output": "No independent source-only review evidence was produced; this remains UNRUN."
+    }
+  ],
+  "property": {
+    "finding_id": "B09",
+    "criterion_source": {
+      "finding_id": "B09",
+      "bundle_id": "CYC-03",
+      "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "source_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "lines": [
+        301,
+        312
+      ],
+      "criterion_block_sha256": "62b0ba80257fe40aee4e48fda73caf00a617fa55d29c54693185e6996b0ce64c",
+      "criterion_title": "B09. Полезное продолжение не обязано расширять грамматику",
+      "criterion": "The same candidate may be reevaluated after substantive new data, linked model, applicable method, corrected constraint, or expressly authorized robustness basis; a new timestamp/UUID alone is insufficient. Both the transition and subsequent validator must be updated, and source/revised task identity retained."
+    },
+    "statement": "A bounded synthetic, owner-admitted model coefficient change for the same stable candidate can trigger explicit candidate-model reentry and actual N5 computation, while an identical model basis is refused before N5; a profile-ID-only occurrence change is refused at the existing candidate identity gate.",
+    "runtime_path": [
+      "served control-job compiler and initial recorded N4 response path",
+      "configured typed candidate profile/model declaration admission owner and current-job scope",
+      "current-job context CAS and V5/N4 source preservation",
+      "explicit GenerationCycleController.reenter_after_candidate_model_revision call",
+      "JointSimulationPort N5 execution and CAS artifact readback/reconciliation"
+    ],
+    "proxy_divergence": "A fresh owner-issued UUID/profile reference is not scientific progress. In the tested locator-only profile change, `_candidate_model_semantic_inputs` stays equal, but the current runtime includes profile identity in candidate semantic identity and rejects earlier as candidate_model_revision_candidate_changed. The test does not generalize this to arbitrary UUID/time/order mutations.",
+    "negative_controls": [
+      "Identical current owner-admitted declaration: candidate_model_revision_basis_unchanged before N5.",
+      "Owner-admitted changed profile locator with unchanged model-semantic inputs: candidate_model_revision_candidate_changed before N5."
+    ],
+    "positive_control": "Same candidate ID, same admitted N5 target/value/seed/horizon, typed synthetic NCM coefficient 0.5→1.0; actual N5 trajectory effect and outcome differ and stored source/execution/NCM/N5 artifacts reconcile through a fresh FileSystemCAS handle."
+  },
+  "predicate_basis": {
+    "bounded_observed_runtime_behavior": {
+      "classification": "recomputed",
+      "basis": "The focused test observes owner admission/currentness, N5 call counts, typed CAS refs and readbacks, actual trajectory effects/outcomes, and exact rejection codes before N5."
+    },
+    "full_B09_transition_and_later_validator_criterion": {
+      "classification": "not_established",
+      "basis": "The test explicitly invokes the reentry method after the initial served run; it does not establish normal N6 orchestration or the subsequent validator transition."
+    },
+    "generic_uuid_transaction_time_order_only_equivalence": {
+      "classification": "not_established",
+      "basis": "Only the exact profile-ID-only owner-admitted variant was exercised, and it is rejected at candidate identity before the model-basis guard."
+    }
+  },
+  "capability_state_or_finding_state": {
+    "B09": {
+      "finding_state": "OPEN",
+      "bounded_result": "The explicit synthetic candidate-model reentry path is exercised; this is a limited semantic test witness, not finding closure.",
+      "capability_label": "implemented_but_not_orchestrated",
+      "basis": "The test calls reenter_after_candidate_model_revision directly after the initial served run; ordinary transition wiring and the later validator are outside the observed path."
+    }
+  },
+  "limitations_and_next_owner": [
+    "Keep B09 OPEN. No ObservationToWMRRule or substantive observation-row rule is introduced or ratified here.",
+    "The current tested model basis is the typed synthetic coefficient field in CandidateSimulationSyntheticModelDeclarationV1 and its canonical NCM producer. No method-change, corrected-constraint, authorized-robustness, or admitted-data-row witness is claimed.",
+    "The profile-ID locator variant is not a general UUID/time/order control: it changes loadbearing profile/candidate identity and is refused earlier with candidate_model_revision_candidate_changed.",
+    "The direct test invocation does not prove ordinary N6 transition orchestration or the later validator required by B09.",
+    "Initial N4 output is a recorded replay and the model is explicitly synthetic; factual L6 served inputs are not established by this receipt.",
+    "Source-only independent review remains UNRUN."
+  ],
+  "slice_base_tree_sha": "044ac2581a609badbf9ae3d3278e0c9111297d09",
+  "candidate_sha": "ec5d9b0308b94d439d16eb900990cdc880f12547",
+  "implementation_commit_records": [
+    {
+      "commit": "c8f774587013b16b6851fc106192ad55e8b58a7f",
+      "tree": "dd5c5edc9177736bb0aa7f8de891f3d691e317a4",
+      "role": "This intervening commit modifies the separately listed EMP-01 unit test; retained in the complete candidate footprint but not credited as the locator-control mechanism."
+    },
+    {
+      "commit": "ec5d9b0308b94d439d16eb900990cdc880f12547",
+      "tree": "f049cdfd8859e2fdfecfcfad11e0e9cd6417d343",
+      "role": "Adds the final locator-only owner-admitted candidate-identity control to the existing candidate-model-revision integration test."
+    }
+  ],
+  "full_path_footprint": {
+    "command": "git diff --name-status cfeaecf1ab4390abd91f5ee82e9e289811f7ff41 ec5d9b0308b94d439d16eb900990cdc880f12547",
+    "changed_path_count": 2,
+    "source_path_count": 0,
+    "test_path_count": 2,
+    "complete_paths": [
+      {
+        "status": "M",
+        "path": "policy-engine/tests/integration/runtime_quality/test_e02_candidate_model_revision.py",
+        "base_git_blob": "6879f98a4bb4044407f70f4018f3c1d6878aa30a",
+        "candidate_git_blob": "400ee85891d1b28e2679992cd07fee30ec7393d5",
+        "candidate_bytes": 48839,
+        "candidate_sha256": "ce95e24af6b1d0d22d8442666324a6116b07d0944bcaeb49012ef54384c46255"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/unit/remediation/test_emp_01.py",
+        "base_git_blob": "935a57fff2da14e6811a51395a35ab1ff251cde1",
+        "candidate_git_blob": "a8791336ffcbb4c890b2c45ca1442152d6b1449f",
+        "candidate_bytes": 35218,
+        "candidate_sha256": "3274d8bbe253c100f673440a69be6c03299d3f7a4144a5b566f36e59a1b402a0"
+      }
+    ],
+    "scope": "Complete tracked Git path denominator from the declared slice base to the pinned candidate tree. The exact test selector exercises only the first path; the second is an adjacent unrelated test change and is not credited to B09."
+  },
+  "focus_lease": {
+    "path": "policy-engine/tests/integration/runtime_quality/test_e02_candidate_model_revision.py",
+    "selector": "tests/integration/runtime_quality/test_e02_candidate_model_revision.py::test_same_candidate_model_revision_reenters_only_for_changed_semantics",
+    "scope": "Only this integration test was the locator-control test focus. No source file was modified in the base-to-candidate range."
+  },
+  "source_pins": {
+    "runtime_source_pins": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "git_blob": "c970465dd426bc29495ea6dbbff9d1f1cbcd8cb8",
+        "bytes": 644405,
+        "sha256": "899159c295220e43b464ce34ef2de4549b2c78804e8ffbb4a77a58eb3acef691"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_source.py",
+        "git_blob": "1b82d0c1a7935649b6315ea34bdab2f8a618fb83",
+        "bytes": 167385,
+        "sha256": "903a18803b93f1bdb6ea249ea9668167de1df5d022817214d1d5621b47339960"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/candidate_simulation.py",
+        "git_blob": "9435d465d5035e658e66d6cbd0aa78452a2ecac6",
+        "bytes": 46974,
+        "sha256": "993866948d5cd9aac4fe89edf51d2365e647ae6d17df4316ccddd0cef31e8c24"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/cycle_substrate.py",
+        "git_blob": "932fd33fef285dbb87c7a9a670a78d741829df09",
+        "bytes": 126314,
+        "sha256": "d16440eff59fb66d98a9eabeb9437e120085fe46bbc015538c399d650ce19e74"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/ncm.py",
+        "git_blob": "f31f6be40822073ae45aa110736c5985a3a6c108",
+        "bytes": 18056,
+        "sha256": "f2d30baf854fc5fa6aa940a6c13128f01b359cac97c870cecbfc0ca3d4cdae09"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "git_blob": "77f0743bebfdf72f635a0f0477884c279b865da6",
+        "bytes": 144450,
+        "sha256": "c6c4ad3445184622fc02c787b3e3852e8b511e4a2fdd323bd8f869bc16a71a07"
+      }
+    ],
+    "runtime_source_status": "Each listed runtime source blob was read and is unchanged from slice base through the candidate; this receipt contains no production source change."
+  }
+}

@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="4" time="27.442" timestamp="2026-10-07T21:53:02.448692+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.remediation.test_emp_01" name="test_default_cycle_value_refusal_survives_persisted_run_readback[1]" time="3.996"><failure message="AssertionError: {'acquisition_requirement': None, 'authority_blockers': ['exec_plan_provenance_not_established', 'horizon_time_alignme...mulation_only_k_sim_not_world_evidence'], 'calibration_receipt': None, 'candidate_id': 'candidate_cyc_n5_builder', ...}&#10;assert 'value_conditional' == 'value_blocked'&#10;  &#10;  - value_blocked&#10;  + value_conditional">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x13ece7230&gt;
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/sparse-and-voi-owned-readback-final/pytest-basetemp/test_default_cycle_value_refus0')
+row_count = 1
+
+    @pytest.mark.parametrize("row_count", [1, 2, 3])
+    @pytest.mark.asyncio
+    async def test_default_cycle_value_refusal_survives_persisted_run_readback(
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+        row_count: int,
+    ) -&gt; None:
+        """The default N8 owner path persists a sparse-profile refusal after real N5."""
+    
+        from polisyos.core.security.tenant_context import tenant_scope
+        from tests.unit.runtime.quality.test_generation_cycle import (
+            _owner_program_graph_n5_witness,
+            _problem,
+        )
+    
+        problem = _problem("emp01_sparse_profile_cycle").model_copy(
+            update={"problem_statement": "Synthetic EMP01 fixture; no policy claim."}
+        )
+        witness = _owner_program_graph_n5_witness(
+            tmp_path / "n5",
+            income_values=(1000.0, 2000.0),
+            problem_seed=problem,
+        )
+        problem = witness.problem
+        try:
+            outcome = problem.outcome_of_interest.target_variable
+            catalog_path = tmp_path / "l1.duckdb"
+            _seed_synthetic_baseline_identity(catalog_path)
+            # These baseline-only rows test the four-row floor, not an empirical panel.
+            rows = tuple(
+                (
+                    "UA",
+                    2020 + index,
+                    10.0 + index,
+                    "dataset-ratio",
+                    f"obs-ua-{2020 + index}",
+                    '{"unit":"ratio"}',
+                )
+                for index in range(row_count)
+            )
+            connection = _RowsConnection(rows)
+            monkeypatch.setattr(
+                substrate_registry,
+                "default_substrate_catalog_paths",
+                lambda _repo_root: SimpleNamespace(l1_dcat_path=catalog_path),
+            )
+            monkeypatch.setattr(
+                read_api.catalog,
+                "default_acquisition_overlay_path",
+                lambda _repo_root: None,
+            )
+            monkeypatch.setattr(
+                read_api.catalog,
+                "open_catalog_read_session",
+                lambda _path, overlay_path=None: connection,
+            )
+            monkeypatch.setattr(
+                data_state_substrate,
+                "l1_dcat_variable_availability",
+                lambda *_args, **_kwargs: SimpleNamespace(
+                    status="available",
+                    coverage_ref=f"catalog://emp01/{outcome}",
+                    dataset_count=1,
+                    metric_binding_count=1,
+                    observation_count=row_count,
+                ),
+            )
+    
+            class _FixtureGenerationPort:
+                async def __call__(self, _problem: Any, *, cycle_index: int) -&gt; Any:
+                    assert cycle_index == 0
+                    candidate = witness.candidate
+                    return SimpleNamespace(
+                        status="generated",
+                        candidates=(candidate,),
+                        surrogate_rankings=(
+                            SimpleNamespace(
+                                candidate_id=candidate.candidate_id,
+                                score=0.9,
+                                voi_estimate=10.0,
+                            ),
+                        ),
+                        grounding_dispositions=(),
+                    )
+    
+            class _FixtureGroundingPort:
+                def __call__(self, *, candidate: Any, **_kwargs: Any) -&gt; Any:
+                    return generation_cycle.CandidateGroundingObservation(
+                        candidate_id=str(candidate.candidate_id),
+                        status="grounded_shadow",
+                        grounding_score=0.8,
+                        current_valid=False,
+                        grounding_source="cgf_firewall",
+                        grounding_disposition="synthetic_test_only",
+                        report_ref="synthetic-fixture://emp01/grounding",
+                    )
+    
+            class _FixturePromotionPort:
+                def __call__(self, **_kwargs: Any) -&gt; Any:
+                    return generation_cycle.PromotionPortObservation(
+                        status="not_promoted",
+                        reason="synthetic_emp01_test_only",
+                    )
+    
+            controller = generation_cycle.GenerationCycleController(
+                generation_port=_FixtureGenerationPort(),
+                grounding_port=_FixtureGroundingPort(),
+                promotion_port=_FixturePromotionPort(),
+                repo_root=tmp_path,
+                cycle_substrate_context=witness.context,
+                artifact_store=witness.store,
+                authority_scope="contract_testing",
+            )
+            assert isinstance(controller._simulation_port, generation_cycle.JointSimulationPort)
+            assert isinstance(
+                controller._value_port,
+                generation_cycle._DefaultSimulationBoundFoundryValuePort,
+            )
+            with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+                run = await controller.run(
+                    problem,
+                    budget_state=BudgetState(
+                        limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+                    ),
+                    min_cycles=1,
+                    max_cycles=1,
+                )
+                simulation = run.cycles[-1].simulation
+                assert simulation.status == "joint_simulated"
+                assert simulation.simulation_ref is not None
+                assert simulation.simulation_result_ref is not None
+                assert witness.store.verify(simulation.simulation_result_ref.artifact_id).ok
+    
+            expected_reason = (
+                f"selected owner profile has {row_count} usable rows; at least 4 are required "
+                f"owner_access_ref=catalog://emp01/{outcome}#selected-row-count"
+            )
+&gt;           assert run.value_port.status == "value_blocked", run.value_port.model_dump(
+                mode="json"
+            )
+E           AssertionError: {'acquisition_requirement': None, 'authority_blockers': ['exec_plan_provenance_not_established', 'horizon_time_alignme...mulation_only_k_sim_not_world_evidence'], 'calibration_receipt': None, 'candidate_id': 'candidate_cyc_n5_builder', ...}
+E           assert 'value_conditional' == 'value_blocked'
+E             
+E             - value_blocked
+E             + value_conditional
+
+tests/unit/remediation/test_emp_01.py:678: AssertionError</failure></testcase><testcase classname="tests.unit.remediation.test_emp_01" name="test_default_cycle_value_refusal_survives_persisted_run_readback[2]" time="2.825"><failure message="AssertionError: {'acquisition_requirement': None, 'authority_blockers': ['exec_plan_provenance_not_established', 'horizon_time_alignme...mulation_only_k_sim_not_world_evidence'], 'calibration_receipt': None, 'candidate_id': 'candidate_cyc_n5_builder', ...}&#10;assert 'value_conditional' == 'value_blocked'&#10;  &#10;  - value_blocked&#10;  + value_conditional">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x13fba03b0&gt;
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/sparse-and-voi-owned-readback-final/pytest-basetemp/test_default_cycle_value_refus1')
+row_count = 2
+
+    @pytest.mark.parametrize("row_count", [1, 2, 3])
+    @pytest.mark.asyncio
+    async def test_default_cycle_value_refusal_survives_persisted_run_readback(
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+        row_count: int,
+    ) -&gt; None:
+        """The default N8 owner path persists a sparse-profile refusal after real N5."""
+    
+        from polisyos.core.security.tenant_context import tenant_scope
+        from tests.unit.runtime.quality.test_generation_cycle import (
+            _owner_program_graph_n5_witness,
+            _problem,
+        )
+    
+        problem = _problem("emp01_sparse_profile_cycle").model_copy(
+            update={"problem_statement": "Synthetic EMP01 fixture; no policy claim."}
+        )
+        witness = _owner_program_graph_n5_witness(
+            tmp_path / "n5",
+            income_values=(1000.0, 2000.0),
+            problem_seed=problem,
+        )
+        problem = witness.problem
+        try:
+            outcome = problem.outcome_of_interest.target_variable
+            catalog_path = tmp_path / "l1.duckdb"
+            _seed_synthetic_baseline_identity(catalog_path)
+            # These baseline-only rows test the four-row floor, not an empirical panel.
+            rows = tuple(
+                (
+                    "UA",
+                    2020 + index,
+                    10.0 + index,
+                    "dataset-ratio",
+                    f"obs-ua-{2020 + index}",
+                    '{"unit":"ratio"}',
+                )
+                for index in range(row_count)
+            )
+            connection = _RowsConnection(rows)
+            monkeypatch.setattr(
+                substrate_registry,
+                "default_substrate_catalog_paths",
+                lambda _repo_root: SimpleNamespace(l1_dcat_path=catalog_path),
+            )
+            monkeypatch.setattr(
+                read_api.catalog,
+                "default_acquisition_overlay_path",
+                lambda _repo_root: None,
+            )
+            monkeypatch.setattr(
+                read_api.catalog,
+                "open_catalog_read_session",
+                lambda _path, overlay_path=None: connection,
+            )
+            monkeypatch.setattr(
+                data_state_substrate,
+                "l1_dcat_variable_availability",
+                lambda *_args, **_kwargs: SimpleNamespace(
+                    status="available",
+                    coverage_ref=f"catalog://emp01/{outcome}",
+                    dataset_count=1,
+                    metric_binding_count=1,
+                    observation_count=row_count,
+                ),
+            )
+    
+            class _FixtureGenerationPort:
+                async def __call__(self, _problem: Any, *, cycle_index: int) -&gt; Any:
+                    assert cycle_index == 0
+                    candidate = witness.candidate
+                    return SimpleNamespace(
+                        status="generated",
+                        candidates=(candidate,),
+                        surrogate_rankings=(
+                            SimpleNamespace(
+                                candidate_id=candidate.candidate_id,
+                                score=0.9,
+                                voi_estimate=10.0,
+                            ),
+                        ),
+                        grounding_dispositions=(),
+                    )
+    
+            class _FixtureGroundingPort:
+                def __call__(self, *, candidate: Any, **_kwargs: Any) -&gt; Any:
+                    return generation_cycle.CandidateGroundingObservation(
+                        candidate_id=str(candidate.candidate_id),
+                        status="grounded_shadow",
+                        grounding_score=0.8,
+                        current_valid=False,
+                        grounding_source="cgf_firewall",
+                        grounding_disposition="synthetic_test_only",
+                        report_ref="synthetic-fixture://emp01/grounding",
+                    )
+    
+            class _FixturePromotionPort:
+                def __call__(self, **_kwargs: Any) -&gt; Any:
+                    return generation_cycle.PromotionPortObservation(
+                        status="not_promoted",
+                        reason="synthetic_emp01_test_only",
+                    )
+    
+            controller = generation_cycle.GenerationCycleController(
+                generation_port=_FixtureGenerationPort(),
+                grounding_port=_FixtureGroundingPort(),
+                promotion_port=_FixturePromotionPort(),
+                repo_root=tmp_path,
+                cycle_substrate_context=witness.context,
+                artifact_store=witness.store,
+                authority_scope="contract_testing",
+            )
+            assert isinstance(controller._simulation_port, generation_cycle.JointSimulationPort)
+            assert isinstance(
+                controller._value_port,
+                generation_cycle._DefaultSimulationBoundFoundryValuePort,
+            )
+            with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+                run = await controller.run(
+                    problem,
+                    budget_state=BudgetState(
+                        limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+                    ),
+                    min_cycles=1,
+                    max_cycles=1,
+                )
+                simulation = run.cycles[-1].simulation
+                assert simulation.status == "joint_simulated"
+                assert simulation.simulation_ref is not None
+                assert simulation.simulation_result_ref is not None
+                assert witness.store.verify(simulation.simulation_result_ref.artifact_id).ok
+    
+            expected_reason = (
+                f"selected owner profile has {row_count} usable rows; at least 4 are required "
+                f"owner_access_ref=catalog://emp01/{outcome}#selected-row-count"
+            )
+&gt;           assert run.value_port.status == "value_blocked", run.value_port.model_dump(
+                mode="json"
+            )
+E           AssertionError: {'acquisition_requirement': None, 'authority_blockers': ['exec_plan_provenance_not_established', 'horizon_time_alignme...mulation_only_k_sim_not_world_evidence'], 'calibration_receipt': None, 'candidate_id': 'candidate_cyc_n5_builder', ...}
+E           assert 'value_conditional' == 'value_blocked'
+E             
+E             - value_blocked
+E             + value_conditional
+
+tests/unit/remediation/test_emp_01.py:678: AssertionError</failure></testcase><testcase classname="tests.unit.remediation.test_emp_01" name="test_default_cycle_value_refusal_survives_persisted_run_readback[3]" time="2.856"><failure message="AssertionError: {'acquisition_requirement': None, 'authority_blockers': ['exec_plan_provenance_not_established', 'horizon_time_alignme...mulation_only_k_sim_not_world_evidence'], 'calibration_receipt': None, 'candidate_id': 'candidate_cyc_n5_builder', ...}&#10;assert 'value_conditional' == 'value_blocked'&#10;  &#10;  - value_blocked&#10;  + value_conditional">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x13fd95e10&gt;
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/sparse-and-voi-owned-readback-final/pytest-basetemp/test_default_cycle_value_refus2')
+row_count = 3
+
+    @pytest.mark.parametrize("row_count", [1, 2, 3])
+    @pytest.mark.asyncio
+    async def test_default_cycle_value_refusal_survives_persisted_run_readback(
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+        row_count: int,
+    ) -&gt; None:
+        """The default N8 owner path persists a sparse-profile refusal after real N5."""
+    
+        from polisyos.core.security.tenant_context import tenant_scope
+        from tests.unit.runtime.quality.test_generation_cycle import (
+            _owner_program_graph_n5_witness,
+            _problem,
+        )
+    
+        problem = _problem("emp01_sparse_profile_cycle").model_copy(
+            update={"problem_statement": "Synthetic EMP01 fixture; no policy claim."}
+        )
+        witness = _owner_program_graph_n5_witness(
+            tmp_path / "n5",
+            income_values=(1000.0, 2000.0),
+            problem_seed=problem,
+        )
+        problem = witness.problem
+        try:
+            outcome = problem.outcome_of_interest.target_variable
+            catalog_path = tmp_path / "l1.duckdb"
+            _seed_synthetic_baseline_identity(catalog_path)
+            # These baseline-only rows test the four-row floor, not an empirical panel.
+            rows = tuple(
+                (
+                    "UA",
+                    2020 + index,
+                    10.0 + index,
+                    "dataset-ratio",
+                    f"obs-ua-{2020 + index}",
+                    '{"unit":"ratio"}',
+                )
+                for index in range(row_count)
+            )
+            connection = _RowsConnection(rows)
+            monkeypatch.setattr(
+                substrate_registry,
+                "default_substrate_catalog_paths",
+                lambda _repo_root: SimpleNamespace(l1_dcat_path=catalog_path),
+            )
+            monkeypatch.setattr(
+                read_api.catalog,
+                "default_acquisition_overlay_path",
+                lambda _repo_root: None,
+            )
+            monkeypatch.setattr(
+                read_api.catalog,
+                "open_catalog_read_session",
+                lambda _path, overlay_path=None: connection,
+            )
+            monkeypatch.setattr(
+                data_state_substrate,
+                "l1_dcat_variable_availability",
+                lambda *_args, **_kwargs: SimpleNamespace(
+                    status="available",
+                    coverage_ref=f"catalog://emp01/{outcome}",
+                    dataset_count=1,
+                    metric_binding_count=1,
+                    observation_count=row_count,
+                ),
+            )
+    
+            class _FixtureGenerationPort:
+                async def __call__(self, _problem: Any, *, cycle_index: int) -&gt; Any:
+                    assert cycle_index == 0
+                    candidate = witness.candidate
+                    return SimpleNamespace(
+                        status="generated",
+                        candidates=(candidate,),
+                        surrogate_rankings=(
+                            SimpleNamespace(
+                                candidate_id=candidate.candidate_id,
+                                score=0.9,
+                                voi_estimate=10.0,
+                            ),
+                        ),
+                        grounding_dispositions=(),
+                    )
+    
+            class _FixtureGroundingPort:
+                def __call__(self, *, candidate: Any, **_kwargs: Any) -&gt; Any:
+                    return generation_cycle.CandidateGroundingObservation(
+                        candidate_id=str(candidate.candidate_id),
+                        status="grounded_shadow",
+                        grounding_score=0.8,
+                        current_valid=False,
+                        grounding_source="cgf_firewall",
+                        grounding_disposition="synthetic_test_only",
+                        report_ref="synthetic-fixture://emp01/grounding",
+                    )
+    
+            class _FixturePromotionPort:
+                def __call__(self, **_kwargs: Any) -&gt; Any:
+                    return generation_cycle.PromotionPortObservation(
+                        status="not_promoted",
+                        reason="synthetic_emp01_test_only",
+                    )
+    
+            controller = generation_cycle.GenerationCycleController(
+                generation_port=_FixtureGenerationPort(),
+                grounding_port=_FixtureGroundingPort(),
+                promotion_port=_FixturePromotionPort(),
+                repo_root=tmp_path,
+                cycle_substrate_context=witness.context,
+                artifact_store=witness.store,
+                authority_scope="contract_testing",
+            )
+            assert isinstance(controller._simulation_port, generation_cycle.JointSimulationPort)
+            assert isinstance(
+                controller._value_port,
+                generation_cycle._DefaultSimulationBoundFoundryValuePort,
+            )
+            with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+                run = await controller.run(
+                    problem,
+                    budget_state=BudgetState(
+                        limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+                    ),
+                    min_cycles=1,
+                    max_cycles=1,
+                )
+                simulation = run.cycles[-1].simulation
+                assert simulation.status == "joint_simulated"
+                assert simulation.simulation_ref is not None
+                assert simulation.simulation_result_ref is not None
+                assert witness.store.verify(simulation.simulation_result_ref.artifact_id).ok
+    
+            expected_reason = (
+                f"selected owner profile has {row_count} usable rows; at least 4 are required "
+                f"owner_access_ref=catalog://emp01/{outcome}#selected-row-count"
+            )
+&gt;           assert run.value_port.status == "value_blocked", run.value_port.model_dump(
+                mode="json"
+            )
+E           AssertionError: {'acquisition_requirement': None, 'authority_blockers': ['exec_plan_provenance_not_established', 'horizon_time_alignme...mulation_only_k_sim_not_world_evidence'], 'calibration_receipt': None, 'candidate_id': 'candidate_cyc_n5_builder', ...}
+E           assert 'value_conditional' == 'value_blocked'
+E             
+E             - value_blocked
+E             + value_conditional
+
+tests/unit/remediation/test_emp_01.py:678: AssertionError</failure></testcase><testcase classname="tests.integration.core_runtime.test_e02_voi_artifact_projection" name="test_informative_voi_candidate_core_readback_and_preview_refusal" time="4.401" /></testsuite></testsuites>

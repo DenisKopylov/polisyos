@@ -1,0 +1,1289 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "ksim-carrier-removal",
+  "artifact_title": "K_sim persisted-blocker removal probe at the N8 typed carrier boundary",
+  "finding_state": "bounded_runtime_witness_only; no criterion closure or root disposition changed",
+  "related_bundle": "CYC-02",
+  "criterion_scope": {
+    "criterion": "Existing persisted-candidate-only blocker recovery test for the simulation-only K_sim limitation at default N8.",
+    "out_of_scope": [
+      "N9 signature/currentness",
+      "production authority",
+      "empirical effect",
+      "B05/B08 closure"
+    ],
+    "adjudication": "This handoff does not change any full-queue row or owner disposition."
+  },
+  "candidate": {
+    "commit": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+    "tree": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+    "branch_at_documentation": "codex/e02-A-delivery-attached",
+    "head_at_documentation": "267f024a994e25aa9a496851bc2a8f4ce5a9b953",
+    "tree_at_documentation": "6d033116b33015854eef421792d0e8a9b9a78063",
+    "run_candidate_is_immutable_identity": true,
+    "run_branch_identity_note": "The three attempts were launched from this exact commit/tree; current documentation HEAD is recorded separately and does not replace that run identity."
+  },
+  "source_identity": {
+    "runtime": {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "sha256_at_candidate": "a1b87490e228fc9364ef77955bb0d911eaa4571e093ee7183108d91b37681f6b"
+    },
+    "target_test": {
+      "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "sha256_at_candidate": "d3dcd61ca85d388f346d3a6fbecfac15163c7ad0cdfe92db86c3c7ae66820b04",
+      "function_ast_sha256": "e67818e51a55d5a6771121960f0011a15c3fb989509a9781f8acbea042a6be19"
+    },
+    "target_nodeid": "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection",
+    "plugin_source_hashes": {
+      "attempt_1": "5158c91a169dae58e54a41ad6730f6b591d4d6b2f285ae2a845c86027c2bd869",
+      "attempt_3": "5d662e04b8e644bbe12772599c4ffb90437899f9e418df5df823d5c2c1b86b54"
+    },
+    "post_run_worktree_observation": {
+      "runtime_sha256_now": "899159c295220e43b464ce34ef2de4549b2c78804e8ffbb4a77a58eb3acef691",
+      "target_test_sha256_now": "3d1d70b4f47bb2115469efc4a726b2bea1aa9ba812f71a25a86b5d617cb1d41c",
+      "runtime_matches_candidate": false,
+      "test_matches_candidate": false,
+      "note": "The shared worktree now contains runtime and target-test bytes different from the frozen run candidate. Those current hashes are recorded separately; all three runner receipts and candidate Git blobs retain the historical run identity."
+    }
+  },
+  "target_test_reuse": {
+    "kind": "existing_test_reused_for_in_memory_property_removal",
+    "target_nodeid": "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection",
+    "source_line_for_assertion": 4718,
+    "assertion_source": "\"simulation_only_k_sim_not_world_evidence\" in value.authority_blockers",
+    "function_ast_sha256": "e67818e51a55d5a6771121960f0011a15c3fb989509a9781f8acbea042a6be19",
+    "fixture_and_runtime_dependencies": [
+      "_runtime_ncm_fixture_store",
+      "_owner_n5_case_with_selected_ncm_ref",
+      "JointSimulationPort",
+      "content-bound load_joint_simulation_result",
+      "default conditional N8 value port",
+      "ValuePortObservation validator"
+    ],
+    "baseline_boundary": "The unmutated original test body was not run as a separate positive control in this three-attempt packet. Its source assertion and fixture are reused, but the in-memory mutation triggers the typed carrier validator before that explicit assertion."
+  },
+  "property_mutation": {
+    "scope": "In-memory replacement of the single N8 persisted-blocker merge in the pinned runtime function; no production file or test file was edited by the probe.",
+    "original_statement": "blockers.update(persisted_blockers)",
+    "mutated_statement": "blockers.update(persisted_blockers - {\"simulation_only_k_sim_not_world_evidence\"})",
+    "property_removed": "Only the K_sim simulation-only limitation is omitted from the N8 projection; persisted CAS bytes, artifact identity, receipt payload hash, candidate and world-model content binding remain pinned.",
+    "original_assertion_reached": false,
+    "why_assertion_not_reached": "ValuePortObservation rejects value_conditional with an empty authority_blockers set using value_conditional_requires_simulation_limitation before the test reaches its explicit K_sim output assertion."
+  },
+  "attempts": [
+    {
+      "id": "initial_property_removal",
+      "raw_directory": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1",
+      "copied_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal",
+      "classification": "raw_qualification_incomplete",
+      "interpretation": "The initial observer recorded one N5 producer and one content-bound N8 CAS read, but recorded zero default-N8 consumer calls. Its exact original qualification remains INCOMPLETE_OR_UNEXPECTED_RESULT; its error/call-count instrumentation did not qualify the typed refusal or unchanged K_sim assertion.",
+      "candidate_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+      "candidate_tree_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/pytest-basetemp",
+        "-p",
+        "pytest_ksim_persisted_blocker_removal",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection"
+      ],
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "launcher": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+        "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+      },
+      "wall_seconds": 16.86390987498453,
+      "exit_code": 1,
+      "raw_qualification_status": "INCOMPLETE_OR_UNEXPECTED_RESULT",
+      "raw_receipt_sha256": "588e62598e36456d103da1fa4fce0e779edcd39870db34edf8d9853ac512e1e5",
+      "raw_qualification_sha256": "fb80c85db11e0e758be90232d0f14c3c31f1e872dbe123cc39e5c25e0a61773f",
+      "raw_junit_sha256": "f6d021eee285915f67b8d229c02723331868bad2a082fb5d6b0b939dd2fa3b08",
+      "observations": {
+        "exit_code": 1,
+        "qualification_status": "INCOMPLETE_OR_UNEXPECTED_RESULT",
+        "actual_n5_joint_simulation_producer_calls": 1,
+        "actual_content_bound_n8_cas_reads": 1,
+        "actual_default_n8_consumer_calls": 0,
+        "assertion_reached": null,
+        "same_n5_result_ref_qualified": false
+      },
+      "copied_files": [
+        {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/e02_origin.py",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/e02_origin.py",
+          "bytes": 656,
+          "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+          "copy_sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+        },
+        {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/junit.xml",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/junit.xml",
+          "bytes": 11580,
+          "sha256": "f6d021eee285915f67b8d229c02723331868bad2a082fb5d6b0b939dd2fa3b08",
+          "copy_sha256": "f6d021eee285915f67b8d229c02723331868bad2a082fb5d6b0b939dd2fa3b08"
+        },
+        {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/origins.json",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/origins.json",
+          "bytes": 1095,
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+          "copy_sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+        },
+        {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/preparation.json",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/preparation.json",
+          "bytes": 4439,
+          "sha256": "cc112ff1e377b22db250ecf310c89a090d7e5f1c23ca9a5cb11ce21e6f2c531d",
+          "copy_sha256": "cc112ff1e377b22db250ecf310c89a090d7e5f1c23ca9a5cb11ce21e6f2c531d"
+        },
+        {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/pytest_ksim_persisted_blocker_removal.py",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/pytest_ksim_persisted_blocker_removal.py",
+          "bytes": 20001,
+          "sha256": "5158c91a169dae58e54a41ad6730f6b591d4d6b2f285ae2a845c86027c2bd869",
+          "copy_sha256": "5158c91a169dae58e54a41ad6730f6b591d4d6b2f285ae2a845c86027c2bd869"
+        },
+        {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/qualification.json",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/qualification.json",
+          "bytes": 18783,
+          "sha256": "fb80c85db11e0e758be90232d0f14c3c31f1e872dbe123cc39e5c25e0a61773f",
+          "copy_sha256": "fb80c85db11e0e758be90232d0f14c3c31f1e872dbe123cc39e5c25e0a61773f"
+        },
+        {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/receipt.json",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/receipt.json",
+          "bytes": 4739,
+          "sha256": "588e62598e36456d103da1fa4fce0e779edcd39870db34edf8d9853ac512e1e5",
+          "copy_sha256": "588e62598e36456d103da1fa4fce0e779edcd39870db34edf8d9853ac512e1e5"
+        },
+        {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/stderr.txt",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "copy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/stdout.txt",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/stdout.txt",
+          "bytes": 80354,
+          "sha256": "e498d92c4a4bafa05c89a3579b7576373447d522f5c73ed824669af57b9eaee2",
+          "copy_sha256": "e498d92c4a4bafa05c89a3579b7576373447d522f5c73ed824669af57b9eaee2"
+        }
+      ]
+    },
+    {
+      "id": "missing_plugin_harness_error",
+      "raw_directory": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-r1-3ba1",
+      "copied_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-2-missing-plugin-harness-error",
+      "classification": "harness_error_before_collection",
+      "interpretation": "The runner requested a plugin module that was unavailable. Pytest failed before test collection; no semantic result was produced.",
+      "candidate_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+      "candidate_tree_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-r1-3ba1/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-r1-3ba1/pytest-basetemp",
+        "-p",
+        "pytest_ksim_persisted_blocker_removal",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection"
+      ],
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-r1-3ba1:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "launcher": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+        "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+      },
+      "wall_seconds": 0.2685539170051925,
+      "exit_code": 1,
+      "raw_qualification_status": null,
+      "raw_receipt_sha256": "65ed1afbd1500be231b75221d519ecf68b81b5f0850d0538307fcfbca0e97dc4",
+      "raw_qualification_sha256": null,
+      "raw_junit_sha256": null,
+      "observations": {
+        "exit_code": 1,
+        "module_not_found": true,
+        "junit_present": false,
+        "test_execution": "none"
+      },
+      "copied_files": [
+        {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-r1-3ba1/e02_origin.py",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-2-missing-plugin-harness-error/e02_origin.py",
+          "bytes": 656,
+          "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+          "copy_sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+        },
+        {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-r1-3ba1/receipt.json",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-2-missing-plugin-harness-error/receipt.json",
+          "bytes": 4452,
+          "sha256": "65ed1afbd1500be231b75221d519ecf68b81b5f0850d0538307fcfbca0e97dc4",
+          "copy_sha256": "65ed1afbd1500be231b75221d519ecf68b81b5f0850d0538307fcfbca0e97dc4"
+        },
+        {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-r1-3ba1/stderr.txt",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-2-missing-plugin-harness-error/stderr.txt",
+          "bytes": 4932,
+          "sha256": "5cf5665e446fec1edb36654bd960edfd43f229719adcac2dfda93d7f53304f3e",
+          "copy_sha256": "5cf5665e446fec1edb36654bd960edfd43f229719adcac2dfda93d7f53304f3e"
+        },
+        {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-r1-3ba1/stdout.txt",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-2-missing-plugin-harness-error/stdout.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "copy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "id": "native_typed_refusal",
+      "raw_directory": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1",
+      "copied_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal",
+      "classification": "raw_qualification_incomplete; separately_reconciled_expected_typed_carrier_refusal",
+      "interpretation": "The exact raw qualification remains INCOMPLETE_OR_UNEXPECTED_RESULT: it compared the absolute constructor line 5866 with standalone traceback line 126 and left constructor_frame_hit false. Separate post-run reconciliation reconstructs the pinned plugin compile path and confirms the observed frame maps to the mutated AST constructor; the original qualification and output remain unchanged.",
+      "candidate_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+      "candidate_tree_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/pytest-basetemp",
+        "-p",
+        "pytest_ksim_typed_carrier_refusal",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection"
+      ],
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "launcher": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+        "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+      },
+      "wall_seconds": 18.870745124993846,
+      "exit_code": 1,
+      "raw_qualification_status": "INCOMPLETE_OR_UNEXPECTED_RESULT",
+      "raw_receipt_sha256": "51dbf6c36013cbd59ceaef82a75fbcb23672a767835f75c1155e08db88e66371",
+      "raw_qualification_sha256": "4321a23864c1ff358ad7915036b925535ce5f4da8a7b867fa1cff01c11cc7d38",
+      "raw_junit_sha256": "4b2f6824b76d788a05daca2fc789121649c890cb09f246cb6db07ab32f341898",
+      "observations": {
+        "exit_code": 1,
+        "qualification_status": "INCOMPLETE_OR_UNEXPECTED_RESULT",
+        "actual_n5_joint_simulation_producer_calls": 1,
+        "actual_default_n8_entries_before_original_call": 1,
+        "actual_content_bound_n8_cas_reads": 1,
+        "actual_default_n8_typed_refusals": 1,
+        "raw_constructor_frame_hit": false,
+        "raw_expected_constructor_line": 5866,
+        "observed_traceback_line": 126,
+        "test_assertion_reached": false,
+        "typed_guard": "value_conditional_requires_simulation_limitation"
+      },
+      "copied_files": [
+        {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/e02_origin.py",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/e02_origin.py",
+          "bytes": 656,
+          "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+          "copy_sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+        },
+        {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/junit.xml",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/junit.xml",
+          "bytes": 11576,
+          "sha256": "4b2f6824b76d788a05daca2fc789121649c890cb09f246cb6db07ab32f341898",
+          "copy_sha256": "4b2f6824b76d788a05daca2fc789121649c890cb09f246cb6db07ab32f341898"
+        },
+        {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/origins.json",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/origins.json",
+          "bytes": 1095,
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+          "copy_sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+        },
+        {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/preparation.json",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/preparation.json",
+          "bytes": 3700,
+          "sha256": "4acdfaa0705c624c749ef2d0c48fe1b2163d348978026d1265701bb81151a78f",
+          "copy_sha256": "4acdfaa0705c624c749ef2d0c48fe1b2163d348978026d1265701bb81151a78f"
+        },
+        {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/pytest_ksim_typed_carrier_refusal.py",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/pytest_ksim_typed_carrier_refusal.py",
+          "bytes": 31385,
+          "sha256": "5d662e04b8e644bbe12772599c4ffb90437899f9e418df5df823d5c2c1b86b54",
+          "copy_sha256": "5d662e04b8e644bbe12772599c4ffb90437899f9e418df5df823d5c2c1b86b54"
+        },
+        {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/qualification.json",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/qualification.json",
+          "bytes": 13718,
+          "sha256": "4321a23864c1ff358ad7915036b925535ce5f4da8a7b867fa1cff01c11cc7d38",
+          "copy_sha256": "4321a23864c1ff358ad7915036b925535ce5f4da8a7b867fa1cff01c11cc7d38"
+        },
+        {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/receipt.json",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/receipt.json",
+          "bytes": 5160,
+          "sha256": "51dbf6c36013cbd59ceaef82a75fbcb23672a767835f75c1155e08db88e66371",
+          "copy_sha256": "51dbf6c36013cbd59ceaef82a75fbcb23672a767835f75c1155e08db88e66371"
+        },
+        {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/stderr.txt",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "copy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/stdout.txt",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/stdout.txt",
+          "bytes": 74214,
+          "sha256": "7a67cee4c957f919ebe10c7d4779940549888b6e0e08fe2456c6ac9899650caa",
+          "copy_sha256": "7a67cee4c957f919ebe10c7d4779940549888b6e0e08fe2456c6ac9899650caa"
+        }
+      ]
+    }
+  ],
+  "independent_reconciliation": {
+    "classification": "independently_reconciled_expected_typed_carrier_refusal",
+    "independently_reconciled": true,
+    "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/reconciliation/native-run-reconciliation.json",
+    "receipt_sha256": "955a61b7643ac3b9623a2743d3b3f4380fd5af6dd29dd9bb32cb134b50a75448",
+    "script_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/reconciliation/reconcile_native_typed_refusal.py",
+    "script_sha256": "aedeff55f5bd579aeafd2004da8daaee1cb49d29409637613f75744cbed48b27",
+    "raw_qualification_preserved": true,
+    "qualification_note": "Original plugin qualification remains INCOMPLETE_OR_UNEXPECTED_RESULT and constructor_frame_hit=false; this independent receipt does not rewrite that outcome.",
+    "code_object_limit": "The live runtime code object from the historical process was not retained. The pinned plugin and candidate source deterministically reconstruct the standalone function compile; reconstructed constructor line 126 matches the retained traceback file, function and line.",
+    "line_mapping_summary": {
+      "original_constructor_source_line": 5866,
+      "context_offset": 5740,
+      "standalone_compiled_constructor_line": 126,
+      "observed_traceback_line": 126,
+      "filename_and_function_match": true,
+      "reconstruction_matches": true,
+      "original_live_code_object_retained": false,
+      "reconstruction_basis": "The exact pinned plugin and source deterministically reconstruct the same standalone function compilation; its relative constructor line equals the retained traceback line and filename/function."
+    },
+    "typed_refusal_summary": {
+      "exception": "ValidationError",
+      "model": "ValuePortObservation",
+      "validator": "ValuePortObservation._verify_value_authority_shape",
+      "guard_code": "value_conditional_requires_simulation_limitation",
+      "raw_constructor_frame_boolean": false,
+      "exact_validation_shape_reconciled": true
+    },
+    "binding_summary": {
+      "n5_calls": 1,
+      "default_n8_entries_before_call": 1,
+      "content_bound_n8_cas_reads": 1,
+      "same_artifact_ref_and_receipt_hash": true,
+      "persisted_k_sim_marker_present": true,
+      "loaded_world_hash_matches_expected_and_carrier": true,
+      "artifact_id": "sha256:a0a0cbb11d6f4ce4cc2b5ad49f4af14877a50932bd131a0457822b642fe3daed",
+      "receipt_payload_hash": "sha256:a7fb617c9205727de31e13e8f00add30fb7490b0617b12af3824789acc53e2a5",
+      "world_model_record_content_hash": "sha256:5eba7c0e75d80663058ba668dbaddf3e73d8a5a920639fd23b115c4763806ff0"
+    },
+    "copied_receipt_sha256": "955a61b7643ac3b9623a2743d3b3f4380fd5af6dd29dd9bb32cb134b50a75448",
+    "raw_qualification_status": "INCOMPLETE_OR_UNEXPECTED_RESULT",
+    "original_constructor_frame_boolean": false
+  },
+  "result": {
+    "bounded_result": "After the one in-memory K_sim merge removal, actual N5 produced the candidate-bound simulation artifact, actual N8 content-read the exact persisted artifact while the persisted packet retained K_sim, and the typed ValuePortObservation carrier refused the empty-blocker conditional value.",
+    "classification": "expected typed-carrier refusal, independently reconciled from the raw native run; earlier raw qualifications remain incomplete/error as recorded.",
+    "what_this_demonstrates": "The downstream typed carrier remains fail-closed when this N8 projection loses the required simulation limitation.",
+    "what_this_does_not_demonstrate": [
+      "The explicit post-N8 K_sim assertion was reached.",
+      "N9 promotion/currentness behavior.",
+      "A production signed/currentness positive.",
+      "Production authority or external action.",
+      "Full B05/B08 closure."
+    ]
+  },
+  "P40_classification": {
+    "bucket": "same class one level deeper",
+    "existing_guard": "ValuePortObservation._verify_value_authority_shape / value_conditional_requires_simulation_limitation",
+    "interpretation": "The property-removal probe encounters a deeper existing guard in the same K_sim propagation/fail-closed class, rather than demonstrating a separate product defect.",
+    "repair_decision": "Leave the typed carrier invariant intact. Do not remove or weaken it to force the original assertion; record this bounded guard refusal and stop at this layer."
+  },
+  "capability_boundary": {
+    "label": "bounded verification witness only",
+    "not_claimed": [
+      "complete capability",
+      "signed/currentness authority",
+      "N9 consumer behavior",
+      "empirical effect",
+      "publication",
+      "full criterion closure"
+    ]
+  },
+  "test_source_changes_by_this_task": false,
+  "limitations_and_next_owner": [
+    "Do not count the two raw INCOMPLETE qualifications as passing tests; retain their exact statuses and outputs.",
+    "The wrong-plugin attempt is a harness ERROR before test collection and contributes no semantic evidence.",
+    "The independently reconciled expected typed-carrier refusal is bounded to the actual N5→CAS readback→default N8→ValuePortObservation path.",
+    "The historical run did not retain the live Python code object; line mapping is reconstructed from the pinned plugin and source and is explicitly labeled with that limit.",
+    "No N9, signature/currentness, production-authority, or empirical-effect conclusion follows from this artifact.",
+    "Root owns final audit, disposition, and any commit."
+  ],
+  "evidence_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1",
+  "evidence_copy_policy": "Byte-for-byte copies of all files in the three bounded attempt directories except pytest-basetemp content, plus the independent reconciliation receipt/script. Every copied file records original build path, copy path, byte length, and SHA256.",
+  "checks_record": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/ksim-checks.json",
+    "primary_checks": 4,
+    "primary_check_required_keys": [
+      "command",
+      "environment",
+      "input_closure",
+      "outcome",
+      "output",
+      "target_sha"
+    ],
+    "primary_outcome_enum": [
+      "ERROR",
+      "FAIL",
+      "PASS",
+      "SKIP",
+      "UNRUN"
+    ],
+    "semantic_checks": 6,
+    "semantic_check_field_set": [
+      "evidence_ref",
+      "id",
+      "limitation",
+      "observation",
+      "outcome",
+      "property"
+    ]
+  },
+  "decision": "Record the behavioral refusal as a bounded, independently reconciled property-removal witness; retain raw runner statuses; do not alter production guard, test source, old ledger or N9 findings.",
+  "documentation_files_written": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/ksim-carrier-removal.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/ksim-checks.json"
+  ],
+  "reconciliation_artifacts": [
+    {
+      "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-removal-typed-refusal-3ba1/native-run-reconciliation.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/reconciliation/native-run-reconciliation.json",
+      "bytes": 17732,
+      "sha256": "955a61b7643ac3b9623a2743d3b3f4380fd5af6dd29dd9bb32cb134b50a75448"
+    },
+    {
+      "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-removal-typed-refusal-3ba1/reconcile_native_typed_refusal.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/reconciliation/reconcile_native_typed_refusal.py",
+      "bytes": 22169,
+      "sha256": "aedeff55f5bd579aeafd2004da8daaee1cb49d29409637613f75744cbed48b27"
+    }
+  ],
+  "production_source_changes_by_this_task": false,
+  "slice_base_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+  "candidate_tree_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+  "branch": "codex/e02-A-delivery-attached",
+  "bundle_ids": [
+    "CYC-02"
+  ],
+  "closure_ids": [],
+  "implementation_commits": [],
+  "pull_request": null,
+  "baseline_cells": [],
+  "changed_paths": [],
+  "changed_path_scope": "The immutable tested code candidate equals this slice base (3ba1), so the candidate source/test delta is empty. Documentation and copied evidence artifacts added after that candidate are enumerated separately.",
+  "checks": [
+    {
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/pytest-basetemp -p pytest_ksim_persisted_blocker_removal tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection",
+      "target_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+      "environment": {
+        "runner_recorded_environment": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "pytest_runtime": {
+          "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "python_version": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+          "pytest_version": "9.0.2",
+          "runtime_version_recorded": true
+        }
+      },
+      "input_closure": {
+        "run_id": "initial_property_removal",
+        "candidate_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+        "candidate_tree_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/pytest-basetemp",
+          "-p",
+          "pytest_ksim_persisted_blocker_removal",
+          "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection"
+        ],
+        "test_target": "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection",
+        "source_files": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "sha256": "a1b87490e228fc9364ef77955bb0d911eaa4571e093ee7183108d91b37681f6b"
+          },
+          {
+            "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+            "sha256": "d3dcd61ca85d388f346d3a6fbecfac15163c7ad0cdfe92db86c3c7ae66820b04"
+          }
+        ],
+        "source_hashes_rechecked_by_run": {
+          "runtime": {
+            "sha256_before_after": {
+              "after": "a1b87490e228fc9364ef77955bb0d911eaa4571e093ee7183108d91b37681f6b",
+              "before": "a1b87490e228fc9364ef77955bb0d911eaa4571e093ee7183108d91b37681f6b"
+            },
+            "source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+          },
+          "test": {
+            "sha256_before_after": {
+              "after": "d3dcd61ca85d388f346d3a6fbecfac15163c7ad0cdfe92db86c3c7ae66820b04",
+              "before": "d3dcd61ca85d388f346d3a6fbecfac15163c7ad0cdfe92db86c3c7ae66820b04"
+            },
+            "source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_generation_cycle.py"
+          }
+        },
+        "probe_plugin": {
+          "requested_module": "pytest_ksim_persisted_blocker_removal",
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/pytest_ksim_persisted_blocker_removal.py",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/pytest_ksim_persisted_blocker_removal.py",
+          "sha256": "5158c91a169dae58e54a41ad6730f6b591d4d6b2f285ae2a845c86027c2bd869",
+          "found_and_loaded": true
+        },
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        },
+        "captured_probe_setup_inputs": [
+          {
+            "role": "pytest_origin_plugin",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/e02_origin.py",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          },
+          {
+            "role": "origin_input_manifest",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/origins.json",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          },
+          {
+            "role": "probe_preparation_input",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/preparation.json",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/preparation.json",
+            "bytes": 4439,
+            "sha256": "cc112ff1e377b22db250ecf310c89a090d7e5f1c23ca9a5cb11ce21e6f2c531d"
+          },
+          {
+            "role": "property_probe_plugin_source",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/pytest_ksim_persisted_blocker_removal.py",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/pytest_ksim_persisted_blocker_removal.py",
+            "bytes": 20001,
+            "sha256": "5158c91a169dae58e54a41ad6730f6b591d4d6b2f285ae2a845c86027c2bd869"
+          }
+        ],
+        "input_closure_limit": "Runtime fixture/CAS objects are generated inside the selected existing pytest target; where recorded, their exact observed refs/hashes are summarized under output.runtime_observation, with complete raw qualification copied alongside.",
+        "fixture_and_cas_observation": {
+          "n5_producer_calls": 1,
+          "n8_content_bound_cas_reads": 1,
+          "default_n8_entries": 0,
+          "n5_simulation_result_ref_key": "{\"artifact_id\":\"sha256:c20dd9d866d5afbabb99aa635607e8b41da45085cb5cbc852574c616bedce983\",\"kind\":\"polisyos.runtime.joint_simulation_result\",\"media_type\":\"application/json\"}",
+          "n5_receipt_payload_hash": null,
+          "n8_cas_simulation_result_ref_key": "{\"artifact_id\":\"sha256:c20dd9d866d5afbabb99aa635607e8b41da45085cb5cbc852574c616bedce983\",\"kind\":\"polisyos.runtime.joint_simulation_result\",\"media_type\":\"application/json\"}",
+          "n8_cas_receipt_payload_hash": null,
+          "persisted_k_sim_marker_present": true,
+          "loaded_world_model_content_hash": null,
+          "typed_guard_code": null
+        }
+      },
+      "outcome": "FAIL",
+      "output": {
+        "raw_build_directory": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1",
+        "copied_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal",
+        "exit_code": 1,
+        "raw_qualification_status": "INCOMPLETE_OR_UNEXPECTED_RESULT",
+        "junit_present": true,
+        "files": [
+          {
+            "role": "pytest_origin_plugin",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/e02_origin.py",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          },
+          {
+            "role": "junit_result",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/junit.xml",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/junit.xml",
+            "bytes": 11580,
+            "sha256": "f6d021eee285915f67b8d229c02723331868bad2a082fb5d6b0b939dd2fa3b08"
+          },
+          {
+            "role": "origin_input_manifest",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/origins.json",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          },
+          {
+            "role": "probe_preparation_input",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/preparation.json",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/preparation.json",
+            "bytes": 4439,
+            "sha256": "cc112ff1e377b22db250ecf310c89a090d7e5f1c23ca9a5cb11ce21e6f2c531d"
+          },
+          {
+            "role": "property_probe_plugin_source",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/pytest_ksim_persisted_blocker_removal.py",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/pytest_ksim_persisted_blocker_removal.py",
+            "bytes": 20001,
+            "sha256": "5158c91a169dae58e54a41ad6730f6b591d4d6b2f285ae2a845c86027c2bd869"
+          },
+          {
+            "role": "runner_qualification",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/qualification.json",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/qualification.json",
+            "bytes": 18783,
+            "sha256": "fb80c85db11e0e758be90232d0f14c3c31f1e872dbe123cc39e5c25e0a61773f"
+          },
+          {
+            "role": "runner_receipt",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/receipt.json",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/receipt.json",
+            "bytes": 4739,
+            "sha256": "588e62598e36456d103da1fa4fce0e779edcd39870db34edf8d9853ac512e1e5"
+          },
+          {
+            "role": "complete_stderr",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/stderr.txt",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "role": "complete_stdout",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1/stdout.txt",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/stdout.txt",
+            "bytes": 80354,
+            "sha256": "e498d92c4a4bafa05c89a3579b7576373447d522f5c73ed824669af57b9eaee2"
+          }
+        ],
+        "runtime_observation_summary": {
+          "n5_producer_calls": 1,
+          "n8_content_bound_cas_reads": 1,
+          "default_n8_entries": 0,
+          "n5_simulation_result_ref_key": "{\"artifact_id\":\"sha256:c20dd9d866d5afbabb99aa635607e8b41da45085cb5cbc852574c616bedce983\",\"kind\":\"polisyos.runtime.joint_simulation_result\",\"media_type\":\"application/json\"}",
+          "n5_receipt_payload_hash": null,
+          "n8_cas_simulation_result_ref_key": "{\"artifact_id\":\"sha256:c20dd9d866d5afbabb99aa635607e8b41da45085cb5cbc852574c616bedce983\",\"kind\":\"polisyos.runtime.joint_simulation_result\",\"media_type\":\"application/json\"}",
+          "n8_cas_receipt_payload_hash": null,
+          "persisted_k_sim_marker_present": true,
+          "loaded_world_model_content_hash": null,
+          "typed_guard_code": null
+        }
+      }
+    },
+    {
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-r1-3ba1/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-r1-3ba1/pytest-basetemp -p pytest_ksim_persisted_blocker_removal tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection",
+      "target_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+      "environment": {
+        "runner_recorded_environment": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-r1-3ba1:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "pytest_runtime": {
+          "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "python_version": null,
+          "pytest_version": null,
+          "runtime_version_recorded": false
+        }
+      },
+      "input_closure": {
+        "run_id": "missing_plugin_harness_error",
+        "candidate_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+        "candidate_tree_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-r1-3ba1/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-r1-3ba1/pytest-basetemp",
+          "-p",
+          "pytest_ksim_persisted_blocker_removal",
+          "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection"
+        ],
+        "test_target": "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection",
+        "source_files": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "sha256": "a1b87490e228fc9364ef77955bb0d911eaa4571e093ee7183108d91b37681f6b"
+          },
+          {
+            "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+            "sha256": "d3dcd61ca85d388f346d3a6fbecfac15163c7ad0cdfe92db86c3c7ae66820b04"
+          }
+        ],
+        "source_hashes_rechecked_by_run": {
+          "runtime": {
+            "sha256_before_after": null,
+            "source_path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+          },
+          "test": {
+            "sha256_before_after": null,
+            "source_path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py"
+          }
+        },
+        "probe_plugin": {
+          "requested_module": "pytest_ksim_persisted_blocker_removal",
+          "raw_build_path": null,
+          "copied_path": null,
+          "sha256": null,
+          "found_and_loaded": false
+        },
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        },
+        "captured_probe_setup_inputs": [
+          {
+            "role": "pytest_origin_plugin",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-r1-3ba1/e02_origin.py",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-2-missing-plugin-harness-error/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          }
+        ],
+        "input_closure_limit": "Runtime fixture/CAS objects are generated inside the selected existing pytest target; where recorded, their exact observed refs/hashes are summarized under output.runtime_observation, with complete raw qualification copied alongside.",
+        "fixture_and_cas_observation": {
+          "status": "not_reached_before_plugin_import_error"
+        }
+      },
+      "outcome": "ERROR",
+      "output": {
+        "raw_build_directory": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-r1-3ba1",
+        "copied_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-2-missing-plugin-harness-error",
+        "exit_code": 1,
+        "raw_qualification_status": null,
+        "junit_present": false,
+        "files": [
+          {
+            "role": "pytest_origin_plugin",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-r1-3ba1/e02_origin.py",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-2-missing-plugin-harness-error/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          },
+          {
+            "role": "runner_receipt",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-r1-3ba1/receipt.json",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-2-missing-plugin-harness-error/receipt.json",
+            "bytes": 4452,
+            "sha256": "65ed1afbd1500be231b75221d519ecf68b81b5f0850d0538307fcfbca0e97dc4"
+          },
+          {
+            "role": "complete_stderr",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-r1-3ba1/stderr.txt",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-2-missing-plugin-harness-error/stderr.txt",
+            "bytes": 4932,
+            "sha256": "5cf5665e446fec1edb36654bd960edfd43f229719adcac2dfda93d7f53304f3e"
+          },
+          {
+            "role": "complete_stdout",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-r1-3ba1/stdout.txt",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-2-missing-plugin-harness-error/stdout.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        ],
+        "runtime_observation_summary": {}
+      }
+    },
+    {
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/pytest-basetemp -p pytest_ksim_typed_carrier_refusal tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection",
+      "target_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+      "environment": {
+        "runner_recorded_environment": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "pytest_runtime": {
+          "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "python_version": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+          "pytest_version": "9.0.2",
+          "runtime_version_recorded": true
+        }
+      },
+      "input_closure": {
+        "run_id": "native_typed_refusal",
+        "candidate_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+        "candidate_tree_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/pytest-basetemp",
+          "-p",
+          "pytest_ksim_typed_carrier_refusal",
+          "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection"
+        ],
+        "test_target": "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection",
+        "source_files": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "sha256": "a1b87490e228fc9364ef77955bb0d911eaa4571e093ee7183108d91b37681f6b"
+          },
+          {
+            "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+            "sha256": "d3dcd61ca85d388f346d3a6fbecfac15163c7ad0cdfe92db86c3c7ae66820b04"
+          }
+        ],
+        "source_hashes_rechecked_by_run": {
+          "runtime": {
+            "sha256_before_after": {
+              "after": "a1b87490e228fc9364ef77955bb0d911eaa4571e093ee7183108d91b37681f6b",
+              "before": "a1b87490e228fc9364ef77955bb0d911eaa4571e093ee7183108d91b37681f6b"
+            },
+            "source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+          },
+          "test": {
+            "sha256_before_after": {
+              "after": "d3dcd61ca85d388f346d3a6fbecfac15163c7ad0cdfe92db86c3c7ae66820b04",
+              "before": "d3dcd61ca85d388f346d3a6fbecfac15163c7ad0cdfe92db86c3c7ae66820b04"
+            },
+            "source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_generation_cycle.py"
+          }
+        },
+        "probe_plugin": {
+          "requested_module": "pytest_ksim_typed_carrier_refusal",
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/pytest_ksim_typed_carrier_refusal.py",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/pytest_ksim_typed_carrier_refusal.py",
+          "sha256": "5d662e04b8e644bbe12772599c4ffb90437899f9e418df5df823d5c2c1b86b54",
+          "found_and_loaded": true
+        },
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        },
+        "captured_probe_setup_inputs": [
+          {
+            "role": "pytest_origin_plugin",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/e02_origin.py",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          },
+          {
+            "role": "origin_input_manifest",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/origins.json",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          },
+          {
+            "role": "probe_preparation_input",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/preparation.json",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/preparation.json",
+            "bytes": 3700,
+            "sha256": "4acdfaa0705c624c749ef2d0c48fe1b2163d348978026d1265701bb81151a78f"
+          },
+          {
+            "role": "property_probe_plugin_source",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/pytest_ksim_typed_carrier_refusal.py",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/pytest_ksim_typed_carrier_refusal.py",
+            "bytes": 31385,
+            "sha256": "5d662e04b8e644bbe12772599c4ffb90437899f9e418df5df823d5c2c1b86b54"
+          }
+        ],
+        "input_closure_limit": "Runtime fixture/CAS objects are generated inside the selected existing pytest target; where recorded, their exact observed refs/hashes are summarized under output.runtime_observation, with complete raw qualification copied alongside.",
+        "fixture_and_cas_observation": {
+          "n5_producer_calls": 1,
+          "n8_content_bound_cas_reads": 1,
+          "default_n8_entries": 1,
+          "n5_simulation_result_ref_key": "{\"artifact_id\":\"sha256:a0a0cbb11d6f4ce4cc2b5ad49f4af14877a50932bd131a0457822b642fe3daed\",\"kind\":\"polisyos.runtime.joint_simulation_result\",\"media_type\":\"application/json\"}",
+          "n5_receipt_payload_hash": "sha256:a7fb617c9205727de31e13e8f00add30fb7490b0617b12af3824789acc53e2a5",
+          "n8_cas_simulation_result_ref_key": "{\"artifact_id\":\"sha256:a0a0cbb11d6f4ce4cc2b5ad49f4af14877a50932bd131a0457822b642fe3daed\",\"kind\":\"polisyos.runtime.joint_simulation_result\",\"media_type\":\"application/json\"}",
+          "n8_cas_receipt_payload_hash": "sha256:a7fb617c9205727de31e13e8f00add30fb7490b0617b12af3824789acc53e2a5",
+          "persisted_k_sim_marker_present": true,
+          "loaded_world_model_content_hash": "sha256:5eba7c0e75d80663058ba668dbaddf3e73d8a5a920639fd23b115c4763806ff0",
+          "typed_guard_code": "value_conditional_requires_simulation_limitation"
+        }
+      },
+      "outcome": "FAIL",
+      "output": {
+        "raw_build_directory": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1",
+        "copied_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal",
+        "exit_code": 1,
+        "raw_qualification_status": "INCOMPLETE_OR_UNEXPECTED_RESULT",
+        "junit_present": true,
+        "files": [
+          {
+            "role": "pytest_origin_plugin",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/e02_origin.py",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          },
+          {
+            "role": "junit_result",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/junit.xml",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/junit.xml",
+            "bytes": 11576,
+            "sha256": "4b2f6824b76d788a05daca2fc789121649c890cb09f246cb6db07ab32f341898"
+          },
+          {
+            "role": "origin_input_manifest",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/origins.json",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          },
+          {
+            "role": "probe_preparation_input",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/preparation.json",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/preparation.json",
+            "bytes": 3700,
+            "sha256": "4acdfaa0705c624c749ef2d0c48fe1b2163d348978026d1265701bb81151a78f"
+          },
+          {
+            "role": "property_probe_plugin_source",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/pytest_ksim_typed_carrier_refusal.py",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/pytest_ksim_typed_carrier_refusal.py",
+            "bytes": 31385,
+            "sha256": "5d662e04b8e644bbe12772599c4ffb90437899f9e418df5df823d5c2c1b86b54"
+          },
+          {
+            "role": "runner_qualification",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/qualification.json",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/qualification.json",
+            "bytes": 13718,
+            "sha256": "4321a23864c1ff358ad7915036b925535ce5f4da8a7b867fa1cff01c11cc7d38"
+          },
+          {
+            "role": "runner_receipt",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/receipt.json",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/receipt.json",
+            "bytes": 5160,
+            "sha256": "51dbf6c36013cbd59ceaef82a75fbcb23672a767835f75c1155e08db88e66371"
+          },
+          {
+            "role": "complete_stderr",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/stderr.txt",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "role": "complete_stdout",
+            "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/stdout.txt",
+            "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/stdout.txt",
+            "bytes": 74214,
+            "sha256": "7a67cee4c957f919ebe10c7d4779940549888b6e0e08fe2456c6ac9899650caa"
+          }
+        ],
+        "runtime_observation_summary": {
+          "n5_producer_calls": 1,
+          "n8_content_bound_cas_reads": 1,
+          "default_n8_entries": 1,
+          "n5_simulation_result_ref_key": "{\"artifact_id\":\"sha256:a0a0cbb11d6f4ce4cc2b5ad49f4af14877a50932bd131a0457822b642fe3daed\",\"kind\":\"polisyos.runtime.joint_simulation_result\",\"media_type\":\"application/json\"}",
+          "n5_receipt_payload_hash": "sha256:a7fb617c9205727de31e13e8f00add30fb7490b0617b12af3824789acc53e2a5",
+          "n8_cas_simulation_result_ref_key": "{\"artifact_id\":\"sha256:a0a0cbb11d6f4ce4cc2b5ad49f4af14877a50932bd131a0457822b642fe3daed\",\"kind\":\"polisyos.runtime.joint_simulation_result\",\"media_type\":\"application/json\"}",
+          "n8_cas_receipt_payload_hash": "sha256:a7fb617c9205727de31e13e8f00add30fb7490b0617b12af3824789acc53e2a5",
+          "persisted_k_sim_marker_present": true,
+          "loaded_world_model_content_hash": "sha256:5eba7c0e75d80663058ba668dbaddf3e73d8a5a920639fd23b115c4763806ff0",
+          "typed_guard_code": "value_conditional_requires_simulation_limitation"
+        }
+      }
+    },
+    {
+      "command": "python3 policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-removal-typed-refusal-3ba1/reconcile_native_typed_refusal.py",
+      "target_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+      "environment": {
+        "invocation": "python3 from the native lane command environment",
+        "working_directory": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos",
+        "exact_interpreter_version": "not captured in the retained reconciliation receipt",
+        "reconciliation_receipt_is_retained": true
+      },
+      "input_closure": {
+        "run_id": "postrun-line-mapping-reconciliation",
+        "candidate_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+        "candidate_tree_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+        "reconciliation_script": {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-removal-typed-refusal-3ba1/reconcile_native_typed_refusal.py",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/reconciliation/reconcile_native_typed_refusal.py",
+          "sha256": "aedeff55f5bd579aeafd2004da8daaee1cb49d29409637613f75744cbed48b27"
+        },
+        "runtime_source": {
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "sha256_at_candidate": "a1b87490e228fc9364ef77955bb0d911eaa4571e093ee7183108d91b37681f6b"
+        },
+        "target_test_source": {
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+          "sha256_at_candidate": "d3dcd61ca85d388f346d3a6fbecfac15163c7ad0cdfe92db86c3c7ae66820b04",
+          "function_ast_sha256": "e67818e51a55d5a6771121960f0011a15c3fb989509a9781f8acbea042a6be19"
+        },
+        "native_attempt_receipt_sha256": "51dbf6c36013cbd59ceaef82a75fbcb23672a767835f75c1155e08db88e66371",
+        "native_attempt_qualification_sha256": "4321a23864c1ff358ad7915036b925535ce5f4da8a7b867fa1cff01c11cc7d38",
+        "native_attempt_junit_sha256": "4b2f6824b76d788a05daca2fc789121649c890cb09f246cb6db07ab32f341898",
+        "plugin_sha256": "5d662e04b8e644bbe12772599c4ffb90437899f9e418df5df823d5c2c1b86b54",
+        "input_scope": "Read-only source/AST/traceback reconciliation of the already retained native run; no pytest/numerical execution."
+      },
+      "outcome": "PASS",
+      "output": {
+        "reconciliation_receipt": {
+          "raw_build_path": "policy-engine/_build/e02-A-continuation-20261007/ksim-persisted-blocker-removal-typed-refusal-3ba1/native-run-reconciliation.json",
+          "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/reconciliation/native-run-reconciliation.json",
+          "bytes": 17732,
+          "sha256": "955a61b7643ac3b9623a2743d3b3f4380fd5af6dd29dd9bb32cb134b50a75448",
+          "classification": "independently_reconciled_expected_typed_carrier_refusal",
+          "independently_reconciled": true,
+          "raw_qualification_status_preserved": "INCOMPLETE_OR_UNEXPECTED_RESULT"
+        },
+        "interpretation": "PASS applies only to the read-only reconciliation: it validates the expected typed-guard refusal and line mapping. It does not change the raw native pytest outcome FAIL or qualification INCOMPLETE_OR_UNEXPECTED_RESULT."
+      }
+    }
+  ],
+  "property": {
+    "name": "The existing N8 consumer must preserve the persisted K_sim simulation-only limitation in its candidate-bound conditional value output.",
+    "runtime_path": [
+      "Existing candidate-only blocker test and selected-NCM fixture",
+      "Actual JointSimulationPort N5 producer",
+      "Persisted joint-simulation artifact and content-bound CAS readback",
+      "Default conditional N8 value port",
+      "ValuePortObservation._verify_value_authority_shape"
+    ],
+    "negative": {
+      "mutation": "In memory, omit only simulation_only_k_sim_not_world_evidence from the N8 merge of persisted blockers; leave the persisted CAS bytes, artifact reference, receipt hash, candidate, and world-model binding unchanged.",
+      "observed": {
+        "n5_joint_simulation_producer_calls": 1,
+        "default_n8_entries_before_original_call": 1,
+        "content_bound_n8_cas_reads": 1,
+        "persisted_cas_k_sim_marker_present": true,
+        "projected_authority_blockers": [],
+        "validation_error": "pydantic_core._pydantic_core.ValidationError for ValuePortObservation",
+        "guard_code": "value_conditional_requires_simulation_limitation",
+        "raw_run_exit_code": 1
+      },
+      "typed_guard_purpose": "Fail closed when value_conditional is constructed without the simulation limitation required by the ValuePortObservation authority-shape invariant. The guard prevents a conditional value from crossing the typed consumer boundary after K_sim was omitted."
+    },
+    "missing": [
+      "The original test assertion that K_sim is present in value.authority_blockers was not reached because the typed guard refused first.",
+      "The unmutated original test was not run as a separate positive control in this evidence packet.",
+      "No N9 currentness or promotion path was reached; no production signed/currentness positive was supplied.",
+      "The original process did not retain the live Python code object; standalone line mapping is independently reconstructed from the pinned plugin and source."
+    ],
+    "reconciliation": {
+      "classification": "independently_reconciled_expected_typed_carrier_refusal",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/reconciliation/native-run-reconciliation.json",
+      "receipt_sha256": "955a61b7643ac3b9623a2743d3b3f4380fd5af6dd29dd9bb32cb134b50a75448",
+      "raw_qualification_preserved": true,
+      "raw_qualification_status": "INCOMPLETE_OR_UNEXPECTED_RESULT",
+      "original_constructor_frame_boolean": false,
+      "line_mapping_summary": {
+        "original_constructor_source_line": 5866,
+        "context_offset": 5740,
+        "standalone_compiled_constructor_line": 126,
+        "observed_traceback_line": 126,
+        "filename_and_function_match": true,
+        "reconstruction_matches": true,
+        "original_live_code_object_retained": false,
+        "reconstruction_basis": "The exact pinned plugin and source deterministically reconstruct the same standalone function compilation; its relative constructor line equals the retained traceback line and filename/function."
+      },
+      "purpose": "Explain the raw traceback line mismatch only; do not rewrite the runner qualification or convert pytest exit 1 into a passing test."
+    },
+    "bounded_interpretation": "This is a behavioral N8 typed-carrier refusal witness at the layer immediately below the original explicit K_sim assertion. It does not establish N9 behavior, signed/currentness, production authority, empirical effect, or criterion closure."
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_basis_detail": {
+    "predicate": "The exact expected typed ValuePortObservation refusal occurred in the pinned one-statement property-removal run, and its traceback line maps to the constructor in the exact standalone function compilation used by the plugin.",
+    "evidence_source": "Raw native attempt qualification/stdout/JUnit plus the separately copied post-run reconciliation receipt and script.",
+    "label_limit": "This label applies only to the bounded typed-refusal result. The original raw qualification remains INCOMPLETE_OR_UNEXPECTED_RESULT, and no N9/currentness/authority predicate is established."
+  },
+  "capability_state_or_finding_state": "limited",
+  "closure_status": "not_adjudicated; bounded N8 typed-carrier refusal only",
+  "proposed_criterion_ids": [],
+  "finding_ids": [],
+  "finding_outcomes": {},
+  "delivery_artifact_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/preparation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/pytest_ksim_persisted_blocker_removal.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/qualification.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-1-initial-property-removal/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-2-missing-plugin-harness-error/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-2-missing-plugin-harness-error/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-2-missing-plugin-harness-error/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-2-missing-plugin-harness-error/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/preparation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/pytest_ksim_typed_carrier_refusal.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/qualification.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/attempt-3-native-typed-refusal/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/reconciliation/native-run-reconciliation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/reconciliation/reconcile_native_typed_refusal.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/ksim-checks.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/ksim-carrier-removal.json"
+  ],
+  "semantic_checks": [
+    {
+      "id": "candidate-and-run-identity",
+      "property": "All raw attempts and the reconciliation resolve to the same immutable candidate/tree and frozen runtime/test bytes.",
+      "evidence_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/ksim-carrier-removal.json#/candidate",
+      "observation": "candidate=3ba1deaa55c54971c3200269dc1c81680e3d7167; tree=abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033; runtime=a1b87490e228fc9364ef77955bb0d911eaa4571e093ee7183108d91b37681f6b; test=d3dcd61ca85d388f346d3a6fbecfac15163c7ad0cdfe92db86c3c7ae66820b04; post-run working-tree source hash is recorded separately.",
+      "outcome": "confirmed",
+      "limitation": "The documentation workspace HEAD is later than the historical run candidate and is not substituted for it."
+    },
+    {
+      "id": "existing-test-source-reuse",
+      "property": "The R1 probe reuses the existing runtime test and its explicit K_sim consumer assertion rather than adding a constructor-only test.",
+      "evidence_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/ksim-carrier-removal.json#/target_test_reuse",
+      "observation": "Frozen AST contains the exact assertion at source line 4718; actual N5 and content-bound N8 CAS path is observed in the native attempt.",
+      "outcome": "confirmed_source_and_runtime_path",
+      "limitation": "Unmutated baseline success is not part of these three attempts; mutation stops at the existing typed carrier guard before the assertion."
+    },
+    {
+      "id": "initial-property-removal-attempt",
+      "property": "The first attempt must qualify producer/readback/consumer behavior and not omit a raising consumer call.",
+      "evidence_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/ksim-carrier-removal.json#/attempts/0",
+      "observation": "Raw qualification has N5=1 and content-bound N8 CAS read=1 but default N8 calls=0; its exact status remains INCOMPLETE_OR_UNEXPECTED_RESULT.",
+      "outcome": "incomplete_not_a_pass",
+      "limitation": "Do not reinterpret the first wrapper output as a completed semantic pass."
+    },
+    {
+      "id": "wrong-plugin-attempt",
+      "property": "A harness failure before test collection cannot supply a behavioral result.",
+      "evidence_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/ksim-carrier-removal.json#/attempts/1",
+      "observation": "The requested plugin import failed with ModuleNotFoundError; no JUnit or test execution exists.",
+      "outcome": "harness_error_before_collection",
+      "limitation": "No product behavior was exercised in this attempt."
+    },
+    {
+      "id": "native-typed-carrier-refusal",
+      "property": "Removing only the K_sim projection while preserving the persisted artifact must not admit a value_conditional carrier without its limitation.",
+      "evidence_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/ksim-carrier-removal.json#/independent_reconciliation",
+      "observation": "One N5 producer, one default N8 entry, one content-bound CAS read, unchanged persisted K_sim marker, exact ValuePortObservation ValidationError and matching reconstructed source-to-traceback line 126.",
+      "outcome": "independently_reconciled_expected_typed_carrier_refusal",
+      "limitation": "The original qualification remains INCOMPLETE_OR_UNEXPECTED_RESULT; historical live code object was not retained."
+    },
+    {
+      "id": "scope-and-p40-boundary",
+      "property": "The witness stops at the typed carrier boundary and treats the deeper refusal as the same K_sim fail-closed class.",
+      "evidence_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/ksim-carrier-removal.json#/P40_classification",
+      "observation": "ValuePortObservation rejects the empty authority_blockers set before the original assertion; no second property/guard was removed.",
+      "outcome": "bounded_same_class_one_level_deeper",
+      "limitation": "No N9, signed/currentness, production-authority, empirical-effect, B05/B08 closure, or full-capability claim."
+    }
+  ],
+  "property_result": {
+    "classification": "independently_reconciled_expected_typed_carrier_refusal",
+    "raw_attempt_outcomes": [
+      "FAIL",
+      "ERROR",
+      "FAIL"
+    ],
+    "raw_qualification_statuses": [
+      "INCOMPLETE_OR_UNEXPECTED_RESULT",
+      "harness_error_before_collection",
+      "INCOMPLETE_OR_UNEXPECTED_RESULT"
+    ],
+    "typed_guard_refusal": "value_conditional_requires_simulation_limitation",
+    "explicit_ksim_assertion_reached": false,
+    "n9_or_currentness_claim": false,
+    "finding_disposition_changed": false
+  }
+}

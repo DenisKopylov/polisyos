@@ -1,0 +1,59 @@
+{
+  "head": "ca038ac238af074b938ea532f0182664fe611b41",
+  "mutation": {
+    "checkout_source_sha256_after_in_memory_mutation": "899159c295220e43b464ce34ef2de4549b2c78804e8ffbb4a77a58eb3acef691",
+    "controller_class_identity_is_module_export": true,
+    "controller_class_module": "polisyos.runtime.quality.generation_cycle",
+    "module_file": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "module_identity_is_sys_modules_entry": true,
+    "module_name": "polisyos.runtime.quality.generation_cycle",
+    "mutated_method_sha256": "5f71471836a8bb94e58aebe6b7d7acdc3080fd3ed9763a0632be723f3161844d",
+    "removed_guard_line_count": 12,
+    "removed_guard_method_sha256": "291a1e702c59162415bc17a22952ebcfee8ddc938176f1df3979b302c0ef7632",
+    "removed_guard_occurrences": 1,
+    "retained_guard_markers": [
+      "if state.get(\"n5_preflight_enforced\")",
+      "not_run_hard_feasibility_blocked",
+      "if self._candidate_simulation_handoff is not None",
+      "self.decide_next_action("
+    ]
+  },
+  "probe": "B27 R1 exact N6 context-reissue guard removal",
+  "r1_positive_control_qualified": true,
+  "receipt_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-guard-r1-ca03/r1-receipt.json",
+  "receipt_path_env": "POLISYOS_B27_R1_RECEIPT_PATH",
+  "scope": "one test; one in-memory method-block mutation",
+  "source_blob": "c970465dd426bc29495ea6dbbff9d1f1cbcd8cb8",
+  "source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+  "source_sha256": "899159c295220e43b464ce34ef2de4549b2c78804e8ffbb4a77a58eb3acef691",
+  "test": {
+    "default_n4_context_input": {
+      "context_problem_ref": "sha256:d1fcc487593ee2fe80480d55fc64db71c760c4fd252699441088b5afcbd2fd65",
+      "problem_ref": "sha256:752961cbaa86965d0d3a394dd0bad1f8fb195eb61cfca3f78fbaa66439154c2e"
+    },
+    "default_n4_error": {
+      "error_code": "cycle_substrate_design_problem_mismatch",
+      "error_message": "cycle_substrate_design_problem_mismatch: cycle_substrate_design_problem_mismatch",
+      "error_type": "polisyos.runtime.quality.design_generation.DesignGenerationError"
+    },
+    "default_n4_invocation_count_at_real_context_boundary": 1,
+    "exception_code": "cycle_substrate_design_problem_mismatch",
+    "exception_message": "cycle_substrate_design_problem_mismatch: cycle_substrate_design_problem_mismatch",
+    "exception_type": "polisyos.runtime.quality.design_generation.DesignGenerationError",
+    "expected_stale_context_mismatch_observed": true,
+    "generator_dispatch_cycle_indices": [
+      0,
+      1
+    ],
+    "n4_generation_port_type": "polisyos.runtime.quality.generation_cycle.N4GenerationPort",
+    "n5_call_count": 1,
+    "nodeid": "tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py::test_nonhandoff_revision_blocks_before_stale_context_n4_and_roundtrips_history",
+    "outcome_after_guard_removal": "failed"
+  },
+  "test_blob": "a23d4b137da02b8b4fc909904e21abbb31140b98",
+  "test_function_ast_sha256": "bf422955e7f3af80865ad888ba0b6b7b570a48299012f4b21ec158163445a800",
+  "test_module_ast_sha256": "0907dbbc8723f942867d159d6a2ee084ed085dd7f6e8961f2a61f729ce07fd92",
+  "test_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py",
+  "test_sha256": "dcaee38888be649650c2d335ebddce10d0887bb55ff58797dcd859e545ff3446",
+  "tree": "51d874b3ce4f6c057b7495c312b591d4ad227d23"
+}

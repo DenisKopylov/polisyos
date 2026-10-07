@@ -1,0 +1,88 @@
+{
+  "actual_scheduler_decisions": [
+    {
+      "budget_fits": true,
+      "budget_remaining": "1.0",
+      "candidate_id": "candidate_feasible_single",
+      "estimated_cost": "0.5",
+      "expected_improvement_per_usd": 0.0,
+      "expected_information_gain": 0.4,
+      "mutated_action": "reject",
+      "mutated_reason": "roi_below_threshold",
+      "mutation_applied": true,
+      "next_level": 3,
+      "original_action": "advance",
+      "original_reason": "advance_by_information_value",
+      "qualified_actual_information_advance": true,
+      "raw_proxy_score_from_scheduler_inputs": 0.0,
+      "scheduler_type": "polisyos.scientist.methods.search.voi_scheduler.SimpleVOIScheduler"
+    },
+    {
+      "budget_fits": true,
+      "budget_remaining": "1.0",
+      "candidate_id": "candidate_feasible_single",
+      "estimated_cost": "0.5",
+      "expected_improvement_per_usd": 0.0,
+      "expected_information_gain": 0.4,
+      "mutated_action": "reject",
+      "mutated_reason": "roi_below_threshold",
+      "mutation_applied": true,
+      "next_level": 3,
+      "original_action": "advance",
+      "original_reason": "advance_by_information_value",
+      "qualified_actual_information_advance": true,
+      "raw_proxy_score_from_scheduler_inputs": 0.0,
+      "scheduler_type": "polisyos.scientist.methods.search.voi_scheduler.SimpleVOIScheduler"
+    }
+  ],
+  "created_at_utc": "2026-10-07T17:38:51.943972+00:00",
+  "eligible_candidate_blocked_without_n5_execution": true,
+  "expected_assertion_failure_observed": true,
+  "failure_snapshot": {
+    "observed_n5_calls": [],
+    "preflight_status": "eligible",
+    "scheduler_action": "reject",
+    "scheduler_reason": "roi_below_threshold",
+    "simulation_result_ref": "None",
+    "simulation_status": "simulation_blocked",
+    "summary_information_estimate": 0.4,
+    "summary_proxy_score": 0.0
+  },
+  "head": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+  "head_tree": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+  "interpretation": "The plugin calls the actual default SimpleVOIScheduler decision method first, then changes only its eligible positive-information, zero-proxy, within-budget advance to an ROI rejection. A qualified failure with eligible preflight and zero real N5 port calls demonstrates that the information-value branch controls execution. Budget-priority deferrals and hard-feasibility checks are not removed. This probe does not establish monetary value or provider spend.",
+  "plugin_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/informative-voi-r1-3ba1/informative_voi_removal.py",
+  "plugin_sha256": "8d336110fb8466994985719ee6efa1c1392229e1a16b7c1c10c96078e2f351d9",
+  "purpose": "source-property-removal witness; never a product PASS",
+  "pytest_exitstatus": 1,
+  "qualified_original_information_advance": true,
+  "scheduler_git_blob": "c14f3425a40d71ae28278157b9e2293f657c6cb1",
+  "scheduler_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py",
+  "scheduler_sha256": "c67b2f09acca9922950454019e95fa99162a2cc8f775c7ba9c44553ec5349f59",
+  "schema": "policyos.e02.informative_voi_removal_r1.v1",
+  "target_nodeid": "tests/integration/core_runtime/test_e02_informative_voi_execution.py::test_default_information_value_advance_executes_real_n5_and_budget_blocks_it",
+  "target_reports": [
+    {
+      "longrepr": null,
+      "nodeid": "tests/integration/core_runtime/test_e02_informative_voi_execution.py::test_default_information_value_advance_executes_real_n5_and_budget_blocks_it",
+      "outcome": "passed",
+      "when": "setup"
+    },
+    {
+      "longrepr": "tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/informative-voi-r1-3ba1/pytest-basetemp/test_default_information_value0')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13f1f50f0>\n\n    @pytest.mark.asyncio\n    async def test_default_information_value_advance_executes_real_n5_and_budget_blocks_it(\n        tmp_path: Path,\n        monkeypatch: pytest.MonkeyPatch,\n    ) -> None:\n        \"\"\"Low proxy plus positive information advances; an exhausted cap blocks N5.\"\"\"\n    \n        repo_root = Path(__file__).resolve().parents[3]\n        positive_store, positive_problem, positive_context, _high, positive_candidate = (\n            _owner_fixture(tmp_path / \"positive\")\n        )\n        exhausted_store, exhausted_problem, exhausted_context, _high, exhausted_candidate = (\n            _owner_fixture(tmp_path / \"exhausted\")\n        )\n        stores = (positive_store, exhausted_store)\n        n5_calls: list[str] = []\n        original_n5_call = JointSimulationPort.__call__\n    \n        def observe_real_n5_call(self: JointSimulationPort, **kwargs: Any) -> Any:\n            candidate = kwargs[\"candidate\"]\n            n5_calls.append(str(candidate.candidate_id))\n            return original_n5_call(self, **kwargs)\n    \n        monkeypatch.setattr(JointSimulationPort, \"__call__\", observe_real_n5_call)\n    \n        try:\n            with tenant_scope(None, tenant_id=\"tenant-n5-owner\", cell_id=\"cell-n5-owner\"):\n                positive_controller = _controller(\n                    store=positive_store,\n                    problem=positive_problem,\n                    context=positive_context,\n                    candidate=positive_candidate,\n                    repo_root=repo_root,\n                )\n                positive_budget = _bounded_budget(\"1.0\")\n                assert type(positive_controller._voi_scheduler) is SimpleVOIScheduler\n                assert positive_controller._candidate_simulation_handoff is None\n                assert type(positive_controller._simulation_port) is JointSimulationPort\n                assert positive_controller._simulation_port.supports_applicability_preflight(\n                    positive_problem\n                )\n    \n                # This budget is a scheduler cap fixture. The synthetic local NCM\n                # execution does not report or settle provider charges.\n                positive_run = await positive_controller.run(\n                    positive_problem,\n                    budget_state=positive_budget,\n                    min_cycles=1,\n                    max_cycles=1,\n                )\n                positive_cycle = positive_run.cycles[0]\n                positive_summary = next(\n                    summary\n                    for summary in positive_run.candidate_summaries\n                    if summary.candidate_id == positive_candidate.candidate_id\n                )\n                assert positive_summary.proxy_score == 0.0\n                assert positive_summary.voi_estimate == 0.4\n                assert positive_summary.n5_applicability is not None\n                assert positive_summary.n5_applicability.status == \"eligible\"\n>               assert positive_cycle.voi_decision.scheduler_action == \"advance\"\nE               AssertionError: assert 'reject' == 'advance'\nE                 \nE                 - advance\nE                 + reject\n\ntests/integration/core_runtime/test_e02_informative_voi_execution.py:147: AssertionError",
+      "nodeid": "tests/integration/core_runtime/test_e02_informative_voi_execution.py::test_default_information_value_advance_executes_real_n5_and_budget_blocks_it",
+      "outcome": "failed",
+      "when": "call"
+    },
+    {
+      "longrepr": null,
+      "nodeid": "tests/integration/core_runtime/test_e02_informative_voi_execution.py::test_default_information_value_advance_executes_real_n5_and_budget_blocks_it",
+      "outcome": "passed",
+      "when": "teardown"
+    }
+  ],
+  "test_git_blob": "9403ab4d41eadca013237847c1bbbe36b38e8d68",
+  "test_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/integration/core_runtime/test_e02_informative_voi_execution.py",
+  "test_sha256": "51a2d6e80ebf1142b78b4d944c2dd0a79ab54c1185d925653e8935537b9cc5fb",
+  "verdict": "EXPECTED_FALSIFIER"
+}

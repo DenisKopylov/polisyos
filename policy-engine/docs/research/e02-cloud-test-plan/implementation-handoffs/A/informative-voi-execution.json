@@ -1,0 +1,723 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "informative-voi-execution",
+  "finding_ids": [
+    "B11"
+  ],
+  "closure_ids": [],
+  "bundle_ids": [
+    "CYC-04"
+  ],
+  "slice_base_sha": "1a520b209ce4bac86204137d15e765de05c08a73",
+  "slice_base_tree_sha": "1d4b7e814d72248ec96a0b0ec3ad90fe4f97eccb",
+  "implementation_commits": [
+    "a6fa9c37c223d99669ad0503216e328c24f9905f",
+    "aaa89a6988ed553310fc7950054e7b6af4a05956"
+  ],
+  "candidate_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+  "candidate_tree_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B66-cost-scope-consumer.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/b27-context-reentry-stop.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/artifact-custody-incident.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/b27-checks.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/cost-checks.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-bounded-reference/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-bounded-reference/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-bounded-reference/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-bounded-reference/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-bounded-reference/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-bounded-reference/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-current-conditional/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-current-conditional/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-current-conditional/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-current-conditional/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-current-conditional/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-current-conditional/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-persisted-cap/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-persisted-cap/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-persisted-cap/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-persisted-cap/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-persisted-cap/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-persisted-cap/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-two-cap/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-two-cap/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-two-cap/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-two-cap/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-two-cap/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-two-cap/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-admitted-helper-7b85/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-admitted-helper-7b85/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-admitted-helper-7b85/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-admitted-helper-7b85/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-admitted-helper-7b85/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-admitted-helper-7b85/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-budget-decimal-2297/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-budget-decimal-2297/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-budget-decimal-2297/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-budget-decimal-2297/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-budget-decimal-2297/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-budget-decimal-2297/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-r1-unknown-to-zero-2297/invoke.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-r1-unknown-to-zero-2297/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-r1-unknown-to-zero-2297/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-r1-unknown-to-zero-2297/result.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-r1-unknown-to-zero-2297/run_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-r1-unknown-to-zero-2297/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-r1-unknown-to-zero-2297/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-frozen-red-9914/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-frozen-red-9914/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-frozen-red-9914/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-frozen-red-9914/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-frozen-red-9914/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-frozen-red-9914/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-initial-dirty-red/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-initial-dirty-red/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-initial-dirty-red/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-initial-dirty-red/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-initial-dirty-red/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-initial-dirty-red/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-native-9389/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-native-9389/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-native-9389/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-native-9389/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-native-9389/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-native-9389/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-first-harness-error-9389/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-first-harness-error-9389/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-first-harness-error-9389/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-first-harness-error-9389/s10_cas_unknown_width_removal.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-first-harness-error-9389/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-first-harness-error-9389/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-second-unqualified-9389/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-second-unqualified-9389/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-second-unqualified-9389/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-second-unqualified-9389/r1_evidence.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-second-unqualified-9389/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-second-unqualified-9389/s10_cas_unknown_width_removal.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-second-unqualified-9389/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-second-unqualified-9389/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-generic-lifecycle-qualifying-9389/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-generic-lifecycle-qualifying-9389/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-generic-lifecycle-qualifying-9389/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-generic-lifecycle-qualifying-9389/r1_evidence.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-generic-lifecycle-qualifying-9389/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-generic-lifecycle-qualifying-9389/s10_cas_unknown_width_removal.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-generic-lifecycle-qualifying-9389/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-generic-lifecycle-qualifying-9389/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/architecture-structural-9702/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/architecture-structural-9702/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/architecture-structural-9702/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/n8_partial_v2_removal.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/r1_evidence.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/runtime-api-9702/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/runtime-api-9702/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/runtime-api-9702/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/partial-checks.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/source-reviews.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/wave3numeric-checks.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/estimator-numeric-intake.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/partial-recursive-checkpoint.json",
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_informative_voi_execution.py",
+    "policy-engine/tests/unit/remediation/test_emp_01.py",
+    "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py"
+  ],
+  "changed_path_scope": {
+    "base": "1a520b209ce4bac86204137d15e765de05c08a73",
+    "candidate": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+    "method": "git diff --name-status and git diff --numstat at exact pinned commits",
+    "files": 147,
+    "insertions": 22771,
+    "deletions": 13,
+    "path_roots": {
+      "docs": 143,
+      "src": 1,
+      "tests": 3
+    },
+    "file_extensions": {
+      "json": 54,
+      "py": 29,
+      "xml": 20,
+      "txt": 44
+    },
+    "source_and_test_paths": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "insertions": 8,
+        "deletions": 1
+      },
+      {
+        "path": "policy-engine/tests/integration/core_runtime/test_e02_informative_voi_execution.py",
+        "insertions": 200,
+        "deletions": 0
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_emp_01.py",
+        "insertions": 149,
+        "deletions": 12
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+        "insertions": 239,
+        "deletions": 0
+      }
+    ],
+    "b11_focused_scope": {
+      "added_test_path": "policy-engine/tests/integration/core_runtime/test_e02_informative_voi_execution.py",
+      "a6fa_change": "200 lines added in this new test path; no production-source edit.",
+      "aaa89_change": "Two insertions/two deletions in this test; one insertion/one deletion in unrelated test_emp_01.py.",
+      "production_changes_in_B11_focus_commits": []
+    },
+    "scope_note": "The full base-to-candidate diff includes concurrent decision/evidence documents and other source/test work. It is recorded as a complete tracked footprint and must not be attributed to B11. The B11 behavior is tested in the focused integration test; no B11 production scheduler code was changed."
+  },
+  "baseline_cells": [],
+  "source_criteria": [
+    {
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_commit": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+      "source_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "locator": "B11, source lines 325–336; operative block SHA-256 37f6f0543710b466822aa39ffeb7d3ce5b9a4b57bed99dc429087a3a61ff268c",
+      "criterion": "A permitted informative check may run at low value-proxy inside a bounded research budget; genuine budget exhaustion stops new work; a heuristic is not represented as measured monetary VOI or a probability."
+    },
+    {
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CYC-04.md",
+      "source_commit": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+      "source_blob": "75194f0254c5a87f52fc73cbc8ee24511a64e7be",
+      "locator": "CYC-04, B11 acceptance and discriminating tests.",
+      "criterion": "Separate information priority from permission to spend: a permitted informative check is not rejected solely by unknown monetary VOI, while exhausted budget blocks further execution."
+    },
+    {
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/original-A-binding-corrections.json",
+      "source_commit": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+      "source_blob": "2d322088105d9be291e87e450d987fa005bf0164",
+      "locator": "records[id=B11], exact A-binding correction.",
+      "criterion": "B66 settlement/ack/readback/retry is a separate cross-unit edge; it is not a B11 prerequisite and does not justify a second ledger."
+    },
+    {
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "source_commit": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+      "source_blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+      "locator": "findings[id=B11].",
+      "recorded_state": "ledger_status_historical=partial; closure_now=not_adjudicated; existing capability_label=bridge_missing; appendix C closed_bounded is separate."
+    }
+  ],
+  "checks": [
+    {
+      "name": "informative-voi-execution-final-3ba1",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/informative-voi-execution-final-3ba1/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/informative-voi-execution-final-3ba1/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_informative_voi_execution.py"
+      ],
+      "target_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+      "target_tree_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/informative-voi-execution-final-3ba1:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "input_closure": {
+        "candidate_tree_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+        "test_path": "policy-engine/tests/integration/core_runtime/test_e02_informative_voi_execution.py",
+        "test_git_blob": "9403ab4d41eadca013237847c1bbbe36b38e8d68",
+        "test_selector": "policy-engine/tests/integration/core_runtime/test_e02_informative_voi_execution.py",
+        "fixture_inputs": {
+          "generator_fixture": "_LowProxyInformationGenerator",
+          "proxy_score": 0.0,
+          "voi_estimate": 0.4,
+          "positive_budget_cap_usd": "1.0",
+          "exhaustion_control_cap_usd": "0.0",
+          "fixture_builder": "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::_owner_fixture"
+        },
+        "evidence_record": "continuation-20261007-wave3/voi-checks.json#/attempts/1"
+      },
+      "outcome": "PASS",
+      "output": {
+        "exit_code": 0,
+        "wall_seconds": 21.598396541026887,
+        "junit_counts": {
+          "tests": 1,
+          "passed": 1,
+          "failures": 0
+        },
+        "artifacts": {
+          "receipt.json": {
+            "path": "continuation-20261007-wave3/evidence/informative-voi-execution-final-3ba1/receipt.json",
+            "bytes": 4506,
+            "sha256": "0a2ec1999c345e745f914b25cf908c7168e8cad95ee1fd4e6b859388f9646f31"
+          },
+          "stdout.txt": {
+            "path": "continuation-20261007-wave3/evidence/informative-voi-execution-final-3ba1/stdout.txt",
+            "bytes": 99,
+            "sha256": "9d190099eb91166abb12ceccb056ec3c0f876566e3040cda3eb6ece34ac7ef8f"
+          },
+          "stderr.txt": {
+            "path": "continuation-20261007-wave3/evidence/informative-voi-execution-final-3ba1/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit.xml": {
+            "path": "continuation-20261007-wave3/evidence/informative-voi-execution-final-3ba1/junit.xml",
+            "bytes": 447,
+            "sha256": "5ce003199f0aa0187be8131c9d63bf468847c529888ac5ebd13e60c9394ad69a"
+          },
+          "e02_origin.py": {
+            "path": "continuation-20261007-wave3/evidence/informative-voi-execution-final-3ba1/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          },
+          "origins.json": {
+            "path": "continuation-20261007-wave3/evidence/informative-voi-execution-final-3ba1/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          }
+        },
+        "evidence_record": "continuation-20261007-wave3/voi-checks.json#/attempts/1"
+      },
+      "record": "continuation-20261007-wave3/voi-checks.json#/attempts/1"
+    },
+    {
+      "name": "informative-voi-r1-3ba1",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/informative-voi-r1-3ba1/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/informative-voi-r1-3ba1/pytest-basetemp",
+        "-p",
+        "informative_voi_removal",
+        "tests/integration/core_runtime/test_e02_informative_voi_execution.py::test_default_information_value_advance_executes_real_n5_and_budget_blocks_it"
+      ],
+      "target_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+      "target_tree_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/informative-voi-r1-3ba1:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "input_closure": {
+        "candidate_tree_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+        "test_path": "policy-engine/tests/integration/core_runtime/test_e02_informative_voi_execution.py",
+        "test_git_blob": "9403ab4d41eadca013237847c1bbbe36b38e8d68",
+        "test_selector": "tests/integration/core_runtime/test_e02_informative_voi_execution.py::test_default_information_value_advance_executes_real_n5_and_budget_blocks_it",
+        "fixture_inputs": {
+          "generator_fixture": "_LowProxyInformationGenerator",
+          "proxy_score": 0.0,
+          "voi_estimate": 0.4,
+          "positive_budget_cap_usd": "1.0",
+          "exhaustion_control_cap_usd": "0.0",
+          "fixture_builder": "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::_owner_fixture",
+          "property_removal": {
+            "path": "continuation-20261007-wave3/evidence/informative-voi-r1-3ba1/informative_voi_removal.py",
+            "sha256": "8d336110fb8466994985719ee6efa1c1392229e1a16b7c1c10c96078e2f351d9",
+            "description": "The test-only plugin calls the actual default SimpleVOIScheduler decision method, then changes only the eligible positive-information, zero-proxy, within-cap advance to an ROI rejection. Budget priority and N5 hard-feasibility behavior remain in place."
+          }
+        },
+        "evidence_record": "continuation-20261007-wave3/voi-checks.json#/removal_attempts/0"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "exit_code": 1,
+        "wall_seconds": 20.273549625009764,
+        "junit_counts": {
+          "tests": 1,
+          "passed": 0,
+          "failures": 1
+        },
+        "artifacts": {
+          "receipt.json": {
+            "path": "continuation-20261007-wave3/evidence/informative-voi-r1-3ba1/receipt.json",
+            "bytes": 4875,
+            "sha256": "f3081d88ed09d79590f29a1621bc841e03d729a91811c4ffa5fa0aa8391d6aa3"
+          },
+          "stdout.txt": {
+            "path": "continuation-20261007-wave3/evidence/informative-voi-r1-3ba1/stdout.txt",
+            "bytes": 55115,
+            "sha256": "eeaa5b00371556f31ae2c324f8edc25343dcb9734ea082d74e5b2d20bfe1fcf8"
+          },
+          "stderr.txt": {
+            "path": "continuation-20261007-wave3/evidence/informative-voi-r1-3ba1/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit.xml": {
+            "path": "continuation-20261007-wave3/evidence/informative-voi-r1-3ba1/junit.xml",
+            "bytes": 4110,
+            "sha256": "39a4b40dc4dbf3a81f8838cd9fc282dfe610da852b14366fc686dfdb07abc353"
+          },
+          "e02_origin.py": {
+            "path": "continuation-20261007-wave3/evidence/informative-voi-r1-3ba1/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          },
+          "origins.json": {
+            "path": "continuation-20261007-wave3/evidence/informative-voi-r1-3ba1/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          },
+          "informative_voi_removal.py": {
+            "path": "continuation-20261007-wave3/evidence/informative-voi-r1-3ba1/informative_voi_removal.py",
+            "bytes": 10909,
+            "sha256": "8d336110fb8466994985719ee6efa1c1392229e1a16b7c1c10c96078e2f351d9"
+          },
+          "r1_evidence.json": {
+            "path": "continuation-20261007-wave3/evidence/informative-voi-r1-3ba1/r1_evidence.json",
+            "bytes": 8184,
+            "sha256": "9c58463cc09e83f4afb94fa9e0ec1124e71b186a283387f12fb67b42e16d9056"
+          }
+        },
+        "evidence_record": "continuation-20261007-wave3/voi-checks.json#/removal_attempts/0"
+      },
+      "record": "continuation-20261007-wave3/voi-checks.json#/removal_attempts/0",
+      "property_result": "EXPECTED_FALSIFIER"
+    },
+    {
+      "name": "informative-voi-execution-5a1f",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/informative-voi-execution-5a1f/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/informative-voi-execution-5a1f/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_informative_voi_execution.py"
+      ],
+      "target_sha": "5a1fff2f8c922af8289e5eff9fe7f1545edbd1ee",
+      "target_tree_sha": "a27d110ef2a426732976914f4e14fc2cca23bc8f",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/informative-voi-execution-5a1f:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "input_closure": {
+        "candidate_tree_sha": "a27d110ef2a426732976914f4e14fc2cca23bc8f",
+        "test_path": "policy-engine/tests/integration/core_runtime/test_e02_informative_voi_execution.py",
+        "test_git_blob": "7efd9e17a2acb077edc2074d9a5b52a75a3e78b0",
+        "test_selector": "policy-engine/tests/integration/core_runtime/test_e02_informative_voi_execution.py",
+        "fixture_inputs": {
+          "generator_fixture": "_LowProxyInformationGenerator",
+          "proxy_score": 0.0,
+          "voi_estimate": 0.4,
+          "positive_budget_cap_usd": "1.0",
+          "exhaustion_control_cap_usd": "0.0",
+          "fixture_builder": "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::_owner_fixture"
+        },
+        "evidence_record": "continuation-20261007-wave3/voi-checks.json#/attempts/0"
+      },
+      "outcome": "PASS",
+      "output": {
+        "exit_code": 0,
+        "wall_seconds": 21.30693970900029,
+        "junit_counts": {
+          "tests": 1,
+          "passed": 1,
+          "failures": 0
+        },
+        "artifacts": {
+          "receipt.json": {
+            "path": "continuation-20261007-wave3/evidence/informative-voi-execution-5a1f/receipt.json",
+            "bytes": 3653,
+            "sha256": "ce7e12606435e5245d21ca69613e84ae0ea6871d651331993f7e89a2e26a8ad2"
+          },
+          "stdout.txt": {
+            "path": "continuation-20261007-wave3/evidence/informative-voi-execution-5a1f/stdout.txt",
+            "bytes": 99,
+            "sha256": "06547a98950e0bd15e3cbb2152b37374f40fba352dca9b9dfa013a4f8600a4f0"
+          },
+          "stderr.txt": {
+            "path": "continuation-20261007-wave3/evidence/informative-voi-execution-5a1f/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit.xml": {
+            "path": "continuation-20261007-wave3/evidence/informative-voi-execution-5a1f/junit.xml",
+            "bytes": 447,
+            "sha256": "a62bc76a28f45dd76507b2df504b96aec6c5c84174f0354f5908612cc63b3cef"
+          },
+          "e02_origin.py": {
+            "path": "continuation-20261007-wave3/evidence/informative-voi-execution-5a1f/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          },
+          "origins.json": {
+            "path": "continuation-20261007-wave3/evidence/informative-voi-execution-5a1f/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          }
+        },
+        "evidence_record": "continuation-20261007-wave3/voi-checks.json#/attempts/0"
+      },
+      "record": "continuation-20261007-wave3/voi-checks.json#/attempts/0"
+    }
+  ],
+  "property": {
+    "bounded_result": "Default SimpleVOIScheduler preserves a permitted low-proxy, positive-information advance when the test-supplied research cap fits; the actual default N5 port executes. Configured-cap exhaustion still blocks new execution.",
+    "result_route": "The positive output contains a joint-simulation result reference; default value port returns value_conditional with value_ref equal to the simulation artifact ID.",
+    "unmeasured_signal": "voi_estimate=0.4 is injected by the test fixture; it is not calibrated information, monetary VOI, or probability."
+  },
+  "predicate_basis": {
+    "candidate_applicability": "recomputed: the default N5 port preflights the actual candidate/problem, test observes eligible status, and positive path executes the same real JointSimulationPort.",
+    "scheduler_outcome": "recomputed: the returned default controller cycle records original scheduler action/reason; R1 mutates that branch and causes the unchanged execution assertion to fail with zero actual N5 calls.",
+    "budget_cap_and_step_cost": "institutionally_supplied test fixture: BudgetState cap and existing stage cost estimate are supplied to scheduler; this does not establish an actual debit or provider spend.",
+    "information_estimate": "institutionally_supplied test fixture: 0.4 is a controlled ranking input, not an independently validated information-gain measurement.",
+    "public_projection_and_claim_label": "not_established: no API/audit/public projection is invoked or asserted."
+  },
+  "capability_state_or_finding_state": {
+    "bounded_execution_state": "verified_on_one_default_scheduler_and_bounded_NCM_fixture",
+    "overall_B11_state": "limited_pending_projection_review",
+    "remaining_capability_label": "verification_missing",
+    "reason": "The test does not behaviorally verify any public/API/audit projection label or surface for the heuristic; actual provider spend and B66 settlement are outside this bounded B11 claim."
+  },
+  "attempt_history": [
+    {
+      "id": "informative-voi-execution-5a1f",
+      "result": "PASS",
+      "candidate_sha": "5a1fff2f8c922af8289e5eff9fe7f1545edbd1ee",
+      "note": "Earlier positive attempt, kept separate."
+    },
+    {
+      "id": "informative-voi-execution-final-3ba1",
+      "result": "PASS",
+      "candidate_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+      "note": "Deciding positive attempt on final pinned candidate."
+    },
+    {
+      "id": "informative-voi-r1-3ba1",
+      "result": "EXPECTED_FALSIFIER",
+      "candidate_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+      "note": "Target assertion fails after the information-advance behavior is removed; property evidence, not product failure."
+    }
+  ],
+  "pattern_pass": {
+    "relevant_ids": [
+      "P04",
+      "P14",
+      "P29",
+      "P38"
+    ],
+    "existing_anti_pattern_or_residual": "A fixture-provided information estimate can be mistaken for validated evidence or monetary VOI if projected without provenance; this bounded test checks scheduler-to-N5 consumption but not external projection labels.",
+    "target_pattern": "Exercise the actual existing scheduler, budget input, applicability preflight, N5 port, and default value port, then remove only the information branch and require the execution assertion to fail.",
+    "acceptance_signal": "Native positive and exhausted-cap control pass on one default controller path; R1 mutation produces EXPECTED_FALSIFIER with eligible preflight and no N5 call."
+  },
+  "limitations_and_next_owner": {
+    "finding_adjudication": "Root owns the formal B11 row/status decision. The source coverage row remains historically partial/not adjudicated in this packet.",
+    "projection_review": "Static source trace finds typed candidate proxy/estimate and cycle decision fields, plus a control-layer compiled recursive-run holder. This B11 test only checks direct GenerationCycleController.run outputs; it does not exercise the HTTP, serialized, audit, or publication projection. Verify that actual public projection before claiming the original no-monetary-VOI/no-probability clause.",
+    "cost_scope": "Do not add B66 settlement as a B11 prerequisite or create another ledger; this test does not measure provider spend.",
+    "nonclaims": [
+      "The 0.4 information estimate is fixture-supplied and not empirically calibrated; no true information value or probability of usefulness is established.",
+      "The scheduler budget cap and estimated step cost are not a cost meter. No recorded provider usage, owner debit, billing, settlement, or exactly-once spend is established; B66 remains a separate edge.",
+      "The test asserts typed in-memory cycle outputs and N5 result/value references, not a public HTTP/API/audit/publication projection of VOI terminology. A production projection must not label the heuristic as measured monetary VOI or probability; that surface property remains unverified here.",
+      "This is one existing default SimpleVOIScheduler and bounded NCM fixture path; it does not establish behavior for every scheduler, method, engine, full scientific workflow, or N9/currentness/publication."
+    ]
+  },
+  "artifact_policy": {
+    "checks_file": "continuation-20261007-wave3/voi-checks.json",
+    "evidence_root": "continuation-20261007-wave3/evidence/",
+    "copy_policy": "Copied runner receipts, standard outputs, origin manifests, and R1 plugin/evidence byte-for-byte and verified hashes against runner receipts. Pytest basetemp/CAS fixture artifacts were excluded.",
+    "tested_candidate_note": "These handoff/evidence files were authored after the test candidate and are not part of its test inputs."
+  },
+  "finding_outcomes": {
+    "B11": {
+      "source_ledger_status_historical": "partial",
+      "source_closure_now": "not_adjudicated",
+      "bounded_execution_outcome": "verified",
+      "overall_recommendation": "limited pending projection review and root adjudication",
+      "closure_id": null
+    }
+  },
+  "checks_packet": "continuation-20261007-wave3/voi-checks.json",
+  "independent_source_review": {
+    "reviewer_identity": "/root/n5_intake",
+    "reviewer_role": "independent read-only source and delta reviewer",
+    "decision": "GO",
+    "decision_scope": "B11 bounded default-N6 informative-advance path through actual N5 and default N8 only; this is not B11 closure",
+    "candidate": {
+      "sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+      "tree_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+      "slice_base_sha": "1a520b209ce4bac86204137d15e765de05c08a73",
+      "slice_base_tree_sha": "1d4b7e814d72248ec96a0b0ec3ad90fe4f97eccb"
+    },
+    "reviewed_focus_commits": [
+      {
+        "sha": "a6fa9c37c223d99669ad0503216e328c24f9905f",
+        "scope": "Adds the B11 integration test only; one test file, 200 inserted lines."
+      },
+      {
+        "sha": "aaa89a6988ed553310fc7950054e7b6af4a05956",
+        "scope": "Lint-only B11 test adjustment plus an unrelated one-line EMP test edit."
+      }
+    ],
+    "candidate_delta_boundary": {
+      "b11_focus_commits_changed_production_source": false,
+      "source_scope_note": "The full slice-base-to-candidate source diff also contains a separate generation_cycle.py sparse-profile row-count refusal. It is not attributed to the B11-focused commits or used as evidence for this review."
+    },
+    "source_and_test_blobs": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "git_blob_at_candidate": "2c0dc500c055624687b3b6f9ab74ebba5b3f6881",
+        "reviewed_seams": [
+          "GenerationCycleController default scheduler and JointSimulationPort composition",
+          "_schedule_candidate_for_execution maps the fixture estimate into the existing scheduler input",
+          "CandidateSummary retains proxy_score and voi_estimate"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py",
+        "git_blob_at_candidate": "c14f3425a40d71ae28278157b9e2293f657c6cb1",
+        "reviewed_seams": [
+          "SimpleVOIScheduler information-value decision and separate proxy/cost calculation"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "git_blob_at_candidate": "77f0743bebfdf72f635a0f0477884c279b865da6",
+        "reviewed_seams": [
+          "Registered NCM execution used behind the real JointSimulationPort path"
+        ]
+      },
+      {
+        "path": "policy-engine/tests/integration/core_runtime/test_e02_informative_voi_execution.py",
+        "git_blob_at_candidate": "9403ab4d41eadca013237847c1bbbe36b38e8d68",
+        "reviewed_seams": [
+          "_LowProxyInformationGenerator",
+          "_controller",
+          "test_default_information_value_advance_executes_real_n5_and_budget_blocks_it"
+        ]
+      },
+      {
+        "path": "policy-engine/tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+        "git_blob_at_candidate": "011d8fefbb442f1be6b60f46d3484600e0ad4626",
+        "reviewed_seams": [
+          "_owner_fixture provides the bounded owner-bound candidate and N5 context"
+        ]
+      }
+    ],
+    "source_review_findings": [
+      "The test asserts the default SimpleVOIScheduler and default JointSimulationPort, observes eligible N5 applicability, wraps the real JointSimulationPort.__call__ while invoking the original method, and observes the actual N5 execution plus value_conditional N8 result reference.",
+      "The 0.4 value is a controlled fixture ranking input; the reviewed path treats it as an information-gain scheduler input but does not establish calibration, monetary value, probability, or provider spend.",
+      "The exhaustion control uses a separate zero-cap BudgetState and blocks a new N5 execution; the positive cap and stage cost remain scheduler fixture inputs, not a cost meter."
+    ],
+    "fresh_check_refs": [
+      {
+        "check_name": "informative-voi-execution-final-3ba1",
+        "outcome": "PASS",
+        "record": "continuation-20261007-wave3/voi-checks.json#/attempts/1",
+        "scope": "Fresh positive on the pinned 3ba1 candidate; one target test passed."
+      },
+      {
+        "check_name": "informative-voi-r1-3ba1",
+        "outcome": "FAIL",
+        "property_result": "EXPECTED_FALSIFIER",
+        "record": "continuation-20261007-wave3/voi-checks.json#/removal_attempts/0",
+        "scope": "The R1 mutation removes the eligible informative-advance branch; the real target assertion fails and the observed N5 call list is empty."
+      }
+    ],
+    "review_limits": [
+      "Public/API/audit/dashboard projection and heuristic labeling are not covered by the source review; the handoff remains limited pending projection review.",
+      "Provider usage, debit, settlement, and exactly-once spend are not established; B66 remains a separate edge and is not a B11 prerequisite for this bounded review.",
+      "The result is one default scheduler and bounded synthetic NCM fixture, not every engine, scheduler, production profile, N9, or publication authority."
+    ]
+  },
+  "surface_trace": {
+    "kind": "static type/serializer path trace; no claim of a tested public export",
+    "generation_cycle": {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "git_blob": "2c0dc500c055624687b3b6f9ab74ebba5b3f6881",
+      "locators": [
+        "CandidateSummary.proxy_score and voi_estimate at lines 1512-1529",
+        "GenerationCycleRecord.voi_decision at line 1648",
+        "GenerationCycleRun.cycles and candidate_summaries at lines 2290-2307"
+      ],
+      "meaning": "The internal typed run can retain scheduler decisions and the candidate proxy/estimate."
+    },
+    "compiled_control_projection": {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "git_blob": "ea382413f735bd9f9af3dbd000bff08242626b8d",
+      "locator": "CompiledRecursiveGenerationCycleRun.recursive_run at lines 767-783",
+      "meaning": "The control-layer compiled object carries a recursive run type."
+    },
+    "behavior_exercised_by_b11_test": "GenerationCycleController.run direct return values only; the test checks the typed cycle decision, applicability, N5 result reference, and default value-port reference.",
+    "behavior_not_exercised": "No control HTTP handler, serialized compiled recursive response, audit export, or publication surface is called or asserted; the test therefore does not establish how this estimate is named or caveated outside the direct typed run."
+  }
+}

@@ -1,0 +1,796 @@
+{
+  "schema": "policyos.e02.A.context_guard_checks.v1",
+  "unit": "A",
+  "slice": "nonhandoff-context-guard",
+  "finding_id": "B27",
+  "bundle_id": "CYC-03",
+  "source_candidate": {
+    "sha": "85bf5baac393757174ff9701d8d895803254e860",
+    "tree_sha": "121be85699bc857e21022aabf7df791ec830a492",
+    "source": {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "git_blob": "c970465dd426bc29495ea6dbbff9d1f1cbcd8cb8",
+      "sha256": "899159c295220e43b464ce34ef2de4549b2c78804e8ffbb4a77a58eb3acef691",
+      "bytes": 644405
+    },
+    "same_source_at_final_test_candidate": true
+  },
+  "final_test_candidate": {
+    "sha": "12ea9e5be60d45d53cd3e49493de3e76f766c2e4",
+    "tree_sha": "75b52c76181589738374933c3fd1384c91cb77d0",
+    "b27_test": {
+      "path": "policy-engine/tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py",
+      "git_blob": "a23d4b137da02b8b4fc909904e21abbb31140b98",
+      "sha256": "dcaee38888be649650c2d335ebddce10d0887bb55ff58797dcd859e545ff3446",
+      "bytes": 7336
+    }
+  },
+  "source_review": {
+    "reviewer": "/root/simulation_grid",
+    "review_was_not_author": true,
+    "candidate_sha": "85bf5baac393757174ff9701d8d895803254e860",
+    "candidate_tree_sha": "121be85699bc857e21022aabf7df791ec830a492",
+    "source_ref": {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "git_blob": "c970465dd426bc29495ea6dbbff9d1f1cbcd8cb8",
+      "sha256": "899159c295220e43b464ce34ef2de4549b2c78804e8ffbb4a77a58eb3acef691",
+      "bytes": 644405
+    },
+    "ast_enclosing_class": "GenerationCycleController",
+    "ast_enclosing_function": "_revise_node",
+    "guard_source_lines": [
+      10007,
+      10018
+    ],
+    "verdict": "bounded_GO",
+    "tests_run": false,
+    "review_detail": "AST readback places the exact 12-line advance/context-reference comparison in GenerationCycleController._revise_node. A mismatched existing context changes the action to blocked with reason cycle_substrate_context_reissue_required before the decision and next iteration are assembled.",
+    "limits": [
+      "This reviews the bounded stale-context stop only; it is not a positive context reissue producer.",
+      "The second default N4 generation function is intercepted by the test boundary and no second external LLM call is established.",
+      "The local persisted-payload roundtrip is not a shared durable history or public projection proof."
+    ]
+  },
+  "checks": [
+    {
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/affected-consumers-current-nodes-4bea/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/affected-consumers-current-nodes-4bea/pytest-basetemp",
+          "tests/unit/runtime/quality/test_generation_cycle.py::test_generation_cycle_persists_registered_fallback_for_default_n8",
+          "tests/unit/remediation/test_emp_01.py::test_default_cycle_value_refusal_survives_persisted_run_readback",
+          "tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py",
+          "tests/integration/core_runtime/test_e02_voi_artifact_projection.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "target_sha": "4bea6beadcd86c34446ba0f8fd85aa65831bb1b6",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/affected-consumers-current-nodes-4bea:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "check_id": "pre_guard_affected_consumers_4bea",
+        "scope": "Pre-guard 7-case affected-consumer run; includes the original B27 failure and adjacent failures.",
+        "candidate_tree_sha": "3cebd1c96cc6b4c2f877ae4ea2954076f44339bd",
+        "test_selectors": [
+          "tests/unit/runtime/quality/test_generation_cycle.py::test_generation_cycle_persists_registered_fallback_for_default_n8",
+          "tests/unit/remediation/test_emp_01.py::test_default_cycle_value_refusal_survives_persisted_run_readback",
+          "tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py",
+          "tests/integration/core_runtime/test_e02_voi_artifact_projection.py"
+        ],
+        "test_source_pins": [
+          {
+            "path": "policy-engine/tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py",
+            "git_blob": "d058bb68ccb981bd5310deeac509e1df35e2901e",
+            "sha256": "7948b0838421053127137b0c95843897fdf821c69db2750469a93cc32bb70a69",
+            "bytes": 7085
+          },
+          {
+            "path": "policy-engine/tests/integration/core_runtime/test_e02_voi_artifact_projection.py",
+            "git_blob": "195438b6c752e3c5eab5af92e97f13ee47e6913b",
+            "sha256": "0c4cc00add172616a04175ea49d6ac121d70ab284f39be2730079dfe592bc5c2",
+            "bytes": 17047
+          },
+          {
+            "path": "policy-engine/tests/unit/remediation/test_emp_01.py",
+            "git_blob": "bbedfc4e25567a27093a0fbdb73523ac4d4456fe",
+            "sha256": "a7486806cc8d5751e59d0ea7ad834512a9fc3c1116318e5b541f2de72de5ce3e",
+            "bytes": 36451
+          },
+          {
+            "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+            "git_blob": "274058481969fb5c2fab9db4edc4833e3a4a6880",
+            "sha256": "3d1d70b4f47bb2115469efc4a726b2bea1aa9ba812f71a25a86b5d617cb1d41c",
+            "bytes": 409256
+          }
+        ],
+        "runtime_import_source_pins": [
+          {
+            "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+            "git_blob": "72127a25ff25d4a034d376ba1452f54e96914931",
+            "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+            "bytes": 173575
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+            "git_blob": "9494717e0536fe6d9a2bbc360b0a0f5ea1ee0636",
+            "sha256": "a67ac7883324184c5f353ecd8f2d6c96517befaf03e81b94732d419ae13dd737",
+            "bytes": 121017
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob": "2c0dc500c055624687b3b6f9ab74ebba5b3f6881",
+            "sha256": "a1b87490e228fc9364ef77955bb0d911eaa4571e093ee7183108d91b37681f6b",
+            "bytes": 643928
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+            "git_blob": "77f0743bebfdf72f635a0f0477884c279b865da6",
+            "sha256": "c6c4ad3445184622fc02c787b3e3852e8b511e4a2fdd323bd8f869bc16a71a07",
+            "bytes": 144450
+          }
+        ],
+        "source_checkout_dirty_snapshot": "See copied receipt.json; no clean-whole-tree claim is made."
+      },
+      "output": {
+        "files": {
+          "stdout.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-4bea/stdout.txt",
+            "bytes": 52620,
+            "sha256": "d5cef8ad7e5ff5f64b9d538bc2eac52d2f4807aab9ec2edf058beab60387190c"
+          },
+          "stderr.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-4bea/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit.xml": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-4bea/junit.xml",
+            "bytes": 53900,
+            "sha256": "566054ebd58603f060732c19aa461833c09249168d54db59077cb7cc852bf124"
+          },
+          "origins.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-4bea/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          },
+          "receipt.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-4bea/receipt.json",
+            "bytes": 6228,
+            "sha256": "ace13314fb84e9cfcbec7b427bb80dd77d42c4d99e9a3f9ed91973993aa811ca"
+          },
+          "e02_origin.py": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-4bea/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          }
+        },
+        "result_detail": {
+          "aggregate": {
+            "tests": 7,
+            "passed": 2,
+            "failed": 5,
+            "errors": 0,
+            "skipped": 0,
+            "duration_seconds": 20.814,
+            "timestamp": "2026-10-07T21:28:41.167097+03:00"
+          },
+          "test_cases": [
+            {
+              "classname": "tests.unit.runtime.quality.test_generation_cycle",
+              "name": "test_generation_cycle_persists_registered_fallback_for_default_n8[B06-static-first-rejects-multi-point-horizon]",
+              "outcome": "PASS",
+              "failure_message": null
+            },
+            {
+              "classname": "tests.unit.runtime.quality.test_generation_cycle",
+              "name": "test_generation_cycle_persists_registered_fallback_for_default_n8[B07-one-point-request-reaches-coupling-gate]",
+              "outcome": "PASS",
+              "failure_message": null
+            },
+            {
+              "classname": "tests.unit.remediation.test_emp_01",
+              "name": "test_default_cycle_value_refusal_survives_persisted_run_readback[1]",
+              "outcome": "FAIL",
+              "failure_message": "assert 0 == 1\n +  where 0 = len([])\n +    where [] = <tests.unit.remediation.test_emp_01._RowsConnection object at 0x13e2dc2f0>.calls"
+            },
+            {
+              "classname": "tests.unit.remediation.test_emp_01",
+              "name": "test_default_cycle_value_refusal_survives_persisted_run_readback[2]",
+              "outcome": "FAIL",
+              "failure_message": "assert 0 == 1\n +  where 0 = len([])\n +    where [] = <tests.unit.remediation.test_emp_01._RowsConnection object at 0x13db45bd0>.calls"
+            },
+            {
+              "classname": "tests.unit.remediation.test_emp_01",
+              "name": "test_default_cycle_value_refusal_survives_persisted_run_readback[3]",
+              "outcome": "FAIL",
+              "failure_message": "assert 0 == 1\n +  where 0 = len([])\n +    where [] = <tests.unit.remediation.test_emp_01._RowsConnection object at 0x13de434d0>.calls"
+            },
+            {
+              "classname": "tests.integration.core_runtime.test_e02_nonhandoff_context_revision",
+              "name": "test_nonhandoff_revision_blocks_before_stale_context_n4_and_roundtrips_history",
+              "outcome": "FAIL",
+              "failure_message": "polisyos.runtime.quality.design_generation.DesignGenerationError: cycle_substrate_design_problem_mismatch: cycle_substrate_design_problem_mismatch"
+            },
+            {
+              "classname": "tests.integration.core_runtime.test_e02_voi_artifact_projection",
+              "name": "test_informative_voi_candidate_core_readback_and_preview_refusal",
+              "outcome": "FAIL",
+              "failure_message": "polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0 has tenant ownership claims; an active owner is required for write"
+            }
+          ],
+          "classification": "The original B27 case is one of five failures. The others are three EMP-01 row-count cases and the adjacent B11 artifact-owner case; two N8 horizon cases pass. Those two N8 horizon cases are pre-guard coverage; the focused post-guard runs did not rerun that selector."
+        }
+      },
+      "outcome": "FAIL"
+    },
+    {
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/nonhandoff-context-guard-85bf/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/nonhandoff-context-guard-85bf/pytest-basetemp",
+          "tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py::test_nonhandoff_revision_blocks_before_stale_context_n4_and_roundtrips_history",
+          "tests/integration/core_runtime/test_e02_informative_voi_execution.py::test_default_information_value_advance_executes_real_n5_and_budget_blocks_it"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "target_sha": "85bf5baac393757174ff9701d8d895803254e860",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/nonhandoff-context-guard-85bf:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "check_id": "source_candidate_focused_85bf",
+        "scope": "Focused B27 history test plus the real first-N5/default information-value control.",
+        "candidate_tree_sha": "121be85699bc857e21022aabf7df791ec830a492",
+        "test_selectors": [
+          "tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py::test_nonhandoff_revision_blocks_before_stale_context_n4_and_roundtrips_history",
+          "tests/integration/core_runtime/test_e02_informative_voi_execution.py::test_default_information_value_advance_executes_real_n5_and_budget_blocks_it"
+        ],
+        "test_source_pins": [
+          {
+            "path": "policy-engine/tests/integration/core_runtime/test_e02_informative_voi_execution.py",
+            "git_blob": "9403ab4d41eadca013237847c1bbbe36b38e8d68",
+            "sha256": "51a2d6e80ebf1142b78b4d944c2dd0a79ab54c1185d925653e8935537b9cc5fb",
+            "bytes": 7804
+          },
+          {
+            "path": "policy-engine/tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py",
+            "git_blob": "d058bb68ccb981bd5310deeac509e1df35e2901e",
+            "sha256": "7948b0838421053127137b0c95843897fdf821c69db2750469a93cc32bb70a69",
+            "bytes": 7085
+          }
+        ],
+        "runtime_import_source_pins": [
+          {
+            "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+            "git_blob": "72127a25ff25d4a034d376ba1452f54e96914931",
+            "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+            "bytes": 173575
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+            "git_blob": "9494717e0536fe6d9a2bbc360b0a0f5ea1ee0636",
+            "sha256": "a67ac7883324184c5f353ecd8f2d6c96517befaf03e81b94732d419ae13dd737",
+            "bytes": 121017
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob": "c970465dd426bc29495ea6dbbff9d1f1cbcd8cb8",
+            "sha256": "899159c295220e43b464ce34ef2de4549b2c78804e8ffbb4a77a58eb3acef691",
+            "bytes": 644405
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+            "git_blob": "77f0743bebfdf72f635a0f0477884c279b865da6",
+            "sha256": "c6c4ad3445184622fc02c787b3e3852e8b511e4a2fdd323bd8f869bc16a71a07",
+            "bytes": 144450
+          }
+        ],
+        "source_checkout_dirty_snapshot": "See copied receipt.json; no clean-whole-tree claim is made."
+      },
+      "output": {
+        "files": {
+          "stdout.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-85bf/stdout.txt",
+            "bytes": 59119,
+            "sha256": "a7df20944fb9fe38aaf5b4a144e935862cc409e76591ff50bb930109c5fad833"
+          },
+          "stderr.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-85bf/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit.xml": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-85bf/junit.xml",
+            "bytes": 8337,
+            "sha256": "9b5a5adf5b9162190ab8886932b743755a97f9da351c3e10fb6890fef0c8355c"
+          },
+          "origins.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-85bf/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          },
+          "receipt.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-85bf/receipt.json",
+            "bytes": 7041,
+            "sha256": "de564c541e33fba78ad6c50e5189092ca0b01a79ba3ac50b9583e15c6c33b41e"
+          },
+          "e02_origin.py": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-85bf/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          }
+        },
+        "result_detail": {
+          "aggregate": {
+            "tests": 2,
+            "passed": 1,
+            "failed": 1,
+            "errors": 0,
+            "skipped": 0,
+            "duration_seconds": 27.519,
+            "timestamp": "2026-10-07T21:43:28.092720+03:00"
+          },
+          "test_cases": [
+            {
+              "classname": "tests.integration.core_runtime.test_e02_nonhandoff_context_revision",
+              "name": "test_nonhandoff_revision_blocks_before_stale_context_n4_and_roundtrips_history",
+              "outcome": "FAIL",
+              "failure_message": "AssertionError: assert DesignProblem...llel_worlds'}) == DesignProblem...evidence',)}})\n  \n  Use -v to get more diff"
+            },
+            {
+              "classname": "tests.integration.core_runtime.test_e02_informative_voi_execution",
+              "name": "test_default_information_value_advance_executes_real_n5_and_budget_blocks_it",
+              "outcome": "PASS",
+              "failure_message": null
+            }
+          ],
+          "classification": "B27 assertion fails on full DesignProblem history equality after the guard blocks; the separate real first-N5/default information-value control passes. This is not a passing B27 test."
+        }
+      },
+      "outcome": "FAIL"
+    },
+    {
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/context-and-voi-readback-12ea/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/context-and-voi-readback-12ea/pytest-basetemp",
+          "tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py::test_nonhandoff_revision_blocks_before_stale_context_n4_and_roundtrips_history",
+          "tests/integration/core_runtime/test_e02_voi_artifact_projection.py::test_informative_voi_candidate_core_readback_and_preview_refusal"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "target_sha": "12ea9e5be60d45d53cd3e49493de3e76f766c2e4",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/context-and-voi-readback-12ea:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "check_id": "final_test_candidate_12ea",
+        "scope": "Focused B27 test plus the adjacent B11 Core artifact-owner/readback test.",
+        "candidate_tree_sha": "75b52c76181589738374933c3fd1384c91cb77d0",
+        "test_selectors": [
+          "tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py::test_nonhandoff_revision_blocks_before_stale_context_n4_and_roundtrips_history",
+          "tests/integration/core_runtime/test_e02_voi_artifact_projection.py::test_informative_voi_candidate_core_readback_and_preview_refusal"
+        ],
+        "test_source_pins": [
+          {
+            "path": "policy-engine/tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py",
+            "git_blob": "a23d4b137da02b8b4fc909904e21abbb31140b98",
+            "sha256": "dcaee38888be649650c2d335ebddce10d0887bb55ff58797dcd859e545ff3446",
+            "bytes": 7336
+          },
+          {
+            "path": "policy-engine/tests/integration/core_runtime/test_e02_voi_artifact_projection.py",
+            "git_blob": "20f69089f439df64103fe29bdfe85f79f20ab2d0",
+            "sha256": "961bf351633e49e9ab455cf9ceb34efa5ab3334758e1105da83336ce1d05ee30",
+            "bytes": 17572
+          }
+        ],
+        "runtime_import_source_pins": [
+          {
+            "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+            "git_blob": "72127a25ff25d4a034d376ba1452f54e96914931",
+            "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+            "bytes": 173575
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+            "git_blob": "9494717e0536fe6d9a2bbc360b0a0f5ea1ee0636",
+            "sha256": "a67ac7883324184c5f353ecd8f2d6c96517befaf03e81b94732d419ae13dd737",
+            "bytes": 121017
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob": "c970465dd426bc29495ea6dbbff9d1f1cbcd8cb8",
+            "sha256": "899159c295220e43b464ce34ef2de4549b2c78804e8ffbb4a77a58eb3acef691",
+            "bytes": 644405
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+            "git_blob": "77f0743bebfdf72f635a0f0477884c279b865da6",
+            "sha256": "c6c4ad3445184622fc02c787b3e3852e8b511e4a2fdd323bd8f869bc16a71a07",
+            "bytes": 144450
+          }
+        ],
+        "source_checkout_dirty_snapshot": "See copied receipt.json; no clean-whole-tree claim is made."
+      },
+      "output": {
+        "files": {
+          "stdout.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-12ea/stdout.txt",
+            "bytes": 23469,
+            "sha256": "2eb2eecd0f2b48f87280b4f1572205311242d80238437a0b56b6eb019c329137"
+          },
+          "stderr.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-12ea/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit.xml": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-12ea/junit.xml",
+            "bytes": 23874,
+            "sha256": "25000f08a623ac38e9e2a70ac4583603b642e40515f52321accefcc7989f1df4"
+          },
+          "origins.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-12ea/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          },
+          "receipt.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-12ea/receipt.json",
+            "bytes": 6938,
+            "sha256": "d11c47510ad34b5e36a995150e3362c68d8157170e839883d713a512ffe2fadb"
+          },
+          "e02_origin.py": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-12ea/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          }
+        },
+        "result_detail": {
+          "aggregate": {
+            "tests": 2,
+            "passed": 1,
+            "failed": 1,
+            "errors": 0,
+            "skipped": 0,
+            "duration_seconds": 19.621,
+            "timestamp": "2026-10-07T21:45:37.098715+03:00"
+          },
+          "test_cases": [
+            {
+              "classname": "tests.integration.core_runtime.test_e02_nonhandoff_context_revision",
+              "name": "test_nonhandoff_revision_blocks_before_stale_context_n4_and_roundtrips_history",
+              "outcome": "PASS",
+              "failure_message": null
+            },
+            {
+              "classname": "tests.integration.core_runtime.test_e02_voi_artifact_projection",
+              "name": "test_informative_voi_candidate_core_readback_and_preview_refusal",
+              "outcome": "FAIL",
+              "failure_message": "polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:e00e692e91b23b51bda90298ad349be3e728020864dd20c35a975bb7e72c417f has tenant ownership claims; an active owner is required for write"
+            }
+          ],
+          "classification": "The focused B27 history test passes. The adjacent B11 artifact-projection test fails because its artifact write has tenant ownership claims and no active owner; aggregate remains FAIL."
+        }
+      },
+      "outcome": "FAIL"
+    },
+    {
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-guard-r1-ca03/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-guard-r1-ca03/pytest-basetemp",
+          "tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py::test_nonhandoff_revision_blocks_before_stale_context_n4_and_roundtrips_history",
+          "-p",
+          "b27_context_guard_removal_r1"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "target_sha": "ca038ac238af074b938ea532f0182664fe611b41",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-guard-r1-ca03:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "check_id": "r1_remove_exact_guard_ca03",
+        "scope": "R1 removes the exact 12-line guard in memory while retaining other markers; one pinned B27 test.",
+        "candidate_tree_sha": "51d874b3ce4f6c057b7495c312b591d4ad227d23",
+        "test_selectors": [
+          "tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py::test_nonhandoff_revision_blocks_before_stale_context_n4_and_roundtrips_history"
+        ],
+        "test_source_pins": [
+          {
+            "path": "policy-engine/tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py",
+            "git_blob": "a23d4b137da02b8b4fc909904e21abbb31140b98",
+            "sha256": "dcaee38888be649650c2d335ebddce10d0887bb55ff58797dcd859e545ff3446",
+            "bytes": 7336
+          }
+        ],
+        "runtime_import_source_pins": [
+          {
+            "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+            "git_blob": "72127a25ff25d4a034d376ba1452f54e96914931",
+            "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+            "bytes": 173575
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+            "git_blob": "9494717e0536fe6d9a2bbc360b0a0f5ea1ee0636",
+            "sha256": "a67ac7883324184c5f353ecd8f2d6c96517befaf03e81b94732d419ae13dd737",
+            "bytes": 121017
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob": "c970465dd426bc29495ea6dbbff9d1f1cbcd8cb8",
+            "sha256": "899159c295220e43b464ce34ef2de4549b2c78804e8ffbb4a77a58eb3acef691",
+            "bytes": 644405
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+            "git_blob": "77f0743bebfdf72f635a0f0477884c279b865da6",
+            "sha256": "c6c4ad3445184622fc02c787b3e3852e8b511e4a2fdd323bd8f869bc16a71a07",
+            "bytes": 144450
+          }
+        ],
+        "source_checkout_dirty_snapshot": "See copied receipt.json; no clean-whole-tree claim is made.",
+        "source_blob": "c970465dd426bc29495ea6dbbff9d1f1cbcd8cb8",
+        "source_sha256": "899159c295220e43b464ce34ef2de4549b2c78804e8ffbb4a77a58eb3acef691",
+        "test_blob": "a23d4b137da02b8b4fc909904e21abbb31140b98",
+        "test_sha256": "dcaee38888be649650c2d335ebddce10d0887bb55ff58797dcd859e545ff3446",
+        "mutation_plugin": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-r1-ca03/b27_context_guard_removal_r1.py",
+          "bytes": 12089,
+          "sha256": "652f65073cbc9822417716b20fc2e6c250ea2f46aaac3b904108856ff5fc6e4f"
+        },
+        "r1_receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-r1-ca03/r1-receipt.json",
+          "bytes": 3673,
+          "sha256": "93dda8c71525c5e6821b3bfb6ef8e2e2f52eed41055f15f89c17a34e4f905708"
+        },
+        "source_and_test_match_final_test_candidate_12ea": true
+      },
+      "output": {
+        "files": {
+          "stdout.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-r1-ca03/stdout.txt",
+            "bytes": 58947,
+            "sha256": "b39fbb787b1bf222e29ffa0fdfd102a6b62888bbb45ed06641d2697a29db53b9"
+          },
+          "stderr.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-r1-ca03/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit.xml": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-r1-ca03/junit.xml",
+            "bytes": 8016,
+            "sha256": "5647c24b93495f4184252f2bc088c785fca81c953ce1ff79257d9f4b5da10451"
+          },
+          "origins.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-r1-ca03/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          },
+          "receipt.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-r1-ca03/receipt.json",
+            "bytes": 8340,
+            "sha256": "52e812348b2b3df959d769e5b7ccb4e59ad8a4b00bc12b3fde35db2af1ad6842"
+          },
+          "e02_origin.py": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-r1-ca03/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          },
+          "r1-receipt.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-r1-ca03/r1-receipt.json",
+            "bytes": 3673,
+            "sha256": "93dda8c71525c5e6821b3bfb6ef8e2e2f52eed41055f15f89c17a34e4f905708"
+          },
+          "b27_context_guard_removal_r1.py": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-r1-ca03/b27_context_guard_removal_r1.py",
+            "bytes": 12089,
+            "sha256": "652f65073cbc9822417716b20fc2e6c250ea2f46aaac3b904108856ff5fc6e4f"
+          }
+        },
+        "result_detail": {
+          "aggregate": {
+            "tests": 1,
+            "passed": 0,
+            "failed": 1,
+            "errors": 0,
+            "skipped": 0,
+            "duration_seconds": 3.172,
+            "timestamp": "2026-10-07T21:52:10.089814+03:00"
+          },
+          "test_cases": [
+            {
+              "classname": "tests.integration.core_runtime.test_e02_nonhandoff_context_revision",
+              "name": "test_nonhandoff_revision_blocks_before_stale_context_n4_and_roundtrips_history",
+              "outcome": "FAIL",
+              "failure_message": "polisyos.runtime.quality.design_generation.DesignGenerationError: cycle_substrate_design_problem_mismatch: cycle_substrate_design_problem_mismatch"
+            }
+          ],
+          "classification": "EXPECTED_FALSIFIER: removing the exact guard reaches the real stale-context validator and the unchanged test fails for that expected mismatch.",
+          "r1_probe": {
+            "probe": "B27 R1 exact N6 context-reissue guard removal",
+            "r1_positive_control_qualified": true,
+            "removed_guard_line_count": 12,
+            "removed_guard_occurrences": 1,
+            "retained_guard_markers": [
+              "if state.get(\"n5_preflight_enforced\")",
+              "not_run_hard_feasibility_blocked",
+              "if self._candidate_simulation_handoff is not None",
+              "self.decide_next_action("
+            ],
+            "generator_dispatch_cycle_indices": [
+              0,
+              1
+            ],
+            "n5_call_count": 1,
+            "default_n4_invocation_count_at_real_context_boundary": 1,
+            "context_problem_ref": "sha256:d1fcc487593ee2fe80480d55fc64db71c760c4fd252699441088b5afcbd2fd65",
+            "revised_problem_ref": "sha256:752961cbaa86965d0d3a394dd0bad1f8fb195eb61cfca3f78fbaa66439154c2e",
+            "observed_exception": "cycle_substrate_design_problem_mismatch: cycle_substrate_design_problem_mismatch",
+            "checkout_unchanged": true,
+            "observed_error_type": "polisyos.runtime.quality.design_generation.DesignGenerationError",
+            "observed_error_code": "cycle_substrate_design_problem_mismatch",
+            "default_n4_error_type": "polisyos.runtime.quality.design_generation.DesignGenerationError",
+            "default_n4_error_code": "cycle_substrate_design_problem_mismatch",
+            "mutated_method_sha256": "5f71471836a8bb94e58aebe6b7d7acdc3080fd3ed9763a0632be723f3161844d",
+            "removed_guard_method_sha256": "291a1e702c59162415bc17a22952ebcfee8ddc938176f1df3979b302c0ef7632",
+            "controller_class_identity_is_module_export": true,
+            "module_identity_is_sys_modules_entry": true
+          }
+        }
+      },
+      "outcome": "FAIL"
+    }
+  ],
+  "open_semantic_closure": {
+    "outcome": "UNRUN",
+    "source_ref": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_revision": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "source_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "criterion_lines": [
+        537,
+        549
+      ],
+      "criterion_block_sha256": "5d1b81074be737bba40fbc2ddb069f092e6f7fabae3714efd1010a59b2d680da"
+    },
+    "required_but_not_demonstrated": [
+      "A valid context produced/admitted for the revised problem.",
+      "A permitted second default N4/N5 path under that revised context.",
+      "Original and revised request/history persisted through the shared owner-backed history path."
+    ],
+    "reason": "The current guard is a mismatch stop. Its R1 removal falsifier proves stale reuse is stopped, but cannot supply the missing positive producer.",
+    "topic": "recursive_status semantic closure",
+    "source_review_status": "UNRUN beyond the bounded source review recorded above"
+  },
+  "evidence_copy_policy": "Captured stdout, stderr, JUnit, origins, receipt, and plugin files are copied byte-for-byte from ignored policy-engine/_build run directories; SHA-256 and byte counts are recorded per file. pytest-basetemp trees are intentionally not copied."
+}

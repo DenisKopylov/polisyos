@@ -1,0 +1,433 @@
+{
+  "schema": "policyos.e02.la045.compiler_checks.v1",
+  "unit": "A",
+  "slice": "la045-tracked-caller-census-and-native-compiler-checks",
+  "finding_id": "LA045",
+  "bundle_id": "REQ-01",
+  "finding_outcome": "limited",
+  "candidate": {
+    "commit": "1a520b209ce4bac86204137d15e765de05c08a73",
+    "tree": "1d4b7e814d72248ec96a0b0ec3ad90fe4f97eccb",
+    "branch": "codex/e02-A-delivery-attached"
+  },
+  "slice_base": {
+    "commit": "622f304abbdd5afc17fd91b30aa8871fca7a1182",
+    "tree": "d7efbfcf071f73a421a447468aa0ea08f22ee875"
+  },
+  "source_criteria": {
+    "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+    "document_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+    "git_blob_sha1": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+    "lines": [
+      2999,
+      3033
+    ],
+    "criterion_slice_sha256": "56970bcb95cda770929f9d2189bd528c98722300f9e5b80b76c80dcdb115da28",
+    "exact_la045_private_names": [
+      "_data_families_from_obligation_graph",
+      "_data_family_token_from_frontier_item",
+      "_nested",
+      "_normalised_family",
+      "_slug_family",
+      "_ordered_data_families",
+      "_DATA_FAMILY_ORDER"
+    ],
+    "separate_name": "_digest belongs to AM03 and is outside this finding."
+  },
+  "source_footprint": {
+    "range": "622f304abbdd5afc17fd91b30aa8871fca7a1182..1a520b209ce4bac86204137d15e765de05c08a73",
+    "path_census_command": "git diff --name-status 622f304abbdd5afc17fd91b30aa8871fca7a1182 1a520b209ce4bac86204137d15e765de05c08a73",
+    "changed_paths": [
+      {
+        "status": "A",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+        "git_blob_sha1": "6e1691922fc512180d933f4fd8e6af4c94c41810",
+        "sha256": "4bac9ead00cb547e0ba4e7c3cfcf33578d253859fbf99c803085e96fce450402",
+        "role": "Census instrument only."
+      }
+    ],
+    "compiler_source": {
+      "path": "policy-engine/src/polisyos/data_requirement/compiler.py",
+      "base_git_blob_sha1": "d91823b593427fe275b4b0b6d4f14c499a12aa2d",
+      "candidate_git_blob_sha1": "d91823b593427fe275b4b0b6d4f14c499a12aa2d",
+      "changed_in_slice": false
+    },
+    "native_test_sources": [
+      {
+        "path": "policy-engine/tests/unit/data_requirement/test_compiler.py",
+        "candidate_git_blob_sha1": "9b97bf857a45cd1a18f7e6a380087d1bf130d03e",
+        "changed_in_slice": false
+      },
+      {
+        "path": "policy-engine/tests/unit/data_requirement/test_e02_named_profile_context.py",
+        "candidate_git_blob_sha1": "3c17ca0d3c9a71d35e00564d4a9464c7a7eb84d4",
+        "changed_in_slice": false
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/catalog/test_data_requirement_adapter.py",
+        "candidate_git_blob_sha1": "418ee709bc6c2a34111cb53f05de3f847ed23e07",
+        "changed_in_slice": false
+      }
+    ],
+    "production_source_changes": 0,
+    "test_source_changes": 0,
+    "retirement_ancestor": {
+      "commit": "fce9957e07987525a3d0a62150b6de2f8edce1de",
+      "ancestor_of_slice_base": true,
+      "credit_in_this_slice": false
+    }
+  },
+  "checks": [
+    {
+      "id": "tracked-python-caller-census-1a52",
+      "outcome": "PASS",
+      "property_result": "UNRESOLVED",
+      "command_argv": [
+        ".venv/bin/python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+        "1a520b209ce4bac86204137d15e765de05c08a73"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "target": {
+        "commit": "1a520b209ce4bac86204137d15e765de05c08a73",
+        "tree": "1d4b7e814d72248ec96a0b0ec3ad90fe4f97eccb",
+        "branch": "codex/e02-A-delivery-attached"
+      },
+      "environment": {
+        "status": "NOT_ESTABLISHED",
+        "reason": "The census receipt records argv, cwd, and target tree but no process environment. No environment is inferred."
+      },
+      "input_closure": {
+        "selector": "Every tracked Git blob path in the requested candidate tree ending in .py or .pyi.",
+        "exclusions": [],
+        "tracked_path_count": 6511,
+        "file_type_denominator": {
+          ".py": 6506,
+          ".pyi": 5
+        },
+        "unique_blob_count": 6411,
+        "parse_errors": 0,
+        "tree_recomputed_from_requested_ref": true
+      },
+      "result": {
+        "command_exit_code": 0,
+        "wall_seconds": 44.10512770799687,
+        "verdict": "UNRESOLVED",
+        "absence_claim_supported": false,
+        "compiler_api_import_rows": 44,
+        "compiler_api_import_unique_paths": 18,
+        "all_import_statement_count": 23,
+        "retired_name_literal_rows": 10,
+        "computed_import_or_getattr_sites": 271,
+        "unresolved_reflective_calls": 271,
+        "wildcard_compiler_imports": 0,
+        "positive_control": "passed for direct and aliased reflection/import APIs plus parameter, local assignment, and import-rebind shadow controls",
+        "unresolved_boundaries": [
+          "computed reflective/import names (271 sites)",
+          "external, generated, untracked, and non-Python consumers",
+          "exec/eval, native, service-dispatch, and runtime entrypoint reachability"
+        ],
+        "retired_name_literal_interpretation": "Literal hits include scanner self-check material and _digest, which is outside LA-045. They are not reported as ten live callers."
+      },
+      "launcher": {
+        "path": "policy-engine/_build/e02-A-continuation-20261007/run_command.py",
+        "sha256": "ef58301dceda92cf4a17214fd281cfcb3f6f50ba98480533bc0b191878a43798"
+      },
+      "outputs": [
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-caller-census-1a52/receipt.json",
+          "bytes": 2138,
+          "sha256": "74411d2336f5cd3ed725cadff57066f01c9ef7884c091297da70e0136257b185"
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-caller-census-1a52/stdout.txt",
+          "bytes": 157297,
+          "sha256": "7b6e2e7ae799e519552e8dd5ca72c62552583172948a13da2b8aabc57950c6a0"
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-caller-census-1a52/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "raw_output_directory": "policy-engine/_build/e02-A-continuation-20261007/compiler-caller-census-1a52"
+    },
+    {
+      "id": "native-compiler-profile-fabric-smoke-1a52",
+      "outcome": "PASS",
+      "property_result": "bounded-positive",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/compiler-native-operational-1a52/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/compiler-native-operational-1a52/pytest-basetemp",
+        "tests/unit/data_requirement/test_compiler.py",
+        "tests/unit/data_requirement/test_e02_named_profile_context.py",
+        "tests/unit/fabric/catalog/test_data_requirement_adapter.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "target": {
+        "commit": "1a520b209ce4bac86204137d15e765de05c08a73",
+        "tree": "1d4b7e814d72248ec96a0b0ec3ad90fe4f97eccb",
+        "branch": "codex/e02-A-delivery-attached"
+      },
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/compiler-native-operational-1a52:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu",
+        "probe_environment": {}
+      },
+      "input_closure": {
+        "test_targets": [
+          "tests/unit/data_requirement/test_compiler.py",
+          "tests/unit/data_requirement/test_e02_named_profile_context.py",
+          "tests/unit/fabric/catalog/test_data_requirement_adapter.py"
+        ],
+        "test_source_blobs": [
+          "9b97bf857a45cd1a18f7e6a380087d1bf130d03e",
+          "3c17ca0d3c9a71d35e00564d4a9464c7a7eb84d4",
+          "418ee709bc6c2a34111cb53f05de3f847ed23e07"
+        ],
+        "compiler_source_blob": "d91823b593427fe275b4b0b6d4f14c499a12aa2d"
+      },
+      "result": {
+        "command_exit_code": 0,
+        "wall_seconds": 9.809801374969538,
+        "tests": 22,
+        "passed": 22,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "scope": "Selected native unit and adapter tests for active compiler use, named-profile context, and Fabric data-requirement adaptation.",
+        "not_established": [
+          "production resolver/catalog admission or authenticated production profile/data",
+          "the complete served runtime/fabric consumer route end to end",
+          "a full LA-045 caller-absence or closure claim"
+        ],
+        "observed_behaviors": [
+          "Active compiler creates claim-bound requirements from universal compilation and uses the injected resolver.",
+          "Legacy family heuristic is used only with the phase-4 opt-in flag; the hardcoded text fallback is absent when the flag is disabled.",
+          "The compiler report is persisted as a replayable artifact.",
+          "Explicit named profile scope/date is forwarded; generic geography/year words, opaque IDs, and negated topics do not invent profile context or required constructs.",
+          "Fabric adapter consumes capability bindings and tests matching and unselected source-contract behavior."
+        ]
+      },
+      "launcher": {
+        "path": "policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+        "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+      },
+      "outputs": [
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-native-operational-1a52/receipt.json",
+          "bytes": 3852,
+          "sha256": "75fa6a2b4a2cec3a3384cb444c8aa7410e7e75da5e3da086fc64a34d563ce68a"
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-native-operational-1a52/stdout.txt",
+          "bytes": 99,
+          "sha256": "dd7b4844996068593b9774e0c4b5d4cd7d27e9627ca2a8532b450445f2c477dc"
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-native-operational-1a52/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-native-operational-1a52/junit.xml",
+          "bytes": 3921,
+          "sha256": "724d020fd69b37683a6f49649b270e22bbf9e1dbb0bf2a0a20a3556e1d74929a"
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-native-operational-1a52/e02_origin.py",
+          "bytes": 656,
+          "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-native-operational-1a52/origins.json",
+          "bytes": 492,
+          "sha256": "af7f3e08e36fa78cf8850e144ebcdf92951ab038bac3da989700fdf9e734ba49"
+        }
+      ],
+      "raw_output_directory": "policy-engine/_build/e02-A-continuation-20261007/compiler-native-operational-1a52"
+    },
+    {
+      "id": "global-nonlocal-reflective-alias-rebinding-falsifier",
+      "outcome": "PASS",
+      "property_result": "residual_confirmed; scanner false-positive confirmed for both controlled cases; no actual tracked retired caller asserted and caller absence remains not_established",
+      "command_argv": [
+        ".venv/bin/python",
+        "_build/e02-A-continuation-20261007/compiler-global-residual/probe.py"
+      ],
+      "target": {
+        "commit": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+        "tree": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+        "branch": "codex/e02-A-delivery-attached"
+      },
+      "environment": {
+        "status": "NOT_ESTABLISHED",
+        "reason": "The run receipt captures argv, cwd, and candidate, but not process environment."
+      },
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-global-residual-3ba1/receipt.json",
+          "bytes": 2179,
+          "sha256": "194477ca70f5f62b11e5a01893b088491377e920a2ddc2e4034bd95c7cf9d5bc"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-global-residual-3ba1/stdout.txt",
+          "bytes": 1420,
+          "sha256": "1e5f57cc5172d06b00ddbc2e14c7c383b5a5063314710c29520cbb30ec5660de"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-global-residual-3ba1/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-global-residual-3ba1/probe.py",
+          "bytes": 1807,
+          "sha256": "47b77b11b401d7253deb6bf2f1506faf272daf515a1e68acf6530249ddf98c10"
+        }
+      ],
+      "falsifier_case": "from importlib import import_module as load; def probe(): global load; load = custom_callable; load(\"polisyos.data_requirement.compiler\")",
+      "question": "Does the alias resolver mark this globally rebound/computed call unresolved, or can it misclassify the outer imported binding as a static call?",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "input_closure": {
+        "kind": "two controlled source snippets in the retained probe script; not a tracked repository caller scan",
+        "cases": [
+          "global rebinding of imported alias",
+          "nonlocal rebinding of imported alias"
+        ],
+        "runtime_callable": "Each case rebinds import_module alias load to lambda name: None; actual call returns None.",
+        "scanner_callable": "source_findings from the census instrument at the same Git blob as candidate 1a520."
+      },
+      "result": {
+        "command_exit_code": 0,
+        "wall_seconds": 0.14686008298303932,
+        "residual_confirmed": true,
+        "both_cases": [
+          {
+            "case": "global",
+            "runtime_result": null,
+            "reported_dynamic_imports": [
+              {
+                "path": "controlled-global.py",
+                "line": 5,
+                "module": "polisyos.data_requirement.compiler"
+              }
+            ],
+            "reported_unresolved": [],
+            "false_positive_confirmed": true
+          },
+          {
+            "case": "nonlocal",
+            "runtime_result": null,
+            "reported_dynamic_imports": [
+              {
+                "path": "controlled-nonlocal.py",
+                "line": 6,
+                "module": "polisyos.data_requirement.compiler"
+              }
+            ],
+            "reported_unresolved": [],
+            "false_positive_confirmed": true
+          }
+        ],
+        "interpretation": "The scanner can classify a call as a dynamic import after the imported name has been rebound to a replacement lambda. This confirms a P38 proxy divergence and a same-class deeper P40 residual. The synthetic calls do not establish any actual tracked retired-helper caller."
+      },
+      "launcher": {
+        "path": "policy-engine/_build/e02-A-continuation-20261007/run_command.py",
+        "sha256": "ef58301dceda92cf4a17214fd281cfcb3f6f50ba98480533bc0b191878a43798"
+      },
+      "raw_output_directory": "policy-engine/_build/e02-A-continuation-20261007/compiler-global-residual-3ba1",
+      "probe_source_raw_path": "policy-engine/_build/e02-A-continuation-20261007/compiler-global-residual/probe.py"
+    }
+  ],
+  "related_existing_evidence": [
+    {
+      "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-review.json#/recorded_checks/successful_wheel_test",
+      "classification": "Previously recorded bounded installed-wheel witness; not rerun or represented as a check on candidate 1a520.",
+      "reported_candidate_commit": "5650b7aed7991606d62cd8510b377698a778ce39",
+      "reported_candidate_tree": "b03120869a77b27d02aba456fb7dfc88d582f832",
+      "reported_compiler_git_blob_sha1": "d91823b593427fe275b4b0b6d4f14c499a12aa2d",
+      "reported_test_source_sha256": "f69b4792064af8747114a2c7e65a39e03abfd181a63ad148fcec22dcf027b830",
+      "reported_result": "One installed-wheel test passed; the prior review records module/facade identity, eight retired-name negative lookups, active compiler and resolver-fixture behavior, and persisted report readback.",
+      "limit": "The resolver is a recording fixture and the historical wheel test is not reattributed to the current candidate tree."
+    }
+  ],
+  "source_review_boundary": {
+    "verdict": "bounded GO for ordinary imported reflective API aliases and local shadow controls; NO-GO for broad all-rebinding coverage",
+    "p40_classification": "Same alias-binding class at a deeper rebinding case; stop the instance-patch ladder and carry this bounded residual.",
+    "divergent_case": "A global/nonlocal write can be skipped by the lexical binding model, allowing an outer import alias to be reported as resolved although the executed callee was rebound.",
+    "absence_claim": false,
+    "dynamic_check_execution": "UNRUN",
+    "falsifier_result": {
+      "outcome": "PASS",
+      "interpretation": "Confirms the previously declared bounded global/nonlocal rebinding residual; it does not extend alias-resolution coverage or change the limited finding disposition.",
+      "evidence_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/compiler-checks.json#/checks/2"
+    }
+  },
+  "pattern_pass": {
+    "relevant_ids": [
+      "P35",
+      "P36",
+      "P38",
+      "P40"
+    ],
+    "notes": [
+      "P35: census recomputes the entire pinned tracked .py/.pyi denominator.",
+      "P36: exact LA-045 names are separated from _digest under AM03.",
+      "P38: successful execution is not absence proof; computed sites diverge from the caller property.",
+      "P40: global/nonlocal rebinding is the same class deeper and is bounded for a root-owned falsifier."
+    ]
+  },
+  "capability_state_or_finding_state": "limited",
+  "limitations_and_next_owner": [
+    "The global/nonlocal controlled falsifier confirmed a scanner false positive in both cases; this does not establish an actual tracked retired-helper caller and does not support an absence claim.",
+    "The census still has 271 computed reflective/import sites unresolved.",
+    "External, generated, untracked, non-Python, and runtime-computed consumers remain outside the proven census boundary.",
+    "The independent source review remains GO only for ordinary imported reflective API aliases and local shadows; broad all-rebinding coverage remains NO-GO. P40 records this as the same class deeper.",
+    "The native tests and prior installed-wheel witness use fixtures and do not establish production catalog admission.",
+    "Root adjudicates any LA-045 closure; finding_outcome remains limited and closure_ids remains empty."
+  ],
+  "closure_ids": [],
+  "falsifier_source_identity": {
+    "census_candidate": {
+      "commit": "1a520b209ce4bac86204137d15e765de05c08a73",
+      "tree": "1d4b7e814d72248ec96a0b0ec3ad90fe4f97eccb"
+    },
+    "falsifier_candidate": {
+      "commit": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+      "tree": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033"
+    },
+    "scanner": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+      "git_blob_sha1_at_both_targets": "6e1691922fc512180d933f4fd8e6af4c94c41810",
+      "sha256_at_both_targets": "4bac9ead00cb547e0ba4e7c3cfcf33578d253859fbf99c803085e96fce450402",
+      "source_findings_function_body": "unchanged between census and falsifier targets; this is a separate source-identity reconciliation from the runtime residual result"
+    },
+    "active_compiler": {
+      "path": "policy-engine/src/polisyos/data_requirement/compiler.py",
+      "git_blob_sha1_at_both_targets": "d91823b593427fe275b4b0b6d4f14c499a12aa2d",
+      "changed_between_targets": false
+    },
+    "probe": {
+      "source_is_untracked_scratch": true,
+      "raw_path": "policy-engine/_build/e02-A-continuation-20261007/compiler-global-residual/probe.py",
+      "sha256": "47b77b11b401d7253deb6bf2f1506faf272daf515a1e68acf6530249ddf98c10",
+      "copied_evidence_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-global-residual-3ba1/probe.py"
+    },
+    "scope": "Controlled false-positive falsifier only; no source edits and no actual tracked retired-helper caller claim."
+  }
+}

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="11.612" timestamp="2026-10-07T20:38:40.330527+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.integration.core_runtime.test_e02_informative_voi_execution" name="test_default_information_value_advance_executes_real_n5_and_budget_blocks_it" time="2.913"><failure message="AssertionError: assert 'reject' == 'advance'&#10;  &#10;  - advance&#10;  + reject">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/informative-voi-r1-3ba1/pytest-basetemp/test_default_information_value0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x13f1f50f0&gt;
+
+    @pytest.mark.asyncio
+    async def test_default_information_value_advance_executes_real_n5_and_budget_blocks_it(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """Low proxy plus positive information advances; an exhausted cap blocks N5."""
+    
+        repo_root = Path(__file__).resolve().parents[3]
+        positive_store, positive_problem, positive_context, _high, positive_candidate = (
+            _owner_fixture(tmp_path / "positive")
+        )
+        exhausted_store, exhausted_problem, exhausted_context, _high, exhausted_candidate = (
+            _owner_fixture(tmp_path / "exhausted")
+        )
+        stores = (positive_store, exhausted_store)
+        n5_calls: list[str] = []
+        original_n5_call = JointSimulationPort.__call__
+    
+        def observe_real_n5_call(self: JointSimulationPort, **kwargs: Any) -&gt; Any:
+            candidate = kwargs["candidate"]
+            n5_calls.append(str(candidate.candidate_id))
+            return original_n5_call(self, **kwargs)
+    
+        monkeypatch.setattr(JointSimulationPort, "__call__", observe_real_n5_call)
+    
+        try:
+            with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+                positive_controller = _controller(
+                    store=positive_store,
+                    problem=positive_problem,
+                    context=positive_context,
+                    candidate=positive_candidate,
+                    repo_root=repo_root,
+                )
+                positive_budget = _bounded_budget("1.0")
+                assert type(positive_controller._voi_scheduler) is SimpleVOIScheduler
+                assert positive_controller._candidate_simulation_handoff is None
+                assert type(positive_controller._simulation_port) is JointSimulationPort
+                assert positive_controller._simulation_port.supports_applicability_preflight(
+                    positive_problem
+                )
+    
+                # This budget is a scheduler cap fixture. The synthetic local NCM
+                # execution does not report or settle provider charges.
+                positive_run = await positive_controller.run(
+                    positive_problem,
+                    budget_state=positive_budget,
+                    min_cycles=1,
+                    max_cycles=1,
+                )
+                positive_cycle = positive_run.cycles[0]
+                positive_summary = next(
+                    summary
+                    for summary in positive_run.candidate_summaries
+                    if summary.candidate_id == positive_candidate.candidate_id
+                )
+                assert positive_summary.proxy_score == 0.0
+                assert positive_summary.voi_estimate == 0.4
+                assert positive_summary.n5_applicability is not None
+                assert positive_summary.n5_applicability.status == "eligible"
+&gt;               assert positive_cycle.voi_decision.scheduler_action == "advance"
+E               AssertionError: assert 'reject' == 'advance'
+E                 
+E                 - advance
+E                 + reject
+
+tests/integration/core_runtime/test_e02_informative_voi_execution.py:147: AssertionError</failure></testcase></testsuite></testsuites>

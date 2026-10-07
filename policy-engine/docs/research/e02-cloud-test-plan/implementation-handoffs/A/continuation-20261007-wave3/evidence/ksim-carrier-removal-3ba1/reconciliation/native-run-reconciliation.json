@@ -1,0 +1,430 @@
+{
+  "classification": "independently_reconciled_expected_typed_carrier_refusal",
+  "independently_reconciled": true,
+  "line_mapping": {
+    "actual_runtime_code_object_retained_by_original_run": false,
+    "compiled_code_firstlineno": 1,
+    "compiled_code_line_starts": [
+      1,
+      10,
+      12,
+      13,
+      14,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      82,
+      83,
+      85,
+      86,
+      87,
+      89,
+      92,
+      93,
+      94,
+      95,
+      97,
+      100,
+      101,
+      102,
+      103,
+      104,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120,
+      121,
+      122,
+      123,
+      124,
+      126,
+      127,
+      128,
+      129,
+      130,
+      132,
+      135,
+      136,
+      137,
+      138,
+      139
+    ],
+    "function": "_conditional_simulation_value_observation",
+    "mapping_matches": true,
+    "mutated_ast_constructor_relative_line": 126,
+    "mutated_function_source_sha256": "d19b38af1c1792b3586cda6fb918257b96339e9fed0bf4f53be0c9eb82ad3e04",
+    "observed_traceback_frame": {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "function": "_conditional_simulation_value_observation",
+      "line": 126
+    },
+    "original_constructor_source_line": 5866,
+    "original_context_offset": 5740,
+    "original_function_first_source_line": 5741,
+    "original_function_source_sha256": "45a00dcb9ca34fdaebf5de0a00c128149bad82864c820e6d0ce281601d86d1fb",
+    "plugin_compile_path_verified": true,
+    "reconstructed_mutated_code_object_marshal_sha256": "3d895cf4b2b5033a38ec9f04bd0349af9a90ec6028506e1b14c1e344becbc63a",
+    "reconstruction_basis": "The exact pinned plugin and source deterministically reconstruct the same standalone function compilation; its relative constructor line equals the retained traceback line and filename/function.",
+    "runtime_file": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "standalone_function_source_first_line": 1
+  },
+  "n5_to_cas_to_n8_binding": {
+    "all_bindings_and_marker_match": true,
+    "carrier_value_ref_matches_artifact_id": true,
+    "n8_content_bound_cas_read": {
+      "caller": "_conditional_simulation_value_observation",
+      "expected_content_bindings": {
+        "expected_atom_ids": [
+          "income_subsidy",
+          "balance_grant"
+        ],
+        "expected_receipt_payload_hash": "sha256:a7fb617c9205727de31e13e8f00add30fb7490b0617b12af3824789acc53e2a5",
+        "expected_selected_outcomes": [
+          "firm_survival"
+        ],
+        "expected_world_model_record_content_hash": "sha256:5eba7c0e75d80663058ba668dbaddf3e73d8a5a920639fd23b115c4763806ff0",
+        "expected_world_model_record_ref": "world_model_record_5eba7c0e75d80663"
+      },
+      "loaded_world_model_record_content_hash": "sha256:5eba7c0e75d80663058ba668dbaddf3e73d8a5a920639fd23b115c4763806ff0",
+      "persisted_k_sim_marker_present": true,
+      "persisted_packet_blockers": [
+        "simulation_only_k_sim_not_world_evidence"
+      ],
+      "simulation_result_ref": {
+        "artifact_id": "sha256:a0a0cbb11d6f4ce4cc2b5ad49f4af14877a50932bd131a0457822b642fe3daed",
+        "kind": "polisyos.runtime.joint_simulation_result",
+        "media_type": "application/json"
+      },
+      "simulation_result_ref_key": "{\"artifact_id\":\"sha256:a0a0cbb11d6f4ce4cc2b5ad49f4af14877a50932bd131a0457822b642fe3daed\",\"kind\":\"polisyos.runtime.joint_simulation_result\",\"media_type\":\"application/json\"}"
+    },
+    "n8_entry_event": {
+      "candidate_id": "candidate_cyc_n5_builder",
+      "consumer_class": "_DefaultSimulationBoundFoundryValuePort",
+      "cycle_index": 0,
+      "entered_before_original_call": true,
+      "exception": {
+        "constructor_frame_hit": false,
+        "exception_class": "ValidationError",
+        "exception_excerpt": "1 validation error for ValuePortObservation\n  Value error, value_conditional_requires_simulation_limitation [type=value_error, input_value={'status': 'value_conditi..._ms': 4.441291035618633}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error",
+        "exception_module": "pydantic_core._pydantic_core",
+        "expected_constructor_line": 5866,
+        "expected_typed_carrier_refusal": false,
+        "n8_constructor_trace_frames": [
+          {
+            "file": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "function": "_conditional_simulation_value_observation",
+            "line": 126
+          }
+        ],
+        "typed_guard": "ValuePortObservation._verify_value_authority_shape",
+        "typed_guard_code": "value_conditional_requires_simulation_limitation",
+        "typed_guard_source_line": 1389,
+        "validation_errors": [
+          {
+            "context_error": "value_conditional_requires_simulation_limitation",
+            "input_fields": [
+              "authority_blockers",
+              "candidate_id",
+              "conditional_interaction_evidence",
+              "decision_grade",
+              "evaluation_mode",
+              "reason",
+              "status",
+              "value_ref",
+              "wall_time_ms",
+              "world_model_record_content_hash"
+            ],
+            "input_summary": {
+              "authority_blockers": [],
+              "candidate_id": "candidate_cyc_n5_builder",
+              "decision_grade": "low",
+              "evaluation_mode": "simulate_only",
+              "status": "value_conditional",
+              "value_ref": "sha256:a0a0cbb11d6f4ce4cc2b5ad49f4af14877a50932bd131a0457822b642fe3daed",
+              "world_model_record_content_hash": "sha256:5eba7c0e75d80663058ba668dbaddf3e73d8a5a920639fd23b115c4763806ff0"
+            },
+            "loc": [],
+            "msg": "Value error, value_conditional_requires_simulation_limitation",
+            "type": "value_error"
+          }
+        ],
+        "validation_model": "ValuePortObservation"
+      },
+      "n5_projected_blockers": [],
+      "outcome": "raised",
+      "problem_id": "cyc_n5_owner_boundary_c2c451460deb40bcbe6dca93bb53dc8c",
+      "simulation_ref": "sha256:a7fb617c9205727de31e13e8f00add30fb7490b0617b12af3824789acc53e2a5",
+      "simulation_result_ref": {
+        "artifact_id": "sha256:a0a0cbb11d6f4ce4cc2b5ad49f4af14877a50932bd131a0457822b642fe3daed",
+        "kind": "polisyos.runtime.joint_simulation_result",
+        "media_type": "application/json"
+      },
+      "simulation_result_ref_key": "{\"artifact_id\":\"sha256:a0a0cbb11d6f4ce4cc2b5ad49f4af14877a50932bd131a0457822b642fe3daed\",\"kind\":\"polisyos.runtime.joint_simulation_result\",\"media_type\":\"application/json\"}",
+      "simulation_status": "joint_simulated",
+      "world_model_record_content_hash": null
+    },
+    "producer_event": {
+      "candidate_id": "candidate_cyc_n5_builder",
+      "producer_authority_blockers": [
+        "simulation_only_k_sim_not_world_evidence"
+      ],
+      "producer_class": "JointSimulationPort",
+      "producer_k_sim_marker_present": true,
+      "simulation_ref": "sha256:a7fb617c9205727de31e13e8f00add30fb7490b0617b12af3824789acc53e2a5",
+      "simulation_result_ref": {
+        "artifact_id": "sha256:a0a0cbb11d6f4ce4cc2b5ad49f4af14877a50932bd131a0457822b642fe3daed",
+        "kind": "polisyos.runtime.joint_simulation_result",
+        "media_type": "application/json"
+      },
+      "simulation_result_ref_key": "{\"artifact_id\":\"sha256:a0a0cbb11d6f4ce4cc2b5ad49f4af14877a50932bd131a0457822b642fe3daed\",\"kind\":\"polisyos.runtime.joint_simulation_result\",\"media_type\":\"application/json\"}",
+      "status": "joint_simulated",
+      "world_model_record_content_hash": null
+    },
+    "same_artifact_ref": true,
+    "same_receipt_payload_hash": true,
+    "world_model_hash_reconciles": true
+  },
+  "original_constructor_frame_boolean": false,
+  "original_plugin_qualification_status": "INCOMPLETE_OR_UNEXPECTED_RESULT",
+  "preserved_attempts": {
+    "historical_run_reconciled_against_frozen_commit_bytes": true,
+    "missing_plugin_attempt": {
+      "argv_plugin": "pytest_ksim_persisted_blocker_removal",
+      "classification": "harness_error_before_test_collection",
+      "exit_code": 1,
+      "module_not_found_observed": true,
+      "test_execution_claim": "No test ran in this attempt."
+    },
+    "native_typed_refusal_run": {
+      "junit_sha256": "4b2f6824b76d788a05daca2fc789121649c890cb09f246cb6db07ab32f341898",
+      "path": "_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1",
+      "qualification_sha256": "4321a23864c1ff358ad7915036b925535ce5f4da8a7b867fa1cff01c11cc7d38",
+      "receipt_sha256": "51dbf6c36013cbd59ceaef82a75fbcb23672a767835f75c1155e08db88e66371",
+      "stdout_sha256": "7a67cee4c957f919ebe10c7d4779940549888b6e0e08fe2456c6ac9899650caa"
+    },
+    "post_run_test_worktree_change_observed": true,
+    "prior_attempts": {
+      "initial_property_removal": {
+        "files": {
+          "junit.xml": {
+            "bytes": 11580,
+            "sha256": "f6d021eee285915f67b8d229c02723331868bad2a082fb5d6b0b939dd2fa3b08"
+          },
+          "qualification.json": {
+            "bytes": 18783,
+            "sha256": "fb80c85db11e0e758be90232d0f14c3c31f1e872dbe123cc39e5c25e0a61773f"
+          },
+          "receipt.json": {
+            "bytes": 4739,
+            "sha256": "588e62598e36456d103da1fa4fce0e779edcd39870db34edf8d9853ac512e1e5"
+          },
+          "stderr.txt": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout.txt": {
+            "bytes": 80354,
+            "sha256": "e498d92c4a4bafa05c89a3579b7576373447d522f5c73ed824669af57b9eaee2"
+          }
+        },
+        "path": "_build/e02-A-continuation-20261007/ksim-persisted-blocker-r1-3ba1"
+      },
+      "missing_plugin_harness_error": {
+        "files": {
+          "receipt.json": {
+            "bytes": 4452,
+            "sha256": "65ed1afbd1500be231b75221d519ecf68b81b5f0850d0538307fcfbca0e97dc4"
+          },
+          "stderr.txt": {
+            "bytes": 4932,
+            "sha256": "5cf5665e446fec1edb36654bd960edfd43f229719adcac2dfda93d7f53304f3e"
+          },
+          "stdout.txt": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        "path": "_build/e02-A-continuation-20261007/ksim-typed-refusal-r1-3ba1"
+      }
+    },
+    "source_outputs_modified_by_reconciler": false
+  },
+  "reconciliation_fixes_only_source_to_compiled_line_mapping": true,
+  "result": {
+    "boundary": "The persisted K_sim merge was removed in memory. N8 read the unchanged content-bound N5 artifact and recovered its marker, then the actual ValuePortObservation validator refused the conditional output because the projected limitation set was empty.",
+    "limitation": "This establishes fail-closed behavior at the typed carrier one layer below the original K_sim assertion; it does not establish N9 signature/currentness or production authority.",
+    "original_target_assertion_reached": false,
+    "runtime_or_product_failure": false,
+    "typed_refusal_is_expected_property_removal_falsifier": true
+  },
+  "schema": "e02-ksim-typed-refusal-independent-reconciliation-v1",
+  "scope_and_reports": {
+    "junit_failures": [
+      {
+        "message": "pydantic_core._pydantic_core.ValidationError: 1 validation error for ValuePortObservation\n  Value error, value_conditional_requires_simulation_limitation [type=value_error, input_value={'status': 'value_conditi..._ms': 4.441291035618633}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error",
+        "text_sha256": "c29e50e1e052db3610314d51733d42b31c3f3ad19dc6eac12c0a68e078627527"
+      }
+    ],
+    "junit_testcases": 1,
+    "no_other_test_targets_or_errors": true,
+    "only_target_selected": true,
+    "pytest_reports": [
+      {
+        "exception_class": null,
+        "exception_excerpt": null,
+        "exception_module": null,
+        "longrepr_sha256": null,
+        "nodeid": "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection",
+        "outcome": "passed",
+        "when": "setup"
+      },
+      {
+        "exception_class": "ValidationError",
+        "exception_excerpt": "1 validation error for ValuePortObservation\n  Value error, value_conditional_requires_simulation_limitation [type=value_error, input_value={'status': 'value_conditi..._ms': 4.441291035618633}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error",
+        "exception_module": "pydantic_core._pydantic_core",
+        "longrepr_sha256": "c29e50e1e052db3610314d51733d42b31c3f3ad19dc6eac12c0a68e078627527",
+        "nodeid": "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection",
+        "outcome": "failed",
+        "when": "call"
+      },
+      {
+        "exception_class": null,
+        "exception_excerpt": null,
+        "exception_module": null,
+        "longrepr_sha256": null,
+        "nodeid": "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection",
+        "outcome": "passed",
+        "when": "teardown"
+      }
+    ],
+    "target": "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection",
+    "target_testcases": 1
+  },
+  "source_identity": {
+    "commit": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+    "derived_target_assertion_line_from_frozen_ast": 4718,
+    "derived_target_assertion_source": "\"simulation_only_k_sim_not_world_evidence\" in value.authority_blockers",
+    "native_run_exit_code": 1,
+    "native_run_junit_sha256": "4b2f6824b76d788a05daca2fc789121649c890cb09f246cb6db07ab32f341898",
+    "native_run_qualification_sha256": "4321a23864c1ff358ad7915036b925535ce5f4da8a7b867fa1cff01c11cc7d38",
+    "native_run_receipt_sha256": "51dbf6c36013cbd59ceaef82a75fbcb23672a767835f75c1155e08db88e66371",
+    "native_run_stdout_sha256": "7a67cee4c957f919ebe10c7d4779940549888b6e0e08fe2456c6ac9899650caa",
+    "plugin_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/ksim-typed-refusal-native-3ba1/pytest_ksim_typed_carrier_refusal.py",
+    "plugin_sha256": "5d662e04b8e644bbe12772599c4ffb90437899f9e418df5df823d5c2c1b86b54",
+    "run_source_hashes_match_frozen_git_blobs": true,
+    "runtime_sha256_from_frozen_git_blob": "a1b87490e228fc9364ef77955bb0d911eaa4571e093ee7183108d91b37681f6b",
+    "runtime_sha256_worktree_now": "a1b87490e228fc9364ef77955bb0d911eaa4571e093ee7183108d91b37681f6b",
+    "runtime_worktree_matches_frozen": true,
+    "target_test_function_ast_sha256_from_frozen_git_blob": "e67818e51a55d5a6771121960f0011a15c3fb989509a9781f8acbea042a6be19",
+    "target_test_sha256_from_frozen_git_blob": "d3dcd61ca85d388f346d3a6fbecfac15163c7ad0cdfe92db86c3c7ae66820b04",
+    "target_test_sha256_recorded_during_run": "d3dcd61ca85d388f346d3a6fbecfac15163c7ad0cdfe92db86c3c7ae66820b04",
+    "target_test_sha256_worktree_now": "3d1d70b4f47bb2115469efc4a726b2bea1aa9ba812f71a25a86b5d617cb1d41c",
+    "target_test_source_diverged_after_run": true,
+    "target_test_worktree_matches_frozen_now": false,
+    "tree": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033"
+  },
+  "typed_validation": {
+    "class": "ValidationError",
+    "constructor_trace_matches": false,
+    "error": {
+      "context_error": "value_conditional_requires_simulation_limitation",
+      "input_fields": [
+        "authority_blockers",
+        "candidate_id",
+        "conditional_interaction_evidence",
+        "decision_grade",
+        "evaluation_mode",
+        "reason",
+        "status",
+        "value_ref",
+        "wall_time_ms",
+        "world_model_record_content_hash"
+      ],
+      "input_summary": {
+        "authority_blockers": [],
+        "candidate_id": "candidate_cyc_n5_builder",
+        "decision_grade": "low",
+        "evaluation_mode": "simulate_only",
+        "status": "value_conditional",
+        "value_ref": "sha256:a0a0cbb11d6f4ce4cc2b5ad49f4af14877a50932bd131a0457822b642fe3daed",
+        "world_model_record_content_hash": "sha256:5eba7c0e75d80663058ba668dbaddf3e73d8a5a920639fd23b115c4763806ff0"
+      },
+      "loc": [],
+      "msg": "Value error, value_conditional_requires_simulation_limitation",
+      "type": "value_error"
+    },
+    "error_count": 1,
+    "exact_validation_shape_matches": true,
+    "guard_code": "value_conditional_requires_simulation_limitation",
+    "guard_source_line": 1389,
+    "guard_validator": "ValuePortObservation._verify_value_authority_shape",
+    "model": "ValuePortObservation",
+    "module": "pydantic_core._pydantic_core"
+  }
+}

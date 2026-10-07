@@ -1,0 +1,40 @@
+{
+  "argv": [
+    ".venv/bin/python",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+    "1a520b209ce4bac86204137d15e765de05c08a73"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "1a520b209ce4bac86204137d15e765de05c08a73",
+  "candidate_tree": "1d4b7e814d72248ec96a0b0ec3ad90fe4f97eccb",
+  "workspace_dirty_before": [
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B66-cost-scope-consumer.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/estimator-numeric-intake.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/partial-recursive-checkpoint.json"
+  ],
+  "workspace_dirty_after": [
+    " M policy-engine/tests/unit/remediation/test_emp_01.py",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B66-cost-scope-consumer.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/estimator-numeric-intake.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/partial-recursive-checkpoint.json",
+    "?? policy-engine/tests/integration/core_runtime/test_e02_informative_voi_execution.py"
+  ],
+  "exit_code": 0,
+  "wall_s": 44.10512770799687,
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_command.py",
+    "sha256": "ef58301dceda92cf4a17214fd281cfcb3f6f50ba98480533bc0b191878a43798"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 157297,
+      "sha256": "7b6e2e7ae799e519552e8dd5ca72c62552583172948a13da2b8aabc57950c6a0"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

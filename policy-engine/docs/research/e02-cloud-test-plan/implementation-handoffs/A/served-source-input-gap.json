@@ -1,0 +1,344 @@
+{
+  "baseline_cells": [
+    {
+      "id": "CYC-01 Ukraine baseline bundle",
+      "nested_manifest_sha256": "e65ca699c56b203097c5dc11d99fd171a337e89ee888132ce82e36557d87992d",
+      "root_manifest_sha256": "9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105",
+      "state": "root/nested digest binding matches; two manifested intervention inputs differ from current bytes",
+      "version": "ukraine_agent_simulation_baseline_20260410"
+    }
+  ],
+  "branch": "codex/e02-A-delivery-attached",
+  "bundle_ids": [
+    "CYC-01"
+  ],
+  "candidate_tree_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+  "capability_state_or_finding_state": {
+    "B01": {
+      "producer": "wired per root audit",
+      "served_check": "UNRUN"
+    },
+    "B02": {
+      "served_check": "UNRUN"
+    },
+    "B03": {
+      "served_check": "UNRUN"
+    },
+    "overall": "verification_missing for production-backed CYC-01 served acceptance"
+  },
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-source-input-gap.json"
+  ],
+  "changed_paths_scope": "Evidence-only; this packet changes no product source, production data, or test file.",
+  "checks": [
+    {
+      "command": "rg --files --hidden --no-ignore --null .; per-path stat and extension tally retained in production-data-inventory.jsonl",
+      "environment": {
+        "cwd": "/Users/deniskopylov/polisyos/policy-engine/production_data",
+        "platform": "macOS (recorded in the inventory receipt)",
+        "python": "3.14.0",
+        "ripgrep": "15.2.0"
+      },
+      "input_closure": "Bounded production_data root; 6,562 enumerated paths; metadata only; no bulk parquet/JSONL payloads.",
+      "outcome": "PASS",
+      "output": {
+        "raw_paths": "production-data-files.nul sha256:2cd5718f79ca92245d361eea239527af639aa9fc1087aa09ee3c9a1e66f62e38",
+        "receipt": "receipt.json sha256:3c4f8e7e1e4c62f02a732efef09e88030880c00bc0b4a8ce310f0fea30853fd6",
+        "stdout": "stdout.txt sha256:3048df5ef5956374165e02247cd1564d719a301059b1434f622424a0cb78a921"
+      },
+      "target_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033"
+    },
+    {
+      "command": "UNRUN; no ordinary served invocation issued.",
+      "environment": {
+        "execution": "not_run",
+        "reason": "source-authorized input bytes unavailable"
+      },
+      "input_closure": "CYC-01 target_inputs: intervention_knob_dictionary.json and lex_intervention_map.json; see input_availability.",
+      "outcome": "UNRUN",
+      "output": "No served output exists; see retained inventory receipt and stdout references in the metadata check.",
+      "target_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033"
+    },
+    {
+      "command": "UNRUN; no ordinary served invocation issued.",
+      "environment": {
+        "execution": "not_run",
+        "reason": "source-authorized input bytes unavailable"
+      },
+      "input_closure": "CYC-01 target_inputs: intervention_knob_dictionary.json and lex_intervention_map.json; see input_availability.",
+      "outcome": "UNRUN",
+      "output": "No served output exists; see retained inventory receipt and stdout references in the metadata check.",
+      "target_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033"
+    },
+    {
+      "command": "UNRUN; no ordinary served invocation issued.",
+      "environment": {
+        "execution": "not_run",
+        "reason": "source-authorized input bytes unavailable"
+      },
+      "input_closure": "CYC-01 target_inputs: intervention_knob_dictionary.json and lex_intervention_map.json; see input_availability.",
+      "outcome": "UNRUN",
+      "output": "No served output exists; see retained inventory receipt and stdout references in the metadata check.",
+      "target_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033"
+    }
+  ],
+  "closure_ids": [
+    "B01",
+    "B02",
+    "B03"
+  ],
+  "criteria": [
+    {
+      "criterion_text": "Ordinary user input without manually created Python context reaches permitted computation; a foreign candidate, foreign model, unauthorized data, and protected action do not pass. Removing a single early check without restoring the other bindings does not count as a fix.",
+      "id": "B01",
+      "source_line": 213,
+      "title": "Context is required before the evaluated task is formed"
+    },
+    {
+      "criterion_text": "The same context is actually consumed at all stages; a changed DesignProblem, another WMR, or a different catalog version yields a concrete refusal. A missing real source remains missing rather than being filled with a test bundle.",
+      "id": "B02",
+      "source_line": 225,
+      "title": "Data and model context must not be lost between layers"
+    },
+    {
+      "criterion_text": "A normal request leads to an actual call to an applicable method; changing a material binding is rejected. A persisted specification and server-side reference resolution replace a non-serializable callable on the durable path.",
+      "id": "B03",
+      "source_line": 237,
+      "title": "N5 expects a ready request instead of building its input in the standard path"
+    }
+  ],
+  "criteria_source": {
+    "commit": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+    "line_ranges": {
+      "B01": "205-215",
+      "B02": "217-227",
+      "B03": "229-239"
+    },
+    "note": "The original criteria are reproduced below in full; no B04+ criteria are included in this packet.",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "tree": "f27a36aa7eae9d6e329e0602ea40b6169a5bcf35"
+  },
+  "evidence_read_policy": {
+    "bulk_parquet_or_jsonl_payloads_read": false,
+    "full_path_size_metadata": "ignored local evidence only; not embedded or tracked here",
+    "manifest_and_target_fingerprints_stable": true
+  },
+  "implementation_commits": [
+    "6bb56e26dda7d7bb76b7a756e972b0a9bcc04e75",
+    "267f024a994e25aa9a496851bc2a8f4ce5a9b953"
+  ],
+  "input_availability": {
+    "meaning": "The expected 268-byte and 178-byte contents are absent from the bounded production-root inventory; current files exist at 581 and 972 bytes with different hashes.",
+    "source_custodian": null,
+    "status": "MISSING"
+  },
+  "inspection_results": {
+    "bounded_metadata_inventory": {
+      "extension_counter_sum": 6562,
+      "production_paths": 6562,
+      "root_to_nested_manifest_binding": "PASS",
+      "scope": "Path, size, inode/mode and small manifest/target hashes; no bulk parquet or JSONL payload reads.",
+      "status": "PASS"
+    },
+    "content_bytes": {
+      "meaning": "The exact manifest-declared 268-byte and 178-byte content is absent from the bounded production-root size inventory; current files exist at 581 and 972 bytes with different hashes.",
+      "status": "MISSING"
+    },
+    "scoped_search": {
+      "meaning": "The bounded local search completed over the actual production root and stated same-project scope; this is a search receipt, not source admission.",
+      "status": "PASS"
+    },
+    "served_B01": {
+      "reason": "Data-dependent ordinary served witness not executed.",
+      "status": "UNRUN"
+    },
+    "served_B02": {
+      "reason": "Data-dependent ordinary served witness not executed.",
+      "status": "UNRUN"
+    },
+    "served_B03": {
+      "reason": "Data-dependent ordinary served witness not executed.",
+      "status": "UNRUN"
+    }
+  },
+  "inventory_artifacts": {
+    "artifact-sha256.txt": {
+      "bytes": 751,
+      "sha256": "ddce3476d6b0dfbca655a6f802584b974ac1bdf8fa3c7713945aafe1a2ec5394"
+    },
+    "production-data-files.nul": {
+      "bytes": 615181,
+      "sha256": "2cd5718f79ca92245d361eea239527af639aa9fc1087aa09ee3c9a1e66f62e38"
+    },
+    "production-data-inventory.jsonl": {
+      "bytes": 1888297,
+      "sha256": "ef39ac14e3c4aaa03501d16a58adbb6050229009aa2b0aaa8b1af00bbde9a77f"
+    },
+    "receipt.json": {
+      "bytes": 18946,
+      "sha256": "3c4f8e7e1e4c62f02a732efef09e88030880c00bc0b4a8ce310f0fea30853fd6"
+    },
+    "same-project-backup-archive-candidates.jsonl": {
+      "bytes": 642,
+      "sha256": "173bc8782ad386e3843173c4f88123eaa6ff5b31af637d8d7c14ccf6760f2785"
+    },
+    "same-project-input-name-candidates.jsonl": {
+      "bytes": 644,
+      "sha256": "6937079eb50e55d7beb71bb4733bdd5e9e650e6d4e7172f04f5f678a583d9cb1"
+    },
+    "same-project-scoped-files.nul": {
+      "bytes": 2075334,
+      "sha256": "bd4bdfc89ea2afc2cc91c61c2e635614f023e7e42a98eeecab04af17e8bb7dba"
+    },
+    "stdout.txt": {
+      "bytes": 3524,
+      "sha256": "3048df5ef5956374165e02247cd1564d719a301059b1434f622424a0cb78a921"
+    }
+  },
+  "inventory_evidence_root": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/served-source-inventory",
+  "limitations_and_next_owner": [
+    "The responsible source owner must identify or appoint the actual custodian of the original Ukraine intervention-bundle bytes.",
+    "The custodian must provide the original matching bytes or an owner-ratified nested manifest and matching root binding, with provenance naming custodian, source artifact/version, revision/time, and reason.",
+    "Do not patch manifests or mutate production data locally; do not substitute test fixtures.",
+    "The search covered only the actual production root and the stated same-project scope; external locations were not searched.",
+    "After admitted inputs arrive, run the ordinary served B01-B03 witness and negative controls."
+  ],
+  "nested_manifest": {
+    "all_40_members_rehashed_in_this_census": false,
+    "bundle_relative_path": "ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+    "bytes": 8488,
+    "declared_member_count": 40,
+    "root_binding_matches": true,
+    "sha256": "e65ca699c56b203097c5dc11d99fd171a337e89ee888132ce82e36557d87992d"
+  },
+  "packet_date": "2026-10-07",
+  "packet_id": "served-source-input-gap-20261007",
+  "predicate_basis": {
+    "path_counts_and_extension_counts": "recomputed from the complete enumerated production-root path set",
+    "root_to_nested_manifest_binding": "recomputed from recorded manifest bytes",
+    "served_acceptance": "not_established; B01-B03 checks are UNRUN",
+    "source_custody_and_replacement_authority": "not_established",
+    "target_content_match": "recomputed; both current target hashes/sizes mismatch the declared inputs"
+  },
+  "production_extension_counter_matches_denominator": true,
+  "production_extension_counter_sum": 6562,
+  "production_extension_counters": {
+    ".csv": 37,
+    ".duckdb": 8,
+    ".hnsw": 2,
+    ".json": 88,
+    ".jsonl": 6329,
+    ".kuzu": 3,
+    ".log": 1,
+    ".md": 2,
+    ".npz": 13,
+    ".parquet": 43,
+    ".sh": 1,
+    ".stdout": 2,
+    ".txt": 3,
+    ".xlsx": 2,
+    ".yaml": 4,
+    ".zst": 12,
+    "<no-extension>": 12
+  },
+  "property": "CYC-01 ordinary served evaluation must use source-authorized intervention bytes bound through context and N5 persistence to fresh conditional N8 readback; names and self-consistent manifest digests do not prove custody.",
+  "pull_request": null,
+  "repository": {
+    "native_checkout": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos",
+    "product_root": "policy-engine/",
+    "read_only_production_root": "/Users/deniskopylov/polisyos/policy-engine/production_data"
+  },
+  "root_manifest": {
+    "bundle_key": "ukraine_simulation",
+    "bundle_path": "ukraine_agent_simulation_baseline_20260410",
+    "bundle_version": "ukraine_agent_simulation_baseline_20260410",
+    "bytes": 5434,
+    "nested_manifest_binding": "sha256:e65ca699c56b203097c5dc11d99fd171a337e89ee888132ce82e36557d87992d",
+    "path": "manifest.json",
+    "readiness": "ready",
+    "required_files": [
+      "FINAL_ARTIFACTS_MANIFEST.json",
+      "production_bundle/bundles/runtime_bundle_v1/runtime_bundle_manifest.json",
+      "production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+      "production_bundle/bundles/calibration_bundle_v1/calibration_bundle_manifest.json",
+      "production_bundle/bundles/method_contract_bundle_v1/network_contract_bundle_v1.json"
+    ],
+    "required_files_count": 5,
+    "sha256": "9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105"
+  },
+  "schema": "HANDOFFv1",
+  "schema_version": "e02.served_source_input_gap.v1",
+  "search_scope": {
+    "backup_archive_scope_result": "The three paths are code/documentation, not production input backups.",
+    "backup_archive_scoped_paths": [
+      {
+        "bytes": 8952,
+        "path": "policy-engine/tools/archive/migrate_to_trinity.py"
+      },
+      {
+        "bytes": 1957,
+        "path": "policy-engine/tools/archive/README.md"
+      },
+      {
+        "bytes": 459,
+        "path": "policy-engine/tools/archive/__init__.py"
+      }
+    ],
+    "external_locations_searched": false,
+    "production_exact_268_or_178_byte_candidate_count": 0,
+    "production_root_path_count": 6562,
+    "same_project_scoped_path_count": 22111,
+    "status": "PASS for bounded search only"
+  },
+  "slice": "A1 / CYC-01 ordinary served path / B01-B03 source-input admission",
+  "slice_base_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+  "slice_base_tree_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+  "source_identities": {
+    "G_evidence_pin": {
+      "commit": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+      "ref": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+      "tree": "f27a36aa7eae9d6e329e0602ea40b6169a5bcf35"
+    },
+    "G_remote_ref_tip": {
+      "commit": "9806442ddb47d624a2940bac75d9d6248e934c48",
+      "ref": "origin/codex/e02-integration",
+      "tree": "4a1caafc331990e0ebf0130a9051c08ae1ffcbd4"
+    },
+    "current_A": {
+      "branch": "codex/e02-A-delivery-attached",
+      "commit": "12ea9e5be60d45d53cd3e49493de3e76f766c2e4",
+      "ref": "HEAD",
+      "tree": "75b52c76181589738374933c3fd1384c91cb77d0"
+    },
+    "current_A_snapshot_role": "A assembly observation when this packet was first authored; implementation_commits records the later authorized test commits.",
+    "main": {
+      "commit": "c40d4acae1ce58b597267255026d9356565828fd",
+      "ref": "main",
+      "tree": "897662caf73bd4487f798d66938b74d7abfe753e"
+    },
+    "origin_main_base": {
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "ref": "origin/main",
+      "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    }
+  },
+  "target_inputs": [
+    {
+      "bundle_relative_path": "production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+      "current_bytes": 581,
+      "current_sha256": "005d89f0ab1728a4f6c20cccad5781c1ef7721f82215c8de7c21622f3abe4328",
+      "declared_bytes": 268,
+      "declared_sha256": "4f52f0a743a46f5c53cf5608cc73b1b05f0e8d7f8ee360d866e6f127863a840f",
+      "matches_declared": false
+    },
+    {
+      "bundle_relative_path": "production_bundle/bundles/intervention_bundle_v1/lex_intervention_map.json",
+      "current_bytes": 972,
+      "current_sha256": "5c72461237a09605c39f180345de45cff55c59eed5d4d0e2ca80cc4aa446addf",
+      "declared_bytes": 178,
+      "declared_sha256": "49168c4779a0d1025c166f7eea04477efdd27fb3a3b7554ae7878da45af7fbaa",
+      "matches_declared": false
+    }
+  ],
+  "unit": "A"
+}

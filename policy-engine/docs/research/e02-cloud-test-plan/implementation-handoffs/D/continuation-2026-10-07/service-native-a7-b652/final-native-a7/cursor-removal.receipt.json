@@ -1,0 +1,270 @@
+{
+  "name": "cursor-removal",
+  "source_sha": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "source_tree": "e809693afe3b84e02d473b5744142d026afbe509",
+  "source_status_before": "",
+  "argv": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "-m",
+    "pytest",
+    "--noconftest",
+    "-p",
+    "no:cacheprovider",
+    "-s",
+    "-ra",
+    "--basetemp",
+    "/dev/shm/e02-D-oct07-service-start/final-native-a7/cursor-removal-fixtures",
+    "--junitxml",
+    "/dev/shm/e02-D-oct07-service-start/final-native-a7/cursor-removal.junit.xml",
+    "-p",
+    "service_cursor_marker_removal",
+    "tests/unit/scientist/methods/search/test_service_factory_fault_resume.py"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine:/dev/shm/e02-D-oct07-service-start"
+  },
+  "backend": "Actual marker-preserving removal at the indicated native consumer seam; positive scope and unaffected marker/corpus identities retained",
+  "no_artificial_quotas": true,
+  "started_at": "2026-10-07T09:48:45.795728+00:00",
+  "runtime": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "packages": {
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5",
+      "numpy": "2.3.5",
+      "scipy": "1.16.3"
+    }
+  },
+  "plugin_sha256": "59ffc98a89ca9c9658c4c49489d7670825bea5e16d9db0c1738121da749e71a4",
+  "returncode": 1,
+  "elapsed_seconds": 5.32362571998965,
+  "completed_at": "2026-10-07T09:48:51.679054+00:00",
+  "source_sha_after": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "source_status_after": "",
+  "same_inputs": true,
+  "outputs": {
+    "stdout.txt": {
+      "available": true,
+      "bytes": 9667,
+      "sha256": "6940a1bf410df59fd87eb1c09498bae8c068b7d039a31ff85ccd4367aa806866"
+    },
+    "stderr.txt": {
+      "available": true,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "junit.xml": {
+      "available": true,
+      "bytes": 9867,
+      "sha256": "fb5560f7ee3aa31a60d7b92cd6a935c76bcef965fd0b392bab1ca7d38ba1c438"
+    }
+  },
+  "case_phases": {
+    "PASS": 0,
+    "FAIL": 2,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "schema": "e02.D.scoped_native_receipt.v1",
+  "unit": "D",
+  "scope": {
+    "findings": [
+      "LA-014",
+      "LA-015"
+    ],
+    "notes": [
+      "Actual2expectedFAIL physicalnextcandidate3 insteadrequired2 whenrestoredcursorremoved withmarkerssaved."
+    ]
+  },
+  "original_criterion_status": "unchanged; full original criterion accounting remains separate",
+  "finding_disposition": "not_adjudicated_here",
+  "formally_closed": false,
+  "accepted_G": false,
+  "command_capture_sha256": "6323079eaabd9b75736fe3780a8131100c9774768060dcb6e49e7986a946a5b4",
+  "cases": [
+    {
+      "classname": "tests.unit.scientist.methods.search.test_service_factory_fault_resume",
+      "name": "test_public_factory_checkpoint_fault_fresh_process_resume_preserves_next_subject[write]",
+      "seconds": "1.933",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.test_service_factory_fault_resume",
+      "name": "test_public_factory_checkpoint_fault_fresh_process_resume_preserves_next_subject[readback]",
+      "seconds": "2.219",
+      "outcome": "FAIL"
+    }
+  ],
+  "effective_input_bindings": {
+    "policy-engine/pyproject.toml": {
+      "index": "100644 c46d8c1c952112ba132d167f05c941304a85cd0c 0",
+      "available": true,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    },
+    "policy-engine/ruff.toml": {
+      "index": "100644 a0928fffdad2d96d6030fc23584801beac45b560 0",
+      "available": true,
+      "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd"
+    },
+    "policy-engine/src/polisyos/common/serialization.py": {
+      "index": "100644 60cf8182efd1daaffc8060f5ac90376e690c48c2 0",
+      "available": true,
+      "sha256": "485303bf79f150fa9df259d7354d3104a4bdb94d9114cddb6e17dcc424316f0d"
+    },
+    "policy-engine/src/polisyos/core/llm/response.py": {
+      "index": "100644 7172b31d24337531194d3fca2ec17fc4419901b4 0",
+      "available": true,
+      "sha256": "8e9d9cb25cc73257a55f76acbc1cdd66871a2e207b1efd7e19e7b12024a385ea"
+    },
+    "policy-engine/src/polisyos/core/llm/settlement.py": {
+      "index": "100644 a21bca5b1280069d6852bad0b5437d9783925886 0",
+      "available": true,
+      "sha256": "6d680b37b3107322ec79e56d6e7959b6605c5af22be641d6305f65bc495f78a7"
+    },
+    "policy-engine/src/polisyos/core/llm/traced_client.py": {
+      "index": "100644 df786193b548215d84b4e7b1707c73272416d618 0",
+      "available": true,
+      "sha256": "f982028c7533dacac0df93475177bd840857768744ebf0bfd8c2181af912b81a"
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/execution_plan.py": {
+      "index": "100644 792c306fddbf5d6742870c8fd4c4b29fc54e0ea0 0",
+      "available": true,
+      "sha256": "e733c6f99ebbee1c439b861c5b4b84ceed34f15490fade90f831f6402013e3d3"
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/models.py": {
+      "index": "100644 5335d35ba3967c9774dbd9d50dcbd02ae91a6786 0",
+      "available": true,
+      "sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5"
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/registry.py": {
+      "index": "100644 68affc2d2354e1a3cdd1e339916d74b811d88bea 0",
+      "available": true,
+      "sha256": "1339af524b604462021425b9d88f5cbe278f1a8c927827cb3e26fa4f8f0cc6ba"
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py": {
+      "index": "100644 2451c5520334a2765298314d53e46502c2b04c90 0",
+      "available": true,
+      "sha256": "b64d2e6a49e173e58316bf843dab889a775d6b26c9ad6a81d10c2281bce94185"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/controller.py": {
+      "index": "100644 7377be536dc63cb1f64f31878f6045c7a9f347e7 0",
+      "available": true,
+      "sha256": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/frontier.py": {
+      "index": "100644 3e8a49f58dbec650304023e19e372ab92af9ca72 0",
+      "available": true,
+      "sha256": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/objective.py": {
+      "index": "100644 8926e63c6d587778d0ba6628bd59865314292fe7 0",
+      "available": true,
+      "sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py": {
+      "index": "100644 d12d0bb37b33ffb59513697eb95cc1653912553c 0",
+      "available": true,
+      "sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/run_state.py": {
+      "index": "100644 c3a90ffe3db0cf7158bc847fb824b18b0502866d 0",
+      "available": true,
+      "sha256": "411e2b5a922bf57af4f51735b44f7e491f98e75e3a83940b8fb3eb76e7fa3cb8"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/service.py": {
+      "index": "100644 71694945c18fb573fa30b31f9b16942a4a30b508 0",
+      "available": true,
+      "sha256": "3df2c3a05c0571065f8ac45c260a03a80c1493ebfab1b0f532d9e90a5a83a6b1"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/stopping.py": {
+      "index": "100644 533befa968e43ea734b729d0932c39b5128c26bf 0",
+      "available": true,
+      "sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py": {
+      "index": "100644 058de1cd9d6a28c6ff55e118823dab87d1059564 0",
+      "available": true,
+      "sha256": "ef1aa2cb95b2bed2438efe8da91ee9a78940e7a6e8b6e6aec7ae58f2359f4c3b"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py": {
+      "index": "100644 5014def2bf0e9d43a629d335bf1b806a112082a3 0",
+      "available": true,
+      "sha256": "b14b9d504d8227f26c488a59227e33cdc8b0cbc192c37d780728e441e74d1f65"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py": {
+      "index": "100644 af2e277ffc2e47d1efb514ebdbdcf8a3c234f7aa 0",
+      "available": true,
+      "sha256": "6c8e7a5507e0f6f2bb166fc739465d073c3ace660ac0f0c8e08bbf445cd7d56a"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py": {
+      "index": "100644 bd6817caac28d979beb0d2e343531adec775fae9 0",
+      "available": true,
+      "sha256": "d80a22c6282d2a172a0f51e6590e8b3ec786fc8e1ecb47db3bbe8583ab32197c"
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget.py": {
+      "index": "100644 1a2fbb73bb87d60674d168791a214f882e79347f 0",
+      "available": true,
+      "sha256": "76adb290dd270a7a8ce6fb0823bf1f035c00673f3662abf7cb35ca13d8209516"
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py": {
+      "index": "100644 edc20aeef614fa3486868b04fc4be03ace992893 0",
+      "available": true,
+      "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe"
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py": {
+      "index": "100644 596731c164fc1ad264b4f157f74b58cf73f7c513 0",
+      "available": true,
+      "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8"
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py": {
+      "index": "100644 7105b2b3992f140570a1eee5d17b6bd67b3d3022 0",
+      "available": true,
+      "sha256": "215adc1ee70c5ac0426db93126dff2a7e8bed23ca3e90bbcdeddc35da35d18da"
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py": {
+      "index": "100644 0dc65ee8cbe6477c50deb965d4d7cc12b3f6c5a2 0",
+      "available": true,
+      "sha256": "4161bc6dfa38838c107228672fab9e1468087c19ae7ddb4f510247577fac29c3"
+    },
+    "policy-engine/src/polisyos/scientist/policy_design/objectives.py": {
+      "index": "100644 f7e1945d99245cd8ea762be22f91150684878ad6 0",
+      "available": true,
+      "sha256": "0f4682e1157ff2ae1bbc349d1d88363cc9e37eecbbcb0b898b405d141ea15253"
+    },
+    "policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py": {
+      "index": "100644 56f6349dc0482df07498425e663e9947cd753b76 0",
+      "available": true,
+      "sha256": "aaf35bfdf97fdb35f3ff9e48ece8805ce656b600039b587a6851acb3dae96ecc"
+    },
+    "policy-engine/tests/unit/scientist/methods/search/test_service_factory_fault_resume.py": {
+      "index": "100644 1f92a1b34c5aeac9c57e1158a82d4da9fcd74d97 0",
+      "available": true,
+      "sha256": "85bacc7cc6b42fd7af56498fb948551621629121004acc1a626f051f65f235e0"
+    },
+    "policy-engine/uv.lock": {
+      "index": "100644 85f1fb2150a4da454fee02108565381d44f56730 0",
+      "available": true,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    }
+  },
+  "input_verification": {
+    "all_tracked_denominator": 15484,
+    "all_available": 8415,
+    "all_unavailable_historical_sparse_paths": 7069,
+    "src_tests_lock_config_denominator": 6313,
+    "src_tests_lock_config_missing": [],
+    "changed_available_inputs": [],
+    "full_manifest_before_sha256": "c10de1abc3952aed5363710a89225713e937d49d65a028b6454d3cde55d8725e",
+    "full_manifest_after_sha256": "c10de1abc3952aed5363710a89225713e937d49d65a028b6454d3cde55d8725e",
+    "full_derived_manifest_local_only": true,
+    "source_git_tree_is_portable_authority": true
+  },
+  "P37": "Each result uses the original typed/candidate/recorded-accounting premise from actual native inputs; supported/excluded profiles are explicit.",
+  "P38": "Marker-preserving controls remove actual cursor restore/finite batch/date relation, or retain actualsentinel/run markers whileowned transition removed; no marker alone is a runtime witness.",
+  "P41": "not_established; no inherited-red or slice-base zero-overlap claim",
+  "cleanup": "All fixture/derived capture paths retained; no nativeTrash available. Root separately authorized generatedinactive mypycache cleanup only; command/decidingoutputs preserved."
+}

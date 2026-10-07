@@ -1,0 +1,53 @@
+{
+  "schema": "policyos.e02.owner_input_packet.v1",
+  "unit": "D",
+  "kind": "E-mutable-cap-public-consumer",
+  "finding_bindings": [
+    "B106",
+    "B107"
+  ],
+  "external_owner_bundle": "DOE-01 (E); unchanged B100 sampler/analyzer law remains E",
+  "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "tree": "bb6213c0cde3246e63c04f749547f40f35644a15",
+  "source_paths": {
+    "policy-engine/src/polisyos/scientist/methods/doe/sampling.py": "8e900abc324f80901b8b2c7a22f84563a1fac9c6",
+    "policy-engine/src/polisyos/scientist/methods/doe/designs.py": "1cdf2241318f08092d18936bca3fa130fd998b87"
+  },
+  "actual_dependency": "generate_sensitivity_samples(SensitivityPlan) \u2192 SALib.sample.morris.sample",
+  "consumer_assertion": "Consumed mutable effective plan cap must be checked before backend materialization; preserve actual round/direction/law contract",
+  "recipe": {
+    "argv": [
+      "/workspace/e02-D-doe-env/bin/python",
+      "/dev/shm/e02-D-transfer-oct07-uv2ehk7d/E_mutable_cap_probe.py"
+    ],
+    "env": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/workspace/e02-D-published-root/policy-engine/src"
+    },
+    "input_script_sha256": "3e31215321d0d9c9e71f78cd4d67b09c99c61c08e5a106da6730c0930c1ecdcf"
+  },
+  "complete_deciding_outputs": [
+    {
+      "path": "/dev/shm/e02-D-transfer-oct07-uv2ehk7d/E-mutable-cap.stdout",
+      "sha256": "8d7e75541fc92ba31c8fbb893867cd07bfc53244099cf8f94f52b1a223f4685a",
+      "bytes": 3339
+    },
+    {
+      "path": "/dev/shm/e02-D-transfer-oct07-uv2ehk7d/E-mutable-cap.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ],
+  "actual_check": "FAIL",
+  "minimum_request": "Owner source with public sampling seam revalidating consumed plan values before any SALib sampling; fresh bound receipt using original N2/cap5 control and mutated N5/estimated10 refusal; unchanged law/fingerprint/direction recipes separately",
+  "minimum_production_inputs": null,
+  "predicate_basis": "recomputed",
+  "proxy_divergence": "Pydantic plan construction admits N2; subsequent mutable N5 bypasses initial cap validation while preserving its constructor marker; actual public sampler produces10 rows rather than refusal",
+  "negative": "Mutable plan must not reach backend materialization; initial bounded plan remains positive",
+  "authority_limitations": [
+    "This does not close E B100 or authenticate a production/population input law",
+    "Exact source and SALib1.5.2 actual execution, finite experiment only",
+    "No E source edits; source newer than observed828 needs owner delta review",
+    "Locked native-GP env lacks SALib and its attempt is UNRUN, not PASS"
+  ]
+}

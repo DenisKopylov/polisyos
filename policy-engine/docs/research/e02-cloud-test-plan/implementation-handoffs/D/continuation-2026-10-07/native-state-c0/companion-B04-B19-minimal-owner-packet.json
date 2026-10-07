@@ -1,0 +1,74 @@
+{
+  "schema": "polisyos.e02.D.companion_owner_disposition_minref.v1",
+  "scope": "D GP/MO/state continuation companion labels B04/B19, not similarly named original finding IDs owned by A",
+  "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+  "B19_module_budget": {
+    "canonical_owner_from_contract": [
+      "team-architecture",
+      "team-devx(validation_tooling_size_budget)"
+    ],
+    "contract": {
+      "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "path": "policy-engine/architecture/module_size_budget.toml",
+      "blob": "09612cd289b45308a6285f283727f12428afed55",
+      "sha256": "07fb68f704cd4f11b7fa57683ea4ee41371319529e4248de27ab136b9caf2682"
+    },
+    "complete_command_receipt_root": "/dev/shm/e02-D-module-budget-c0-2ubu7oj_",
+    "complete_command": {
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "tools/quality/validation/architecture_report_only_contracts.py",
+        "--report",
+        "module-size"
+      ],
+      "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+      "env_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+      },
+      "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+      "claim": "actual canonical Python script invocation; no uv wrapper claimed"
+    },
+    "complete_output": {
+      "path": "/dev/shm/e02-D-module-budget-c0-2ubu7oj_/stdout.json",
+      "sha256": "9b4204d16bbfea64d82ead0f0376d7cf747fbf5455f33c95b0de151aa2491301",
+      "command_exit": 0,
+      "report_status": "contract_errors",
+      "contract_errors": 82,
+      "findings": 6,
+      "present_input_denominator": 7585,
+      "before_after_identical": true
+    },
+    "own_module_delta": {
+      "MOBayesianOptimizer_lines": 824,
+      "new_MO_checkpoint_tests": 510,
+      "new_inventory_tests": 249,
+      "default_warning": 1000,
+      "own_related_error_or_warning_count": 0,
+      "module_budget_not_expanded_or_waived": true
+    },
+    "minimum_owner_request": "Disposition for full82 canonical diagnostics (missing validation-script budgets/expired target dates and report-only gate metadata/sparse path availability); appoint any required global contract repair to existing architecture/devx owner. Do not infer global PASS from command0 or waive under inherited red.",
+    "provenance": "not_established as inherited; no exact slice-base command or zero-overlap denominator proof. Full output preserved."
+  },
+  "B04_state_reads": {
+    "canonical_tool": {
+      "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "path": "policy-engine/tools/quality/diagnostics/check_state_reads.py",
+      "blob": "772df3c9653d8e1a968a04afbddae847f955bcd7",
+      "sha256": "d29463920cd5c5850a0e674e669d958077c0c7b01af0d496bea66745bf51ba47"
+    },
+    "scope": "AST state_reads of Scientist builtin nodes, distinct from current strategycheckpoint runtime43/142/88.",
+    "own_source_path_overlap_with_state_reads_scan": "none; own edited strategies/codec/GP tests do not change builtin node execute/state_reads declarations.",
+    "minimum_owner_request": "Exact completed check_state_reads command source/tree/full stdout/stderr + owner disposition, or final frozen root canonical invocation. Leaf native strategy PASS does not replace AST companion.",
+    "available_leaf_check": "UNRUN for canonicalB04 command; no local ignored output asserted as transferred evidence."
+  },
+  "contract_logs": {
+    "strong_current_scope": "GP43/state142/MO88 andminimal55/15UNRUN complete argv/outputs/JUnit/phase/source6312 identity in portable currentc0 packet, with independentMath+Census reviews.",
+    "global_architecture_or_schema_frontend": "incomplete unless separately complete owner outputs; no claim inferred from local module-size execution.",
+    "publication_channel": "Git handoff only; no messages sent to other user chats.",
+    "minimal_inputs_only": true
+  },
+  "formal_G_acceptance": "not_established"
+}

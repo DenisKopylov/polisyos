@@ -1,0 +1,186 @@
+{
+  "schema": "D.e02.sealed-numerical-adapter-optional-publication-index.v1",
+  "unit": "D",
+  "author": "/root/math_oct07",
+  "created_utc": "2026-10-07T10:11:32.224135+00:00",
+  "topic": "codex/e02-D-oct07-continuation",
+  "slice_base": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "tested_source_distribution": {
+    "numerical154": {
+      "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+      "PASS": 154,
+      "disjoint_complement": {
+        "actual_executor": "gp_oct07",
+        "actual_MO88_cases": 27,
+        "modules": {
+          "test_multiobjective_hypervolume_admission.py": 18,
+          "test_mo_reference_representability.py": 9
+        },
+        "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+      },
+      "removal_fast_FAIL": 1,
+      "removal_missing_axis_FAIL": 1,
+      "currenta7": "Bounded unchanged-assertion carry only; original c0 execution remains c0, not current whole numerical replay."
+    },
+    "Adapter126": {
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+      "PASS": 126,
+      "module_counts": {
+        "test_strategy_adapter_factory_resume.py": 50,
+        "test_service_persistence.py": 72,
+        "test_sequence_generator_admission.py": 4
+      },
+      "history_removal_FAIL": 2,
+      "inner_JSON_removal_FAIL": 2,
+      "bounded_boundary": "Actual scalar/default-extractor/canonical-space Grid public factory/CAS/fresh resume; original criterion owner ledger decides full other strategy/scenario clauses."
+    },
+    "optional_minimal": {
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "contract_PASS": 55,
+      "numerical_UNRUN": 15,
+      "pytest_SKIP": 15,
+      "backend": "Torch/BoTorch/GPyTorch/HNSW absent; no native numerical PASS."
+    },
+    "optional_collection": {
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "nodes_collected": 53,
+      "module_SKIP_UNRUN": 2,
+      "call_phases": 0,
+      "scope": "Safe imports/collection only; no new GP/vector/factory functional PASS."
+    }
+  },
+  "finding_proposals": {
+    "B109": "bounded matched-original engineering closed proposal; Gpending",
+    "B110": "bounded matched-original engineering closed proposal; Gpending",
+    "B111": "bounded matched-original engineering closed proposal with distinct Champion genesis/successor publication guard scoped carry; Gpending",
+    "Adapter_other_five_occurrences": "Contribution only to B125/B127/LA014/LA015 canonical owner ledger; CTL01 LA015 companion preserved."
+  },
+  "separate_class": "Rational positive hypervolume float64 underflow is separately bounded from original B111 honest numeric-state criterion; no replacement of missing/nonfinite admission by positive geometry.",
+  "lossless_complete_output_verification": [
+    {
+      "path": "numerical/current-complete-deciding-output.json.gz",
+      "gzip_sha256": "97481c8d6ad736253ed9b302966bccfcbd9e1c7457ca6e27af1c683d88f627eb",
+      "bytes": 1192223,
+      "complete_path_bindings": 60,
+      "distinct_file_contents": 52,
+      "all_inner_bytes_and_hashes_verified": true
+    },
+    {
+      "path": "adapter/current-adapter-complete-deciding-output.json.gz",
+      "gzip_sha256": "541164130cb03232643477d0ff7bbf9387eedc2a2fdd456ad72aaf29edf6f0c3",
+      "bytes": 1974439,
+      "complete_path_bindings": 731,
+      "distinct_file_contents": 266,
+      "all_inner_bytes_and_hashes_verified": true
+    },
+    {
+      "path": "optional/optional-minimal-currenta7-complete-deciding-output.json.gz",
+      "gzip_sha256": "92f5f3189d1b5ab0c306091adba45c9695893b52cd6f651e06b82285e6542810",
+      "bytes": 401082,
+      "complete_path_bindings": 28,
+      "distinct_file_contents": 23,
+      "all_inner_bytes_and_hashes_verified": true
+    }
+  ],
+  "portable_path_bindings": [
+    {
+      "path": "numerical/current-numerical-handoff.json",
+      "origin_path": "/tmp/e02-D-math-current-final-4is8hd26/current-numerical-handoff.json",
+      "sha256": "0b1d9f194413e1b22dfa89cee88d81c315a7df582455cc690d8fc5835a7c1464",
+      "bytes": 54214
+    },
+    {
+      "path": "numerical/current-complete-deciding-output.json.gz",
+      "origin_path": "/tmp/e02-D-math-current-final-4is8hd26/current-complete-deciding-output.json.gz",
+      "sha256": "97481c8d6ad736253ed9b302966bccfcbd9e1c7457ca6e27af1c683d88f627eb",
+      "bytes": 1192223
+    },
+    {
+      "path": "numerical/B111-champion-unchanged-currentc0-carry.json",
+      "origin_path": "/tmp/e02-D-math-current-final-4is8hd26/B111-champion-unchanged-currentc0-carry.json",
+      "sha256": "2bd1732512af812df78b828c424c242baf5bf897846b23c816c9d351cb3cd10b",
+      "bytes": 2676
+    },
+    {
+      "path": "numerical/numerical-current-final-unchanged-carry.json",
+      "origin_path": "/tmp/e02-D-adapter-final-next-6zl5k0p2/numerical-current-final-unchanged-carry.json",
+      "sha256": "b43f5306e90103b5a177a3384c3165f61ffe5c1cb897179d50a11308cfd4357c",
+      "bytes": 10740
+    },
+    {
+      "path": "adapter/current-adapter-consumer-handoff.json",
+      "origin_path": "/tmp/e02-D-adapter-final-next-6zl5k0p2/current-adapter-consumer-handoff.json",
+      "sha256": "f20f2edec50343cfb1383018ff5eca3605d4c16f8c6ed37194480b6c65dba88f",
+      "bytes": 83801
+    },
+    {
+      "path": "adapter/current-adapter-complete-deciding-output.json.gz",
+      "origin_path": "/tmp/e02-D-adapter-final-next-6zl5k0p2/current-adapter-complete-deciding-output.json.gz",
+      "sha256": "541164130cb03232643477d0ff7bbf9387eedc2a2fdd456ad72aaf29edf6f0c3",
+      "bytes": 1974439
+    },
+    {
+      "path": "optional/optional-minimal-currenta7-receipt.json",
+      "origin_path": "/tmp/e02-D-adapter-final-next-6zl5k0p2/optional-minimal-currenta7-receipt.json",
+      "sha256": "a07cfab2c23f74d33280af969a937a60cd09ac85abcac73aeb8c489f1d1adace",
+      "bytes": 7138
+    },
+    {
+      "path": "optional/optional-minimal-currenta7-complete-deciding-output.json.gz",
+      "origin_path": "/tmp/e02-D-adapter-final-next-6zl5k0p2/optional-minimal-currenta7-complete-deciding-output.json.gz",
+      "sha256": "92f5f3189d1b5ab0c306091adba45c9695893b52cd6f651e06b82285e6542810",
+      "bytes": 401082
+    },
+    {
+      "path": "review/math-current-c0-independent-runtime-review.json",
+      "origin_path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/math-current-c0-independent-runtime-review.json",
+      "sha256": "d83c325b8910d6227a639213197bd9506b7eb3ea3ed04223e79c3c815c4565ec",
+      "bytes": 9013
+    },
+    {
+      "path": "review/math-current-c0-independent-handoff-review.json",
+      "origin_path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/math-current-c0-independent-handoff-review.json",
+      "sha256": "9ca962ee4e92a4121d6476b9571aa18ac4337fc3b357d0aa31235b3aef667097",
+      "bytes": 2739
+    },
+    {
+      "path": "review/math-a7-carry-independent-review.json",
+      "origin_path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/math-a7-carry-independent-review.json",
+      "sha256": "4c62a476495e8380dee75b0b391aa5e5a2a11272e45806a4182bf36ebc42d8e2",
+      "bytes": 10578
+    },
+    {
+      "path": "review/GP-MO-State-currentc0-independent-runtime-review.json",
+      "origin_path": "/tmp/e02-D-math-oct07-drafts/GP-MO-State-currentc0-independent-runtime-review.json",
+      "sha256": "07ed014e3b0404cf0112df7f535fd89da9cc216785401e2b3b4bf27ed545441a",
+      "bytes": 22719
+    },
+    {
+      "path": "review/B111-independent-champion469-review.json",
+      "origin_path": "/tmp/e02-D-math-oct07-drafts/B111-independent-champion469-review.json",
+      "sha256": "dae0e7d0751c4d2321b7a89323726406511ba38b66261547da06a0ec92462d0b",
+      "bytes": 2854
+    },
+    {
+      "path": "review/Adapter-final-a7-126-runtime-and-portable-independent-review.json",
+      "origin_path": "/dev/shm/e02-D-census-review-oct07/Adapter-final-a7-126-runtime-and-portable-independent-review.json",
+      "sha256": "0199e3c5be66c80a9e1b180e47edb9e14ab5414cc128f179e77169a0f29adc83",
+      "bytes": 8686
+    },
+    {
+      "path": "review/optional-minimal-currenta7-independent-review.json",
+      "origin_path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/optional-minimal-currenta7-independent-review.json",
+      "sha256": "e0d1a81a5bb8e697f7d125ffa10e1772e001d6285efe0f1a19a0223a9b0e3982",
+      "bytes": 1898
+    }
+  ],
+  "source_copy_policy": "No tracked code/test/source bodies copied; unique measurement harness and bounded actual CAS fixture bytes reside in existing deciding gzip, source/test identities are immutable Git bindings.",
+  "historical_attempts": "Earlier signal9/UNRUN and79/c0 authored fixture failures/removal inadequacy remain in original handoffs/complete deciding outputs. They are not recast as current PASS or inherited/P41 exemption.",
+  "pending_new_delta": "B124 frontier content-key/dedup ordinary bridge is still proposed after a7. Its final exact-source affected tests/review and numerical unchanged predicate qualification must be appended separately; this sealed archive claims no later-head acceptance.",
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "P41": "not_established; no inherited-red waiver",
+  "cleanup": "No cleanup by this leaf; deciding outputs and unique CAS inputs remain. Root coordinates any authorized cleanup; no permanent deletion/Trash clearing."
+}

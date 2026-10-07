@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/dev/shm/e02-D-lessons-asof828-_ozny_do/basetemp",
+    "--junitxml",
+    "/dev/shm/e02-D-lessons-asof828-_ozny_do/junit.xml",
+    "-q",
+    "tests/unit/scientist/search/test_lesson_as_of.py",
+    "tests/unit/scientist/search/test_lesson_partial_consumer.py"
+  ],
+  "cwd": "/workspace/e02-D-published-root/policy-engine",
+  "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "tree": "bb6213c0cde3246e63c04f749547f40f35644a15"
+}

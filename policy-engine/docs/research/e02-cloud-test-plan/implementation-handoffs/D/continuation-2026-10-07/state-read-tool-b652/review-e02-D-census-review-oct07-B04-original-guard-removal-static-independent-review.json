@@ -1,0 +1,16 @@
+{
+  "reviewer": "/root/census_oct07",
+  "decision": "GO_STATIC_REMOVAL_RUNTIME_UNRUN",
+  "plugin": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/B04_guard_removal.v3.py",
+  "sha256": "878b9d52684a4b63ea28a265d454dd5e0315e58db19466c9ea7a16e1a8610919",
+  "mutation": "Only existing _covers_prefix/_covers_exact comparison returns True; constructor admission, real main/AST visitor, selectedreadcontent/measurement/exit generation preserved.",
+  "negative_denominator": 5,
+  "actual_selectors": [
+    "missingrequired2",
+    "outside-selector2",
+    "asyncmissing1"
+  ],
+  "P37": "Actualselected fixturefile and execute(state) read remains under existingmain; required-read truth no longer gated.",
+  "P38": "Original missingread assertions require code1/FAIL; removedcoverage will produce0/PASS with same file/receiptmarkers, proving markedreadreceipt alone cannot establish declarationpredicate.",
+  "scope": "Bounded ASTdiagnostic only; no runtimeowner/scientific/findingAclosure."
+}

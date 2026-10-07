@@ -1,0 +1,58 @@
+{
+  "source_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/runtime.py",
+  "source_lines": {
+    "num_threads_env_or_inherited_default4": 19,
+    "actual_set_num_threads": 24
+  },
+  "source_bindings": [
+    {
+      "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+      "blob": "ac05f1c9f593fe2362e02f6250dcc345dfea72d7",
+      "sha256": "b48723be537cc65c2a2bb83aac8af0981fa0f6d8b782042f9bc9d2291c7ba799",
+      "identical_to_current": true
+    },
+    {
+      "source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "blob": "ac05f1c9f593fe2362e02f6250dcc345dfea72d7",
+      "sha256": "b48723be537cc65c2a2bb83aac8af0981fa0f6d8b782042f9bc9d2291c7ba799",
+      "identical_to_current": true
+    },
+    {
+      "source": "d610095905262a9b5b05b60c894018a681119367",
+      "blob": "ac05f1c9f593fe2362e02f6250dcc345dfea72d7",
+      "sha256": "b48723be537cc65c2a2bb83aac8af0981fa0f6d8b782042f9bc9d2291c7ba799",
+      "identical_to_current": true
+    },
+    {
+      "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "blob": "ac05f1c9f593fe2362e02f6250dcc345dfea72d7",
+      "sha256": "b48723be537cc65c2a2bb83aac8af0981fa0f6d8b782042f9bc9d2291c7ba799",
+      "identical_to_current": true
+    }
+  ],
+  "before_actual_threads": 5,
+  "after_actual_threads": 4,
+  "environment_captured": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null
+  },
+  "harness_sets_num_threads": false,
+  "claim": "existing unchangedproductionruntime default4 activated by actualoptimizer; no author/harnessnewcap introduced",
+  "SCIENTIST_TORCH_NUM_THREADS_environment": "OriginalStatebefore ENVscientific keys not captured. Actualcaptured standardthreadENV keys absent; actual recordedruntime5before/4after and runtime.py helperdefault4 identical828/469/d610/c0. Launcher didnotset any scientificthread keys; current unchangedambientscientific keys absent.",
+  "launcher_current_unchanged_ambient_environment": {
+    "SCIENTIST_TORCH_NUM_THREADS": null,
+    "SCIENTIST_TORCH_NUM_INTEROP_THREADS": null,
+    "SCIENTIST_TORCH_DEVICE": null,
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null
+  },
+  "actual_active_sibling_native_process_environment": [],
+  "limitations": [
+    "Scientific-specific ENVkeys were not captured inside the originalStateprocess before import; no retroactive historical ENVclaim.",
+    "Existing inherited productionhelper sets4; no author/harness introduced computationlimit and no current source/envchange."
+  ]
+}

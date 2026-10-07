@@ -1,0 +1,58 @@
+{
+  "original_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+  "original_tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d",
+  "current_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "current_tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+  "scope": "Only B111 primitive publication genesis/successor/cold-reader guard assertions on unchanged exact owner/test/source blobs and unchanged existing canonical serialization functions; not a current rerun or whole integration PASS",
+  "exact_unchanged_bindings": {
+    "policy-engine/src/polisyos/scientist/methods/autotune/registry.py": {
+      "source_sha256": "1339af524b604462021425b9d88f5cbe278f1a8c927827cb3e26fa4f8f0cc6ba",
+      "original_blob": "68affc2d2354e1a3cdd1e339916d74b811d88bea",
+      "current_blob": "68affc2d2354e1a3cdd1e339916d74b811d88bea"
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/models.py": {
+      "source_sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5",
+      "original_blob": "5335d35ba3967c9774dbd9d50dcbd02ae91a6786",
+      "current_blob": "5335d35ba3967c9774dbd9d50dcbd02ae91a6786"
+    },
+    "policy-engine/src/polisyos/core/artifacts/store.py": {
+      "source_sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165",
+      "original_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+      "current_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606"
+    },
+    "policy-engine/tests/unit/scientist/methods/autotune/test_benchmark_primitive_admission.py": {
+      "source_sha256": "1838267e2bca47f37ca6bf76b90c1872dd4490567244fc40a110c255600ad3f4",
+      "original_blob": "308ad8610a03f5790e75a0d250b6f4f466c6397a",
+      "current_blob": "308ad8610a03f5790e75a0d250b6f4f466c6397a"
+    }
+  },
+  "existing_common_serialization_definitions_AST_identical": [
+    "SerializationError",
+    "SerializationCycleError",
+    "SerializationDepthError",
+    "UnsupportedSerializationError",
+    "ArtifactIdentityProjectionError",
+    "SerializationPolicy",
+    "_as_model_dump",
+    "artifact_self_identity_projection",
+    "_try_tolist",
+    "_try_item",
+    "JsonDataVisitor",
+    "_is_container_like",
+    "_stable_collection_sort_key",
+    "to_python_data",
+    "strip_none",
+    "stable_json_dumps",
+    "fast_json_dumps_bytes",
+    "fast_json_dumps",
+    "fast_json_loads",
+    "extract_llm_json",
+    "extract_llm_json_object",
+    "_fenced_json_payloads",
+    "finite_real_scalar"
+  ],
+  "independent_original_review": "/tmp/e02-D-math-oct07-drafts/B111-independent-champion469-review.json",
+  "original_native_pytest_PASS": 21,
+  "original_external_proof_rows": 15,
+  "formal_G_acceptance": "not_established"
+}

@@ -1,0 +1,1309 @@
+{
+  "schema": "e02.D.independent-review.v1",
+  "reviewer": "census_oct07",
+  "role": "independent reviewer, no source/test authorship",
+  "status": "GO_B128_original_bounded_proposal_AND_B333_selected_combined_sync_profile",
+  "source": {
+    "sha": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+    "tree": "1a9f14f84e66f09c830134e2a6ee3e3f15e2b3cc"
+  },
+  "original_B128": {
+    "id": "B128@TRN-01",
+    "original_fragment": {
+      "document_key": "B_r19",
+      "lines": [
+        3417,
+        3430
+      ],
+      "byte_offset": 773355,
+      "bytes": 4127,
+      "sha256": "af4e4b72706ecdef581727483780ed33bff190d295add23a9813ed7b903ffb2b"
+    },
+    "original_acceptance_binding": {
+      "byte_offset": 776394,
+      "bytes": 619,
+      "sha256": "549b289852eaabc2275c031208657ce535c20cdd971105ff0e452e5f6662e5d7"
+    },
+    "original_acceptance_text": "**Приёмка:** реальный сохранённый Evaluation проходит существующий мост без ручного monkeypatch; несовместимая запись различается с действительно пустой историей; количество принятых, отклонённых и недоступных записей согласовано. Конструктор нельзя исправлять отдельно от B130–B132: сейчас эта ошибка маскирует последующие дефекты отбора и смысла."
+  },
+  "original_B128_proposal": "closed_bounded_original_criterion_proposal_G_pending",
+  "accepted_in_G": false,
+  "formal_closed": false,
+  "runtime_reviews": [
+    {
+      "mode": "empty4",
+      "counts": {
+        "PASS": 4,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "command": {
+        "argv": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "no:cacheprovider",
+          "-o",
+          "junit_family=xunit1",
+          "-o",
+          "junit_logging=all",
+          "-o",
+          "junit_log_passing_tests=true",
+          "--basetemp",
+          "/dev/shm/e02-D-transfer-empty4-viekcqkp/basetemp",
+          "--junitxml",
+          "/dev/shm/e02-D-transfer-empty4-viekcqkp/junit.xml",
+          "-q",
+          "tests/unit/scientist/agent/test_vector_generation_consumer.py::test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake"
+        ],
+        "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+        "source": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+        "tree": "1a9f14f84e66f09c830134e2a6ee3e3f15e2b3cc",
+        "status_porcelain": "",
+        "mode": "empty4",
+        "environment_overrides": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "TMPDIR": "/dev/shm/e02-D-transfer-empty4-viekcqkp/tmp",
+          "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+        },
+        "inputs": {
+          "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py": "31b30704d68690c610761371b25a750f9f1efbf3",
+          "policy-engine/tests/unit/scientist/agent/vector_generation_reader.py": "02a9e2074bdbfea3f57bcd950c6953a387cb6408",
+          "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py": "1a7e97f9b558f1a27c6977661b6797fcbbb38278",
+          "policy-engine/src/polisyos/scientist/agent/vector_memory.py": "3e68ab919b915427300869d6b378d12f585d1f00",
+          "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+          "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py": "40532c3c0d20eb8e64ea3b1589c7a1cbae5dedd6",
+          "policy-engine/src/polisyos/core/artifacts/store.py": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+          "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257"
+        },
+        "fixture_inputs": [
+          {
+            "path": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux/run_frozen_checks.py",
+            "sha256": "d39003c609bef48316af4e14a12f86a65f3ef146ba314d8545cbabad5914ce44",
+            "bytes": 6683
+          }
+        ],
+        "backend_profile": "actual HNSW0.8.0, NumPy2.3.5, Python3.14.7 locked environment; ordinary FileSystemCAS exact refs",
+        "seed_inputs": "Native default100, original deterministic measured2 donor rows; explicit empty/invalid/unsupported codec controls or ordinary1002 discovery snapshots, no production or scientific authority",
+        "compute_limits_introduced": false,
+        "classification": "current_D_persisted_intake_control",
+        "accepted_in_G": false,
+        "start_utc": "2026-10-07T08:58:59.624234+00:00"
+      },
+      "completion": {
+        "returncode": 0,
+        "elapsed_seconds": 12.46424215901061,
+        "end_utc": "2026-10-07T08:59:12.088704+00:00",
+        "source_after": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+        "status_after": "",
+        "combined_source_admission": null
+      },
+      "complete_files": [
+        {
+          "path": "/dev/shm/e02-D-transfer-empty4-viekcqkp/launch.json",
+          "sha256": "4ef157fb2edb10bb90c29089d4d1fa330b5a5c7306434582ce8620fb1e8cb928",
+          "bytes": 2708
+        },
+        {
+          "path": "/dev/shm/e02-D-transfer-empty4-viekcqkp/exit.json",
+          "sha256": "ad6d1b84102a721b6d9a570be686aae7de39d1f7239e8492b399d64adbb0776f",
+          "bytes": 232
+        },
+        {
+          "path": "/dev/shm/e02-D-transfer-empty4-viekcqkp/stdout.txt",
+          "sha256": "b99d6e98c2a04feeb377461040393eda373ce0f9d0bf71c7bf4d7ec124c9bf24",
+          "bytes": 1092
+        },
+        {
+          "path": "/dev/shm/e02-D-transfer-empty4-viekcqkp/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/dev/shm/e02-D-transfer-empty4-viekcqkp/junit.xml",
+          "sha256": "8b269ce39d3f8e8977c3907b1c8734ffacbd7f4b27f8c8c6eefbc113d9cc959f",
+          "bytes": 6112
+        }
+      ],
+      "actual_testcases": [
+        {
+          "name": "test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake[empty]",
+          "phase_result": "PASS",
+          "properties": {
+            "persisted_intake_receipt": {
+              "bundle_ref": {
+                "artifact_id": "sha256:2a7e50277392f9a6a87d1b35e7413c4cae64573f570074f8e68d4f42c6aecce5",
+                "kind": "vector_memory.bundle",
+                "media_type": "application/json"
+              },
+              "history_ref": {
+                "artifact_id": "sha256:1df308aac3527369caaaebc3ef2bdf4a3c4cbff449702124bbf5e1d966f4b2e8",
+                "kind": "search.transfer.history",
+                "media_type": "application/json"
+              },
+              "intake": "empty",
+              "report": {
+                "accepted": 0,
+                "loaded": 0,
+                "rejected": 0,
+                "rejections": [],
+                "selected": 0,
+                "unavailable": 0
+              }
+            }
+          },
+          "failure_text": null
+        },
+        {
+          "name": "test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake[invalid]",
+          "phase_result": "PASS",
+          "properties": {
+            "persisted_intake_receipt": {
+              "bundle_ref": {
+                "artifact_id": "sha256:c5d0ec9402961f0208b2074dbccb86cd6cd6fa9d0a840b19e4d480a5c86c9bef",
+                "kind": "vector_memory.bundle",
+                "media_type": "application/json"
+              },
+              "history_ref": {
+                "artifact_id": "sha256:79fd29f824af8b4ecfcdbffbef15343da24479160399a33c4300492382c72a88",
+                "kind": "search.transfer.history",
+                "media_type": "application/json"
+              },
+              "intake": "invalid",
+              "report": {
+                "accepted": 0,
+                "loaded": 2,
+                "rejected": 2,
+                "rejections": [
+                  {
+                    "reason": "scalar_score must be a finite JSON number",
+                    "row_index": 0,
+                    "run_id": "source"
+                  },
+                  {
+                    "reason": "scalar_score must be a finite JSON number",
+                    "row_index": 1,
+                    "run_id": "source"
+                  }
+                ],
+                "selected": 0,
+                "unavailable": 0
+              }
+            }
+          },
+          "failure_text": null
+        },
+        {
+          "name": "test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake[unavailable]",
+          "phase_result": "PASS",
+          "properties": {
+            "persisted_intake_receipt": {
+              "bundle_ref": {
+                "artifact_id": "sha256:93a96bc1f2b17a72d920c86619ce46d64cbdeac1be57c76a97f727e570427540",
+                "kind": "vector_memory.bundle",
+                "media_type": "application/json"
+              },
+              "history_ref": {
+                "artifact_id": "sha256:1efff08bddae0738feba1b97a4f2252c2588433f5ee089aa54781833ee0f2f60",
+                "kind": "search.transfer.history",
+                "media_type": "application/json"
+              },
+              "intake": "unavailable",
+              "report": {
+                "accepted": 0,
+                "loaded": 0,
+                "rejected": 0,
+                "rejections": [
+                  {
+                    "reason": "Unsupported transfer history codec: explicit v2 fingerprint required",
+                    "run_id": "source"
+                  }
+                ],
+                "selected": 0,
+                "unavailable": 1
+              }
+            }
+          },
+          "failure_text": null
+        },
+        {
+          "name": "test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake[nonempty]",
+          "phase_result": "PASS",
+          "properties": {
+            "persisted_intake_receipt": {
+              "bundle_ref": {
+                "artifact_id": "sha256:967c571a5484427a13e7980d7d55a125c70e84210a81ffc1bf7406f4edf015a1",
+                "kind": "vector_memory.bundle",
+                "media_type": "application/json"
+              },
+              "history_ref": {
+                "artifact_id": "sha256:f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28",
+                "kind": "search.transfer.history",
+                "media_type": "application/json"
+              },
+              "intake": "nonempty",
+              "report": {
+                "accepted": 2,
+                "loaded": 2,
+                "rejected": 0,
+                "rejections": [],
+                "selected": 2,
+                "unavailable": 0
+              }
+            }
+          },
+          "failure_text": null
+        }
+      ],
+      "independently_verified_actual_module_origins": []
+    },
+    {
+      "mode": "empty-removal4",
+      "counts": {
+        "PASS": 1,
+        "FAIL": 3,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "command": {
+        "argv": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "no:cacheprovider",
+          "-o",
+          "junit_family=xunit1",
+          "-o",
+          "junit_logging=all",
+          "-o",
+          "junit_log_passing_tests=true",
+          "--basetemp",
+          "/dev/shm/e02-D-transfer-empty-removal4-br1sm24z/basetemp",
+          "--junitxml",
+          "/dev/shm/e02-D-transfer-empty-removal4-br1sm24z/junit.xml",
+          "-q",
+          "-p",
+          "remove_intake_distinction",
+          "tests/unit/scientist/agent/test_vector_generation_consumer.py::test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake"
+        ],
+        "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+        "source": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+        "tree": "1a9f14f84e66f09c830134e2a6ee3e3f15e2b3cc",
+        "status_porcelain": "",
+        "mode": "empty-removal4",
+        "environment_overrides": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "TMPDIR": "/dev/shm/e02-D-transfer-empty-removal4-br1sm24z/tmp",
+          "PYTHONPATH": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux:/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+        },
+        "inputs": {
+          "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py": "31b30704d68690c610761371b25a750f9f1efbf3",
+          "policy-engine/tests/unit/scientist/agent/vector_generation_reader.py": "02a9e2074bdbfea3f57bcd950c6953a387cb6408",
+          "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py": "1a7e97f9b558f1a27c6977661b6797fcbbb38278",
+          "policy-engine/src/polisyos/scientist/agent/vector_memory.py": "3e68ab919b915427300869d6b378d12f585d1f00",
+          "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+          "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py": "40532c3c0d20eb8e64ea3b1589c7a1cbae5dedd6",
+          "policy-engine/src/polisyos/core/artifacts/store.py": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+          "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257"
+        },
+        "fixture_inputs": [
+          {
+            "path": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux/run_frozen_checks.py",
+            "sha256": "d39003c609bef48316af4e14a12f86a65f3ef146ba314d8545cbabad5914ce44",
+            "bytes": 6683
+          },
+          {
+            "path": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux/remove_intake_distinction.py",
+            "sha256": "6ca29a6d76299e063f8f81d1d2128e28ed3941b400609a4ca81098a30d8a9d45",
+            "bytes": 497
+          }
+        ],
+        "backend_profile": "actual HNSW0.8.0, NumPy2.3.5, Python3.14.7 locked environment; ordinary FileSystemCAS exact refs",
+        "seed_inputs": "Native default100, original deterministic measured2 donor rows; explicit empty/invalid/unsupported codec controls or ordinary1002 discovery snapshots, no production or scientific authority",
+        "compute_limits_introduced": false,
+        "classification": "current_D_persisted_intake_control",
+        "accepted_in_G": false,
+        "start_utc": "2026-10-07T08:58:59.630138+00:00"
+      },
+      "completion": {
+        "returncode": 1,
+        "elapsed_seconds": 14.098623739002505,
+        "end_utc": "2026-10-07T08:59:13.729071+00:00",
+        "source_after": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+        "status_after": "",
+        "combined_source_admission": null
+      },
+      "complete_files": [
+        {
+          "path": "/dev/shm/e02-D-transfer-empty-removal4-br1sm24z/launch.json",
+          "sha256": "12dc06a901c0dcacb0fbb886019f19b12a6b0b90b9d67dfa05075e0a976cb020",
+          "bytes": 3037
+        },
+        {
+          "path": "/dev/shm/e02-D-transfer-empty-removal4-br1sm24z/exit.json",
+          "sha256": "baabaf97878ab28caf530c04dd4482cde2111c7ef472a312410f3602c0af9837",
+          "bytes": 233
+        },
+        {
+          "path": "/dev/shm/e02-D-transfer-empty-removal4-br1sm24z/stdout.txt",
+          "sha256": "90ec7d96e63d7e1cf4f9dfedf40c3d7fef6f95d0f296fb1069a17e55523e2f07",
+          "bytes": 12507
+        },
+        {
+          "path": "/dev/shm/e02-D-transfer-empty-removal4-br1sm24z/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/dev/shm/e02-D-transfer-empty-removal4-br1sm24z/junit.xml",
+          "sha256": "aa9685112fe58e78c3e4245a24303ae1d3be24cd0f7b8ea2099cb1c9166d65c8",
+          "bytes": 15336
+        }
+      ],
+      "actual_testcases": [
+        {
+          "name": "test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake[empty]",
+          "phase_result": "PASS",
+          "properties": {
+            "persisted_intake_receipt": {
+              "bundle_ref": {
+                "artifact_id": "sha256:2a7e50277392f9a6a87d1b35e7413c4cae64573f570074f8e68d4f42c6aecce5",
+                "kind": "vector_memory.bundle",
+                "media_type": "application/json"
+              },
+              "history_ref": {
+                "artifact_id": "sha256:1df308aac3527369caaaebc3ef2bdf4a3c4cbff449702124bbf5e1d966f4b2e8",
+                "kind": "search.transfer.history",
+                "media_type": "application/json"
+              },
+              "intake": "empty",
+              "report": {
+                "accepted": 0,
+                "loaded": 0,
+                "rejected": 0,
+                "rejections": [],
+                "selected": 0,
+                "unavailable": 0
+              }
+            }
+          },
+          "failure_text": null
+        },
+        {
+          "name": "test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake[invalid]",
+          "phase_result": "FAILURE",
+          "properties": {},
+          "failure_text": "tmp_path = PosixPath('/dev/shm/e02-D-transfer-empty-removal4-br1sm24z/basetemp/test_persisted_empty_transfer_1')\nrecord_property = <function record_property.<locals>.append_property at 0x7fea8f9b99b0>\nintake = 'invalid'\n\n    @pytest.mark.parametrize(\"intake\", [\"empty\", \"invalid\", \"unavailable\", \"nonempty\"])\n    def test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake(\n        tmp_path, record_property, intake\n    ):\n        pytest.importorskip(\"hnswlib\")\n        from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge\n        from polisyos.scientist.methods.search.strategies.transfer import (\n            TransferLearningManager,\n        )\n        from tests.unit.scientist.methods.search.strategies.test_transfer import (\n            changed_history,\n            measured_history,\n        )\n    \n        store, index, _, source, target, originals, _ = measured_history(tmp_path, count=2)\n    \n        def change(payload):\n            if intake == \"empty\":\n                payload[\"evaluations\"].clear()\n            elif intake == \"invalid\":\n                for row in payload[\"evaluations\"]:\n                    row[\"scalar_score\"] = False\n            elif intake == \"unavailable\":\n                payload[\"schema_version\"] = \"unsupported\"\n    \n        persisted = changed_history(store, source, change)\n        snapshot = store.get_verified_snapshot(persisted.history_ref)\n        assert snapshot.manifest.kind == \"search.transfer.history\"\n        assert snapshot.manifest.media_type == \"application/json\"\n        payload = canon.from_canonical_bytes(snapshot.data)\n        assert len(payload[\"evaluations\"]) == (0 if intake == \"empty\" else 2)\n        metadata = persisted.model_dump(mode=\"json\", exclude={\"history_ref\", \"embedding\"})\n        metadata[\"history_ref\"] = persisted.history_ref.model_dump(mode=\"json\")\n        index.add(persisted.run_id, persisted.embedding, metadata)\n        bundle = index.save_to_artifact(store)\n    \n        # A fresh native generation and fresh CAS owner supply the ordinary bridge.\n        # This is a reader fixture, not a change to the empty register_run policy.\n        reopened_store = FileSystemCAS(store.root)\n        reopened_index = VectorMemoryStore(dim=2, max_elements=10)\n        reopened_index.load_from_artifact(reopened_store, bundle)\n        manager = TransferLearningManager(reopened_store, reopened_index)\n        discovered = manager.find_similar_runs(target)\n        assert len(discovered) == 1 and discovered[0].history_ref == persisted.history_ref\n        bridge = WarmStartBridge(manager, max_evals=2, top_k_runs=1)\n        rows = bridge.load_warm_start(target)\n        report = bridge.last_load_report\n        counts = {\n            name: report[name] for name in (\"loaded\", \"accepted\", \"rejected\", \"unavailable\", \"selected\")\n        }\n        expected = {\n            \"empty\": dict(loaded=0, accepted=0, rejected=0, unavailable=0, selected=0),\n            \"invalid\": dict(loaded=2, accepted=0, rejected=2, unavailable=0, selected=0),\n            \"unavailable\": dict(loaded=0, accepted=0, rejected=0, unavailable=1, selected=0),\n            \"nonempty\": dict(loaded=2, accepted=2, rejected=0, unavailable=0, selected=2),\n        }\n>       assert counts == expected[intake]\nE       AssertionError: assert {'accepted': ...cted': 0, ...} == {'accepted': ...cted': 0, ...}\nE         \nE         Omitting 3 identical items, use -vv to show\nE         Differing items:\nE         {'rejected': 0} != {'rejected': 2}\nE         {'loaded': 0} != {'loaded': 2}\nE         Use -v to get more diff\n\ntests/unit/scientist/agent/test_vector_generation_consumer.py:252: AssertionError"
+        },
+        {
+          "name": "test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake[unavailable]",
+          "phase_result": "FAILURE",
+          "properties": {},
+          "failure_text": "tmp_path = PosixPath('/dev/shm/e02-D-transfer-empty-removal4-br1sm24z/basetemp/test_persisted_empty_transfer_2')\nrecord_property = <function record_property.<locals>.append_property at 0x7fea8f9bbab0>\nintake = 'unavailable'\n\n    @pytest.mark.parametrize(\"intake\", [\"empty\", \"invalid\", \"unavailable\", \"nonempty\"])\n    def test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake(\n        tmp_path, record_property, intake\n    ):\n        pytest.importorskip(\"hnswlib\")\n        from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge\n        from polisyos.scientist.methods.search.strategies.transfer import (\n            TransferLearningManager,\n        )\n        from tests.unit.scientist.methods.search.strategies.test_transfer import (\n            changed_history,\n            measured_history,\n        )\n    \n        store, index, _, source, target, originals, _ = measured_history(tmp_path, count=2)\n    \n        def change(payload):\n            if intake == \"empty\":\n                payload[\"evaluations\"].clear()\n            elif intake == \"invalid\":\n                for row in payload[\"evaluations\"]:\n                    row[\"scalar_score\"] = False\n            elif intake == \"unavailable\":\n                payload[\"schema_version\"] = \"unsupported\"\n    \n        persisted = changed_history(store, source, change)\n        snapshot = store.get_verified_snapshot(persisted.history_ref)\n        assert snapshot.manifest.kind == \"search.transfer.history\"\n        assert snapshot.manifest.media_type == \"application/json\"\n        payload = canon.from_canonical_bytes(snapshot.data)\n        assert len(payload[\"evaluations\"]) == (0 if intake == \"empty\" else 2)\n        metadata = persisted.model_dump(mode=\"json\", exclude={\"history_ref\", \"embedding\"})\n        metadata[\"history_ref\"] = persisted.history_ref.model_dump(mode=\"json\")\n        index.add(persisted.run_id, persisted.embedding, metadata)\n        bundle = index.save_to_artifact(store)\n    \n        # A fresh native generation and fresh CAS owner supply the ordinary bridge.\n        # This is a reader fixture, not a change to the empty register_run policy.\n        reopened_store = FileSystemCAS(store.root)\n        reopened_index = VectorMemoryStore(dim=2, max_elements=10)\n        reopened_index.load_from_artifact(reopened_store, bundle)\n        manager = TransferLearningManager(reopened_store, reopened_index)\n        discovered = manager.find_similar_runs(target)\n        assert len(discovered) == 1 and discovered[0].history_ref == persisted.history_ref\n        bridge = WarmStartBridge(manager, max_evals=2, top_k_runs=1)\n        rows = bridge.load_warm_start(target)\n        report = bridge.last_load_report\n        counts = {\n            name: report[name] for name in (\"loaded\", \"accepted\", \"rejected\", \"unavailable\", \"selected\")\n        }\n        expected = {\n            \"empty\": dict(loaded=0, accepted=0, rejected=0, unavailable=0, selected=0),\n            \"invalid\": dict(loaded=2, accepted=0, rejected=2, unavailable=0, selected=0),\n            \"unavailable\": dict(loaded=0, accepted=0, rejected=0, unavailable=1, selected=0),\n            \"nonempty\": dict(loaded=2, accepted=2, rejected=0, unavailable=0, selected=2),\n        }\n>       assert counts == expected[intake]\nE       AssertionError: assert {'accepted': ...cted': 0, ...} == {'accepted': ...cted': 0, ...}\nE         \nE         Omitting 4 identical items, use -vv to show\nE         Differing items:\nE         {'unavailable': 0} != {'unavailable': 1}\nE         Use -v to get more diff\n\ntests/unit/scientist/agent/test_vector_generation_consumer.py:252: AssertionError"
+        },
+        {
+          "name": "test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake[nonempty]",
+          "phase_result": "FAILURE",
+          "properties": {},
+          "failure_text": "tmp_path = PosixPath('/dev/shm/e02-D-transfer-empty-removal4-br1sm24z/basetemp/test_persisted_empty_transfer_3')\nrecord_property = <function record_property.<locals>.append_property at 0x7fea8f7e03b0>\nintake = 'nonempty'\n\n    @pytest.mark.parametrize(\"intake\", [\"empty\", \"invalid\", \"unavailable\", \"nonempty\"])\n    def test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake(\n        tmp_path, record_property, intake\n    ):\n        pytest.importorskip(\"hnswlib\")\n        from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge\n        from polisyos.scientist.methods.search.strategies.transfer import (\n            TransferLearningManager,\n        )\n        from tests.unit.scientist.methods.search.strategies.test_transfer import (\n            changed_history,\n            measured_history,\n        )\n    \n        store, index, _, source, target, originals, _ = measured_history(tmp_path, count=2)\n    \n        def change(payload):\n            if intake == \"empty\":\n                payload[\"evaluations\"].clear()\n            elif intake == \"invalid\":\n                for row in payload[\"evaluations\"]:\n                    row[\"scalar_score\"] = False\n            elif intake == \"unavailable\":\n                payload[\"schema_version\"] = \"unsupported\"\n    \n        persisted = changed_history(store, source, change)\n        snapshot = store.get_verified_snapshot(persisted.history_ref)\n        assert snapshot.manifest.kind == \"search.transfer.history\"\n        assert snapshot.manifest.media_type == \"application/json\"\n        payload = canon.from_canonical_bytes(snapshot.data)\n        assert len(payload[\"evaluations\"]) == (0 if intake == \"empty\" else 2)\n        metadata = persisted.model_dump(mode=\"json\", exclude={\"history_ref\", \"embedding\"})\n        metadata[\"history_ref\"] = persisted.history_ref.model_dump(mode=\"json\")\n        index.add(persisted.run_id, persisted.embedding, metadata)\n        bundle = index.save_to_artifact(store)\n    \n        # A fresh native generation and fresh CAS owner supply the ordinary bridge.\n        # This is a reader fixture, not a change to the empty register_run policy.\n        reopened_store = FileSystemCAS(store.root)\n        reopened_index = VectorMemoryStore(dim=2, max_elements=10)\n        reopened_index.load_from_artifact(reopened_store, bundle)\n        manager = TransferLearningManager(reopened_store, reopened_index)\n        discovered = manager.find_similar_runs(target)\n        assert len(discovered) == 1 and discovered[0].history_ref == persisted.history_ref\n        bridge = WarmStartBridge(manager, max_evals=2, top_k_runs=1)\n        rows = bridge.load_warm_start(target)\n        report = bridge.last_load_report\n        counts = {\n            name: report[name] for name in (\"loaded\", \"accepted\", \"rejected\", \"unavailable\", \"selected\")\n        }\n        expected = {\n            \"empty\": dict(loaded=0, accepted=0, rejected=0, unavailable=0, selected=0),\n            \"invalid\": dict(loaded=2, accepted=0, rejected=2, unavailable=0, selected=0),\n            \"unavailable\": dict(loaded=0, accepted=0, rejected=0, unavailable=1, selected=0),\n            \"nonempty\": dict(loaded=2, accepted=2, rejected=0, unavailable=0, selected=2),\n        }\n>       assert counts == expected[intake]\nE       AssertionError: assert {'accepted': ...cted': 0, ...} == {'accepted': ...cted': 2, ...}\nE         \nE         Omitting 2 identical items, use -vv to show\nE         Differing items:\nE         {'accepted': 0} != {'accepted': 2}\nE         {'loaded': 0} != {'loaded': 2}\nE         {'selected': 0} != {'selected': 2}\nE         Use -v to get more diff\n\ntests/unit/scientist/agent/test_vector_generation_consumer.py:252: AssertionError"
+        }
+      ],
+      "independently_verified_actual_module_origins": []
+    },
+    {
+      "mode": "B333-pair2",
+      "counts": {
+        "PASS": 2,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "command": {
+        "argv": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "no:cacheprovider",
+          "-o",
+          "junit_family=xunit1",
+          "-o",
+          "junit_logging=all",
+          "-o",
+          "junit_log_passing_tests=true",
+          "--basetemp",
+          "/dev/shm/e02-D-transfer-B333-pair2-quxhpygc/basetemp",
+          "--junitxml",
+          "/dev/shm/e02-D-transfer-B333-pair2-quxhpygc/junit.xml",
+          "-q",
+          "tests/unit/scientist/agent/test_vector_generation_consumer.py::test_exact_transfer_reference_beyond_1000_keys_survives_fresh_native_reader",
+          "tests/unit/scientist/agent/test_vector_generation_consumer.py::test_valid_cas_legacy_native_nonfinite_refuses_before_pointer_publication"
+        ],
+        "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+        "source": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+        "tree": "1a9f14f84e66f09c830134e2a6ee3e3f15e2b3cc",
+        "status_porcelain": "",
+        "mode": "B333-pair2",
+        "environment_overrides": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "TMPDIR": "/dev/shm/e02-D-transfer-B333-pair2-quxhpygc/tmp",
+          "PYTHONPATH": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux/B333-pair:/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine",
+          "E02_CAS_PAIR_ORIGINS": "/dev/shm/e02-D-transfer-B333-pair2-quxhpygc/module-origins"
+        },
+        "inputs": {
+          "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py": "31b30704d68690c610761371b25a750f9f1efbf3",
+          "policy-engine/tests/unit/scientist/agent/vector_generation_reader.py": "02a9e2074bdbfea3f57bcd950c6953a387cb6408",
+          "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py": "1a7e97f9b558f1a27c6977661b6797fcbbb38278",
+          "policy-engine/src/polisyos/scientist/agent/vector_memory.py": "3e68ab919b915427300869d6b378d12f585d1f00",
+          "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+          "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py": "40532c3c0d20eb8e64ea3b1589c7a1cbae5dedd6",
+          "policy-engine/src/polisyos/core/artifacts/store.py": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+          "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257"
+        },
+        "fixture_inputs": [
+          {
+            "path": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux/run_frozen_checks.py",
+            "sha256": "d39003c609bef48316af4e14a12f86a65f3ef146ba314d8545cbabad5914ce44",
+            "bytes": 6683
+          },
+          {
+            "path": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux/B333-pair/sitecustomize.py",
+            "sha256": "46249faf6bf51b1a62b709df255d94cfa0ddac761a0a6b6cb60b5adf6f14cb95",
+            "bytes": 1803
+          },
+          {
+            "path": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux/B333-pair/B333-module-map.json",
+            "sha256": "39f2c6771f2fba5ba096edd7dc148e199406e21c97a33f522256a7fede9d2f9b",
+            "bytes": 3408
+          }
+        ],
+        "backend_profile": "actual HNSW0.8.0, NumPy2.3.5, Python3.14.7 locked environment; ordinary FileSystemCAS exact refs",
+        "seed_inputs": "Native default100, original deterministic measured2 donor rows; explicit empty/invalid/unsupported codec controls or ordinary1002 discovery snapshots, no production or scientific authority",
+        "compute_limits_introduced": false,
+        "classification": "combined_dependency_profile",
+        "accepted_in_G": false,
+        "start_utc": "2026-10-07T08:58:59.649246+00:00",
+        "B_canonical_module_map": {
+          "repository": "/dev/shm/e02-D-oct07-continuation",
+          "source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+          "modules": {
+            "polisyos.core.artifacts._integrity_ops": {
+              "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+              "D_blob": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257",
+              "B_blob": "557fbb829dec5e9f349e5de7a7d5013ca1c2a2ef",
+              "D_sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b",
+              "B_sha256": "768aa83084c85e8b501cacad1a94ece535e08b78e7070cee619c249df11cbfe4",
+              "B_bytes": 12619
+            },
+            "polisyos.core.artifacts._signature_ops": {
+              "path": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+              "D_blob": "40acc7887fb09fdc567af6edfadff82ea2c01b9a",
+              "B_blob": "5c483b787d7afbef8b489383e5a01fc9734af6e7",
+              "D_sha256": "35a8af3422febca80a8f3584117bc2464a5468a0f73482c738e8255760f7fbfb",
+              "B_sha256": "0627738427829a9f7489082297635c1b604d987182aca1e5559b2bafc510cb85",
+              "B_bytes": 18059
+            },
+            "polisyos.core.artifacts._transfer_ops": {
+              "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+              "D_blob": "43012c9fdbdc20fd79081239d3a0c474c050a385",
+              "B_blob": "70f7a735755f56dbf2cfd7ad5e4859cd17bf91a9",
+              "D_sha256": "641553dd8b105a31c406d3af9d2477efa75f093755afc41f9af97816ebc817d6",
+              "B_sha256": "27709becae4680c5a16445a4bfea2270dc1de8a2cea93b06c30205104c9e00b7",
+              "B_bytes": 46449
+            },
+            "polisyos.core.artifacts.async_store": {
+              "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+              "D_blob": "a664d69d1d0ba58841c530a901783977072523b2",
+              "B_blob": "1111ad75ed6632d87280e5699845811ec355bfbb",
+              "D_sha256": "6b50f6cc1cf136e6eac66c3ff72745481495a13e18ab0d2ae8209f88863919fe",
+              "B_sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078",
+              "B_bytes": 7518
+            },
+            "polisyos.core.artifacts.signing": {
+              "path": "policy-engine/src/polisyos/core/artifacts/signing.py",
+              "D_blob": "cc3082cdf613707d6df284266fc8c97e565bba84",
+              "B_blob": "8aa4cdd46dc9de873df15b977ed6576eb11bb30f",
+              "D_sha256": "5d4a19ab6a2c8b5caacb3c7c74caf3625c24d4e5e51873d131292a682738b568",
+              "B_sha256": "2b58237eddbafa61bb6bd7a41b5e7f2cf96553c92406f1edf4cbbf236934261d",
+              "B_bytes": 30675
+            },
+            "polisyos.core.artifacts.store": {
+              "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+              "D_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+              "B_blob": "02e3253de23db5d64c21b69ce4cc85daa4f0778c",
+              "D_sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165",
+              "B_sha256": "627676dcb74c442b7e3f30a64bf7b4023e4ef5f1a8f2dac1d37fdf3e69654a4f",
+              "B_bytes": 190227,
+              "D_get_verified_snapshot_ast": "ab7320ace61de46d8e7adc1f7652f7e9a3bb8bc010af19c702cd61f9f6f65c71",
+              "B_get_verified_snapshot_ast": "ab7320ace61de46d8e7adc1f7652f7e9a3bb8bc010af19c702cd61f9f6f65c71"
+            },
+            "polisyos.common.async_tools": {
+              "path": "policy-engine/src/polisyos/common/async_tools.py",
+              "D_blob": "1f60973c35cfdd8bcf9629f675bcb7d30235fcfa",
+              "B_blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+              "D_sha256": "5153fff118f7d791abb72b6878b409ca226ceceb2411fd413756f66a694d8406",
+              "B_sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+              "B_bytes": 11846
+            }
+          }
+        }
+      },
+      "completion": {
+        "returncode": 0,
+        "elapsed_seconds": 23.569213242997648,
+        "end_utc": "2026-10-07T08:59:23.218843+00:00",
+        "source_after": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+        "status_after": "",
+        "combined_source_admission": {
+          "groups": [
+            {
+              "path": "/dev/shm/e02-D-transfer-B333-pair2-quxhpygc/module-origins.485202.jsonl",
+              "valid": true,
+              "pid": 485202,
+              "modules": [
+                "polisyos.common.async_tools",
+                "polisyos.core.artifacts._integrity_ops",
+                "polisyos.core.artifacts._signature_ops",
+                "polisyos.core.artifacts._transfer_ops",
+                "polisyos.core.artifacts.async_store",
+                "polisyos.core.artifacts.signing",
+                "polisyos.core.artifacts.store"
+              ]
+            },
+            {
+              "path": "/dev/shm/e02-D-transfer-B333-pair2-quxhpygc/module-origins.485821.jsonl",
+              "valid": true,
+              "pid": 485821,
+              "modules": [
+                "polisyos.common.async_tools",
+                "polisyos.core.artifacts._integrity_ops",
+                "polisyos.core.artifacts._signature_ops",
+                "polisyos.core.artifacts._transfer_ops",
+                "polisyos.core.artifacts.async_store",
+                "polisyos.core.artifacts.signing",
+                "polisyos.core.artifacts.store"
+              ]
+            },
+            {
+              "path": "/dev/shm/e02-D-transfer-B333-pair2-quxhpygc/module-origins.485845.jsonl",
+              "valid": true,
+              "pid": 485845,
+              "modules": [
+                "polisyos.common.async_tools",
+                "polisyos.core.artifacts._integrity_ops",
+                "polisyos.core.artifacts._signature_ops",
+                "polisyos.core.artifacts._transfer_ops",
+                "polisyos.core.artifacts.async_store",
+                "polisyos.core.artifacts.signing",
+                "polisyos.core.artifacts.store"
+              ]
+            },
+            {
+              "path": "/dev/shm/e02-D-transfer-B333-pair2-quxhpygc/module-origins.485864.jsonl",
+              "valid": true,
+              "pid": 485864,
+              "modules": [
+                "polisyos.common.async_tools",
+                "polisyos.core.artifacts._integrity_ops",
+                "polisyos.core.artifacts._signature_ops",
+                "polisyos.core.artifacts._transfer_ops",
+                "polisyos.core.artifacts.async_store",
+                "polisyos.core.artifacts.signing",
+                "polisyos.core.artifacts.store"
+              ]
+            }
+          ],
+          "minimum_processes": 4,
+          "accepted": true
+        }
+      },
+      "complete_files": [
+        {
+          "path": "/dev/shm/e02-D-transfer-B333-pair2-quxhpygc/launch.json",
+          "sha256": "f65ce38bcd6e6060e73bd5f45871f3ca4b180800b814f97f4eecbfa879d439fd",
+          "bytes": 6986
+        },
+        {
+          "path": "/dev/shm/e02-D-transfer-B333-pair2-quxhpygc/exit.json",
+          "sha256": "5024984d55e384822978ecfa038de217c5eab363bf1ddcd9b28a3f66c07a56b9",
+          "bytes": 2373
+        },
+        {
+          "path": "/dev/shm/e02-D-transfer-B333-pair2-quxhpygc/stdout.txt",
+          "sha256": "b387bb0856b92f2d6d22f8066fd35ef07ce68f22827573b9995dd39127e473a4",
+          "bytes": 1074
+        },
+        {
+          "path": "/dev/shm/e02-D-transfer-B333-pair2-quxhpygc/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/dev/shm/e02-D-transfer-B333-pair2-quxhpygc/junit.xml",
+          "sha256": "8436e217a51e0f3c1f29cd14baceda41c07b637c678566f901c593c3af123a48",
+          "bytes": 19560
+        }
+      ],
+      "actual_testcases": [
+        {
+          "name": "test_exact_transfer_reference_beyond_1000_keys_survives_fresh_native_reader",
+          "phase_result": "PASS",
+          "properties": {
+            "fresh_native_receipt": {
+              "status": "admitted",
+              "generation_count": 1002,
+              "history_count": 2,
+              "candidate_ids": [
+                "sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0",
+                "sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a"
+              ],
+              "scores": [
+                0.011344444444444445,
+                0.09801111111111109
+              ],
+              "reads": [
+                {
+                  "ref": {
+                    "artifact_id": "sha256:28aa7beffd826511216aa74633230571c73787c3fd38212d742774aee198a3f0",
+                    "kind": "vector_memory.bundle",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "28aa7beffd826511216aa74633230571c73787c3fd38212d742774aee198a3f0",
+                  "manifest_sha256": "2e1d6292be32dedcd998d66e248f0ddc1e249522f7826a859f19c829792e1ee6",
+                  "bytes": 2308648,
+                  "kind": "vector_memory.bundle",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:1d2a0e566b31f5d10737012eaf801b5afd24a4b2fe61d86aab7113a689260ff9",
+                    "kind": "vector_memory.index",
+                    "media_type": "application/octet-stream"
+                  },
+                  "actual_sha256": "1d2a0e566b31f5d10737012eaf801b5afd24a4b2fe61d86aab7113a689260ff9",
+                  "manifest_sha256": "e8ea4e8749d4dfe49154dd088c35ea375a6f77af1bd8e668e45769715f8d510a",
+                  "bytes": 152400,
+                  "kind": "vector_memory.index",
+                  "media_type": "application/octet-stream"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28",
+                    "kind": "search.transfer.history",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28",
+                  "manifest_sha256": "d4ca057a96ce2b4965a17a5750e107095de3183d80ebeb24bdc6b653717dd98c",
+                  "bytes": 8008,
+                  "kind": "search.transfer.history",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+                    "kind": "fixture.numeric.data",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+                  "manifest_sha256": "d1425c169063edb00a476335d48af289519e5c19437e27970e7b2a4b4a25df53",
+                  "bytes": 56,
+                  "kind": "fixture.numeric.data",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+                    "kind": "fixture.numeric.model",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+                  "manifest_sha256": "5c672239f2a759106cfb44a802f9c52e9e2d6076d679287bf2df88e6ae9a2b90",
+                  "bytes": 57,
+                  "kind": "fixture.numeric.model",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+                    "kind": "fixture.numeric.evaluator",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+                  "manifest_sha256": "86d1dfb9340ad781e1e3e0bfd40e8fbb2443bca0fdb80bd898b0a64bf8a3871f",
+                  "bytes": 61,
+                  "kind": "fixture.numeric.evaluator",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+                    "kind": "fixture.numeric.split",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+                  "manifest_sha256": "5156dc6f6a63c3410bbbb43239a2f69a3f6a732518a4a9ef869f1fe00012f697",
+                  "bytes": 57,
+                  "kind": "fixture.numeric.split",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+                    "kind": "fixture.numeric.scalarizer",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+                  "manifest_sha256": "32a3611b0e5510b13e80af1f3543384e4de60f64e0f3a72872fefe5efb6b7946",
+                  "bytes": 62,
+                  "kind": "fixture.numeric.scalarizer",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+                    "kind": "fixture.numeric.owner",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+                  "manifest_sha256": "524b1bc6a5e674240a543d44545ac4928a2c233c0587a17660093138984c8c8a",
+                  "bytes": 57,
+                  "kind": "fixture.numeric.owner",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28",
+                    "kind": "search.transfer.history",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28",
+                  "manifest_sha256": "d4ca057a96ce2b4965a17a5750e107095de3183d80ebeb24bdc6b653717dd98c",
+                  "bytes": 8008,
+                  "kind": "search.transfer.history",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0",
+                    "kind": "search.candidate",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0",
+                  "manifest_sha256": "8d9b0827e505bd4aaeaf9b0045010d8f78e7cac572e9b92a980fad0c31ab8d0d",
+                  "bytes": 52,
+                  "kind": "search.candidate",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:c4d1a3ca621de83530440f70d9de73f0608768bdaaa07801a2893e24f8c64ea3",
+                    "kind": "scientist.autotune.analytic.evaluation",
+                    "media_type": "application/json",
+                    "manifest_profile_sha256": "sha256:92344e9441aca35237374b5de9474aa8ec1c94b1b4143d947d044faf9dda560f"
+                  },
+                  "actual_sha256": "c4d1a3ca621de83530440f70d9de73f0608768bdaaa07801a2893e24f8c64ea3",
+                  "manifest_sha256": "5281ef0f411f74b1e687b6d8eea27f8255b488ba0218df7d1349400e218f01ad",
+                  "bytes": 2231,
+                  "kind": "scientist.autotune.analytic.evaluation",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+                    "kind": "fixture.numeric.data",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+                  "manifest_sha256": "d1425c169063edb00a476335d48af289519e5c19437e27970e7b2a4b4a25df53",
+                  "bytes": 56,
+                  "kind": "fixture.numeric.data",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+                    "kind": "fixture.numeric.model",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+                  "manifest_sha256": "5c672239f2a759106cfb44a802f9c52e9e2d6076d679287bf2df88e6ae9a2b90",
+                  "bytes": 57,
+                  "kind": "fixture.numeric.model",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+                    "kind": "fixture.numeric.evaluator",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+                  "manifest_sha256": "86d1dfb9340ad781e1e3e0bfd40e8fbb2443bca0fdb80bd898b0a64bf8a3871f",
+                  "bytes": 61,
+                  "kind": "fixture.numeric.evaluator",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+                    "kind": "fixture.numeric.split",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+                  "manifest_sha256": "5156dc6f6a63c3410bbbb43239a2f69a3f6a732518a4a9ef869f1fe00012f697",
+                  "bytes": 57,
+                  "kind": "fixture.numeric.split",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+                    "kind": "fixture.numeric.scalarizer",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+                  "manifest_sha256": "32a3611b0e5510b13e80af1f3543384e4de60f64e0f3a72872fefe5efb6b7946",
+                  "bytes": 62,
+                  "kind": "fixture.numeric.scalarizer",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+                    "kind": "fixture.numeric.owner",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+                  "manifest_sha256": "524b1bc6a5e674240a543d44545ac4928a2c233c0587a17660093138984c8c8a",
+                  "bytes": 57,
+                  "kind": "fixture.numeric.owner",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a",
+                    "kind": "search.candidate",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a",
+                  "manifest_sha256": "f4779763fe70405b68f47ea76190afa68a16638f70de4e81f909d39b53e749ba",
+                  "bytes": 52,
+                  "kind": "search.candidate",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:d170211a1ebb797480350f019068fb213acf8eb35ac2793b1c65baf043e085a0",
+                    "kind": "scientist.autotune.analytic.evaluation",
+                    "media_type": "application/json",
+                    "manifest_profile_sha256": "sha256:ff475bbf37de14fef1d7ed60b2b83f8693c02ea911d01ac32d4d614dacaab301"
+                  },
+                  "actual_sha256": "d170211a1ebb797480350f019068fb213acf8eb35ac2793b1c65baf043e085a0",
+                  "manifest_sha256": "85d26e9b2bb3fc4a2b025413922ba25ad5b1323055ede73726792f91478ddd4e",
+                  "bytes": 2231,
+                  "kind": "scientist.autotune.analytic.evaluation",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+                    "kind": "fixture.numeric.data",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+                  "manifest_sha256": "d1425c169063edb00a476335d48af289519e5c19437e27970e7b2a4b4a25df53",
+                  "bytes": 56,
+                  "kind": "fixture.numeric.data",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+                    "kind": "fixture.numeric.model",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+                  "manifest_sha256": "5c672239f2a759106cfb44a802f9c52e9e2d6076d679287bf2df88e6ae9a2b90",
+                  "bytes": 57,
+                  "kind": "fixture.numeric.model",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+                    "kind": "fixture.numeric.evaluator",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+                  "manifest_sha256": "86d1dfb9340ad781e1e3e0bfd40e8fbb2443bca0fdb80bd898b0a64bf8a3871f",
+                  "bytes": 61,
+                  "kind": "fixture.numeric.evaluator",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+                    "kind": "fixture.numeric.split",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+                  "manifest_sha256": "5156dc6f6a63c3410bbbb43239a2f69a3f6a732518a4a9ef869f1fe00012f697",
+                  "bytes": 57,
+                  "kind": "fixture.numeric.split",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+                    "kind": "fixture.numeric.scalarizer",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+                  "manifest_sha256": "32a3611b0e5510b13e80af1f3543384e4de60f64e0f3a72872fefe5efb6b7946",
+                  "bytes": 62,
+                  "kind": "fixture.numeric.scalarizer",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+                    "kind": "fixture.numeric.owner",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+                  "manifest_sha256": "524b1bc6a5e674240a543d44545ac4928a2c233c0587a17660093138984c8c8a",
+                  "bytes": 57,
+                  "kind": "fixture.numeric.owner",
+                  "media_type": "application/json"
+                }
+              ],
+              "backend": {
+                "hnswlib": "0.8.0",
+                "numpy": "2.3.5",
+                "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]"
+              },
+              "source_paths": {
+                "vector_memory": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+                "cas": "git:b33330a0b443cc07bfff873a08022eddade6f52e:policy-engine/src/polisyos/core/artifacts/store.py"
+              }
+            },
+            "fresh_native_tamper_receipt": {
+              "status": "refused",
+              "reason": "Blob sha256 mismatch for sha256:28aa7beffd826511216aa74633230571c73787c3fd38212d742774aee198a3f0: 5b35869119694500e7267918fa72bc330e87e44b6922b178f7657b43d5466256",
+              "unchanged": true,
+              "reads": []
+            }
+          },
+          "failure_text": null
+        },
+        {
+          "name": "test_valid_cas_legacy_native_nonfinite_refuses_before_pointer_publication",
+          "phase_result": "PASS",
+          "properties": {
+            "fresh_legacy_native_refusal": {
+              "status": "refused",
+              "reason": "Native embedding row 0 coordinate 0 must be finite",
+              "unchanged": true,
+              "reads": [
+                {
+                  "ref": {
+                    "artifact_id": "sha256:6c6c1a62064ea139b041654e6013fab498a22842f43eaa1ef9fd59dc8dd672e2",
+                    "kind": "vector_memory.bundle",
+                    "media_type": "application/json"
+                  },
+                  "actual_sha256": "6c6c1a62064ea139b041654e6013fab498a22842f43eaa1ef9fd59dc8dd672e2",
+                  "manifest_sha256": "3f9999a11e001532b02b10c2c90d5216f7576994aca600bebd0c4dcad5545956",
+                  "bytes": 314,
+                  "kind": "vector_memory.bundle",
+                  "media_type": "application/json"
+                },
+                {
+                  "ref": {
+                    "artifact_id": "sha256:3dc16a18208eced1186127c24fa21cd8fa66cfbf085e45dcbf699963d71ac06b",
+                    "kind": "vector_memory.index",
+                    "media_type": "application/octet-stream"
+                  },
+                  "actual_sha256": "3dc16a18208eced1186127c24fa21cd8fa66cfbf085e45dcbf699963d71ac06b",
+                  "manifest_sha256": "13c98b6f636de59399566eb1b9d49eadd94c111c141a27a940c344dd7d3ee848",
+                  "bytes": 248,
+                  "kind": "vector_memory.index",
+                  "media_type": "application/octet-stream"
+                }
+              ]
+            }
+          },
+          "failure_text": null
+        }
+      ],
+      "independently_verified_actual_module_origins": [
+        {
+          "pid": 485202,
+          "modules": 7,
+          "all_exact_source_path_blob_sha256_bytes": true,
+          "path": "/dev/shm/e02-D-transfer-B333-pair2-quxhpygc/module-origins.485202.jsonl",
+          "sha256": "488588dee7380405143eb4835c9c41e8ad3ea536c4358915450140b85154cd37",
+          "bytes": 2311
+        },
+        {
+          "pid": 485821,
+          "modules": 7,
+          "all_exact_source_path_blob_sha256_bytes": true,
+          "path": "/dev/shm/e02-D-transfer-B333-pair2-quxhpygc/module-origins.485821.jsonl",
+          "sha256": "08bd2e5101ca5a9e54509f69e20ef2c26cd626d230a362a7078dee8bce5423b5",
+          "bytes": 2311
+        },
+        {
+          "pid": 485845,
+          "modules": 7,
+          "all_exact_source_path_blob_sha256_bytes": true,
+          "path": "/dev/shm/e02-D-transfer-B333-pair2-quxhpygc/module-origins.485845.jsonl",
+          "sha256": "4de3bea192ca0f1d42446c9f6f8a76dbb45709b9e2688d150a5ed2eef4558277",
+          "bytes": 2311
+        },
+        {
+          "pid": 485864,
+          "modules": 7,
+          "all_exact_source_path_blob_sha256_bytes": true,
+          "path": "/dev/shm/e02-D-transfer-B333-pair2-quxhpygc/module-origins.485864.jsonl",
+          "sha256": "77feb717b1ade237af113af8a40837e95986e8c40dca58e4e2626b4bc0be6447",
+          "bytes": 2311
+        }
+      ]
+    },
+    {
+      "mode": "B333-removal1",
+      "counts": {
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "command": {
+        "argv": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "no:cacheprovider",
+          "-o",
+          "junit_family=xunit1",
+          "-o",
+          "junit_logging=all",
+          "-o",
+          "junit_log_passing_tests=true",
+          "--basetemp",
+          "/dev/shm/e02-D-transfer-B333-removal1-dfg6dlar/basetemp",
+          "--junitxml",
+          "/dev/shm/e02-D-transfer-B333-removal1-dfg6dlar/junit.xml",
+          "-q",
+          "-p",
+          "remove_private_finite",
+          "tests/unit/scientist/agent/test_vector_generation_consumer.py::test_valid_cas_legacy_native_nonfinite_refuses_before_pointer_publication"
+        ],
+        "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+        "source": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+        "tree": "1a9f14f84e66f09c830134e2a6ee3e3f15e2b3cc",
+        "status_porcelain": "",
+        "mode": "B333-removal1",
+        "environment_overrides": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "TMPDIR": "/dev/shm/e02-D-transfer-B333-removal1-dfg6dlar/tmp",
+          "PYTHONPATH": "/dev/shm/e02-D-transfer-frozen469-06qbulta:/dev/shm/e02-D-transfer-empty-intake-w7x85jux/B333-pair:/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine",
+          "E02_CAS_PAIR_ORIGINS": "/dev/shm/e02-D-transfer-B333-removal1-dfg6dlar/module-origins"
+        },
+        "inputs": {
+          "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py": "31b30704d68690c610761371b25a750f9f1efbf3",
+          "policy-engine/tests/unit/scientist/agent/vector_generation_reader.py": "02a9e2074bdbfea3f57bcd950c6953a387cb6408",
+          "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py": "1a7e97f9b558f1a27c6977661b6797fcbbb38278",
+          "policy-engine/src/polisyos/scientist/agent/vector_memory.py": "3e68ab919b915427300869d6b378d12f585d1f00",
+          "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+          "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py": "40532c3c0d20eb8e64ea3b1589c7a1cbae5dedd6",
+          "policy-engine/src/polisyos/core/artifacts/store.py": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+          "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257"
+        },
+        "fixture_inputs": [
+          {
+            "path": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux/run_frozen_checks.py",
+            "sha256": "d39003c609bef48316af4e14a12f86a65f3ef146ba314d8545cbabad5914ce44",
+            "bytes": 6683
+          },
+          {
+            "path": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux/B333-pair/sitecustomize.py",
+            "sha256": "46249faf6bf51b1a62b709df255d94cfa0ddac761a0a6b6cb60b5adf6f14cb95",
+            "bytes": 1803
+          },
+          {
+            "path": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux/B333-pair/B333-module-map.json",
+            "sha256": "39f2c6771f2fba5ba096edd7dc148e199406e21c97a33f522256a7fede9d2f9b",
+            "bytes": 3408
+          },
+          {
+            "path": "/dev/shm/e02-D-transfer-frozen469-06qbulta/remove_private_finite.py",
+            "sha256": "599e17f4da4e8a255c772cbf153bf647c87af6cba44bf96f158812006e4e4bc7",
+            "bytes": 156
+          }
+        ],
+        "backend_profile": "actual HNSW0.8.0, NumPy2.3.5, Python3.14.7 locked environment; ordinary FileSystemCAS exact refs",
+        "seed_inputs": "Native default100, original deterministic measured2 donor rows; explicit empty/invalid/unsupported codec controls or ordinary1002 discovery snapshots, no production or scientific authority",
+        "compute_limits_introduced": false,
+        "classification": "combined_dependency_profile",
+        "accepted_in_G": false,
+        "start_utc": "2026-10-07T08:58:59.631827+00:00",
+        "B_canonical_module_map": {
+          "repository": "/dev/shm/e02-D-oct07-continuation",
+          "source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+          "modules": {
+            "polisyos.core.artifacts._integrity_ops": {
+              "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+              "D_blob": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257",
+              "B_blob": "557fbb829dec5e9f349e5de7a7d5013ca1c2a2ef",
+              "D_sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b",
+              "B_sha256": "768aa83084c85e8b501cacad1a94ece535e08b78e7070cee619c249df11cbfe4",
+              "B_bytes": 12619
+            },
+            "polisyos.core.artifacts._signature_ops": {
+              "path": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+              "D_blob": "40acc7887fb09fdc567af6edfadff82ea2c01b9a",
+              "B_blob": "5c483b787d7afbef8b489383e5a01fc9734af6e7",
+              "D_sha256": "35a8af3422febca80a8f3584117bc2464a5468a0f73482c738e8255760f7fbfb",
+              "B_sha256": "0627738427829a9f7489082297635c1b604d987182aca1e5559b2bafc510cb85",
+              "B_bytes": 18059
+            },
+            "polisyos.core.artifacts._transfer_ops": {
+              "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+              "D_blob": "43012c9fdbdc20fd79081239d3a0c474c050a385",
+              "B_blob": "70f7a735755f56dbf2cfd7ad5e4859cd17bf91a9",
+              "D_sha256": "641553dd8b105a31c406d3af9d2477efa75f093755afc41f9af97816ebc817d6",
+              "B_sha256": "27709becae4680c5a16445a4bfea2270dc1de8a2cea93b06c30205104c9e00b7",
+              "B_bytes": 46449
+            },
+            "polisyos.core.artifacts.async_store": {
+              "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+              "D_blob": "a664d69d1d0ba58841c530a901783977072523b2",
+              "B_blob": "1111ad75ed6632d87280e5699845811ec355bfbb",
+              "D_sha256": "6b50f6cc1cf136e6eac66c3ff72745481495a13e18ab0d2ae8209f88863919fe",
+              "B_sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078",
+              "B_bytes": 7518
+            },
+            "polisyos.core.artifacts.signing": {
+              "path": "policy-engine/src/polisyos/core/artifacts/signing.py",
+              "D_blob": "cc3082cdf613707d6df284266fc8c97e565bba84",
+              "B_blob": "8aa4cdd46dc9de873df15b977ed6576eb11bb30f",
+              "D_sha256": "5d4a19ab6a2c8b5caacb3c7c74caf3625c24d4e5e51873d131292a682738b568",
+              "B_sha256": "2b58237eddbafa61bb6bd7a41b5e7f2cf96553c92406f1edf4cbbf236934261d",
+              "B_bytes": 30675
+            },
+            "polisyos.core.artifacts.store": {
+              "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+              "D_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+              "B_blob": "02e3253de23db5d64c21b69ce4cc85daa4f0778c",
+              "D_sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165",
+              "B_sha256": "627676dcb74c442b7e3f30a64bf7b4023e4ef5f1a8f2dac1d37fdf3e69654a4f",
+              "B_bytes": 190227,
+              "D_get_verified_snapshot_ast": "ab7320ace61de46d8e7adc1f7652f7e9a3bb8bc010af19c702cd61f9f6f65c71",
+              "B_get_verified_snapshot_ast": "ab7320ace61de46d8e7adc1f7652f7e9a3bb8bc010af19c702cd61f9f6f65c71"
+            },
+            "polisyos.common.async_tools": {
+              "path": "policy-engine/src/polisyos/common/async_tools.py",
+              "D_blob": "1f60973c35cfdd8bcf9629f675bcb7d30235fcfa",
+              "B_blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+              "D_sha256": "5153fff118f7d791abb72b6878b409ca226ceceb2411fd413756f66a694d8406",
+              "B_sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+              "B_bytes": 11846
+            }
+          }
+        }
+      },
+      "completion": {
+        "returncode": 1,
+        "elapsed_seconds": 2.2580510250118095,
+        "end_utc": "2026-10-07T08:59:01.890381+00:00",
+        "source_after": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+        "status_after": "",
+        "combined_source_admission": {
+          "groups": [
+            {
+              "path": "/dev/shm/e02-D-transfer-B333-removal1-dfg6dlar/module-origins.485197.jsonl",
+              "valid": true,
+              "pid": 485197,
+              "modules": [
+                "polisyos.common.async_tools",
+                "polisyos.core.artifacts._integrity_ops",
+                "polisyos.core.artifacts._signature_ops",
+                "polisyos.core.artifacts._transfer_ops",
+                "polisyos.core.artifacts.async_store",
+                "polisyos.core.artifacts.signing",
+                "polisyos.core.artifacts.store"
+              ]
+            }
+          ],
+          "minimum_processes": 1,
+          "accepted": true
+        }
+      },
+      "complete_files": [
+        {
+          "path": "/dev/shm/e02-D-transfer-B333-removal1-dfg6dlar/launch.json",
+          "sha256": "87538084298dbb70abff047ae66e681929f06802706226156cdb827266007a4d",
+          "bytes": 7138
+        },
+        {
+          "path": "/dev/shm/e02-D-transfer-B333-removal1-dfg6dlar/exit.json",
+          "sha256": "0f03dfb638e19a073556675f6288e8a522d2b95e267c0b79e9c6717f40d7c0d0",
+          "bytes": 825
+        },
+        {
+          "path": "/dev/shm/e02-D-transfer-B333-removal1-dfg6dlar/stdout.txt",
+          "sha256": "9f61da1e4f1388170e82b732b7d35ba5cc384fa449322b4ae4f1a2ef4cb9496a",
+          "bytes": 2521
+        },
+        {
+          "path": "/dev/shm/e02-D-transfer-B333-removal1-dfg6dlar/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/dev/shm/e02-D-transfer-B333-removal1-dfg6dlar/junit.xml",
+          "sha256": "49bf08ef99c0be405096fa163ae2e1e0267591286297f1951fcc8186f4dfe4f1",
+          "bytes": 2496
+        }
+      ],
+      "actual_testcases": [
+        {
+          "name": "test_valid_cas_legacy_native_nonfinite_refuses_before_pointer_publication",
+          "phase_result": "FAILURE",
+          "properties": {},
+          "failure_text": "tmp_path = PosixPath('/dev/shm/e02-D-transfer-B333-removal1-dfg6dlar/basetemp/test_valid_cas_legacy_native_n0')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fcf088d43e0>\nrecord_property = <function record_property.<locals>.append_property at 0x7fcf08ab3320>\n\n    def test_valid_cas_legacy_native_nonfinite_refuses_before_pointer_publication(\n        tmp_path, monkeypatch, record_property\n    ):\n        pytest.importorskip(\"hnswlib\")\n        store = FileSystemCAS(tmp_path / \"cas\")\n        legacy = VectorMemoryStore(dim=2, max_elements=2)\n        # Reproduce the old native narrowing with real HNSW, retaining a valid\n        # composite schema, native header, labels, CAS digest and manifest.\n        monkeypatch.setattr(legacy, \"_embedding\", lambda embedding, dim: list(embedding))\n        with pytest.warns(RuntimeWarning, match=\"overflow encountered in cast\"):\n            legacy.add(\"historical-nonfinite\", [1e300, 1.0], {\"origin\": \"legacy\"})\n        ref = legacy.save_to_artifact(store)\n        assert store.get_verified_snapshot(ref).manifest.kind == \"vector_memory.bundle\"\n        reader = VectorMemoryStore(dim=2, max_elements=2)\n        reader.add(\"prior\", [1.0, 0.0], {\"generation\": \"prior\"})\n        before = reader._generation\n>       with pytest.raises(ValueError, match=\"Native embedding row 0 coordinate 0 must be finite\"):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE <class 'ValueError'>\n\ntests/unit/scientist/agent/test_vector_generation_consumer.py:176: Failed"
+        }
+      ],
+      "independently_verified_actual_module_origins": [
+        {
+          "pid": 485197,
+          "modules": 7,
+          "all_exact_source_path_blob_sha256_bytes": true,
+          "path": "/dev/shm/e02-D-transfer-B333-removal1-dfg6dlar/module-origins.485197.jsonl",
+          "sha256": "51e3b1bb93594fa85a911cec03a0ce636d09a77ae819fcf34186152e8fcfe61f",
+          "bytes": 2311
+        }
+      ]
+    }
+  ],
+  "P37": {
+    "B128": "Real schema2 persisted CAS history -> exact native discovery ref -> fresh FileSystemCAS/native generation -> ordinary WarmStartBridge; actual saved nonempty Evaluation accepted, malformed rejected, unsupported codec unavailable, genuine empty distinct. Existing current65 retains B130-B132 selection semantics; no synthetic backend is substituted.",
+    "B333": "Actual parent plus 3 fresh child processes executed all seven exact owner modules, actual get_verified_snapshot resolves content-bound refs, ANN discovery None/1/2 only then prohibited; native fresh reader reports1002 generation, two original measured rows and26 exact reads."
+  },
+  "P38": {
+    "B128": "Retain actual CAS resolve and native metadata but discard codec/rows to empty: empty positive remains PASS; invalid/unavailable/nonempty each fails expected count/status predicate.",
+    "B333": "Valid CAS manifests/header with legacy actual nativeNaN refuses before pointer; removing private finite validation retains canonical B resolve and markers but causes actual DID NOT RAISE FAIL. Same-ref altered bytes refuses with old pointer unchanged."
+  },
+  "limitations": [
+    "B333 is an explicit seven-module combined_dependency_profile loaded from immutable Git; root D default CAS remains separately pinned, no whole B adoption/defaultfactory/distributed/async property claim.",
+    "1001 ordinary registered donor snapshots preserve copied original measured observations; not1001 independent measured executions or accepted donor training. Numerics consume only the original measured source.",
+    "No new aggregate carry of old46959/b5original65/d61017, no GP numerical claim, no production/scientific tenant/revalidation authority.",
+    "B131/B137 owner positives remain held; G alone decides formal integration and finding closure."
+  ],
+  "source_blob_validation": "All command input blobs and fixture hashes exact; all four actual processes report same clean immutable source after completion; no artificial compute limits."
+}

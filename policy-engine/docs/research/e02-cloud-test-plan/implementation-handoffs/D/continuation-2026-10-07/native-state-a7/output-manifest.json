@@ -1,0 +1,105 @@
+{
+  "schema": "D.e02.portable-file-manifest.v1",
+  "files": [
+    {
+      "path": "B04-original-actual_AST_input_denominator.json",
+      "sha256": "cea956636d24b1e01dd8be22ee6a7a41df19a7e73ce703c47870a34b199a8db5",
+      "bytes": 18956
+    },
+    {
+      "path": "B04-original-command.json",
+      "sha256": "e906fe56b1694be16f114149734b3a1a1ef5992e376ef9b77ce2839dd92132f8",
+      "bytes": 859
+    },
+    {
+      "path": "B04-original-result.json",
+      "sha256": "c51aba63768f11b1c3d546c48e163f7b440bbf9433b0853c397bf1dbad7bd6e9",
+      "bytes": 1345
+    },
+    {
+      "path": "B04-original-stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "B04-original-stdout.txt",
+      "sha256": "74f67ce61d7e88213eb4b49884e87cab262cedbbe1bc784afb06e19b2e53b141",
+      "bytes": 1512
+    },
+    {
+      "path": "README.md",
+      "sha256": "675a5131b66b6f45a9258caa964e4f7e27b669c2ad7c4e7a29a9964bf2223253",
+      "bytes": 430
+    },
+    {
+      "path": "complete-deciding-output.json.gz",
+      "sha256": "572bdf206ababd6c1701a5a5cf09df869b3fb469f1eb248e7dc3c0df7685a60a",
+      "bytes": 1170297
+    },
+    {
+      "path": "handoff.json",
+      "sha256": "28f41d24a737a03bc195b38de104dbf2a78afe7e4e3704e0029cddfaff6563c0",
+      "bytes": 6507
+    },
+    {
+      "path": "math-a7-carry-independent-review.json",
+      "sha256": "4c62a476495e8380dee75b0b391aa5e5a2a11272e45806a4182bf36ebc42d8e2",
+      "bytes": 10578
+    },
+    {
+      "path": "native-state-and-B41-a7-scoped-carry-independent-review.json",
+      "sha256": "66e7c798641e2ee15497e0a90fb69e5fb39a69d73a2194ea5a0e59023d2089fa",
+      "bytes": 4342
+    },
+    {
+      "path": "native-state-c0-to-a7-independent-carry-review.json",
+      "sha256": "4b251cb95e101d48a7df8ad388b64518d772bd4f353f658b8aaf5da7af79331a",
+      "bytes": 3788
+    },
+    {
+      "path": "native-state-c0-to-a7-scoped-carry.json",
+      "sha256": "abef09196d1495c0d14ba9e0c92601eab06a86b94bdf0686da00a976f62c5f37",
+      "bytes": 878384
+    },
+    {
+      "path": "optional-minimal-currenta7-independent-review.json",
+      "sha256": "e0d1a81a5bb8e697f7d125ffa10e1772e001d6285efe0f1a19a0223a9b0e3982",
+      "bytes": 1898
+    },
+    {
+      "path": "own-module-budget-final-a7-delta-scan.json",
+      "sha256": "3e87b6bc7120de72f6e354ebf5ead543e7d1533b6a8d2b05a516eb0d03db35c3",
+      "bytes": 2043
+    },
+    {
+      "path": "transfer-affected-a7-independent-runtime-review.json",
+      "sha256": "3d17d5c1391afe49ae7ec4bb10e3adea29454688b2bf8642d62830a67a2de6af",
+      "bytes": 14185
+    },
+    {
+      "path": "transfer3-execution.json",
+      "sha256": "58adff9407c4aa81e8707d195078ecc46e731ed4a56bcc08b4709031497130f8",
+      "bytes": 1622
+    },
+    {
+      "path": "transfer3-junit.xml",
+      "sha256": "13c4fb6a6909c93ba4bec67121ba9b107c11f9be5c30bf99af655d5d4dd24641",
+      "bytes": 797
+    },
+    {
+      "path": "transfer3-result.json",
+      "sha256": "98dbc1d30aa7850cc382da3024f232610b3067795a68b83d84a6c502b93809cc",
+      "bytes": 718
+    },
+    {
+      "path": "transfer3-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "transfer3-stdout.log",
+      "sha256": "51baff24f70aa820bb4e4be8d79a2afc1d8c35ffb99a9d982cdb8cf7c697132d",
+      "bytes": 2286
+    }
+  ]
+}

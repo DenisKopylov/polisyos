@@ -1,0 +1,148 @@
+{
+  "schema": "e02.D.exact_scope_source_binding.v1",
+  "actual_old_cohort_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+  "current_source": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+  "whole_blobs": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "b5_blob": "3e68ab919b915427300869d6b378d12f585d1f00",
+      "79_blob": "3e68ab919b915427300869d6b378d12f585d1f00",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "b5_blob": "0520a440f0b5285d3976f152dad5a0dbfe9c35cb",
+      "79_blob": "0520a440f0b5285d3976f152dad5a0dbfe9c35cb",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
+      "b5_blob": "0963066824070b40fbe3d999d61d553b02728ec9",
+      "79_blob": "0963066824070b40fbe3d999d61d553b02728ec9",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "b5_blob": "850eeac5abe58df4f7c2ef0d56b836f404477e7d",
+      "79_blob": "850eeac5abe58df4f7c2ef0d56b836f404477e7d",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "b5_blob": "40532c3c0d20eb8e64ea3b1589c7a1cbae5dedd6",
+      "79_blob": "40532c3c0d20eb8e64ea3b1589c7a1cbae5dedd6",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "b5_blob": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+      "79_blob": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/vector_generation_reader.py",
+      "b5_blob": "02a9e2074bdbfea3f57bcd950c6953a387cb6408",
+      "79_blob": "02a9e2074bdbfea3f57bcd950c6953a387cb6408",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+      "b5_blob": "1a7e97f9b558f1a27c6977661b6797fcbbb38278",
+      "79_blob": "1a7e97f9b558f1a27c6977661b6797fcbbb38278",
+      "equal": true
+    }
+  ],
+  "selected_schema_AST": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "selected_contracts": {
+        "b5cdb56ad3a67cef451157e816d9dc246d307681": {
+          "ParameterBounds": "a3fc1aab2c1740934a303d1af810fb05fff07b5654ac99acd8a14390ad776a35",
+          "Evaluation": "49df562e25400c24ee23e83858aefb7f4e4d883ba55d89db8ed831c27aab1665"
+        },
+        "79b943d221f46b2cc94eff06cdfdc714efe5a0e0": {
+          "ParameterBounds": "a3fc1aab2c1740934a303d1af810fb05fff07b5654ac99acd8a14390ad776a35",
+          "Evaluation": "49df562e25400c24ee23e83858aefb7f4e4d883ba55d89db8ed831c27aab1665"
+        }
+      },
+      "all_declared_found": true,
+      "same_AST": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/serialization.py",
+      "selected_contracts": {
+        "b5cdb56ad3a67cef451157e816d9dc246d307681": {
+          "SerializationError": "c6e42bf7c3f80ad471a8fb79453d5db552bfb0aecca2d819d24976eb2e9895fe",
+          "SerializationCycleError": "df38801f9e908da68fcfb3b56e7327712af59eb0b8bde2a01d50ef434ceae630",
+          "SerializationDepthError": "c213246f0d8824dd3771358e62f17d4ef5474be5b702d3579d1385edcc14c508",
+          "UnsupportedSerializationError": "b0a114e2e44955ad0013aa6000dc867c2453a947df38bf02464dbe80220a2e3b",
+          "ArtifactIdentityProjectionError": "0846bdda4d1ceb5e66f246728023910a40997c252fd483d7ee3e7255d8f3df19",
+          "SerializationPolicy": "d524da394484054ef3fc3f1c9afc6487621559c4018ed071d5e3749388431e8a",
+          "_as_model_dump": "92f8c7fc3c77b3ddaadbe79b72e6fbf9bdc601a6ed97d7e559a22b9650e6622c",
+          "artifact_self_identity_projection": "86ba20e4da16f4ab5ab5376c2eb6b422324fd5ca3de436afa06e11a9e8cf61ea",
+          "_try_tolist": "d58fe73b98a820a89d1d26d77506cd549c4335514095291c45e60f18346f0c2a",
+          "_try_item": "ac9e043762e7b381c0e162f6d6275cda4f59bbb0b14a6455f6781c99e0f33b98",
+          "JsonDataVisitor": "61120eec46c4b6a9101de5ee5580e6c06e6db03521f013f981f2f6cf123cd8d3",
+          "_is_container_like": "13522cbb4537a4488db3794e9db76692063980520795deaf4a692b4480ca5f78",
+          "_stable_collection_sort_key": "15c56200400f351db00e489c4fe1ade71cdf01edde87e49b616e5c95b6ecccf4",
+          "to_python_data": "e78b6ccbce954baff6546a88571d29fbaa73ea42bfea41a20cc81d017fe1922e",
+          "strip_none": "52a998b5cd5b653a04382d8b0f5313f087be5af1d0569fcf363f726125e5b5c4",
+          "stable_json_dumps": "0a44b256ab9ef722579540ac5dce28a95c6f0fa7d424c145b9fbb88e8eb63980",
+          "fast_json_dumps_bytes": "fc9ac153c6b5ed7b3a88232fe96ab0d6c2f1c7cf2d38104f1027776e2c46a688",
+          "fast_json_dumps": "e9ec6d37e1582f73c19c4a3cad591991978c73dcf034ecfd848af019070c939a",
+          "fast_json_loads": "c86a8c80e68fa0a148353e027644b70af403c5bbb45c105e7972cc33c28bd5da",
+          "extract_llm_json": "5515085e748cfca007a49efb175a54f78d9c409e36b21101f4945d43f5ffcaac",
+          "extract_llm_json_object": "93a61be176609f4c1698034f062369eeb1e3acfdd4065a5be9896ac7a602a131",
+          "_fenced_json_payloads": "e264774798faac56cb5d8719dc9c9aca2cf4d36ca98fbfe11606c5bc43f72564",
+          "finite_real_scalar": "6f9a841401b08fdfb9dc9f89c402436b234f5efcd6cba5a15b713828cf6029e6"
+        },
+        "79b943d221f46b2cc94eff06cdfdc714efe5a0e0": {
+          "SerializationError": "c6e42bf7c3f80ad471a8fb79453d5db552bfb0aecca2d819d24976eb2e9895fe",
+          "SerializationCycleError": "df38801f9e908da68fcfb3b56e7327712af59eb0b8bde2a01d50ef434ceae630",
+          "SerializationDepthError": "c213246f0d8824dd3771358e62f17d4ef5474be5b702d3579d1385edcc14c508",
+          "UnsupportedSerializationError": "b0a114e2e44955ad0013aa6000dc867c2453a947df38bf02464dbe80220a2e3b",
+          "ArtifactIdentityProjectionError": "0846bdda4d1ceb5e66f246728023910a40997c252fd483d7ee3e7255d8f3df19",
+          "SerializationPolicy": "d524da394484054ef3fc3f1c9afc6487621559c4018ed071d5e3749388431e8a",
+          "_as_model_dump": "92f8c7fc3c77b3ddaadbe79b72e6fbf9bdc601a6ed97d7e559a22b9650e6622c",
+          "artifact_self_identity_projection": "86ba20e4da16f4ab5ab5376c2eb6b422324fd5ca3de436afa06e11a9e8cf61ea",
+          "_try_tolist": "d58fe73b98a820a89d1d26d77506cd549c4335514095291c45e60f18346f0c2a",
+          "_try_item": "ac9e043762e7b381c0e162f6d6275cda4f59bbb0b14a6455f6781c99e0f33b98",
+          "JsonDataVisitor": "61120eec46c4b6a9101de5ee5580e6c06e6db03521f013f981f2f6cf123cd8d3",
+          "_is_container_like": "13522cbb4537a4488db3794e9db76692063980520795deaf4a692b4480ca5f78",
+          "_stable_collection_sort_key": "15c56200400f351db00e489c4fe1ade71cdf01edde87e49b616e5c95b6ecccf4",
+          "to_python_data": "e78b6ccbce954baff6546a88571d29fbaa73ea42bfea41a20cc81d017fe1922e",
+          "strip_none": "52a998b5cd5b653a04382d8b0f5313f087be5af1d0569fcf363f726125e5b5c4",
+          "stable_json_dumps": "0a44b256ab9ef722579540ac5dce28a95c6f0fa7d424c145b9fbb88e8eb63980",
+          "fast_json_dumps_bytes": "fc9ac153c6b5ed7b3a88232fe96ab0d6c2f1c7cf2d38104f1027776e2c46a688",
+          "fast_json_dumps": "e9ec6d37e1582f73c19c4a3cad591991978c73dcf034ecfd848af019070c939a",
+          "fast_json_loads": "c86a8c80e68fa0a148353e027644b70af403c5bbb45c105e7972cc33c28bd5da",
+          "extract_llm_json": "5515085e748cfca007a49efb175a54f78d9c409e36b21101f4945d43f5ffcaac",
+          "extract_llm_json_object": "93a61be176609f4c1698034f062369eeb1e3acfdd4065a5be9896ac7a602a131",
+          "_fenced_json_payloads": "e264774798faac56cb5d8719dc9c9aca2cf4d36ca98fbfe11606c5bc43f72564",
+          "finite_real_scalar": "6f9a841401b08fdfb9dc9f89c402436b234f5efcd6cba5a15b713828cf6029e6"
+        }
+      },
+      "all_declared_found": true,
+      "same_AST": true,
+      "new_function_names": [
+        "_finite_checkpoint_json_number"
+      ]
+    }
+  ],
+  "existing_test_function_AST": {
+    "test_invalid_native_coordinate_refuses_with_index_and_keeps_generation": true,
+    "test_cosine_direction_survives_native_float32_narrowing": true,
+    "test_zero_embedding_preserves_supported_native_control": true,
+    "test_exact_transfer_reference_beyond_1000_keys_survives_fresh_native_reader": true,
+    "test_valid_cas_legacy_native_nonfinite_refuses_before_pointer_publication": true
+  },
+  "new_test_names": [
+    "test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake"
+  ],
+  "known_changed_imports": [
+    "common.serialization.py adds internal checkpoint float decoder; every pre-existing top-level function/class AST unchanged, verified",
+    "strategies/types.py changes StrategyState.from_artifact only; selected Evaluation/ParameterBounds schema unchanged",
+    "autotune/runtime.py/strategies.adapter/grid/multi_objective/search.service/gateway_client source changed; no byte-equivalence or unexecuted ordinary workflow claims supplied"
+  ],
+  "qualification": "Narrow source/AST custody only, not a new runtime replay, complete dynamic whole-input readset, universal transitive equivalence or P41 inherited/disjoint gate waiver. Current direct4 and separate B3332 have actual79 runtime. b5 original65 remains exact old output."
+}

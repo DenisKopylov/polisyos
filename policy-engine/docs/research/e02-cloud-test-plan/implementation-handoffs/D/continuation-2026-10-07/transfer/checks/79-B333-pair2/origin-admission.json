@@ -1,0 +1,62 @@
+{
+  "groups": [
+    {
+      "path": "/dev/shm/e02-D-transfer-B333-pair2-quxhpygc/module-origins.485202.jsonl",
+      "valid": true,
+      "pid": 485202,
+      "modules": [
+        "polisyos.common.async_tools",
+        "polisyos.core.artifacts._integrity_ops",
+        "polisyos.core.artifacts._signature_ops",
+        "polisyos.core.artifacts._transfer_ops",
+        "polisyos.core.artifacts.async_store",
+        "polisyos.core.artifacts.signing",
+        "polisyos.core.artifacts.store"
+      ]
+    },
+    {
+      "path": "/dev/shm/e02-D-transfer-B333-pair2-quxhpygc/module-origins.485821.jsonl",
+      "valid": true,
+      "pid": 485821,
+      "modules": [
+        "polisyos.common.async_tools",
+        "polisyos.core.artifacts._integrity_ops",
+        "polisyos.core.artifacts._signature_ops",
+        "polisyos.core.artifacts._transfer_ops",
+        "polisyos.core.artifacts.async_store",
+        "polisyos.core.artifacts.signing",
+        "polisyos.core.artifacts.store"
+      ]
+    },
+    {
+      "path": "/dev/shm/e02-D-transfer-B333-pair2-quxhpygc/module-origins.485845.jsonl",
+      "valid": true,
+      "pid": 485845,
+      "modules": [
+        "polisyos.common.async_tools",
+        "polisyos.core.artifacts._integrity_ops",
+        "polisyos.core.artifacts._signature_ops",
+        "polisyos.core.artifacts._transfer_ops",
+        "polisyos.core.artifacts.async_store",
+        "polisyos.core.artifacts.signing",
+        "polisyos.core.artifacts.store"
+      ]
+    },
+    {
+      "path": "/dev/shm/e02-D-transfer-B333-pair2-quxhpygc/module-origins.485864.jsonl",
+      "valid": true,
+      "pid": 485864,
+      "modules": [
+        "polisyos.common.async_tools",
+        "polisyos.core.artifacts._integrity_ops",
+        "polisyos.core.artifacts._signature_ops",
+        "polisyos.core.artifacts._transfer_ops",
+        "polisyos.core.artifacts.async_store",
+        "polisyos.core.artifacts.signing",
+        "polisyos.core.artifacts.store"
+      ]
+    }
+  ],
+  "minimum_processes": 4,
+  "accepted": true
+}

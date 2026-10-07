@@ -1,0 +1,50 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "/dev/shm/e02-D-gp-finalc0e03-cprmrxl6/run.py",
+    "/dev/shm/e02-D-gp-finalc0e03-cprmrxl6",
+    "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+    "native"
+  ],
+  "pytest_argv": [
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "-ra",
+    "--basetemp=/dev/shm/e02-D-gp-finalc0e03-cprmrxl6/basetemp",
+    "--junitxml=/dev/shm/e02-D-gp-finalc0e03-cprmrxl6/junit.xml",
+    "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+    "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+    "tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+    "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+    "tests/integration/scientist/methods/search/test_configured_transfer_controller.py",
+    "tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_warm_start_reaches_gp_training_before_initial_threshold",
+    "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_full_history_identity_reaches_actual_directional_training_and_json",
+    "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_history_formats_reach_public_generate_and_fresh_cas_next_proposal"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "source_sha": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "source_tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+  "started_at": "2026-10-07T09:13:29.537951+00:00",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-D-locked-env/bin/python",
+  "path": [
+    "/dev/shm/e02-D-gp-finalc0e03-cprmrxl6",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python314.zip",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/lib-dynload",
+    "/workspace/e02-D-locked-env/lib/python3.14/site-packages"
+  ],
+  "thread_env": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null
+  },
+  "mode": "native"
+}

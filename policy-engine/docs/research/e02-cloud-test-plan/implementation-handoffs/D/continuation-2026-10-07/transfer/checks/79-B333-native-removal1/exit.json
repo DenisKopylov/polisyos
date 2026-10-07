@@ -1,0 +1,27 @@
+{
+  "returncode": 1,
+  "elapsed_seconds": 2.2580510250118095,
+  "end_utc": "2026-10-07T08:59:01.890381+00:00",
+  "source_after": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+  "status_after": "",
+  "combined_source_admission": {
+    "groups": [
+      {
+        "path": "/dev/shm/e02-D-transfer-B333-removal1-dfg6dlar/module-origins.485197.jsonl",
+        "valid": true,
+        "pid": 485197,
+        "modules": [
+          "polisyos.common.async_tools",
+          "polisyos.core.artifacts._integrity_ops",
+          "polisyos.core.artifacts._signature_ops",
+          "polisyos.core.artifacts._transfer_ops",
+          "polisyos.core.artifacts.async_store",
+          "polisyos.core.artifacts.signing",
+          "polisyos.core.artifacts.store"
+        ]
+      }
+    ],
+    "minimum_processes": 1,
+    "accepted": true
+  }
+}

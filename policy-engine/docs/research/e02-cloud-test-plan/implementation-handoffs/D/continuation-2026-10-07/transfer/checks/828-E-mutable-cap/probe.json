@@ -1,0 +1,17 @@
+{
+  "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "backend": "SALib 1.5.2",
+  "seed": 7,
+  "initial_shape": [
+    4,
+    1
+  ],
+  "mutated_n_trajectories": 5,
+  "cap": 5,
+  "estimated_runs": 10,
+  "actual_shape": [
+    10,
+    1
+  ],
+  "refused_before_materialization": false
+}

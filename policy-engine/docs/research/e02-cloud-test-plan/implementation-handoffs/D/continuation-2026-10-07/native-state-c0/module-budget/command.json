@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "tools/quality/validation/architecture_report_only_contracts.py",
+    "--report",
+    "module-size"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "env_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+  },
+  "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+  "claim": "actual canonical Python script invocation; no uv wrapper claimed"
+}

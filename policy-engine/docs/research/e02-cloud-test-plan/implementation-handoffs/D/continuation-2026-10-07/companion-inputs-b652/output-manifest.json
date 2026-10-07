@@ -1,0 +1,10 @@
+{
+  "schema": "D.e02.portable-file-manifest.v1",
+  "files": [
+    {
+      "path": "companion-owner-inputs.json",
+      "sha256": "c1437d60f72a1906f476e5d92e9b3f13d6ecd20f34c5446f068616bb6e6c17f0",
+      "bytes": 4855
+    }
+  ]
+}

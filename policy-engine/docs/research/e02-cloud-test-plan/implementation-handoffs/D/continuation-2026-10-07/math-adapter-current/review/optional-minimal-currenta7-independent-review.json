@@ -1,0 +1,47 @@
+{
+  "schema": "D.e02.independent-minimal-a7-review.v1",
+  "reviewer": "/root/gp_oct07",
+  "author": "/root/math_oct07",
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+  "verdict": "GO_BOUNDED_MINIMAL_IMPORT_AND_SUPPORTED_CONTRACT_SCOPE",
+  "reviewed_receipt": {
+    "path": "/tmp/e02-D-adapter-final-next-6zl5k0p2/optional-minimal-currenta7-receipt.json",
+    "sha256": "a07cfab2c23f74d33280af969a937a60cd09ac85abcac73aeb8c489f1d1adace"
+  },
+  "checks": [
+    {
+      "output_root": "/tmp/e02-D-minimal-final-a7-s0g39f4_",
+      "node_count": 70,
+      "collection_count": 70,
+      "call_phases": 55,
+      "skip": 15,
+      "numerical_property": "UNRUN_missing_backend",
+      "before_after_inputs": 6313,
+      "complete_deciding_hashes_verified": 14
+    },
+    {
+      "output_root": "/tmp/e02-D-optional-collector-a7-xw3mrtu_",
+      "node_count": 2,
+      "collection_count": 53,
+      "call_phases": 0,
+      "skip": 2,
+      "numerical_property": "UNRUN_missing_backend",
+      "before_after_inputs": 6313,
+      "complete_deciding_hashes_verified": 14
+    }
+  ],
+  "complete_deciding_output": {
+    "path": "/tmp/e02-D-adapter-final-next-6zl5k0p2/optional-minimal-currenta7-complete-deciding-output.json.gz",
+    "sha256": "92f5f3189d1b5ab0c306091adba45c9695893b52cd6f651e06b82285e6542810",
+    "bytes": 401082
+  },
+  "predicate": "55 actual ordinary calls PASS;15 numerical missingbackend SKIP\u2192UNRUN. Separate collector53 nodes/2module SKIP has zero calls; collection is not native GP/vector or new factory execution. No collection/import errors; runtime/code files unchanged.",
+  "formal_closed": false,
+  "G_acceptance": "not_established",
+  "portable_deciding_output_validation": {
+    "all_path_bindings": 28,
+    "all_unique_UTF8_contents": 23,
+    "every_inner_digest_and_full_original_bytes_verified": true
+  }
+}

@@ -1,0 +1,900 @@
+{
+  "schema": "policyos.e02.D.transfer_baseline_navigation.v1",
+  "import_check": "PASS at exact828 before verification/query",
+  "rows": [
+    {
+      "finding": "B129",
+      "id": "F02-P111",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "test_path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+      "check_state": "PASS",
+      "reported_calls": "5",
+      "reported_skip": "0",
+      "job": "F02",
+      "environment_backend_ref": "#/jobs/F02",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B129",
+      "id": "F08-P113",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "test_path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+      "check_state": "PASS",
+      "reported_calls": "5",
+      "reported_skip": "0",
+      "job": "F08",
+      "environment_backend_ref": "#/jobs/F08",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B129",
+      "id": "F13-P129",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "test_path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+      "check_state": "PASS",
+      "reported_calls": "5",
+      "reported_skip": "0",
+      "job": "F13",
+      "environment_backend_ref": "#/jobs/F13",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B133",
+      "id": "F02-P111",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "test_path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+      "check_state": "PASS",
+      "reported_calls": "5",
+      "reported_skip": "0",
+      "job": "F02",
+      "environment_backend_ref": "#/jobs/F02",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B133",
+      "id": "F08-P113",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "test_path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+      "check_state": "PASS",
+      "reported_calls": "5",
+      "reported_skip": "0",
+      "job": "F08",
+      "environment_backend_ref": "#/jobs/F08",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B133",
+      "id": "F13-P129",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "test_path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+      "check_state": "PASS",
+      "reported_calls": "5",
+      "reported_skip": "0",
+      "job": "F13",
+      "environment_backend_ref": "#/jobs/F13",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B134",
+      "id": "F02-P111",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "test_path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+      "check_state": "PASS",
+      "reported_calls": "5",
+      "reported_skip": "0",
+      "job": "F02",
+      "environment_backend_ref": "#/jobs/F02",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B134",
+      "id": "F08-P113",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "test_path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+      "check_state": "PASS",
+      "reported_calls": "5",
+      "reported_skip": "0",
+      "job": "F08",
+      "environment_backend_ref": "#/jobs/F08",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B134",
+      "id": "F13-P129",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "test_path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+      "check_state": "PASS",
+      "reported_calls": "5",
+      "reported_skip": "0",
+      "job": "F13",
+      "environment_backend_ref": "#/jobs/F13",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B135",
+      "id": "F03-P100",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+      "check_state": "PASS",
+      "reported_calls": "7",
+      "reported_skip": "0",
+      "job": "F03",
+      "environment_backend_ref": "#/jobs/F03",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B135",
+      "id": "F04-P121",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lessons.py",
+      "check_state": "PASS",
+      "reported_calls": "4",
+      "reported_skip": "0",
+      "job": "F04",
+      "environment_backend_ref": "#/jobs/F04",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B135",
+      "id": "F04-P128",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "test_path": "policy-engine/tests/unit/scientist/orchestration/memory/test_failure_lessons.py",
+      "check_state": "PASS",
+      "reported_calls": "3",
+      "reported_skip": "0",
+      "job": "F04",
+      "environment_backend_ref": "#/jobs/F04",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B135",
+      "id": "F06-P117",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+      "check_state": "PASS",
+      "reported_calls": "5",
+      "reported_skip": "0",
+      "job": "F06",
+      "environment_backend_ref": "#/jobs/F06",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B135",
+      "id": "F06-P133",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lessons.py",
+      "check_state": "PASS",
+      "reported_calls": "3",
+      "reported_skip": "0",
+      "job": "F06",
+      "environment_backend_ref": "#/jobs/F06",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B135",
+      "id": "F07-P113",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lessons.py",
+      "check_state": "PASS",
+      "reported_calls": "4",
+      "reported_skip": "0",
+      "job": "F07",
+      "environment_backend_ref": "#/jobs/F07",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B135",
+      "id": "F09-P102",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+      "check_state": "PASS",
+      "reported_calls": "7",
+      "reported_skip": "0",
+      "job": "F09",
+      "environment_backend_ref": "#/jobs/F09",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B135",
+      "id": "F10-P104",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lessons.py",
+      "check_state": "PASS",
+      "reported_calls": "3",
+      "reported_skip": "0",
+      "job": "F10",
+      "environment_backend_ref": "#/jobs/F10",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B135",
+      "id": "F11-P095",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+      "check_state": "PASS",
+      "reported_calls": "5",
+      "reported_skip": "0",
+      "job": "F11",
+      "environment_backend_ref": "#/jobs/F11",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B135",
+      "id": "F13-P115",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+      "check_state": "PASS",
+      "reported_calls": "7",
+      "reported_skip": "0",
+      "job": "F13",
+      "environment_backend_ref": "#/jobs/F13",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B135",
+      "id": "F13-P142",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lessons.py",
+      "check_state": "PASS",
+      "reported_calls": "4",
+      "reported_skip": "0",
+      "job": "F13",
+      "environment_backend_ref": "#/jobs/F13",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B136",
+      "id": "F03-P100",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+      "check_state": "PASS",
+      "reported_calls": "7",
+      "reported_skip": "0",
+      "job": "F03",
+      "environment_backend_ref": "#/jobs/F03",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B136",
+      "id": "F04-P121",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lessons.py",
+      "check_state": "PASS",
+      "reported_calls": "4",
+      "reported_skip": "0",
+      "job": "F04",
+      "environment_backend_ref": "#/jobs/F04",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B136",
+      "id": "F04-P128",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "test_path": "policy-engine/tests/unit/scientist/orchestration/memory/test_failure_lessons.py",
+      "check_state": "PASS",
+      "reported_calls": "3",
+      "reported_skip": "0",
+      "job": "F04",
+      "environment_backend_ref": "#/jobs/F04",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B136",
+      "id": "F06-P117",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+      "check_state": "PASS",
+      "reported_calls": "5",
+      "reported_skip": "0",
+      "job": "F06",
+      "environment_backend_ref": "#/jobs/F06",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B136",
+      "id": "F06-P133",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lessons.py",
+      "check_state": "PASS",
+      "reported_calls": "3",
+      "reported_skip": "0",
+      "job": "F06",
+      "environment_backend_ref": "#/jobs/F06",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B136",
+      "id": "F07-P113",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lessons.py",
+      "check_state": "PASS",
+      "reported_calls": "4",
+      "reported_skip": "0",
+      "job": "F07",
+      "environment_backend_ref": "#/jobs/F07",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B136",
+      "id": "F09-P102",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+      "check_state": "PASS",
+      "reported_calls": "7",
+      "reported_skip": "0",
+      "job": "F09",
+      "environment_backend_ref": "#/jobs/F09",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B136",
+      "id": "F10-P104",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lessons.py",
+      "check_state": "PASS",
+      "reported_calls": "3",
+      "reported_skip": "0",
+      "job": "F10",
+      "environment_backend_ref": "#/jobs/F10",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B136",
+      "id": "F11-P095",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+      "check_state": "PASS",
+      "reported_calls": "5",
+      "reported_skip": "0",
+      "job": "F11",
+      "environment_backend_ref": "#/jobs/F11",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B136",
+      "id": "F13-P115",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+      "check_state": "PASS",
+      "reported_calls": "7",
+      "reported_skip": "0",
+      "job": "F13",
+      "environment_backend_ref": "#/jobs/F13",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B136",
+      "id": "F13-P142",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lessons.py",
+      "check_state": "PASS",
+      "reported_calls": "4",
+      "reported_skip": "0",
+      "job": "F13",
+      "environment_backend_ref": "#/jobs/F13",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B137",
+      "id": "F03-P100",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+      "check_state": "PASS",
+      "reported_calls": "7",
+      "reported_skip": "0",
+      "job": "F03",
+      "environment_backend_ref": "#/jobs/F03",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B137",
+      "id": "F04-P121",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lessons.py",
+      "check_state": "PASS",
+      "reported_calls": "4",
+      "reported_skip": "0",
+      "job": "F04",
+      "environment_backend_ref": "#/jobs/F04",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B137",
+      "id": "F04-P128",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "test_path": "policy-engine/tests/unit/scientist/orchestration/memory/test_failure_lessons.py",
+      "check_state": "PASS",
+      "reported_calls": "3",
+      "reported_skip": "0",
+      "job": "F04",
+      "environment_backend_ref": "#/jobs/F04",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B137",
+      "id": "F06-P117",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+      "check_state": "PASS",
+      "reported_calls": "5",
+      "reported_skip": "0",
+      "job": "F06",
+      "environment_backend_ref": "#/jobs/F06",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B137",
+      "id": "F06-P133",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lessons.py",
+      "check_state": "PASS",
+      "reported_calls": "3",
+      "reported_skip": "0",
+      "job": "F06",
+      "environment_backend_ref": "#/jobs/F06",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B137",
+      "id": "F07-P113",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lessons.py",
+      "check_state": "PASS",
+      "reported_calls": "4",
+      "reported_skip": "0",
+      "job": "F07",
+      "environment_backend_ref": "#/jobs/F07",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B137",
+      "id": "F09-P102",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+      "check_state": "PASS",
+      "reported_calls": "7",
+      "reported_skip": "0",
+      "job": "F09",
+      "environment_backend_ref": "#/jobs/F09",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B137",
+      "id": "F10-P104",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lessons.py",
+      "check_state": "PASS",
+      "reported_calls": "3",
+      "reported_skip": "0",
+      "job": "F10",
+      "environment_backend_ref": "#/jobs/F10",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B137",
+      "id": "F11-P095",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+      "check_state": "PASS",
+      "reported_calls": "5",
+      "reported_skip": "0",
+      "job": "F11",
+      "environment_backend_ref": "#/jobs/F11",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B137",
+      "id": "F13-P115",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+      "check_state": "PASS",
+      "reported_calls": "7",
+      "reported_skip": "0",
+      "job": "F13",
+      "environment_backend_ref": "#/jobs/F13",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    },
+    {
+      "finding": "B137",
+      "id": "F13-P142",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "test_path": "policy-engine/tests/unit/scientist/search/test_lessons.py",
+      "check_state": "PASS",
+      "reported_calls": "4",
+      "reported_skip": "0",
+      "job": "F13",
+      "environment_backend_ref": "#/jobs/F13",
+      "closure_use": "navigation only; no closure/carry without exact current blobs/output and criterion proof"
+    }
+  ],
+  "jobs": {
+    "F02": {
+      "metadata": {
+        "python_attempts": 140,
+        "environment": {
+          "os": "Linux Debian 13",
+          "arch": "x86_64",
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.23.3",
+          "corepack": "0.36.0",
+          "pnpm": "10.33.2",
+          "cpu_max": "400000 100000",
+          "cpu_quota_cores": 4,
+          "cpuset": "0-4",
+          "memory_limit_bytes": 17179869184,
+          "installed_distributions": 241,
+          "distribution_profile_unchanged_after_series": true,
+          "numerical_threads": 1,
+          "JAX_PLATFORMS": "cpu",
+          "free_disk_before_every_install_build_ge_20_GiB": true,
+          "profile": [
+            "lint",
+            "test",
+            "runtime",
+            "ml",
+            "analytics",
+            "bayesian",
+            "optimization-advanced",
+            "sensitivity",
+            "causal-discovery",
+            "causal-discovery-scale",
+            "search_bo",
+            "solvers",
+            "vector-search"
+          ],
+          "frozen_base_sync": {
+            "exit": 0,
+            "wall_s": 37.203
+          },
+          "frozen_union_sync": {
+            "exit": 0,
+            "wall_s": 49.124
+          },
+          "frozen_pnpm_install": {
+            "exit": 0,
+            "wall_s": 2.062
+          },
+          "property_controls_absent_in_all_140_primary_children": true,
+          "effective_hypothesis_database": "/workspace/polisyos/policy-engine/_cache/hypothesis",
+          "hypothesis_boundary": "Native conftest overrides nominal per-attempt storage; shared effective database preserved and recorded."
+        },
+        "vm_root": "/workspace/polisyos/policy-engine/_build/e02-full/F02/20261005T074246Z"
+      },
+      "source_file": "/workspace/e02-D-published-root/policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt",
+      "original_backend_grade": "source_reported_only; transferred raw runner/phase provenance missing",
+      "backend_claim": "source_reported bounded HNSW roundtrip; not a complete TRN criterion"
+    },
+    "F08": {
+      "metadata": {
+        "environment": {
+          "os": "Debian 13",
+          "architecture": "x86_64",
+          "cpu_max": "400000 100000",
+          "effective_cpu_quota": 4,
+          "memory_max_bytes": 17179869184,
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.23.3",
+          "corepack": "0.36.0",
+          "pnpm": "10.33.2",
+          "distribution_count": 253,
+          "distribution_metadata_drift": [],
+          "numerical_threads": 1,
+          "jax_platforms": "cpu"
+        },
+        "output_root": "/workspace/polisyos-e02-F08-20261005T0746Z/policy-engine/_build/e02-full/F08/20261005T0746Z"
+      },
+      "source_file": "/workspace/e02-D-published-root/policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt",
+      "original_backend_grade": "source_reported_only; transferred raw runner/phase provenance missing",
+      "backend_claim": "per-cell backend_execution not_established from compact receipt"
+    },
+    "F13": {
+      "metadata": {
+        "root": "/workspace/polisyos/.worktrees/e02-full-F13-20261005T074808Z/policy-engine",
+        "selected_profile": [
+          "lint",
+          "test",
+          "runtime",
+          "ml",
+          "analytics",
+          "bayesian",
+          "optimization-advanced",
+          "sensitivity",
+          "causal-discovery",
+          "causal-discovery-scale",
+          "search_bo",
+          "solvers",
+          "vector-search"
+        ],
+        "environment_segments": [
+          "Initial pnpm install omitted explicit CI=true; a retained CI=true frozen readback completed before tests.",
+          "Bare uv PATH corrected during F13-P002; prior generic uv child selection is not established.",
+          "Generic Python entrypoints corrected during F13-P009; corrected wrappers verified the assigned venv prefix. Prior generic child selections are not established.",
+          "Every primary pytest invocation used the absolute assigned .venv Python.",
+          "After frozen union disk free was below 20 GiB; no further manual dependency or extension installations were performed."
+        ]
+      },
+      "source_file": "/workspace/e02-D-published-root/policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt",
+      "original_backend_grade": "source_reported_only; transferred raw runner/phase provenance missing",
+      "backend_claim": "source_reported bounded HNSW roundtrip; not a complete TRN criterion"
+    },
+    "F03": {
+      "metadata": {
+        "profile": {
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.23.3",
+          "pnpm": "10.33.2",
+          "frozen": true,
+          "execution_device": "cpu",
+          "distributions": 253,
+          "extras": [
+            "lint",
+            "test",
+            "runtime",
+            "ml",
+            "analytics",
+            "bayesian",
+            "optimization-advanced",
+            "sensitivity",
+            "causal-discovery",
+            "vector-search",
+            "solvers",
+            "search_bo",
+            "agent-sim",
+            "causal-discovery-scale"
+          ],
+          "unchanged": true
+        },
+        "JAX_PLATFORMS": "cpu"
+      },
+      "source_file": "/workspace/e02-D-published-root/policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt",
+      "original_backend_grade": "source_reported_only; transferred raw runner/phase provenance missing",
+      "backend_claim": "per-cell backend_execution not_established from compact receipt"
+    },
+    "F04": {
+      "metadata": {
+        "profile": [
+          "lint",
+          "test",
+          "runtime",
+          "ml",
+          "analytics",
+          "bayesian",
+          "optimization-advanced",
+          "sensitivity",
+          "causal-discovery",
+          "vector-search",
+          "solvers"
+        ],
+        "python_attempts": 141,
+        "profile_drift_after": false,
+        "sum_all_python_attempt_wall_seconds": 5667.394790887833
+      },
+      "source_file": "/workspace/e02-D-published-root/policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt",
+      "original_backend_grade": "source_reported_only; transferred raw runner/phase provenance missing",
+      "backend_claim": "per-cell backend_execution not_established from compact receipt"
+    },
+    "F06": {
+      "metadata": {
+        "profile": [
+          "lint",
+          "test",
+          "runtime",
+          "ml",
+          "analytics",
+          "bayesian",
+          "optimization-advanced",
+          "sensitivity",
+          "causal-discovery",
+          "vector-search",
+          "solvers",
+          "search_bo",
+          "agent-sim"
+        ],
+        "environment": {
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.20.0",
+          "pnpm": "10.33.2",
+          "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+          "machine": "x86_64",
+          "cpu.max": "400000 100000",
+          "cpuset.cpus.effective": "0-4",
+          "memory.max_bytes": 17179869184,
+          "numerical_threads": 1,
+          "JAX_PLATFORMS": "cpu",
+          "CUDA_VISIBLE_DEVICES": "",
+          "installed_distributions_before": 250,
+          "installed_distributions_after": 250,
+          "metadata_RECORD_direct_url_locations_unchanged": true,
+          "node_links_unchanged": true,
+          "disk_free_closeout_inventory_bytes": 17770393600,
+          "resource_adapter_missing": false,
+          "observer_sha256": "72111e340c3fabdd3a90176ddfac6cc44a0af8226a31dadd0b869d03740d4cb4"
+        }
+      },
+      "source_file": "/workspace/e02-D-published-root/policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt",
+      "original_backend_grade": "source_reported_only; transferred raw runner/phase provenance missing",
+      "backend_claim": "per-cell backend_execution not_established from compact receipt"
+    },
+    "F07": {
+      "metadata": {
+        "profile": [
+          "lint",
+          "test",
+          "runtime",
+          "ml",
+          "analytics",
+          "bayesian",
+          "optimization-advanced",
+          "sensitivity",
+          "causal-discovery",
+          "vector-search",
+          "solvers",
+          "search_bo"
+        ],
+        "environment": {
+          "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+          "arch": "x86_64",
+          "cpu_max": "400000 100000",
+          "cpuset": "0-4",
+          "memory_limit_bytes": 17179869184,
+          "versions": [
+            {
+              "argv": [
+                ".venv/bin/python",
+                "--version"
+              ],
+              "version": "Python 3.14.2",
+              "exit": 0
+            },
+            {
+              "argv": [
+                "/workspace/polisyos-e02-full-F07-20261005T074300Z/policy-engine/_build/e02-full/F07/20261005T074300Z/setup/uv-tool/bin/uv",
+                "--version"
+              ],
+              "version": "uv 0.9.21",
+              "exit": 0
+            },
+            {
+              "argv": [
+                "node",
+                "--version"
+              ],
+              "version": "v22.23.3",
+              "exit": 0
+            },
+            {
+              "argv": [
+                "corepack",
+                "--version"
+              ],
+              "version": "0.36.0",
+              "exit": 0
+            },
+            {
+              "argv": [
+                "corepack",
+                "pnpm",
+                "--version"
+              ],
+              "version": "10.33.2",
+              "exit": 0
+            },
+            {
+              "argv": [
+                "/workspace/polisyos-e02-full-F07-20261005T074300Z/policy-engine/_build/e02-full/F07/20261005T074300Z/setup/gnu-time/usr/bin/time",
+                "--version"
+              ],
+              "version": "time (GNU Time) UNKNOWN\nCopyright (C) 2018 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by David Keppel, David MacKenzie, and Assaf Gordon.",
+              "exit": 0
+            }
+          ],
+          "python_executable": "/workspace/polisyos-e02-full-F07-20261005T074300Z/policy-engine/.venv/bin/python",
+          "installed_distributions": 238,
+          "distributions_unchanged_after_series": true,
+          "node_workspace_links_ref": "setup/node-workspace-links.json",
+          "GNU_time_package": {
+            "package_metadata": "Package: time\nVersion: 1.9-0.2\nArchitecture: amd64\n",
+            "exit": 0,
+            "deb_sha256": "10257c6fe888e6578550b1f20705d282dd630b76f8df0c006aec3031fefe5e23",
+            "extracted_binary_sha256": "efc0d1112e36ec76c14bf7508e287935cf1631d9d0d91fb532802d07aef51cea"
+          },
+          "disk_before_sync_final_bytes": 28581031936,
+          "disk_floor_bytes": 21474836480
+        }
+      },
+      "source_file": "/workspace/e02-D-published-root/policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt",
+      "original_backend_grade": "source_reported_only; transferred raw runner/phase provenance missing",
+      "backend_claim": "per-cell backend_execution not_established from compact receipt"
+    },
+    "F09": {
+      "metadata": {},
+      "source_file": "/workspace/e02-D-published-root/policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt",
+      "original_backend_grade": "source_reported_only; transferred raw runner/phase provenance missing",
+      "backend_claim": "per-cell backend_execution not_established from compact receipt"
+    },
+    "F10": {
+      "metadata": {
+        "versions": {
+          "Python": "3.14.2",
+          "uv": "0.9.21",
+          "Node": "22.23.3",
+          "pnpm": "10.33.2",
+          "GNU_time_banner": "UNKNOWN",
+          "GNU_time_distro_package": "time_1.9-0.2_amd64.deb"
+        },
+        "profile": {
+          "union_exit": 0,
+          "selected_extras": [
+            "lint",
+            "test",
+            "runtime",
+            "ml",
+            "analytics",
+            "bayesian",
+            "optimization-advanced",
+            "sensitivity",
+            "causal-discovery",
+            "agent-sim",
+            "causal-discovery-scale",
+            "search_bo",
+            "solvers",
+            "vector-search"
+          ],
+          "unavailable_extras": [],
+          "profile_before_after_identical": true,
+          "numerical_threads": 1,
+          "JAX_PLATFORMS": "cpu"
+        }
+      },
+      "source_file": "/workspace/e02-D-published-root/policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt",
+      "original_backend_grade": "source_reported_only; transferred raw runner/phase provenance missing",
+      "backend_claim": "per-cell backend_execution not_established from compact receipt"
+    },
+    "F11": {
+      "metadata": {
+        "selected_profile": [
+          "lint",
+          "test",
+          "runtime",
+          "ml",
+          "analytics",
+          "bayesian",
+          "optimization-advanced",
+          "sensitivity",
+          "causal-discovery",
+          "causal-discovery-scale",
+          "search_bo",
+          "solvers",
+          "vector-search"
+        ],
+        "environment": {
+          "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+          "arch": "x86_64",
+          "cgroup": {
+            "cpu.max": "400000 100000",
+            "cpuset.cpus.effective": "0-4",
+            "memory.max": "17179869184"
+          },
+          "versions": {
+            "python": "Python 3.14.0",
+            "uv": "uv 0.9.21",
+            "node": "v22.14.0",
+            "pnpm": "10.33.2",
+            "gnu_time": "time (GNU Time) UNKNOWN"
+          },
+          "gnu_time_sha256": "efc0d1112e36ec76c14bf7508e287935cf1631d9d0d91fb532802d07aef51cea",
+          "gnu_time_package_sha256": "10257c6fe888e6578550b1f20705d282dd630b76f8df0c006aec3031fefe5e23"
+        }
+      },
+      "source_file": "/workspace/e02-D-published-root/policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt",
+      "original_backend_grade": "source_reported_only; transferred raw runner/phase provenance missing",
+      "backend_claim": "per-cell backend_execution not_established from compact receipt"
+    }
+  },
+  "raw_transfer": "missing; compact_text_only per verification.json",
+  "owner_basis": "full owner TSV/card and committed criterion accounting; query does not define ownership"
+}

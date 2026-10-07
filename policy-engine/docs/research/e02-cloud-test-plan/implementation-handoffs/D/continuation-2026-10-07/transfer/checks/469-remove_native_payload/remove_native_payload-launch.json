@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-p",
+    "remove_native_payload",
+    "-o",
+    "junit_family=xunit1",
+    "--basetemp",
+    "/dev/shm/e02-D-transfer-frozen469-06qbulta/remove_native_payload-tmp",
+    "--junitxml",
+    "/dev/shm/e02-D-transfer-frozen469-06qbulta/remove_native_payload.xml",
+    "-q",
+    "tests/unit/scientist/agent/test_vector_generation_consumer.py",
+    "-k",
+    "cosine_direction"
+  ],
+  "source": "46933aa2d97e236a949c490650a483c9a2838d98",
+  "tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d",
+  "control": "in-memory marker-preserving removal against actual frozen implementation; no Git source writes",
+  "environment": {
+    "PYTHONPATH": "/dev/shm/e02-D-transfer-frozen469-06qbulta:/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine",
+    "TMPDIR": "/dev/shm/e02-D-transfer-frozen469-06qbulta/tmp",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  }
+}

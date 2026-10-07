@@ -1,0 +1,130 @@
+{
+  "schema": "D.e02.portable-file-manifest.v1",
+  "files": [
+    {
+      "path": "B04-b652-actual-canonical18-and-removal5-independent-review.json",
+      "sha256": "05da63540a1f5ec4f5d84a0b90ad0bc39d39614cf02d000addf0a6944e492396",
+      "bytes": 3303
+    },
+    {
+      "path": "B04-b652-independent-runtime-review.json",
+      "sha256": "7639b9db0d6f3f141d193fc78581fc8a2de4c188644231a6c9cdbdbc8efb4321",
+      "bytes": 3718
+    },
+    {
+      "path": "B04canonical-actual_AST_input_denominator.json",
+      "sha256": "6390e8f8a38c7d20216c8d09693c842e8c7986057ed26cc8eb0e881773c64844",
+      "bytes": 18956
+    },
+    {
+      "path": "B04canonical-command.json",
+      "sha256": "059b692fb6d4dcd90e51052a2a78c1351eec7beb4a47e98222cc617af105859e",
+      "bytes": 867
+    },
+    {
+      "path": "B04canonical-result.json",
+      "sha256": "65edb354d915dc55d9ebf70cf48142e3fba7515099add82241c1c867ae7ed1bf",
+      "bytes": 1445
+    },
+    {
+      "path": "B04canonical-stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "B04canonical-stdout.txt",
+      "sha256": "ec4fbd715944b016ae150aea0a3239a8f8321f12a75518b2ce69a0299421352f",
+      "bytes": 24414
+    },
+    {
+      "path": "B04remove5-execution.json",
+      "sha256": "5baf8d3595cef4e1e7187f4142f0737bed07efe6fdfda2ec3af2a3797046b449",
+      "bytes": 1946
+    },
+    {
+      "path": "B04remove5-junit.xml",
+      "sha256": "03a30bc3e35302a52ba9628ebe0d90ebc836e5fd19c6fb7ebcc79fb37fc836f1",
+      "bytes": 5821
+    },
+    {
+      "path": "B04remove5-result.json",
+      "sha256": "4f2a87b98db0d7f3e77ba9317ae6a6c4237869a144f3d98b5fc8ab98f5b27000",
+      "bytes": 709
+    },
+    {
+      "path": "B04remove5-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "B04remove5-stdout.log",
+      "sha256": "784ffc365edec0acf47df8dfc2bfd81c33d8a3db9733717f0dbc87f37203768e",
+      "bytes": 6855
+    },
+    {
+      "path": "B04tests18-execution.json",
+      "sha256": "fd9d8778578810964739d4732f95df40f4c0542897e5eab74505786b927da5e1",
+      "bytes": 1626
+    },
+    {
+      "path": "B04tests18-junit.xml",
+      "sha256": "69a6227d436c517d938e83364582842c0375cd8844e418b917d16de498becd80",
+      "bytes": 3400
+    },
+    {
+      "path": "B04tests18-result.json",
+      "sha256": "b188b7b53c5e71774ecfafb9468d4cbad2723b84d1f58d22e6336502f3d25b66",
+      "bytes": 710
+    },
+    {
+      "path": "B04tests18-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "B04tests18-stdout.log",
+      "sha256": "b08083c3e70f8a1327e668ad665430b25b4a61086bd71f325819bcdb805927a2",
+      "bytes": 1195
+    },
+    {
+      "path": "README.md",
+      "sha256": "250150ac9d93c23752dc32b4ba7a3384b4d47248e40e930c29b58b7250d8fd61",
+      "bytes": 414
+    },
+    {
+      "path": "canonical-postcompletion-output-manifest.json",
+      "sha256": "325597764bed144f85119dfca61cc4b93ccc761e9f83d0c862978439b7ba3071",
+      "bytes": 1972
+    },
+    {
+      "path": "complete-deciding-output.json.gz",
+      "sha256": "255982dcb9b4d34e14d1038744f57a9d65b8a28aa64e3c578e2ad2c13ce84051",
+      "bytes": 1033677
+    },
+    {
+      "path": "handoff.json",
+      "sha256": "7cfdcad8df7f4ca8a076ebbd3a07bac4be071799dd625e97bda16b834015f6ac",
+      "bytes": 13799
+    },
+    {
+      "path": "review-e02-D-B04-v3-independent-m0lc0_ke-review.json",
+      "sha256": "89cc511863d023958e0151c82843473e1f45be63ef8d4b278b0472578d76c129",
+      "bytes": 12154
+    },
+    {
+      "path": "review-e02-D-census-review-oct07-B04-final-v3-companions-independent-review.json",
+      "sha256": "22fe32e7831fec2266933d6c6b691f7d1cb7e524b8f1a0174ed6b6b935a3fede",
+      "bytes": 1275
+    },
+    {
+      "path": "review-e02-D-census-review-oct07-B04-final-v3-tests-independent-review.json",
+      "sha256": "01ac525d5ab97e336dbc20731cf75376942967ed906242d97a2bfa0ce5f68fe9",
+      "bytes": 2835
+    },
+    {
+      "path": "review-e02-D-census-review-oct07-B04-original-guard-removal-static-independent-review.json",
+      "sha256": "f8eb9c47b6b9a95bfc51f4e5f70b71e913c5a650967bd87680878d30f9bae683",
+      "bytes": 987
+    }
+  ]
+}

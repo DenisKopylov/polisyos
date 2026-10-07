@@ -1,0 +1,171 @@
+{
+  "schema": "e02.D.independent-composed-adapter-runtime-review.v1",
+  "reviewer": "census_oct07",
+  "author": "math_oct07",
+  "verdict": "GO_CURRENT_126_AND_ACTUAL2_PLUS2_REMOVAL_CONTROLS",
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+  "handoff": {
+    "path": "/tmp/e02-D-adapter-final-next-6zl5k0p2/current-adapter-consumer-handoff.json",
+    "sha256": "f20f2edec50343cfb1383018ff5eca3605d4c16f8c6ed37194480b6c65dba88f"
+  },
+  "complete_deciding_output": {
+    "path": "/tmp/e02-D-adapter-final-next-6zl5k0p2/current-adapter-complete-deciding-output.json.gz",
+    "sha256": "541164130cb03232643477d0ff7bbf9387eedc2a2fdd456ad72aaf29edf6f0c3",
+    "bytes": 1974439,
+    "content": "Full requests/stdout/stderr/JUnit/phases/source before-after/complete tracked hashes/origins/unique harness, bounded actual CAS positive and removal bytes, historical fixture failures separately; no tracked source bodies or production inputs."
+  },
+  "portable_bindings_verified": 731,
+  "unique_utf8_content_hashes_verified": 266,
+  "source_bindings_verified": 13,
+  "scope_records": [
+    {
+      "name": "positive",
+      "counts": {
+        "PASS": 126,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "actual_call_phases": 126,
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+      "full_tracked_manifest": 15484,
+      "sparse_unavailable_tracked_paths": 7069,
+      "materialized_tracked_paths": 8415,
+      "no_source_input_change": true,
+      "wall_seconds": 59.43708557501668,
+      "junit_sha256": "f68c921a6383fcf485292a4be14fb3ef3cd1f6daf419a5c23c57380040125da9",
+      "complete_output_hashes": {
+        "origins.json": "61d062d81947ac22820b89c9ff03e41da9d01556d64596e754b717137e1d5b2b",
+        "junit.xml": "f68c921a6383fcf485292a4be14fb3ef3cd1f6daf419a5c23c57380040125da9",
+        "events.jsonl": "4ae7a791f0be3b9600eaa7b9db06d0ef43601b902d51c86c43b05eba72246927",
+        "collected.json": "3a8fe83d0ae9c919064fa28fcca37a6e4021aa33bd6959de50db295342902cd4",
+        "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout.txt": "8d71e0d98f06d7e5512ba6b2d4a815e6c3a77389299d09102f9d170d26243d3d",
+        "request.json": "831f732944b8194c1f4a5375bde2d6c47b3b646f84450c658ffc249bd47283cb",
+        "before-inputs.json": "4b247ec1ba74ab2afb806f5671ff560db158b7df861fb04f02ce5dd6792d1cc2"
+      },
+      "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "installed_versions": {
+        "torch": null,
+        "botorch": null,
+        "gpytorch": null,
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "numpy": "2.3.5"
+      },
+      "loaded_backend_versions": {
+        "torch": null,
+        "botorch": null,
+        "gpytorch": null
+      },
+      "origins_verified": 1160
+    },
+    {
+      "name": "remove_history",
+      "counts": {
+        "PASS": 0,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "actual_call_phases": 2,
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+      "full_tracked_manifest": 15484,
+      "sparse_unavailable_tracked_paths": 7069,
+      "materialized_tracked_paths": 8415,
+      "no_source_input_change": true,
+      "wall_seconds": 15.270858753006905,
+      "junit_sha256": "fcd473934a41e53cf7c1ba1b3b36a34707a45b11034dadffb2efe38d2c03b082",
+      "complete_output_hashes": {
+        "origins.json": "37dff2cf99c52b904b7b2af5f93de4da45f04545431ead5bebd401202e17d9b6",
+        "junit.xml": "fcd473934a41e53cf7c1ba1b3b36a34707a45b11034dadffb2efe38d2c03b082",
+        "events.jsonl": "c49e7a23693aca1faa6c737be9fbd26665eca72065594ad12052e6c3fe438d9b",
+        "collected.json": "394f0c81f589652a9a9a577f41fc979f307d8d443ad09eed44d2d13b5f574ea6",
+        "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout.txt": "2035b1e0be1cedcd6962c2d27137ade99c247515cf83e15378ce2287614adb3a",
+        "request.json": "7f86ac5ab94c1da15bfd5104ad4d860a584e962f9c8e03fb4f3eb2c16d825d45",
+        "before-inputs.json": "4b247ec1ba74ab2afb806f5671ff560db158b7df861fb04f02ce5dd6792d1cc2"
+      },
+      "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "installed_versions": {
+        "torch": null,
+        "botorch": null,
+        "gpytorch": null,
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "numpy": "2.3.5"
+      },
+      "loaded_backend_versions": {
+        "torch": null,
+        "botorch": null,
+        "gpytorch": null
+      },
+      "origins_verified": 848
+    },
+    {
+      "name": "remove_inner_numeric",
+      "counts": {
+        "PASS": 0,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "actual_call_phases": 2,
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+      "full_tracked_manifest": 15484,
+      "sparse_unavailable_tracked_paths": 7069,
+      "materialized_tracked_paths": 8415,
+      "no_source_input_change": true,
+      "wall_seconds": 18.139419382001506,
+      "junit_sha256": "4986d85e46a39e39b27d1c9c7bbb950bb5940143fd3352ccecf82ddd530fc93e",
+      "complete_output_hashes": {
+        "origins.json": "37dff2cf99c52b904b7b2af5f93de4da45f04545431ead5bebd401202e17d9b6",
+        "junit.xml": "4986d85e46a39e39b27d1c9c7bbb950bb5940143fd3352ccecf82ddd530fc93e",
+        "events.jsonl": "19de38074b0d46b14b2bbc4c232ea7477578ce1233396ad6f1578f912ea6f154",
+        "collected.json": "d04bc36120c5a61c8d65829ba699c8eb6163b8d7e1a0a8b9412db109e5a5f716",
+        "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout.txt": "c5ea398b72384daa1eb276fac1540b9d09becf34d1d95b17dce6eb482290821a",
+        "request.json": "e8d23a3ed96190968b7ca8d194a094d294599e74e99732c2fc7cb25558ef5cef",
+        "before-inputs.json": "4b247ec1ba74ab2afb806f5671ff560db158b7df861fb04f02ce5dd6792d1cc2"
+      },
+      "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "installed_versions": {
+        "torch": null,
+        "botorch": null,
+        "gpytorch": null,
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "numpy": "2.3.5"
+      },
+      "loaded_backend_versions": {
+        "torch": null,
+        "botorch": null,
+        "gpytorch": null
+      },
+      "origins_verified": 848
+    }
+  ],
+  "original_occurrence_bindings_verified": [
+    "B125@CTL-02",
+    "B127@OPT-02",
+    "LA-014@SRV-01",
+    "LA-015@CTL-01",
+    "LA-015@SRV-03"
+  ],
+  "consumer": "Actual ScalarParameterCodec/default extractor/canonicalSearchSpace -> native Grid StrategyAdapter -> publicSearchLoopRunner.create_service/ask/evaluate/tell -> actualCAScheckpoint -> newpublicrunner.resume -> physical1..5/history/evaluator/CAS/Champion sequence equalwhole; observer savedpending2,3/cursor3/prefix1 delegatesonlytailupdate2,3 thenphysical4,5. Unknown/duplicateIDs and typedfrontier/empty/stopped/failure/warm/sentinel compatibility from actual72ServicePersistencecases.",
+  "P37": "Declared supported minimal nativeGrid profile has actual126callphases/producer+CAS+freshpublicconsumer. Full trackedmanifest15484 contains7069known sparseUnavailable entries; materialized8415unchanged and all1160 importedsourceorigins verified. No whole15484presence or P41 inherited-red claim. No GP numerical property measured in minimalruntime.",
+  "P38": "Same actualCAS history/prefixdigest and rawinner±1e-1000 markers/bytes retained; removals discardactualhistoryvalidation or changeonly existinginnerStrategyState JSONparse_float tofloat. Actualnewfreshresume admitsforbiddeninput and2+2 DIDNOTRAISEFAIL, nofixture/error/skip.",
+  "criterion_scope": "Strong boundedcontribution toB125/B127/LA014/LA015, notwhole sixstrategy/fulloriginalserviceclosure solelyfromaggregate126; full ownerledger joins distinctactual native and legacycontract receipts.",
+  "limitations": [
+    "Canonical finding acceptance belongs to matched full original criterion and owner ledger; this packet alone does not establish all six strategy profiles or all new/resumed/stopped/empty/evaluator-failure scenarios.",
+    "No production history transferred, no deployment caller appointment, no physical scientific evaluator/source/split authority invented.",
+    "Actual originalrun_search legacycontract module receipt must be separatelybound; absent scientific/deployment/authority neighbours do not block completedboundedoriginalcriterion."
+  ],
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "P41": "not_established"
+}

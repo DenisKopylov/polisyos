@@ -1,0 +1,19 @@
+
+==================================== ERRORS ====================================
+_ ERROR collecting tests/unit/scientist/methods/search/test_service_owner_budget_factory.py _
+ImportError while importing test module '/dev/shm/e02-D-oct07-continuation/policy-engine/tests/unit/scientist/methods/search/test_service_owner_budget_factory.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+tests/unit/scientist/methods/search/test_service_owner_budget_factory.py:10: in <module>
+    from test_service_persistence import _runner as _fixture_runner
+E   ModuleNotFoundError: No module named 'test_service_persistence'
+=============================== warnings summary ===============================
+../../../../tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR tests/unit/scientist/methods/search/test_service_owner_budget_factory.py
+1 warning, 1 error in 0.17s

@@ -1,0 +1,51 @@
+{
+  "schema": "e02.D.independent.combined-dependency-profile-review.v1",
+  "reviewer": "census_oct07",
+  "status": "GO_BOUNDED_EXACT_B333_CAS_D_SYNC_NATIVE_CONSUMER_EXECUTION_RUNTIME_PENDING",
+  "D_source_at_review": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+  "B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+  "B_tree": "7e906f0176c19fd587b098097d4bf3916a9df6d0",
+  "artifacts": [
+    {
+      "path": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux/B333-pair/B333-dependency-full.diff",
+      "bytes": 73846,
+      "sha256": "06fa78f60b343521738a16fe0953b15570867cad5e7deb571e6c2aad518b1844"
+    },
+    {
+      "path": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux/B333-pair/B333-async-transitive.diff",
+      "bytes": 8913,
+      "sha256": "7523cf1fe14670421107e932c3bdb7bddbe73cc158c1c54f3f900da169e439ae"
+    },
+    {
+      "path": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux/B333-pair/B333-module-map.json",
+      "bytes": 3408,
+      "sha256": "39f2c6771f2fba5ba096edd7dc148e199406e21c97a33f522256a7fede9d2f9b"
+    },
+    {
+      "path": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux/B333-pair/sitecustomize.py",
+      "bytes": 1803,
+      "sha256": "46249faf6bf51b1a62b709df255d94cfa0ddac761a0a6b6cb60b5adf6f14cb95"
+    },
+    {
+      "path": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux/run_frozen_checks.py",
+      "bytes": 6683,
+      "sha256": "d39003c609bef48316af4e14a12f86a65f3ef146ba314d8545cbabad5914ce44"
+    }
+  ],
+  "exact_all7module_Git_bytes_hash_blob_size_verified": true,
+  "full_read_review": "All1729 lines of7pathartifactdiff plus complete common.async_tools transitive delta read. Actual public get_verified_snapshot unchangedAST is not solebasis; deeper _load_snapshot_read_result/sourcelease/integrity/type/profile/refusal semantics reviewed. New safe acquired-byte verification reports do not return failed bytes via require_verified; native consumer must still content/type-resolve and finite-admit before pointer.",
+  "transitive_correction": "Initial6module map mixed B async_store(unbounded=) with D oldasync_tools forwardingkwarg; corrected beforeexecution by mapping exact existing Bcommon.async_tools source, not newDhelper. This coheres the loaded owner modules; no async/reentrancy property verdict from syncprofile.",
+  "loader": "MetaPath exact7 modules loads actual git show source immutableB333 and refuses byte/hash/size drift before exec; __file__/spec.origin explicit non-filesystem Git locator for existingfreshreader diagnostic. No copiedtrackedsource, sourcepatch/methodmock/typedstub/secondANN. Parent and child inheritedPYTHONPATH each run exact sameowner loader; origins perPIDrecord realloadedsource/hash/size/blob.",
+  "launcher": "ExplicitimmutableDHEADclean preflight, actualold+current source/testprofile inputs, noquotas, complete stdout/stderr/JUnit, HEADafter check, expectedpair2 actualparent+3freshchild processes each exact7module origins required. Aggregate pytestgreen without originadmission is not admittedcombinedprofile. Negative1 keeps realCAS/ref/nativeheader and removes onlyDprivatefinite guard.",
+  "P37": "Actual owner CAS producer registered histories/nativebundlegen -> D1002discovery None/1/2 exactsourceRef -> exactsnapshot/body/digest -> realfreshprocess consumer; expectedsource/backend/origin identity independentof labels.",
+  "P38": "Same exact bundleRef alteredbytes must refuse with oldgeneration coherent; validCASlegacynativeNaN must refusebeforepointer; removalfinite guard must defeat that predicate despite retainedCAS/nativeheader/contentmarkers.",
+  "required_runtime": "Actual pair2 positive and existing removal1 completedphases, perPIDall7exact origins, original26exactRef read receipts/actual1002/history2 and unchanged-ref tamper/oldgeneration; no inference from priorD-only17/65 scopes.",
+  "limitations": [
+    "Bounded combined_dependency_profile experiment, not integratedGitcandidate/main/defaultB/Dwholeadoption or Gacceptance.",
+    "Sync FileSystemCAS/native1002 consumer only; loaded async/signature/import-batch modules and callbackexecutor changes do not gain runtimeclosure from these syncchecks.",
+    "No actual tenant/split numericalreuse rights or authorizedrevalidation positives; held131/137 remainownerinputs.",
+    "1001 donor historysnapshots copy untouchedoriginal2 rows, not1001 independentmeasuredexecutions.",
+    "Exact sourceprofile-only numeric/ABI guarantees, no distributedatomicity/powerloss or productiondata.",
+    "Launcher prints source_unchanged separately; root must treat false as invalidimmutableclaim evenifcheckgreen."
+  ]
+}

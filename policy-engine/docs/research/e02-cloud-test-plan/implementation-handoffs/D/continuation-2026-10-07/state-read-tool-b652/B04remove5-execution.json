@@ -1,0 +1,45 @@
+{
+  "argv": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "/dev/shm/e02-D-B04remove5-b652-i4p1rqge/run.py",
+    "/dev/shm/e02-D-B04remove5-b652-i4p1rqge",
+    "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+    "minimal"
+  ],
+  "pytest_argv": [
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "-ra",
+    "--basetemp=/dev/shm/e02-D-B04remove5-b652-i4p1rqge/basetemp",
+    "--junitxml=/dev/shm/e02-D-B04remove5-b652-i4p1rqge/junit.xml",
+    "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_preserves_missing_read_failure",
+    "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_outside_selector_evidence_cannot_supply_selected_read",
+    "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_async_execute_missing_read_preserves_original_failure"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "source_sha": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+  "source_tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+  "started_at": "2026-10-07T10:06:16.459737+00:00",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+  "path": [
+    "/dev/shm/e02-D-B04remove5-b652-i4p1rqge",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python314.zip",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/lib-dynload",
+    "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages"
+  ],
+  "thread_env": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null
+  },
+  "mode": "minimal"
+}

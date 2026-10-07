@@ -1,0 +1,38 @@
+{
+  "loop_id": "verified",
+  "candidate_ref": {
+    "artifact_id": "sha256:4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1",
+    "kind": "scientist.autotune.verified.candidate",
+    "media_type": "application/json",
+    "manifest_profile_sha256": "sha256:f06aade784252d43a768554b2cb529546f11335e7ae19e99c20e0a3a8417467a"
+  },
+  "evaluation_ref": {
+    "artifact_id": "sha256:bc6c40cf587cf43808584a39d1c9f7f8d5c3de1b80db6063f61c14a21b7914bc",
+    "kind": "scientist.autotune.verified.evaluation",
+    "media_type": "application/json",
+    "manifest_profile_sha256": "sha256:f108b29c980f3be8c82969fd80c73dfc3b116121eceb1ae92e1483259c85e302"
+  },
+  "metrics": {
+    "score": 1.0
+  },
+  "suite_version": "1.0",
+  "promoted_at": "2026-10-07T09:46:24.189302Z",
+  "search_space_version": "1.0",
+  "metadata": {
+    "promoted_by_policy": {
+      "loop_id": "verified",
+      "primary_metric": "score",
+      "unit": "fixture_points",
+      "direction": "maximize",
+      "compare_split": "holdout",
+      "min_improvement": 0.0,
+      "min_sample_count": 0,
+      "required_guardrails": [
+        "finite"
+      ]
+    },
+    "compare_split": "holdout",
+    "suite_id": "verified-data",
+    "suite_ref": "sha256:67b9f5b7bc58432bcd733cd83f9a6cfa2f294cc60e38c809409adac6c3a36426"
+  }
+}

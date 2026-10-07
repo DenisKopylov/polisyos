@@ -1,0 +1,32 @@
+{
+  "candidate": {
+    "artifact_id": "sha256:23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b",
+    "kind": "scientist.autotune.verified.candidate",
+    "media_type": "application/json",
+    "manifest_profile_sha256": "sha256:f06aade784252d43a768554b2cb529546f11335e7ae19e99c20e0a3a8417467a"
+  },
+  "evaluation": {
+    "artifact_id": "sha256:8c4d90e89a0791d6d4f86aa65a78b3537fd3303c1fb32ad083055c57db3a323e",
+    "kind": "scientist.autotune.verified.evaluation",
+    "media_type": "application/json",
+    "manifest_profile_sha256": "sha256:536e766c48507bd2e17e857c115e817b8e6cfbd42fb13722cfc304af4338f198"
+  },
+  "suite": {
+    "artifact_id": "sha256:67b9f5b7bc58432bcd733cd83f9a6cfa2f294cc60e38c809409adac6c3a36426",
+    "kind": "scientist.autotune.generic.suite",
+    "media_type": "application/json",
+    "manifest_profile_sha256": "sha256:c47d7ac17b0cc99acc3a72de212d331a0bd3d0bf76952d2a0f225bb9da382263"
+  },
+  "policy": {
+    "loop_id": "verified",
+    "primary_metric": "score",
+    "unit": "fixture_points",
+    "direction": "maximize",
+    "compare_split": "holdout",
+    "min_improvement": 0.0,
+    "min_sample_count": 0,
+    "required_guardrails": [
+      "finite"
+    ]
+  }
+}

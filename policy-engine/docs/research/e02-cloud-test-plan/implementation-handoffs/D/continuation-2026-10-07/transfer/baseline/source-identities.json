@@ -1,0 +1,15 @@
+{
+  "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "tree": "bb6213c0cde3246e63c04f749547f40f35644a15",
+  "blobs": {
+    "policy-engine/src/polisyos/scientist/agent/vector_memory.py": "b5f389adf3b09727af6812bbf33a06825449b759",
+    "policy-engine/src/polisyos/scientist/methods/search/lessons.py": "0520a440f0b5285d3976f152dad5a0dbfe9c35cb",
+    "policy-engine/src/polisyos/core/artifacts/store.py": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+    "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257",
+    "policy-engine/src/polisyos/scientist/methods/doe/sampling.py": "8e900abc324f80901b8b2c7a22f84563a1fac9c6",
+    "policy-engine/src/polisyos/scientist/methods/doe/designs.py": "1cdf2241318f08092d18936bca3fa130fd998b87",
+    "policy-engine/tests/unit/scientist/agent/test_vector_memory.py": "88753b5536a0cc4dc8121e4b016d29102745861b",
+    "policy-engine/tests/unit/remediation/test_trn_02.py": "fdd17afd4ea92030d599b4947d35c03caaf36d48",
+    "policy-engine/tests/unit/scientist/search/test_lesson_as_of.py": "5543f3ac347ee94724874da5ba6a01385da54786"
+  }
+}

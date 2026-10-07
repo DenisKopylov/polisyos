@@ -1,0 +1,70 @@
+{
+  "schema": "D.e02.state-companion-minimal-owner-disposition.v1",
+  "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+  "tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+  "scope": "Required B04/B19/B23 companion labels for D mechanism delivery; not the similarly named original A-owned finding IDs. No new formal finding disposition.",
+  "B04": {
+    "state": "ordinary_checker_bridge_code_ready_and_bounded_actual_PASS",
+    "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+    "canonical_recipe": "cd policy-engine && PYTHONPATH=src:. uv run python tools/quality/diagnostics/check_state_reads.py",
+    "actual_recipe_profile": "Same canonical script via minimal3.14.7 interpreter; fullargv/full63AST reader receipt in publication-B04-b652",
+    "actual_outputs": "one canonical63ASTPASS,18actualcallerPASS,5originalguard-removal intendedFAIL; noERROR/SKIP",
+    "owner_from_mandatory_measurement_doc": [
+      "team-architecture",
+      "team-devx"
+    ],
+    "minimum_owner_disposition": "Admit/review existing AST selector/constructor grammar and structured exit2 incomplete compatibility for the adjacent tool proposal through Git; D does not appoint runtime scientific owner or close original A/B04."
+  },
+  "B19": {
+    "state": "own_module_delta_qualified; global_contract_errors_need_existing_owner_disposition",
+    "canonical_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+    "canonical_recipe": "cd policy-engine && python tools/quality/validation/architecture_report_only_contracts.py --report module-size",
+    "actual_complete_receipt": "publication-native-currentc0/module-budget/stdout.json",
+    "actual_sha256": "9b4204d16bbfea64d82ead0f0376d7cf747fbf5455f33c95b0de151aa2491301",
+    "actual_result": "command0;report_status contract_errors;82contract_errors/6findings, NOTglobalPASS",
+    "own_final_delta": "MO824/test510/inventory249 exactc0 bytes; B04tool236/newtest201 all below existingwarning1000, no enlarged budget/waiver. Actual ownpath scan separatea7receipt.",
+    "canonical_owner_from_contract": [
+      "team-architecture",
+      "team-devx(validation_tooling_size_budget)"
+    ],
+    "minimum_owner_disposition": "Full82 existing diagnostics disposition (missingvalidation-scriptbudgets/expiredtargetdates/report-only metadata) on complete canonical inputs, and any required owner-selected contract repair. Do not reinterpret command0 or blanket supportedmodulePASS as global acceptance.",
+    "P41": "not_established: no exactslice-base command/complete zero-overlap evidence; no inheritedred waiver."
+  },
+  "B23": {
+    "state": "published_link_readback_not_established_for_new_source_and_receipt_commits",
+    "existing_publication_owners": {
+      "D_topic": "D root only for this own codex/e02-D-oct07-continuation branch",
+      "integration_checkpoint": "G solepublisher; no main authorization"
+    },
+    "minimum_owner_input": "After implementation and separate receipt commits publish to D topic, supply actualremotehead/tree/PR(ifcreated), root-relative Git handoff path mapping for the three immutable portablepacks and manifest hashes. G independently fetches exacthead and reads each handoff/output through Git; a local scratch path, planned link or command0 does not establish published availability.",
+    "bounded_readback_recipe": [
+      "git fetch origin",
+      "git rev-parse origin/codex/e02-D-oct07-continuation",
+      "git show FETCHED_D_HEAD:ROOT_RELATIVE_HANDOFF_PATH",
+      "verify every manifest bytes/hash against exact Git blobs"
+    ],
+    "recipe_arguments": "Descriptive owner recipe only; not executed with unresolvedplaceholders. Root supplies actualpublishedhead and exactfinalpaths before verification.",
+    "public_docs_surface_owner": "not_established here; request exact existing canonical owner classifier only if separate published-link contract requires it.",
+    "no_production_dataset_required": true
+  },
+  "immutable_packages": [
+    {
+      "directory": "publication-native-currentc0",
+      "manifest_sha256": "b656fbba3c94a6cc6a18cc4ad61cc3d1eba485422c71de0e80e2391efe19ac39",
+      "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+    },
+    {
+      "directory": "publication-native-affected-a7",
+      "manifest_sha256": "dd992c910e30f1084567b8b838c1c26a743384359f9cae288b9337d60124e7f1",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e"
+    },
+    {
+      "directory": "publication-B04-b652",
+      "manifest_sha256": "1df63da5a5968a82d35b62828405d882d0fdd16c28515b1cae65518ecad0fdb4",
+      "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e"
+    }
+  ],
+  "unavailable_inputs": "Only owner disposition/currentpublishedref readback; no blanket production data transfer or invented permissions/scientific law.",
+  "formal_G_acceptance": "not_established",
+  "publication_channel": "Git only; no messages to other userchats."
+}

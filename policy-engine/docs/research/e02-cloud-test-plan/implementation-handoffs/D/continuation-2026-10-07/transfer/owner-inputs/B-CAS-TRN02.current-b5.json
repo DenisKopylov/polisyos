@@ -1,0 +1,42 @@
+{
+  "schema": "policyos.e02.owner_input_packet.v1",
+  "unit": "D",
+  "kind": "B-CAS→TRN02-combined-native-consumer",
+  "finding_bindings": [
+    "B129",
+    "B133",
+    "B134"
+  ],
+  "existing_port": {
+    "name": "FileSystemCAS.get_verified_snapshot(ArtifactID|ArtifactRef|str)",
+    "D_dependency_source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+    "D_dependency_store_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+    "D_dependency_snapshot_blob": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257",
+    "fetched_B_head": "e8bd1cfa6c1382231c430b3a4ba6d078e10fd8a9",
+    "public_signature_body_comparison": "identical; deeper snapshot/report/signature code differs, currentD witness cannot claim currentB combined acceptance"
+  },
+  "minimal_request": "Existing CAS owner exact minref + immutable combined source/receipt for new D native1002/fresh-process consumer selector; preserve exact ArtifactRef selected view, manifest and byte digest binding. No ANN lookup replacement. No entire production history or wholesale B merge requested.",
+  "consumer_test_draft": "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py::test_exact_transfer_reference_beyond_1000_keys_survives_fresh_native_reader",
+  "draft_patch_sha256": null,
+  "runtime_path": [
+    "Actual ordinary register_run1001 distinct donor snapshots + originalsource last at nativeindex1001; all exactCAS snapshots verified kind/media/schema/fingerprint/row equality",
+    "One actual fullcatalogHNSW discovery yields1002; exact keymap source reference; ANN then prohibited",
+    "Persisted composite→second Python process actual HNSW/CAS load",
+    "Existing B-owned get_verified_snapshot exact ArtifactRef;26 actualread receipts with independent digest + manifest binding",
+    "TransferLearningManager exact alias and source originalmeasurement/basis numerical admission",
+    "Same composite ref alteredbytes refuses and oldgeneration remainscoherent"
+  ],
+  "status": "Current local D consumer executed; newerB minimumref and combined source/receipt not_established.",
+  "predicate_basis": "recomputed for D local consumer; not_established for currentB integration acceptance",
+  "authority_limitations": [
+    "Current bound34 PASS exists at828; no currentB combined source execution claim",
+    "Fixture-owner/tenant basis is not institutional authorization or production evaluation rights",
+    "In-process vector pointer and local filesystem witnesses do not establish distributed/power-loss guarantees"
+  ],
+  "input_basis": "1001 ordinary discovery registrations faithfully retain2 original controlled donor rows (source IDs,basis,refs,values,time unchanged); selected originalsource supplies2 numerical rows. No1001 independent measuredexecutions claim.",
+  "D_consumer_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+  "D_consumer_tree": "855ae45bd271d207ad3121276a5281454d1d38de",
+  "D_consumer_check": "PASS actualb5 original65; same1002 top_kNone/1/2 and exactCAS/fresh native reader. CurrentB combined source UNRUN.",
+  "D_deciding_outputs": "../checks/b5-original65/",
+  "implemented_selector": "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py::test_exact_transfer_reference_beyond_1000_keys_survives_fresh_native_reader"
+}

@@ -1,0 +1,51 @@
+...............F........................................................ [ 94%]
+....                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_exact_transfer_reference_beyond_1000_keys_survives_fresh_native_reader __
+
+tmp_path = PosixPath('/dev/shm/e02-D-transfer-frozen469-06qbulta/basetemp/test_exact_transfer_reference_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fd3a311fe10>
+record_property = <function record_property.<locals>.append_property at 0x7fd26a33d220>
+
+    def test_exact_transfer_reference_beyond_1000_keys_survives_fresh_native_reader(
+        tmp_path, monkeypatch, record_property
+    ):
+        pytest.importorskip("hnswlib")
+        from polisyos.scientist.methods.search.strategies.transfer import TransferLearningManager
+        from tests.unit.scientist.methods.search.strategies.test_transfer import measured_history
+    
+        store, _, _, source, target, originals, _ = measured_history(tmp_path, count=2)
+        memory = VectorMemoryStore(dim=2, max_elements=1008)
+        manager = TransferLearningManager(store, memory)
+        for number in range(1001):
+            angle = math.pi / 3.0 + (math.pi / 3.0) * number / 1000.0
+            distractor = source.model_copy(
+                deep=True,
+                update={
+                    "run_id": f"distractor-{number}",
+                    "embedding": [math.cos(angle), math.sin(angle)],
+                    "history_ref": None,
+                },
+            )
+            empty_ref = manager.register_run(distractor, [])
+>           assert memory.metadata_for_key(distractor.run_id)["history_ref"] == empty_ref.model_dump(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                mode="json"
+            )
+E           TypeError: 'NoneType' object is not subscriptable
+
+tests/unit/scientist/agent/test_vector_generation_consumer.py:83: TypeError
+=============================== warnings summary ===============================
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/agent/test_vector_generation_consumer.py::test_exact_transfer_reference_beyond_1000_keys_survives_fresh_native_reader

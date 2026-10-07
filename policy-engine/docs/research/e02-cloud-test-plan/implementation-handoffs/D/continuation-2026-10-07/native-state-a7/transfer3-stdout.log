@@ -1,0 +1,23 @@
+...
+=============================== warnings summary ===============================
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+tests/unit/scientist/methods/autotune/test_transfer_workflow.py::test_actual_public_workflow_fits_only_admitted_original_cas_observations[False]
+tests/unit/scientist/methods/autotune/test_transfer_workflow.py::test_actual_public_workflow_fits_only_admitted_original_cas_observations[True]
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+3 passed, 4 warnings in 15.74s
+RUN_RESULT {"exitcode": 0, "wall_s": 19.168726222997066, "rss_kib": 692668, "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]", "executable": "/workspace/e02-D-locked-env/bin/python", "backend": {"torch": "2.10.0", "botorch": "0.16.1", "gpytorch": "1.15.1", "numpy": "2.3.5", "scipy": "1.16.3", "pytest": "9.0.2", "hnswlib": "0.8.0"}, "source_head": "a7efe4b431986c3d79f490879cf49dbdedb1349e", "source_tree": "e809693afe3b84e02d473b5744142d026afbe509", "tracked_input_denominator": 6313, "missing_inputs": [], "changed_inputs": [], "head_after": "a7efe4b431986c3d79f490879cf49dbdedb1349e", "junit_present": true, "mode": "native", "torch_threads": 4}

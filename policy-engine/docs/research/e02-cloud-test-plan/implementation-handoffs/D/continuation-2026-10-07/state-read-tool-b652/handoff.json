@@ -1,0 +1,257 @@
+{
+  "schema": "D.e02.adjacent-B04-checker-bridge-handoff.v1",
+  "author": "/root/gp_oct07",
+  "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+  "tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+  "slice_base": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "original_D_base": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "complete_slice_changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-state-read-spec-admission.toml",
+    "policy-engine/tests/repo_quality/tools/test_state_reads_constructor_admission.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_service_owner_budget_factory.py",
+    "policy-engine/tests/unit/scientist/search/test_contracts.py",
+    "policy-engine/tools/quality/diagnostics/README.md",
+    "policy-engine/tools/quality/diagnostics/check_state_reads.py"
+  ],
+  "own_implementation_footprint": [
+    "policy-engine/tools/quality/diagnostics/check_state_reads.py",
+    "policy-engine/tests/repo_quality/tools/test_state_reads_constructor_admission.py",
+    "policy-engine/tools/quality/diagnostics/README.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-state-read-spec-admission.toml"
+  ],
+  "exact_source_bindings": [
+    {
+      "path": "policy-engine/tools/quality/diagnostics/check_state_reads.py",
+      "blob": "fd2cf955e213d59bf603b6449d4d2cf806bb8f53",
+      "sha256": "b8aac38b9dd330da8e09891e7a40fe1fbbd3deee4850fa6f22446ba826c6d558",
+      "line_count": 236
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_state_reads_constructor_admission.py",
+      "blob": "a2e0e006bcf6033ae290a866a3b4fa6c0bc614e7",
+      "sha256": "cc5d43a89f0f3c6fedfe03e96383aa13656c6b27a6ff3d59aefd8df3a0d8bb92",
+      "line_count": 201
+    },
+    {
+      "path": "policy-engine/tools/quality/diagnostics/README.md",
+      "blob": "58442e8a2eef5434f8cd7a8a803ca3d40cf75ca0",
+      "sha256": "87b66c96dce0b2745aaf0c045f1fba11d3a22b067989d97c2688adbb8c725f16",
+      "line_count": 84
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-state-read-spec-admission.toml",
+      "blob": "303766583ff8e5ed1062b8097a562aaf276abaa2",
+      "sha256": "d73f3f1e3fb6d1be43270dc22456c5197524b6929ab8522dd7484d9760184dc1",
+      "line_count": 31
+    },
+    {
+      "path": "policy-engine/tools/lib/fs.py",
+      "blob": "f23d92e182a2a1d8be8049b342704e0542071fd4",
+      "sha256": "d0ec5e12b7762027051614290cf4e21b09dc3602e371a040f9d7ffcd38a8193f",
+      "line_count": 394
+    },
+    {
+      "path": "policy-engine/tools/AGENTS.md",
+      "blob": "ee39645f795092de53ddc04cb0d10e7d9a7385a2",
+      "sha256": "7ee89c2d2a63ca8b344ec206be3da1f181c54bf5bae6f6e10c75c9ee4e88b41a",
+      "line_count": 7
+    },
+    {
+      "path": "policy-engine/docs/how-to/author-measurement-instruments.md",
+      "blob": "ccf11207716793259c3cedbad6b83c444b6f17b7",
+      "sha256": "87df802eace9fd7c84985d15d839f416b0e7dff0e9d3cb4bd8b4e5c1445e7efb",
+      "line_count": 73
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py",
+      "blob": "260f34e3a52fcf3b82aec43023f45a392b5bdf6f",
+      "sha256": "b38481eec549e4bb999937c52f9fedc4269a78709f850adaa23b64f0032fba76",
+      "line_count": 229
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "blob": "87c522211207190c37aba176a721e29f3c51c1f2",
+      "sha256": "12bdb46a7dc26bd4f18075ad88d054f2cd1666d3cd0e3b370314f6ee8b6f3934",
+      "line_count": 1403
+    }
+  ],
+  "owner": "Existing team-architecture/team-devx measurement-plane owners per author-measurement-instruments; D isolated topic proposal, G integration acceptance separately. No original A finding B04 closure.",
+  "problem": "Original canonical full63 check at exacta7 emits9 false missing reads: _SPEC=OutputAwareNodeSpec already declares all nine but old parser recognizes NodeSpec only. Existing OutputAwareNodeSpec inherits NodeSpec atprotocol117.",
+  "mechanism": "Reuse existing AST read-declaration predicate and tools.lib.fs measured read collector; recognize only two canonical unqualified spec constructor shapes with Assign/AnnAssign. Direct sync/async execute reads retained. Unknown/nonliteral/unpacked/unreadable/unparsable selected input is disclosed as UNRUN; tracked enumeration retains absent members.",
+  "actual_consumer": "Registered diagnostics canonical script main invoked through actual interpreter, source-qualified full63 trackedAST read set and genuine receipt. Actual main called against fixture nodes for18 positive/negative/changed/outside/unreadable/unsupported cases.",
+  "original_criterion_binding": "Adjacent required repository companion, not a new Dfinding or replacement for A-owned B04 acceptance. Original45/46D criteria unchanged.",
+  "canonical_actual_check": {
+    "result": {
+      "exitcode": 0,
+      "check": "PASS_BOUNDED_CANONICAL_AST",
+      "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+      "tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+      "wall_s": 1.0531045509851538,
+      "actual_AST_input_count": 63,
+      "full_input_denominator": 6854,
+      "missing_inputs": [],
+      "changed_inputs": [],
+      "source_before_after_identical": true,
+      "complete_output_sha256": {
+        "after.json": "f33407c407e9aff80d55b206aa5dd9fbd3e5a7339d04ef71f9994ecd9f77c307",
+        "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout.txt": "ec4fbd715944b016ae150aea0a3239a8f8321f12a75518b2ce69a0299421352f",
+        "command.json": "059b692fb6d4dcd90e51052a2a78c1351eec7beb4a47e98222cc617af105859e",
+        "actual_AST_input_denominator.json": "6390e8f8a38c7d20216c8d09693c842e8c7986057ed26cc8eb0e881773c64844",
+        "before.json": "f33407c407e9aff80d55b206aa5dd9fbd3e5a7339d04ef71f9994ecd9f77c307",
+        "wrapper.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wrapper.stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "launch-env.json": "60ed5315d6b7f01dc8596162a4de0d3a9a218bf7bde690f3be7a346a9207f835",
+        "run.py": "82162eee24559171f286ee192010fad73b720d3e79c5503965af124db3e769d6"
+      },
+      "P41": "not_established; no inherited-red claim",
+      "authority": "existing canonical checker; does not appoint runtime/scientific/promotion owner"
+    },
+    "actual_read_count": 63,
+    "selector_roots": [
+      "src/polisyos/scientist/nodes/builtins/**/*.py",
+      "src/polisyos/scientist/engine/builtins/**/*.py"
+    ],
+    "named_unresolved_by_construction": [
+      "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt.",
+      "Only direct state-name reads in sync/async execute and Assign/AnnAssign unqualified _SPEC calls to NodeSpec/OutputAwareNodeSpec are interpreted; aliases, indirect reads, runtime dispatch and files outside the declared selector are undecided."
+    ],
+    "stdout_sha256": "ec4fbd715944b016ae150aea0a3239a8f8321f12a75518b2ce69a0299421352f",
+    "wrapper_stdout_note": "Runner result hash snapshot precedes final wrapper print; sealed archive binds final stdout bytes, canonical deciding stdout/stderr exact unchanged.",
+    "postcompletion_hash_correction": {
+      "path": "canonical-postcompletion-output-manifest.json",
+      "sha256": "325597764bed144f85119dfca61cc4b93ccc761e9f83d0c862978439b7ba3071",
+      "actual_final_wrapper_stdout_sha256": "ddfef4dbf23a4c49d845b06b4a89e0d9cf0556e94824f57281d56ae1f1a4e63b",
+      "original_presnapshot_wrapper_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deciding_canonical_stdout_sha256": "ec4fbd715944b016ae150aea0a3239a8f8321f12a75518b2ce69a0299421352f"
+    }
+  },
+  "checks": [
+    {
+      "scope": "B04tests18",
+      "result": {
+        "exitcode": 0,
+        "wall_s": 1.1234800959937274,
+        "rss_kib": 116768,
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "backend": {
+          "torch": "missing",
+          "botorch": "missing",
+          "gpytorch": "missing",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "pytest": "9.0.2",
+          "hnswlib": "missing"
+        },
+        "source_head": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+        "source_tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+        "tracked_input_denominator": 6314,
+        "missing_inputs": [],
+        "changed_inputs": [],
+        "head_after": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+        "junit_present": true,
+        "mode": "minimal"
+      },
+      "testcases": 18,
+      "FAIL": 0,
+      "expected": "PASS",
+      "junit_sha256": "69a6227d436c517d938e83364582842c0375cd8844e418b917d16de498becd80"
+    },
+    {
+      "scope": "B04remove5",
+      "result": {
+        "exitcode": 1,
+        "wall_s": 1.046304240997415,
+        "rss_kib": 115820,
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "backend": {
+          "torch": "missing",
+          "botorch": "missing",
+          "gpytorch": "missing",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "pytest": "9.0.2",
+          "hnswlib": "missing"
+        },
+        "source_head": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+        "source_tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+        "tracked_input_denominator": 6314,
+        "missing_inputs": [],
+        "changed_inputs": [],
+        "head_after": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+        "junit_present": true,
+        "mode": "minimal"
+      },
+      "testcases": 5,
+      "FAIL": 5,
+      "expected": "original_missing_read_expectedFAIL",
+      "junit_sha256": "03a30bc3e35302a52ba9628ebe0d90ebc836e5fd19c6fb7ebcc79fb37fc836f1"
+    }
+  ],
+  "negative_removal": "Only _covers_prefix/_covers_exact replaced byTrue in actual checker module; same nodes/directreads/constructor/measurement fields remain. Five actualoriginal missing-read/outside/async decision assertions fail, no ERROR/SKIP.",
+  "independent_static_reviews": [
+    {
+      "path": "/tmp/e02-D-B04-v3-independent-m0lc0_ke/review.json",
+      "sha256": "89cc511863d023958e0151c82843473e1f45be63ef8d4b278b0472578d76c129"
+    },
+    {
+      "path": "/dev/shm/e02-D-census-review-oct07/B04-final-v3-tests-independent-review.json",
+      "sha256": "01ac525d5ab97e336dbc20731cf75376942967ed906242d97a2bfa0ce5f68fe9"
+    },
+    {
+      "path": "/dev/shm/e02-D-census-review-oct07/B04-final-v3-companions-independent-review.json",
+      "sha256": "22fe32e7831fec2266933d6c6b691f7d1cb7e524b8f1a0174ed6b6b935a3fede"
+    },
+    {
+      "path": "/dev/shm/e02-D-census-review-oct07/B04-original-guard-removal-static-independent-review.json",
+      "sha256": "f8eb9c47b6b9a95bfc51f4e5f70b71e913c5a650967bd87680878d30f9bae683"
+    }
+  ],
+  "complete_deciding_output": {
+    "path": "complete-deciding-output.json.gz",
+    "sha256": "255982dcb9b4d34e14d1038744f57a9d65b8a28aa64e3c578e2ad2c13ce84051",
+    "bytes": 1033677,
+    "records": 53,
+    "unique_UTF8_contents": 43
+  },
+  "new_numerical_dependency_delta": {
+    "actual_c0_scope_observed_paths": 331,
+    "c0_to_a7_carry": "native-state-c0-to-a7-scoped-carry.json independently4b251/66e7 qualified",
+    "a7_to_b652_observed_changed_paths": [],
+    "rule": "No new numerical execution claimed; exact all331 observed numeric/state path bytes unchanged through tooling-only delta. New fullsource budget/legacy/funnel runtime predicates remain separate ownowner receipts."
+  },
+  "P37": "Original directstate read declarations on actualdisclosed selector; no unselected runtime absence/integration claim.",
+  "P38": "Marker/constructor names or measurement field presence alone cannot satisfy originalmissingread predicate; comparison-removal still fails required-read controls.",
+  "P41": "not_established; no inherited-red waiver",
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "limitations": [
+    "Bounded AST: import aliases/dynamic dispatch/indirect reads/unselectedfiles undecided.",
+    "Known static fstring prefixes/bucket semantics retained; no exact runtime dependency proof claimed.",
+    "Canonical public API/schema/frontend/globalmodulebudget acceptance requires separate complete owner outputs.",
+    "Native numerical backend is not used by this diagnostic; minimal backend absence is not numerical PASS."
+  ],
+  "cleanup": "No leaf cleanup; preserve code/Git/uniqueinputs/decidingoutputs; root owns explicitauthorized reproducible cleanup.",
+  "independent_actual_runtime_reviews": [
+    {
+      "path": "B04-b652-actual-canonical18-and-removal5-independent-review.json",
+      "sha256": "05da63540a1f5ec4f5d84a0b90ad0bc39d39614cf02d000addf0a6944e492396"
+    },
+    {
+      "path": "B04-b652-independent-runtime-review.json",
+      "sha256": "7639b9db0d6f3f141d193fc78581fc8a2de4c188644231a6c9cdbdbc8efb4321"
+    }
+  ],
+  "implementation_commit": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+  "implementation_commit_changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-state-read-spec-admission.toml",
+    "policy-engine/tests/repo_quality/tools/test_state_reads_constructor_admission.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_service_owner_budget_factory.py",
+    "policy-engine/tests/unit/scientist/search/test_contracts.py",
+    "policy-engine/tools/quality/diagnostics/README.md",
+    "policy-engine/tools/quality/diagnostics/check_state_reads.py"
+  ],
+  "state": "code-ready adjacent tool repair; actual bounded checks independently reviewed; formal G acceptance not established"
+}

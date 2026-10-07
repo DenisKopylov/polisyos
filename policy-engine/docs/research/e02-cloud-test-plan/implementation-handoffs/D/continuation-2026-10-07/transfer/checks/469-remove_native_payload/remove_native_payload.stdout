@@ -1,0 +1,78 @@
+FF.F                                                                     [100%]
+=================================== FAILURES ===================================
+_______ test_cosine_direction_survives_native_float32_narrowing[1e+300] ________
+
+scale = 1e+300
+
+    @pytest.mark.parametrize("scale", [1e300, 1e30, 1.0, 1e-300])
+    def test_cosine_direction_survives_native_float32_narrowing(scale):
+        pytest.importorskip("hnswlib")
+        memory = VectorMemoryStore(dim=2, max_elements=3)
+        memory.add("direction", [scale, scale], {})
+        memory.add("orthogonal", [scale, -scale], {})
+        memory.add("axis", [scale, 0.0], {})
+        rows = memory.query([scale, scale], top_k=3)
+>       assert [row[0] for row in rows] == ["direction", "axis", "orthogonal"]
+E       AssertionError: assert ['direction',...onal', 'axis'] == ['direction',... 'orthogonal']
+E         
+E         At index 1 diff: 'orthogonal' != 'axis'
+E         Use -v to get more diff
+
+tests/unit/scientist/agent/test_vector_generation_consumer.py:48: AssertionError
+________ test_cosine_direction_survives_native_float32_narrowing[1e+30] ________
+
+scale = 1e+30
+
+    @pytest.mark.parametrize("scale", [1e300, 1e30, 1.0, 1e-300])
+    def test_cosine_direction_survives_native_float32_narrowing(scale):
+        pytest.importorskip("hnswlib")
+        memory = VectorMemoryStore(dim=2, max_elements=3)
+        memory.add("direction", [scale, scale], {})
+        memory.add("orthogonal", [scale, -scale], {})
+        memory.add("axis", [scale, 0.0], {})
+        rows = memory.query([scale, scale], top_k=3)
+>       assert [row[0] for row in rows] == ["direction", "axis", "orthogonal"]
+E       AssertionError: assert ['direction',...onal', 'axis'] == ['direction',... 'orthogonal']
+E         
+E         At index 1 diff: 'orthogonal' != 'axis'
+E         Use -v to get more diff
+
+tests/unit/scientist/agent/test_vector_generation_consumer.py:48: AssertionError
+_______ test_cosine_direction_survives_native_float32_narrowing[1e-300] ________
+
+scale = 1e-300
+
+    @pytest.mark.parametrize("scale", [1e300, 1e30, 1.0, 1e-300])
+    def test_cosine_direction_survives_native_float32_narrowing(scale):
+        pytest.importorskip("hnswlib")
+        memory = VectorMemoryStore(dim=2, max_elements=3)
+        memory.add("direction", [scale, scale], {})
+        memory.add("orthogonal", [scale, -scale], {})
+        memory.add("axis", [scale, 0.0], {})
+        rows = memory.query([scale, scale], top_k=3)
+>       assert [row[0] for row in rows] == ["direction", "axis", "orthogonal"]
+E       AssertionError: assert ['direction',...onal', 'axis'] == ['direction',... 'orthogonal']
+E         
+E         At index 1 diff: 'orthogonal' != 'axis'
+E         Use -v to get more diff
+
+tests/unit/scientist/agent/test_vector_generation_consumer.py:48: AssertionError
+=============================== warnings summary ===============================
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+tests/unit/scientist/agent/test_vector_generation_consumer.py::test_cosine_direction_survives_native_float32_narrowing[1e+300]
+  /dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/agent/vector_memory.py:213: RuntimeWarning: overflow encountered in cast
+    candidate.add_items([vector], [position])
+
+tests/unit/scientist/agent/test_vector_generation_consumer.py::test_cosine_direction_survives_native_float32_narrowing[1e+300]
+  /dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/agent/vector_memory.py:252: RuntimeWarning: overflow encountered in cast
+    labels, distances = generation.index.knn_query([vector], k=count)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/agent/test_vector_generation_consumer.py::test_cosine_direction_survives_native_float32_narrowing[1e+300]
+FAILED tests/unit/scientist/agent/test_vector_generation_consumer.py::test_cosine_direction_survives_native_float32_narrowing[1e+30]
+FAILED tests/unit/scientist/agent/test_vector_generation_consumer.py::test_cosine_direction_survives_native_float32_narrowing[1e-300]

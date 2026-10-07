@@ -1,0 +1,1027 @@
+{
+  "schema": "policyos.e02.D.transfer_native_current_handoff.v1",
+  "unit": "D",
+  "author": "/root/transfer_oct07",
+  "created_utc": "2026-10-07T08:10:01.124596+00:00",
+  "state": "CODE_READY_CURRENT_NATIVE17_PASS_REVIEW_PENDING",
+  "source_base": {
+    "sha": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+    "tree": "bb6213c0cde3246e63c04f749547f40f35644a15",
+    "slice_origin_main": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "fetched_G_checkpoint": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7"
+  },
+  "implementation": {
+    "commit": "4d8c44c6e813b68a870624fe608aad0cc249ce1b",
+    "tree": "f98ca688050c5882c7a086fd9b92c1ae4aa2263e",
+    "own_complete_changed_paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-07-e02-d-native-cosine-admission.toml",
+      "policy-engine/src/polisyos/scientist/agent/README.md",
+      "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py",
+      "policy-engine/tests/unit/scientist/agent/vector_generation_reader.py"
+    ]
+  },
+  "fixture_correction": {
+    "commit": "d610095905262a9b5b05b60c894018a681119367",
+    "tree": "f5a8262d01929bcc96399ad9492e8aaf7489a8a1",
+    "own_path": "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py",
+    "full_commit_changed_paths": [
+      "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_service_factory_fault_resume.py"
+    ],
+    "reviewed_patch_sha256": "2e517188ecca3295af93c3b49a9798c9f38a59562da5b5be82b8a9908e4b0c6a",
+    "reason": "Originalemptyregistration fixture failed because existing guard returnsNone; actualsupported ordinary nonemptyproducer input, noproductionguardchange."
+  },
+  "current_candidate": {
+    "sha": "d610095905262a9b5b05b60c894018a681119367",
+    "tree": "f5a8262d01929bcc96399ad9492e8aaf7489a8a1",
+    "branch": "codex/e02-D-oct07-continuation",
+    "root": "/dev/shm/e02-D-oct07-continuation",
+    "full_base_to_candidate_changed_paths": [
+      "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/bootstrap.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/cleanup-archive-receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/cleanup-extra-archive-receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/cleanup-extracted-duplicate-precheck.json.gz",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/cleanup-extracted-duplicate-receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/cleanup-mypy-receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/create.receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/resume.receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/standalone-admission-independent-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/standalone-checkout.json",
+      "policy-engine/release-fragments/unreleased/2026-10-07-e02-d-native-cosine-admission.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-07-funnel-cache-settlement-binding.toml",
+      "policy-engine/src/polisyos/scientist/agent/README.md",
+      "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "policy-engine/src/polisyos/scientist/methods/autotune/execution_plan.py",
+      "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+      "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "policy-engine/tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py",
+      "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py",
+      "policy-engine/tests/unit/scientist/agent/vector_generation_reader.py",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_axis_permutation_consumers.py",
+      "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_warm_admission_reports.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_current_quantity_consumers.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_sequence_generator_admission.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_service_factory_fault_resume.py"
+    ],
+    "G_accepted": false,
+    "main_published": false
+  },
+  "actual_environment": {
+    "interpreter": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7",
+    "hnswlib": "0.8.0",
+    "numpy": "2.3.5",
+    "Torch": "2.10.0",
+    "BoTorch": "0.16.1",
+    "GPyTorch": "1.15.1",
+    "pytest": "9.0.2",
+    "seed": "Native HNSW default100; deterministic1001arc embeddings; original2 analytic measurements",
+    "compute_limits_introduced": false,
+    "GP_property_claim": "None from native receipts; Torch imported for supported transfer helpers only",
+    "optional_backend_state": "NativeHNSW actually executed, zero skip. SALib absent from lockedGP/nativeenv UNRUN; separate DOEenv SALib1.5.2 actually executed externalcap FAIL."
+  },
+  "mechanism": {
+    "runtime_property": "One strict shared add/query float-convert→finite→stablecosine admission, and private persistednative get_items finite admission before sole pointer swap",
+    "consumer_chain": [
+      "Original controlled measuredhistory via actual ordinary register_run",
+      "Immutable nativeVectorGeneration→onecaptured pointer query",
+      "Exact nativebundle CASpersist→actualsecondprocessload",
+      "Exactselected ArtifactRef→verified snapshot→originalmeasurement/role refs→realwarmrows"
+    ],
+    "independent_oracle": "Explicit cosine distances 0,1−1/sqrt2,1 for unitdirection/axis/orthogonal vectors across1e300/1e30/1/1e−300; independentlyhashed actualchildbytes against each exactref digest; reviewer independently reproduced actual legacynativeNaN",
+    "quantity_scope": "Approximate float32HNSW distances/cosineonly; no ANN completeness/population/GP/history-quality assertion",
+    "new_input_denominator": "1002 real ordinaryregistered discovery histories;1001 unique refs carry same original2donor rows/context, source last atindex1001. Only selected originalsource enters numericalwarmdata."
+  },
+  "cohorts": [
+    {
+      "id": "d610-native17",
+      "actual_source": "d610095905262a9b5b05b60c894018a681119367",
+      "scope": "actual immutable source;17new checks",
+      "checks": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "17",
+          "time": "14.911",
+          "timestamp": "2026-10-07T08:04:21.091655+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "complete_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/d610-native17/launch.json",
+          "sha256": "dcb43e9fd2f0ea0ae4c7b1484e2a1e4f061acb0685de0d8534dd5eccb9d4a303",
+          "bytes": 2198,
+          "original_local_path": "/dev/shm/e02-D-transfer-current-xikf2oa6/launch.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/d610-native17/stdout.txt",
+          "sha256": "d03b8012a73cf024aa14ae492eed058d381c6740277b22513fc44161df85cb4c",
+          "bytes": 1074,
+          "original_local_path": "/dev/shm/e02-D-transfer-current-xikf2oa6/stdout.txt"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/d610-native17/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "original_local_path": "/dev/shm/e02-D-transfer-current-xikf2oa6/stderr.txt"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/d610-native17/exit.json",
+          "sha256": "b1346be351391f9909ae005f9afbf1754a9a78dcbffe73ec80e1462f64befe12",
+          "bytes": 112,
+          "original_local_path": "/dev/shm/e02-D-transfer-current-xikf2oa6/exit.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/d610-native17/junit.xml",
+          "sha256": "f772da22471d3c52fe7084c63101cb07ebe29edf50af21c20061fee901dac6d8",
+          "bytes": 22823,
+          "original_local_path": "/dev/shm/e02-D-transfer-current-xikf2oa6/junit.xml"
+        }
+      ]
+    },
+    {
+      "id": "d610-controller-lessons2",
+      "actual_source": "d610095905262a9b5b05b60c894018a681119367",
+      "scope": "actual current caller;2 affected import checks",
+      "checks": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "2",
+          "time": "0.994",
+          "timestamp": "2026-10-07T08:06:06.693446+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "complete_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/d610-controller-lessons2/launch.json",
+          "sha256": "64c69c17f13200d8d6e2877c5036e5963145dd88dec08bec9696d68340e90804",
+          "bytes": 1710,
+          "original_local_path": "/dev/shm/e02-D-lesson-current-08g_91ts/launch.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/d610-controller-lessons2/stdout.txt",
+          "sha256": "67c6f17b4aeae4045bc2f952c332568aa080ba3eac3654dcbd3367ae79bc48fb",
+          "bytes": 551,
+          "original_local_path": "/dev/shm/e02-D-lesson-current-08g_91ts/stdout.txt"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/d610-controller-lessons2/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "original_local_path": "/dev/shm/e02-D-lesson-current-08g_91ts/stderr.txt"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/d610-controller-lessons2/exit.json",
+          "sha256": "f2de0d407c26c0b7190b93b55eda24a02504d7288359b1981013167797545b28",
+          "bytes": 61,
+          "original_local_path": "/dev/shm/e02-D-lesson-current-08g_91ts/exit.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/d610-controller-lessons2/junit.xml",
+          "sha256": "3b4cd1581ef0f19104fc2283a534b3db603642020832c9996ff123ae84cbce21",
+          "bytes": 787,
+          "original_local_path": "/dev/shm/e02-D-lesson-current-08g_91ts/junit.xml"
+        }
+      ]
+    },
+    {
+      "id": "469-affected76",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "scope": "actual75PASS/1test input FAIL;not product failure;kept separate",
+      "checks": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "1",
+          "skipped": "0",
+          "tests": "76",
+          "time": "14.816",
+          "timestamp": "2026-10-07T07:54:48.684425+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "complete_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/469-affected76/launch.json",
+          "sha256": "ab69302d118f8c1db74b50d21d2dd86e4d89895c89c007c2d89bcd8a38fd4f6f",
+          "bytes": 2157,
+          "original_local_path": "/dev/shm/e02-D-transfer-frozen469-06qbulta/launch.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/469-affected76/stdout.txt",
+          "sha256": "acf7cb6515d2511507dba1c4bc931ea12cbb552982e6a95961b1f1cf60911147",
+          "bytes": 3128,
+          "original_local_path": "/dev/shm/e02-D-transfer-frozen469-06qbulta/stdout.txt"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/469-affected76/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "original_local_path": "/dev/shm/e02-D-transfer-frozen469-06qbulta/stderr.txt"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/469-affected76/exit.json",
+          "sha256": "2618b95f1f6be6bfde8537756f85b83845d039001563135b9d59d817446733eb",
+          "bytes": 16,
+          "original_local_path": "/dev/shm/e02-D-transfer-frozen469-06qbulta/exit.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/469-affected76/junit.xml",
+          "sha256": "b98619bdfc45a7148611f20049b43185f51549df11bc52db2dd475c5ed3739ba",
+          "bytes": 22344,
+          "original_local_path": "/dev/shm/e02-D-transfer-frozen469-06qbulta/junit.xml"
+        }
+      ]
+    },
+    {
+      "id": "828-native-lessons34",
+      "actual_source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+      "scope": "old exact source scope;not new current whole replay",
+      "checks": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "34",
+          "time": "6.322",
+          "timestamp": "2026-10-07T07:27:46.244298+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "complete_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/828-native-lessons34/launch.json",
+          "sha256": "c85fc23c3e126fb1dd85342192e53767169cf0922838783e60a247823987d4b7",
+          "bytes": 877,
+          "original_local_path": "/dev/shm/e02-D-transfer-native828-eyh0mr3a/launch.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/828-native-lessons34/stdout.txt",
+          "sha256": "e64951c0cdc04239af2ae811630b412dd8fa067bd4a3b28779f3d27942546840",
+          "bytes": 998,
+          "original_local_path": "/dev/shm/e02-D-transfer-native828-eyh0mr3a/stdout.txt"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/828-native-lessons34/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "original_local_path": "/dev/shm/e02-D-transfer-native828-eyh0mr3a/stderr.txt"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/828-native-lessons34/exit.json",
+          "sha256": "124fd50cb6d223cdd18fedc166d00af7254199b6e6dedf9be82f71db87af6d01",
+          "bytes": 16,
+          "original_local_path": "/dev/shm/e02-D-transfer-native828-eyh0mr3a/exit.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/828-native-lessons34/junit.xml",
+          "sha256": "469ddfc4e9924294a60c4d085ba7761e913815a481d8d73dc6dbaf395a3a8a0a",
+          "bytes": 5706,
+          "original_local_path": "/dev/shm/e02-D-transfer-native828-eyh0mr3a/junit.xml"
+        }
+      ]
+    },
+    {
+      "id": "828-lessons22",
+      "actual_source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+      "scope": "old exact unchanged lesson scope;not new current whole replay",
+      "checks": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "22",
+          "time": "1.647",
+          "timestamp": "2026-10-07T07:28:42.631222+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "complete_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/828-lessons22/launch.json",
+          "sha256": "b6603004ffb004b01850e0a80b256610355ba8356a022d8f59a51b5aa1351e4d",
+          "bytes": 572,
+          "original_local_path": "/dev/shm/e02-D-lessons-asof828-_ozny_do/launch.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/828-lessons22/stdout.txt",
+          "sha256": "c2e14bf71bb3b2da0d9863a7c60a3057b0c514d44715e09aed660b6de186cfaa",
+          "bytes": 535,
+          "original_local_path": "/dev/shm/e02-D-lessons-asof828-_ozny_do/stdout.txt"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/828-lessons22/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "original_local_path": "/dev/shm/e02-D-lessons-asof828-_ozny_do/stderr.txt"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/828-lessons22/exit.json",
+          "sha256": "124fd50cb6d223cdd18fedc166d00af7254199b6e6dedf9be82f71db87af6d01",
+          "bytes": 16,
+          "original_local_path": "/dev/shm/e02-D-lessons-asof828-_ozny_do/exit.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/828-lessons22/junit.xml",
+          "sha256": "ae65ad1b6f3ff4d41f1f40f14e54d8573ef51d377034d0b71e9a1912334ae5e8",
+          "bytes": 3679,
+          "original_local_path": "/dev/shm/e02-D-lessons-asof828-_ozny_do/junit.xml"
+        }
+      ]
+    }
+  ],
+  "negative_controls": [
+    {
+      "id": "remove_native_payload",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "actual_tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d",
+      "production_blob": "3e68ab919b915427300869d6b378d12f585d1f00",
+      "control": "in-memory marker-preserving removal of actually changed native payload/loaded-coordinate gate;no Git source mutation",
+      "checks": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "3",
+          "skipped": "0",
+          "tests": "4",
+          "time": "0.144",
+          "timestamp": "2026-10-07T07:55:31.766062+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "complete_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/469-remove_native_payload/remove_native_payload-launch.json",
+          "sha256": "f005183f121a21c4bd438efe0e265e0017e40852b5bcd563470f84b4ff2b86fc",
+          "bytes": 1007,
+          "original_local_path": "/dev/shm/e02-D-transfer-frozen469-06qbulta/remove_native_payload-launch.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/469-remove_native_payload/remove_native_payload.exit.json",
+          "sha256": "2618b95f1f6be6bfde8537756f85b83845d039001563135b9d59d817446733eb",
+          "bytes": 16,
+          "original_local_path": "/dev/shm/e02-D-transfer-frozen469-06qbulta/remove_native_payload.exit.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/469-remove_native_payload/remove_native_payload.stdout",
+          "sha256": "30707fa2df8cf601a2a12025d518ddf9928fd3fa8fcfb75ad4bcb7cd399852ba",
+          "bytes": 4444,
+          "original_local_path": "/dev/shm/e02-D-transfer-frozen469-06qbulta/remove_native_payload.stdout"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/469-remove_native_payload/remove_native_payload.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "original_local_path": "/dev/shm/e02-D-transfer-frozen469-06qbulta/remove_native_payload.stderr"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/469-remove_native_payload/remove_native_payload.xml",
+          "sha256": "9b27e6980cb7c4dd3f87e2785cf6148186ad90ede7461d2e0cbd872711091785",
+          "bytes": 4281,
+          "original_local_path": "/dev/shm/e02-D-transfer-frozen469-06qbulta/remove_native_payload.xml"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/469-remove_native_payload/remove_native_payload.py",
+          "sha256": "dcea353b9a5e8c2c8ed0473df51e774302a73083b1d052b754b026dd4a658a63",
+          "bytes": 281,
+          "original_local_path": "/dev/shm/e02-D-transfer-frozen469-06qbulta/remove_native_payload.py"
+        }
+      ]
+    },
+    {
+      "id": "remove_private_finite",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "actual_tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d",
+      "production_blob": "3e68ab919b915427300869d6b378d12f585d1f00",
+      "control": "in-memory marker-preserving removal of actually changed native payload/loaded-coordinate gate;no Git source mutation",
+      "checks": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "1",
+          "skipped": "0",
+          "tests": "1",
+          "time": "0.143",
+          "timestamp": "2026-10-07T07:55:31.814107+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "complete_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/469-remove_private_finite/remove_private_finite-launch.json",
+          "sha256": "a22b50f0eb24ece27efd7f0e4ecd83967e077ea93010dec29d736ee0a47d2120",
+          "bytes": 1007,
+          "original_local_path": "/dev/shm/e02-D-transfer-frozen469-06qbulta/remove_private_finite-launch.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/469-remove_private_finite/remove_private_finite.exit.json",
+          "sha256": "2618b95f1f6be6bfde8537756f85b83845d039001563135b9d59d817446733eb",
+          "bytes": 16,
+          "original_local_path": "/dev/shm/e02-D-transfer-frozen469-06qbulta/remove_private_finite.exit.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/469-remove_private_finite/remove_private_finite.stdout",
+          "sha256": "696605a8d1ac5edd2f4aa00a1a4859a3cd376dc2c03fb50fdc3c1ffb49cf0493",
+          "bytes": 2534,
+          "original_local_path": "/dev/shm/e02-D-transfer-frozen469-06qbulta/remove_private_finite.stdout"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/469-remove_private_finite/remove_private_finite.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "original_local_path": "/dev/shm/e02-D-transfer-frozen469-06qbulta/remove_private_finite.stderr"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/469-remove_private_finite/remove_private_finite.xml",
+          "sha256": "e0d0fa8ab1adea47cadf1d67c6ab0cd334ce79fbf08d13fea8052dd22d54e2dd",
+          "bytes": 2213,
+          "original_local_path": "/dev/shm/e02-D-transfer-frozen469-06qbulta/remove_private_finite.xml"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/469-remove_private_finite/remove_private_finite.py",
+          "sha256": "599e17f4da4e8a255c772cbf153bf647c87af6cba44bf96f158812006e4e4bc7",
+          "bytes": 156,
+          "original_local_path": "/dev/shm/e02-D-transfer-frozen469-06qbulta/remove_private_finite.py"
+        }
+      ]
+    }
+  ],
+  "references": {
+    "original-transfer-criteria.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/original-transfer-criteria.json",
+      "sha256": "bfdaf301410c3805e196bca83de706cbc94e825f4ff651d0f172791702f0fa00",
+      "bytes": 20706,
+      "original_local_path": "/dev/shm/e02-D-transfer-frozen469-06qbulta/original-transfer-criteria.json"
+    },
+    "unchanged-59-source-bindings.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/unchanged-59-source-bindings.json",
+      "sha256": "83e3ae2d3ecc0d1129e24ef3c7dc22ad68c3e91f549352df6c1e36a19e20c1cc",
+      "bytes": 26359,
+      "original_local_path": "/dev/shm/e02-D-transfer-current-xikf2oa6/unchanged-59-source-bindings.json"
+    },
+    "baseline/source-identities.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/baseline/source-identities.json",
+      "sha256": "65fdccde8b4024644a326435f10780b2e7ee9c9e5c4987dcabfdf2645a06dfcc",
+      "bytes": 1121,
+      "original_local_path": "/dev/shm/e02-D-transfer-oct07-uv2ehk7d/source-identities.json"
+    },
+    "baseline/transfer-baseline-environment-index.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/baseline/transfer-baseline-environment-index.json",
+      "sha256": "326a92093087f5db1c0af4b589c977e2c4e0e0162a1ee06184a4e147d7140ca5",
+      "bytes": 34741,
+      "original_local_path": "/dev/shm/e02-D-transfer-oct07-uv2ehk7d/transfer-baseline-environment-index.json"
+    },
+    "owner-inputs/E-mutable-cap.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/owner-inputs/E-mutable-cap.json",
+      "sha256": "b30270e57a0a48ec420f61a7c159c21da407885946898d209d16124260b42b9a",
+      "bytes": 2707,
+      "original_local_path": "/dev/shm/e02-D-transfer-oct07-uv2ehk7d/E-mutable-cap-owner-input.json"
+    },
+    "checks/828-E-mutable-cap/E_mutable_cap_probe.py": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/828-E-mutable-cap/E_mutable_cap_probe.py",
+      "sha256": "3e31215321d0d9c9e71f78cd4d67b09c99c61c08e5a106da6730c0930c1ecdcf",
+      "bytes": 1624,
+      "original_local_path": "/dev/shm/e02-D-transfer-oct07-uv2ehk7d/E_mutable_cap_probe.py"
+    },
+    "checks/828-E-mutable-cap/stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/828-E-mutable-cap/stdout.txt",
+      "sha256": "8d7e75541fc92ba31c8fbb893867cd07bfc53244099cf8f94f52b1a223f4685a",
+      "bytes": 3339,
+      "original_local_path": "/dev/shm/e02-D-transfer-oct07-uv2ehk7d/E-mutable-cap.stdout"
+    },
+    "checks/828-E-mutable-cap/stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/828-E-mutable-cap/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "original_local_path": "/dev/shm/e02-D-transfer-oct07-uv2ehk7d/E-mutable-cap.stderr"
+    },
+    "checks/828-E-mutable-cap/probe.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/checks/828-E-mutable-cap/probe.json",
+      "sha256": "573f79dbd264811ae610d29438d5c89a69eb1a403c93e7fd58097dc5c2c08a17",
+      "bytes": 287,
+      "original_local_path": "/dev/shm/e02-D-transfer-oct07-uv2ehk7d/E-mutable-cap-probe.json"
+    }
+  },
+  "finding_rows": [
+    {
+      "id": "B128@TRN-01",
+      "finding_id": "B128",
+      "criterion_card": "TRN-01",
+      "canonical_closure_owner": "TRN-01",
+      "role": "canonical_owner",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3417,
+          3430
+        ],
+        "byte_offset": 773355,
+        "bytes": 4127,
+        "sha256": "af4e4b72706ecdef581727483780ed33bff190d295add23a9813ed7b903ffb2b"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** реальный сохранённый Evaluation проходит существующий мост без ручного monkeypatch; несовместимая запись различается с действительно пустой историей; количество принятых, отклонённых и недоступных записей согласовано. Конструктор нельзя исправлять отдельно от B130–B132: сейчас эта ошибка маскирует последующие дефекты отбора и смысла.",
+        "byte_offset": 776394,
+        "bytes": 619,
+        "sha256": "549b289852eaabc2275c031208657ce535c20cdd971105ff0e452e5f6662e5d7"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B128@TRN-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+          "bytes": 21441,
+          "sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5"
+        }
+      },
+      "actual_candidate": {
+        "sha": "d610095905262a9b5b05b60c894018a681119367",
+        "tree": "f5a8262d01929bcc96399ad9492e8aaf7489a8a1"
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "disposition_proposal": "root_GP_owner_accounting",
+      "actual_scope": "Original TRN01 bridge/numerical/state rows belong to joint GP consumer lease; native helper59 scoped results supplied, no root/G acceptance inferred.",
+      "checks": [
+        "469-affected76"
+      ],
+      "residual": "Use GP owner exact current configured bridge/source/oracle receipt; preserve original acceptance."
+    },
+    {
+      "id": "B129@TRN-02",
+      "finding_id": "B129",
+      "criterion_card": "TRN-02",
+      "canonical_closure_owner": "TRN-02",
+      "role": "canonical_owner",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3431,
+          3444
+        ],
+        "byte_offset": 777482,
+        "bytes": 3983,
+        "sha256": "b84b680f12b3c9e1226bfe1f0db09c0afb8b4cc338bb20d850188be0ef1fc32b"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** история, найденная в индексе размером более 1000, читается без второго ANN; изменение `top_k` discovery не меняет адресуемость уже выбранного артефакта; повреждённая ссылка не подменяется другой похожей историей. Строгие фильтры применимости учитывать до окончательного лимита, но не смешивать их с адресным чтением.",
+        "byte_offset": 780379,
+        "bytes": 582,
+        "sha256": "88b1c5aec30b187f76018f9b7e7c7b8f7aabd54e4479465a0b39a549af27c49a"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B129@TRN-02",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+          "bytes": 17678,
+          "sha256": "e357afdc8a41beeb2a13493b27e4626cf648031c78c602d841989861253ebc12"
+        }
+      },
+      "actual_candidate": {
+        "sha": "d610095905262a9b5b05b60c894018a681119367",
+        "tree": "f5a8262d01929bcc96399ad9492e8aaf7489a8a1"
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "disposition_proposal": "closed_proposal",
+      "actual_scope": "Currentnative17 + 469 exactCAS59; actual >1000 native index, exactselected history, nosecondANN, qualifiedrefs, corrupted/unknownsource refuses beforecache/training. CurrentB newerlineage combinedacceptance is separate input.",
+      "checks": [
+        "d610-native17",
+        "469-affected76"
+      ],
+      "residual": "Independent final output reconciliation and G formal acceptance; no unrelated authority added to original bounded criterion"
+    },
+    {
+      "id": "B130@TRN-01",
+      "finding_id": "B130",
+      "criterion_card": "TRN-01",
+      "canonical_closure_owner": "TRN-01",
+      "role": "canonical_owner",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3445,
+          3458
+        ],
+        "byte_offset": 781465,
+        "bytes": 3702,
+        "sha256": "9f18f5b71de39a4ca820a167f74bf206775f04050db33327aa6ccd6525dca4e7"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** минимум и максимум исходных целей после нормализации приводят к правильному порядку; полные равенства не создают ложных различий; ограничение объёма не превышается, а свободная квота заполняется согласно объявленной политике. Миграция старого корпуса должна установить значение scalar, не угадывать его по имени.",
+        "byte_offset": 784342,
+        "bytes": 593,
+        "sha256": "b70b31214ee588708f1536a62ef11dd85932c5bedf2e99e7b2d6320815ecabf3"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B130@TRN-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+          "bytes": 21441,
+          "sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5"
+        }
+      },
+      "actual_candidate": {
+        "sha": "d610095905262a9b5b05b60c894018a681119367",
+        "tree": "f5a8262d01929bcc96399ad9492e8aaf7489a8a1"
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "disposition_proposal": "root_GP_owner_accounting",
+      "actual_scope": "Original TRN01 bridge/numerical/state rows belong to joint GP consumer lease; native helper59 scoped results supplied, no root/G acceptance inferred.",
+      "checks": [
+        "469-affected76"
+      ],
+      "residual": "Use GP owner exact current configured bridge/source/oracle receipt; preserve original acceptance."
+    },
+    {
+      "id": "B131@TRN-01",
+      "finding_id": "B131",
+      "criterion_card": "TRN-01",
+      "canonical_closure_owner": "TRN-01",
+      "role": "canonical_owner",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3459,
+          3472
+        ],
+        "byte_offset": 785167,
+        "bytes": 4079,
+        "sha256": "60545080be6e14231a07b082abb322b91f9b304c40dbed2d2cc701223470910c"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** различающиеся пространства не считаются численно тождественными; разрешённый адаптер преобразует действительные параметры; несовместимая оценка остаётся доступной как идея с ограничением. Новая версия данных может требовать переоценки, но не полного запрета межзадачного обучения. Проверить tenant/split у действительного владельца, а не доверять тексту метаданных.",
+        "byte_offset": 788048,
+        "bytes": 691,
+        "sha256": "e6742f51f48e338f3410307c69a2e42b12c6205c34d9c8c4947e784ba842b8dd"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B131@TRN-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+          "bytes": 21441,
+          "sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5"
+        }
+      },
+      "actual_candidate": {
+        "sha": "d610095905262a9b5b05b60c894018a681119367",
+        "tree": "f5a8262d01929bcc96399ad9492e8aaf7489a8a1"
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "disposition_proposal": "held",
+      "actual_scope": "Actual source→target tenant/split rights and allowedadapter decision not supplied; fixture-owner basis proves no institutionalreuse authorization.",
+      "checks": [],
+      "residual": "Owner positive missing"
+    },
+    {
+      "id": "B132@TRN-01",
+      "finding_id": "B132",
+      "criterion_card": "TRN-01",
+      "canonical_closure_owner": "TRN-01",
+      "role": "canonical_owner",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3473,
+          3486
+        ],
+        "byte_offset": 789246,
+        "bytes": 3673,
+        "sha256": "53d130ee4cb74e9043c80076be6e6c123789c8d6d9de51e7105c1901f1243894"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** разные кандидаты сохраняют разные настоящие ссылки; координаты не попадают в метрики; direction round-trip не меняет смысл; отсутствующий holdout остаётся отсутствующим; nonpromotable продолжает действовать. Прежние placeholder-записи не повышать автоматически при миграции.",
+        "byte_offset": 791900,
+        "bytes": 482,
+        "sha256": "5833cd83c20ce8f2a897ab4c13b475daaabcfa4adec33cb2a1376fcba78c4fcb"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B132@TRN-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+          "bytes": 21441,
+          "sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5"
+        }
+      },
+      "actual_candidate": {
+        "sha": "d610095905262a9b5b05b60c894018a681119367",
+        "tree": "f5a8262d01929bcc96399ad9492e8aaf7489a8a1"
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "disposition_proposal": "root_GP_owner_accounting",
+      "actual_scope": "Original TRN01 bridge/numerical/state rows belong to joint GP consumer lease; native helper59 scoped results supplied, no root/G acceptance inferred.",
+      "checks": [
+        "469-affected76"
+      ],
+      "residual": "Use GP owner exact current configured bridge/source/oracle receipt; preserve original acceptance."
+    },
+    {
+      "id": "B133@TRN-02",
+      "finding_id": "B133",
+      "criterion_card": "TRN-02",
+      "canonical_closure_owner": "TRN-02",
+      "role": "canonical_owner",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3487,
+          3500
+        ],
+        "byte_offset": 792919,
+        "bytes": 3384,
+        "sha256": "8c7d3f2d133708780969d4ad10524a5cf9b461acb4d24117f4bb39506962890a"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** новый допустимый snapshot одинаково читается холодным и тёплым путями; replay конкретной старой ссылки остаётся старым; мутация потребителя не меняет общий результат; ограничение памяти не скрывает действительный артефакт. B129 должен передать точную ссылку, иначе этот ремонт останется неполным.",
+        "byte_offset": 795310,
+        "bytes": 552,
+        "sha256": "48f75c8fbb72fbc3c446e8677e4976ccc20d3f3624b34260ce20e01a26b39a3d"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B133@TRN-02",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+          "bytes": 17678,
+          "sha256": "e357afdc8a41beeb2a13493b27e4626cf648031c78c602d841989861253ebc12"
+        }
+      },
+      "actual_candidate": {
+        "sha": "d610095905262a9b5b05b60c894018a681119367",
+        "tree": "f5a8262d01929bcc96399ad9492e8aaf7489a8a1"
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "disposition_proposal": "closed_proposal",
+      "actual_scope": "Original immutable exactref/cache/copy/LRU/cold-warm-source replay controls executed469; native fresh1002selectedsource currentd610.",
+      "checks": [
+        "469-affected76",
+        "d610-native17"
+      ],
+      "residual": "Independent final output reconciliation and G formal acceptance; no unrelated authority added to original bounded criterion"
+    },
+    {
+      "id": "B134@TRN-02",
+      "finding_id": "B134",
+      "criterion_card": "TRN-02",
+      "canonical_closure_owner": "TRN-02",
+      "role": "canonical_owner",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3501,
+          3514
+        ],
+        "byte_offset": 796303,
+        "bytes": 4534,
+        "sha256": "c877d26c3cb5a8d078a8e40b23e6d1bf3cf5ff5844a4357b08db2f8fb447cd3e"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** отказ добавления не портит старые запросы; failed load оставляет прежнее полностью согласованное поколение; загрузка без нужных bytes не публикуется частично; проверены capacity, неверная форма и настоящие нативные исключения. Resize допустим только внутри выделенного ресурса. Не снимать лимиты и не перестраивать весь индекс на каждом нормальном запросе.",
+        "byte_offset": 799747,
+        "bytes": 651,
+        "sha256": "36d571033f9b9e3b58f6f9f7bc93a01ed4c6e799a7791d815fa39932fd68de9d"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B134@TRN-02",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+          "bytes": 17678,
+          "sha256": "e357afdc8a41beeb2a13493b27e4626cf648031c78c602d841989861253ebc12"
+        }
+      },
+      "actual_candidate": {
+        "sha": "d610095905262a9b5b05b60c894018a681119367",
+        "tree": "f5a8262d01929bcc96399ad9492e8aaf7489a8a1"
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "disposition_proposal": "closed_proposal",
+      "actual_scope": "Actualnativeadd/load/capacity/shape/barrier/tamper consumers469; current17 real finitecosineadd/query + persistedvalidCASNaN rejection/freshreader; boundednativeABI0.8.0/inprocessgeneration only.",
+      "checks": [
+        "469-affected76",
+        "d610-native17"
+      ],
+      "residual": "Independent final output reconciliation and G formal acceptance; no unrelated authority added to original bounded criterion"
+    },
+    {
+      "id": "B135@TRN-03",
+      "finding_id": "B135",
+      "criterion_card": "TRN-03",
+      "canonical_closure_owner": "TRN-03",
+      "role": "canonical_owner",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3515,
+          3528
+        ],
+        "byte_offset": 800837,
+        "bytes": 3204,
+        "sha256": "2616ea6686a29681f5379ae2e54588f2a82afd9882dd1909aa261ee5990ed1e7"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** вложенный объект, сериализованный объект и равнозначные явные поля ведут к одному эффективному предметному контексту; настоящее разрешённое override работает; невалидный base имеет адресный результат; isolated-fallback остаётся для действительно неизвестной области.",
+        "byte_offset": 803219,
+        "bytes": 490,
+        "sha256": "01ce84941fd8680e13557f709b04c7978d7003b2c358dcc81363e2d973aaa136"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B135@TRN-03",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+          "bytes": 16604,
+          "sha256": "c7cce0fdded201121b425a14faefe58e7d1e13475d931a33eed5d82621c8aa2a"
+        }
+      },
+      "actual_candidate": {
+        "sha": "d610095905262a9b5b05b60c894018a681119367",
+        "tree": "f5a8262d01929bcc96399ad9492e8aaf7489a8a1"
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "disposition_proposal": "closed_proposal",
+      "actual_scope": "Original typed/serialized/override/invalidbase/unknown effectivecontext scopes828; current actualcontroller typed+serialized lesson consumer2.",
+      "checks": [
+        "828-native-lessons34",
+        "d610-controller-lessons2"
+      ],
+      "residual": "Independent final output reconciliation and G formal acceptance; no unrelated authority added to original bounded criterion"
+    },
+    {
+      "id": "B136@TRN-03",
+      "finding_id": "B136",
+      "criterion_card": "TRN-03",
+      "canonical_closure_owner": "TRN-03",
+      "role": "canonical_owner",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3529,
+          3542
+        ],
+        "byte_offset": 804041,
+        "bytes": 3976,
+        "sha256": "1182d49f6e0f40a47b62e7bfe488d75ff540516f4ba6f022cbedba1340c60deb"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** переданный threshold и trust-filter соблюдаются независимо от маршрута; локальный промах не меняет требования; действительно допустимая transferred-карточка возвращается; несоответствующая не материализуется зря. Проверить source_run_id и политику частичного ответа, не только два численных примера.",
+        "byte_offset": 807152,
+        "bytes": 535,
+        "sha256": "dbc583087ea526396c4d1b2b4230d2058a76565496b4bdac824060a759dee116"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B136@TRN-03",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+          "bytes": 16604,
+          "sha256": "c7cce0fdded201121b425a14faefe58e7d1e13475d931a33eed5d82621c8aa2a"
+        }
+      },
+      "actual_candidate": {
+        "sha": "d610095905262a9b5b05b60c894018a681119367",
+        "tree": "f5a8262d01929bcc96399ad9492e8aaf7489a8a1"
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "disposition_proposal": "closed_proposal",
+      "actual_scope": "Original local/transfer sharedthreshold/trust/source_run/partial/asof/materialization readers828 exactunchangedlessonmodules/tests; actual admissiblecard and refusal beforematerialization.",
+      "checks": [
+        "828-native-lessons34",
+        "828-lessons22"
+      ],
+      "residual": "Independent final output reconciliation and G formal acceptance; no unrelated authority added to original bounded criterion"
+    },
+    {
+      "id": "B137@TRN-03",
+      "finding_id": "B137",
+      "criterion_card": "TRN-03",
+      "canonical_closure_owner": "TRN-03",
+      "role": "canonical_owner",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3543,
+          3556
+        ],
+        "byte_offset": 808017,
+        "bytes": 4247,
+        "sha256": "133330308d63d9cf44d4105d556e1e4740ff31b519643791722beb8a8a7bc961"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** любое число обычных чтений не повышает доверие; настоящая разрешённая ревалидация создаёт новую версию с новыми основаниями; повторный холодный и тёплый запрос дают одинаковую содержательную степень актуальности. Retention может учитывать популярность, evidence sufficiency — нет. Проверить восстановление после restart и перенос, а не только пару запросов в одной памяти.",
+        "byte_offset": 811080,
+        "bytes": 676,
+        "sha256": "a712c0b6eddcecf9e4b23c77fc2f4732fea66953462e3cb3bfcd4a6ed376be2f"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B137@TRN-03",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+          "bytes": 16604,
+          "sha256": "c7cce0fdded201121b425a14faefe58e7d1e13475d931a33eed5d82621c8aa2a"
+        }
+      },
+      "actual_candidate": {
+        "sha": "d610095905262a9b5b05b60c894018a681119367",
+        "tree": "f5a8262d01929bcc96399ad9492e8aaf7489a8a1"
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "disposition_proposal": "held",
+      "actual_scope": "Read/retention confidence, futureasof and cold/warm/restart/transfer components executed; genuine authorized newgrounds/newversion positive lacks actualissuer/refs.",
+      "checks": [
+        "828-native-lessons34",
+        "828-lessons22"
+      ],
+      "residual": "Owner positive missing"
+    }
+  ],
+  "owner_inputs": [
+    "owner-inputs/B-CAS-TRN02.json",
+    "owner-inputs/held-authority.json",
+    "owner-inputs/E-mutable-cap.json"
+  ],
+  "pattern_predicates": {
+    "P01_P02": "Actual ordinaryregister→CAS→nativepersist→freshreader→warmconsumer executes; currentB newerlineage ownercombinedreceipt separate",
+    "P05_P09_P10_P14": "Sourcebasis/artifact originalrows maintained; fixture labels never appoint rights or authorized revalidation; availability/refusal notnumericalzero",
+    "P27_P29_P32": "Actualnativebackend andfreshprocess, invalidoverflow/types, realCASsamerefbytes alteration; nohelper-only ormockPASS",
+    "P35_P37": "Current17/fullold76/historical34+22/current2/negative5 remain separate pinned denominators; runtime native predicate recomputed, originalownerauthority not_established",
+    "P38": "Python finite64, matchingnativeheader/schema/CASdigest may still carry nativeNaN after narrowing; actualnativegeometry and privateget_items admission diverge. Evidenceaccess/time markers do not revalidateconfidence.",
+    "P40": "Secondpersisted seam widened into nativefinite loadadmission; historical finitezero collapse bounded because originalrawembedding absent",
+    "P41": "not_established; no inherited-red waiver or whole-slice zerooverlap claim"
+  },
+  "limitations": [
+    "Formaloriginalclosure andG integration acceptance are decisions outside this leaf receipt",
+    "CurrentB e8bd1cfa6c1382231c430b3a4ba6d078e10fd8a9 deeperCAS differs; existing publicport signature/body identical does not establish newercombinedexecution",
+    "B131 genuine tenant/split/adapter ownerdecision andB137 actualauthorizedrevalidation newgrounds/newversion inputs missing",
+    "Legacy native nonzero→finitezero lost amplitude/direction cannot be distinguished from supported genuinezero without originalcontentboundrawembedding",
+    "PinnedHNSW0.8.0 localinprocess generation; no distributedatomicity/powerloss/publicdeployment guarantee",
+    "Old4691FAIL is testinput failure; developmental signal9 had noJUnit/phases,causeunknown, noOOM/productverdict",
+    "E mutablepublicplan cap actualFAIL supplied toE withouteditingE/B100source; no productionlaw claim"
+  ],
+  "cleanup": {
+    "performed_by_leaf": false,
+    "preserve": [
+      "code",
+      "documentation",
+      "uniqueinputs",
+      "decidingoutputs",
+      "liveGit/activeenvironments"
+    ],
+    "potential_reproducible_fixture_candidates": [
+      "/dev/shm/e02-D-transfer-current-xikf2oa6/basetemp",
+      "/dev/shm/e02-D-lesson-current-08g_91ts/basetemp",
+      "/dev/shm/e02-D-transfer-frozen469-06qbulta/basetemp",
+      "/dev/shm/e02-D-transfer-frozen469-06qbulta/remove_private_finite-tmp"
+    ],
+    "conditions": "Onlyafterpublication/readback andinactive-user check; nativeTrashonly ifavailable, else exactlist. No permanentdeletion/Trashclear."
+  }
+}

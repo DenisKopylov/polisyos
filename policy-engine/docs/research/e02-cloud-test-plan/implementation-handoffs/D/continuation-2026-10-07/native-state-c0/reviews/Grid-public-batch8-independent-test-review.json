@@ -1,0 +1,22 @@
+{
+  "reviewer": "census_oct07",
+  "status": "GO_TESTS_PENDING_MATCHING_STRICT_GRID_PRODUCTION_AND_IMMUTABLE_RUNTIME",
+  "patch": {
+    "path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/grid-public-batch-consumer-eight-79.patch",
+    "sha256": "4380727f860d4ac2d35a090daa3e1989a31c5639f14f05df742f5ca36818eaa4",
+    "bytes": 3681
+  },
+  "full": {
+    "path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/test_state_inventory.batch43.py",
+    "sha256": "78dede0f9d4cc81fca07b739bf168a6313de256ee020a4e35db267afb88716bc",
+    "bytes": 9873
+  },
+  "prior35_function_AST_preserved": true,
+  "review": [
+    "ActualpublicStrategyAdapter→finiteGridfirst3→realCASfreshStrategyStatecursor3→request2 returnsonelegitimatelastpoint, fouruniquephysicalpoints retained. ActualCASfreshcursor4 thenbatch[] andscalarStrategyExhaustedError, fullstatebytesunchanged.",
+    "Preserves existing integerzero no-op profile and nextscalarfirstpoint; strictsixbool/fraction/string/negative/None requests require controlledValueError before livecursor/RNGstate changes.",
+    "No durationoverride/controllerbatchlawchange/mocks, no numericalGPclaim. Currentproductionguardmust match supportednonnegativeinteger batchcount/clipremaining contract, ownerindependentproductionreview stillrequired."
+  ],
+  "runtime_result": "UNRUN_ON_CORRECTED_SOURCE",
+  "accepted_in_G": false
+}

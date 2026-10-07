@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="4" time="6.118" timestamp="2026-10-07T09:48:47.136953+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.methods.search.test_typed_objective_persisted_projection" name="test_real_objective_stack_native_cas_preserves_invalid_present_and_legacy_projection[invalid_vector]" time="0.059"><failure message="AssertionError: assert (None is None and 'missing' == 'invalid'&#10; +  where None = SearchIteration(iteration=0, candidate={'cost': -100}, objective_value=100.0, objective_details=[ObjectiveValue(name='...0, 7, 9, 48, 53, 6239, tzinfo=datetime.timezone.utc), policy_evaluation_status='missing', policy_evaluation_error=None).policy_evaluation&#10;  &#10;  - invalid&#10;  + missing)">tmp_path = PosixPath('/dev/shm/e02-D-oct07-service-start/final-native-a7/objective-removal-fixtures/test_real_objective_stack_nati0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f81eb2302b0&gt;
+mode = 'invalid_vector'
+
+    @pytest.mark.parametrize("mode", ["invalid_vector", "invalid_bundle", "legacy", "typed_bundle"])
+    def test_real_objective_stack_native_cas_preserves_invalid_present_and_legacy_projection(
+        tmp_path, monkeypatch, mode
+    ):
+        calls = []
+        original = ObjectiveStack.evaluate
+    
+        def observe(self, bundle):
+            calls.append(deepcopy(bundle))
+            return original(self, bundle)
+    
+        monkeypatch.setattr(ObjectiveStack, "evaluate", observe)
+        context = {"typed_mode": mode}
+        source = _service(tmp_path / "cas")
+        result = source.run_search(initial_context=context)
+        assert result.iterations_completed == result.stage_b_evaluations == len(result.history) == 1
+        ref = source.checkpoint_ref
+        retained = source._store.get_bytes(ref)
+        fresh = _service(tmp_path / "cas")
+        fresh.restore(ref, context=context)
+        restored = fresh.resume_search(context=context)
+        # Input bundles have a declared JSON checkpoint projection; the explicit
+        # PolicyEvaluationVector remains typed, while raw StageB bundle models are
+        # read back as their full original JSON payload rather than arbitrary objects.
+        assert checkpoint_json(restored.history) == checkpoint_json(result.history)
+        assert restored.history[0].policy_evaluation == result.history[0].policy_evaluation
+        assert restored.best_candidate == result.best_candidate
+        assert restored.best_objective == result.best_objective
+        assert restored.pareto_front == result.pareto_front
+        assert fresh._store.get_bytes(ref) == retained
+        row = restored.history[0]
+        if mode.startswith("invalid"):
+            assert calls == []  # Invalid schema is refused before the real stack.
+&gt;           assert row.policy_evaluation is None and row.policy_evaluation_status == "invalid"
+E           AssertionError: assert (None is None and 'missing' == 'invalid'
+E            +  where None = SearchIteration(iteration=0, candidate={'cost': -100}, objective_value=100.0, objective_details=[ObjectiveValue(name='...0, 7, 9, 48, 53, 6239, tzinfo=datetime.timezone.utc), policy_evaluation_status='missing', policy_evaluation_error=None).policy_evaluation
+E             
+E             - invalid
+E             + missing)
+
+tests/unit/scientist/methods/search/test_typed_objective_persisted_projection.py:89: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.test_typed_objective_persisted_projection" name="test_real_objective_stack_native_cas_preserves_invalid_present_and_legacy_projection[invalid_bundle]" time="0.032"><failure message="AssertionError: assert (None is None and 'missing' == 'invalid'&#10; +  where None = SearchIteration(iteration=0, candidate={'cost': -100}, objective_value=100.0, objective_details=[ObjectiveValue(name='... 7, 9, 48, 53, 151859, tzinfo=datetime.timezone.utc), policy_evaluation_status='missing', policy_evaluation_error=None).policy_evaluation&#10;  &#10;  - invalid&#10;  + missing)">tmp_path = PosixPath('/dev/shm/e02-D-oct07-service-start/final-native-a7/objective-removal-fixtures/test_real_objective_stack_nati1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f81eb6ab5c0&gt;
+mode = 'invalid_bundle'
+
+    @pytest.mark.parametrize("mode", ["invalid_vector", "invalid_bundle", "legacy", "typed_bundle"])
+    def test_real_objective_stack_native_cas_preserves_invalid_present_and_legacy_projection(
+        tmp_path, monkeypatch, mode
+    ):
+        calls = []
+        original = ObjectiveStack.evaluate
+    
+        def observe(self, bundle):
+            calls.append(deepcopy(bundle))
+            return original(self, bundle)
+    
+        monkeypatch.setattr(ObjectiveStack, "evaluate", observe)
+        context = {"typed_mode": mode}
+        source = _service(tmp_path / "cas")
+        result = source.run_search(initial_context=context)
+        assert result.iterations_completed == result.stage_b_evaluations == len(result.history) == 1
+        ref = source.checkpoint_ref
+        retained = source._store.get_bytes(ref)
+        fresh = _service(tmp_path / "cas")
+        fresh.restore(ref, context=context)
+        restored = fresh.resume_search(context=context)
+        # Input bundles have a declared JSON checkpoint projection; the explicit
+        # PolicyEvaluationVector remains typed, while raw StageB bundle models are
+        # read back as their full original JSON payload rather than arbitrary objects.
+        assert checkpoint_json(restored.history) == checkpoint_json(result.history)
+        assert restored.history[0].policy_evaluation == result.history[0].policy_evaluation
+        assert restored.best_candidate == result.best_candidate
+        assert restored.best_objective == result.best_objective
+        assert restored.pareto_front == result.pareto_front
+        assert fresh._store.get_bytes(ref) == retained
+        row = restored.history[0]
+        if mode.startswith("invalid"):
+            assert calls == []  # Invalid schema is refused before the real stack.
+&gt;           assert row.policy_evaluation is None and row.policy_evaluation_status == "invalid"
+E           AssertionError: assert (None is None and 'missing' == 'invalid'
+E            +  where None = SearchIteration(iteration=0, candidate={'cost': -100}, objective_value=100.0, objective_details=[ObjectiveValue(name='... 7, 9, 48, 53, 151859, tzinfo=datetime.timezone.utc), policy_evaluation_status='missing', policy_evaluation_error=None).policy_evaluation
+E             
+E             - invalid
+E             + missing)
+
+tests/unit/scientist/methods/search/test_typed_objective_persisted_projection.py:89: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.test_typed_objective_persisted_projection" name="test_real_objective_stack_native_cas_preserves_invalid_present_and_legacy_projection[legacy]" time="0.031" /><testcase classname="tests.unit.scientist.methods.search.test_typed_objective_persisted_projection" name="test_real_objective_stack_native_cas_preserves_invalid_present_and_legacy_projection[typed_bundle]" time="0.042" /></testsuite></testsuites>

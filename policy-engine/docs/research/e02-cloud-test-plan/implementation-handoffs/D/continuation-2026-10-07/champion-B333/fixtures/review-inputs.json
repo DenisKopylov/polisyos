@@ -1,0 +1,46 @@
+{
+  "profile": "B333-seven-module-sync-to-existing-D-ChampionRegistry",
+  "candidate_preparation_pin": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "candidate_tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+  "status": "UNRUN pending independent executable/consumer review and root immutable source hold",
+  "B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+  "prior_B_loader_review": {
+    "path": "/dev/shm/e02-D-census-review-oct07/B333-seven-module-combined-profile-independent-review.json",
+    "sha256": "282b43c0883069fa594a36f0b6061063eb64d49e6ab61b2bcdb9485b46f51a6d"
+  },
+  "new_fixtures": [
+    {
+      "path": "/dev/shm/e02-D-champion-B333-profile-asng67hd/champion_receipts.py",
+      "sha256": "da08685f5563774a3307db3b76926822285ddfdc24284102156ee0885459e28f",
+      "bytes": 4516
+    },
+    {
+      "path": "/dev/shm/e02-D-champion-B333-profile-asng67hd/run_profile.py",
+      "sha256": "8a50ae7051cf18890abc7686e0ed7766a1450931be15d3f5e4e1fea46b6b9e3f",
+      "bytes": 6897
+    },
+    {
+      "path": "/dev/shm/e02-D-champion-B333-profile-asng67hd/test_combined_champion.py",
+      "sha256": "b450fcae43548ad09129ac4aace1fcfca88e0fd9c8e22240dd7790a6e44f8997",
+      "bytes": 7156
+    }
+  ],
+  "positive_denominator": 5,
+  "negative_removal_denominator": 1,
+  "classification": "combined_dependency_profile; selected synchronous actual CAS + localPOSIX registry, not wholeB/default adoption or formal OPT04/G acceptance",
+  "consumer": "existing SearchLoopRunner \u2192 persist candidate/evaluation/basis \u2192 existing ChampionRegistry.consider_promotion \u2192 owner flock/reread \u2192 canonical single pointer \u2192 fresh second process FileSystemCAS/registry/model readback",
+  "independent_oracle": "fixed declared existing actual two-row dataset/split/value arithmetic, SHA256 actualbytes and manifest bytes, public qualified ArtifactRef exact ref resolution",
+  "negative_and_proxy": "same scalar/content candidate with changed qualified manifest profile rejects; stale original predecessor after other writer actually promotes rejects; same exact evaluation ref with altered bytes rejects without pointer mutation; lock marker preserved but child actual owner flock removed must escape held lock and fail test",
+  "expected_origin_groups": {
+    "combined5": 9,
+    "removal1": 2
+  },
+  "limits": [
+    "Original service/OPT04 owner tests/replay remain service owner; this executes a different canonicalB source combination",
+    "No new source/API/registry/default pointer/expected_predecessor introduced",
+    "Test-only adversarial child guard removal is the sole deliberately altered method; positive CAS and registry unmodified",
+    "No distributed/powerloss/production benchmark quality/evaluator appointment inferred",
+    "No TRN65/nativepair repeat",
+    "Timeouts are deterministic shared lock/child completion guards, not numerical/process compute limits"
+  ]
+}

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="6.588" timestamp="2026-10-07T09:17:50.984129+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.methods.search.test_service_factory_fault_resume" name="test_public_factory_checkpoint_fault_fresh_process_resume_preserves_next_subject[write]" time="3.347"><failure message="AssertionError: 2026-10-07 09:17:53.587 | INFO     | polisyos.common.logger:_call:120 - Starting search d842ac28&#10;  Traceback (most recent call last):&#10;    File &quot;&lt;string&gt;&quot;, line 85, in &lt;module&gt;&#10;      assert live_next.payload == fault[&quot;proposal&quot;], {&quot;live&quot;: live_next.payload, &quot;expected&quot;: fault[&quot;proposal&quot;]}&#10;             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^&#10;  AssertionError: {'live': {'loop_id': 'resume', 'artifact_version': '1.0', 'search_space_version': '1.0', 'notes': [], 'value': 3}, 'expected': {'loop_id': 'resume', 'artifact_version': '1.0', 'search_space_version': '1.0', 'notes': [], 'value': 2}}&#10;  &#10;assert 1 == 0&#10; +  where 1 = CompletedProcess(args=['/tmp/e02-D-runtime-minimal-20261006/bin/python', '-c', '\nimport hashlib, json, sys\nfrom path...p_id\': \'resume\', \'artifact_version\': \'1.0\', \'search_space_version\': \'1.0\', \'notes\': [], \'value\': 2}}\n').returncode">tmp_path = PosixPath('/dev/shm/e02-D-oct07-service-start/final-native-c0/cursor-removal-fixtures/test_public_factory_checkpoint0')
+failure = 'write'
+
+    @pytest.mark.parametrize("failure", ["write", "readback"])
+    def test_public_factory_checkpoint_fault_fresh_process_resume_preserves_next_subject(
+        tmp_path, failure
+    ):
+&gt;       writer = _process(_WRITE_SCRIPT, tmp_path, failure)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/test_service_factory_fault_resume.py:209: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+script = '\nimport hashlib, json, sys\nfrom pathlib import Path\nfrom polisyos.core.canon.canon_json import from_canonical_byte...proposal.model_dump(mode="json"),\n    "origins": origins, "python": sys.version, "executable": sys.executable,\n}))\n'
+tmp_path = PosixPath('/dev/shm/e02-D-oct07-service-start/final-native-c0/cursor-removal-fixtures/test_public_factory_checkpoint0')
+arguments = ('write',)
+environment = {'BROWSER_MANAGEMENT_SOCKET_PATH': '/home/agent/.local/run/browser-management/socket', 'CAAS_DIND_STORAGE_DRIVER': 'vf..._GIT_COMMIT_SHA': '8f4f3df6e62b78be6e6f4def1fdb1a1649eeddb7', 'CAAS_IMAGE_VERSION': '20260927172045-8f4f3df6e62b', ...}
+result = CompletedProcess(args=['/tmp/e02-D-runtime-minimal-20261006/bin/python', '-c', '\nimport hashlib, json, sys\nfrom path...p_id\': \'resume\', \'artifact_version\': \'1.0\', \'search_space_version\': \'1.0\', \'notes\': [], \'value\': 2}}\n')
+@py_assert1 = 1
+
+    def _process(script, tmp_path, *arguments):
+        # Both processes load the same tracked helper/model/evaluator profile.
+        # They run in sequence because the reader depends on the writer's CAS refs.
+        environment = dict(os.environ)
+        environment["PYTHONPATH"] = os.pathsep.join(
+            filter(None, [str(Path(__file__).parent), environment.get("PYTHONPATH", "")])
+        )
+        result = subprocess.run(
+            [sys.executable, "-c", script, str(tmp_path), *arguments],
+            capture_output=True,
+            text=True,
+            env=environment,
+        )
+        print(
+            json.dumps(
+                {
+                    "child_stdout": result.stdout,
+                    "child_stderr": result.stderr,
+                    "child_returncode": result.returncode,
+                },
+                sort_keys=True,
+            )
+        )
+&gt;       assert result.returncode == 0, result.stdout + result.stderr
+E       AssertionError: 2026-10-07 09:17:53.587 | INFO     | polisyos.common.logger:_call:120 - Starting search d842ac28
+E         Traceback (most recent call last):
+E           File "&lt;string&gt;", line 85, in &lt;module&gt;
+E             assert live_next.payload == fault["proposal"], {"live": live_next.payload, "expected": fault["proposal"]}
+E                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E         AssertionError: {'live': {'loop_id': 'resume', 'artifact_version': '1.0', 'search_space_version': '1.0', 'notes': [], 'value': 3}, 'expected': {'loop_id': 'resume', 'artifact_version': '1.0', 'search_space_version': '1.0', 'notes': [], 'value': 2}}
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/tmp/e02-D-runtime-minimal-20261006/bin/python', '-c', '\nimport hashlib, json, sys\nfrom path...p_id\': \'resume\', \'artifact_version\': \'1.0\', \'search_space_version\': \'1.0\', \'notes\': [], \'value\': 2}}\n').returncode
+
+tests/unit/scientist/methods/search/test_service_factory_fault_resume.py:196: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.test_service_factory_fault_resume" name="test_public_factory_checkpoint_fault_fresh_process_resume_preserves_next_subject[readback]" time="3.175"><failure message="AssertionError: 2026-10-07 09:17:56.850 | INFO     | polisyos.common.logger:_call:120 - Starting search e19be869&#10;  Traceback (most recent call last):&#10;    File &quot;&lt;string&gt;&quot;, line 85, in &lt;module&gt;&#10;      assert live_next.payload == fault[&quot;proposal&quot;], {&quot;live&quot;: live_next.payload, &quot;expected&quot;: fault[&quot;proposal&quot;]}&#10;             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^&#10;  AssertionError: {'live': {'loop_id': 'resume', 'artifact_version': '1.0', 'search_space_version': '1.0', 'notes': [], 'value': 3}, 'expected': {'loop_id': 'resume', 'artifact_version': '1.0', 'search_space_version': '1.0', 'notes': [], 'value': 2}}&#10;  &#10;assert 1 == 0&#10; +  where 1 = CompletedProcess(args=['/tmp/e02-D-runtime-minimal-20261006/bin/python', '-c', '\nimport hashlib, json, sys\nfrom path...p_id\': \'resume\', \'artifact_version\': \'1.0\', \'search_space_version\': \'1.0\', \'notes\': [], \'value\': 2}}\n').returncode">tmp_path = PosixPath('/dev/shm/e02-D-oct07-service-start/final-native-c0/cursor-removal-fixtures/test_public_factory_checkpoint1')
+failure = 'readback'
+
+    @pytest.mark.parametrize("failure", ["write", "readback"])
+    def test_public_factory_checkpoint_fault_fresh_process_resume_preserves_next_subject(
+        tmp_path, failure
+    ):
+&gt;       writer = _process(_WRITE_SCRIPT, tmp_path, failure)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/test_service_factory_fault_resume.py:209: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+script = '\nimport hashlib, json, sys\nfrom pathlib import Path\nfrom polisyos.core.canon.canon_json import from_canonical_byte...proposal.model_dump(mode="json"),\n    "origins": origins, "python": sys.version, "executable": sys.executable,\n}))\n'
+tmp_path = PosixPath('/dev/shm/e02-D-oct07-service-start/final-native-c0/cursor-removal-fixtures/test_public_factory_checkpoint1')
+arguments = ('readback',)
+environment = {'BROWSER_MANAGEMENT_SOCKET_PATH': '/home/agent/.local/run/browser-management/socket', 'CAAS_DIND_STORAGE_DRIVER': 'vf..._GIT_COMMIT_SHA': '8f4f3df6e62b78be6e6f4def1fdb1a1649eeddb7', 'CAAS_IMAGE_VERSION': '20260927172045-8f4f3df6e62b', ...}
+result = CompletedProcess(args=['/tmp/e02-D-runtime-minimal-20261006/bin/python', '-c', '\nimport hashlib, json, sys\nfrom path...p_id\': \'resume\', \'artifact_version\': \'1.0\', \'search_space_version\': \'1.0\', \'notes\': [], \'value\': 2}}\n')
+@py_assert1 = 1
+
+    def _process(script, tmp_path, *arguments):
+        # Both processes load the same tracked helper/model/evaluator profile.
+        # They run in sequence because the reader depends on the writer's CAS refs.
+        environment = dict(os.environ)
+        environment["PYTHONPATH"] = os.pathsep.join(
+            filter(None, [str(Path(__file__).parent), environment.get("PYTHONPATH", "")])
+        )
+        result = subprocess.run(
+            [sys.executable, "-c", script, str(tmp_path), *arguments],
+            capture_output=True,
+            text=True,
+            env=environment,
+        )
+        print(
+            json.dumps(
+                {
+                    "child_stdout": result.stdout,
+                    "child_stderr": result.stderr,
+                    "child_returncode": result.returncode,
+                },
+                sort_keys=True,
+            )
+        )
+&gt;       assert result.returncode == 0, result.stdout + result.stderr
+E       AssertionError: 2026-10-07 09:17:56.850 | INFO     | polisyos.common.logger:_call:120 - Starting search e19be869
+E         Traceback (most recent call last):
+E           File "&lt;string&gt;", line 85, in &lt;module&gt;
+E             assert live_next.payload == fault["proposal"], {"live": live_next.payload, "expected": fault["proposal"]}
+E                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E         AssertionError: {'live': {'loop_id': 'resume', 'artifact_version': '1.0', 'search_space_version': '1.0', 'notes': [], 'value': 3}, 'expected': {'loop_id': 'resume', 'artifact_version': '1.0', 'search_space_version': '1.0', 'notes': [], 'value': 2}}
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/tmp/e02-D-runtime-minimal-20261006/bin/python', '-c', '\nimport hashlib, json, sys\nfrom path...p_id\': \'resume\', \'artifact_version\': \'1.0\', \'search_space_version\': \'1.0\', \'notes\': [], \'value\': 2}}\n').returncode
+
+tests/unit/scientist/methods/search/test_service_factory_fault_resume.py:196: AssertionError</failure></testcase></testsuite></testsuites>

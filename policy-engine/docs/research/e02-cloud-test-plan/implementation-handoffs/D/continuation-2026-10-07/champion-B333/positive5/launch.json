@@ -1,0 +1,170 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-p",
+    "champion_receipts",
+    "-o",
+    "junit_family=xunit1",
+    "-o",
+    "junit_logging=all",
+    "-o",
+    "junit_log_passing_tests=true",
+    "--basetemp",
+    "/dev/shm/e02-D-champion-B333-combined5-bu0ikwsg/basetemp",
+    "--junitxml",
+    "/dev/shm/e02-D-champion-B333-combined5-bu0ikwsg/junit.xml",
+    "-q",
+    "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs",
+    "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_actual_reused_content_keeps_old_qualified_view_and_refuses_wrong_candidate_profile",
+    "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread",
+    "/dev/shm/e02-D-champion-B333-profile-asng67hd/test_combined_champion.py::test_actual_owner_lock_blocks_child_publication_then_current_basis_commits",
+    "/dev/shm/e02-D-champion-B333-profile-asng67hd/test_combined_champion.py::test_same_exact_evaluation_ref_changed_bytes_refuses_without_pointer_effect"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+  "mode": "B333-combined5",
+  "classification": "combined_dependency_profile",
+  "accepted_in_G": false,
+  "B_exact_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+  "B_module_map": {
+    "repository": "/dev/shm/e02-D-oct07-continuation",
+    "source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+    "modules": {
+      "polisyos.core.artifacts._integrity_ops": {
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "D_blob": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257",
+        "B_blob": "557fbb829dec5e9f349e5de7a7d5013ca1c2a2ef",
+        "D_sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b",
+        "B_sha256": "768aa83084c85e8b501cacad1a94ece535e08b78e7070cee619c249df11cbfe4",
+        "B_bytes": 12619
+      },
+      "polisyos.core.artifacts._signature_ops": {
+        "path": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+        "D_blob": "40acc7887fb09fdc567af6edfadff82ea2c01b9a",
+        "B_blob": "5c483b787d7afbef8b489383e5a01fc9734af6e7",
+        "D_sha256": "35a8af3422febca80a8f3584117bc2464a5468a0f73482c738e8255760f7fbfb",
+        "B_sha256": "0627738427829a9f7489082297635c1b604d987182aca1e5559b2bafc510cb85",
+        "B_bytes": 18059
+      },
+      "polisyos.core.artifacts._transfer_ops": {
+        "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+        "D_blob": "43012c9fdbdc20fd79081239d3a0c474c050a385",
+        "B_blob": "70f7a735755f56dbf2cfd7ad5e4859cd17bf91a9",
+        "D_sha256": "641553dd8b105a31c406d3af9d2477efa75f093755afc41f9af97816ebc817d6",
+        "B_sha256": "27709becae4680c5a16445a4bfea2270dc1de8a2cea93b06c30205104c9e00b7",
+        "B_bytes": 46449
+      },
+      "polisyos.core.artifacts.async_store": {
+        "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+        "D_blob": "a664d69d1d0ba58841c530a901783977072523b2",
+        "B_blob": "1111ad75ed6632d87280e5699845811ec355bfbb",
+        "D_sha256": "6b50f6cc1cf136e6eac66c3ff72745481495a13e18ab0d2ae8209f88863919fe",
+        "B_sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078",
+        "B_bytes": 7518
+      },
+      "polisyos.core.artifacts.signing": {
+        "path": "policy-engine/src/polisyos/core/artifacts/signing.py",
+        "D_blob": "cc3082cdf613707d6df284266fc8c97e565bba84",
+        "B_blob": "8aa4cdd46dc9de873df15b977ed6576eb11bb30f",
+        "D_sha256": "5d4a19ab6a2c8b5caacb3c7c74caf3625c24d4e5e51873d131292a682738b568",
+        "B_sha256": "2b58237eddbafa61bb6bd7a41b5e7f2cf96553c92406f1edf4cbbf236934261d",
+        "B_bytes": 30675
+      },
+      "polisyos.core.artifacts.store": {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "D_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+        "B_blob": "02e3253de23db5d64c21b69ce4cc85daa4f0778c",
+        "D_sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165",
+        "B_sha256": "627676dcb74c442b7e3f30a64bf7b4023e4ef5f1a8f2dac1d37fdf3e69654a4f",
+        "B_bytes": 190227,
+        "D_get_verified_snapshot_ast": "ab7320ace61de46d8e7adc1f7652f7e9a3bb8bc010af19c702cd61f9f6f65c71",
+        "B_get_verified_snapshot_ast": "ab7320ace61de46d8e7adc1f7652f7e9a3bb8bc010af19c702cd61f9f6f65c71"
+      },
+      "polisyos.common.async_tools": {
+        "path": "policy-engine/src/polisyos/common/async_tools.py",
+        "D_blob": "1f60973c35cfdd8bcf9629f675bcb7d30235fcfa",
+        "B_blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+        "D_sha256": "5153fff118f7d791abb72b6878b409ca226ceceb2411fd413756f66a694d8406",
+        "B_sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+        "B_bytes": 11846
+      }
+    }
+  },
+  "D_inputs": {
+    "policy-engine/src/polisyos/scientist/methods/autotune/registry.py": {
+      "blob": "68affc2d2354e1a3cdd1e339916d74b811d88bea",
+      "sha256": "1339af524b604462021425b9d88f5cbe278f1a8c927827cb3e26fa4f8f0cc6ba"
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/models.py": {
+      "blob": "5335d35ba3967c9774dbd9d50dcbd02ae91a6786",
+      "sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5"
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py": {
+      "blob": "2451c5520334a2765298314d53e46502c2b04c90",
+      "sha256": "b64d2e6a49e173e58316bf843dab889a775d6b26c9ad6a81d10c2281bce94185"
+    },
+    "policy-engine/tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py": {
+      "blob": "e5db88df8a2f115d886c592bdf291d4013d3f21a",
+      "sha256": "f9a5a1453c99d51d1e09dd2f53f48f1d9547a0c1ca428560568dc1d304e1d0bf"
+    },
+    "policy-engine/tests/conftest.py": {
+      "blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+      "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+    },
+    "policy-engine/pyproject.toml": {
+      "blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    }
+  },
+  "fixture_inputs": [
+    {
+      "path": "/dev/shm/e02-D-champion-B333-profile-asng67hd/run_profile.py",
+      "sha256": "8a50ae7051cf18890abc7686e0ed7766a1450931be15d3f5e4e1fea46b6b9e3f",
+      "bytes": 6897
+    },
+    {
+      "path": "/dev/shm/e02-D-champion-B333-profile-asng67hd/test_combined_champion.py",
+      "sha256": "b450fcae43548ad09129ac4aace1fcfca88e0fd9c8e22240dd7790a6e44f8997",
+      "bytes": 7156
+    },
+    {
+      "path": "/dev/shm/e02-D-champion-B333-profile-asng67hd/champion_receipts.py",
+      "sha256": "da08685f5563774a3307db3b76926822285ddfdc24284102156ee0885459e28f",
+      "bytes": 4516
+    },
+    {
+      "path": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux/B333-pair/sitecustomize.py",
+      "sha256": "46249faf6bf51b1a62b709df255d94cfa0ddac761a0a6b6cb60b5adf6f14cb95",
+      "bytes": 1803
+    },
+    {
+      "path": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux/B333-pair/B333-module-map.json",
+      "sha256": "39f2c6771f2fba5ba096edd7dc148e199406e21c97a33f522256a7fede9d2f9b",
+      "bytes": 3408
+    }
+  ],
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TMPDIR": "/dev/shm/e02-D-champion-B333-combined5-bu0ikwsg/tmp",
+    "PYTHONPATH": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux/B333-pair:/dev/shm/e02-D-champion-B333-profile-asng67hd:/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine",
+    "E02_CHAMPION_REPOSITORY": "/dev/shm/e02-D-oct07-continuation",
+    "E02_CHAMPION_EVIDENCE": "/dev/shm/e02-D-champion-B333-combined5-bu0ikwsg",
+    "E02_CAS_PAIR_ORIGINS": "/dev/shm/e02-D-champion-B333-combined5-bu0ikwsg/module-origins"
+  },
+  "start_utc": "2026-10-07T09:45:47.594021+00:00",
+  "backend": "actual canonical B333 FileSystemCAS + current D ChampionRegistry local POSIX lock/atomic pointer; Python3.14.7 locked profile",
+  "inputs_and_law": "Existing controlled two-row immutable dataset/split, fixture value times holdout weight; actual evaluations 1/2/3. No production quality or evaluator appointment asserted.",
+  "compute_limits_introduced": false,
+  "barrier_timeout_scope": "0.5s observes the actual lock-held publication refusal; 10s child completion guard. No numerical CPU/worker/process quota.",
+  "remaining_scope": [
+    "not whole B adoption",
+    "not a default factory integration candidate",
+    "not distributed/power-loss publication guarantee",
+    "not original OPT04 formal closure or G acceptance"
+  ]
+}

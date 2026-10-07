@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="6.288" timestamp="2026-10-07T09:48:47.169677+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.methods.search.test_semantic_dates_persisted_consumers" name="test_actual_native_frontier_registry_and_cas_preserve_semantic_dates_and_all_replicas[False]" time="0.064"><failure message="AssertionError: assert 1 == 2&#10; +  where 1 = len([FrontierPoint(candidate={'_replica': 3, 'cost': 2, 'created_at': '2026-04-01', 'metadata': {'loaded_at': '2026-04-01'...malized_values=(-2.0, -0.5), candidate_hash='sha256:98b683940549e0924e041f105dd716cb239843f761ccf321d01973a51f9fbd7f')])&#10; +    where [FrontierPoint(candidate={'_replica': 3, 'cost': 2, 'created_at': '2026-04-01', 'metadata': {'loaded_at': '2026-04-01'...malized_values=(-2.0, -0.5), candidate_hash='sha256:98b683940549e0924e041f105dd716cb239843f761ccf321d01973a51f9fbd7f')] = SearchRunState(search_id='d01c8ddb', status=&lt;SearchStatus.STOPPED: 'stopped'&gt;, history=[SearchIteration(iteration=0, c...r_id=None, budget_ledger_revision=None, policy_evaluation_errors=0, generation_transition=None, pareto_projection=None).pareto_points">tmp_path = PosixPath('/dev/shm/e02-D-oct07-service-start/final-native-a7/date-removal-fixtures/test_actual_native_frontier_re0')
+registry_profile = False
+
+    @pytest.mark.parametrize("registry_profile", [False, True])
+    def test_actual_native_frontier_registry_and_cas_preserve_semantic_dates_and_all_replicas(
+        tmp_path, registry_profile
+    ):
+        registry_root = tmp_path / "registry"
+        registry = ParetoRegistry(registry_root) if registry_profile else None
+        source = _date_service(tmp_path / "cas", registry)
+        result = source.run_search(initial_context={})
+        ref = source.checkpoint_ref
+        original = source._store.get_bytes(ref)
+        fresh_store = FileSystemCAS(tmp_path / "cas")
+        raw = _decode_checkpoint(fresh_store.get_verified_snapshot(ref).data)
+        fresh_state = SearchRunState.from_checkpoint(raw["run_state"])
+        assert fresh_state.history == result.history
+        assert len(fresh_state.history) == fresh_state.evaluation_iterations == 3
+        assert len(raw["completed_candidate_ids"]) == 3
+        assert len(set(raw["completed_candidate_ids"])) == 3
+        assert [row.policy_evaluation.candidate_id for row in fresh_state.history] == [
+            "full-fixture-evaluation-1",
+            "full-fixture-evaluation-2",
+            "full-fixture-evaluation-3",
+        ]
+        assert [row.policy_evaluation.metadata["replicate_id"] for row in fresh_state.history] == [
+            "independent-replica-1",
+            "independent-replica-2",
+            "independent-replica-3",
+        ]
+        assert [row.candidate["semantic"]["metadata"]["starts_at"] for row in fresh_state.history] == [
+            "2026-01-01",
+            "2026-01-01",
+            "2026-02-01",
+        ]
+        # The two same-action evaluations remain in history; the candidate frontier
+        # independently contains two logical subjects, regardless of trace/JSON order.
+        if registry_profile:
+            persisted = ParetoRegistry(registry_root).get_snapshot(result.search_id)
+            assert len(persisted.entries) == 2
+            assert {
+                row.seed_payload["semantic"]["metadata"]["starts_at"]
+                for row in persisted.entries.values()
+            } == {"2026-01-01", "2026-02-01"}
+            assert all(
+                row.seed_payload["semantic"]["metadata"]["effective_date"] == "2026-01-15"
+                for row in persisted.entries.values()
+            )
+            assert {row.evaluation.metadata["replicate_id"] for row in persisted.entries.values()} == {
+                "independent-replica-2",
+                "independent-replica-3",
+            }
+            # This is observed candidate identity, not a claim of global ranking or
+            # a public resume profile for configured external registries.
+            projection = persisted.project_view(ParetoView.GLOBAL_FEASIBLE)
+            assert projection.ranked_frontier_hashes == ()
+            assert projection.assessment.status != "complete"
+        else:
+&gt;           assert len(fresh_state.pareto_points) == 2
+E           AssertionError: assert 1 == 2
+E            +  where 1 = len([FrontierPoint(candidate={'_replica': 3, 'cost': 2, 'created_at': '2026-04-01', 'metadata': {'loaded_at': '2026-04-01'...malized_values=(-2.0, -0.5), candidate_hash='sha256:98b683940549e0924e041f105dd716cb239843f761ccf321d01973a51f9fbd7f')])
+E            +    where [FrontierPoint(candidate={'_replica': 3, 'cost': 2, 'created_at': '2026-04-01', 'metadata': {'loaded_at': '2026-04-01'...malized_values=(-2.0, -0.5), candidate_hash='sha256:98b683940549e0924e041f105dd716cb239843f761ccf321d01973a51f9fbd7f')] = SearchRunState(search_id='d01c8ddb', status=&lt;SearchStatus.STOPPED: 'stopped'&gt;, history=[SearchIteration(iteration=0, c...r_id=None, budget_ledger_revision=None, policy_evaluation_errors=0, generation_transition=None, pareto_projection=None).pareto_points
+
+tests/unit/scientist/methods/search/test_semantic_dates_persisted_consumers.py:145: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.test_semantic_dates_persisted_consumers" name="test_actual_native_frontier_registry_and_cas_preserve_semantic_dates_and_all_replicas[True]" time="0.057"><failure message="AssertionError: assert 1 == 2&#10; +  where 1 = len({'sha256:98b683940549e0924e041f105dd716cb239843f761ccf321d01973a51f9fbd7f': ParetoRegistryEntry(candidate_hash='sha256...lue': -2.5, 'seed_only': False}, promotion_metadata={'iteration': 2, 'feedback': {'verdict': 'APPROVE'}}, metadata={})})&#10; +    where {'sha256:98b683940549e0924e041f105dd716cb239843f761ccf321d01973a51f9fbd7f': ParetoRegistryEntry(candidate_hash='sha256...lue': -2.5, 'seed_only': False}, promotion_metadata={'iteration': 2, 'feedback': {'verdict': 'APPROVE'}}, metadata={})} = ParetoRegistrySnapshot(schema_version='2.0', loop_id='a57122db', task_family='policy', domain='isolated::unknown', upd...finite_coordinate_ids_by_candidate_hash={}, unresolved_axis_contract_candidate_hashes=[])}, objective_basis_by_view={}).entries">tmp_path = PosixPath('/dev/shm/e02-D-oct07-service-start/final-native-a7/date-removal-fixtures/test_actual_native_frontier_re1')
+registry_profile = True
+
+    @pytest.mark.parametrize("registry_profile", [False, True])
+    def test_actual_native_frontier_registry_and_cas_preserve_semantic_dates_and_all_replicas(
+        tmp_path, registry_profile
+    ):
+        registry_root = tmp_path / "registry"
+        registry = ParetoRegistry(registry_root) if registry_profile else None
+        source = _date_service(tmp_path / "cas", registry)
+        result = source.run_search(initial_context={})
+        ref = source.checkpoint_ref
+        original = source._store.get_bytes(ref)
+        fresh_store = FileSystemCAS(tmp_path / "cas")
+        raw = _decode_checkpoint(fresh_store.get_verified_snapshot(ref).data)
+        fresh_state = SearchRunState.from_checkpoint(raw["run_state"])
+        assert fresh_state.history == result.history
+        assert len(fresh_state.history) == fresh_state.evaluation_iterations == 3
+        assert len(raw["completed_candidate_ids"]) == 3
+        assert len(set(raw["completed_candidate_ids"])) == 3
+        assert [row.policy_evaluation.candidate_id for row in fresh_state.history] == [
+            "full-fixture-evaluation-1",
+            "full-fixture-evaluation-2",
+            "full-fixture-evaluation-3",
+        ]
+        assert [row.policy_evaluation.metadata["replicate_id"] for row in fresh_state.history] == [
+            "independent-replica-1",
+            "independent-replica-2",
+            "independent-replica-3",
+        ]
+        assert [row.candidate["semantic"]["metadata"]["starts_at"] for row in fresh_state.history] == [
+            "2026-01-01",
+            "2026-01-01",
+            "2026-02-01",
+        ]
+        # The two same-action evaluations remain in history; the candidate frontier
+        # independently contains two logical subjects, regardless of trace/JSON order.
+        if registry_profile:
+            persisted = ParetoRegistry(registry_root).get_snapshot(result.search_id)
+&gt;           assert len(persisted.entries) == 2
+E           AssertionError: assert 1 == 2
+E            +  where 1 = len({'sha256:98b683940549e0924e041f105dd716cb239843f761ccf321d01973a51f9fbd7f': ParetoRegistryEntry(candidate_hash='sha256...lue': -2.5, 'seed_only': False}, promotion_metadata={'iteration': 2, 'feedback': {'verdict': 'APPROVE'}}, metadata={})})
+E            +    where {'sha256:98b683940549e0924e041f105dd716cb239843f761ccf321d01973a51f9fbd7f': ParetoRegistryEntry(candidate_hash='sha256...lue': -2.5, 'seed_only': False}, promotion_metadata={'iteration': 2, 'feedback': {'verdict': 'APPROVE'}}, metadata={})} = ParetoRegistrySnapshot(schema_version='2.0', loop_id='a57122db', task_family='policy', domain='isolated::unknown', upd...finite_coordinate_ids_by_candidate_hash={}, unresolved_axis_contract_candidate_hashes=[])}, objective_basis_by_view={}).entries
+
+tests/unit/scientist/methods/search/test_semantic_dates_persisted_consumers.py:126: AssertionError</failure></testcase></testsuite></testsuites>

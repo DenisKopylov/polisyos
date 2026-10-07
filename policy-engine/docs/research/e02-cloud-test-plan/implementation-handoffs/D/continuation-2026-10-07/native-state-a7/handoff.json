@@ -1,0 +1,93 @@
+{
+  "schema": "D.e02.native-affected-a7-handoff.v1",
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+  "original_slice_base": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "full_changed_path_set": [
+    "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-durable-completion-obligations.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-07-durable-cache-financial-boundary.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-07-e02-b-gateway-exact-numeric-decode.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-07-e02-d-native-cosine-admission.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-07-funnel-canonical-B12-consumer.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-07-native-search-budget-owner-port.toml",
+    "policy-engine/src/polisyos/core/llm/README.md",
+    "policy-engine/src/polisyos/core/llm/response.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+    "policy-engine/src/polisyos/scientist/methods/search/service.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py",
+    "policy-engine/tests/integration/scientist/methods/search/test_controller.py",
+    "policy-engine/tests/unit/remediation/test_llm_01.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_service_owner_budget_factory.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_typed_objective_persisted_projection.py"
+  ],
+  "actual_transfer_workflow": {
+    "checks": "3PASS/0FAIL/ERROR/SKIP",
+    "MLL_starts": 2,
+    "MLL_returns": 2,
+    "corpus_rows": [
+      8,
+      7
+    ],
+    "profile": "Python3.14.7/Torch2.10.0+cu128/BoTorch0.16.1/GPyTorch1.15.1/NumPy2.3.5/SciPy1.16.3; existing SingleTaskGP, ordinary CPU/sequential; no added thread/process caps.",
+    "command": "Exact argv/stdout/stderr/origins/fitted state/full6313 beforeafter in archive",
+    "consumer": "Actual SearchLoopRunner.run\u2192create_service\u2192NativeSearchService.run_search\u2192configured bridge\u2192CAS corpus\u2192GP acquisition; fresh StrategyState restore and same-ref altered measurement fail closed.",
+    "limitations": "Test configured analytic receiving evaluator; no production invoice/history/tenant/scientific ownership authority."
+  },
+  "canonical_B04_original_diagnostic": {
+    "check": "FAIL1_preserved",
+    "actual_selected_AST_paths": 63,
+    "full_present_input_denominator": 6853,
+    "missing_inputs": [],
+    "changed_inputs": [],
+    "declared_reads_defect": "not_established: all nine reads already present in existing OutputAwareNodeSpec causal node",
+    "actual_tooling_defect": "_extract_spec_reads originally accepted only NodeSpec and ignored existing OutputAwareNodeSpec subclass. Narrow proposed adjacent checker repair independently reviewed, future actualsource63+18/removal pending.",
+    "unavailable_authority": "D does not close original A-owned B04 finding; companion label distinct. Existing architecture/devx tool owner disposition remains via Git.",
+    "receipt_completion_correction": "Original B04 result captured wrapper.stdout hash before its final print; complete canonical stdout/stderr remain exact. This final archive binds actual final wrapper.stdout bytes, without modifying original receipt."
+  },
+  "scoped_native_carry": {
+    "path": "native-state-c0-to-a7-scoped-carry.json",
+    "sha256": "abef09196d1495c0d14ba9e0c92601eab06a86b94bdf0686da00a976f62c5f37",
+    "interpretation": "Strong GP43/MO88/State142 outputs remain exactc0; unchanged loaded state/GP/MO assertions carried separately with full25delta and actual changedRunner/service replay. No new whole-source numerical PASS."
+  },
+  "complete_deciding_output": {
+    "path": "complete-deciding-output.json.gz",
+    "sha256": "572bdf206ababd6c1701a5a5cf09df869b3fb469f1eb248e7dc3c0df7685a60a",
+    "bytes": 1170297,
+    "path_records": 281,
+    "unique_UTF8_contents": 147
+  },
+  "P37": "Actual backend fits and originalCAS/content-bound corpus/effective caller/readback, not marker or savedstate alone. Canonical AST actualinput receipt retained.",
+  "P38": "Trace/collection/native availability/same-model posterior consistency not independent numerical or debit truth. Strong NumPyfullcovariance oracle remains old exactsource qualified.",
+  "P41": "not_established; no inheritedred waiver",
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "cleanup": "No leaf cleanup; root owns authorized cleanup; preserve all source/Git/unique deciding outputs.",
+  "independent_scoped_carry_reviews": [
+    {
+      "path": "native-state-c0-to-a7-independent-carry-review.json",
+      "original_path": "/tmp/e02-D-math-oct07-drafts/native-state-c0-to-a7-independent-carry-review.json",
+      "sha256": "4b251cb95e101d48a7df8ad388b64518d772bd4f353f658b8aaf5da7af79331a"
+    },
+    {
+      "path": "native-state-and-B41-a7-scoped-carry-independent-review.json",
+      "original_path": "/dev/shm/e02-D-census-review-oct07/native-state-and-B41-a7-scoped-carry-independent-review.json",
+      "sha256": "66e7c798641e2ee15497e0a90fb69e5fb39a69d73a2194ea5a0e59023d2089fa"
+    }
+  ],
+  "own_module_delta_scan": {
+    "path": "own-module-budget-final-a7-delta-scan.json",
+    "sha256": "3e87b6bc7120de72f6e354ebf5ead543e7d1533b6a8d2b05a516eb0d03db35c3",
+    "scope": "MO824/test510/inventory249 exact unchangedc0 bytes; ownsize below1000; fullcanonical82/6 nonPASS remains separate."
+  },
+  "state": "reviewed immutable affected candidate evidence; source/tool repair followups require separate future receipt"
+}

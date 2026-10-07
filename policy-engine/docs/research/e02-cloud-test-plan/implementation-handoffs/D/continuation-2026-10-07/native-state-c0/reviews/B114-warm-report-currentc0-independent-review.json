@@ -1,0 +1,102 @@
+{
+  "schema_version": "D.e02.independent-runtime-review.v1",
+  "reviewer": "/root/math_oct07",
+  "author": "/root/gp_oct07",
+  "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+  "review_result": "GO exact current B114 rejected-row reason companion and meaningful report-removal control",
+  "records": [
+    {
+      "label": "warm-admission3",
+      "root": "/dev/shm/e02-D-warm-minimal-c0-n20ov9rh",
+      "PASS": 3,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "backend": {
+        "torch": "missing",
+        "botorch": "missing",
+        "gpytorch": "missing",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "pytest": "9.0.2",
+        "hnswlib": "missing"
+      },
+      "check_scope": "actual warm_start corpus admission/rejection report, no MLL/numerical backend property",
+      "verification_of_later_live_delta": "Later root dirty files separately verified against immutable c0 Git blob, historical run snapshots unchanged.",
+      "later_live_changed_paths": [
+        "policy-engine/src/polisyos/core/llm/response.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py",
+        "policy-engine/tests/unit/scientist/methods/search/test_typed_objective_persisted_projection.py"
+      ],
+      "complete_outputs": {
+        "result.json": "e02de26e78c49080f9c6693fb0011efe4ca751ab9f7c4ebe68564e301ba7e86b",
+        "cgroup-after.json": "367351b7181ab644cb44e98d0ca2b94273a124d0ddec8403ec978ba6d0010a41",
+        "after.json": "552718888f93a11ff17de8dc36862a2966856243de956f96d650db3219239b0b",
+        "origins.json": "2f3c9156079b33c267e977a4c544c901344f24443708b5b5ee95907bdb513ce7",
+        "junit.xml": "b0ca41e2fd97b4d5a066a84cae731a3e1244ecb472e4d019c85c2cfb0a043767",
+        "events.jsonl": "873e612b587598d1969d803f015902e733ced01e7fce05209e41a6808e32c95b",
+        "backend-before.json": "46fe1f54b2ec0de4aa38625b24a36c68d486123420dda324e6cfa447f4e40c75",
+        "execution.json": "0c40dcaf145071785831c7bd7c547f23b6308ae45657effb607b229184fefac2",
+        "cgroup-before.json": "0439629521b7a5ea056a89d24ce98cc91836c42b06758b69e2982aa3ec5c4abc",
+        "before.json": "552718888f93a11ff17de8dc36862a2966856243de956f96d650db3219239b0b",
+        "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout.log": "382818d270eab3906ce3f8cc605027d8e08331746912cf327a66d9148a5b8f23",
+        "selectors.json": "2ce0e03295c55f1e717a9328959750ea33dfd68cf6fa621cba200caffb0c1e44",
+        "run.py": "53ec7e580d1cb11cabefbee24dd36a13919ddad18f84d4853383e823b36defe8"
+      }
+    },
+    {
+      "label": "report-removal3",
+      "root": "/dev/shm/e02-D-warm-remove-report-c0-axnnj4xk",
+      "PASS": 0,
+      "FAIL": 3,
+      "ERROR": 0,
+      "SKIP": 0,
+      "backend": {
+        "torch": "missing",
+        "botorch": "missing",
+        "gpytorch": "missing",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "pytest": "9.0.2",
+        "hnswlib": "missing"
+      },
+      "check_scope": "actual warm_start corpus admission/rejection report, no MLL/numerical backend property",
+      "verification_of_later_live_delta": "Later root dirty files separately verified against immutable c0 Git blob, historical run snapshots unchanged.",
+      "later_live_changed_paths": [
+        "policy-engine/src/polisyos/core/llm/response.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py",
+        "policy-engine/tests/unit/scientist/methods/search/test_typed_objective_persisted_projection.py"
+      ],
+      "complete_outputs": {
+        "result.json": "8afb3776f520b877d08dcd3be9dc3df4029be9ca0c035f60e062ce7f77cd6ed5",
+        "cgroup-after.json": "57e6b6b16780265f6f2d8f39edfb13fc0a80c0190e1a2b5da5469928eb7aea4e",
+        "after.json": "552718888f93a11ff17de8dc36862a2966856243de956f96d650db3219239b0b",
+        "origins.json": "e59e9c12c85c6d0c83c1f40b01ce575f5242a8ec9ef1f245dfa88b167d4bb45f",
+        "junit.xml": "cdc7be459cc0f4614282e84d97d614f3d73a05ad3358f86e1ec8ce7e995aa393",
+        "events.jsonl": "f0ae465d1241806c1f28287dc39eec5da69af73728f872acea44c2df0d1d2d1a",
+        "negative.json": "924e235bdf154b8bd5d5ad52d6ce2157cfd0a39d7d79f6daaa21e4e898ed2a32",
+        "backend-before.json": "eed02331adefbc7564459c39c02714619e1b31fe4795add11d3339cd64c983e8",
+        "execution.json": "10225a31310fafb63e532ee538bbb52698edf8c7a47f8843b05631886163eacc",
+        "cgroup-before.json": "5ea5a100e7d27171c92e57eb92accc4878deeb7a1a88b76b5701e36aa742108f",
+        "before.json": "552718888f93a11ff17de8dc36862a2966856243de956f96d650db3219239b0b",
+        "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout.log": "cf916c773ab3cbd3843f2ce9a0d1c6e1c3ed9f6df99ecd4bfb57a20f337e5159",
+        "selectors.json": "2ce0e03295c55f1e717a9328959750ea33dfd68cf6fa621cba200caffb0c1e44",
+        "run.py": "53ec7e580d1cb11cabefbee24dd36a13919ddad18f84d4853383e823b36defe8"
+      }
+    }
+  ],
+  "criterion_basis": "Current actual warm_start admits valid row and records NaN/overflow/bool parameter, missing origin/full coordinate/context-basis rejection reasons; removal clears diagnostics while admitted row/corpus/basis retained and intended three assertions fail.",
+  "limitations": [
+    "Minimal profile, no numerical GP/MLL PASS from these three contract checks.",
+    "Complements independent current43 native GP receipt; not a broad combined testcase sum or formal G acceptance."
+  ]
+}

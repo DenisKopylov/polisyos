@@ -1,0 +1,103 @@
+{
+  "schema_version": "e02-D.combined-owner-minimum.v1",
+  "consumer_bundle": "OPT-04",
+  "finding_ids": [
+    "B116",
+    "B117"
+  ],
+  "root_D_preparation_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "B_owner_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+  "B_owner_branch": "origin/codex/e02-B-current-cas-generation",
+  "B_selected_API": "FileSystemCAS.get_verified_snapshot(ArtifactID | ArtifactRef | str) -> VerifiedArtifactSnapshot; owned data + manifest_bytes; raises on changed bytes/profile/input",
+  "owner_handoff_ref": {
+    "source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-verification-snapshot.json",
+    "sha256": "cd4d2bc3f241816d4d6a17ef64d8b5eaca8e4f2978f998ca46d5740c63581d37",
+    "bytes": 17953,
+    "qualification": "Source-bound owner port/predicate/limitations record, historical B152 receipt, not current D consumer/runtime PASS or institutional appointment"
+  },
+  "actual_minrefs_recipe": "Run reviewed combined5 at immutable root-authorized D source. Actual existing persist_benchmark_suite/persist_mutation_artifact/persist_benchmark_evaluation with B333FileSystemCAS produce manifest-qualified ArtifactRef. Fresh process captures canonical snapshot/data/manifest for candidate/evaluation/suite/data/split/incumbent/predecessor; real byte hashes and consumer outputs retained. No preexisting production dataset or invented reference.",
+  "dependency_reconciliation": [
+    {
+      "module": "polisyos.core.artifacts._integrity_ops",
+      "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+      "old_D_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "current_D_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "D_blob": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257",
+      "unchanged_D_dependency": true,
+      "B_blob": "557fbb829dec5e9f349e5de7a7d5013ca1c2a2ef",
+      "B_sha256": "768aa83084c85e8b501cacad1a94ece535e08b78e7070cee619c249df11cbfe4"
+    },
+    {
+      "module": "polisyos.core.artifacts._signature_ops",
+      "path": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+      "old_D_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "current_D_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "D_blob": "40acc7887fb09fdc567af6edfadff82ea2c01b9a",
+      "unchanged_D_dependency": true,
+      "B_blob": "5c483b787d7afbef8b489383e5a01fc9734af6e7",
+      "B_sha256": "0627738427829a9f7489082297635c1b604d987182aca1e5559b2bafc510cb85"
+    },
+    {
+      "module": "polisyos.core.artifacts._transfer_ops",
+      "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "old_D_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "current_D_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "D_blob": "43012c9fdbdc20fd79081239d3a0c474c050a385",
+      "unchanged_D_dependency": true,
+      "B_blob": "70f7a735755f56dbf2cfd7ad5e4859cd17bf91a9",
+      "B_sha256": "27709becae4680c5a16445a4bfea2270dc1de8a2cea93b06c30205104c9e00b7"
+    },
+    {
+      "module": "polisyos.core.artifacts.async_store",
+      "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+      "old_D_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "current_D_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "D_blob": "a664d69d1d0ba58841c530a901783977072523b2",
+      "unchanged_D_dependency": true,
+      "B_blob": "1111ad75ed6632d87280e5699845811ec355bfbb",
+      "B_sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078"
+    },
+    {
+      "module": "polisyos.core.artifacts.signing",
+      "path": "policy-engine/src/polisyos/core/artifacts/signing.py",
+      "old_D_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "current_D_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "D_blob": "cc3082cdf613707d6df284266fc8c97e565bba84",
+      "unchanged_D_dependency": true,
+      "B_blob": "8aa4cdd46dc9de873df15b977ed6576eb11bb30f",
+      "B_sha256": "2b58237eddbafa61bb6bd7a41b5e7f2cf96553c92406f1edf4cbbf236934261d"
+    },
+    {
+      "module": "polisyos.core.artifacts.store",
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "old_D_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "current_D_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "D_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+      "unchanged_D_dependency": true,
+      "B_blob": "02e3253de23db5d64c21b69ce4cc85daa4f0778c",
+      "B_sha256": "627676dcb74c442b7e3f30a64bf7b4023e4ef5f1a8f2dac1d37fdf3e69654a4f"
+    },
+    {
+      "module": "polisyos.common.async_tools",
+      "path": "policy-engine/src/polisyos/common/async_tools.py",
+      "old_D_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "current_D_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "D_blob": "1f60973c35cfdd8bcf9629f675bcb7d30235fcfa",
+      "unchanged_D_dependency": true,
+      "B_blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+      "B_sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+    }
+  ],
+  "B_vs_D_changed_selected_artifact_census": [
+    "polisyos.common.async_tools",
+    "polisyos.core.artifacts._integrity_ops",
+    "polisyos.core.artifacts._signature_ops",
+    "polisyos.core.artifacts._transfer_ops",
+    "polisyos.core.artifacts.async_store",
+    "polisyos.core.artifacts.signing",
+    "polisyos.core.artifacts.store"
+  ],
+  "authority_or_formal_closure": "not_established; original OPT04 acceptance remains root/G and actual scientific/rightful profile separately",
+  "scope": "selected synchronous existing technical consumer only; no fullB adoption, second registry/API, distributed atomicity, transfer/ANN substitute, wholeinput/P41 exemption"
+}

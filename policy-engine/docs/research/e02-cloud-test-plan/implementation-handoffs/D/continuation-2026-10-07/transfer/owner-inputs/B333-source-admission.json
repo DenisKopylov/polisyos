@@ -1,0 +1,65 @@
+{
+  "D_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+  "B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+  "paths": [
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/README.md",
+      "D_blob": "7bad1d5e149869bdb54a7f9560cb5ddf6be0dde1",
+      "B_blob": "5c92c04e69c7680884509069ce6e499edc14ca44",
+      "D_sha256": "c0e45c89d6ddccb83d894d26b59319988c0b3b9f1453740532e944d8926fab69",
+      "B_sha256": "83795e353c185c7e512407d926c749f0652242212323c4f148d352d307244892",
+      "B_bytes": 10282
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+      "D_blob": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257",
+      "B_blob": "557fbb829dec5e9f349e5de7a7d5013ca1c2a2ef",
+      "D_sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b",
+      "B_sha256": "768aa83084c85e8b501cacad1a94ece535e08b78e7070cee619c249df11cbfe4",
+      "B_bytes": 12619
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+      "D_blob": "40acc7887fb09fdc567af6edfadff82ea2c01b9a",
+      "B_blob": "5c483b787d7afbef8b489383e5a01fc9734af6e7",
+      "D_sha256": "35a8af3422febca80a8f3584117bc2464a5468a0f73482c738e8255760f7fbfb",
+      "B_sha256": "0627738427829a9f7489082297635c1b604d987182aca1e5559b2bafc510cb85",
+      "B_bytes": 18059
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "D_blob": "43012c9fdbdc20fd79081239d3a0c474c050a385",
+      "B_blob": "70f7a735755f56dbf2cfd7ad5e4859cd17bf91a9",
+      "D_sha256": "641553dd8b105a31c406d3af9d2477efa75f093755afc41f9af97816ebc817d6",
+      "B_sha256": "27709becae4680c5a16445a4bfea2270dc1de8a2cea93b06c30205104c9e00b7",
+      "B_bytes": 46449
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+      "D_blob": "a664d69d1d0ba58841c530a901783977072523b2",
+      "B_blob": "1111ad75ed6632d87280e5699845811ec355bfbb",
+      "D_sha256": "6b50f6cc1cf136e6eac66c3ff72745481495a13e18ab0d2ae8209f88863919fe",
+      "B_sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078",
+      "B_bytes": 7518
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/signing.py",
+      "D_blob": "cc3082cdf613707d6df284266fc8c97e565bba84",
+      "B_blob": "8aa4cdd46dc9de873df15b977ed6576eb11bb30f",
+      "D_sha256": "5d4a19ab6a2c8b5caacb3c7c74caf3625c24d4e5e51873d131292a682738b568",
+      "B_sha256": "2b58237eddbafa61bb6bd7a41b5e7f2cf96553c92406f1edf4cbbf236934261d",
+      "B_bytes": 30675
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "D_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+      "B_blob": "02e3253de23db5d64c21b69ce4cc85daa4f0778c",
+      "D_sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165",
+      "B_sha256": "627676dcb74c442b7e3f30a64bf7b4023e4ef5f1a8f2dac1d37fdf3e69654a4f",
+      "B_bytes": 190227,
+      "D_get_verified_snapshot_ast": "ab7320ace61de46d8e7adc1f7652f7e9a3bb8bc010af19c702cd61f9f6f65c71",
+      "B_get_verified_snapshot_ast": "ab7320ace61de46d8e7adc1f7652f7e9a3bb8bc010af19c702cd61f9f6f65c71"
+    }
+  ],
+  "scope": "Complete seven CAS changed-path census; selected exact-ref public reader AST and snapshot/batch/transfer compatibility seams inspected. This is not a full independent acceptance review of all B production changes. No B333 source executed or combined integration acceptance claimed."
+}

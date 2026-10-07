@@ -1,0 +1,800 @@
+{
+  "schema_version": "polisyos.e02.D.numerical-current-slice-handoff.v1",
+  "unit": "D",
+  "queue": "search/numerical",
+  "author": "/root/math_oct07",
+  "independent_reviewer": "/root/gp_oct07",
+  "topic": "codex/e02-D-oct07-continuation",
+  "continuation_base": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "implementation": {
+    "commit": "6367d6d2083d7d7bcd4ad370b85791a03f0172c4",
+    "tree": "0caff1b2c7871c9b73879087c551e872247f8188",
+    "parent_slice_base": "45628efac21ba4915869e90c34934a3a7ee5d08b",
+    "full_changed_paths": [
+      "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_axis_permutation_consumers.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_current_quantity_consumers.py"
+    ],
+    "behavior": "Test companions establish the ordinary persisted numerical consumers on existing correct published mechanism; no production quantity/GP optimizer changes or new libraries."
+  },
+  "tested_candidate": {
+    "commit": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+    "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+    "full_changed_paths_from_continuation_base": [
+      "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/bootstrap.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/bootstrap/cleanup-funnel-duplicate-precheck.json.gz",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/bootstrap/cleanup-funnel-duplicate-receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/bootstrap/explicit-fetch-second.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/bootstrap/fresh-G-second-context.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/bootstrap/fresh-fetch-second.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/cleanup-archive-receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/cleanup-extra-archive-receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/cleanup-extracted-duplicate-precheck.json.gz",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/cleanup-extracted-duplicate-receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/cleanup-mypy-receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/create.receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/resume.receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/standalone-admission-independent-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/standalone-checkout.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/B41-complete-deciding-output.json.gz",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/B41-handoff.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/B41-independent-review-addendum.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/B41-independent-runtime-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/B41-independent-source-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/Base-handoff.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/Base-independent-runtime-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/Base-independent-source-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/Base-independent-test-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/README.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/b5-reviewed-source-reconciliation.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/base-finite-positive.junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/base-finite-positive.receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/base-finite-positive.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/base-finite-positive.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/base-finite-removal.junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/base-finite-removal.receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/base-finite-removal.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/base-finite-removal.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/base_finite_admission_removal.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/convergence-format-delta.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/output-manifest.json",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-durable-completion-obligations.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-llm-unknown-cost-and-protected-audit.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-07-e02-b-gateway-exact-numeric-decode.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-07-e02-d-native-cosine-admission.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-07-e02-mo-fitted-checkpoint.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-07-funnel-cache-settlement-binding.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-07-funnel-calibration-report-state.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-07-funnel-canonical-B12-consumer.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-07-search-state-and-native-factory.toml",
+      "policy-engine/src/polisyos/common/serialization.py",
+      "policy-engine/src/polisyos/core/llm/README.md",
+      "policy-engine/src/polisyos/core/llm/response.py",
+      "policy-engine/src/polisyos/core/llm/settlement.py",
+      "policy-engine/src/polisyos/core/llm/traced_client.py",
+      "policy-engine/src/polisyos/scientist/agent/README.md",
+      "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "policy-engine/src/polisyos/scientist/methods/autotune/execution_plan.py",
+      "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "policy-engine/src/polisyos/scientist/methods/search/calibration_report.py",
+      "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+      "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+      "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py",
+      "policy-engine/tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py",
+      "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+      "policy-engine/tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py",
+      "policy-engine/tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay_modes.py",
+      "policy-engine/tests/unit/remediation/test_fun_03.py",
+      "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py",
+      "policy-engine/tests/unit/scientist/agent/vector_generation_reader.py",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_axis_permutation_consumers.py",
+      "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_warm_admission_reports.py",
+      "policy-engine/tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py",
+      "policy-engine/tests/unit/scientist/methods/search/strategies/test_state_inventory.py",
+      "policy-engine/tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_controller_owner_admission.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_current_quantity_consumers.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_grid_factory_finite_exhaustion.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_semantic_dates_persisted_consumers.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_sequence_generator_admission.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_service_factory_fault_resume.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_strategy_adapter_factory_resume.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_typed_objective_persisted_projection.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_semantic.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+      "policy-engine/tests/unit/scientist/search/test_calibration_report.py"
+    ]
+  },
+  "source_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+      "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "blob": "63c3dd0bebe17eb599444070caebbb7acb926417",
+      "sha256": "f6787e89fb3ae343e4ed822e00db9c91c44d017effc2aff22dda93f639c54b83"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "blob": "3e8a49f58dbec650304023e19e372ab92af9ca72",
+      "sha256": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+      "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "blob": "d12d0bb37b33ffb59513697eb95cc1653912553c",
+      "sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+      "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "blob": "385cef31cf0765561651c2015d180db252136370",
+      "sha256": "e4699f9b1f892a3850406d0ef582bcf8072e19192d040783468d8c33b9c21f8a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+      "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "blob": "03cbee8ca84352e246a3ad75faf646343b0244b0",
+      "sha256": "6e7222137b4b44b7a71dd2de7d0300f0fee22d05f41df556b2f84dc84ea73598"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_axis_permutation_consumers.py",
+      "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "blob": "ad805169cb9bd681968b050cd0977f0f7947b5d1",
+      "sha256": "c4f7790d3ecd6dddc2d23197250fb06acd0cd21a8c5887e0ca34d62590b5e990"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_current_quantity_consumers.py",
+      "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "blob": "27b8bd73c1717e7245c6496f32bbe2e999b10397",
+      "sha256": "c331f05519c4590c96080d6d1491388ca261b1096dedf0100712da1b0c097939"
+    }
+  ],
+  "current_check_results": [
+    {
+      "mode": "positive",
+      "root": "/tmp/e02-D-math-current-final-4is8hd26/positive",
+      "result": {
+        "source_before": {
+          "pins": [
+            "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+            "db599695f1cddc1a94d719dda4ebfe02f6ab61f2"
+          ],
+          "status": "",
+          "branch": "codex/e02-D-oct07-continuation"
+        },
+        "source_after": {
+          "pins": [
+            "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+            "db599695f1cddc1a94d719dda4ebfe02f6ab61f2"
+          ],
+          "status": "",
+          "branch": "codex/e02-D-oct07-continuation"
+        },
+        "tracked_input_count": 15481,
+        "changed_input_paths": {},
+        "exit_code": 0,
+        "wall_seconds": 68.65923122499953,
+        "ended_utc": "2026-10-07T09:15:13Z",
+        "output_sha256": {
+          "origins.json": "b5022aee72cde797186271037a0ceb959244005fba10b8d2f2372ef272dcd605",
+          "junit.xml": "bdeb10eaca7522f9d241a95520f97aa5a484e63d923fcd91ff621e6cfd493829",
+          "events.jsonl": "248b36a4958bc2474ff3a84ac176587e8911d5a54441d43f4da6a0e4030d29b0",
+          "collected.json": "2b02a222d3fdf157f33b61681a39d38102bff4f919871d38b4c0bc2aeef1c700",
+          "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout.txt": "2412038952f040d24e06c52361d2e393c4aa38c54b3818dd894eb0684ca5047b",
+          "request.json": "5fd38c21a0c939be345d12bc5b3610b217d5997a092ccdbf6dbe9e2938c257bb",
+          "before-inputs.json": "74a5800e7ad8fc9e9dc387d8a7ebd8ca65b4ddf8d4001acc6d6e4f3cbd46f058"
+        }
+      },
+      "check_results": {
+        "PASS": 154,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "testcase_denominator": 154,
+      "per_module_counts": {
+        "tests.unit.scientist.methods.autotune.test_pareto_axis_permutation_consumers": 12,
+        "tests.unit.scientist.methods.search.test_current_quantity_consumers": 5,
+        "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront": 35,
+        "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle": 30,
+        "tests.unit.scientist.methods.autotune.test_pareto_box_union_independent_oracle": 21,
+        "tests.unit.scientist.methods.autotune.test_pareto_subnormal_reindex_independent_oracle": 13,
+        "tests.unit.scientist.methods.autotune.test_hypervolume_profile": 13,
+        "tests.unit.scientist.methods.autotune.test_hypervolume_representability": 21,
+        "tests.unit.scientist.methods.search.test_registry_quantity_projection": 2,
+        "tests.unit.scientist.methods.search.test_frontier_quantity_readback": 2
+      },
+      "complete_output_sha256": {
+        "result.json": "977739e34626fb906f19990a0124e4ad24258be7f3741579d59d642cdf576fd8",
+        "origins.json": "b5022aee72cde797186271037a0ceb959244005fba10b8d2f2372ef272dcd605",
+        "junit.xml": "bdeb10eaca7522f9d241a95520f97aa5a484e63d923fcd91ff621e6cfd493829",
+        "events.jsonl": "248b36a4958bc2474ff3a84ac176587e8911d5a54441d43f4da6a0e4030d29b0",
+        "collected.json": "2b02a222d3fdf157f33b61681a39d38102bff4f919871d38b4c0bc2aeef1c700",
+        "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout.txt": "2412038952f040d24e06c52361d2e393c4aa38c54b3818dd894eb0684ca5047b",
+        "request.json": "5fd38c21a0c939be345d12bc5b3610b217d5997a092ccdbf6dbe9e2938c257bb",
+        "before-inputs.json": "74a5800e7ad8fc9e9dc387d8a7ebd8ca65b4ddf8d4001acc6d6e4f3cbd46f058"
+      }
+    },
+    {
+      "mode": "remove_fast",
+      "root": "/tmp/e02-D-math-current-final-4is8hd26/remove_fast",
+      "result": {
+        "source_before": {
+          "pins": [
+            "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+            "db599695f1cddc1a94d719dda4ebfe02f6ab61f2"
+          ],
+          "status": "",
+          "branch": "codex/e02-D-oct07-continuation"
+        },
+        "source_after": {
+          "pins": [
+            "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+            "db599695f1cddc1a94d719dda4ebfe02f6ab61f2"
+          ],
+          "status": "",
+          "branch": "codex/e02-D-oct07-continuation"
+        },
+        "tracked_input_count": 15481,
+        "changed_input_paths": {},
+        "exit_code": 1,
+        "wall_seconds": 11.725381566997385,
+        "ended_utc": "2026-10-07T09:14:16Z",
+        "output_sha256": {
+          "origins.json": "a25f657d45ad24887687a235ca9cd955089d45fca51049a2d82c9cd62f44b223",
+          "junit.xml": "be8a5534907b6c31362859281859087c1997202ecf1d44537b813def3c6dd0a7",
+          "events.jsonl": "6954fbc36078d2a5f39d9914287b7dc6796a98e190c2ee952af642899a27b1b5",
+          "collected.json": "4e6f8d43f6e1be84b26b54b0a0addfd947ba7641b2e128ce7bf3f78b9076d890",
+          "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout.txt": "255d615dcb3a55af2f5cba57806b165d713ba74c799c75c67cd980cacba2ed95",
+          "request.json": "669834b9c08cf01f36ee007dcf7e7872daf986b78203c3e8829b91caf082680f",
+          "before-inputs.json": "74a5800e7ad8fc9e9dc387d8a7ebd8ca65b4ddf8d4001acc6d6e4f3cbd46f058"
+        }
+      },
+      "check_results": {
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "testcase_denominator": 1,
+      "per_module_counts": {
+        "tests.unit.scientist.methods.autotune.test_pareto_axis_permutation_consumers": 1
+      },
+      "complete_output_sha256": {
+        "result.json": "fb8d9c3460295f93515f3181228f659372f3d8629bbb301b5e8dbc94868c41cb",
+        "origins.json": "a25f657d45ad24887687a235ca9cd955089d45fca51049a2d82c9cd62f44b223",
+        "junit.xml": "be8a5534907b6c31362859281859087c1997202ecf1d44537b813def3c6dd0a7",
+        "events.jsonl": "6954fbc36078d2a5f39d9914287b7dc6796a98e190c2ee952af642899a27b1b5",
+        "collected.json": "4e6f8d43f6e1be84b26b54b0a0addfd947ba7641b2e128ce7bf3f78b9076d890",
+        "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout.txt": "255d615dcb3a55af2f5cba57806b165d713ba74c799c75c67cd980cacba2ed95",
+        "request.json": "669834b9c08cf01f36ee007dcf7e7872daf986b78203c3e8829b91caf082680f",
+        "before-inputs.json": "74a5800e7ad8fc9e9dc387d8a7ebd8ca65b4ddf8d4001acc6d6e4f3cbd46f058"
+      }
+    },
+    {
+      "mode": "remove_missing",
+      "root": "/tmp/e02-D-math-current-final-4is8hd26/remove_missing",
+      "result": {
+        "source_before": {
+          "pins": [
+            "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+            "db599695f1cddc1a94d719dda4ebfe02f6ab61f2"
+          ],
+          "status": "",
+          "branch": "codex/e02-D-oct07-continuation"
+        },
+        "source_after": {
+          "pins": [
+            "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+            "db599695f1cddc1a94d719dda4ebfe02f6ab61f2"
+          ],
+          "status": "",
+          "branch": "codex/e02-D-oct07-continuation"
+        },
+        "tracked_input_count": 15481,
+        "changed_input_paths": {},
+        "exit_code": 1,
+        "wall_seconds": 32.328655770019395,
+        "ended_utc": "2026-10-07T09:14:36Z",
+        "output_sha256": {
+          "origins.json": "6c378d04c3b98e7cec9301156b19c71b21e64fb0737b92b75bbad35ffa68bd39",
+          "junit.xml": "1d99ce9ba7c0a65d2dcfe4cdb1ff9ce2eb7dca205c0394ea43a675ed0fb696fb",
+          "events.jsonl": "197128ab4ebbe85b341285ab1a17c85b9a652bfdb4558a11659249153c56a9e7",
+          "collected.json": "4cf0194017e11a9ab695c0c4188be6ded355af5473f035808860dcb8d4e08b80",
+          "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout.txt": "ba3e685abdc40b89627efac41e3f4f0951638d4b0c5ed12606c65e2156ae968c",
+          "request.json": "5ada8f19014f63c4f127eebd3dd74a603ddb1b645ba4297db54d8df806f1ec25",
+          "before-inputs.json": "74a5800e7ad8fc9e9dc387d8a7ebd8ca65b4ddf8d4001acc6d6e4f3cbd46f058"
+        }
+      },
+      "check_results": {
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "testcase_denominator": 1,
+      "per_module_counts": {
+        "tests.unit.scientist.methods.search.test_current_quantity_consumers": 1
+      },
+      "complete_output_sha256": {
+        "result.json": "3f3ee0fcd0d062d4d49aa042643d63a0a01b5aa237d76ff2e8e8226df7f9092b",
+        "origins.json": "6c378d04c3b98e7cec9301156b19c71b21e64fb0737b92b75bbad35ffa68bd39",
+        "junit.xml": "1d99ce9ba7c0a65d2dcfe4cdb1ff9ce2eb7dca205c0394ea43a675ed0fb696fb",
+        "events.jsonl": "197128ab4ebbe85b341285ab1a17c85b9a652bfdb4558a11659249153c56a9e7",
+        "collected.json": "4cf0194017e11a9ab695c0c4188be6ded355af5473f035808860dcb8d4e08b80",
+        "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout.txt": "ba3e685abdc40b89627efac41e3f4f0951638d4b0c5ed12606c65e2156ae968c",
+        "request.json": "5ada8f19014f63c4f127eebd3dd74a603ddb1b645ba4297db54d8df806f1ec25",
+        "before-inputs.json": "74a5800e7ad8fc9e9dc387d8a7ebd8ca65b4ddf8d4001acc6d6e4f3cbd46f058"
+      }
+    }
+  ],
+  "explicit_current_denominator": {
+    "original_numerical_scope": 181,
+    "own_native_replay": 154,
+    "exact_complementary_GP_MO_scope": 27,
+    "complementary_current_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+    "complementary_junit_sha256": "1d9b0b14326ba300dd7ca00b5a26e963ecca5cbbc48fb89bcebd69b9b3e9a201",
+    "complementary_testcase_IDs": [
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_mo_reference_representability",
+        "name": "test_derived_reference_overflow_refuses_without_model_or_fallback[0.0-single]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_mo_reference_representability",
+        "name": "test_derived_reference_overflow_refuses_without_model_or_fallback[0.0-batch]",
+        "time": "0.005"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_mo_reference_representability",
+        "name": "test_derived_reference_overflow_refuses_without_model_or_fallback[0.0-indicator]",
+        "time": "1.001"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_mo_reference_representability",
+        "name": "test_derived_reference_overflow_refuses_without_model_or_fallback[0.1-single]",
+        "time": "0.005"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_mo_reference_representability",
+        "name": "test_derived_reference_overflow_refuses_without_model_or_fallback[0.1-batch]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_mo_reference_representability",
+        "name": "test_derived_reference_overflow_refuses_without_model_or_fallback[0.1-indicator]",
+        "time": "1.050"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_mo_reference_representability",
+        "name": "test_derived_reference_overflow_refuses_without_model_or_fallback[1e+308-single]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_mo_reference_representability",
+        "name": "test_derived_reference_overflow_refuses_without_model_or_fallback[1e+308-batch]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_mo_reference_representability",
+        "name": "test_derived_reference_overflow_refuses_without_model_or_fallback[1e+308-indicator]",
+        "time": "0.989"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission",
+        "name": "test_actual_strategy_quantity_and_backend_absence_are_distinct",
+        "time": "1.458"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission",
+        "name": "test_strategy_excludes_invalid_scalar_without_fabricating_zero[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission",
+        "name": "test_strategy_excludes_invalid_scalar_without_fabricating_zero[True]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission",
+        "name": "test_strategy_excludes_invalid_scalar_without_fabricating_zero[broken]",
+        "time": "0.006"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission",
+        "name": "test_strategy_excludes_invalid_scalar_without_fabricating_zero[nan]",
+        "time": "0.005"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission",
+        "name": "test_strategy_excludes_invalid_scalar_without_fabricating_zero[inf]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission",
+        "name": "test_actual_zero_and_no_usable_inputs_have_different_assessments",
+        "time": "0.799"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission",
+        "name": "test_reference_intake_precedes_any_torch_conversion[reference0]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission",
+        "name": "test_reference_intake_precedes_any_torch_conversion[reference1]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission",
+        "name": "test_reference_intake_precedes_any_torch_conversion[reference2]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission",
+        "name": "test_reference_intake_precedes_any_torch_conversion[reference3]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission",
+        "name": "test_reference_intake_precedes_any_torch_conversion[reference4]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission",
+        "name": "test_reference_intake_precedes_any_torch_conversion[reference5]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission",
+        "name": "test_derived_reference_uses_the_same_numeric_intake[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]",
+        "time": "0.000"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission",
+        "name": "test_derived_reference_uses_the_same_numeric_intake[True]",
+        "time": "0.000"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission",
+        "name": "test_derived_reference_uses_the_same_numeric_intake[broken]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission",
+        "name": "test_derived_reference_uses_the_same_numeric_intake[nan]",
+        "time": "0.000"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission",
+        "name": "test_derived_reference_uses_the_same_numeric_intake[inf]",
+        "time": "0.001"
+      }
+    ],
+    "source_scope_manifest_final_source_pending": "Historical prepared scope.json field; actual complete result pins c0 source/tree and supersedes that planning field. No evidence file overwritten."
+  },
+  "criterion_accounting": [
+    {
+      "id": "B109",
+      "canonical_bundle": "OPT-01",
+      "canonical_owner": "D",
+      "original_criterion": "**Приёмка и предел.** Согласовать быстрый и прямой фронт для 1–4 измерений, перестановок входа, равенств одной/всех координат и обоих направлений после нормализации. Приведённый тестовый patch использует простой конечный контроль, не предлагается как production-оптимизация. Неправильный конечный выбор пользователя не измерялся; доказано расхождение данного математического helper.",
+      "prior_finding_disposition": "open",
+      "finding_disposition_proposal": "closed",
+      "formal_G_acceptance": "not_established",
+      "criterion_runtime_check": "PASS",
+      "residual": "No D-owned repairable numerical defect remains for this original acceptance in the declared supported1–4D profile. Scientific fiscal/provider/population/deployment rights are separate capability/input claims, not replacements for these mathematical criteria.",
+      "runtime_predicate": "Fast normalized finite-front agrees with independent strict all-pairs dominance across1–4D, input/whole-axis permutations, every direction pattern, one/all-coordinate ties, retaining distinct equal candidate IDs; actual typed full-coordinate front CAS round-trip tested.",
+      "negative": "Current c0 actual CAS front includes3 dominated IDs when2D fast helper returns all indexes; independent all-pairs set assertion FAIL with all coordinate/schema/quantity markers retained.",
+      "consumer": "ParetoPromoter.compute_front → typed ParetoFront → actual FileSystemCAS → fresh FileSystemCAS/load_model_artifact → actual ParetoPromoter.is_dominated.",
+      "optional_edge": "A eligible/feasible/unknown universe/frontier publisher not_established and remains separate owner input9; it is not original B109 comparator acceptance.",
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B109@OPT-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+          "bytes": 20853,
+          "sha256": "3c7df5d39ca7a6351ebf5fb21adee73462df7e7063adbaec6514c004feb7ce0e"
+        }
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2911,
+          2924
+        ],
+        "byte_offset": 651606,
+        "bytes": 4077,
+        "sha256": "817c0ddda8c8883a0b7cccb111a97d8c230dd67e9859a3fb1fba47553c1b402d"
+      },
+      "canonical_acceptance_content_binding": {
+        "text": "**Приёмка и предел.** Согласовать быстрый и прямой фронт для 1–4 измерений, перестановок входа, равенств одной/всех координат и обоих направлений после нормализации. Приведённый тестовый patch использует простой конечный контроль, не предлагается как production-оптимизация. Неправильный конечный выбор пользователя не измерялся; доказано расхождение данного математического helper.",
+        "byte_offset": 654995,
+        "bytes": 686,
+        "sha256": "784670e535c99a1baee35da6689f515779b3b616a5829ab125c608fcc4f712b3"
+      },
+      "matching_original_occurrence": "B109@OPT-01",
+      "current_card_binding": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+        "source_git": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+        "blob": "37f4bbbced6935c4e051c4bb1b1a9e76eb505301",
+        "card_sha256": "3c7df5d39ca7a6351ebf5fb21adee73462df7e7063adbaec6514c004feb7ce0e",
+        "original_source": "B_r19",
+        "original_lines": [
+          2911,
+          2924
+        ]
+      },
+      "exact_current_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "exact_current_tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+      "actual_deciding_outputs": {
+        "numerical154": "/tmp/e02-D-math-current-final-4is8hd26/positive",
+        "complementary_actual_MO_quantity27": "/dev/shm/e02-D-MO-finalc0e03-8qs2polc",
+        "removal_fast": "/tmp/e02-D-math-current-final-4is8hd26/remove_fast",
+        "removal_missing_axis": "/tmp/e02-D-math-current-final-4is8hd26/remove_missing"
+      },
+      "current_attempt_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "final_candidate_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+    },
+    {
+      "id": "B110",
+      "canonical_bundle": "OPT-01",
+      "canonical_owner": "D",
+      "original_criterion": "**Приёмка и предел.** Фронт, его сериализация/round-trip и `is_dominated` дают одно отношение. Смена display-label не меняет решение; смена split не исчезает. Это локальная потеря семантики, а не доказательство, что все производственные policies сейчас имеют такие повторения.",
+      "prior_finding_disposition": "open",
+      "finding_disposition_proposal": "closed",
+      "formal_G_acceptance": "not_established",
+      "criterion_runtime_check": "PASS",
+      "residual": "No D-owned repairable numerical defect remains for this original acceptance in the declared supported1–4D profile. Scientific fiscal/provider/population/deployment rights are separate capability/input claims, not replacements for these mathematical criteria.",
+      "runtime_predicate": "Full metric+split+unit+direction+definition-version identities bind raw/normalized values and reference; same-metric different-split tradeoff survives actual CAS; complete-axis permutations/display label changes preserve relation; duplicate full identity and stale schema/version/unit/direction/split identity refuse.",
+      "negative": "Existing marker-preserving identity change and omission mutations refuse current CAS readback; new stale definition-version promoter refuses existing persistedfront.",
+      "consumer": "ParetoPromoter.compute_front → typed ParetoFront → actual FileSystemCAS → fresh FileSystemCAS/load_model_artifact → actual ParetoPromoter.is_dominated.",
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B110@OPT-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+          "bytes": 20853,
+          "sha256": "3c7df5d39ca7a6351ebf5fb21adee73462df7e7063adbaec6514c004feb7ce0e"
+        }
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2925,
+          2938
+        ],
+        "byte_offset": 655683,
+        "bytes": 3366,
+        "sha256": "a6be752b83d6e94ed4d0bcccef41670106a65bac64827f8cf4645a0401239d6d"
+      },
+      "canonical_acceptance_content_binding": {
+        "text": "**Приёмка и предел.** Фронт, его сериализация/round-trip и `is_dominated` дают одно отношение. Смена display-label не меняет решение; смена split не исчезает. Это локальная потеря семантики, а не доказательство, что все производственные policies сейчас имеют такие повторения.",
+        "byte_offset": 658592,
+        "bytes": 455,
+        "sha256": "199ef2ac1ae718655b08fbb78829e6ed0768b46df5d1b99fad56aa69181c1184"
+      },
+      "matching_original_occurrence": "B110@OPT-01",
+      "current_card_binding": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+        "source_git": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+        "blob": "37f4bbbced6935c4e051c4bb1b1a9e76eb505301",
+        "card_sha256": "3c7df5d39ca7a6351ebf5fb21adee73462df7e7063adbaec6514c004feb7ce0e",
+        "original_source": "B_r19",
+        "original_lines": [
+          2925,
+          2938
+        ]
+      },
+      "exact_current_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "exact_current_tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+      "actual_deciding_outputs": {
+        "numerical154": "/tmp/e02-D-math-current-final-4is8hd26/positive",
+        "complementary_actual_MO_quantity27": "/dev/shm/e02-D-MO-finalc0e03-8qs2polc",
+        "removal_fast": "/tmp/e02-D-math-current-final-4is8hd26/remove_fast",
+        "removal_missing_axis": "/tmp/e02-D-math-current-final-4is8hd26/remove_missing"
+      },
+      "current_attempt_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "final_candidate_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+    },
+    {
+      "id": "B111",
+      "canonical_bundle": "OPT-01",
+      "canonical_owner": "D",
+      "original_criterion": "**Приёмка.** Перестановки не меняют конечный фронт; invalid сохраняет причину; reference point и hypervolume конечны или явно недоступны; генезис и смена чемпиона не публикуют неопределённое число. Проверить реальный CAS и существующие upstream guards, не дублируя их несовместимыми кодами.",
+      "prior_finding_disposition": "open",
+      "finding_disposition_proposal": "closed",
+      "formal_G_acceptance": "not_established",
+      "criterion_runtime_check": "PASS",
+      "residual": "No D-owned repairable numerical defect remains for this original acceptance in the declared supported1–4D profile. Scientific fiscal/provider/population/deployment rights are separate capability/input claims, not replacements for these mathematical criteria.",
+      "runtime_predicate": "Missing/invalid/nonfinite/overflow scalars retain explicit omissions or refuse at existing owner guard; valid subset stays partial with truthful denominator; entirely unassessed basis and empty/backend unsupported/invalid reference have typed unavailable; real computed0 remains available; native3D/4D exact quantitypositive agrees independent Fraction geometry; registry public intake→fresh projection and actualMO quantity consume shared adapter; separate actual CAS ChampionRegistry genesis/successor/fresh-pointer primitive guards refuse NaN/±Inf and preserve prior bytes.",
+      "negative": "Current c0 missing-axis-to-zero fabrication wrongly makes fresh registry projection complete and mustFAIL; hugeint/bool/malformed/nonfinite/reference overflow controls and actualCASgenesis/successor NaN/±Inf refusals all pass.",
+      "consumer": [
+        "ParetoRegistry.update → persisted snapshot → fresh ParetoRegistry.get_snapshot/project_view → PolicyArtifactBuilder → actual default CAS → fresh report readback.",
+        "Actual MOBayesianOptimizer.compute_hypervolume/indicators consume typed quantity through the same adapter; this is a separate path, no unestablished MO→registry linear edge.",
+        "Existing BenchmarkEvaluation/persistedCAS primitive admission → ChampionRegistry.consider_promotion → canonical genesis/successor pointer → fresh ChampionRegistry.get."
+      ],
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B111@OPT-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+          "bytes": 20853,
+          "sha256": "3c7df5d39ca7a6351ebf5fb21adee73462df7e7063adbaec6514c004feb7ce0e"
+        }
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2939,
+          2954
+        ],
+        "byte_offset": 659049,
+        "bytes": 4145,
+        "sha256": "534be6222dccd944bb884e893436c32d82eef90be857ad763412d9df270c6245"
+      },
+      "canonical_acceptance_content_binding": {
+        "text": "**Приёмка.** Перестановки не меняют конечный фронт; invalid сохраняет причину; reference point и hypervolume конечны или явно недоступны; генезис и смена чемпиона не публикуют неопределённое число. Проверить реальный CAS и существующие upstream guards, не дублируя их несовместимыми кодами.",
+        "byte_offset": 662708,
+        "bytes": 484,
+        "sha256": "4d1c7ff7de3b274c2aa4e16230b323102adacd871d551f30616d9d8f3b2eec65"
+      },
+      "matching_original_occurrence": "B111@OPT-01",
+      "current_card_binding": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+        "source_git": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+        "blob": "37f4bbbced6935c4e051c4bb1b1a9e76eb505301",
+        "card_sha256": "3c7df5d39ca7a6351ebf5fb21adee73462df7e7063adbaec6514c004feb7ce0e",
+        "original_source": "B_r19",
+        "original_lines": [
+          2939,
+          2954
+        ]
+      },
+      "exact_current_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "exact_current_tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+      "actual_deciding_outputs": {
+        "numerical154": "/tmp/e02-D-math-current-final-4is8hd26/positive",
+        "complementary_actual_MO_quantity27": "/dev/shm/e02-D-MO-finalc0e03-8qs2polc",
+        "removal_fast": "/tmp/e02-D-math-current-final-4is8hd26/remove_fast",
+        "removal_missing_axis": "/tmp/e02-D-math-current-final-4is8hd26/remove_missing"
+      },
+      "current_attempt_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "final_candidate_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+    }
+  ],
+  "original_accounting_authority": {
+    "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+    "origin": "Original acceptance binding copied unchanged from committed criterion_occurrences, including accounting sourcecae→canonical card198 lineage; current c0 card is a source inspection binding."
+  },
+  "runtime_profile": {
+    "python": "3.14.7",
+    "interpreter": "/workspace/e02-D-locked-env/bin/python",
+    "actual_loaded": {
+      "torch": "2.10.0+cu128",
+      "botorch": "0.16.1",
+      "gpytorch": "1.15.1"
+    },
+    "quantity_profile": "dominated_box_union.float64.maximize.v1; pure exact bounded1D/2D, locked real BoTorch partitioner3D/4D; unsupported dimension/backend/representability typedunavailable",
+    "declared_inputs": "Finite lattice/all-pairs small geometric points, full identity policies, explicit numericfixture candidate refs, genuine nativeCASregistry snapshots; no production data transferred. Seeds/configs/input hashes in complete requests and tracked tests."
+  },
+  "independent_oracles": [
+    "Independent all-pairs strict dominance: no production _dominates_vector expected helper.",
+    "Fraction inclusion-exclusion union of dominated boxes3D and rational positive subnormal volume versus exact degenerate zero.",
+    "Current independently inspected source/outputs and marker-preserving removal controls by GP peer."
+  ],
+  "separate_bounded_class": {
+    "id": "positive-float64-hypervolume-underflow",
+    "finding_ID": null,
+    "basis": "Independent rational volume positive while float64 product0; typed unavailable/underflow reason through actualfront CAS and ordinaryregistry/export, distinct from genuinecomputed0. Derived reference overflow remains negative.",
+    "not_original_B111_replacement": true
+  },
+  "P37_predicate_basis": "Original numerical relation and numeric admission states linked to actual producer/artifact/bridge/freshconsumer; PASS is scoped to tested supported profile, not unavailable optional property.",
+  "P38_proxy_divergence": [
+    "Front(2,0,0),(0,2,0),(0,0,2),reference0: boundingbox8 vs actual exactunion0; independentFraction oracle and current nativecheck distinguish.",
+    "Incomplete row(100,missing) fabricatedzero makes subsetcomplete; expectedremovalFAIL proves original missing-state predicate.",
+    "Rationalpositive volume underflow ≠ truegeometriczero; typed assessment survives actualCASregistry/export."
+  ],
+  "P41": "not_established; no inherited-red waiver",
+  "B111_champion_distinct_unchanged_assertion_carry": {
+    "path": "/tmp/e02-D-math-current-final-4is8hd26/B111-champion-unchanged-currentc0-carry.json",
+    "sha256": "2bd1732512af812df78b828c424c242baf5bf897846b23c816c9d351cb3cd10b"
+  },
+  "independent_reviews": [
+    {
+      "path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/math-current-c0-independent-runtime-review.json",
+      "sha256": "d83c325b8910d6227a639213197bd9506b7eb3ea3ed04223e79c3c815c4565ec"
+    },
+    {
+      "path": "/tmp/e02-D-math-oct07-drafts/GP-MO-State-currentc0-independent-runtime-review.json",
+      "sha256": "07ed014e3b0404cf0112df7f535fd89da9cc216785401e2b3b4bf27ed545441a"
+    },
+    {
+      "path": "/tmp/e02-D-math-oct07-drafts/B111-independent-champion469-review.json",
+      "sha256": "dae0e7d0751c4d2321b7a89323726406511ba38b66261547da06a0ec92462d0b"
+    }
+  ],
+  "complete_deciding_outputs": {
+    "path": "/tmp/e02-D-math-current-final-4is8hd26/current-complete-deciding-output.json.gz",
+    "sha256": "97481c8d6ad736253ed9b302966bccfcbd9e1c7457ca6e27af1c683d88f627eb",
+    "bytes": 1192223,
+    "content": "Complete current own154/removals+exact current MO88 complementary27/JUnit/native fit streams/manifests; separate original champion witness21PASS+15 scriptproofrows with scoped unchanged carry; unique harness and review receipts, de-duplicated content. No tracked source body copies."
+  },
+  "historical_attempts": {
+    "original469_full181_and_removals": {
+      "path": "/tmp/e02-D-math-final469-3i9cdoyb/complete-deciding-output.json.gz",
+      "sha256": "634ff2d30f70f7188013149da23557aaf16d0761ada0ab6d21343d5f28c6c0d1",
+      "bytes": 640122,
+      "includes": "Complete stdout/stderr/JUnit/events/collected/input manifest/request/result/origins and unique verification/removal harness; de-duplicated identical inputs, no tracked source copies."
+    },
+    "draft_interrupted_UNRUN": {
+      "path": "/tmp/e02-D-math-oct07-drafts/deciding-output-draft.json.gz",
+      "sha256": "71a85f9327fc49615118ced82c4856fe63b1a1a46ddcb19f1e6251e729bfda51",
+      "scope": "Four current828 signal9 collection attempts remainUNRUN/noJUnit/noestablishedcause; outside-repo draft comparator12PASS and earlier registry4PASS are separate partial evidence, not summed/recast as final469PASS; earlier missing-axis removal interruptedUNRUN."
+    },
+    "interpretation": "Preserved immutable separate old measurements, not newly replayed or summed into current PASS."
+  },
+  "limitations": [
+    "Formal G finding/integration acceptance remains not_established; source topic is not accepted in main by these checks.",
+    "Original B109 comparator is distinct from optional A production frontier publisher.",
+    "Actual declared synthetic numerical profile is not production evaluator/history/unit law, whole-population probability or arbitrary dimensions/library versions.",
+    "No same-model posterior/kernel/transform is used to compute an expected numerical oracle.",
+    "No artificial numerical/process/CPU/test-worker limit was set.",
+    "Code/API inventory classifications and owner-input appointments outside this numerical slice remain root/owners tasks.",
+    "B111 champion primitive guard old output is scoped unchanged-assertion carry, not c0 native rerun; exact current numerical quantity replay is154 plus explicitly complementary27."
+  ],
+  "cleanup_candidates": [
+    "/tmp/e02-D-math-current-final-4is8hd26/positive/fixtures",
+    "/tmp/e02-D-math-current-final-4is8hd26/remove_fast/fixtures",
+    "/tmp/e02-D-math-current-final-4is8hd26/remove_missing/fixtures"
+  ],
+  "cleanup": "No cleanup performed; output/unique inputs preserved, no cloud Trash permanent deletion.",
+  "independent_portable_handoff_review": {
+    "path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/math-current-c0-independent-handoff-review.json",
+    "sha256": "9ca962ee4e92a4121d6476b9571aa18ac4337fc3b357d0aa31235b3aef667097",
+    "reviewed_original_handoff_sha256": "a2867680bc129a82b22a74c7514b1c8b0bf6906594a789660eddeb54e3bdfd43",
+    "editorial_delta": "Only original authority narrative current469→current c0; original criterion/bindings/content/output hash objects unchanged."
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+  "candidate": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+  "bindings": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "actual469_blob": "3e68ab919b915427300869d6b378d12f585d1f00",
+      "candidate_b5_blob": "3e68ab919b915427300869d6b378d12f585d1f00",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "actual469_blob": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+      "candidate_b5_blob": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+      "actual469_blob": "1a7e97f9b558f1a27c6977661b6797fcbbb38278",
+      "candidate_b5_blob": "1a7e97f9b558f1a27c6977661b6797fcbbb38278",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "actual469_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+      "candidate_b5_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+      "actual469_blob": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257",
+      "candidate_b5_blob": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_vector_memory.py",
+      "actual469_blob": "88753b5536a0cc4dc8121e4b016d29102745861b",
+      "candidate_b5_blob": "88753b5536a0cc4dc8121e4b016d29102745861b",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+      "actual469_blob": "fdd17afd4ea92030d599b4947d35c03caaf36d48",
+      "candidate_b5_blob": "fdd17afd4ea92030d599b4947d35c03caaf36d48",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/vector_generation_reader.py",
+      "actual469_blob": "02a9e2074bdbfea3f57bcd950c6953a387cb6408",
+      "candidate_b5_blob": "02a9e2074bdbfea3f57bcd950c6953a387cb6408",
+      "identical": true
+    }
+  ],
+  "scope": "Actual59 remains on469. Direct native/CAS defining inputs match; imported strategybase changed elsewhere and requires independent scope reconciliation before any currentcarry assertion. No P41 waiver or complete zero-overlap claim.",
+  "review_state": "pending"
+}

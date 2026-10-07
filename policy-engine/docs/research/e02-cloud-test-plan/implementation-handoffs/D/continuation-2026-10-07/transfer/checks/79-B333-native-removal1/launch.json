@@ -1,0 +1,136 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-o",
+    "junit_family=xunit1",
+    "-o",
+    "junit_logging=all",
+    "-o",
+    "junit_log_passing_tests=true",
+    "--basetemp",
+    "/dev/shm/e02-D-transfer-B333-removal1-dfg6dlar/basetemp",
+    "--junitxml",
+    "/dev/shm/e02-D-transfer-B333-removal1-dfg6dlar/junit.xml",
+    "-q",
+    "-p",
+    "remove_private_finite",
+    "tests/unit/scientist/agent/test_vector_generation_consumer.py::test_valid_cas_legacy_native_nonfinite_refuses_before_pointer_publication"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "source": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+  "tree": "1a9f14f84e66f09c830134e2a6ee3e3f15e2b3cc",
+  "status_porcelain": "",
+  "mode": "B333-removal1",
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TMPDIR": "/dev/shm/e02-D-transfer-B333-removal1-dfg6dlar/tmp",
+    "PYTHONPATH": "/dev/shm/e02-D-transfer-frozen469-06qbulta:/dev/shm/e02-D-transfer-empty-intake-w7x85jux/B333-pair:/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine",
+    "E02_CAS_PAIR_ORIGINS": "/dev/shm/e02-D-transfer-B333-removal1-dfg6dlar/module-origins"
+  },
+  "inputs": {
+    "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py": "31b30704d68690c610761371b25a750f9f1efbf3",
+    "policy-engine/tests/unit/scientist/agent/vector_generation_reader.py": "02a9e2074bdbfea3f57bcd950c6953a387cb6408",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py": "1a7e97f9b558f1a27c6977661b6797fcbbb38278",
+    "policy-engine/src/polisyos/scientist/agent/vector_memory.py": "3e68ab919b915427300869d6b378d12f585d1f00",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+    "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py": "40532c3c0d20eb8e64ea3b1589c7a1cbae5dedd6",
+    "policy-engine/src/polisyos/core/artifacts/store.py": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+    "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257"
+  },
+  "fixture_inputs": [
+    {
+      "path": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux/run_frozen_checks.py",
+      "sha256": "d39003c609bef48316af4e14a12f86a65f3ef146ba314d8545cbabad5914ce44",
+      "bytes": 6683
+    },
+    {
+      "path": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux/B333-pair/sitecustomize.py",
+      "sha256": "46249faf6bf51b1a62b709df255d94cfa0ddac761a0a6b6cb60b5adf6f14cb95",
+      "bytes": 1803
+    },
+    {
+      "path": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux/B333-pair/B333-module-map.json",
+      "sha256": "39f2c6771f2fba5ba096edd7dc148e199406e21c97a33f522256a7fede9d2f9b",
+      "bytes": 3408
+    },
+    {
+      "path": "/dev/shm/e02-D-transfer-frozen469-06qbulta/remove_private_finite.py",
+      "sha256": "599e17f4da4e8a255c772cbf153bf647c87af6cba44bf96f158812006e4e4bc7",
+      "bytes": 156
+    }
+  ],
+  "backend_profile": "actual HNSW0.8.0, NumPy2.3.5, Python3.14.7 locked environment; ordinary FileSystemCAS exact refs",
+  "seed_inputs": "Native default100, original deterministic measured2 donor rows; explicit empty/invalid/unsupported codec controls or ordinary1002 discovery snapshots, no production or scientific authority",
+  "compute_limits_introduced": false,
+  "classification": "combined_dependency_profile",
+  "accepted_in_G": false,
+  "start_utc": "2026-10-07T08:58:59.631827+00:00",
+  "B_canonical_module_map": {
+    "repository": "/dev/shm/e02-D-oct07-continuation",
+    "source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+    "modules": {
+      "polisyos.core.artifacts._integrity_ops": {
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "D_blob": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257",
+        "B_blob": "557fbb829dec5e9f349e5de7a7d5013ca1c2a2ef",
+        "D_sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b",
+        "B_sha256": "768aa83084c85e8b501cacad1a94ece535e08b78e7070cee619c249df11cbfe4",
+        "B_bytes": 12619
+      },
+      "polisyos.core.artifacts._signature_ops": {
+        "path": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+        "D_blob": "40acc7887fb09fdc567af6edfadff82ea2c01b9a",
+        "B_blob": "5c483b787d7afbef8b489383e5a01fc9734af6e7",
+        "D_sha256": "35a8af3422febca80a8f3584117bc2464a5468a0f73482c738e8255760f7fbfb",
+        "B_sha256": "0627738427829a9f7489082297635c1b604d987182aca1e5559b2bafc510cb85",
+        "B_bytes": 18059
+      },
+      "polisyos.core.artifacts._transfer_ops": {
+        "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+        "D_blob": "43012c9fdbdc20fd79081239d3a0c474c050a385",
+        "B_blob": "70f7a735755f56dbf2cfd7ad5e4859cd17bf91a9",
+        "D_sha256": "641553dd8b105a31c406d3af9d2477efa75f093755afc41f9af97816ebc817d6",
+        "B_sha256": "27709becae4680c5a16445a4bfea2270dc1de8a2cea93b06c30205104c9e00b7",
+        "B_bytes": 46449
+      },
+      "polisyos.core.artifacts.async_store": {
+        "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+        "D_blob": "a664d69d1d0ba58841c530a901783977072523b2",
+        "B_blob": "1111ad75ed6632d87280e5699845811ec355bfbb",
+        "D_sha256": "6b50f6cc1cf136e6eac66c3ff72745481495a13e18ab0d2ae8209f88863919fe",
+        "B_sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078",
+        "B_bytes": 7518
+      },
+      "polisyos.core.artifacts.signing": {
+        "path": "policy-engine/src/polisyos/core/artifacts/signing.py",
+        "D_blob": "cc3082cdf613707d6df284266fc8c97e565bba84",
+        "B_blob": "8aa4cdd46dc9de873df15b977ed6576eb11bb30f",
+        "D_sha256": "5d4a19ab6a2c8b5caacb3c7c74caf3625c24d4e5e51873d131292a682738b568",
+        "B_sha256": "2b58237eddbafa61bb6bd7a41b5e7f2cf96553c92406f1edf4cbbf236934261d",
+        "B_bytes": 30675
+      },
+      "polisyos.core.artifacts.store": {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "D_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+        "B_blob": "02e3253de23db5d64c21b69ce4cc85daa4f0778c",
+        "D_sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165",
+        "B_sha256": "627676dcb74c442b7e3f30a64bf7b4023e4ef5f1a8f2dac1d37fdf3e69654a4f",
+        "B_bytes": 190227,
+        "D_get_verified_snapshot_ast": "ab7320ace61de46d8e7adc1f7652f7e9a3bb8bc010af19c702cd61f9f6f65c71",
+        "B_get_verified_snapshot_ast": "ab7320ace61de46d8e7adc1f7652f7e9a3bb8bc010af19c702cd61f9f6f65c71"
+      },
+      "polisyos.common.async_tools": {
+        "path": "policy-engine/src/polisyos/common/async_tools.py",
+        "D_blob": "1f60973c35cfdd8bcf9629f675bcb7d30235fcfa",
+        "B_blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+        "D_sha256": "5153fff118f7d791abb72b6878b409ca226ceceb2411fd413756f66a694d8406",
+        "B_sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+        "B_bytes": 11846
+      }
+    }
+  }
+}

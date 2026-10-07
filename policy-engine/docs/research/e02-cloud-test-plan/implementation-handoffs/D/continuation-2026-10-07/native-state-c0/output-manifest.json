@@ -1,0 +1,358 @@
+{
+  "schema": "polisyos.e02.D.current_native_publication_manifest.v1",
+  "source": {
+    "sha": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+    "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+    "actual_execution_clean_before_after": true
+  },
+  "source_history_base": {
+    "sha": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+    "tree": "bb6213c0cde3246e63c04f749547f40f35644a15"
+  },
+  "handoff_sha256": "558426b82f36aa00e613bb257d9f0167d930e1b3baaea7dbd68779ed5df8a081",
+  "deciding_gzip_sha256": "a3a15bf5d083a58f1ed543a8698b23df876a047caba5ccd52b556aa856edd0aa",
+  "exact_external_publication_root": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/publication-native-currentc0",
+  "intended_root_Git_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-c0",
+  "files": [
+    {
+      "relative_path": "GP-State-MO-currentc0-handoff.json",
+      "original_path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/GP-State-MO-currentc0-handoff.json",
+      "bytes": 261300,
+      "sha256": "558426b82f36aa00e613bb257d9f0167d930e1b3baaea7dbd68779ed5df8a081"
+    },
+    {
+      "relative_path": "GP-State-MO-currentc0-complete-deciding-output.json.gz",
+      "original_path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/GP-State-MO-currentc0-complete-deciding-output.json.gz",
+      "bytes": 1930941,
+      "sha256": "a3a15bf5d083a58f1ed543a8698b23df876a047caba5ccd52b556aa856edd0aa"
+    },
+    {
+      "relative_path": "supported-strategy-state-inventory-finalc0.json",
+      "original_path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/supported-strategy-state-inventory-finalc0.json",
+      "bytes": 40232,
+      "sha256": "29612f6903ecdcac4071503dd00838247d77227011f311ff4c80e4488fee6ad7"
+    },
+    {
+      "relative_path": "companion-B04-B19-minimal-owner-packet.json",
+      "original_path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/companion-B04-B19-minimal-owner-packet.json",
+      "bytes": 4143,
+      "sha256": "9cafb44bbdb551192a73879e62a688bb6a79b0634b766fdfa6be7161ad98c2d5"
+    },
+    {
+      "relative_path": "reviews/GP-State-MO-currentc0-original-criterion-and-portable-independent-review.json",
+      "original_path": "/dev/shm/e02-D-census-review-oct07/GP-State-MO-currentc0-original-criterion-and-portable-independent-review.json",
+      "bytes": 35794,
+      "sha256": "591a91b6fcb8b25e5d9bd6ba44e3ff228c2622a73bea89ee16496fc731df4c5f"
+    },
+    {
+      "relative_path": "reviews/GP-MO-State-currentc0-independent-runtime-review.json",
+      "original_path": "/tmp/e02-D-math-oct07-drafts/GP-MO-State-currentc0-independent-runtime-review.json",
+      "bytes": 22719,
+      "sha256": "07ed014e3b0404cf0112df7f535fd89da9cc216785401e2b3b4bf27ed545441a"
+    },
+    {
+      "relative_path": "reviews/mo-state-independent-failure-final-review.json",
+      "original_path": "/tmp/e02-D-math-oct07-drafts/mo-state-independent-failure-final-review.json",
+      "bytes": 3018,
+      "sha256": "393bb1847c2c0b7b71419f7235f75bc97780d06b315a8a5d0e29ea715065181f"
+    },
+    {
+      "relative_path": "reviews/MO-final27-failure-coherence-independent-test-review.json",
+      "original_path": "/dev/shm/e02-D-census-review-oct07/MO-final27-failure-coherence-independent-test-review.json",
+      "bytes": 2411,
+      "sha256": "2729937af4166192b32f705dbe5265a82510043e15d62cf3151cbef90f88db2d"
+    },
+    {
+      "relative_path": "reviews/MO-operator-release-independent-review.json",
+      "original_path": "/dev/shm/e02-D-census-review-oct07/MO-operator-release-independent-review.json",
+      "bytes": 1890,
+      "sha256": "15409f4c6c816bb367dcdc781147f35355746342ced5fd636b9b7c37f3c305c8"
+    },
+    {
+      "relative_path": "reviews/B113-public-mixed-history-two-independent-review.json",
+      "original_path": "/dev/shm/e02-D-census-review-oct07/B113-public-mixed-history-two-independent-review.json",
+      "bytes": 2480,
+      "sha256": "8ee5559ba62a28d5c3d063fde274efda63ee9131bad83282671cccc51b5acd5c"
+    },
+    {
+      "relative_path": "reviews/Grid-public-batch8-independent-test-review.json",
+      "original_path": "/dev/shm/e02-D-census-review-oct07/Grid-public-batch8-independent-test-review.json",
+      "bytes": 1367,
+      "sha256": "bf27b8e1a4e66b807fa47b65c66113d220c937f161f6d85ff12e132c190b480c"
+    },
+    {
+      "relative_path": "reviews/GP-State-MO-currentc0-independent-handoff-review.json",
+      "original_path": "/tmp/e02-D-math-oct07-drafts/GP-State-MO-currentc0-independent-handoff-review.json",
+      "bytes": 2271,
+      "sha256": "8b0bbc50850a402aebd7b74efe14530beed489197474df85ab1e58e5c0b9eee1"
+    },
+    {
+      "relative_path": "reviews/B114-warm-report-currentc0-independent-review.json",
+      "original_path": "/tmp/e02-D-math-oct07-drafts/B114-warm-report-currentc0-independent-review.json",
+      "bytes": 6038,
+      "sha256": "109d76c52420cb0a0cf8442d6e54978f78d1beb23bcc2eb71128890f42602294"
+    },
+    {
+      "relative_path": "reviews/B114-independent-configured-CAS-currentc0-review.json",
+      "original_path": "/tmp/e02-D-math-oct07-drafts/B114-independent-configured-CAS-currentc0-review.json",
+      "bytes": 1371,
+      "sha256": "cb76dd469c071b4725c93129a1d8a8fb32a59d3259235b68833cf8ae1f75ed78"
+    },
+    {
+      "relative_path": "reviews/math-current-c0-independent-runtime-review.json",
+      "original_path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/math-current-c0-independent-runtime-review.json",
+      "bytes": 9013,
+      "sha256": "d83c325b8910d6227a639213197bd9506b7eb3ea3ed04223e79c3c815c4565ec"
+    },
+    {
+      "relative_path": "reviews/math-current-c0-independent-handoff-review.json",
+      "original_path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/math-current-c0-independent-handoff-review.json",
+      "bytes": 2739,
+      "sha256": "9ca962ee4e92a4121d6476b9571aa18ac4337fc3b357d0aa31235b3aef667097"
+    },
+    {
+      "relative_path": "actual-configured-cas-inputs.json",
+      "original_path": "/dev/shm/e02-D-gp-finalc0e03-cprmrxl6/actual-configured-cas-inputs.json",
+      "bytes": 199610,
+      "sha256": "54d0adfbb18cf3bd91b530e6199eaf760217fd3991272243f2796a0bce80158f"
+    },
+    {
+      "relative_path": "inherited-torch-runtime-profile.json",
+      "original_path": "/dev/shm/e02-D-state-finalc0e03-ld3_a0ve/inherited-torch-runtime-profile.json",
+      "bytes": 2597,
+      "sha256": "6c785f6140a0533a49dfb4ec88446af76a2992f298f70938ddf2b9b50d356966"
+    },
+    {
+      "relative_path": "checks/native_GP43/junit.xml",
+      "original_path": "/dev/shm/e02-D-gp-finalc0e03-cprmrxl6/junit.xml",
+      "bytes": 8620,
+      "sha256": "f681b683b5e8c7729fcbef8a3e7cea6710db465c41d593e80db2d50b60431005"
+    },
+    {
+      "relative_path": "checks/native_GP43/stdout.log",
+      "original_path": "/dev/shm/e02-D-gp-finalc0e03-cprmrxl6/stdout.log",
+      "bytes": 7219,
+      "sha256": "7edcb72b58750b8de9937472364df47bf838833c75b044132d2bc6d45a0e4546"
+    },
+    {
+      "relative_path": "checks/native_GP43/stderr.log",
+      "original_path": "/dev/shm/e02-D-gp-finalc0e03-cprmrxl6/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "relative_path": "checks/native_GP43/result.json",
+      "original_path": "/dev/shm/e02-D-gp-finalc0e03-cprmrxl6/result.json",
+      "bytes": 716,
+      "sha256": "6b5d2472b7a89a78766f81ad74167f97ad6bc420a041d508611f311d3f23382c"
+    },
+    {
+      "relative_path": "checks/native_GP43/execution.json",
+      "original_path": "/dev/shm/e02-D-gp-finalc0e03-cprmrxl6/execution.json",
+      "bytes": 2367,
+      "sha256": "ef6da6db2812f448ce73eeffe938ccd21dd734c91012a0bf41a5fc4feab01d67"
+    },
+    {
+      "relative_path": "checks/native_state142/junit.xml",
+      "original_path": "/dev/shm/e02-D-state-finalc0e03-ld3_a0ve/junit.xml",
+      "bytes": 29241,
+      "sha256": "79a6508e5bea96a1d1d869e1f3891117385750c3ec53fd9499d56177494a2736"
+    },
+    {
+      "relative_path": "checks/native_state142/stdout.log",
+      "original_path": "/dev/shm/e02-D-state-finalc0e03-ld3_a0ve/stdout.log",
+      "bytes": 4519,
+      "sha256": "25260380b280de2c5a5deb607bf481dff8022b7294e79b11752dc4e218e4a60b"
+    },
+    {
+      "relative_path": "checks/native_state142/stderr.log",
+      "original_path": "/dev/shm/e02-D-state-finalc0e03-ld3_a0ve/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "relative_path": "checks/native_state142/result.json",
+      "original_path": "/dev/shm/e02-D-state-finalc0e03-ld3_a0ve/result.json",
+      "bytes": 717,
+      "sha256": "661da851f1ca109113337811f52978aeaac950930ec95e3d923729c454f2c412"
+    },
+    {
+      "relative_path": "checks/native_state142/execution.json",
+      "original_path": "/dev/shm/e02-D-state-finalc0e03-ld3_a0ve/execution.json",
+      "bytes": 2064,
+      "sha256": "da4fcef3c25648b913ebe7cbb47dc696ce4ced86f5e3edcdf4831842e2ede788"
+    },
+    {
+      "relative_path": "checks/native_MO88/junit.xml",
+      "original_path": "/dev/shm/e02-D-MO-finalc0e03-8qs2polc/junit.xml",
+      "bytes": 19113,
+      "sha256": "1d9b0b14326ba300dd7ca00b5a26e963ecca5cbbc48fb89bcebd69b9b3e9a201"
+    },
+    {
+      "relative_path": "checks/native_MO88/stdout.log",
+      "original_path": "/dev/shm/e02-D-MO-finalc0e03-8qs2polc/stdout.log",
+      "bytes": 3997,
+      "sha256": "c8446ff3928212e409a2b3bbdd2f1f6ce56466118d636ebb29e7eea120ac87be"
+    },
+    {
+      "relative_path": "checks/native_MO88/stderr.log",
+      "original_path": "/dev/shm/e02-D-MO-finalc0e03-8qs2polc/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "relative_path": "checks/native_MO88/result.json",
+      "original_path": "/dev/shm/e02-D-MO-finalc0e03-8qs2polc/result.json",
+      "bytes": 717,
+      "sha256": "6e8263ed236f9e222d90c30503963c8e0b7c9744fe538cb5513ecc088fca1590"
+    },
+    {
+      "relative_path": "checks/native_MO88/execution.json",
+      "original_path": "/dev/shm/e02-D-MO-finalc0e03-8qs2polc/execution.json",
+      "bytes": 2402,
+      "sha256": "b647098815ac5440f4174f11e492e739ba99e848bdffc09e36c4c9af1c09f16f"
+    },
+    {
+      "relative_path": "checks/minimal_supported55_numeric15UNRUN/junit.xml",
+      "original_path": "/dev/shm/e02-D-minimal-finalc0e03-plcwwjvr/junit.xml",
+      "bytes": 17592,
+      "sha256": "a08e67277c0a529ab6f10c43c9cdbf72768aba18e2b13d0f356640c117a35f6f"
+    },
+    {
+      "relative_path": "checks/minimal_supported55_numeric15UNRUN/stdout.log",
+      "original_path": "/dev/shm/e02-D-minimal-finalc0e03-plcwwjvr/stdout.log",
+      "bytes": 4545,
+      "sha256": "450038f9f008b6eeb2ef7988d489e9c9b85713164c7153e22d1de29c8a7bceb1"
+    },
+    {
+      "relative_path": "checks/minimal_supported55_numeric15UNRUN/stderr.log",
+      "original_path": "/dev/shm/e02-D-minimal-finalc0e03-plcwwjvr/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "relative_path": "checks/minimal_supported55_numeric15UNRUN/result.json",
+      "original_path": "/dev/shm/e02-D-minimal-finalc0e03-plcwwjvr/result.json",
+      "bytes": 709,
+      "sha256": "a70f509ff01798773e20660f221a94cfa805bc0a3cd99151ed33dedde3287fee"
+    },
+    {
+      "relative_path": "checks/minimal_supported55_numeric15UNRUN/execution.json",
+      "original_path": "/dev/shm/e02-D-minimal-finalc0e03-plcwwjvr/execution.json",
+      "bytes": 1721,
+      "sha256": "a3574e02ff07703833538d7cc39023f569906a9097966ec90b4d244b38cc4f0b"
+    },
+    {
+      "relative_path": "checks/minimal_warm_reports3/junit.xml",
+      "original_path": "/dev/shm/e02-D-warm-minimal-c0-n20ov9rh/junit.xml",
+      "bytes": 818,
+      "sha256": "b0ca41e2fd97b4d5a066a84cae731a3e1244ecb472e4d019c85c2cfb0a043767"
+    },
+    {
+      "relative_path": "checks/minimal_warm_reports3/stdout.log",
+      "original_path": "/dev/shm/e02-D-warm-minimal-c0-n20ov9rh/stdout.log",
+      "bytes": 2297,
+      "sha256": "382818d270eab3906ce3f8cc605027d8e08331746912cf327a66d9148a5b8f23"
+    },
+    {
+      "relative_path": "checks/minimal_warm_reports3/stderr.log",
+      "original_path": "/dev/shm/e02-D-warm-minimal-c0-n20ov9rh/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "relative_path": "checks/minimal_warm_reports3/result.json",
+      "original_path": "/dev/shm/e02-D-warm-minimal-c0-n20ov9rh/result.json",
+      "bytes": 708,
+      "sha256": "e02de26e78c49080f9c6693fb0011efe4ca751ab9f7c4ebe68564e301ba7e86b"
+    },
+    {
+      "relative_path": "checks/minimal_warm_reports3/execution.json",
+      "original_path": "/dev/shm/e02-D-warm-minimal-c0-n20ov9rh/execution.json",
+      "bytes": 1591,
+      "sha256": "0c40dcaf145071785831c7bd7c547f23b6308ae45657effb607b229184fefac2"
+    },
+    {
+      "relative_path": "checks/minimal_report_removal3FAIL/junit.xml",
+      "original_path": "/dev/shm/e02-D-warm-remove-report-c0-axnnj4xk/junit.xml",
+      "bytes": 8815,
+      "sha256": "cdc7be459cc0f4614282e84d97d614f3d73a05ad3358f86e1ec8ce7e995aa393"
+    },
+    {
+      "relative_path": "checks/minimal_report_removal3FAIL/stdout.log",
+      "original_path": "/dev/shm/e02-D-warm-remove-report-c0-axnnj4xk/stdout.log",
+      "bytes": 9320,
+      "sha256": "cf916c773ab3cbd3843f2ce9a0d1c6e1c3ed9f6df99ecd4bfb57a20f337e5159"
+    },
+    {
+      "relative_path": "checks/minimal_report_removal3FAIL/stderr.log",
+      "original_path": "/dev/shm/e02-D-warm-remove-report-c0-axnnj4xk/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "relative_path": "checks/minimal_report_removal3FAIL/result.json",
+      "original_path": "/dev/shm/e02-D-warm-remove-report-c0-axnnj4xk/result.json",
+      "bytes": 715,
+      "sha256": "8afb3776f520b877d08dcd3be9dc3df4029be9ca0c035f60e062ce7f77cd6ed5"
+    },
+    {
+      "relative_path": "checks/minimal_report_removal3FAIL/execution.json",
+      "original_path": "/dev/shm/e02-D-warm-remove-report-c0-axnnj4xk/execution.json",
+      "bytes": 1633,
+      "sha256": "10225a31310fafb63e532ee538bbb52698edf8c7a47f8843b05631886163eacc"
+    },
+    {
+      "relative_path": "module-budget/stdout.json",
+      "original_path": "/dev/shm/e02-D-module-budget-c0-2ubu7oj_/stdout.json",
+      "bytes": 25307,
+      "sha256": "9b4204d16bbfea64d82ead0f0376d7cf747fbf5455f33c95b0de151aa2491301"
+    },
+    {
+      "relative_path": "module-budget/stderr.txt",
+      "original_path": "/dev/shm/e02-D-module-budget-c0-2ubu7oj_/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "relative_path": "module-budget/command.json",
+      "original_path": "/dev/shm/e02-D-module-budget-c0-2ubu7oj_/command.json",
+      "bytes": 601,
+      "sha256": "c81d0054021d377f4a7343864a4022bafbeb8a0d3fdd46faac46b870088c3964"
+    },
+    {
+      "relative_path": "module-budget/result.json",
+      "original_path": "/dev/shm/e02-D-module-budget-c0-2ubu7oj_/result.json",
+      "bytes": 173,
+      "sha256": "14ad7e1c6a3f3db46670b55c8e5876c8eda918503229d0b2ed2b12dcad34e218"
+    },
+    {
+      "relative_path": "module-budget/assessment.json",
+      "original_path": "/dev/shm/e02-D-module-budget-c0-2ubu7oj_/assessment.json",
+      "bytes": 845,
+      "sha256": "732e8868deefeb234742d63c1e4cbfb02302823b5e736736ce81672217f75bb0"
+    },
+    {
+      "relative_path": "README.md",
+      "original_path": null,
+      "bytes": 2200,
+      "sha256": "7befb1e3f32c171f12d3514b3df32f1679f339fb03058ae877decf4db2700ff5"
+    },
+    {
+      "relative_path": "reviews/GP-State-MO-currentc0-final-additive-independent-review.json",
+      "original_path": "/tmp/e02-D-math-oct07-drafts/GP-State-MO-currentc0-final-additive-independent-review.json",
+      "bytes": 1469,
+      "sha256": "c5563a8adc794849aae2ab2416533d9850a540759c76d4ddc609985ef0049b5a"
+    }
+  ],
+  "total_bytes": 2692685,
+  "readback_exact": true,
+  "source_patch_copies": false,
+  "production_data": false,
+  "formal_G_acceptance": false,
+  "final_additive_review": {
+    "path": "reviews/GP-State-MO-currentc0-final-additive-independent-review.json",
+    "sha256": "c5563a8adc794849aae2ab2416533d9850a540759c76d4ddc609985ef0049b5a",
+    "policy": "Independent final5584/a3a payload readback only; immutablec0 handoff/archive unchanged."
+  }
+}

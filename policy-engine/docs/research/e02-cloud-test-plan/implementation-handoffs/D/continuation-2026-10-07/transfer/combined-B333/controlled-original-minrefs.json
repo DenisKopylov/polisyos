@@ -1,0 +1,351 @@
+{
+  "schema": "policyos.e02.controlled_cas_minrefs.v1",
+  "profile": "controlled analytic-transfer-fixture.v1, actual ordinary B333 FileSystemCAS producer; no production/tenant-reuse authority",
+  "D_source": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+  "B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+  "request": {
+    "cas": "/dev/shm/e02-D-transfer-B333-pair2-quxhpygc/basetemp/test_exact_transfer_reference_0/cas",
+    "bundle": {
+      "artifact_id": "sha256:28aa7beffd826511216aa74633230571c73787c3fd38212d742774aee198a3f0",
+      "kind": "vector_memory.bundle",
+      "media_type": "application/json"
+    },
+    "source": {
+      "run_id": "source",
+      "space_hash": "f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504",
+      "objective_names": [
+        "score"
+      ],
+      "bounds": {
+        "parameters": [
+          {
+            "name": "x",
+            "lower": 0.0,
+            "upper": 1.0,
+            "dtype": "continuous",
+            "log_scale": false,
+            "categories": null
+          }
+        ]
+      },
+      "split": "selection",
+      "units": {
+        "score": "analytic-loss"
+      },
+      "origin": "analytic-measurement.v1",
+      "tenant_id": "tenant-a",
+      "objective_directions": {
+        "score": "minimize"
+      },
+      "embedding": [
+        1.0,
+        0.0
+      ],
+      "best_params": null,
+      "best_score": null,
+      "num_evaluations": 0,
+      "history_ref": {
+        "artifact_id": "sha256:f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28",
+        "kind": "search.transfer.history",
+        "media_type": "application/json"
+      },
+      "numeric_basis": {
+        "profile": "numeric_transfer_basis.v1",
+        "search_space_fingerprint": "f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504",
+        "bounds": {
+          "parameters": [
+            {
+              "name": "x",
+              "lower": 0.0,
+              "upper": 1.0,
+              "dtype": "continuous",
+              "log_scale": false,
+              "categories": null
+            }
+          ]
+        },
+        "metric": "score",
+        "unit": "analytic-loss",
+        "direction": "minimize",
+        "split": "selection",
+        "scalarizer": "direction_normalized_single_objective.v1",
+        "replica_policy": "preserve_explicit_identity.v1",
+        "origin": "analytic-measurement.v1",
+        "owner_id": "fixture-owner",
+        "tenant_id": "tenant-a",
+        "data_ref": {
+          "artifact_id": "sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+          "kind": "fixture.numeric.data",
+          "media_type": "application/json"
+        },
+        "model_ref": {
+          "artifact_id": "sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+          "kind": "fixture.numeric.model",
+          "media_type": "application/json"
+        },
+        "evaluator_ref": {
+          "artifact_id": "sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+          "kind": "fixture.numeric.evaluator",
+          "media_type": "application/json"
+        },
+        "split_ref": {
+          "artifact_id": "sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+          "kind": "fixture.numeric.split",
+          "media_type": "application/json"
+        },
+        "scalarizer_ref": {
+          "artifact_id": "sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+          "kind": "fixture.numeric.scalarizer",
+          "media_type": "application/json"
+        },
+        "owner_ref": {
+          "artifact_id": "sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+          "kind": "fixture.numeric.owner",
+          "media_type": "application/json"
+        }
+      }
+    },
+    "target": {
+      "run_id": "target",
+      "space_hash": "f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504",
+      "objective_names": [
+        "score"
+      ],
+      "bounds": {
+        "parameters": [
+          {
+            "name": "x",
+            "lower": 0.0,
+            "upper": 1.0,
+            "dtype": "continuous",
+            "log_scale": false,
+            "categories": null
+          }
+        ]
+      },
+      "split": "selection",
+      "units": {
+        "score": "analytic-loss"
+      },
+      "origin": "analytic-measurement.v1",
+      "tenant_id": "tenant-a",
+      "objective_directions": {
+        "score": "minimize"
+      },
+      "embedding": [
+        1.0,
+        0.0
+      ],
+      "best_params": null,
+      "best_score": null,
+      "num_evaluations": 0,
+      "history_ref": null,
+      "numeric_basis": {
+        "profile": "numeric_transfer_basis.v1",
+        "search_space_fingerprint": "f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504",
+        "bounds": {
+          "parameters": [
+            {
+              "name": "x",
+              "lower": 0.0,
+              "upper": 1.0,
+              "dtype": "continuous",
+              "log_scale": false,
+              "categories": null
+            }
+          ]
+        },
+        "metric": "score",
+        "unit": "analytic-loss",
+        "direction": "minimize",
+        "split": "selection",
+        "scalarizer": "direction_normalized_single_objective.v1",
+        "replica_policy": "preserve_explicit_identity.v1",
+        "origin": "analytic-measurement.v1",
+        "owner_id": "fixture-owner",
+        "tenant_id": "tenant-a",
+        "data_ref": {
+          "artifact_id": "sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+          "kind": "fixture.numeric.data",
+          "media_type": "application/json"
+        },
+        "model_ref": {
+          "artifact_id": "sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+          "kind": "fixture.numeric.model",
+          "media_type": "application/json"
+        },
+        "evaluator_ref": {
+          "artifact_id": "sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+          "kind": "fixture.numeric.evaluator",
+          "media_type": "application/json"
+        },
+        "split_ref": {
+          "artifact_id": "sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+          "kind": "fixture.numeric.split",
+          "media_type": "application/json"
+        },
+        "scalarizer_ref": {
+          "artifact_id": "sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+          "kind": "fixture.numeric.scalarizer",
+          "media_type": "application/json"
+        },
+        "owner_ref": {
+          "artifact_id": "sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+          "kind": "fixture.numeric.owner",
+          "media_type": "application/json"
+        }
+      }
+    }
+  },
+  "original_rows": 2,
+  "discovery_snapshots": 1002,
+  "donor_reuse": "1001 distinct ordinary discovery registrations copy the original two measured donor rows unchanged; not1001 new evaluations. Only selected original source consumed numerically.",
+  "artifacts": [
+    {
+      "ref": {
+        "artifact_id": "sha256:f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28",
+        "kind": "search.transfer.history",
+        "media_type": "application/json"
+      },
+      "data_utf8": "{\"evaluations\":[{\"candidate_id\":\"sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0\",\"metadata\":{\"candidate_ref\":{\"artifact_id\":\"sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0\",\"kind\":\"search.candidate\",\"media_type\":\"application/json\"},\"evaluation_ref\":{\"artifact_id\":\"sha256:c4d1a3ca621de83530440f70d9de73f0608768bdaaa07801a2893e24f8c64ea3\",\"kind\":\"scientist.autotune.analytic.evaluation\",\"manifest_profile_sha256\":\"sha256:92344e9441aca35237374b5de9474aa8ec1c94b1b4143d947d044faf9dda560f\",\"media_type\":\"application/json\"},\"numeric_transfer_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"minimize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}},\"replica_id\":0,\"source_run_id\":\"source\"},\"objectives\":[{\"direction\":\"minimize\",\"is_satisfied\":true,\"name\":\"score\",\"raw_value\":{\"_type\":\"float\",\"repr\":\"0.011344444444444445\"},\"threshold\":null,\"weight\":{\"_type\":\"float\",\"repr\":\"1\"}}],\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}},\"params_normalized\":[{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}],\"provenance_ref\":\"sha256:c4d1a3ca621de83530440f70d9de73f0608768bdaaa07801a2893e24f8c64ea3\",\"scalar_score\":{\"_type\":\"float\",\"repr\":\"0.011344444444444445\"},\"stage_a_passed\":true,\"stage_b_result\":{\"guardrails\":{\"finite\":true}},\"status\":\"success\",\"timestamp\":\"2026-01-01T00:00:00+00:00\",\"wall_time_seconds\":{\"_type\":\"float\",\"repr\":\"0.125\"}},{\"candidate_id\":\"sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a\",\"metadata\":{\"candidate_ref\":{\"artifact_id\":\"sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a\",\"kind\":\"search.candidate\",\"media_type\":\"application/json\"},\"evaluation_ref\":{\"artifact_id\":\"sha256:d170211a1ebb797480350f019068fb213acf8eb35ac2793b1c65baf043e085a0\",\"kind\":\"scientist.autotune.analytic.evaluation\",\"manifest_profile_sha256\":\"sha256:ff475bbf37de14fef1d7ed60b2b83f8693c02ea911d01ac32d4d614dacaab301\",\"media_type\":\"application/json\"},\"numeric_transfer_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"minimize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}},\"replica_id\":1,\"source_run_id\":\"source\"},\"objectives\":[{\"direction\":\"minimize\",\"is_satisfied\":true,\"name\":\"score\",\"raw_value\":{\"_type\":\"float\",\"repr\":\"0.098011111111111091\"},\"threshold\":null,\"weight\":{\"_type\":\"float\",\"repr\":\"1\"}}],\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}},\"params_normalized\":[{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}],\"provenance_ref\":\"sha256:d170211a1ebb797480350f019068fb213acf8eb35ac2793b1c65baf043e085a0\",\"scalar_score\":{\"_type\":\"float\",\"repr\":\"0.098011111111111091\"},\"stage_a_passed\":true,\"stage_b_result\":{\"guardrails\":{\"finite\":true}},\"status\":\"success\",\"timestamp\":\"2026-01-01T00:00:00+00:00\",\"wall_time_seconds\":{\"_type\":\"float\",\"repr\":\"0.125\"}}],\"fingerprint\":{\"best_params\":null,\"best_score\":null,\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"num_evaluations\":0,\"numeric_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"minimize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"objective_directions\":{\"score\":\"minimize\"},\"objective_names\":[\"score\"],\"origin\":\"analytic-measurement.v1\",\"run_id\":\"source\",\"space_hash\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"tenant_id\":\"tenant-a\",\"units\":{\"score\":\"analytic-loss\"}},\"schema_version\":\"2.0\"}",
+      "manifest_utf8": "{\"artifact_id\":\"sha256:f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28\",\"byte_size\":8008,\"canon\":{\"ensure_ascii\":false,\"exclude_none\":true,\"forbid_floats\":false,\"forbid_nan_inf\":true,\"max_depth\":128,\"name\":\"polisyos.canon.json\",\"separators\":[\",\",\":\"],\"sort_keys\":true,\"version\":\"0.2.0\"},\"created_at\":\"2026-10-07T08:59:09Z\",\"inputs\":[],\"integrity\":{\"sha256\":\"f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28\"},\"kind\":\"search.transfer.history\",\"manifest_schema_version\":\"v3\",\"media_type\":\"application/json\",\"warnings\":[]}",
+      "data_sha256": "f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28",
+      "manifest_sha256": "d4ca057a96ce2b4965a17a5750e107095de3183d80ebeb24bdc6b653717dd98c",
+      "data_bytes": 8008,
+      "manifest_bytes": 552
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+        "kind": "fixture.numeric.data",
+        "media_type": "application/json"
+      },
+      "data_utf8": "{\"profile\":\"analytic-transfer-fixture.v1\",\"role\":\"data\"}",
+      "manifest_utf8": "{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"byte_size\":56,\"canon\":{\"ensure_ascii\":false,\"exclude_none\":true,\"forbid_floats\":true,\"forbid_nan_inf\":true,\"max_depth\":128,\"name\":\"polisyos.canon.json\",\"separators\":[\",\",\":\"],\"sort_keys\":true,\"version\":\"0.2.0\"},\"created_at\":\"2026-10-07T08:59:09Z\",\"inputs\":[],\"integrity\":{\"sha256\":\"469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\"},\"kind\":\"fixture.numeric.data\",\"manifest_schema_version\":\"v3\",\"media_type\":\"application/json\",\"warnings\":[]}",
+      "data_sha256": "469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+      "manifest_sha256": "d1425c169063edb00a476335d48af289519e5c19437e27970e7b2a4b4a25df53",
+      "data_bytes": 56,
+      "manifest_bytes": 546
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+        "kind": "fixture.numeric.model",
+        "media_type": "application/json"
+      },
+      "data_utf8": "{\"profile\":\"analytic-transfer-fixture.v1\",\"role\":\"model\"}",
+      "manifest_utf8": "{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"byte_size\":57,\"canon\":{\"ensure_ascii\":false,\"exclude_none\":true,\"forbid_floats\":true,\"forbid_nan_inf\":true,\"max_depth\":128,\"name\":\"polisyos.canon.json\",\"separators\":[\",\",\":\"],\"sort_keys\":true,\"version\":\"0.2.0\"},\"created_at\":\"2026-10-07T08:59:09Z\",\"inputs\":[],\"integrity\":{\"sha256\":\"63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\"},\"kind\":\"fixture.numeric.model\",\"manifest_schema_version\":\"v3\",\"media_type\":\"application/json\",\"warnings\":[]}",
+      "data_sha256": "63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+      "manifest_sha256": "5c672239f2a759106cfb44a802f9c52e9e2d6076d679287bf2df88e6ae9a2b90",
+      "data_bytes": 57,
+      "manifest_bytes": 547
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+        "kind": "fixture.numeric.evaluator",
+        "media_type": "application/json"
+      },
+      "data_utf8": "{\"profile\":\"analytic-transfer-fixture.v1\",\"role\":\"evaluator\"}",
+      "manifest_utf8": "{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"byte_size\":61,\"canon\":{\"ensure_ascii\":false,\"exclude_none\":true,\"forbid_floats\":true,\"forbid_nan_inf\":true,\"max_depth\":128,\"name\":\"polisyos.canon.json\",\"separators\":[\",\",\":\"],\"sort_keys\":true,\"version\":\"0.2.0\"},\"created_at\":\"2026-10-07T08:59:09Z\",\"inputs\":[],\"integrity\":{\"sha256\":\"98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\"},\"kind\":\"fixture.numeric.evaluator\",\"manifest_schema_version\":\"v3\",\"media_type\":\"application/json\",\"warnings\":[]}",
+      "data_sha256": "98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+      "manifest_sha256": "86d1dfb9340ad781e1e3e0bfd40e8fbb2443bca0fdb80bd898b0a64bf8a3871f",
+      "data_bytes": 61,
+      "manifest_bytes": 551
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+        "kind": "fixture.numeric.split",
+        "media_type": "application/json"
+      },
+      "data_utf8": "{\"profile\":\"analytic-transfer-fixture.v1\",\"role\":\"split\"}",
+      "manifest_utf8": "{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"byte_size\":57,\"canon\":{\"ensure_ascii\":false,\"exclude_none\":true,\"forbid_floats\":true,\"forbid_nan_inf\":true,\"max_depth\":128,\"name\":\"polisyos.canon.json\",\"separators\":[\",\",\":\"],\"sort_keys\":true,\"version\":\"0.2.0\"},\"created_at\":\"2026-10-07T08:59:09Z\",\"inputs\":[],\"integrity\":{\"sha256\":\"b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\"},\"kind\":\"fixture.numeric.split\",\"manifest_schema_version\":\"v3\",\"media_type\":\"application/json\",\"warnings\":[]}",
+      "data_sha256": "b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+      "manifest_sha256": "5156dc6f6a63c3410bbbb43239a2f69a3f6a732518a4a9ef869f1fe00012f697",
+      "data_bytes": 57,
+      "manifest_bytes": 547
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+        "kind": "fixture.numeric.scalarizer",
+        "media_type": "application/json"
+      },
+      "data_utf8": "{\"profile\":\"analytic-transfer-fixture.v1\",\"role\":\"scalarizer\"}",
+      "manifest_utf8": "{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"byte_size\":62,\"canon\":{\"ensure_ascii\":false,\"exclude_none\":true,\"forbid_floats\":true,\"forbid_nan_inf\":true,\"max_depth\":128,\"name\":\"polisyos.canon.json\",\"separators\":[\",\",\":\"],\"sort_keys\":true,\"version\":\"0.2.0\"},\"created_at\":\"2026-10-07T08:59:09Z\",\"inputs\":[],\"integrity\":{\"sha256\":\"435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\"},\"kind\":\"fixture.numeric.scalarizer\",\"manifest_schema_version\":\"v3\",\"media_type\":\"application/json\",\"warnings\":[]}",
+      "data_sha256": "435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+      "manifest_sha256": "32a3611b0e5510b13e80af1f3543384e4de60f64e0f3a72872fefe5efb6b7946",
+      "data_bytes": 62,
+      "manifest_bytes": 552
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+        "kind": "fixture.numeric.owner",
+        "media_type": "application/json"
+      },
+      "data_utf8": "{\"profile\":\"analytic-transfer-fixture.v1\",\"role\":\"owner\"}",
+      "manifest_utf8": "{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"byte_size\":57,\"canon\":{\"ensure_ascii\":false,\"exclude_none\":true,\"forbid_floats\":true,\"forbid_nan_inf\":true,\"max_depth\":128,\"name\":\"polisyos.canon.json\",\"separators\":[\",\",\":\"],\"sort_keys\":true,\"version\":\"0.2.0\"},\"created_at\":\"2026-10-07T08:59:09Z\",\"inputs\":[],\"integrity\":{\"sha256\":\"bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\"},\"kind\":\"fixture.numeric.owner\",\"manifest_schema_version\":\"v3\",\"media_type\":\"application/json\",\"warnings\":[]}",
+      "data_sha256": "bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+      "manifest_sha256": "524b1bc6a5e674240a543d44545ac4928a2c233c0587a17660093138984c8c8a",
+      "data_bytes": 57,
+      "manifest_bytes": 547
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0",
+        "kind": "search.candidate",
+        "media_type": "application/json"
+      },
+      "data_utf8": "{\"x\":{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}}",
+      "manifest_utf8": "{\"artifact_id\":\"sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0\",\"byte_size\":52,\"canon\":{\"ensure_ascii\":false,\"exclude_none\":true,\"forbid_floats\":false,\"forbid_nan_inf\":true,\"max_depth\":128,\"name\":\"polisyos.canon.json\",\"separators\":[\",\",\":\"],\"sort_keys\":true,\"version\":\"0.2.0\"},\"created_at\":\"2026-10-07T08:59:09Z\",\"inputs\":[],\"integrity\":{\"sha256\":\"a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0\"},\"kind\":\"search.candidate\",\"manifest_schema_version\":\"v3\",\"media_type\":\"application/json\",\"warnings\":[]}",
+      "data_sha256": "a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0",
+      "manifest_sha256": "8d9b0827e505bd4aaeaf9b0045010d8f78e7cac572e9b92a980fad0c31ab8d0d",
+      "data_bytes": 52,
+      "manifest_bytes": 543
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:c4d1a3ca621de83530440f70d9de73f0608768bdaaa07801a2893e24f8c64ea3",
+        "kind": "scientist.autotune.analytic.evaluation",
+        "manifest_profile_sha256": "sha256:92344e9441aca35237374b5de9474aa8ec1c94b1b4143d947d044faf9dda560f",
+        "media_type": "application/json"
+      },
+      "data_utf8": "{\"candidate_ref\":{\"artifact_id\":\"sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0\",\"kind\":\"search.candidate\",\"media_type\":\"application/json\"},\"guardrails\":{\"finite\":true},\"holdout_metrics\":{},\"loop_id\":\"analytic\",\"metadata\":{\"numeric_transfer_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"minimize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}},\"replica_id\":0,\"source_run_id\":\"source\"},\"notes\":[\"analytic fixture measurement\"],\"promotable\":false,\"runtime_split_type\":\"selection\",\"sample_counts\":{\"selection\":11},\"selection_metrics\":{\"score\":{\"_type\":\"float\",\"repr\":\"0.011344444444444445\"}},\"status\":\"ok\",\"suite_id\":\"measured-selection\",\"suite_version\":\"1.0\"}",
+      "manifest_utf8": "{\"artifact_id\":\"sha256:c4d1a3ca621de83530440f70d9de73f0608768bdaaa07801a2893e24f8c64ea3\",\"byte_size\":2231,\"canon\":{\"ensure_ascii\":false,\"exclude_none\":true,\"forbid_floats\":false,\"forbid_nan_inf\":true,\"max_depth\":128,\"name\":\"polisyos.canon.json\",\"separators\":[\",\",\":\"],\"sort_keys\":true,\"version\":\"0.2.0\"},\"created_at\":\"2026-10-07T08:59:09Z\",\"inputs\":[{\"artifact_id\":\"sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0\",\"role\":\"candidate\"}],\"integrity\":{\"sha256\":\"c4d1a3ca621de83530440f70d9de73f0608768bdaaa07801a2893e24f8c64ea3\"},\"kind\":\"scientist.autotune.analytic.evaluation\",\"manifest_schema_version\":\"v3\",\"media_type\":\"application/json\",\"producer\":{\"component\":\"polisyos.scientist.methods.autotune.benchmark_evaluator\",\"version\":\"1.0\"},\"schema\":{\"name\":\"polisyos.scientist.methods.autotune.BenchmarkEvaluation\",\"version\":\"1.0\"},\"warnings\":[]}",
+      "data_sha256": "c4d1a3ca621de83530440f70d9de73f0608768bdaaa07801a2893e24f8c64ea3",
+      "manifest_sha256": "5281ef0f411f74b1e687b6d8eea27f8255b488ba0218df7d1349400e218f01ad",
+      "data_bytes": 2231,
+      "manifest_bytes": 866
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a",
+        "kind": "search.candidate",
+        "media_type": "application/json"
+      },
+      "data_utf8": "{\"x\":{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}}",
+      "manifest_utf8": "{\"artifact_id\":\"sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a\",\"byte_size\":52,\"canon\":{\"ensure_ascii\":false,\"exclude_none\":true,\"forbid_floats\":false,\"forbid_nan_inf\":true,\"max_depth\":128,\"name\":\"polisyos.canon.json\",\"separators\":[\",\",\":\"],\"sort_keys\":true,\"version\":\"0.2.0\"},\"created_at\":\"2026-10-07T08:59:09Z\",\"inputs\":[],\"integrity\":{\"sha256\":\"39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a\"},\"kind\":\"search.candidate\",\"manifest_schema_version\":\"v3\",\"media_type\":\"application/json\",\"warnings\":[]}",
+      "data_sha256": "39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a",
+      "manifest_sha256": "f4779763fe70405b68f47ea76190afa68a16638f70de4e81f909d39b53e749ba",
+      "data_bytes": 52,
+      "manifest_bytes": 543
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:d170211a1ebb797480350f019068fb213acf8eb35ac2793b1c65baf043e085a0",
+        "kind": "scientist.autotune.analytic.evaluation",
+        "manifest_profile_sha256": "sha256:ff475bbf37de14fef1d7ed60b2b83f8693c02ea911d01ac32d4d614dacaab301",
+        "media_type": "application/json"
+      },
+      "data_utf8": "{\"candidate_ref\":{\"artifact_id\":\"sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a\",\"kind\":\"search.candidate\",\"media_type\":\"application/json\"},\"guardrails\":{\"finite\":true},\"holdout_metrics\":{},\"loop_id\":\"analytic\",\"metadata\":{\"numeric_transfer_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"minimize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}},\"replica_id\":1,\"source_run_id\":\"source\"},\"notes\":[\"analytic fixture measurement\"],\"promotable\":false,\"runtime_split_type\":\"selection\",\"sample_counts\":{\"selection\":11},\"selection_metrics\":{\"score\":{\"_type\":\"float\",\"repr\":\"0.098011111111111091\"}},\"status\":\"ok\",\"suite_id\":\"measured-selection\",\"suite_version\":\"1.0\"}",
+      "manifest_utf8": "{\"artifact_id\":\"sha256:d170211a1ebb797480350f019068fb213acf8eb35ac2793b1c65baf043e085a0\",\"byte_size\":2231,\"canon\":{\"ensure_ascii\":false,\"exclude_none\":true,\"forbid_floats\":false,\"forbid_nan_inf\":true,\"max_depth\":128,\"name\":\"polisyos.canon.json\",\"separators\":[\",\",\":\"],\"sort_keys\":true,\"version\":\"0.2.0\"},\"created_at\":\"2026-10-07T08:59:09Z\",\"inputs\":[{\"artifact_id\":\"sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a\",\"role\":\"candidate\"}],\"integrity\":{\"sha256\":\"d170211a1ebb797480350f019068fb213acf8eb35ac2793b1c65baf043e085a0\"},\"kind\":\"scientist.autotune.analytic.evaluation\",\"manifest_schema_version\":\"v3\",\"media_type\":\"application/json\",\"producer\":{\"component\":\"polisyos.scientist.methods.autotune.benchmark_evaluator\",\"version\":\"1.0\"},\"schema\":{\"name\":\"polisyos.scientist.methods.autotune.BenchmarkEvaluation\",\"version\":\"1.0\"},\"warnings\":[]}",
+      "data_sha256": "d170211a1ebb797480350f019068fb213acf8eb35ac2793b1c65baf043e085a0",
+      "manifest_sha256": "85d26e9b2bb3fc4a2b025413922ba25ad5b1323055ede73726792f91478ddd4e",
+      "data_bytes": 2231,
+      "manifest_bytes": 866
+    }
+  ],
+  "omitted_reproducible_inputs": "1001 repeated donor history snapshots, native index binary and full1002 composite metadata are generated by exact test recipe. The actual composite blob is then overwritten by the declared tamper negative; its pre-tamper digest/readback is in complete JUnit and fresh-child receipt. No full derived CAS dump committed."
+}

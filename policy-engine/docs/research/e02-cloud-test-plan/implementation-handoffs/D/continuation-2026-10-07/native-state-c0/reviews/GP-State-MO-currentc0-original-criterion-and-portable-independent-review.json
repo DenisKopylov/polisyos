@@ -1,0 +1,596 @@
+{
+  "schema_version": "e02-D.independent-original-criterion-runtime-review.v1",
+  "reviewer": "census_oct07",
+  "author": "gp_oct07",
+  "handoff": {
+    "path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/GP-State-MO-currentc0-handoff.json",
+    "sha256": "e4e5fb03aa51c4ce9a5d7174b39f4ebc774026e983c6d91e82b0eb8869057025"
+  },
+  "source": {
+    "sha": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+    "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+    "actual_execution_clean_before_after": true
+  },
+  "verdict": "GO_SIX_BOUNDED_ORIGINAL_PROPOSALS",
+  "finding_proposals": [
+    "B112",
+    "B113",
+    "B114",
+    "B115",
+    "B125",
+    "B126"
+  ],
+  "original_occurrences": [
+    {
+      "original_occurrence": {
+        "id": "B112@OPT-02",
+        "finding_id": "B112",
+        "criterion_card": "OPT-02",
+        "canonical_closure_owner": "OPT-02",
+        "role": "canonical_owner",
+        "original_fragment": {
+          "document_key": "B_r19",
+          "lines": [
+            2955,
+            2968
+          ],
+          "byte_offset": 663194,
+          "bytes": 3667,
+          "sha256": "ebcbfcc121108068640bc1d871fd4f596f6fdd3c0e6c54203025810562dea15f"
+        },
+        "canonical_content": {
+          "text": "**Приёмка и предел.** Первый suggest при выбранном штатном SearchSpace проходит без ручного monkeypatch; категории/лог-шкалы round-trip; отсутствие optional stack честно различено. Не следует принимать fixture-контроль за доказательство работы реального Bayesian backend. Эта карточка о стыке, не об отсутствии оптимизатора в проекте.",
+          "byte_offset": 666318,
+          "bytes": 541,
+          "sha256": "346a175ccdf5884dc409464a2363ff08bee370b2e406d2aa45a103abcedf7234"
+        },
+        "original_acceptance_binding": {
+          "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+          "criterion_occurrence_id": "B112@OPT-02",
+          "canonical_card": {
+            "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-02.md",
+            "bytes": 16968,
+            "sha256": "4e56f98d11b39bec14b9ddca221f8ccae2042bae3e4f41831be9caa309f7be2f"
+          }
+        }
+      },
+      "new_exact_source": {
+        "sha": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+        "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2"
+      },
+      "runtime_contribution": "Ordinary configured SearchController → existing configured transfer bridge → real CAS8 → first actual SingleTaskGP proposal, initial fit1. Current category/log physical coordinate codecs and absent optional stack profile separately verified. Instrumentation delegates real backend; no manual consumer repair.",
+      "conditional_closed_proposal": true,
+      "residual": "Formal G acceptance not established. No remaining own ordinary mechanism/consumer defect in supported declared profile; independent scientific/authority/history capabilities remain separate owner inputs, not criterion substitutes.",
+      "formal_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "original_occurrence": {
+        "id": "B113@OPT-02",
+        "finding_id": "B113",
+        "criterion_card": "OPT-02",
+        "canonical_closure_owner": "OPT-02",
+        "role": "canonical_owner",
+        "original_fragment": {
+          "document_key": "B_r19",
+          "lines": [
+            2969,
+            2982
+          ],
+          "byte_offset": 666861,
+          "bytes": 3671,
+          "sha256": "1bd3fb58eb1fd1fbdc00d8a88c085a3c60b33ee11fab6f5e8c8c80c1c5d17115"
+        },
+        "canonical_content": {
+          "text": "**Приёмка.** Разные физические параметры дают разные ожидаемые координаты; категориальные размеры корректны; полные IDs переживают сериализацию; отсутствие результата не становится нулём. Проверить оба формата истории и фактический caller. Измерение реального качества GP и конкретное downstream-стирание записи по короткому ID не выполнялись; показана потеря информации на самом adapter.",
+          "byte_offset": 669842,
+          "bytes": 688,
+          "sha256": "a58659486c95650eb9a6228a8df62809daede33c44d147794b7f4e78d7ed7624"
+        },
+        "original_acceptance_binding": {
+          "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+          "criterion_occurrence_id": "B113@OPT-02",
+          "canonical_card": {
+            "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-02.md",
+            "bytes": 16968,
+            "sha256": "4e56f98d11b39bec14b9ddca221f8ccae2042bae3e4f41831be9caa309f7be2f"
+          }
+        }
+      },
+      "new_exact_source": {
+        "sha": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+        "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2"
+      },
+      "runtime_contribution": "New min/max mixed2 SearchIteration +2 dict history → actual public BayesianCandidateGenerator.generate → native trainX/Y/full IDs/split/origin/direction → whole wrapper CAS/fresh reader restore0/next public generate no-refit; physical/category codecs and unmeasured exclusion current State142/GP43. Existing direct _fit_gp2 selectors are retained separately, not misattributed to generate.",
+      "conditional_closed_proposal": true,
+      "residual": "Formal G acceptance not established. No remaining own ordinary mechanism/consumer defect in supported declared profile; independent scientific/authority/history capabilities remain separate owner inputs, not criterion substitutes.",
+      "formal_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "original_occurrence": {
+        "id": "B114@OPT-03",
+        "finding_id": "B114",
+        "criterion_card": "OPT-03",
+        "canonical_closure_owner": "OPT-03",
+        "role": "canonical_owner",
+        "original_fragment": {
+          "document_key": "B_r19",
+          "lines": [
+            2983,
+            2996
+          ],
+          "byte_offset": 670532,
+          "bytes": 3409,
+          "sha256": "751ea1f4c2439927f429abb7d2be1bd0c15d45fd802529085431f219337fd766"
+        },
+        "canonical_content": {
+          "text": "**Приёмка.** Один и тот же пригодный корпус, переданный целиком или через warm-start + новую часть, даёт согласованную обучающую выборку и план; отклонённые записи не исчезают без причины; идентичные артефакты не удваивают sample-count; намеренные независимые повторы остаются отдельными.",
+          "byte_offset": 673433,
+          "bytes": 506,
+          "sha256": "b2eab2dd0f76dd6fe89611272edc500c3b3d5e0ef5fa5857251aa73944c096b3"
+        },
+        "original_acceptance_binding": {
+          "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+          "criterion_occurrence_id": "B114@OPT-03",
+          "canonical_card": {
+            "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-03.md",
+            "bytes": 12239,
+            "sha256": "0bb18c83c79a6a8094af1cc3c22421a488e72520e6c7abd79d724a4f38ff037b"
+          }
+        }
+      },
+      "new_exact_source": {
+        "sha": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+        "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2"
+      },
+      "runtime_contribution": "Same effective10-row corpus whole versus8 warm+2 new → equal actual training/fullcov/native plan; full origin duplicate removed only for same artifact, explicit independent replicas retained. Rejected nan/hugeint/bool/missingorigin/coordinate/basis records have explicit current reasons; report removal after real warm_start retains corpus and produces3FAIL. Real configured CAS8 plus changed-ref/basis/direction/false-outcome negatives before fit.",
+      "conditional_closed_proposal": true,
+      "residual": "Formal G acceptance not established. No remaining own ordinary mechanism/consumer defect in supported declared profile; independent scientific/authority/history capabilities remain separate owner inputs, not criterion substitutes.",
+      "formal_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "original_occurrence": {
+        "id": "B115@OPT-03",
+        "finding_id": "B115",
+        "criterion_card": "OPT-03",
+        "canonical_closure_owner": "OPT-03",
+        "role": "canonical_owner",
+        "original_fragment": {
+          "document_key": "B_r19",
+          "lines": [
+            2997,
+            3010
+          ],
+          "byte_offset": 673941,
+          "bytes": 3548,
+          "sha256": "4d5afea998b22ec18956bf039ae38fd1751fe457a8994ce87161fa2fdac20872"
+        },
+        "canonical_content": {
+          "text": "**Приёмка.** Проверить на настоящем SingleTaskGP сохранение learned parameters между разрешёнными refit, использование новых наблюдений, правильные transforms и version/shape; смена basis не маскируется повторным использованием. Замерить затраты отдельно от качества. Fixture theta не является найденным конкретным параметром настоящей модели.",
+          "byte_offset": 676923,
+          "bytes": 564,
+          "sha256": "60c5a8366edbd7193eafd15fb6c048061373a4dac4502e54b328c78b75225156"
+        },
+        "original_acceptance_binding": {
+          "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+          "criterion_occurrence_id": "B115@OPT-03",
+          "canonical_card": {
+            "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-03.md",
+            "bytes": 12239,
+            "sha256": "0bb18c83c79a6a8094af1cc3c22421a488e72520e6c7abd79d724a4f38ff037b"
+          }
+        }
+      },
+      "new_exact_source": {
+        "sha": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+        "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2"
+      },
+      "runtime_contribution": "Actual SingleTaskGP fitted mean/kernel/noise/transforms/modelweights/RNG/corpus restored; independent original-unit10/11-point mean/fullcov; same-basis restore/append0 MLL, initial1/due or basischange>0. Marker-preserving fitted-state mutation/removal refuses or changes numerical result. Individual observed MLL walltime plus scope RSS/wall recorded separately from numerical error, no fixture theta treated as learned parameter.",
+      "conditional_closed_proposal": true,
+      "residual": "Formal G acceptance not established. No remaining own ordinary mechanism/consumer defect in supported declared profile; independent scientific/authority/history capabilities remain separate owner inputs, not criterion substitutes.",
+      "formal_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "original_occurrence": {
+        "id": "B125@CTL-02",
+        "finding_id": "B125",
+        "criterion_card": "CTL-02",
+        "canonical_closure_owner": "CTL-02",
+        "role": "canonical_owner",
+        "original_fragment": {
+          "document_key": "B_r19",
+          "lines": [
+            3264,
+            3277
+          ],
+          "byte_offset": 738182,
+          "bytes": 3186,
+          "sha256": "da6f01affaab6b25e26af7613845243eeafc15f0041b3374d39ce18adbe7721b"
+        },
+        "canonical_content": {
+          "text": "**Приёмка.** Полный persisted round-trip каждого поддерживаемого strategy-state, а не только `get_state/set_state` в одной памяти. Восстановленная следующая последовательность совпадает; повреждённое/чужое состояние не принимается; случайный поток независимой реплики остаётся независимым.",
+          "byte_offset": 740880,
+          "bytes": 486,
+          "sha256": "0a36083564c7d95755126ca040b59efa5abd004855ffbaa995399a6915d6217d"
+        },
+        "original_acceptance_binding": {
+          "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+          "criterion_occurrence_id": "B125@CTL-02",
+          "canonical_card": {
+            "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-02.md",
+            "bytes": 16456,
+            "sha256": "e84619189496527f0f6cc2d75d395ef17279dea27112c8b6669f99a8579a1197"
+          }
+        }
+      },
+      "new_exact_source": {
+        "sha": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+        "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2"
+      },
+      "runtime_contribution": "Complete original supported strategy inventory6 families, every supported persisted profile → fresh reader/next sequence/corruptforeign refusal/independent replica exercised in GP43/State142/MO88. Own Grid/MO ordinary serialization/corpus/profile/failure-boundary defects fixed and tested; missing optional native backend UNRUN.",
+      "conditional_closed_proposal": true,
+      "residual": "Formal G acceptance not established. No remaining own ordinary mechanism/consumer defect in supported declared profile; independent scientific/authority/history capabilities remain separate owner inputs, not criterion substitutes.",
+      "formal_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "original_occurrence": {
+        "id": "B126@CTL-02",
+        "finding_id": "B126",
+        "criterion_card": "CTL-02",
+        "canonical_closure_owner": "CTL-02",
+        "role": "canonical_owner",
+        "original_fragment": {
+          "document_key": "B_r19",
+          "lines": [
+            3278,
+            3291
+          ],
+          "byte_offset": 741368,
+          "bytes": 3791,
+          "sha256": "f05138039bb68e205dc185417722e7c5113d18276733c1e4f91577e83476e16d"
+        },
+        "canonical_content": {
+          "text": "**Приёмка.** Одинаковый логический индекс после 1+1+… и пакетной подготовки, до/после checkpoint и при чтении уже известной точки. Без смены объявленного algorithm-version исходное исследование не меняется из-за способа заполнения кэша.",
+          "byte_offset": 744753,
+          "bytes": 404,
+          "sha256": "0054a0cfb74b77d2cfa02a6671ed1ee829854b1a9cf1cbadb05537ffa85ef532"
+        },
+        "original_acceptance_binding": {
+          "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+          "criterion_occurrence_id": "B126@CTL-02",
+          "canonical_card": {
+            "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-02.md",
+            "bytes": 16456,
+            "sha256": "e84619189496527f0f6cc2d75d395ef17279dea27112c8b6669f99a8579a1197"
+          }
+        }
+      },
+      "new_exact_source": {
+        "sha": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+        "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2"
+      },
+      "runtime_contribution": "Current Spacecodec12 and actual Random/RL/Base cache/codec state verify batch versus incremental Sobol at same logical index, checkpoint and reading known point, under unchanged declared algorithm-version.",
+      "conditional_closed_proposal": true,
+      "residual": "Formal G acceptance not established. No remaining own ordinary mechanism/consumer defect in supported declared profile; independent scientific/authority/history capabilities remain separate owner inputs, not criterion substitutes.",
+      "formal_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "original_occurrence": {
+        "id": "B127@OPT-02",
+        "finding_id": "B127",
+        "criterion_card": "OPT-02",
+        "canonical_closure_owner": "OPT-02",
+        "role": "canonical_owner",
+        "original_fragment": {
+          "document_key": "B_r19",
+          "lines": [
+            3292,
+            3305
+          ],
+          "byte_offset": 745159,
+          "bytes": 3837,
+          "sha256": "ae9f5e873bb33019cfd9524bd407a26c8aa7a5ec84cd2af79a6f2e497427cc70"
+        },
+        "canonical_content": {
+          "text": "**Приёмка.** Бинарные, integer, categorical и continuous параметры; две разные relaxed-точки с одним эффективным действием; разрешённые независимые реплики; исчерпанное конечное пространство. Проверить фактический адаптер Evaluation и pending/completed-учёт: upstream-канонизация может уже защищать отдельный путь, чего этот локальный опыт не устанавливает.",
+          "byte_offset": 748404,
+          "bytes": 590,
+          "sha256": "0cb92c67b7ad455eb8cbb3bba8a88d7297d3ba6dd2e8ec6284edc152f670ac06"
+        },
+        "original_acceptance_binding": {
+          "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+          "criterion_occurrence_id": "B127@OPT-02",
+          "canonical_card": {
+            "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-02.md",
+            "bytes": 16968,
+            "sha256": "4e56f98d11b39bec14b9ddca221f8ccae2042bae3e4f41831be9caa309f7be2f"
+          }
+        }
+      },
+      "new_exact_source": {
+        "sha": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+        "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2"
+      },
+      "runtime_contribution": "Current public Grid adapter last partial point retained, then exhausted empty → fresh CAS cursor4/scalar exhaustion; invalid counts atomically refused. Full original binary/int/category/two-relaxed/effective pending/completed supplement is Service-owned current targeted scope and is not inferred here.",
+      "conditional_closed_proposal": false,
+      "residual": "Formal G acceptance not established. Service B127 full effective-action supplement / TRN01 defining receipts required for clauses outside this numerical/state contribution.",
+      "formal_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "original_occurrence": {
+        "id": "B128@TRN-01",
+        "finding_id": "B128",
+        "criterion_card": "TRN-01",
+        "canonical_closure_owner": "TRN-01",
+        "role": "canonical_owner",
+        "original_fragment": {
+          "document_key": "B_r19",
+          "lines": [
+            3417,
+            3430
+          ],
+          "byte_offset": 773355,
+          "bytes": 4127,
+          "sha256": "af4e4b72706ecdef581727483780ed33bff190d295add23a9813ed7b903ffb2b"
+        },
+        "canonical_content": {
+          "text": "**Приёмка:** реальный сохранённый Evaluation проходит существующий мост без ручного monkeypatch; несовместимая запись различается с действительно пустой историей; количество принятых, отклонённых и недоступных записей согласовано. Конструктор нельзя исправлять отдельно от B130–B132: сейчас эта ошибка маскирует последующие дефекты отбора и смысла.",
+          "byte_offset": 776394,
+          "bytes": 619,
+          "sha256": "549b289852eaabc2275c031208657ce535c20cdd971105ff0e452e5f6662e5d7"
+        },
+        "original_acceptance_binding": {
+          "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+          "criterion_occurrence_id": "B128@TRN-01",
+          "canonical_card": {
+            "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+            "bytes": 21441,
+            "sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5"
+          }
+        }
+      },
+      "new_exact_source": {
+        "sha": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+        "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2"
+      },
+      "runtime_contribution": "Current ordinary SearchConfig.transfer_manager → configured existing bridge →8 stored original Evaluation CAS → real GP fit; empty/incompatible/unavailable admission separately classified. Broad TRN01 canonical accounting is separate transfer receipt.",
+      "conditional_closed_proposal": false,
+      "residual": "Formal G acceptance not established. Service B127 full effective-action supplement / TRN01 defining receipts required for clauses outside this numerical/state contribution.",
+      "formal_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "original_occurrence": {
+        "id": "B130@TRN-01",
+        "finding_id": "B130",
+        "criterion_card": "TRN-01",
+        "canonical_closure_owner": "TRN-01",
+        "role": "canonical_owner",
+        "original_fragment": {
+          "document_key": "B_r19",
+          "lines": [
+            3445,
+            3458
+          ],
+          "byte_offset": 781465,
+          "bytes": 3702,
+          "sha256": "9f18f5b71de39a4ca820a167f74bf206775f04050db33327aa6ccd6525dca4e7"
+        },
+        "canonical_content": {
+          "text": "**Приёмка:** минимум и максимум исходных целей после нормализации приводят к правильному порядку; полные равенства не создают ложных различий; ограничение объёма не превышается, а свободная квота заполняется согласно объявленной политике. Миграция старого корпуса должна установить значение scalar, не угадывать его по имени.",
+          "byte_offset": 784342,
+          "bytes": 593,
+          "sha256": "b70b31214ee588708f1536a62ef11dd85932c5bedf2e99e7b2d6320815ecabf3"
+        },
+        "original_acceptance_binding": {
+          "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+          "criterion_occurrence_id": "B130@TRN-01",
+          "canonical_card": {
+            "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+            "bytes": 21441,
+            "sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5"
+          }
+        }
+      },
+      "new_exact_source": {
+        "sha": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+        "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2"
+      },
+      "runtime_contribution": "Current actual CAS direction/history preservation and bounded GP training selection; original quota/diversity/migration scalar law must bind TRN01 own defining output, not whole closure from GP fit.",
+      "conditional_closed_proposal": false,
+      "residual": "Formal G acceptance not established. Service B127 full effective-action supplement / TRN01 defining receipts required for clauses outside this numerical/state contribution.",
+      "formal_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "original_occurrence": {
+        "id": "B132@TRN-01",
+        "finding_id": "B132",
+        "criterion_card": "TRN-01",
+        "canonical_closure_owner": "TRN-01",
+        "role": "canonical_owner",
+        "original_fragment": {
+          "document_key": "B_r19",
+          "lines": [
+            3473,
+            3486
+          ],
+          "byte_offset": 789246,
+          "bytes": 3673,
+          "sha256": "53d130ee4cb74e9043c80076be6e6c123789c8d6d9de51e7105c1901f1243894"
+        },
+        "canonical_content": {
+          "text": "**Приёмка:** разные кандидаты сохраняют разные настоящие ссылки; координаты не попадают в метрики; direction round-trip не меняет смысл; отсутствующий holdout остаётся отсутствующим; nonpromotable продолжает действовать. Прежние placeholder-записи не повышать автоматически при миграции.",
+          "byte_offset": 791900,
+          "bytes": 482,
+          "sha256": "5833cd83c20ce8f2a897ab4c13b475daaabcfa4adec33cb2a1376fcba78c4fcb"
+        },
+        "original_acceptance_binding": {
+          "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+          "criterion_occurrence_id": "B132@TRN-01",
+          "canonical_card": {
+            "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+            "bytes": 21441,
+            "sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5"
+          }
+        }
+      },
+      "new_exact_source": {
+        "sha": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+        "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2"
+      },
+      "runtime_contribution": "Different exact parameter/evaluation references and full basis reach actual CAS/configured consumer; changed-ref/basis/direction/false-outcome refuse, absent holdout/nonpromotable preserved by explicit CAS workflow. Broader TRN01 defining output remains canonical transfer owner receipt.",
+      "conditional_closed_proposal": false,
+      "residual": "Formal G acceptance not established. Service B127 full effective-action supplement / TRN01 defining receipts required for clauses outside this numerical/state contribution.",
+      "formal_closed": false,
+      "accepted_in_G": false
+    }
+  ],
+  "check_results": [
+    {
+      "scope": "native_GP43",
+      "root": "/dev/shm/e02-D-gp-finalc0e03-cprmrxl6",
+      "counts": {
+        "testcases": 43,
+        "PASS": 43,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "JUnit_sha256": "f681b683b5e8c7729fcbef8a3e7cea6710db465c41d593e80db2d50b60431005"
+    },
+    {
+      "scope": "native_state142",
+      "root": "/dev/shm/e02-D-state-finalc0e03-ld3_a0ve",
+      "counts": {
+        "testcases": 142,
+        "PASS": 142,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "JUnit_sha256": "79a6508e5bea96a1d1d869e1f3891117385750c3ec53fd9499d56177494a2736"
+    },
+    {
+      "scope": "native_MO88",
+      "root": "/dev/shm/e02-D-MO-finalc0e03-8qs2polc",
+      "counts": {
+        "testcases": 88,
+        "PASS": 88,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "JUnit_sha256": "1d9b0b14326ba300dd7ca00b5a26e963ecca5cbbc48fb89bcebd69b9b3e9a201"
+    },
+    {
+      "scope": "minimal_supported55_numeric15UNRUN",
+      "root": "/dev/shm/e02-D-minimal-finalc0e03-plcwwjvr",
+      "counts": {
+        "testcases": 70,
+        "PASS": 55,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 15
+      },
+      "JUnit_sha256": "a08e67277c0a529ab6f10c43c9cdbf72768aba18e2b13d0f356640c117a35f6f"
+    },
+    {
+      "scope": "minimal_warm_reports3",
+      "root": "/dev/shm/e02-D-warm-minimal-c0-n20ov9rh",
+      "counts": {
+        "testcases": 3,
+        "PASS": 3,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "JUnit_sha256": "b0ca41e2fd97b4d5a066a84cae731a3e1244ecb472e4d019c85c2cfb0a043767"
+    },
+    {
+      "scope": "minimal_report_removal3FAIL",
+      "root": "/dev/shm/e02-D-warm-remove-report-c0-axnnj4xk",
+      "counts": {
+        "testcases": 3,
+        "PASS": 0,
+        "FAIL": 3,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "JUnit_sha256": "cdc7be459cc0f4614282e84d97d614f3d73a05ad3358f86e1ec8ce7e995aa393"
+    }
+  ],
+  "source_binding_count_verified": 56,
+  "complete_deciding_output": {
+    "path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/GP-State-MO-currentc0-complete-deciding-output.json.gz",
+    "sha256": "b27a7d8c0e3dafeead5eb72fbe7da4493f6e7350b5bec7279ebc74268c57b268",
+    "compressed_bytes": 1917812,
+    "includes": "Completeargv/stdout/stderr/JUnit/phases/runtime/origins/sourcebeforeafter/allnativefitstates/rawartifacts/CAS8snapshot/minimal/removal/modulebudget/independentreviews/minimumpositiveCASfixtures; no trackedsource copies/productiondata."
+  },
+  "portable_content_identity": {
+    "unique_UTF8_contents": 167,
+    "complete_file_records": 110,
+    "bounded_original_CAS_records": 129,
+    "all_record_hashes_readback_verified": true
+  },
+  "runtime_evidence": [
+    "Exact current c0 full6312before/after source/test/config input hashes unchanged, clean original execution/source stable; collection/call/teardown phases and JUnit match each separate cohort. Later workingtree changes do not relabel tested source.",
+    "Real Bo0.16.1/GP1.15.1/Torch2.10.0+cu128 CPU operations executed:22 SingleTaskGP fit returns GP,3 NN/state,10 ModelListGP MO; no mocked positive model and no GP numerical PASS from minimal missing backend.",
+    "B112 native ordinary configured controller/bridge/CAS8 first acquisition and actual category/log codecs; B113 actual public generate accepts two history formats min/max fullphysical/fullIDs/absentmeasurement, CASfresh wrapper resume/next actual native plan.",
+    "B114 whole10 vs warm8+new2 native equal corpus/fitted basis/next plan; current duplicate actual same origin/replica removed but explicit independent replica at same coordinate retained (test_bayesian.py198-321). Rejected rows have current report reasons; current report-removal3 actual FAIL.",
+    "B115 actual fitted mean/kernel/likelihood/noise/transforms/fullweights/corpus/basis/RNG restoration and real conditioning; initial1/resume-noop-append0/due or basischange>0 current real MLL assertions. Independent Math direct NumPy dense solve reads exact saved artifacts10/11 and MO8 rows without production posterior oracle; max fullcov/mean discrepancy <=2.85e-14. Cost wall/RSS recorded separately from prediction error.",
+    "B125 full six concrete strategy families current declared supported checkpoint profiles: Bayesian/Neural/MO/Random/Grid/RL persisted artifacts/CASfresh next sequence, unknown/corrupt/foreign profile controlled refusal and separate replica RNG. Underlying fresh GP wrapper CAS and MO actualCAS avoid only same-memory claim. Unsupported customRL schedule/crossversion explicit recipe, not silently renamed supported.",
+    "B126 actual unchanged Sobol version logical index under incremental/batch/cache-prefix/checkpoint/fresh lookup verified current space/RL/Base consumers.",
+    "B127 full binary/int/category/two relaxed same execution/actual Evaluation pending-completed supplementary receipt is not inferred from these cohorts; TRN128/130/132 broader original scope uses separate independently reviewed transfer packet."
+  ],
+  "independent_math_current_oracle_review": {
+    "path": "/tmp/e02-D-math-oct07-drafts/GP-MO-State-currentc0-independent-runtime-review.json",
+    "sha256": "07ed014e3b0404cf0112df7f535fd89da9cc216785401e2b3b4bf27ed545441a"
+  },
+  "limitations": [
+    "Formal finding/G acceptance separate from checkPASS; G decides integrationfreeze/replay.",
+    "Synthetic declared analytic/CASfixtures establish mechanism/numericalcontinuation, not production evaluator/history truth or tenantreuse authority.",
+    "Exact current CPU/sequential Normalize/Standardize supported profile; no concurrent-threadTorchRNG/GPU/custom-transform/cross-version guarantees.",
+    "Pinned Bo0.16.1 SingleTaskGP calls Standardize.train; identical ordinary rawY recomputes stats before strict fittedweights/corpus reconcile; custom non-corpus-derived transforms unsupported.",
+    "Minimal15 numericSKIP→UNRUN;55+warm3 ordinary PASS does not prove GP.",
+    "Unchanged production runtime.py defaultthreads4 applies(5before/4after); author/harness introducednone. Before SCIENTIST_* environment uncaptured, no retrospectiveabsenceclaim.",
+    "Actual MLLwall/RSS measured separately from numerical error; no broadperformance or productionhistory advantage claim.",
+    "Globalmodulebudget82 diagnostics preserved; no ownrelateddiagnostic, sparse unrelatedops/docs unavailable, no inherited-red attribution."
+  ],
+  "P37": "Actual declared producer→exactCASartifact→existingconfiguredbridge→publicnative consumer/freshrestore. Complete6312 executableinputs unchanged; actual phases and22+3+10nativeMLLreturns. Declared fixture does not appoint issuer law/authority.",
+  "P38": "State/markers alone do not pass mutations; nativeposterior onlymeasuredside versus independent NumPy; trace/mock backend never numericPASS; report-removal3FAIL and rehashed semantic checkpoint refusals discriminate.",
+  "P41": {
+    "provenance": "not_established",
+    "inherited_red_claim": false,
+    "reason": "No exact slice-base modulebudget replay+completeinput zero-overlap. Global82 diagnostics retained, ownMO belowwarning."
+  },
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "no_generic_G_pending_disposition": true
+}

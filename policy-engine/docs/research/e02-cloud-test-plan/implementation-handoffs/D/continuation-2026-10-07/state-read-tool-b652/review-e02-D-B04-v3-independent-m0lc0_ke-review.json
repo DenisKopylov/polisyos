@@ -1,0 +1,250 @@
+{
+  "schema": "D.e02.B04-independent-production-v3-review.v1",
+  "reviewer": "/root/math_oct07",
+  "author": "/root/gp_oct07",
+  "source_base": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "patch_path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/B04-existing-spec-and-read-receipt-a7.v3.patch",
+  "patch_sha256": "b33c0adbb5d7a068af0c727cc61aa10703bd55c393f2cf3df33d70dcb4a06370",
+  "full_source_sha256": "b8aac38b9dd330da8e09891e7a40fe1fbbd3deee4850fa6f22446ba826c6d558",
+  "review_result": "GO bounded same-mechanism AST and actual explicit-read receipt repair; source/public caller acceptance still requires owner/Census complete18 tests and repository run",
+  "actual_independent_caller_probes": [
+    {
+      "name": "annotated_unknown",
+      "actual_exit_code": 2,
+      "expected": 2,
+      "actual_measurement": {
+        "complete_verdict": false,
+        "enumeration": "Git tracked paths; complete filesystem set only for non-Git fixtures",
+        "exclusions": [
+          "__init__.py",
+          "errors.py",
+          "state_keys.py"
+        ],
+        "finding_coverage": "explicit file-reader operations only",
+        "inputs": [
+          {
+            "characters": 100,
+            "encoding": "utf-8",
+            "operation": "read_text",
+            "path": "src/polisyos/scientist/nodes/builtins/example.py",
+            "status": "read",
+            "text_sha256": "00595699a992b3c8d4ae2c9d2d89ffd06d12a5250fba705a73580c153a2b1cee"
+          }
+        ],
+        "selected_input_denominator": 1,
+        "selected_paths": [
+          "/tmp/e02-D-B04-v3-independent-m0lc0_ke/annotated_unknown/src/polisyos/scientist/nodes/builtins/example.py"
+        ],
+        "selector": [
+          "src/polisyos/scientist/nodes/builtins/**/*.py",
+          "src/polisyos/scientist/engine/builtins/**/*.py"
+        ],
+        "unresolved_by_construction": [
+          "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt.",
+          "Only direct state-name reads in sync/async execute and Assign/AnnAssign unqualified _SPEC calls to NodeSpec/OutputAwareNodeSpec are interpreted; aliases, indirect reads, runtime dispatch and files outside the declared selector are undecided."
+        ],
+        "unresolved_inputs": [
+          {
+            "path": "/tmp/e02-D-B04-v3-independent-m0lc0_ke/annotated_unknown/src/polisyos/scientist/nodes/builtins/example.py",
+            "reason": "unsupported_spec_constructor"
+          }
+        ],
+        "verdict": "UNRUN"
+      },
+      "stdout_sha256": "424db0f29145d99c2ea9a1d436b21f46f820711b9b14e359aa997c00cbc0e6cb",
+      "fixture_sha256": "00595699a992b3c8d4ae2c9d2d89ffd06d12a5250fba705a73580c153a2b1cee"
+    },
+    {
+      "name": "async_missing",
+      "actual_exit_code": 1,
+      "expected": 1,
+      "actual_measurement": {
+        "complete_verdict": true,
+        "enumeration": "Git tracked paths; complete filesystem set only for non-Git fixtures",
+        "exclusions": [
+          "__init__.py",
+          "errors.py",
+          "state_keys.py"
+        ],
+        "finding_coverage": "explicit file-reader operations only",
+        "inputs": [
+          {
+            "characters": 112,
+            "encoding": "utf-8",
+            "operation": "read_text",
+            "path": "src/polisyos/scientist/nodes/builtins/example.py",
+            "status": "read",
+            "text_sha256": "253514d5e08114ff374f4d21b6176eaafb29a95f9c13e49ae49500ab127f640c"
+          }
+        ],
+        "selected_input_denominator": 1,
+        "selected_paths": [
+          "/tmp/e02-D-B04-v3-independent-m0lc0_ke/async_missing/src/polisyos/scientist/nodes/builtins/example.py"
+        ],
+        "selector": [
+          "src/polisyos/scientist/nodes/builtins/**/*.py",
+          "src/polisyos/scientist/engine/builtins/**/*.py"
+        ],
+        "unresolved_by_construction": [
+          "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt.",
+          "Only direct state-name reads in sync/async execute and Assign/AnnAssign unqualified _SPEC calls to NodeSpec/OutputAwareNodeSpec are interpreted; aliases, indirect reads, runtime dispatch and files outside the declared selector are undecided."
+        ],
+        "unresolved_inputs": [],
+        "verdict": "FAIL"
+      },
+      "stdout_sha256": "a05cb8a64109f8733cd32952b26a4f5e2afcc1e0df9f0ed883fa718ee37dd83d",
+      "fixture_sha256": "253514d5e08114ff374f4d21b6176eaafb29a95f9c13e49ae49500ab127f640c"
+    },
+    {
+      "name": "annotated_async_known_positive",
+      "actual_exit_code": 0,
+      "expected": 0,
+      "actual_measurement": {
+        "complete_verdict": true,
+        "enumeration": "Git tracked paths; complete filesystem set only for non-Git fixtures",
+        "exclusions": [
+          "__init__.py",
+          "errors.py",
+          "state_keys.py"
+        ],
+        "finding_coverage": "explicit file-reader operations only",
+        "inputs": [
+          {
+            "characters": 149,
+            "encoding": "utf-8",
+            "operation": "read_text",
+            "path": "src/polisyos/scientist/nodes/builtins/example.py",
+            "status": "read",
+            "text_sha256": "40c368b727582ac820d080c937a69b6f7b7771d62d0c143b63504707795579da"
+          }
+        ],
+        "selected_input_denominator": 1,
+        "selected_paths": [
+          "/tmp/e02-D-B04-v3-independent-m0lc0_ke/annotated_async_known_positive/src/polisyos/scientist/nodes/builtins/example.py"
+        ],
+        "selector": [
+          "src/polisyos/scientist/nodes/builtins/**/*.py",
+          "src/polisyos/scientist/engine/builtins/**/*.py"
+        ],
+        "unresolved_by_construction": [
+          "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt.",
+          "Only direct state-name reads in sync/async execute and Assign/AnnAssign unqualified _SPEC calls to NodeSpec/OutputAwareNodeSpec are interpreted; aliases, indirect reads, runtime dispatch and files outside the declared selector are undecided."
+        ],
+        "unresolved_inputs": [],
+        "verdict": "PASS"
+      },
+      "stdout_sha256": "4dd429f41703d039cc497d831d8eaf10cde3f74d0edf3d1a2145ccf1a7b59cca",
+      "fixture_sha256": "40c368b727582ac820d080c937a69b6f7b7771d62d0c143b63504707795579da"
+    },
+    {
+      "name": "literal_expression_unavailable",
+      "actual_exit_code": 2,
+      "expected": 2,
+      "actual_measurement": {
+        "complete_verdict": false,
+        "enumeration": "Git tracked paths; complete filesystem set only for non-Git fixtures",
+        "exclusions": [
+          "__init__.py",
+          "errors.py",
+          "state_keys.py"
+        ],
+        "finding_coverage": "explicit file-reader operations only",
+        "inputs": [
+          {
+            "characters": 117,
+            "encoding": "utf-8",
+            "operation": "read_text",
+            "path": "src/polisyos/scientist/nodes/builtins/example.py",
+            "status": "read",
+            "text_sha256": "e07290b983c5d9ef2fc3e2e5c050fb7754ecf0bb5d176d589696fb212c505576"
+          }
+        ],
+        "selected_input_denominator": 1,
+        "selected_paths": [
+          "/tmp/e02-D-B04-v3-independent-m0lc0_ke/literal_expression_unavailable/src/polisyos/scientist/nodes/builtins/example.py"
+        ],
+        "selector": [
+          "src/polisyos/scientist/nodes/builtins/**/*.py",
+          "src/polisyos/scientist/engine/builtins/**/*.py"
+        ],
+        "unresolved_by_construction": [
+          "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt.",
+          "Only direct state-name reads in sync/async execute and Assign/AnnAssign unqualified _SPEC calls to NodeSpec/OutputAwareNodeSpec are interpreted; aliases, indirect reads, runtime dispatch and files outside the declared selector are undecided."
+        ],
+        "unresolved_inputs": [
+          {
+            "path": "/tmp/e02-D-B04-v3-independent-m0lc0_ke/literal_expression_unavailable/src/polisyos/scientist/nodes/builtins/example.py",
+            "reason": "unsupported_state_reads_expression"
+          }
+        ],
+        "verdict": "UNRUN"
+      },
+      "stdout_sha256": "df35f439185fa48ebb2b068c13789857c2384dcecfb394401f4307d1e7e5bcce",
+      "fixture_sha256": "e07290b983c5d9ef2fc3e2e5c050fb7754ecf0bb5d176d589696fb212c505576"
+    },
+    {
+      "name": "unpacked_spec_unavailable",
+      "actual_exit_code": 2,
+      "expected": 2,
+      "actual_measurement": {
+        "complete_verdict": false,
+        "enumeration": "Git tracked paths; complete filesystem set only for non-Git fixtures",
+        "exclusions": [
+          "__init__.py",
+          "errors.py",
+          "state_keys.py"
+        ],
+        "finding_coverage": "explicit file-reader operations only",
+        "inputs": [
+          {
+            "characters": 82,
+            "encoding": "utf-8",
+            "operation": "read_text",
+            "path": "src/polisyos/scientist/nodes/builtins/example.py",
+            "status": "read",
+            "text_sha256": "65b7afb0004a0634c3a8db2631108da597fda932a88c51f30696493882341683"
+          }
+        ],
+        "selected_input_denominator": 1,
+        "selected_paths": [
+          "/tmp/e02-D-B04-v3-independent-m0lc0_ke/unpacked_spec_unavailable/src/polisyos/scientist/nodes/builtins/example.py"
+        ],
+        "selector": [
+          "src/polisyos/scientist/nodes/builtins/**/*.py",
+          "src/polisyos/scientist/engine/builtins/**/*.py"
+        ],
+        "unresolved_by_construction": [
+          "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt.",
+          "Only direct state-name reads in sync/async execute and Assign/AnnAssign unqualified _SPEC calls to NodeSpec/OutputAwareNodeSpec are interpreted; aliases, indirect reads, runtime dispatch and files outside the declared selector are undecided."
+        ],
+        "unresolved_inputs": [
+          {
+            "path": "/tmp/e02-D-B04-v3-independent-m0lc0_ke/unpacked_spec_unavailable/src/polisyos/scientist/nodes/builtins/example.py",
+            "reason": "unsupported_spec_arguments"
+          }
+        ],
+        "verdict": "UNRUN"
+      },
+      "stdout_sha256": "125b3281ffea282f1ec3fa7e1042988eec0017772ea5ad2e950efa76144e6146",
+      "fixture_sha256": "65b7afb0004a0634c3a8db2631108da597fda932a88c51f30696493882341683"
+    }
+  ],
+  "prior_async_escape_receipt": {
+    "path": "/tmp/e02-D-B04-independent-ast-_ld_z5r3/review.json",
+    "sha256": "ddb3f3341becc06c19273c050a2986886b45b5355ad5822b7076e3115b235f41"
+  },
+  "verified": [
+    "Existing NodeSpec/OutputAwareNodeSpec recognition reused, no synthetic state/authority class.",
+    "Assign/AnnAssign and sync/async execute share the same existing direct-state admission mechanism, fixing measured async falseabsence.",
+    "Unknown constructor, positional/unpacked spec arguments and unsupported reads expressions refuse as UNRUN with actual input receipt.",
+    "Existing original missing directread predicate remains FAIL, known declared positive remains PASS.",
+    "Git tracked enumeration retains missing member paths; existing tools.lib.fs collector records exact read content and failed attempts, complete denominator/selectors/exclusions/non-Git fixture profile named.",
+    "Unselected aliases/runtime/indirect reads remain named undecided; this diagnostic is not runtime scientific state law."
+  ],
+  "limitations": [
+    "This source review does not claim all-format/global architecture/source semantics completeness. Existing coarse bucket coverage semantics remain the prior checker predicate.",
+    "No formal D/G closure from these adjacent B04 companion diagnostics; owner disposition remains separate.",
+    "Review used unique fixtures and author artifact loaded into memory only; repository source untouched."
+  ],
+  "artifact_dir": "/tmp/e02-D-B04-v3-independent-m0lc0_ke"
+}

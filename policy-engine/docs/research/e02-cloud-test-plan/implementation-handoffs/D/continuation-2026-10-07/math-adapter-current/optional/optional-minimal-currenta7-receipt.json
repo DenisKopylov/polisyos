@@ -1,0 +1,130 @@
+{
+  "schema": "D.e02.optional-minimal-current-profile-receipt.v1",
+  "author": "/root/math_oct07",
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+  "source_write": "none; all full6313input identities unchanged across each execution",
+  "checks": [
+    {
+      "output_root": "/tmp/e02-D-minimal-final-a7-s0g39f4_",
+      "result": {
+        "exitcode": 0,
+        "wall_s": 2.8785632140061352,
+        "rss_kib": 298952,
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "backend": {
+          "torch": "missing",
+          "botorch": "missing",
+          "gpytorch": "missing",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "pytest": "9.0.2",
+          "hnswlib": "missing"
+        },
+        "source_head": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+        "source_tree": "e809693afe3b84e02d473b5744142d026afbe509",
+        "tracked_input_denominator": 6313,
+        "missing_inputs": [],
+        "changed_inputs": [],
+        "head_after": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+        "junit_present": true,
+        "mode": "minimal"
+      },
+      "pytest_results": {
+        "PASS": 55,
+        "SKIP": 15
+      },
+      "collected_testcases": 70,
+      "testcase_call_phases": 55,
+      "property_interpretation": "55 supported state/codec/fallback contracts PASS;15 actual missingTorch numerical tests UNRUN",
+      "complete_output_sha256": {
+        "result.json": "762b4a4b85995927bfd734f0ceee53e4163482ee7d14e7f9f741a2a311cdf8fb",
+        "cgroup-after.json": "b8d0ec5df592023a89f0f8e45af9ea7cb564e7e3dcca28ea0f2d33eb09ea81da",
+        "after.json": "6f6464528b328ed8d2dfa34d70319a79cc5bc824a4c97ba6f6bfff00eb47e867",
+        "origins.json": "38da08e20a38deffcb57a72db82df28b8f365b48c229e6ca9aa08168494d248e",
+        "junit.xml": "97499ac2f8b9d54c0048a55f33cde6f289a8c6aa26f8738cf02fc2eb92a60891",
+        "events.jsonl": "9bd5ab0fa081147002bf1acd9b17fa65eee86ceb343a795cbc4cd82439adf4a6",
+        "backend-before.json": "f52d97f15d6c73e4ccef8ccd36381c2275acd1bd01d1ca594e5b3272f8d9e71f",
+        "execution.json": "ab3292d1fec2a0abbad74fed161a375932fe621fe69e4e75743e147c4223c6ae",
+        "cgroup-before.json": "d2118b95ca5c9a08e6f395daa7e1f69b0b44ab88a52e7e70689a4b63dfe2c238",
+        "before.json": "6f6464528b328ed8d2dfa34d70319a79cc5bc824a4c97ba6f6bfff00eb47e867",
+        "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout.log": "8e7fa37a6f3b63f52c1499ab799abf35696a7e01b66fc2b829fcd039b5fbc18a",
+        "selectors.json": "f26ee6bb6b5332ff5fd451f1af341d074ab9e8c9e3504c242072da570151bed8",
+        "run.py": "3e00f78d2991b4e44c32907dfcc4b76f3f1ef6466cce4c6f319d922c326c9f5d"
+      }
+    },
+    {
+      "output_root": "/tmp/e02-D-optional-collector-a7-xw3mrtu_",
+      "result": {
+        "exitcode": 0,
+        "wall_s": 2.581499111984158,
+        "rss_kib": 254116,
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "backend": {
+          "torch": "missing",
+          "botorch": "missing",
+          "gpytorch": "missing",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "pytest": "9.0.2",
+          "hnswlib": "missing"
+        },
+        "source_head": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+        "source_tree": "e809693afe3b84e02d473b5744142d026afbe509",
+        "tracked_input_denominator": 6313,
+        "missing_inputs": [],
+        "changed_inputs": [],
+        "head_after": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+        "junit_present": true,
+        "mode": "minimal"
+      },
+      "pytest_results": {
+        "SKIP": 2
+      },
+      "collected_testcases": 53,
+      "testcase_call_phases": 0,
+      "property_interpretation": "Collection admission only:53nodes including10newpublicbudgetfactory;2native-only module collectionSKIP→UNRUN; zero execution phases, no functional/GP/vector/newfactory PASS inferred.",
+      "complete_output_sha256": {
+        "result.json": "fda827d775f65b6782356ccc15dae6134dda5d18d45434e733786ecd37b5bd7b",
+        "cgroup-after.json": "84aaeeddc9b19cd3147fe44e8c71d26e6bb2941e4b785d71c625cfa0ab4d4b3f",
+        "after.json": "6f6464528b328ed8d2dfa34d70319a79cc5bc824a4c97ba6f6bfff00eb47e867",
+        "origins.json": "8f15d80a4c98bc3c846d23c42be5e7a750f95074cca21e635edb4af92b1df275",
+        "junit.xml": "c88b2f93a8de39a0e7595b802b4a7ea9d7b6ba9d60c2acb370e4a6b5f1c378ff",
+        "events.jsonl": "b6d77e21a872a1726447baccd45222f944b0d8fa2ba8e2856f14b4f2c4430fad",
+        "backend-before.json": "f52d97f15d6c73e4ccef8ccd36381c2275acd1bd01d1ca594e5b3272f8d9e71f",
+        "execution.json": "8afcce19012007988e2179b346f002f2b7e6ada92d5e821be9e2244844f72c72",
+        "cgroup-before.json": "f16be95d26bcf1f538abd0ff935395eb92174edaca011895c67af8089727f660",
+        "before.json": "6f6464528b328ed8d2dfa34d70319a79cc5bc824a4c97ba6f6bfff00eb47e867",
+        "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout.log": "47d83ccbd2f6807eece923f6907d344858effa171577f58bbdb312c0c65c17e2",
+        "selectors.json": "8b94302882abb527f25f1a07330d78ef6134a8af8ca84e748dd1c972726b04d5",
+        "run.py": "d6740238a56e5ddf3286008ae2a9d8b1b78b201aaa23305a565cd95fce5f6cd5"
+      }
+    }
+  ],
+  "runtime_profile": "Minimal interpreter without Torch/BoTorch/GPyTorch/HNSW; NumPy2.3.5 SciPy1.16.3 Pytest9.0.2 Py3.14.7. No new compute/thread/process limits.",
+  "P37_predicate_basis": "Actual minimal module imports/collection and selected supported contract call phases; absent numerical backends explicitly refuse/skip, not numerical success.",
+  "P38_proxy_divergence": "A clean collector exit or available Python package surface is not native GP/HNSW execution. Numerical defining witnesses remain separate actual locked native profile receipts, source qualified.",
+  "criterion_scope": "Optional-backend discovery/class companion to B112/B125; no new originalfinding closure from minimal profile or replacement of native GP law.",
+  "complete_deciding_output": {
+    "path": "/tmp/e02-D-adapter-final-next-6zl5k0p2/optional-minimal-currenta7-complete-deciding-output.json.gz",
+    "sha256": "92f5f3189d1b5ab0c306091adba45c9695893b52cd6f651e06b82285e6542810",
+    "bytes": 401082
+  },
+  "independent_review_required": true,
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "limits": [
+    "15numerical testcases UNRUN in minimal profile; native GP/HNSW modules collection skip and all53collect-only nodes unexecuted here.",
+    "New ordinary canonicalbudget factory actual execution belongs to appointed Service/FUN separate receipt, not this collection packet.",
+    "No production inputs or scientific/default owner appointment."
+  ],
+  "cleanup_candidates": [
+    "/tmp/e02-D-minimal-final-a7-s0g39f4_/basetemp",
+    "/tmp/e02-D-optional-collector-a7-xw3mrtu_/basetemp"
+  ],
+  "cleanup": "No leaf cleanup. Outputs and unique inputs preserved."
+}

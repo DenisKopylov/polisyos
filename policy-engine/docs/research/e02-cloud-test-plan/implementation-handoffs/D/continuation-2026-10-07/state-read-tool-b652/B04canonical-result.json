@@ -1,0 +1,26 @@
+{
+  "exitcode": 0,
+  "check": "PASS_BOUNDED_CANONICAL_AST",
+  "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+  "tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+  "wall_s": 1.0531045509851538,
+  "actual_AST_input_count": 63,
+  "full_input_denominator": 6854,
+  "missing_inputs": [],
+  "changed_inputs": [],
+  "source_before_after_identical": true,
+  "complete_output_sha256": {
+    "after.json": "f33407c407e9aff80d55b206aa5dd9fbd3e5a7339d04ef71f9994ecd9f77c307",
+    "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout.txt": "ec4fbd715944b016ae150aea0a3239a8f8321f12a75518b2ce69a0299421352f",
+    "command.json": "059b692fb6d4dcd90e51052a2a78c1351eec7beb4a47e98222cc617af105859e",
+    "actual_AST_input_denominator.json": "6390e8f8a38c7d20216c8d09693c842e8c7986057ed26cc8eb0e881773c64844",
+    "before.json": "f33407c407e9aff80d55b206aa5dd9fbd3e5a7339d04ef71f9994ecd9f77c307",
+    "wrapper.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "wrapper.stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "launch-env.json": "60ed5315d6b7f01dc8596162a4de0d3a9a218bf7bde690f3be7a346a9207f835",
+    "run.py": "82162eee24559171f286ee192010fad73b720d3e79c5503965af124db3e769d6"
+  },
+  "P41": "not_established; no inherited-red claim",
+  "authority": "existing canonical checker; does not appoint runtime/scientific/promotion owner"
+}

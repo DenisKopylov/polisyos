@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "tools/quality/diagnostics/check_state_reads.py"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "env_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+  },
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "started_at": "2026-10-07T09:45:46.466650+00:00",
+  "canonical_recipe": "PYTHONPATH=src:. uv run python tools/quality/diagnostics/check_state_reads.py",
+  "actual_wrapper": "locked interpreter direct invocation of identical canonical script; uv wrapper not claimed",
+  "numerical_backend": "not used: AST diagnostic"
+}

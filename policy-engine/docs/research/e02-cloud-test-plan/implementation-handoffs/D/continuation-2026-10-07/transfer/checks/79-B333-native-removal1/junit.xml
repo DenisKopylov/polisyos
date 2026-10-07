@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.139" timestamp="2026-10-07T08:59:01.112430+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.agent.test_vector_generation_consumer" name="test_valid_cas_legacy_native_nonfinite_refuses_before_pointer_publication" file="tests/unit/scientist/agent/test_vector_generation_consumer.py" line="159" time="0.045"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">tmp_path = PosixPath('/dev/shm/e02-D-transfer-B333-removal1-dfg6dlar/basetemp/test_valid_cas_legacy_native_n0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fcf088d43e0&gt;
+record_property = &lt;function record_property.&lt;locals&gt;.append_property at 0x7fcf08ab3320&gt;
+
+    def test_valid_cas_legacy_native_nonfinite_refuses_before_pointer_publication(
+        tmp_path, monkeypatch, record_property
+    ):
+        pytest.importorskip("hnswlib")
+        store = FileSystemCAS(tmp_path / "cas")
+        legacy = VectorMemoryStore(dim=2, max_elements=2)
+        # Reproduce the old native narrowing with real HNSW, retaining a valid
+        # composite schema, native header, labels, CAS digest and manifest.
+        monkeypatch.setattr(legacy, "_embedding", lambda embedding, dim: list(embedding))
+        with pytest.warns(RuntimeWarning, match="overflow encountered in cast"):
+            legacy.add("historical-nonfinite", [1e300, 1.0], {"origin": "legacy"})
+        ref = legacy.save_to_artifact(store)
+        assert store.get_verified_snapshot(ref).manifest.kind == "vector_memory.bundle"
+        reader = VectorMemoryStore(dim=2, max_elements=2)
+        reader.add("prior", [1.0, 0.0], {"generation": "prior"})
+        before = reader._generation
+&gt;       with pytest.raises(ValueError, match="Native embedding row 0 coordinate 0 must be finite"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/scientist/agent/test_vector_generation_consumer.py:176: Failed</failure><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase></testsuite></testsuites>

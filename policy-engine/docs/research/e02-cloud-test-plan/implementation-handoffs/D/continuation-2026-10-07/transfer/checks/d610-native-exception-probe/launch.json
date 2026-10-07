@@ -1,0 +1,50 @@
+{
+  "schema": "policyos.e02.D.actual_native_exception_probe.v1",
+  "source": "d610095905262a9b5b05b60c894018a681119367",
+  "tree": "f5a8262d01929bcc96399ad9492e8aaf7489a8a1",
+  "criterion": "B134@TRN-02 real native exceptions, coherent failedload",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "/dev/shm/e02-D-realnative-error-probe-mja52dcf/probe.py",
+    "/dev/shm/e02-D-realnative-error-probe-mja52dcf"
+  ],
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src",
+    "TMPDIR": "/dev/shm/e02-D-realnative-error-probe-mja52dcf"
+  },
+  "actual_backend": "hnswlib0.8.0; actual Index.load_index C++exception, no fake or injectedexception",
+  "actual_check": "PASS for actualnativeRuntimeError/refusal + oldpointer/query unchanged in process andactualsecondprocess",
+  "returncode": 0,
+  "input": "Actual native248B savedfile; remove final1byte, retain valid @6Nheader/count/dim/capacity. Persist new exact indexref+qualifiedcomposite CAS refs/digests/manifests before load.",
+  "inputs": {
+    "probe.py": "a5682de9a714821ff7bdce606ec36642180e8191e1fac1d7f1e1647a3c6eb27c",
+    "vector_memory_blob": "3e68ab919b915427300869d6b378d12f585d1f00",
+    "reader_blob": "02a9e2074bdbfea3f57bcd950c6953a387cb6408"
+  },
+  "complete_outputs": [
+    {
+      "file": "stdout.txt",
+      "sha256": "88be02a696286fdffa750c485539a0b5da50633cc2f6b10171152c839b9d54dc",
+      "bytes": 1682
+    },
+    {
+      "file": "stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "file": "child.stdout",
+      "sha256": "16bfe494dcd707bfcddcecc3e60c9f164312addcc221bbc0e3d6f07e13524764",
+      "bytes": 960
+    },
+    {
+      "file": "child.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ],
+  "predicate_basis": "recomputed actual localnative failedload; originalformalfinding/G acceptance pending independentreview",
+  "limitations": "Tiny controlled nativeformat0.8.0 corruption, not all malformednativebytes/distributed atomicity/production artifactauthority",
+  "source_change": "None; committed new definingtest pendingroot serializedwriter/review"
+}

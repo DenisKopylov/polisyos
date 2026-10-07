@@ -1,0 +1,27 @@
+{
+  "schema": "e02.independent.test-delta-review.v1",
+  "reviewer": "/root/census_oct07",
+  "decision": "GO_DRAFT_TWO_NATIVE_PUBLIC_HISTORY_CONSUMERS_RUNTIME_PENDING",
+  "patch": {
+    "path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/bayesian-public-mixed-history.patch",
+    "bytes": 5799,
+    "sha256": "4ec79a67b2badbd1cac94c44f4bc7846dd177bab6b7616b82c01b7f3fc51aaf9"
+  },
+  "draft": {
+    "path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/test_bayesian_public_mixed_history.py",
+    "sha256": "2d78bd5a9b638bbbdd1286539c2724309c4641cd150bfa531e654c2e98193381"
+  },
+  "original_existing_test_AST_unchanged": true,
+  "original_criterion": "B113 original both ordinary dict and SearchIteration histories preserve physical coordinates, full candidate/evaluation identity, direction, source and absent outcome across actual public generate; B114/115 continuation clauses receive additional bounded consumer evidence.",
+  "predicate_basis": "Alternating4 actual dict/SearchIteration records with distinct physicalx/cost/full IDs and explicit selection split/origin plus result-absent fifth cross public BayesianCandidateGenerator.generate -> installed SingleTaskGP acquisition -> exact fitted training arrays. Wrapper get_state -> realCAS bytes -> fresh CAS reader/new actual receiver set_state -> public next generate matches uninterrupted; delegated real MLL fit count initial1 and restore/no-op0.",
+  "independent_expectation": "Raw X exactly 0.2/0.4/0.6/0.8 and utilityY explicit physical cost signed for min/max, not produced by the helper under test. Fifth unavailable row persists None and cannot supply zero training.",
+  "P38": "The public acquisition source must be real bayesian_acquisition at both steps; fallback/current-best and private fit-only cannot satisfy. Full IDs/rows, absent fifth and signed actualtrain arrays checked at the receiving model boundary.",
+  "limitations": [
+    "No independent posterior oracle claim from this test; separate fixed-parameter NumPy GP oracle remains required/current replay pending.",
+    "Synthetic history values are declared controlled numerical input, not production measurements or transfer authority.",
+    "Real CAS local public byte path, not B333 combined profile/default served deployment.",
+    "Actual backend numerical execution pending frozen candidate; module skip cannot be PASS.",
+    "G acceptance and formal closure false."
+  ],
+  "author_independence": "Reviewer authored no tests/source."
+}

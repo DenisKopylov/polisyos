@@ -1,0 +1,93 @@
+{
+  "schema": "D.e02.sealed-publication-files.v1",
+  "file_count": 17,
+  "total_bytes": 3794674,
+  "manifest_excludes_itself": true,
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "fdee7d819b810046119737ce7eee5b9e5bd1b19d6b5f67b85c5e58c75731d4db",
+      "bytes": 509
+    },
+    {
+      "path": "adapter/current-adapter-complete-deciding-output.json.gz",
+      "sha256": "541164130cb03232643477d0ff7bbf9387eedc2a2fdd456ad72aaf29edf6f0c3",
+      "bytes": 1974439
+    },
+    {
+      "path": "adapter/current-adapter-consumer-handoff.json",
+      "sha256": "f20f2edec50343cfb1383018ff5eca3605d4c16f8c6ed37194480b6c65dba88f",
+      "bytes": 83801
+    },
+    {
+      "path": "numerical/B111-champion-unchanged-currentc0-carry.json",
+      "sha256": "2bd1732512af812df78b828c424c242baf5bf897846b23c816c9d351cb3cd10b",
+      "bytes": 2676
+    },
+    {
+      "path": "numerical/current-complete-deciding-output.json.gz",
+      "sha256": "97481c8d6ad736253ed9b302966bccfcbd9e1c7457ca6e27af1c683d88f627eb",
+      "bytes": 1192223
+    },
+    {
+      "path": "numerical/current-numerical-handoff.json",
+      "sha256": "0b1d9f194413e1b22dfa89cee88d81c315a7df582455cc690d8fc5835a7c1464",
+      "bytes": 54214
+    },
+    {
+      "path": "numerical/numerical-current-final-unchanged-carry.json",
+      "sha256": "b43f5306e90103b5a177a3384c3165f61ffe5c1cb897179d50a11308cfd4357c",
+      "bytes": 10740
+    },
+    {
+      "path": "optional/optional-minimal-currenta7-complete-deciding-output.json.gz",
+      "sha256": "92f5f3189d1b5ab0c306091adba45c9695893b52cd6f651e06b82285e6542810",
+      "bytes": 401082
+    },
+    {
+      "path": "optional/optional-minimal-currenta7-receipt.json",
+      "sha256": "a07cfab2c23f74d33280af969a937a60cd09ac85abcac73aeb8c489f1d1adace",
+      "bytes": 7138
+    },
+    {
+      "path": "publication-index.json",
+      "sha256": "274de17ba152cdda437ebd29f5b85e5401ace6313ed09a934a0845384db63b6b",
+      "bytes": 9365
+    },
+    {
+      "path": "review/Adapter-final-a7-126-runtime-and-portable-independent-review.json",
+      "sha256": "0199e3c5be66c80a9e1b180e47edb9e14ab5414cc128f179e77169a0f29adc83",
+      "bytes": 8686
+    },
+    {
+      "path": "review/B111-independent-champion469-review.json",
+      "sha256": "dae0e7d0751c4d2321b7a89323726406511ba38b66261547da06a0ec92462d0b",
+      "bytes": 2854
+    },
+    {
+      "path": "review/GP-MO-State-currentc0-independent-runtime-review.json",
+      "sha256": "07ed014e3b0404cf0112df7f535fd89da9cc216785401e2b3b4bf27ed545441a",
+      "bytes": 22719
+    },
+    {
+      "path": "review/math-a7-carry-independent-review.json",
+      "sha256": "4c62a476495e8380dee75b0b391aa5e5a2a11272e45806a4182bf36ebc42d8e2",
+      "bytes": 10578
+    },
+    {
+      "path": "review/math-current-c0-independent-handoff-review.json",
+      "sha256": "9ca962ee4e92a4121d6476b9571aa18ac4337fc3b357d0aa31235b3aef667097",
+      "bytes": 2739
+    },
+    {
+      "path": "review/math-current-c0-independent-runtime-review.json",
+      "sha256": "d83c325b8910d6227a639213197bd9506b7eb3ea3ed04223e79c3c815c4565ec",
+      "bytes": 9013
+    },
+    {
+      "path": "review/optional-minimal-currenta7-independent-review.json",
+      "sha256": "e0d1a81a5bb8e697f7d125ffa10e1772e001d6285efe0f1a19a0223a9b0e3982",
+      "bytes": 1898
+    }
+  ]
+}

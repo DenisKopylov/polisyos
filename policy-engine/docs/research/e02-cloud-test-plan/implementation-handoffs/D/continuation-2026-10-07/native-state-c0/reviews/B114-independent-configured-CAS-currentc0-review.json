@@ -1,0 +1,20 @@
+{
+  "schema_version": "D.e02.independent-configured-CAS-review.v1",
+  "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+  "author": "/root/gp_oct07",
+  "reviewer": "/root/math_oct07",
+  "check_result": "PASS",
+  "packet_path": "/dev/shm/e02-D-gp-finalc0e03-cprmrxl6/actual-configured-cas-inputs.json",
+  "packet_sha256": "54d0adfbb18cf3bd91b530e6199eaf760217fd3991272243f2796a0bce80158f",
+  "verified_blob_count": 23,
+  "verified_native_manifest_count": 46,
+  "distinct_rows": 8,
+  "actual_MLL_event_identity": 32,
+  "runtime_edge": "ordinary SearchController configured transfer manager \u2192 existing default bridge \u2192 exact original CAS parameter/evaluation/history refs \u2192 native SingleTaskGP actual MLL fit",
+  "verified": "Every original blob SHA binds its ArtifactRef ID; all manifest bytes hash correctly and content inputs resolve within packet; independently decoded physical X and original scalar score from CAS rows reproduce actual pre-MLL train_X and standardized minus-score targets using saved fitted transforms within1e-12.",
+  "limitations": [
+    "Declared native measurement fixture; does not appoint production tenant rights/evaluator authority or establish issuer scientific law.",
+    "Packet augments current43 completed outputs; no new numerical model rerun/source delta."
+  ]
+}

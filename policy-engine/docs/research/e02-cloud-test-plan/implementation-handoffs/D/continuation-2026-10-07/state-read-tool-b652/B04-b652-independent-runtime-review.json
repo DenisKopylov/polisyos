@@ -1,0 +1,69 @@
+{
+  "schema": "D.e02.independent-B04-checker-current-runtime-review.v1",
+  "reviewer": "/root/math_oct07",
+  "author": "/root/gp_oct07",
+  "result": "GO bounded existing AST diagnostic and real main caller/removal controls",
+  "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+  "tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+  "source_review": {
+    "approved_v3_source_sha256": "b8aac38b9dd330da8e09891e7a40fe1fbbd3deee4850fa6f22446ba826c6d558",
+    "actual_source_sha256": "b8aac38b9dd330da8e09891e7a40fe1fbbd3deee4850fa6f22446ba826c6d558",
+    "AST_identical": true
+  },
+  "canonical_diagnostic": {
+    "commands": 1,
+    "check": "PASS",
+    "selected_AST_files": 63,
+    "actual_explicit_UTF8_read_records_verified": 63,
+    "full_tracked_input_denominator": 6854,
+    "stdout_sha256": "ec4fbd715944b016ae150aea0a3239a8f8321f12a75518b2ce69a0299421352f",
+    "command_sha256": "059b692fb6d4dcd90e51052a2a78c1351eec7beb4a47e98222cc617af105859e",
+    "selector_denominator_sha256": "6390e8f8a38c7d20216c8d09693c842e8c7986057ed26cc8eb0e881773c64844"
+  },
+  "pytest_controls": [
+    {
+      "root": "/dev/shm/e02-D-B04tests18-b652-5zd06och",
+      "testcase_denominator": 18,
+      "PASS": 18,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "junit_sha256": "69a6227d436c517d938e83364582842c0375cd8844e418b917d16de498becd80",
+      "stdout_sha256": "b08083c3e70f8a1327e668ad665430b25b4a61086bd71f325819bcdb805927a2",
+      "full_tracked_input_denominator": 6314
+    },
+    {
+      "root": "/dev/shm/e02-D-B04remove5-b652-i4p1rqge",
+      "testcase_denominator": 5,
+      "PASS": 0,
+      "FAIL": 5,
+      "ERROR": 0,
+      "SKIP": 0,
+      "junit_sha256": "03a30bc3e35302a52ba9628ebe0d90ebc836e5fd19c6fb7ebcc79fb37fc836f1",
+      "stdout_sha256": "784ffc365edec0acf47df8dfc2bfd81c33d8a3db9733717f0dbc87f37203768e",
+      "full_tracked_input_denominator": 6314
+    }
+  ],
+  "receipt_sequence_note": {
+    "late_wrapper_summary": [
+      {
+        "path": "wrapper.stdout.txt",
+        "captured_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "final_sha256": "ddfef4dbf23a4c49d845b06b4a89e0d9cf0556e94824f57281d56ae1f1a4e63b",
+        "bytes": 142
+      }
+    ],
+    "scope": "Nondeciding wrapper summary appended after inner result computed its file hashes; inner deciding outputs hash-valid. Preserve original result and bind final wrapper bytes separately."
+  },
+  "P37": "Existing NodeSpec/OutputAwareNodeSpec direct-state read declaration check with actual Assign/AnnAssign and sync/async execute consumes measured selected source text; missing and unresolved inputs do not vanish from enumeration.",
+  "P38": "Removing only required-read coverage comparison keeps actual main, AST fixture bytes and measured read markers but turns five original missing read refusals into false PASS; exact call assertions FAIL, no setup/collection errors.",
+  "limits": [
+    "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt.",
+    "Only direct state-name reads in sync/async execute and Assign/AnnAssign unqualified _SPEC calls to NodeSpec/OutputAwareNodeSpec are interpreted; aliases, indirect reads, runtime dispatch and files outside the declared selector are undecided.",
+    "One canonical diagnostic PASS over63AST files is not63pytest PASS cases.",
+    "No A B04 original closure, runtime node authority, all source read coverage, scientific owner or native numerical property follows from bounded AST diagnostic.",
+    "No P41 inherited-red exemption is asserted; complete commands/outputs apply only exact b652 source."
+  ],
+  "formal_closed": false,
+  "accepted_in_G": false
+}

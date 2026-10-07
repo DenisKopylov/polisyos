@@ -1,0 +1,101 @@
+{
+  "schema": "e02.D.native_wave_lineage_manifest.v1",
+  "source_sha": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "source_tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+  "implementation_parents": [
+    "79b943d221f46b2cc94eff06cdfdc714efe5a0e0"
+  ],
+  "complete_commit_changed_paths": [
+    "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-durable-completion-obligations.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-llm-unknown-cost-and-protected-audit.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-07-funnel-canonical-B12-consumer.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-07-search-state-and-native-factory.toml",
+    "policy-engine/src/polisyos/core/llm/README.md",
+    "policy-engine/src/polisyos/core/llm/response.py",
+    "policy-engine/src/polisyos/core/llm/settlement.py",
+    "policy-engine/src/polisyos/core/llm/traced_client.py",
+    "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+    "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+    "policy-engine/src/polisyos/scientist/methods/search/service.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+    "policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay_modes.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_state_inventory.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_controller_owner_admission.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_grid_factory_finite_exhaustion.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_semantic_dates_persisted_consumers.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_strategy_adapter_factory_resume.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_typed_objective_persisted_projection.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py"
+  ],
+  "receipts": {
+    "ctl": {
+      "path": "ctl.receipt.json",
+      "sha256": "04f2f158c787b19f7adba17d2a3d9ebff86e1ac67000a5619cccb37827e26ac5",
+      "bytes": 21513
+    },
+    "champion": {
+      "path": "champion.receipt.json",
+      "sha256": "d7086420a517eff628d12ebd5494ffe75bd1dc65d50c9b99cb348cecdcffd04c",
+      "bytes": 23708
+    },
+    "service": {
+      "path": "service.receipt.json",
+      "sha256": "cbf2f609b3c29a5c51b95742fe48e9f195ec9220e67038c8a7ec76b89d1c9ea2",
+      "bytes": 24085
+    },
+    "cursor-removal": {
+      "path": "cursor-removal.receipt.json",
+      "sha256": "1a8aecad0480a29b4feb3d80a93caf27a9663b27f54038ce79175ee1103cd530",
+      "bytes": 12337
+    },
+    "grid-removal": {
+      "path": "grid-removal.receipt.json",
+      "sha256": "03790808747bb5a1ae6bff5272fbcff60770de76517d7db8dde1dc58a46077fc",
+      "bytes": 12083
+    },
+    "date-removal": {
+      "path": "date-removal.receipt.json",
+      "sha256": "ccd9a211147d3128d9802322d343b5e0906c6cc101aea399764b5ad879ef0be6",
+      "bytes": 12359
+    }
+  },
+  "do_not_sum_as_universal_PASS": true,
+  "formal_G_acceptance": false,
+  "failure_classification": {
+    "controller_owner_direct_tiny4": "owned product defect: actual typed admission refusal rolled back unavailable diagnostics to stale local zero; source08afe and realmidflight/publicfactory10 pendingnextfreeze",
+    "objective_legacy1": "authoredfixture wrong expectation: existing BudgetDeficitObjective uses abs(deficit); original full JSON and scalar100 preserved",
+    "objective_typed_bundle1": "authoredfixture rawobjectidentity expectation: accepted Pydanticbundle projects to declared completeJSONdict; checkpoint_json fullhistory exact and typedPolicyEvaluationVector equal; correction83 pendingnextfreeze"
+  },
+  "next_delta_review_and_affected_consumers": "New budgetport/preflight/rollback source requires Math/FUN production and Census test/companion review, then current affected native consumers; previous c0 outputs remain scopedimmutable results.",
+  "P41": "not_established/no inherited red",
+  "cleanup_candidates": [
+    "/dev/shm/e02-D-oct07-service-start/final-native-c0/*-fixtures",
+    "/dev/shm/e02-D-effective-actions-c0-nydntlm9/basetemp",
+    "/dev/shm/e02-D-typed-history-c0-ata0n3un",
+    "/dev/shm/e02-D-runner-mypy-before-na8v4l_f/cache"
+  ],
+  "cleanup_authorized_effect": "none; nativeTrash unavailable, all retained"
+}

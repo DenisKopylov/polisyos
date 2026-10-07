@@ -1,0 +1,39 @@
+{
+  "argv": [
+    ".venv/bin/python",
+    "_build/e02-A-continuation-20261007/monetary_raw_json_oracle.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "0aba32b8ce9c40ee178d39d44c70fe6994698938",
+  "candidate_tree": "f3de7250f955ee9d75da901817e12247711fe493",
+  "workspace_dirty_before": [
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/finding-recommendations.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/progress-row-adjudication-draft.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/monetary-producer-decoder-input-gap.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/sparse-owner-v2-intake.json"
+  ],
+  "workspace_dirty_after": [
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/finding-recommendations.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/progress-row-adjudication-draft.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/monetary-producer-decoder-input-gap.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/sparse-owner-v2-intake.json"
+  ],
+  "exit_code": 0,
+  "wall_s": 0.10880720795830712,
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_command.py",
+    "sha256": "ef58301dceda92cf4a17214fd281cfcb3f6f50ba98480533bc0b191878a43798"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 767,
+      "sha256": "4623efd3de3756d90d1c80ea88ee9b33fbdf6dde6375f118c2f659336d2dbf0d"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

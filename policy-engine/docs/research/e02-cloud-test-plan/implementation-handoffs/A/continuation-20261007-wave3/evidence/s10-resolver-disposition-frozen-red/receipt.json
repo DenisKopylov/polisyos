@@ -1,0 +1,74 @@
+{
+  "workspace_dirty_before": [
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/finding-recommendations.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/progress-row-adjudication-draft.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/monetary-producer-decoder-input-gap.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/sparse-owner-v2-intake.json"
+  ],
+  "workspace_dirty_after": [
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/finding-recommendations.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/progress-row-adjudication-draft.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/monetary-producer-decoder-input-gap.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/sparse-owner-v2-intake.json"
+  ],
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "e02_origin",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "-q",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/s10-resolver-disposition-frozen-red/junit.xml",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/s10-resolver-disposition-frozen-red/pytest-basetemp",
+    "tests/unit/remediation/test_frc_01.py::test_resolver_failures_change_and_survive_fresh_forecast_disposition",
+    "tests/unit/remediation/test_frc_01.py::test_missing_calibration_evidence_refs_stays_typed_blocked",
+    "tests/unit/remediation/test_frc_01.py::test_gateway_rejects_temporal_roles_that_disagree_with_loaded_evidence",
+    "tests/unit/remediation/test_frc_01.py::test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "38523417c0f805845d60fd54861bea868a0b21ae",
+  "candidate_tree": "0c31c8ef41e92a2a77b64969eb5f09373bbe351e",
+  "exit_code": 1,
+  "wall_s": 18.479518292006105,
+  "environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/s10-resolver-disposition-frozen-red:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "JAX_PLATFORMS": "cpu"
+  },
+  "probe_environment": {},
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+    "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 5224,
+      "sha256": "67e4c972941d19b4ce76a9d080a33f272bec0ff29c9374cbf0d5cc5371d80bbd"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "e02_origin.py": {
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    },
+    "junit.xml": {
+      "bytes": 6134,
+      "sha256": "b7bc1500352cbee6c97c7b89da2f105276f70bcc1bd456e948b834fdd6fdfcf2"
+    },
+    "origins.json": {
+      "bytes": 1270,
+      "sha256": "80f4f8b5983d03968cf2323374fb44c00dcc05de6c37bd3b67e403bbb1302933"
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/runtime/quality/generation_cycle.py",
+    "src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+    "tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py",
+    "tests/integration/core_runtime/test_e02_served_cycle_custody.py",
+    "tests/integration/core_runtime/test_e02_voi_artifact_projection.py",
+    "tests/integration/runtime_quality/test_e02_candidate_model_revision.py",
+    "tests/unit/remediation/test_emp_01.py",
+    "tests/unit/remediation/test_frc_01.py",
+    "tests/unit/runtime/quality/test_generation_cycle.py",
+    "tests/unit/runtime/quality/test_generation_cycle_history.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+  "candidate_tree": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+  "workspace_dirty_before": [
+    " M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/partial-recursive-checkpoint.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/monetary-raw-json-stdlib-oracle/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/finding-recommendations.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/progress-row-adjudication-draft.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/monetary-producer-decoder-input-gap.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/sparse-owner-v2-intake.json"
+  ],
+  "workspace_dirty_after": [
+    " M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/partial-recursive-checkpoint.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/monetary-raw-json-stdlib-oracle/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/finding-recommendations.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/progress-row-adjudication-draft.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/monetary-producer-decoder-input-gap.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/sparse-owner-v2-intake.json"
+  ],
+  "exit_code": 0,
+  "wall_s": 0.3203113750205375,
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_command.py",
+    "sha256": "ef58301dceda92cf4a17214fd281cfcb3f6f50ba98480533bc0b191878a43798"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

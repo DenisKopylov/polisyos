@@ -1,0 +1,577 @@
+.F                                                                       [100%]
+=================================== FAILURES ===================================
+_____ test_served_candidate_value_fresh_get_with_candidate_only_substrate ______
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-two-corrected-consumers-9e47/pytest-basetemp/test_served_candidate_value_fr0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13d444b90>
+
+    def test_served_candidate_value_fresh_get_with_candidate_only_substrate(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """The same served path works with explicit synthetic candidate-only inputs."""
+    
+        pytest.importorskip("fastapi.testclient")
+>       _exercise_served_candidate_value_fresh_get(
+            tmp_path,
+            monkeypatch,
+            intervention_substrate=_candidate_only_procurement_intervention_bundle(),
+            bind_bounded_catalog=True,
+        )
+
+tests/integration/core_runtime/test_e02_served_cycle_custody.py:40: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-two-corrected-consumers-9e47/pytest-basetemp/test_served_candidate_value_fr0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13d444b90>
+
+    def _exercise_served_candidate_value_fresh_get(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        *,
+        intervention_substrate: object | None = None,
+        bind_bounded_catalog: bool = False,
+    ) -> None:
+        """Exercise the served candidate path for the supplied substrate fixture."""
+    
+        pytest.importorskip("fastapi.testclient")
+        from fastapi.testclient import TestClient
+    
+        from polisyos.core import canon
+        from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+        from polisyos.core.security.tenant_context import tenant_scope
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.http import jwt_auth_middleware
+        from polisyos.runtime.http.app import create_runtime_api_app
+        from polisyos.runtime.http.container import RuntimeContainerOverrides
+        from polisyos.runtime.http.dependencies import build_runtime_api_context
+        from polisyos.runtime.http.security import PolicyOSRole, build_fixture_identity_claims
+        from polisyos.runtime.http.services.control import generation_cycle as generation_cycle_service
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            CompiledRecursiveGenerationCycleRun,
+        )
+        from polisyos.runtime.http.services.control_plane_store import (
+            _control_job_execution_scope_from_event,
+        )
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationContextHandoff,
+            CandidateSimulationN5InputV5,
+            CandidateSimulationScenarioProfile,
+            CandidateSimulationSyntheticModelDeclarationV1,
+            candidate_simulation_profile_ref,
+        )
+        from polisyos.runtime.quality.conditional_simulation_replay import (
+            replay_conditional_simulation_values,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContextArtifactOwner,
+            cycle_job_profile_selection_ref,
+        )
+        from polisyos.runtime.quality.generation_cycle import (
+            JointSimulationPort,
+            _DefaultSimulationBoundFoundryValuePort,
+            load_joint_simulation_result,
+            persist_joint_simulation_result,
+        )
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository,
+            N4CandidateScenarioSourceRecordV2,
+            N4CandidateScenarioSourceRecordV3,
+        )
+        from polisyos.runtime.quality.intervention_atom_binding import (
+            derive_candidate_scenario_atom,
+        )
+        from polisyos.runtime.quality.joint_simulation_horizon import (
+            JointSimulationResult,
+            build_content_bound_simulation_receipt,
+        )
+        from polisyos.runtime.quality.promotion_sequence import CanonicalN9PromotionPort
+        from polisyos.scientist.orchestration.llm import factory as llm_factory
+        from tests._helpers.control_worker import dispatch_one_control_job
+        from tests.unit.runtime.http.test_control_job_execution_intent import (
+            _valid_intake_for_mode,
+        )
+        from tests.unit.runtime.http.test_nl_pipeline_materialization import (
+            _DeterministicSpanSupportClient,
+            _FakeDesignProblemGateway,
+        )
+    
+        monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
+        monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+        monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+        monkeypatch.setenv("POLISYOS_CONTROL_SQLITE_PATH", (tmp_path / "control.sqlite3").as_posix())
+        monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
+        monkeypatch.setenv("JAX_PLATFORMS", "cpu")
+        monkeypatch.setenv("OMP_NUM_THREADS", "1")
+        if bind_bounded_catalog:
+            from tests._helpers.bounded_run_catalog import bind_bounded_run_api_catalog
+    
+            bind_bounded_run_api_catalog(tmp_path=tmp_path, monkeypatch=monkeypatch)
+    
+        recording = next(
+            item
+            for item in n4_contract._load_recordings(REPO_ROOT)
+            if item.get("design_problem_id") == _RECORDING_ID
+        )
+        recorded_problem = _current_compiler_problem(recording)
+        controlled_recording = _controlled_procurement_recording(
+            recording,
+            outcome_variable=recorded_problem.outcome_of_interest.target_variable,
+        )
+        raw_request = recorded_problem.nl_provenance.raw_request
+        model_id = str(recording["model_id"])
+        compiler_gateway = _FakeDesignProblemGateway(
+            models=[model_id],
+            arguments=recorded_problem.model_dump(mode="json"),
+        )
+        cas_root = tmp_path / ".polisyos"
+        first_context = build_runtime_api_context(
+            cas_root=cas_root,
+            core_runs_root=cas_root / "runs",
+        )
+        profile, model_declaration = _configured_procurement_profile(
+            recorded_problem=recorded_problem,
+            artifact_store=first_context.store,
+            tenant_id=_TENANT_ID,
+            cell_id=_CELL_ID,
+            intervention_substrate=intervention_substrate,
+        )
+        assert profile.profile_selection_ref == cycle_job_profile_selection_ref(recorded_problem)
+    
+        original_compiler = generation_cycle_service.build_design_problem_from_nl_request
+        compiled_problems: list[Any] = []
+    
+        async def run_real_compiler(**kwargs: Any) -> Any:
+            kwargs["gateway_client"] = compiler_gateway
+            kwargs["span_support_client"] = _DeterministicSpanSupportClient()
+            problem = await original_compiler(**kwargs)
+            compiled_problems.append(problem)
+            return problem
+    
+        monkeypatch.setattr(
+            generation_cycle_service,
+            "build_design_problem_from_nl_request",
+            run_real_compiler,
+        )
+        monkeypatch.setattr(
+            llm_factory,
+            "create_traced_gateway_client",
+            lambda **_kwargs: n4_contract.RecordedGenerationReplayClient(controlled_recording),
+        )
+    
+        n5_calls: list[tuple[object, object]] = []
+        n8_calls: list[dict[str, object]] = []
+        n9_calls: list[str] = []
+        original_n5 = JointSimulationPort.__call__
+        original_n8 = _DefaultSimulationBoundFoundryValuePort.__call__
+        original_n9 = CanonicalN9PromotionPort.__call__
+    
+        def observe_n5(port: object, *args: Any, **kwargs: Any) -> object:
+            observation = original_n5(port, *args, **kwargs)
+            input_record = kwargs.get("candidate_simulation_input")
+            if input_record is not None:
+                n5_calls.append((input_record, observation))
+            return observation
+    
+        def observe_n8(port: object, *args: Any, **kwargs: Any) -> object:
+            observation = original_n8(port, *args, **kwargs)
+            n8_calls.append(
+                {
+                    "candidate": kwargs.get("candidate"),
+                    "simulation": kwargs.get("simulation"),
+                    "problem": kwargs.get("problem"),
+                    "cycle_index": kwargs.get("cycle_index"),
+                    "observation": observation,
+                }
+            )
+            return observation
+    
+        def observe_n9(port: object, *args: Any, **kwargs: Any) -> object:
+            n9_calls.append(type(port).__qualname__)
+            return original_n9(port, *args, **kwargs)
+    
+        monkeypatch.setattr(JointSimulationPort, "__call__", observe_n5)
+        monkeypatch.setattr(_DefaultSimulationBoundFoundryValuePort, "__call__", observe_n8)
+        monkeypatch.setattr(CanonicalN9PromotionPort, "__call__", observe_n9)
+    
+        first_app = create_runtime_api_app(
+            cas_root=cas_root,
+            container_overrides=RuntimeContainerOverrides(runtime_api_context=first_context),
+            allow_fixture_identity=True,
+            candidate_simulation_profiles=(profile,),
+            candidate_simulation_model_declarations=(model_declaration,),
+        )
+        with TestClient(first_app) as client:
+            accepted_response = client.post(
+                "/api/v1/control/runs/nl",
+                json={
+                    "request": raw_request,
+                    "llm_model": model_id,
+                    "context": {
+                        "evaluation_safety_attempt": _valid_intake_for_mode("simulate_only").model_dump(
+                            mode="json"
+                        )
+                    },
+                },
+            )
+            assert accepted_response.status_code == 200, accepted_response.text
+            accepted = accepted_response.json()
+            assert accepted["status"] == "accepted"
+            service = first_app.state._control_service
+            assert service._cycle_substrate_context_admission_owner is not None
+            assert service._cycle_substrate_context_admission_owner.store is first_context.store
+            assert (
+                dispatch_one_control_job(
+                    store=service._control_store,
+                    handler=service._process_control_job,
+                    expected_job_id=accepted["job_id"],
+                )
+                == accepted["job_id"]
+            )
+    
+            completed = service._control_store.get_job(accepted["job_id"])
+>           assert completed is not None and completed.state == "completed"
+E           AssertionError: assert (ControlJobRecord(job_id='6ccf12cef6064ee38ac7b0260678c96d', kind='natural_language_run', state='failed', run_id='R_3bd..._terminal_status': 'error', 'manifest_ref': 'sha256:d785cb64699c895aa8c757671da13cb1cef5d8571f189eed1ca8ee7b2a5c717d'}) is not None and 'failed' == 'completed'
+E             
+E             - completed
+E             + failed)
+
+tests/integration/core_runtime/test_e02_served_cycle_custody.py:253: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 22:45:14.111 | ERROR    | polisyos.common.logger:_call:120 - Control job 6ccf12cef6064ee38ac7b0260678c96d failed: IO Error: Cannot open database "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb" in read-only mode: database does not exist
+Traceback (most recent call last):
+
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__main__.py", line 9, in <module>
+    raise SystemExit(pytest.console_main())
+                     │      └ <function console_main at 0x103e5fab0>
+                     └ <module 'pytest' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3....
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py", line 223, in console_main
+    code = main()
+           └ <function main at 0x103e5f950>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py", line 199, in main
+    ret: ExitCode | int = config.hook.pytest_cmdline_main(config=config)
+         │                │      │    │                          └ <_pytest.config.Config object at 0x1093e82f0>
+         │                │      │    └ <HookCaller 'pytest_cmdline_main'>
+         │                │      └ <_pytest.config.compat.PathAwareHookProxy object at 0x1093e8ec0>
+         │                └ <_pytest.config.Config object at 0x1093e82f0>
+         └ <enum 'ExitCode'>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           │    │         │    │     │    │                  │       └ True
+           │    │         │    │     │    │                  └ {'config': <_pytest.config.Config object at 0x1093e82f0>}
+           │    │         │    │     │    └ <member '_hookimpls' of 'HookCaller' objects>
+           │    │         │    │     └ <HookCaller 'pytest_cmdline_main'>
+           │    │         │    └ <member 'name' of 'HookCaller' objects>
+           │    │         └ <HookCaller 'pytest_cmdline_main'>
+           │    └ <member '_hookexec' of 'HookCaller' objects>
+           └ <HookCaller 'pytest_cmdline_main'>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           │    │               │          │        │       └ True
+           │    │               │          │        └ {'config': <_pytest.config.Config object at 0x1093e82f0>}
+           │    │               │          └ [<HookImpl plugin_name='main', plugin=<module '_pytest.main' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attach...
+           │    │               └ 'pytest_cmdline_main'
+           │    └ <function _multicall at 0x103a997a0>
+           └ <_pytest.config.PytestPluginManager object at 0x1092527b0>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+          │         │         └ [<_pytest.config.Config object at 0x1093e82f0>]
+          │         └ <member 'function' of 'HookImpl' objects>
+          └ <HookImpl plugin_name='main', plugin=<module '_pytest.main' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attache...
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 365, in pytest_cmdline_main
+    return wrap_session(config, _main)
+           │            │       └ <function _main at 0x109120300>
+           │            └ <_pytest.config.Config object at 0x1093e82f0>
+           └ <function wrap_session at 0x109120040>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 318, in wrap_session
+    session.exitstatus = doit(config, session) or 0
+    │       │            │    │       └ <Session  exitstatus=<ExitCode.OK: 0> testsfailed=0 testscollected=2>
+    │       │            │    └ <_pytest.config.Config object at 0x1093e82f0>
+    │       │            └ <function _main at 0x109120300>
+    │       └ <ExitCode.OK: 0>
+    └ <Session  exitstatus=<ExitCode.OK: 0> testsfailed=0 testscollected=2>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 372, in _main
+    config.hook.pytest_runtestloop(session=session)
+    │      │    │                          └ <Session  exitstatus=<ExitCode.OK: 0> testsfailed=0 testscollected=2>
+    │      │    └ <HookCaller 'pytest_runtestloop'>
+    │      └ <_pytest.config.compat.PathAwareHookProxy object at 0x1093e8ec0>
+    └ <_pytest.config.Config object at 0x1093e82f0>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           │    │         │    │     │    │                  │       └ True
+           │    │         │    │     │    │                  └ {'session': <Session  exitstatus=<ExitCode.OK: 0> testsfailed=0 testscollected=2>}
+           │    │         │    │     │    └ <member '_hookimpls' of 'HookCaller' objects>
+           │    │         │    │     └ <HookCaller 'pytest_runtestloop'>
+           │    │         │    └ <member 'name' of 'HookCaller' objects>
+           │    │         └ <HookCaller 'pytest_runtestloop'>
+           │    └ <member '_hookexec' of 'HookCaller' objects>
+           └ <HookCaller 'pytest_runtestloop'>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           │    │               │          │        │       └ True
+           │    │               │          │        └ {'session': <Session  exitstatus=<ExitCode.OK: 0> testsfailed=0 testscollected=2>}
+           │    │               │          └ [<HookImpl plugin_name='main', plugin=<module '_pytest.main' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attach...
+           │    │               └ 'pytest_runtestloop'
+           │    └ <function _multicall at 0x103a997a0>
+           └ <_pytest.config.PytestPluginManager object at 0x1092527b0>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+          │         │         └ [<Session  exitstatus=<ExitCode.OK: 0> testsfailed=0 testscollected=2>]
+          │         └ <member 'function' of 'HookImpl' objects>
+          └ <HookImpl plugin_name='main', plugin=<module '_pytest.main' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attache...
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 396, in pytest_runtestloop
+    item.config.hook.pytest_runtest_protocol(item=item, nextitem=nextitem)
+    │    │                                        │              └ None
+    │    │                                        └ <Function test_served_candidate_value_fresh_get_with_candidate_only_substrate>
+    │    └ <member 'config' of 'Node' objects>
+    └ <Function test_served_candidate_value_fresh_get_with_candidate_only_substrate>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           │    │         │    │     │    │                  │       └ True
+           │    │         │    │     │    │                  └ {'item': <Function test_served_candidate_value_fresh_get_with_candidate_only_substrate>, 'nextitem': None}
+           │    │         │    │     │    └ <member '_hookimpls' of 'HookCaller' objects>
+           │    │         │    │     └ <HookCaller 'pytest_runtest_protocol'>
+           │    │         │    └ <member 'name' of 'HookCaller' objects>
+           │    │         └ <HookCaller 'pytest_runtest_protocol'>
+           │    └ <member '_hookexec' of 'HookCaller' objects>
+           └ <HookCaller 'pytest_runtest_protocol'>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           │    │               │          │        │       └ True
+           │    │               │          │        └ {'item': <Function test_served_candidate_value_fresh_get_with_candidate_only_substrate>, 'nextitem': None}
+           │    │               │          └ [<HookImpl plugin_name='runner', plugin=<module '_pytest.runner' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-at...
+           │    │               └ 'pytest_runtest_protocol'
+           │    └ <function _multicall at 0x103a997a0>
+           └ <_pytest.config.PytestPluginManager object at 0x1092527b0>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+          │         │         └ [<Function test_served_candidate_value_fresh_get_with_candidate_only_substrate>, None]
+          │         └ <member 'function' of 'HookImpl' objects>
+          └ <HookImpl plugin_name='runner', plugin=<module '_pytest.runner' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-att...
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 118, in pytest_runtest_protocol
+    runtestprotocol(item, nextitem=nextitem)
+    │               │              └ None
+    │               └ <Function test_served_candidate_value_fresh_get_with_candidate_only_substrate>
+    └ <function runtestprotocol at 0x109116090>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 137, in runtestprotocol
+    reports.append(call_and_report(item, "call", log))
+    │       │      │               │             └ True
+    │       │      │               └ <Function test_served_candidate_value_fresh_get_with_candidate_only_substrate>
+    │       │      └ <function call_and_report at 0x109116a30>
+    │       └ <method 'append' of 'list' objects>
+    └ [<TestReport 'tests/integration/core_runtime/test_e02_served_cycle_custody.py::test_served_candidate_value_fresh_get_with_can...
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 244, in call_and_report
+    call = CallInfo.from_call(
+           │        └ <classmethod(<function CallInfo.from_call at 0x1091171c0>)>
+           └ <class '_pytest.runner.CallInfo'>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 353, in from_call
+    result: TResult | None = func()
+            │                └ <function call_and_report.<locals>.<lambda> at 0x13ddc9a60>
+            └ +TResult
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 245, in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+            │                 │       └ {}
+            │                 └ <Function test_served_candidate_value_fresh_get_with_candidate_only_substrate>
+            └ <HookCaller 'pytest_runtest_call'>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           │    │         │    │     │    │                  │       └ False
+           │    │         │    │     │    │                  └ {'item': <Function test_served_candidate_value_fresh_get_with_candidate_only_substrate>}
+           │    │         │    │     │    └ <member '_hookimpls' of 'HookCaller' objects>
+           │    │         │    │     └ <HookCaller 'pytest_runtest_call'>
+           │    │         │    └ <member 'name' of 'HookCaller' objects>
+           │    │         └ <HookCaller 'pytest_runtest_call'>
+           │    └ <member '_hookexec' of 'HookCaller' objects>
+           └ <HookCaller 'pytest_runtest_call'>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           │    │               │          │        │       └ False
+           │    │               │          │        └ {'item': <Function test_served_candidate_value_fresh_get_with_candidate_only_substrate>}
+           │    │               │          └ [<HookImpl plugin_name='threadexception', plugin=<module '_pytest.threadexception' from '/Users/deniskopylov/.codex/worktrees...
+           │    │               └ 'pytest_runtest_call'
+           │    └ <function _multicall at 0x103a997a0>
+           └ <_pytest.config.PytestPluginManager object at 0x1092527b0>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+          │         │         └ [<Function test_served_candidate_value_fresh_get_with_candidate_only_substrate>]
+          │         └ <member 'function' of 'HookImpl' objects>
+          └ <HookImpl plugin_name='runner', plugin=<module '_pytest.runner' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-att...
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 179, in pytest_runtest_call
+    item.runtest()
+    │    └ <function Function.runtest at 0x1092794e0>
+    └ <Function test_served_candidate_value_fresh_get_with_candidate_only_substrate>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 1720, in runtest
+    self.ihook.pytest_pyfunc_call(pyfuncitem=self)
+    │    │                                   └ <Function test_served_candidate_value_fresh_get_with_candidate_only_substrate>
+    │    └ <property object at 0x103e84810>
+    └ <Function test_served_candidate_value_fresh_get_with_candidate_only_substrate>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           │    │         │    │     │    │                  │       └ True
+           │    │         │    │     │    │                  └ {'pyfuncitem': <Function test_served_candidate_value_fresh_get_with_candidate_only_substrate>}
+           │    │         │    │     │    └ <member '_hookimpls' of 'HookCaller' objects>
+           │    │         │    │     └ <HookCaller 'pytest_pyfunc_call'>
+           │    │         │    └ <member 'name' of 'HookCaller' objects>
+           │    │         └ <HookCaller 'pytest_pyfunc_call'>
+           │    └ <member '_hookexec' of 'HookCaller' objects>
+           └ <HookCaller 'pytest_pyfunc_call'>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           │    │               │          │        │       └ True
+           │    │               │          │        └ {'pyfuncitem': <Function test_served_candidate_value_fresh_get_with_candidate_only_substrate>}
+           │    │               │          └ [<HookImpl plugin_name='python', plugin=<module '_pytest.python' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-at...
+           │    │               └ 'pytest_pyfunc_call'
+           │    └ <function _multicall at 0x103a997a0>
+           └ <_pytest.config.PytestPluginManager object at 0x1092527b0>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+          │         │         └ [<Function test_served_candidate_value_fresh_get_with_candidate_only_substrate>]
+          │         └ <member 'function' of 'HookImpl' objects>
+          └ <HookImpl plugin_name='python', plugin=<module '_pytest.python' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-att...
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 166, in pytest_pyfunc_call
+    result = testfunction(**testargs)
+             │              └ {'tmp_path': PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-cont...
+             └ <function test_served_candidate_value_fresh_get_with_candidate_only_substrate at 0x13d4ca400>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/integration/core_runtime/test_e02_served_cycle_custody.py", line 40, in test_served_candidate_value_fresh_get_with_candidate_only_substrate
+    _exercise_served_candidate_value_fresh_get(
+    └ <function _exercise_served_candidate_value_fresh_get at 0x13d4ca560>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/integration/core_runtime/test_e02_served_cycle_custody.py", line 244, in _exercise_served_candidate_value_fresh_get
+    dispatch_one_control_job(
+    └ <function dispatch_one_control_job at 0x13fec66c0>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/_helpers/control_worker.py", line 69, in dispatch_one_control_job
+    dispatched = worker.dispatch_once()
+                 │      └ <function ControlWorker.dispatch_once at 0x13efa1b10>
+                 └ <polisyos.runtime.http.services.control_worker.ControlWorker object at 0x13ca46660>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/http/services/control_worker.py", line 159, in dispatch_once
+    self._run_with_lease_heartbeat(job)
+    │    │                         └ ControlJobRecord(job_id='6ccf12cef6064ee38ac7b0260678c96d', kind='natural_language_run', state='running', run_id='R_3bd36dc13...
+    │    └ <function ControlWorker._run_with_lease_heartbeat at 0x13efa1f30>
+    └ <polisyos.runtime.http.services.control_worker.ControlWorker object at 0x13ca46660>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/http/services/control_worker.py", line 253, in _run_with_lease_heartbeat
+    self._handler(job)
+    │    │        └ ControlJobRecord(job_id='6ccf12cef6064ee38ac7b0260678c96d', kind='natural_language_run', state='running', run_id='R_3bd36dc13...
+    │    └ <function dispatch_one_control_job.<locals>.dispatch_expected at 0x13e48dd20>
+    └ <polisyos.runtime.http.services.control_worker.ControlWorker object at 0x13ca46660>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/_helpers/control_worker.py", line 61, in dispatch_expected
+    handler(job)
+    │       └ ControlJobRecord(job_id='6ccf12cef6064ee38ac7b0260678c96d', kind='natural_language_run', state='running', run_id='R_3bd36dc13...
+    └ <bound method ControlPlaneService._process_control_job of <polisyos.runtime.http.services.control.run_lifecycle.ControlPlaneS...
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py", line 5140, in _process_control_job
+    self._process_control_job_admitted(
+    │    └ <function ControlPlaneService._process_control_job_admitted at 0x13efc5bc0>
+    └ <polisyos.runtime.http.services.control.run_lifecycle.ControlPlaneService object at 0x11dc8ee40>
+
+> File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py", line 5679, in _process_control_job_admitted
+    compiled = async_tools.run_coro_sync(
+               │           └ <function run_coro_sync at 0x10b97a400>
+               └ <module 'polisyos.common.async_tools' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engi...
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/common/async_tools.py", line 121, in run_coro_sync
+    return _run_coro_in_fresh_loop(coro, timeout_seconds=timeout)
+           │                       │                     └ 360.0
+           │                       └ <coroutine object ControlPlaneService.compile_and_run_recursive_generation_cycle at 0x1404e10c0>
+           └ <function _run_coro_in_fresh_loop at 0x10b97a2a0>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/common/async_tools.py", line 75, in _run_coro_in_fresh_loop
+    return loop.run_until_complete(asyncio.wait_for(task, timeout=timeout_seconds))
+           │    │                  │       │        │             └ 360.0
+           │    │                  │       │        └ <Task finished name='Task-9' coro=<_await_awaitable() done, defined at /Users/deniskopylov/.codex/worktrees/e02-a-delivery-at...
+           │    │                  │       └ <function wait_for at 0x109908720>
+           │    │                  └ <module 'asyncio' from '/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/_...
+           │    └ <function BaseEventLoop.run_until_complete at 0x1099110c0>
+           └ <_UnixSelectorEventLoop running=False closed=True debug=False>
+
+  File "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           │      └ <method 'result' of '_asyncio.Task' objects>
+           └ <Task finished name='Task-10' coro=<wait_for() done, defined at /Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-mac...
+  File "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+                 └ <Task finished name='Task-9' coro=<_await_awaitable() done, defined at /Users/deniskopylov/.codex/worktrees/e02-a-delivery-at...
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/common/async_tools.py", line 65, in _await_awaitable
+    return await awaitable
+                 └ <coroutine object ControlPlaneService.compile_and_run_recursive_generation_cycle at 0x1404e10c0>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py", line 2329, in compile_and_run_recursive_generation_cycle
+    return await compile_and_run_recursive_generation_cycle(
+                 └ <function compile_and_run_recursive_generation_cycle at 0x13fbe5430>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py", line 1168, in compile_and_run_recursive_generation_cycle
+    recursive_run = await resolved_controller.run(
+                          │                   └ <function RecursiveGenerationCycleController.run at 0x13fb768d0>
+                          └ <polisyos.runtime.quality.recursive_generation_cycle.RecursiveGenerationCycleController object at 0x11e1a0980>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py", line 1685, in run
+    root = await route(recursive_graph.root_design_ref)
+                 │     │               └ 'design-problem://66080239b41f8dd29926988ca1b8dde0a560f8785cdb40f00d712c557351d176'
+                 │     └ RecursiveDesignGraph(schema_version='policyos.policy_design_case.layer2_s5_coupling_composition.v1', graph_id='layer2.s5.recu...
+                 └ <function RecursiveGenerationCycleController.run.<locals>.route at 0x13cb6ac40>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py", line 1521, in route
+    cycle_run = await controller.run(
+                      │          └ <function GenerationCycleController.run at 0x13cd50eb0>
+                      └ <polisyos.runtime.quality.generation_cycle.GenerationCycleController object at 0x11e1a34d0>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py", line 6436, in run
+    cycle, cycle_summaries = await self._run_cycle(
+                                   │    └ <function GenerationCycleController._run_cycle at 0x13cd516f0>
+                                   └ <polisyos.runtime.quality.generation_cycle.GenerationCycleController object at 0x11e1a34d0>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py", line 7377, in _run_cycle
+    finished = await self._engine.run_async(state)
+                     │    │       │         └ {'problem': DesignProblem(schema_version='policyos.runtime.design_problem.v3', design_problem_id='gy_n4_cgf_decisive_capture_...
+                     │    │       └ <function SimpleLoopEngine.run_async at 0x13cc3aa30>
+                     │    └ <polisyos.scientist.orchestration.workflows.engine_simple.SimpleLoopEngine object at 0x13c56b610>
+                     └ <polisyos.runtime.quality.generation_cycle.GenerationCycleController object at 0x11e1a34d0>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/scientist/orchestration/workflows/engine_simple.py", line 53, in run_async
+    next_state = await next_state
+                       └ <coroutine object GenerationCycleController._generate_node at 0x14016eec0>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py", line 8956, in _generate_node
+    result = await result
+                   └ <coroutine object N4GenerationPort.__call__ at 0x13c661900>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py", line 2795, in __call__
+    return await generate_design_candidate_scenario_proposal_under_a(
+                 └ <function generate_design_candidate_scenario_proposal_under_a at 0x13d707530>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/design_generation.py", line 1041, in generate_design_candidate_scenario_proposal_under_a
+    result = await _run_design_generation_under_a(
+                   └ <function _run_design_generation_under_a at 0x13d707950>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/design_generation.py", line 1303, in _run_design_generation_under_a
+    organ_run = await _generate_design_candidate_bundle_under_a(
+                      └ <function _generate_design_candidate_bundle_under_a at 0x13d707c10>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/design_generation.py", line 1403, in _generate_design_candidate_bundle_under_a
+    reference = build_credal_reference(
+                └ <function build_credal_reference at 0x13d011220>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/credal_reference.py", line 442, in build_credal_reference
+    for edge in _iter_l3_edges(root, as_of=as_of):
+                │              │           └ '2026-06-29'
+                │              └ PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine')
+                └ <function _iter_l3_edges at 0x13d013c10>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/credal_reference.py", line 1615, in _iter_l3_edges
+    con = duckdb.connect(str(db_path), read_only=True)
+          │      │           └ PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/production_data/lex/lex-amendm...
+          │      └ <built-in method connect of pybind11_builtins.pybind11_detail_function_record_v1_system_libcpp_abi1 object at 0x10c4a0770>
+          └ <module 'duckdb' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3....
+
+_duckdb.IOException: IO Error: Cannot open database "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb" in read-only mode: database does not exist
+
+=========================== short test summary info ============================
+FAILED tests/integration/core_runtime/test_e02_served_cycle_custody.py::test_served_candidate_value_fresh_get_with_candidate_only_substrate
+1 failed, 1 passed in 20.25s

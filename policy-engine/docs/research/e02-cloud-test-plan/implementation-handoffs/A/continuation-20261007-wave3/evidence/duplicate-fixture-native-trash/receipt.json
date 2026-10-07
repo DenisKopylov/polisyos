@@ -1,0 +1,70 @@
+{
+  "candidate": [
+    "9e4753f12aa554faf19075c368123b7b914d63df",
+    "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46"
+  ],
+  "native_trash_only": true,
+  "trash_emptied": false,
+  "deciding_outputs_preserved": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/receipt.json",
+      "sha256": "bc4700a0ee99d7da3fe2abeee0c943611208178c287e0dedf1c92782650cbd6f"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/stdout.txt",
+      "sha256": "06964d1b9ea00926b96b1120e0ab45980daf1dbccd3a23eb6b687b2657ed1208"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/junit.xml",
+      "sha256": "8af317643ac3e569e65fa02db43eb19168cb96d4ad5a5e2b1b928f332dc99966"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/origins.json",
+      "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/e02_origin.py",
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    }
+  ],
+  "actions": [
+    {
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/pytest-basetemp",
+      "duplicate_of_preserved": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/supported-v2-n5-direct-value-intake/pytest-basetemp",
+      "duplicate_files_verified": 692,
+      "bytes": 23266677,
+      "command": [
+        "osascript",
+        "-e",
+        "tell application \"Finder\" to delete (POSIX file \"/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/pytest-basetemp\")"
+      ],
+      "exit_code": 0,
+      "stdout": "folder pytest-basetemp of item .Trash of folder deniskopylov of folder Users of startup disk\n",
+      "stderr": "",
+      "source_absent_after": true,
+      "preserved_original_present": true,
+      "wall_s": 0.35132850002264604
+    },
+    {
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/__pycache__",
+      "duplicate_of_preserved": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/supported-v2-n5-direct-value-intake/__pycache__",
+      "duplicate_files_verified": 1,
+      "bytes": 1929,
+      "command": [
+        "osascript",
+        "-e",
+        "tell application \"Finder\" to delete (POSIX file \"/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/__pycache__\")"
+      ],
+      "exit_code": 0,
+      "stdout": "folder __pycache__ of item .Trash of folder deniskopylov of folder Users of startup disk\n",
+      "stderr": "",
+      "source_absent_after": true,
+      "preserved_original_present": true,
+      "wall_s": 0.21807295799953863
+    }
+  ]
+}

@@ -1,0 +1,408 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "s10-resolver-reason-preservation",
+  "closure_ids": [],
+  "primary_finding_ids": [],
+  "bundle_ids": [
+    "FRC-01"
+  ],
+  "slice_base_sha": "4ef715efc89865325b789eed3ccd340da7b9f3be",
+  "slice_base_tree_sha": "b6fddbfb771ab158dd8145daa551e181510477f4",
+  "implementation_commits": [
+    {
+      "sha": "e9afad872a5709055ac01fd8a40032aae4cfecad",
+      "tree_sha": "c8d340ec26de7e100072c11b50f0878bffd81a05",
+      "parent_sha": "38523417c0f805845d60fd54861bea868a0b21ae",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "git_blob": "24bc51b91a70e763076221228095573eb1d0e554"
+    }
+  ],
+  "test_companion_commits": [
+    {
+      "sha": "38523417c0f805845d60fd54861bea868a0b21ae",
+      "tree_sha": "0c31c8ef41e92a2a77b64969eb5f09373bbe351e",
+      "parent_sha": "d6c7f56da1bf4bd1ac2066f8d908f7558924133a",
+      "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+      "git_blob": "4bd28e35a248691147742816e51e2f541c6d81e8"
+    }
+  ],
+  "documentation_commits": [],
+  "candidate_commit_count_in_slice": 2,
+  "candidate_sha": "0aba32b8ce9c40ee178d39d44c70fe6994698938",
+  "candidate_parent_sha": "e9afad872a5709055ac01fd8a40032aae4cfecad",
+  "candidate_tree_sha": "f3de7250f955ee9d75da901817e12247711fe493",
+  "candidate_source_blob": "24bc51b91a70e763076221228095573eb1d0e554",
+  "candidate_test_blob": "4bd28e35a248691147742816e51e2f541c6d81e8",
+  "branch": "codex/e02-A-delivery-attached",
+  "branch_head_at_canonicalization": "9e4753f12aa554faf19075c368123b7b914d63df",
+  "branch_head_tree_at_canonicalization": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/tests/unit/remediation/test_frc_01.py"
+  ],
+  "changed_path_scope": {
+    "denominator": "Complete tracked path diff from the S10 slice baseline 4ef715efc89865325b789eed3ccd340da7b9f3be to source fix e9afad872a5709055ac01fd8a40032aae4cfecad, scoped to the reason-preservation slice.",
+    "total_paths": 2,
+    "source_paths": 1,
+    "test_paths": 1,
+    "extensions": {
+      ".py": 2
+    },
+    "separate_affected_wave": "0aba is a broader affected-consumer candidate and its 44-case aggregate is reported separately; its full changed path set is not represented as the S10 slice denominator."
+  },
+  "source_test_footprint": {
+    "baseline_blobs": {
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": "e3c369a8a40db0849db4bb08ca732fd7c5761fa7",
+      "policy-engine/tests/unit/remediation/test_frc_01.py": "90c70911e6b7e7be78e09d52542f2c52e05b8c10"
+    },
+    "test_red_385_blobs": {
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": "e3c369a8a40db0849db4bb08ca732fd7c5761fa7",
+      "policy-engine/tests/unit/remediation/test_frc_01.py": "4bd28e35a248691147742816e51e2f541c6d81e8"
+    },
+    "post_fix_0aba_blobs": {
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": "24bc51b91a70e763076221228095573eb1d0e554",
+      "policy-engine/tests/unit/remediation/test_frc_01.py": "4bd28e35a248691147742816e51e2f541c6d81e8"
+    },
+    "current_9e_relevant_blobs": {
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": "24bc51b91a70e763076221228095573eb1d0e554",
+      "policy-engine/tests/unit/remediation/test_frc_01.py": "4bd28e35a248691147742816e51e2f541c6d81e8"
+    }
+  },
+  "baseline_cells": [
+    {
+      "cell_id": "resolver-reason-pre-fix-red",
+      "candidate_sha": "38523417c0f805845d60fd54861bea868a0b21ae",
+      "candidate_tree_sha": "0c31c8ef41e92a2a77b64969eb5f09373bbe351e",
+      "outcome": "FAIL",
+      "evidence_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/s10-resolver-disposition-frozen-red"
+    },
+    {
+      "cell_id": "resolver-reason-post-fix-affected-wave",
+      "candidate_sha": "0aba32b8ce9c40ee178d39d44c70fe6994698938",
+      "candidate_tree_sha": "f3de7250f955ee9d75da901817e12247711fe493",
+      "aggregate_outcome": "FAIL",
+      "aggregate_counts": {
+        "tests": 44,
+        "passed": 42,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "S10_selector_outcome": "PASS",
+      "evidence_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-affected-frozen-0aba"
+    }
+  ],
+  "criterion_and_finding_refs": [
+    {
+      "bundle_id": "FRC-01",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md",
+      "commit": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "git_blob": "68fcdf9337eb4b0f268d5c2c786e2900edf28a2b",
+      "lines": [
+        24,
+        25
+      ],
+      "scope": "Default-path S10 distinction between estimator diagnostics and empirical calibration; this packet addresses only A reason propagation."
+    },
+    {
+      "bundle_id": "FRC-01",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/frc01-consumer-delta.json",
+      "commit": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "git_blob": "bdb332e0a50c1931ba8c9282b969f6af28a8e787",
+      "scope": "Prior bounded FRC-01 consumer handoff; not treated as authority or full S10 closure."
+    }
+  ],
+  "plan_context_only_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-adjudication.json",
+      "git_blob_at_9e": "02a519d57c30b3ec0d0bb0876b8b0c08c1d78ff7",
+      "role": "Current broader adjudication context; not part of this reason-only evidence."
+    }
+  ],
+  "checks_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/reason-preservation-checks.json",
+    "schema": "policyos.e02.A.s10_resolver_reason_preservation_checks.v1",
+    "sha256": "52fb1e729bf3569703c7ddd9f6c299d510335ce772018afb5fc841068c577a13",
+    "json_pointer": "/checks",
+    "run_ids": [
+      "s10_reason_code_propagation_pre_fix_red",
+      "s10_reason_code_propagation_after_fix_in_affected_wave"
+    ],
+    "note": "Each check contains all six required literal fields: command, target_sha, environment, input_closure, outcome, output."
+  },
+  "checks": [
+    {
+      "id": "s10_reason_code_propagation_pre_fix_red",
+      "target_sha": "38523417c0f805845d60fd54861bea868a0b21ae",
+      "outcome": "FAIL",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/s10-resolver-disposition-frozen-red",
+      "summary": "One new resolver-reason selector failed at missing_ref because the generic report reason displaced the resolver error; three existing selectors (four pytest cases) passed.",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/s10-resolver-disposition-frozen-red/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/s10-resolver-disposition-frozen-red/pytest-basetemp",
+        "tests/unit/remediation/test_frc_01.py::test_resolver_failures_change_and_survive_fresh_forecast_disposition",
+        "tests/unit/remediation/test_frc_01.py::test_missing_calibration_evidence_refs_stays_typed_blocked",
+        "tests/unit/remediation/test_frc_01.py::test_gateway_rejects_temporal_roles_that_disagree_with_loaded_evidence",
+        "tests/unit/remediation/test_frc_01.py::test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero"
+      ],
+      "environment": {
+        "reference": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/reason-preservation-checks.json#/checks/0/environment"
+      },
+      "input_closure": {
+        "reference": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/reason-preservation-checks.json#/checks/0/input_closure"
+      },
+      "output": {
+        "reference": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/reason-preservation-checks.json#/checks/0/output",
+        "summary": "One new resolver-reason selector failed at missing_ref because the generic report reason displaced the resolver error; three existing selectors (four pytest cases) passed."
+      }
+    },
+    {
+      "id": "s10_reason_code_propagation_after_fix_in_affected_wave",
+      "target_sha": "0aba32b8ce9c40ee178d39d44c70fe6994698938",
+      "outcome": "FAIL",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-affected-frozen-0aba",
+      "summary": "Aggregate remains FAIL at 42/44; the new resolver selector passes all five input variants and the three existing FRC selectors pass all four parameter-expanded cases.",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-affected-frozen-0aba/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-affected-frozen-0aba/pytest-basetemp",
+        "tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py",
+        "tests/unit/remediation/test_emp_01.py::test_empty_selected_profile_returns_no_profile_before_unit_binding",
+        "tests/unit/remediation/test_emp_01.py::test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway",
+        "tests/integration/core_runtime/test_e02_informative_voi_execution.py::test_default_information_value_advance_executes_real_n5_and_budget_blocks_it",
+        "tests/unit/remediation/test_frc_01.py::test_missing_calibration_evidence_refs_stays_typed_blocked",
+        "tests/unit/remediation/test_frc_01.py::test_gateway_rejects_temporal_roles_that_disagree_with_loaded_evidence",
+        "tests/unit/remediation/test_frc_01.py::test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero",
+        "tests/unit/remediation/test_frc_01.py::test_resolver_failures_change_and_survive_fresh_forecast_disposition",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_history_preserves_typed_conditional_interaction_evidence",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_blocked_terminal_semantics_remain_enforced_in_history",
+        "tests/unit/remediation/test_emp_01.py::test_default_cycle_preserves_simulation_only_result_and_history",
+        "tests/unit/remediation/test_emp_01.py::test_direct_foundry_value_port_refuses_sparse_owner_profile",
+        "tests/integration/core_runtime/test_e02_served_cycle_custody.py::test_served_candidate_value_fresh_get_with_candidate_only_substrate"
+      ],
+      "environment": {
+        "reference": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/reason-preservation-checks.json#/checks/1/environment"
+      },
+      "input_closure": {
+        "reference": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/reason-preservation-checks.json#/checks/1/input_closure"
+      },
+      "output": {
+        "reference": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/reason-preservation-checks.json#/checks/1/output",
+        "summary": "Aggregate remains FAIL at 42/44; the new resolver selector passes all five input variants and the three existing FRC selectors pass all four parameter-expanded cases."
+      }
+    }
+  ],
+  "property": {
+    "statement": "A canonical empirical-evidence resolver failure must change the A ForecastSupport disposition reason to retain its actual resolver code, while retaining the typed S6 fail-closed reference and blocked forecast/consumer result.",
+    "runtime_path": [
+      "RealValueOwnerGateway.produce_forecast_inputs",
+      "generation_cycle.py::_build_real_s10_forecast_inputs",
+      "generation_cycle.py::_resolve_s10_empirical_evidence",
+      "generation_cycle.py::_build_s10_forecast_inputs",
+      "ForecastSupport",
+      "generation_cycle.py::_value_calibration_receipt after JSON file readback"
+    ],
+    "source_fix": "e9af moves the resolver-error suffix outside the report-reason fallback expression. A preexisting truthy report reason therefore no longer suppresses the actual resolver code.",
+    "bounded_behavior": "The passing 0aba selector exercises five resolver errors in one loop, retains exact s10://calibration/fail-closed/{error_code} refs, leaves tier blocked and calibration record absent, preserves predictive-purpose denials, then serializes/reloads ForecastSupport and verifies the fresh value consumer remains blocked.",
+    "proxy_divergence": "The failing 385 witness shows S6 already retained the error code while ForecastSupport.forecast_authority_disposition_reason remained generic. Checking only the S6 marker would miss the reason-property failure.",
+    "negative_controls": [
+      "missing evidence ref",
+      "valid-shape but unresolved CAS ref",
+      "wrong artifact kind",
+      "temporal-role mismatch",
+      "calibration-rule mismatch"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "A-owned resolver-code reason propagation is implemented and witnessed. Full S10 remains implemented_but_not_orchestrated; C forecast-series admission and the configured E→A default/served route are not established.",
+  "missing_capability_states": [
+    "producer_missing for a G-accepted configured E evidence producer on a C-admitted forecast series",
+    "bridge_missing for default RealValueOwnerGateway composition with admitted C source and configured E producer",
+    "verification_missing for an actual admitted-series numerical/forged-content positive-negative chain",
+    "surface_missing for served POST→GET re-verification of the forecast support disposition",
+    "semantic_test_missing for the complete configured production capability path; this handoff only tests the bounded reason-preservation property"
+  ],
+  "limitations_and_next_owner": [
+    "The synthetic typed bridge fixture does not provide a C-admitted time series, scope/unit/completeness profile, or source-time semantics.",
+    "No numerical ETS or actual production-series calibration was run; the reason test is not a calibration acceptance witness.",
+    "Default gateway composition and served POST→GET fresh-read validation remain outside this test; A/G integration acceptance remains pending.",
+    "The test preserves predictive-purpose denials and blocked treatment; it grants no calibration authority, no predictive calibration authority, no causal authority, and no treatment-assignment authority.",
+    "No finding closure is claimed. closure_ids is empty; B16 remains separate and is not closed by this packet.",
+    "The broader 0aba command remains aggregate FAIL (42 passed, 2 failed); its two failures are documented separately in the check packet and do not negate or upgrade the FRC selector result.",
+    "The older E b2 eight-failure suite result is not an A result and is not carried as a current A outcome."
+  ],
+  "finding_outcomes": {
+    "B16": "not adjudicated or closed by this reason-preservation handoff"
+  },
+  "code_acceptance": "A local reason-propagation behavior has a pre-fix RED and a post-fix selector PASS; G acceptance and full configured S10 acceptance are pending.",
+  "review_and_acceptance": {
+    "source_writer": "Root owns generation_cycle.py; e9af is the source-fix commit.",
+    "test_writer": "A test-only change in test_frc_01.py at 385.",
+    "review": "Root to review this canonical documentation packet; no new independent S10 source review is claimed.",
+    "G_acceptance": "pending",
+    "formal_finding_closure": "not_adjudicated; closure_ids=[]"
+  },
+  "source_history": {
+    "slice_base": {
+      "sha": "4ef715efc89865325b789eed3ccd340da7b9f3be",
+      "tree_sha": "b6fddbfb771ab158dd8145daa551e181510477f4"
+    },
+    "red_test_commit": {
+      "sha": "38523417c0f805845d60fd54861bea868a0b21ae",
+      "tree_sha": "0c31c8ef41e92a2a77b64969eb5f09373bbe351e",
+      "parent": "d6c7f56da1bf4bd1ac2066f8d908f7558924133a"
+    },
+    "source_fix_commit": {
+      "sha": "e9afad872a5709055ac01fd8a40032aae4cfecad",
+      "tree_sha": "c8d340ec26de7e100072c11b50f0878bffd81a05",
+      "parent": "38523417c0f805845d60fd54861bea868a0b21ae"
+    },
+    "affected_wave_candidate": {
+      "sha": "0aba32b8ce9c40ee178d39d44c70fe6994698938",
+      "tree_sha": "f3de7250f955ee9d75da901817e12247711fe493",
+      "parent": "e9afad872a5709055ac01fd8a40032aae4cfecad"
+    },
+    "canonicalization_head": {
+      "sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46"
+    },
+    "head_relationship": "The authorized 9e branch advance is recorded. The current generation_cycle.py and test_frc_01.py blobs match the post-fix 0aba S10 blobs; this does not rerun or broaden the 0aba aggregate result."
+  },
+  "artifact_custody_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/reason-preservation-checks.json",
+    "sha256": "52fb1e729bf3569703c7ddd9f6c299d510335ce772018afb5fc841068c577a13",
+    "evidence_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/s10-resolver-disposition-frozen-red",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-affected-frozen-0aba"
+    ],
+    "scope": "One retained copy of each complete deciding output set; files are hash-pinned in the check packet."
+  },
+  "artifact_custody": {
+    "copied_deciding_outputs": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/s10-resolver-disposition-frozen-red",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-affected-frozen-0aba"
+    ],
+    "files_per_run": [
+      "receipt.json",
+      "junit.xml",
+      "origins.json",
+      "e02_origin.py",
+      "stdout.txt",
+      "stderr.txt"
+    ],
+    "repeated_runs": false
+  },
+  "candidate_branch_tip_note": "The tested affected candidate remains 0aba32b/tree f3de725. The branch had advanced to 9e4753f/tree b20c065 at canonicalization; the two S10 source/test blobs are unchanged.",
+  "pattern_pass": {
+    "relevant_ids": [
+      "P04",
+      "P05",
+      "P29",
+      "P32",
+      "P38"
+    ],
+    "existing_antipattern": "A truthy report-derived reason could suppress the content-specific resolver error while the S6 limitation ref remained correct.",
+    "target_pattern": "Carry one canonical resolver failure through both the user-facing typed disposition reason and the machine-readable S6 limitation, and exercise the actual fresh consumer after serialization.",
+    "acceptance_signal": "Each resolver code appears in fresh ForecastSupport reason and exact S6 reference; tier/record/consumer remain blocked; no authority denials are removed."
+  },
+  "semantic_boundary": {
+    "forecast_tier": "blocked for each resolver-failure case",
+    "calibration_record": "absent for each resolver-failure case",
+    "allowed_claim": "bounded typed refusal-reason propagation on a synthetic persisted evidence fixture",
+    "disallowed_claims": [
+      "empirical calibration authority",
+      "predictive calibration authority",
+      "causal authority",
+      "treatment assignment authority",
+      "C-admitted source truth",
+      "served POST→GET verification"
+    ],
+    "source_time_status": "not_established"
+  },
+  "immutable_review_pin": true,
+  "excluded_attempts": [
+    {
+      "attempt": "E b2 suite",
+      "treatment": "not an A current result; excluded from this handoff"
+    },
+    {
+      "attempt": "385 pre-fix RED",
+      "treatment": "one expected failure at missing_ref; later loop variants were not reached during this failing execution"
+    }
+  ],
+  "documentation_files_written": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/s10-resolver-reason-preservation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/reason-preservation-checks.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/s10-resolver-disposition-frozen-red",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-affected-frozen-0aba"
+  ],
+  "latest_followup_validation": {
+    "performed_by_handoff_author": [
+      "full readback of both run directories",
+      "SHA-256 match after copying outputs",
+      "git history/blob-pin readback",
+      "JSON parse and required-field/hash-reference readback"
+    ],
+    "tests_or_reruns": false,
+    "source_mutations": false,
+    "commit_or_push": false
+  },
+  "bundle_outcomes": {
+    "FRC-01": "bounded A resolver-reason behavior passes at 0aba; no formal finding closure is claimed"
+  },
+  "predicate_details": {
+    "reason_propagation": "recomputed by running the real A gateway, canonical E evidence loader, ForecastSupport model construction, JSON file readback, and existing value-calibration consumer over a synthetic typed evidence fixture.",
+    "source_admission": "not_established; the fixture is not a C-admitted series or forecast profile.",
+    "calibration_truth": "not_established; this packet does not run registered ETS or establish an admitted held-out forecast.",
+    "authority": "not_established beyond observing the typed blocked state and denials in the test output."
+  },
+  "candidate_snapshot_diff": {
+    "base_commit": "4ef715efc89865325b789eed3ccd340da7b9f3be",
+    "candidate_commit": "0aba32b8ce9c40ee178d39d44c70fe6994698938",
+    "candidate_tree": "f3de7250f955ee9d75da901817e12247711fe493",
+    "complete_diff_command": [
+      "git",
+      "diff",
+      "--name-status",
+      "--no-renames",
+      "4ef715efc89865325b789eed3ccd340da7b9f3be..0aba32b8ce9c40ee178d39d44c70fe6994698938"
+    ],
+    "complete_path_denominator": 180,
+    "product_test_paths": [
+      "policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_served_cycle_custody.py",
+      "policy-engine/tests/unit/remediation/test_emp_01.py",
+      "policy-engine/tests/unit/remediation/test_frc_01.py",
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py"
+    ],
+    "other_tracked_companions": {
+      "path_count": 174,
+      "source_of_truth": "complete_diff_command above; existing tracked artifacts are Git-addressed, not copied"
+    },
+    "boundary": "This is the complete intervening snapshot delta, including independent slices. The property-owned changed_paths and implementation_commits select the bounded mechanism; neither list nor current test PASS admits the whole carrier."
+  }
+}

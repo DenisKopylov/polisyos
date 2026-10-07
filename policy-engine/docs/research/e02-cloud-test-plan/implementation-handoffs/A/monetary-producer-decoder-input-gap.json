@@ -1,0 +1,236 @@
+{
+  "unit": "A",
+  "slice": "monetary-producer-decoder-input-gap",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "4ef715efc89865325b789eed3ccd340da7b9f3be",
+  "implementation_commits": [],
+  "candidate_sha": "4ef715efc89865325b789eed3ccd340da7b9f3be",
+  "candidate_tree_sha": "b6fddbfb771ab158dd8145daa551e181510477f4",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "changed_paths": [],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": [
+        ".venv/bin/python",
+        "_build/e02-A-continuation-20261007/monetary_raw_json_oracle.py"
+      ],
+      "target_sha": "0aba32b8ce9c40ee178d39d44c70fe6994698938",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "python_profile": "native Python 3.14.3",
+        "numerical_threads": 1
+      },
+      "input_closure": {
+        "script": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/monetary-raw-json-stdlib-oracle/monetary_raw_json_oracle.py",
+          "sha256": "b31b7d51eacef6ee9a10be840b1f09264c8a37091196801e35e588c31bc47e9a",
+          "bytes": 808
+        },
+        "scope": "stdlib raw JSON lexical-loss oracle only; no B client or budget consumer executes"
+      },
+      "outcome": "PASS",
+      "output": {
+        "receipt.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/monetary-raw-json-stdlib-oracle/receipt.json",
+          "sha256": "b46f9a600346f8fa156d63428edaeb2651b9df65c0c42489ecc00b9711e51f11",
+          "bytes": 2298
+        },
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/monetary-raw-json-stdlib-oracle/stdout.txt",
+          "sha256": "4623efd3de3756d90d1c80ea88ee9b33fbdf6dde6375f118c2f659336d2dbf0d",
+          "bytes": 767
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/monetary-raw-json-stdlib-oracle/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "monetary_raw_json_oracle.py": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/monetary-raw-json-stdlib-oracle/monetary_raw_json_oracle.py",
+          "sha256": "b31b7d51eacef6ee9a10be840b1f09264c8a37091196801e35e588c31bc47e9a",
+          "bytes": 808
+        }
+      }
+    },
+    {
+      "command": "UNRUN: canonical B raw HTTP response -> typed event -> A observer -> budget -> persisted readback",
+      "target_sha": "4ef715efc89865325b789eed3ccd340da7b9f3be",
+      "environment": "native A; B typed response/tracing source absent from composed tree",
+      "input_closure": {
+        "source_comparison": "#/source_path_comparison",
+        "raw_cases": "#/variable_checklist"
+      },
+      "outcome": "UNRUN",
+      "output": "No execution: missing composed B typed producer and raw-lexeme-safe parser."
+    }
+  ],
+  "predicate_basis": "not_established",
+  "capability_state_or_finding_state": "producer_missing",
+  "limitations_and_next_owner": [
+    "B must preserve raw numeric lexemes before float coercion, emit the canonical typed cost/usage event and publish exact source/contract checkpoint. A reruns the actual budget consumer only after those bytes are composed.",
+    "A input estimate is not invoice authority; default untyped producer refusal remains unknown. No B11 finding disposition or B66 settlement closure follows."
+  ],
+  "artifact_custody": {
+    "initial_author_root": "/Users/deniskopylov/polisyos",
+    "authorized_native_root": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos",
+    "original_sha256": "c5ece0d6558489dff8ee6b6fe0fedeadc8d6543567fed8b11d8c986603a4dfcb",
+    "root_byte_exact_copy_completed": true,
+    "primary_original_preserved": true,
+    "other_author_writes_reported": [],
+    "source_inspection_basis": "immutable Git objects, not live PRIMARY files",
+    "native_normalization": "this top-level canonical envelope and a separately captured stdlib oracle"
+  },
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "version": 1,
+  "disposition": "owner_input_required",
+  "capability": "canonical_provider_cost_to_a_budget_consumer",
+  "property": "Preserve the provider's exact monetary JSON lexeme until cost status is classified; a nonzero positive underflow or any negative amount must never be recorded as known reported zero.",
+  "authority_boundary": "Provider cost telemetry and A input estimates are accounting evidence, not invoice or settlement authority.",
+  "a_base": {
+    "commit": "4ef715efc89865325b789eed3ccd340da7b9f3be",
+    "tree": "b6fddbfb771ab158dd8145daa551e181510477f4"
+  },
+  "g_checkpoint": {
+    "commit": "2abc17f46a033a7879663486ff9946a95786601f",
+    "tree": "375301dd0c86a6168f4f747d8c56d9e0acb9567c",
+    "review_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/A-HTTP-cost.md",
+    "reviewed_candidate": "1590f35b6817c46af484de818ba227517c5a8d1b"
+  },
+  "b_owner_checkpoint": {
+    "ref": "origin/codex/e02-B-current-runtime",
+    "commit": "2c773afbcd2b84c96f482ff3d757e0ed4b18de63",
+    "tree": "9f0b2cc027562c60377d93a997971841d801f373",
+    "cost_consumer_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007.json"
+  },
+  "source_path_comparison": [
+    {
+      "path": "policy-engine/src/polisyos/core/llm/response.py",
+      "a4ef_blob": "7f994fec0b2b9a8da55a10d9a101f5ebe2ca2144",
+      "g2abc_blob": "7f994fec0b2b9a8da55a10d9a101f5ebe2ca2144",
+      "b2c773_blob": "33c7b310aef734b31c2ed2e61fe28d6525524b97",
+      "b_blob_composed_in_a_or_g": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "a4ef_blob": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4",
+      "g2abc_blob": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4",
+      "b2c773_blob": "235b7e1b9008bb60323a464b10563d8d76520e78",
+      "b_blob_composed_in_a_or_g": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+      "a4ef_blob": "8eb5b1d38f2b40c2a7b59054acacafd7c0b4b1d4",
+      "g2abc_blob": "8eb5b1d38f2b40c2a7b59054acacafd7c0b4b1d4",
+      "b2c773_blob": "df786193b548215d84b4e7b1707c73272416d618",
+      "b_blob_composed_in_a_or_g": false
+    }
+  ],
+  "a_typed_budget_consumer": {
+    "path": "policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py",
+    "blob": "d9def16f689e51f7c5dccd330754b6d6cbc178a9",
+    "behavior": "Requires cost_status and cost_origin; legacy scalar-only events are missing/unknown, not admitted as a known amount.",
+    "bridge_path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py creates the default call_observer as call_events.append and sends its summary through the NL budget and run summary path."
+  },
+  "g_consumer_composition": {
+    "response_shapes_blob": "448dff30bfdcfbef812ff09eb0472438f49b3d4e",
+    "nl_pipeline_blob": "4956678ca4ec4253cdf96e103ff83e7226e192da",
+    "comparison": "G2abc does not contain A4ef's typed response_shapes/nl_pipeline pair; do not claim the A4ef consumer has been integrated into G from these producer pins."
+  },
+  "b_response_normalizer": {
+    "path": "policy-engine/src/polisyos/core/llm/response.py",
+    "blob": "33c7b310aef734b31c2ed2e61fe28d6525524b97",
+    "behavior": "Decimal(str(value)) rejects a negative and rejects a nonzero exact value that becomes float zero, if the exact value reaches this helper. It supplies known/missing/invalid cost and usage statuses."
+  },
+  "b_wire_parser_gap": {
+    "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+    "blob": "235b7e1b9008bb60323a464b10563d8d76520e78",
+    "behavior": "The HTTP response-text path uses json.loads(raw_text) without a Decimal parse_float hook or retained raw cost lexeme before typed normalization.",
+    "consequence": "Raw numeric 1e-1000 is already 0.0 when the Decimal-aware helper receives it. Raw -1e-1000 can already be -0.0, which compares equal to zero and evades a value-only negativity check."
+  },
+  "a_wire_parser_gap": {
+    "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+    "blob": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4",
+    "behavior": "Uses json.loads(raw_text); the A response helper converts costs to float and clamps negative values to 0.0."
+  },
+  "a_standard_event_gap": {
+    "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+    "blob": "8eb5b1d38f2b40c2a7b59054acacafd7c0b4b1d4",
+    "behavior": "The default event contains scalar cost_usd, origin_cost_usd, estimated_cost_usd, and usage_origin, but omits cost_status, cost_origin, and usage_status required by A's typed consumer."
+  },
+  "b_typed_event_keys": [
+    "cost_usd",
+    "cost_status",
+    "cost_origin",
+    "usage_status",
+    "origin_cost_usd",
+    "estimated_cost_usd"
+  ],
+  "provider_cost_alias_keys": [
+    "usage.total_cost_usd",
+    "usage.cost_usd",
+    "usage.cost",
+    "payload.total_cost_usd",
+    "payload.cost_usd",
+    "payload.cost"
+  ],
+  "variable_checklist": [
+    {
+      "case": "raw-positive-underflow",
+      "provider_json_cost_lexeme": "1e-1000",
+      "expected": "invalid or missing; never known/reported/0; no budget advancement"
+    },
+    {
+      "case": "raw-negative-cost",
+      "provider_json_cost_lexeme": "-0.01",
+      "expected": "invalid; never clamped to known/reported/0; no budget advancement"
+    },
+    {
+      "case": "raw-negative-underflow",
+      "provider_json_cost_lexeme": "-1e-1000",
+      "expected": "invalid; signed zero after float parsing must not be admitted as a reported zero"
+    },
+    {
+      "case": "explicit-reported-zero",
+      "provider_json_cost_lexeme": "0.0",
+      "expected": "known/reported/0.0; distinct from missing or invalid"
+    },
+    {
+      "case": "missing-provider-cost",
+      "provider_json_cost_lexeme": null,
+      "expected": "missing/unknown/null; no budget advancement"
+    },
+    {
+      "case": "estimate-only",
+      "provider_json_cost_lexeme": null,
+      "expected": "estimated origin and estimate basis remain separate from provider-reported cost"
+    },
+    {
+      "case": "partial-known-and-unknown-events",
+      "provider_json_cost_lexeme": null,
+      "expected": "missing amount with mixed origin and null subtotal; do not advance budget from a known subset"
+    }
+  ],
+  "raw_json_oracle": {
+    "status": "PASS_read_only_stdlib_only",
+    "result": "json.loads(1e-1000) yields 0.0; json.loads(-1e-1000) yields -0.0",
+    "scope": "Parser-behavior witness only; not a B gateway-client receipt, typed producer test, budget-consumer test, or source acceptance."
+  },
+  "existing_b_test_boundary": "B test_unknown_cost_settlement_e02.py places the strings 1e-1000 and -1e-1000 into an already-decoded Python mapping and calls _parse_completion_payload directly; it does not feed numeric JSON lexemes through response.text() and the HTTP JSON parser.",
+  "owner_action": "B canonical LLM owner: preserve raw monetary JSON exactness at gateway ingress, classify nonzero-underflow and negative values as invalid/missing, then emit the typed event keys above. A owner: wire that producer event through the existing observer, A cost projection, budget decision, and persisted run summary readback.",
+  "adoption_gate": "Adopt only after an exact B source checkpoint and owner handoff bind raw-response parsing, typed event semantics, and the actual consumer path; a branch merge or helper-only test is not source acceptance.",
+  "verification_status": "Source inspection complete. Raw JSON oracle passed. B HTTP-client behavior and composed A producer-to-budget path remain UNRUN; no application tests were run.",
+  "capability_labels": [
+    "producer_missing",
+    "bridge_missing",
+    "verification_missing"
+  ],
+  "pattern_pass": [
+    "P01/P02: canonical producer, observer bridge, and real budget consumer must be exercised together.",
+    "P05/P37/P38: reject status/amount proxy claims and bind the gate to raw numeric evidence.",
+    "P08/P14: keep provider-reported cost, input estimate, and invoice/settlement authority distinct."
+  ],
+  "source_review": "A-HTTP-cost.md is source review, not a test receipt; it records that projection unknown is fail-closed and that the standard producer-to-budget typed bridge remains incomplete."
+}

@@ -1,0 +1,129 @@
+{
+  "schema": "policyos.e02.A.interaction_history_checks.v1",
+  "purpose": "Track the v3 conditional-interaction history extension and distinguish its direct persisted-readback evidence from the still-unreached served fresh-GET property.",
+  "source_candidate": {
+    "history_extension_sha": "75115a02136ee59dce1239d439937d43bf84209a",
+    "history_extension_parent_sha": "87ccc8fd3211a86ab08f4a057208451912236414",
+    "verification_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+    "verification_tree": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+    "branch": "codex/e02-A-delivery-attached"
+  },
+  "checks_contract": {
+    "required_literal_keys_per_check": [
+      "command",
+      "target_sha",
+      "environment",
+      "input_closure",
+      "outcome",
+      "output"
+    ],
+    "allowed_outcomes": [
+      "PASS",
+      "FAIL",
+      "ERROR",
+      "SKIP",
+      "UNRUN"
+    ],
+    "count_is_not_capped": true
+  },
+  "checks": [
+    {
+      "check_id": "v3-history-extension-source-delta",
+      "command": "git show --format=fuller --no-ext-diff 75115a02136ee59dce1239d439937d43bf84209a -- src/polisyos/runtime/quality/_generation_cycle_history_schema.py tests/unit/runtime/quality/test_generation_cycle_history.py",
+      "target_sha": "75115a02136ee59dce1239d439937d43bf84209a",
+      "environment": "Read-only local Git source review.",
+      "input_closure": "History schema extension commit and its exact parent; source delta only.",
+      "outcome": "PASS",
+      "output": "Adds the conditional_interaction_evidence typed owner to current v3 history projection without rewriting frozen v1/v2 or prior v3 JSON constants. Non-null v4 runtime replay is not covered."
+    },
+    {
+      "check_id": "0aba-focused-history-selectors",
+      "command": "Four history selectors within the focused 44-test command recorded in the referenced receipt.",
+      "target_sha": "0aba32b8ce9c40ee178d39d44c70fe6994698938",
+      "environment": "Native macOS, Python 3.14.3, pytest 9.0.2; exact argv/environment in receipt.",
+      "input_closure": "policy-engine/_build/e02-A-continuation-20261007/thirteenth-affected-frozen-0aba/junit.xml@sha256:ac0368995c8f1c8ad369fc56605041c321934d1a7fe342768a8f1d2ff4832070",
+      "outcome": "PASS",
+      "output": "The byte-exact current/pinned-history replay, typed v3 evidence round-trip, complete frozen vocabulary graph, and blocked-terminal history selectors all passed. The enclosing 44-test wave was 42 passed / 2 failed."
+    },
+    {
+      "check_id": "0aba-invalid-negative-control",
+      "command": "The default-cycle consumer test within the recorded 44-test command; inspect its failure details in the JUnit output.",
+      "target_sha": "0aba32b8ce9c40ee178d39d44c70fe6994698938",
+      "environment": "Native macOS, Python 3.14.3, pytest 9.0.2; exact argv/environment in receipt.",
+      "input_closure": "policy-engine/_build/e02-A-continuation-20261007/thirteenth-affected-frozen-0aba/junit.xml@sha256:ac0368995c8f1c8ad369fc56605041c321934d1a7fe342768a8f1d2ff4832070",
+      "outcome": "FAIL",
+      "output": "The test changed only the free-text value_port.reason and expected history rejection. This is not an integrity-bound field; the negative oracle is invalid. The prior positive persistence/restore assertions passed. Do not classify this as a history projection defect."
+    },
+    {
+      "check_id": "0aba-served-startup-input",
+      "command": "The candidate-only fresh-GET test within the recorded 44-test command.",
+      "target_sha": "0aba32b8ce9c40ee178d39d44c70fe6994698938",
+      "environment": "Native macOS, Python 3.14.3, pytest 9.0.2; exact argv/environment in receipt.",
+      "input_closure": "policy-engine/_build/e02-A-continuation-20261007/thirteenth-affected-frozen-0aba/junit.xml@sha256:ac0368995c8f1c8ad369fc56605041c321934d1a7fe342768a8f1d2ff4832070",
+      "outcome": "FAIL",
+      "output": "App startup could not read production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb (catalog_fetch_source_unreadable). This is before the ordinary POST/job/N5/GET path."
+    },
+    {
+      "check_id": "9e47-direct-default-n5-and-history",
+      "command": "pytest tests/unit/remediation/test_emp_01.py::test_default_cycle_preserves_simulation_only_result_and_history as part of the recorded two-test command.",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "environment": "Native macOS, Python 3.14.3, pytest 9.0.2; see retained receipt and origins.",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/receipt.json@sha256:83b12435d7d4c7ca9e6cf5c8a0ada1d8fffd1d72742233bef78c5b11afeffd40",
+      "outcome": "PASS",
+      "output": "Actual default N5 evidence was present in the current ValuePortObservation, survived persisted restore with typed content equality, and passed history validation. The corrected authority_blockers-removal negative is rejected."
+    },
+    {
+      "check_id": "9e47-served-get-n4-stop",
+      "command": "pytest tests/integration/core_runtime/test_e02_served_cycle_custody.py::test_served_candidate_value_fresh_get_with_candidate_only_substrate as part of the recorded two-test command.",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "environment": "Native macOS, Python 3.14.3, pytest 9.0.2; see retained receipt, JUnit, stdout, stderr, and origins.",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/junit.xml@sha256:5d0194fa3d30f5f3d45ec130ecb99bb69107285639adf24ab3e4fd21a96af3e0",
+      "outcome": "FAIL",
+      "output": "The job failed during N4 because production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb was absent. The test stopped before N5; the fresh GET did not execute."
+    },
+    {
+      "check_id": "authentic-l6-and-served-get-positive",
+      "command": "UNRUN; no authenticated L6 source was admitted and the served test did not reach GET.",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "environment": "Not executed.",
+      "input_closure": "served-input-review.json records L6 source identity as not_established; 9e47 JUnit records the N4 LEX stop.",
+      "outcome": "UNRUN",
+      "output": "No public GET positive, served trajectory horizon/steps/orders/residual witness, or GET N5 call-count assertion is claimed. Unit/time/sampling uncertainty statuses remain not_established; no N9 currentness check ran."
+    }
+  ],
+  "version_compatibility": {
+    "v1_v2": "Frozen schema bytes are unchanged; exact current and pinned historical replay selector passed at 0aba.",
+    "v3": "Typed conditional interaction evidence round-trips through the v3 history graph; four focused history selectors passed at 0aba and actual default N5 history passed at 9e.",
+    "v4_non_null": "Source-reviewed only; no runtime readback assertion in these receipts."
+  },
+  "status_and_authority_boundary": {
+    "evidence_purpose": "conditional_simulation_only",
+    "unit_binding_status": "not_established",
+    "time_binding_status": "not_established",
+    "sampling_uncertainty_status": "not_established",
+    "n9_currentness": "not assessed; occurrence/history replay is not a signed current-epoch N9 receipt",
+    "served_get": "not observed; N4 failed before N5 and GET"
+  },
+  "evidence_copy_policy": "The complete 9e47 run outputs are retained once under evidence/thirteenth-two-corrected-consumers-9e47. The 0aba common run remains in ignored _build for the sibling s10 verifier; this report cites its receipt/JUnit and does not duplicate it.",
+  "handoff_contract": {
+    "minimum_literal_fields": 17,
+    "field_count_is_capped": false,
+    "required_fields_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md"
+  },
+  "pattern_pass": {
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P04",
+      "P05",
+      "P10",
+      "P29",
+      "P32",
+      "P37",
+      "P38",
+      "P41"
+    ],
+    "issue": "History projection is exercised by direct persistence/readback, but the served route is not yet exercised to its GET consumer because the selected N4 LEX input is absent.",
+    "acceptance_signal": "An admitted bounded served request reaches N5, persists conditional interaction evidence, and a fresh app GET asserts the typed evidence fields and unknown statuses without rerunning N5 or claiming N9 currentness."
+  }
+}

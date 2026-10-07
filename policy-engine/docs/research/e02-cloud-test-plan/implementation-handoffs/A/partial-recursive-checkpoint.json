@@ -1241,5 +1241,112 @@
     ],
     "positive_claim": "Owned Core/CAS persistence plus fresh run-details GET preserves bounded partial V2 readback and tenant isolation for a manually inserted contract-testing checkpoint."
   },
-  "immutable_review_pin": true
+  "immutable_review_pin": true,
+  "generated_companion_request": {
+    "state": "requested_not_run",
+    "next_owner": "G generated-surface lane after composed freeze; team-polisyos owns runtime outputs and team-architecture owns the public-surface inventory.",
+    "candidate_pin": {
+      "commit": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "tree": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+      "branch": "codex/e02-A-delivery-attached"
+    },
+    "source_addition": {
+      "introduced_by": "01e465e25577eb285fefc06e4e8d3ce5dd430e86 (feat(e02-a): persist recursive budget frontier and expose owned checkpoint readback)",
+      "current_blobs": [
+        {
+          "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+          "blob": "429f7b4767f623bf3fc42c42f16ac556d13143ad",
+          "role": "RecursiveCycleCheckpoint DTO; RunDetails field; RunDetailsResponse envelope"
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/contracts/__init__.py",
+          "blob": "3b86440bab2ab7bea3d7230b9c58d6a5d545770c",
+          "role": "polisyos.core.contracts lazy export and __all__"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+          "blob": "288c0aea1c1267bf7c2612ef551aa278b0ddc4ac",
+          "role": "GET /api/v1/runs/{run_id} projection into RunDetails"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+          "blob": "b6da993dd1d922e19135f4f78f12775ed5505754",
+          "role": "authorized Core/CAS resolver and DTO projection"
+        }
+      ]
+    },
+    "typed_api_change": {
+      "dto": "polisyos.core.contracts.RecursiveCycleCheckpoint; schema_version=policyos.runtime.recursive_cycle_checkpoint.v1",
+      "field": "RunDetails.recursive_cycle_checkpoint: RecursiveCycleCheckpoint | None",
+      "response": "RunDetailsResponse.run: RunDetails",
+      "route": "GET /api/v1/runs/{run_id}; operation_id=get_run_details",
+      "route_source": "policy-engine/src/polisyos/runtime/http/routes/runs.py:1091-1174; resolver in policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py:3779-3855"
+    },
+    "current_snapshot_gaps": {
+      "openapi": {
+        "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+        "blob": "fafa53ab0557697f82f4631b1c7d5a85dca3186d",
+        "missing": [
+          "components.schemas.RecursiveCycleCheckpoint",
+          "components.schemas.RunDetails.properties.recursive_cycle_checkpoint"
+        ]
+      },
+      "public_surface_inventory": {
+        "path": "policy-engine/architecture/public_surface/inventory.json",
+        "blob": "f3aadb9390a6a66684d02ef4d4efddd43f0172f4",
+        "row": "polisyos.core (supported entrypoints include polisyos.core.contracts; current export_count=134)",
+        "class_name_present": false,
+        "action": "Refresh because the supported contracts-facade export is not represented in this generated inventory."
+      }
+    },
+    "historical_behavioral_evidence": {
+      "test": "tests/integration/core_runtime/test_e02_recursive_partial_readback.py::test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_get",
+      "current_test_blob": "02b7e91e4b30f14a09c5b0ad71532e96e16d4ba6",
+      "recorded_result": "1 passed at target 65926cb5aa5364ff0e54741ea6689a16e9ed14b0, as already recorded in this packet; not rerun here and not evidence of snapshot freshness."
+    },
+    "canonical_generation_sequence": [
+      {
+        "step": 1,
+        "owner": "team-polisyos",
+        "command": "PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json",
+        "outputs": [
+          "schemas/runtime_api_v1.openapi.json"
+        ],
+        "status": "not_run"
+      },
+      {
+        "step": 2,
+        "owner": "team-polisyos",
+        "command": "corepack pnpm --filter @polisyos/runtime-api-client run generate -- --openapi schemas/runtime_api_v1.openapi.json",
+        "outputs": [
+          "packages/runtime-api-client/types.ts",
+          "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+          "packages/runtime-api-client/canonicalRuntimeApiClient.js"
+        ],
+        "status": "not_run",
+        "after": "OpenAPI snapshot changes"
+      },
+      {
+        "step": 3,
+        "owner": "team-polisyos",
+        "command": "corepack pnpm --filter @polisyos/runtime-dashboard run generate:api -- --openapi schemas/runtime_api_v1.openapi.json",
+        "outputs": [
+          "apps/runtime-dashboard/src/api/types.ts"
+        ],
+        "status": "not_run",
+        "after": "OpenAPI change affects dashboard-facing types"
+      },
+      {
+        "step": 4,
+        "owner": "team-architecture",
+        "command": "uv run python tools/devx/architecture/guardrails.py sync --skip-deep-import-baseline",
+        "outputs": [
+          "architecture/public_surface/inventory.json",
+          "architecture/public_surface"
+        ],
+        "status": "not_run"
+      }
+    ],
+    "evidence_boundary": "No generator was run. The old generated-api b3de receipt is not credited to this field/current source pin. G should regenerate against the composed frozen source and retain fresh outputs/receipts; no generated-freshness PASS is claimed here."
+  }
 }

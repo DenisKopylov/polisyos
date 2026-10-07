@@ -1,0 +1,85 @@
+{
+  "workspace_dirty_before": [
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/finding-recommendations.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/progress-row-adjudication-draft.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/monetary-producer-decoder-input-gap.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/sparse-owner-v2-intake.json"
+  ],
+  "workspace_dirty_after": [
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/finding-recommendations.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/progress-row-adjudication-draft.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/monetary-producer-decoder-input-gap.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/sparse-owner-v2-intake.json"
+  ],
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "e02_origin",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "-q",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-affected-frozen-0aba/junit.xml",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-affected-frozen-0aba/pytest-basetemp",
+    "tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py",
+    "tests/unit/remediation/test_emp_01.py::test_empty_selected_profile_returns_no_profile_before_unit_binding",
+    "tests/unit/remediation/test_emp_01.py::test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway",
+    "tests/integration/core_runtime/test_e02_informative_voi_execution.py::test_default_information_value_advance_executes_real_n5_and_budget_blocks_it",
+    "tests/unit/remediation/test_frc_01.py::test_missing_calibration_evidence_refs_stays_typed_blocked",
+    "tests/unit/remediation/test_frc_01.py::test_gateway_rejects_temporal_roles_that_disagree_with_loaded_evidence",
+    "tests/unit/remediation/test_frc_01.py::test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero",
+    "tests/unit/remediation/test_frc_01.py::test_resolver_failures_change_and_survive_fresh_forecast_disposition",
+    "tests/unit/runtime/quality/test_generation_cycle_history.py::test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly",
+    "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_history_preserves_typed_conditional_interaction_evidence",
+    "tests/unit/runtime/quality/test_generation_cycle_history.py::test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph",
+    "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_blocked_terminal_semantics_remain_enforced_in_history",
+    "tests/unit/remediation/test_emp_01.py::test_default_cycle_preserves_simulation_only_result_and_history",
+    "tests/unit/remediation/test_emp_01.py::test_direct_foundry_value_port_refuses_sparse_owner_profile",
+    "tests/integration/core_runtime/test_e02_served_cycle_custody.py::test_served_candidate_value_fresh_get_with_candidate_only_substrate"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "0aba32b8ce9c40ee178d39d44c70fe6994698938",
+  "candidate_tree": "f3de7250f955ee9d75da901817e12247711fe493",
+  "exit_code": 1,
+  "wall_s": 36.43257749994518,
+  "environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-affected-frozen-0aba:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "JAX_PLATFORMS": "cpu"
+  },
+  "probe_environment": {},
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+    "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 22525,
+      "sha256": "f73d74c636dcc02c42d3193bf38ff7a51c3c2a5e2fe4d179ebd8e56399c1e11a"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "e02_origin.py": {
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    },
+    "junit.xml": {
+      "bytes": 28172,
+      "sha256": "ac0368995c8f1c8ad369fc56605041c321934d1a7fe342768a8f1d2ff4832070"
+    },
+    "origins.json": {
+      "bytes": 1270,
+      "sha256": "109afc05f7b6d88f1c55726c09127366efb2b412cba48f219707076583ece603"
+    }
+  }
+}

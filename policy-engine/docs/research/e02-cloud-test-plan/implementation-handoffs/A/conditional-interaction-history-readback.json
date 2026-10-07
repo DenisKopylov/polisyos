@@ -1,0 +1,189 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "conditional-interaction-history-readback",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "332ba0b91e9a85774d48d101d4af86e3a3baf911",
+  "implementation_commits": [
+    "75115a02136ee59dce1239d439937d43bf84209a"
+  ],
+  "candidate_tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+    "policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py",
+    "policy-engine/tests/unit/remediation/test_emp_01.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "check_id": "history-schema-extension-source-review",
+      "command": "git show --format=fuller --no-ext-diff 75115a02136ee59dce1239d439937d43bf84209a -- src/polisyos/runtime/quality/_generation_cycle_history_schema.py tests/unit/runtime/quality/test_generation_cycle_history.py",
+      "target_sha": "75115a02136ee59dce1239d439937d43bf84209a",
+      "environment": "Read-only local Git object review; no product test or numerical execution.",
+      "input_closure": "Commit 75115a02136ee59dce1239d439937d43bf84209a, parent 332ba0b91e9a85774d48d101d4af86e3a3baf911.",
+      "outcome": "PASS",
+      "output": "The additive typed edge and owner model are applied to the current v3 history graph. The frozen v1/v2 JSON and prior frozen v3 JSON constants are not rewritten. This source review does not establish non-null v4 runtime replay."
+    },
+    {
+      "check_id": "0aba-history-and-consumer-wave",
+      "command": "pytest focused 44-test command as recorded in the referenced receipt.json",
+      "target_sha": "0aba32b8ce9c40ee178d39d44c70fe6994698938",
+      "environment": "Native macOS, Python 3.14.3, pytest 9.0.2; full argv and environment are in the receipt.",
+      "input_closure": "policy-engine/_build/e02-A-continuation-20261007/thirteenth-affected-frozen-0aba/receipt.json@sha256:e789996d53b3e3581668a4faacc20644b0fbe156be2bc0b8011d3dee2f4d2c7f",
+      "outcome": "FAIL",
+      "output": "44 tests: 42 passed, 2 failed. All four focused history selectors passed. The default-cycle case's positive persisted conditional-evidence readback ran before a reason-only tamper assertion failed; that free-text reason is not integrity-bound, so this is an invalid negative oracle. The served test separately failed during app startup because the production dataset catalog was unavailable (catalog_fetch_source_unreadable). Full output was retained by the sibling verifier at the cited _build path; it is not duplicated here."
+    },
+    {
+      "check_id": "0aba-frozen-history-replay-selector",
+      "command": "pytest tests/unit/runtime/quality/test_generation_cycle_history.py::test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly as part of the recorded 44-test command",
+      "target_sha": "0aba32b8ce9c40ee178d39d44c70fe6994698938",
+      "environment": "Native macOS, Python 3.14.3, pytest 9.0.2; see the 0aba receipt.",
+      "input_closure": "policy-engine/_build/e02-A-continuation-20261007/thirteenth-affected-frozen-0aba/junit.xml@sha256:ac0368995c8f1c8ad369fc56605041c321934d1a7fe342768a8f1d2ff4832070",
+      "outcome": "PASS",
+      "output": "The complete current and pinned historical N6 replay selector passed, including exact v1/v2 history replay. This is a selector result within a mixed failing wave, not a full-wave pass."
+    },
+    {
+      "check_id": "9e47-default-n5-history-readback",
+      "command": "pytest tests/unit/remediation/test_emp_01.py::test_default_cycle_preserves_simulation_only_result_and_history as part of the recorded two-test command",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "environment": "Native macOS, Python 3.14.3, pytest 9.0.2; full argv and environment are in the retained receipt.",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/receipt.json@sha256:83b12435d7d4c7ca9e6cf5c8a0ada1d8fffd1d72742233bef78c5b11afeffd40",
+      "outcome": "PASS",
+      "output": "The actual default N5 path produced conditional interaction evidence; the persisted payload restored with the typed evidence present and equal to the original, and history validation accepted it. The corrected negative removes authority_blockers and is rejected. This does not assert a public GET result."
+    },
+    {
+      "check_id": "9e47-served-bounded-get-attempt",
+      "command": "pytest tests/integration/core_runtime/test_e02_served_cycle_custody.py::test_served_candidate_value_fresh_get_with_candidate_only_substrate as part of the recorded two-test command",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "environment": "Native macOS, Python 3.14.3, pytest 9.0.2; full output and environment are retained under evidence/thirteenth-two-corrected-consumers-9e47/.",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/junit.xml@sha256:5d0194fa3d30f5f3d45ec130ecb99bb69107285639adf24ab3e4fd21a96af3e0",
+      "outcome": "FAIL",
+      "output": "The admitted job failed in N4 while opening production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb (database does not exist). The test stopped at the completed-job assertion before N5 and before the fresh GET. This is a missing-input failure, not a GET projection result."
+    },
+    {
+      "check_id": "9e47-two-consumer-wave",
+      "command": "pytest tests/unit/remediation/test_emp_01.py::test_default_cycle_preserves_simulation_only_result_and_history tests/integration/core_runtime/test_e02_served_cycle_custody.py::test_served_candidate_value_fresh_get_with_candidate_only_substrate as recorded in receipt.json",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "environment": "Native macOS, Python 3.14.3, pytest 9.0.2; full argv and environment are in the retained receipt.",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/receipt.json@sha256:83b12435d7d4c7ca9e6cf5c8a0ada1d8fffd1d72742233bef78c5b11afeffd40",
+      "outcome": "FAIL",
+      "output": "2 tests: 1 passed (default N5/history), 1 failed (served N4 LEX input). The suite did not reach a fresh GET."
+    },
+    {
+      "check_id": "authentic-l6-input-and-served-trajectory-witness",
+      "command": "UNRUN; no authenticated L6 source bundle or successful bounded served GET was available in this wave.",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "environment": "Not executed.",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-input-review.json and the 9e47 served-test JUnit reference above.",
+      "outcome": "UNRUN",
+      "output": "L6 authenticity remains not_established. Served-GET horizon/step coverage, trajectory-scope count, checked orders, residual scope/map, and fresh-readback values were not observed because N4 failed before N5."
+    }
+  ],
+  "property": {
+    "statement": "When current v3 ValuePortObservation history contains non-null typed conditional_interaction_evidence, historical projection, persistence, restore, and validation preserve that evidence instead of silently dropping it.",
+    "runtime_path": [
+      "default N5 interaction-evidence producer",
+      "ValuePortObservation.conditional_interaction_evidence",
+      "v3 generation-cycle historical projection and restore",
+      "persisted default-cycle history consumer"
+    ],
+    "proxy_divergence": "Field presence or OpenAPI schema shape would not prove the persisted value survives the history projection. The focused history test compares restored typed content; the 9e47 default-cycle test exercises actual N5 persistence/readback. The ordinary served GET path remains unobserved because the job fails before N5.",
+    "negative_controls": [
+      "The 0aba reason-only mutation was an invalid negative: free-text reason is not integrity-bound, and its expected rejection failed.",
+      "At 9e, the corrected authority_blockers-removal mutation is rejected by history validation while the typed payload remains otherwise present.",
+      "Do not treat the failed 9e served test as proof of a public GET behavior; GET is not reached."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "verification_missing: v3 history projection and direct default N5 persisted readback are verified within their bounded scope; served fresh-GET positive remains unverified",
+  "limitations_and_next_owner": [
+    "The bounded served test needs an available, admitted LEX knowledge-graph input; the observed 9e failure is specifically a missing local DuckDB file during N4, before N5.",
+    "Authentic L6 source identity remains UNRUN/not_established. Do not substitute loader-created hashes or a test-local source for authenticated owner input.",
+    "The served GET's horizon, steps, trajectory scopes, interaction orders, residual witness, and unit/time/sampling status assertions remain UNRUN until the request reaches N5 and the fresh GET executes.",
+    "The conditional evidence remains conditional-simulation evidence only. Unit, time, and sampling uncertainty are not established; this record makes no N9 currentness, causal-maximum-order, publication, or public GET claim.",
+    "An independent public_ir review was reported GO for commit 75115a021; it is a separate source-review disposition and does not substitute for this runtime or served-route evidence."
+  ],
+  "related_findings": [],
+  "source_pin": {
+    "history_extension_commit": "75115a02136ee59dce1239d439937d43bf84209a",
+    "history_extension_parent": "87ccc8fd3211a86ab08f4a057208451912236414",
+    "maintained_get_test_commits": [
+      {
+        "sha": "d6c7f56da1bf4bd1ac2066f8d908f7558924133a",
+        "change": "Added ordinary fresh-GET interaction evidence assertions bound to N5 trajectories."
+      },
+      {
+        "sha": "0aba32b8ce9c40ee178d39d44c70fe6994698938",
+        "change": "Added a candidate-only served test variant; the recorded 0aba run failed during catalog startup."
+      },
+      {
+        "sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+        "change": "Bound a bounded catalog fixture and corrected the history negative to remove authority_blockers; the served job then reached N4 but lacked the LEX database."
+      }
+    ],
+    "verification_candidate_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+    "verification_candidate_tree": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46"
+  },
+  "history_schema_compatibility": {
+    "v1_v2": "Frozen schemas remain unchanged; byte-exact current and pinned historical replay selector passed on 0aba.",
+    "v3": "The optional typed conditional interaction owner is additive in the current v3 history model; focused shape, full typed round-trip, and blocked-terminal selectors passed on 0aba, and the actual default history round-trip passed on 9e.",
+    "v4_non_null": "Source-reviewed only; no non-null v4 runtime replay is claimed by these runs.",
+    "evidence_status_fields": {
+      "unit_binding_status": "not_established",
+      "time_binding_status": "not_established",
+      "sampling_uncertainty_status": "not_established"
+    }
+  },
+  "independent_review_context": {
+    "reviewer": "/root/public_ir",
+    "candidate_sha": "75115a02136ee59dce1239d439937d43bf84209a",
+    "verdict": "GO",
+    "scope_boundary": "Independent source review only; not a served GET or N5 readback receipt."
+  },
+  "evidence_files": [
+    {
+      "path": "policy-engine/_build/e02-A-continuation-20261007/thirteenth-affected-frozen-0aba/receipt.json",
+      "sha256": "e789996d53b3e3581668a4faacc20644b0fbe156be2bc0b8011d3dee2f4d2c7f",
+      "copy_policy": "Cite the existing ignored run; the sibling s10 verifier owns the common evidence copy."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/receipt.json",
+      "sha256": "83b12435d7d4c7ca9e6cf5c8a0ada1d8fffd1d72742233bef78c5b11afeffd40"
+    }
+  ],
+  "handoff_contract": {
+    "minimum_literal_fields": 17,
+    "field_count_is_capped": false,
+    "required_fields_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+    "all_required_fields_present": true
+  },
+  "candidate_snapshot_diff": {
+    "base_commit": "332ba0b91e9a85774d48d101d4af86e3a3baf911",
+    "candidate_commit": "9e4753f12aa554faf19075c368123b7b914d63df",
+    "candidate_tree": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+    "complete_diff_command": [
+      "git",
+      "diff",
+      "--name-status",
+      "--no-renames",
+      "332ba0b91e9a85774d48d101d4af86e3a3baf911..9e4753f12aa554faf19075c368123b7b914d63df"
+    ],
+    "complete_path_denominator": 6,
+    "product_test_paths": [
+      "policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_served_cycle_custody.py",
+      "policy-engine/tests/unit/remediation/test_emp_01.py",
+      "policy-engine/tests/unit/remediation/test_frc_01.py",
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py"
+    ],
+    "other_tracked_companions": {
+      "path_count": 0,
+      "source_of_truth": "complete_diff_command above; existing tracked artifacts are Git-addressed, not copied"
+    },
+    "boundary": "This is the complete intervening snapshot delta, including independent slices. The property-owned changed_paths and implementation_commits select the bounded mechanism; neither list nor current test PASS admits the whole carrier."
+  }
+}

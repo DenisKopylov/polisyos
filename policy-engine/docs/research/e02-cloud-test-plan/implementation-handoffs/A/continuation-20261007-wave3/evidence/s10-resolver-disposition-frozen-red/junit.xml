@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="5" time="14.862" timestamp="2026-10-07T22:26:20.173356+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.remediation.test_frc_01" name="test_resolver_failures_change_and_survive_fresh_forecast_disposition" time="14.361"><failure message="AssertionError: missing_ref&#10;assert 'empirical_evidence_ref_missing' in 'S10 estimator-shape diagnostics derived from Foundry CausalEffectReport; empirical calibration evidence remains unestablished (finite_ci=True, diagnostics_pass=True, sample_size=100, ci_width=1).'">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/s10-resolver-disposition-frozen-red/pytest-basetemp/test_resolver_failures_change_0')
+
+    def test_resolver_failures_change_and_survive_fresh_forecast_disposition(
+        tmp_path: Path,
+    ) -&gt; None:
+        """Canonical resolver failures survive ForecastSupport and a fresh consumer read."""
+    
+        from polisyos.calibration.forecast_bridge import EmpiricalCalibrationEvidenceRef
+        from polisyos.ir.artifacts import ArtifactID
+        from polisyos.runtime.quality.design_axes.outcome_prediction import ForecastSupport
+        from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
+    
+        store, evidence_ref, evidence = _persisted_bridge_fixture(tmp_path)
+        ref_payload = evidence_ref.model_dump(mode="python")
+        missing_artifact_id = ArtifactID.from_sha256_hex("f" * 64)
+        assert all(
+            str(artifact_id) != str(missing_artifact_id)
+            for artifact_id in store.iter_artifact_ids()
+        )
+        unresolved_ref = EmpiricalCalibrationEvidenceRef.model_validate(
+            {**ref_payload, "artifact_id": missing_artifact_id}
+        )
+        wrong_kind_ref = {**ref_payload, "kind": "ir.forecast_support"}
+        roles = {
+            "prediction_time": evidence.prediction_time,
+            "observation_time": evidence.observation_time,
+            "policy_effective_time": evidence.policy_effective_time,
+            "data_valid_time": evidence.data_valid_time,
+            "calibration_window_start": evidence.calibration_window_start,
+            "calibration_window_end": evidence.calibration_window_end,
+        }
+        cases = (
+            ("missing_ref", "empirical_evidence_ref_missing", None, None, roles),
+            (
+                "unresolved_ref",
+                "empirical_evidence_ref_unresolved",
+                unresolved_ref,
+                None,
+                roles,
+            ),
+            (
+                "wrong_kind",
+                "empirical_evidence_ref_kind_mismatch",
+                wrong_kind_ref,
+                None,
+                roles,
+            ),
+            (
+                "wrong_time",
+                "empirical_evidence_time_mismatch",
+                evidence_ref,
+                None,
+                {
+                    **roles,
+                    "prediction_time": evidence.prediction_time + timedelta(hours=1),
+                },
+            ),
+            (
+                "wrong_rule",
+                "empirical_evidence_rule_mismatch",
+                evidence_ref,
+                "rolling-origin-residual-conformal.wrong-version",
+                roles,
+            ),
+        )
+        report_reason = _generation_cycle("_s10_calibration_evidence_from_report")(
+            _finite_estimator_report()
+        )["forecast_authority_disposition_reason"]
+        reasons: set[str] = set()
+    
+        for case_id, error_code, raw_ref, rule_ref, temporal_roles in cases:
+            candidate, problem, world_record = _frc01_subjects()
+            output: dict[str, object] = {"report": _finite_estimator_report()}
+            if raw_ref is not None:
+                output["empirical_calibration_evidence_ref"] = raw_ref
+            if rule_ref is not None:
+                output["expected_rule_version_ref"] = rule_ref
+            else:
+                output["expected_rule_version_ref"] = "rolling-origin-residual-conformal.v1"
+            resolver = _PersistedForecastEvidenceResolver(store)
+            inputs = RealValueOwnerGateway(
+                repo_root=store.root,
+                empirical_evidence_resolver=resolver,
+            ).produce_forecast_inputs(
+                candidate=candidate,
+                problem=problem,
+                world_record=world_record,
+                method_result=SimpleNamespace(
+                    output=output,
+                    temporal_roles=SimpleNamespace(**temporal_roles),
+                ),
+                selected_method_fqn="forecasting.univariate.exponential_smoothing@1.0.0",
+            )
+    
+            support = inputs["forecast_support"]
+            reason = support.forecast_authority_disposition_reason
+            assert resolver.resolved_refs == [raw_ref], case_id
+&gt;           assert error_code in reason, case_id
+E           AssertionError: missing_ref
+E           assert 'empirical_evidence_ref_missing' in 'S10 estimator-shape diagnostics derived from Foundry CausalEffectReport; empirical calibration evidence remains unestablished (finite_ci=True, diagnostics_pass=True, sample_size=100, ci_width=1).'
+
+tests/unit/remediation/test_frc_01.py:467: AssertionError</failure></testcase><testcase classname="tests.unit.remediation.test_frc_01" name="test_missing_calibration_evidence_refs_stays_typed_blocked" time="0.000" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_gateway_rejects_temporal_roles_that_disagree_with_loaded_evidence" time="0.112" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero[unavailable-observation]" time="0.110" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero[observed-zero-rate]" time="0.111" /></testsuite></testsuites>

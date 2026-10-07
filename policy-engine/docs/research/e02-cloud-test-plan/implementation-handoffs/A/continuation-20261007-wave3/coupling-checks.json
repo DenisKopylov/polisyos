@@ -1,0 +1,89 @@
+{
+  "schema": "policyos.e02.A.coupling_composition_checks.v1",
+  "slice": "coupling-composition-current",
+  "candidate": {
+    "sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+    "tree": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+    "branch": "codex/e02-A-delivery-attached"
+  },
+  "source_review": {
+    "reviewer": "atomic_composition",
+    "mode": "independent_read_only",
+    "judgment": "GO_bounded",
+    "source_path": "policy-engine/src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+    "source_blob": "9494717e0536fe6d9a2bbc360b0a0f5ea1ee0636",
+    "source_commit": "04767a85dc6822958d5628d07410313cbf62c42a",
+    "test_path": "policy-engine/tests/unit/runtime/quality/test_design_axes_coupling_composition.py",
+    "test_blob": "f80d3cc5585c74fb533bc49a02a60687bdaad500",
+    "test_commit": "a92da88ae5b20df707731f348dd6257edaa209df",
+    "current_paths_unchanged_from_history": true,
+    "scope": "The fail-closed evidence-state selector and candidate/absent decomposition negative versus the observed fixture control.",
+    "selectors": {
+      "classify_coupling": "A missing graph, any state other than observed, missing module_discovery_ref, or an empty edge list selects default entangled, firewall block, and system_evidence_required. Otherwise the graph reaches _classify_observed_graph.",
+      "observed_graph": "A nonzero-edge cycle is entangled; without such a cycle, the most restrictive boundary regime is selected. At each boundary, feedback/unknown is entangled, all-none strength is modular, strong is hierarchical, and weak is near-decomposable.",
+      "composition": "compose_subdesigns rejects absent/non-observed/discovery-missing graphs before composition; unknown consistency is refused, feedback requires system dynamics, shared-resource coupling requires capacity aggregation, and downstream child/claim authority evidence is separately resolved and content-bound."
+    },
+    "behavioral_negative": {
+      "test": "test_candidate_graph_with_same_none_strength_edge_cannot_claim_modularity",
+      "line_span": [
+        197,
+        223
+      ],
+      "observed_control": "Same fixture and edge structure classify modular.",
+      "candidate_control": "Only evidence_state changes; candidate classifies entangled, defaulted_to_more_coupling, firewall block, and system_evidence_required decomposition.",
+      "absent_control": "Only evidence_state changes; absent remains entangled, defaulted_to_more_coupling, and blocked.",
+      "execution": "Both coupling tests are included in the current candidate's 9-test run referenced under execution."
+    },
+    "provenance_boundary": {
+      "predicate_basis": "not_established",
+      "evidence_state": "The typed state is supplied by the caller; the classifier consumes the value but does not independently verify its truth.",
+      "module_discovery_ref": "Presence is required for classification/composition, but this classifier path does not resolve and content-bind that ref.",
+      "ordinary_edge_evidence_ref": "Carried into classifications and law checks; ordinary edge evidence refs are not content-resolved by this selector.",
+      "independence_consistency_ref": "When supplied for a none-strength edge, the existing path does resolve/bind/verify it; this is narrower than authenticating graph state or all edge refs.",
+      "unexecuted_falsifier": "Hold graph topology and unresolved/fake refs fixed, set evidence_state='observed', and call classify_coupling. Source inspection predicts observed classification can proceed; this falsifier was not run, so it is not recorded as an executed negative."
+    },
+    "authority_limit": "The source classification is a deterministic coupling-regime result, not proof that the input graph's observed status is authentic and not whole-design, publication, rollout, or production authority. The positive receipt test declares whole_design_authority='shadow_governed_only'.",
+    "finding_scope": {
+      "pattern_ids": [
+        "P17"
+      ],
+      "closure_ids": [],
+      "related_finding_mapping": "Not adjudicated by this review. The continuation plan explicitly says this selector does not implement B15 child production.",
+      "excluded_claims": [
+        "B23 cache closure",
+        "B26 cubic-interaction closure"
+      ]
+    },
+    "owner_semantics": {
+      "canonical_code_owner": "polisyos.runtime.quality.design_axes.coupling_composition",
+      "test_owner_in_continuation_plan": "recursive_status",
+      "observed_graph_provenance_owner": "not_established in this source slice"
+    }
+  },
+  "execution": {
+    "run_id": "thirteenth-coupling-and-structure-current-9e47",
+    "candidate_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+    "candidate_tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+    "runner_receipt": {
+      "path": "policy-engine/_build/e02-A-continuation-20261007/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+      "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7"
+    },
+    "complete_output_manifest_ref": "runner_receipt#/outputs",
+    "deciding_stdout": "......... [100%]\n9 passed in 15.65s",
+    "exit_code": 0,
+    "wall_seconds": 19.785549207997974,
+    "test_count_interpretation": "9 total: the two named coupling tests plus seven tests selected from test_structure_context_bridge.py. This is not a broader-suite result.",
+    "reviewer_execution": "No rerun was performed by this source reviewer. The receipt and all listed output files were read from the supplied current-candidate run."
+  },
+  "pattern_pass": {
+    "relevant": [
+      "P17",
+      "P29",
+      "P32",
+      "P37",
+      "P38"
+    ],
+    "result": "The state mutation test is behavioral for the selector effect. P37/P38 remain bounded because the selector trusts a caller-supplied state field rather than authenticating the observed graph predicate. No per-instance code repair is proposed."
+  },
+  "handoff_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/coupling-composition-current.json"
+}

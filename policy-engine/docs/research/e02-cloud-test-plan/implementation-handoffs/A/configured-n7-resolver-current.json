@@ -1,0 +1,327 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "configured-n7-resolver-current",
+  "closure_ids": [],
+  "finding_ids": [
+    "B12"
+  ],
+  "bundle_ids": [
+    "ACQ-01"
+  ],
+  "slice_base_sha": "9a4321da7e339d9626516cddaf116d41f2f877a9",
+  "slice_base_tree_sha": "886f8f82e98bda57bbba6fcc59ab8a453dada755",
+  "implementation_commits": [
+    "e74decd8ac6c244f8950d73989e61dc6708f8ae4"
+  ],
+  "candidate_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+  "candidate_tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+  "branch": "codex/e02-A-delivery-attached",
+  "branch_head_at_canonicalization": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+  "branch_head_tree_at_canonicalization": "923d8efba603ac280216566c62542f6cc92cf4bc",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/capability_discovery.py",
+    "policy-engine/src/polisyos/runtime/quality/data_state_substrate.py",
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+    "policy-engine/tests/unit/runtime/quality/test_e02_configured_n7_resolver.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "check_id": "configured-n7-resolver-seven-case-run",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-configured-n7-resolver-9e47/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-configured-n7-resolver-9e47/pytest-basetemp tests/unit/runtime/quality/test_e02_configured_n7_resolver.py",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "python": "3.14.3",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-configured-n7-resolver-9e47:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_environment": {},
+        "launcher_ref": "policy-engine/_build/e02-A-continuation-20261007/run_check.py@sha256:679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+      },
+      "input_closure": {
+        "slice_base": {
+          "commit": "e74decd8ac6c244f8950d73989e61dc6708f8ae4",
+          "tree": "a54b2d75f6b61a153c9f8abe4abad39f934ab547"
+        },
+        "test_target": {
+          "commit": "9e4753f12aa554faf19075c368123b7b914d63df",
+          "tree": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46"
+        },
+        "test_source": "policy-engine/tests/unit/runtime/quality/test_e02_configured_n7_resolver.py@c399ead7eb9de3e8ba585e40142425359c1a1a3b",
+        "helper_source": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py@274058481969fb5c2fab9db4edc4833e3a4a6880",
+        "fixture": "The positive creates a temporary mode=fixture capability index with the canonical CapabilityIndexCompiler, then reads its DuckDB release/manifest through the configured loader. Fixture inputs and DuckDB/CAS/temp artifacts remain in ignored pytest-basetemp and are not copied into this handoff.",
+        "source_footprint_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/configured-n7-resolver-current.json#/source_footprint"
+      },
+      "outcome": "PASS",
+      "output": {
+        "concise_result": "Pytest exit 0; JUnit 7/7 passed. Stdout says 7 passed in 16.04s; the runner receipt records wall_s=20.135453541 seconds.",
+        "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/receipt.json@sha256:a4055d8e9775ab0f4588cddded7097cd21655389f64ce0df4224b7bf7b8cd181",
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/stdout.txt@sha256:fdcf0a2c5ef80655b3a64eb8fa880e4ecf8bc743c111256a84727546016d413e",
+        "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/junit.xml@sha256:c5b466c748708510dfd28a456c03734e84614488b40803e454703f8d1f065164",
+        "origins": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/origins.json@sha256:fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+        "origin_hook": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/e02_origin.py@sha256:b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+        "case_detail_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/configured-n7-checks.json#/checks"
+      }
+    }
+  ],
+  "property": {
+    "statement": "When the N7 controller has no precomposed resolver, it loads the configured, manifest-checked capability-index release and builds the existing resolver from that release; a controlled query over an emitted capability row returns a binding tied to the loaded release. An unavailable release becomes a typed N7 refusal instead of a fixture fallback.",
+    "runtime_path": [
+      "Test fixture inputs -> canonical CapabilityIndexCompiler(mode=fixture) -> persisted DuckDB and manifest in pytest temp storage.",
+      "GenerationCycleController._n7_capability_resolver -> capability_discovery.load_default_capability_index_release -> RequirementToCapabilityResolver.from_capability_index.",
+      "RequirementToCapabilityResolver.resolve receives a query built from the loaded index capability row and returns the same capability_index_ref."
+    ],
+    "proxy_divergence": "A loader marker or schema presence could pass while the consumer used another index. The test observes the configured loader call, checks release_ref, forbids governed_fixture fallback, and resolves an index-derived query; those assertions distinguish the configured persisted-release path.",
+    "negative_controls": [
+      "Four unavailable states: missing configuration, missing DuckDB, invalid manifest digest, and malformed database all produce the typed n7_capability_index_unavailable error and expected provider reason.",
+      "Present empty requirements and the exact any_of gap do not invoke the resolver.",
+      "Controller routing reports acquisition_required on unavailable N7 and creates no acquisition receipt/routing report."
+    ],
+    "authority_boundary": "The compiled index is mode=fixture and proves configured loader/resolver wiring only. It is not C source authority, an action permission, production admission, or world growth."
+  },
+  "predicate_basis": "consumer_asserted",
+  "capability_state_or_finding_state": "partial; the configured-index loader/resolver path has bounded fixture-backed runtime evidence; native N7 action admission and dependent WMR change remain verification_missing.",
+  "limitations_and_next_owner": [
+    "A: run and record a distinct test for nonempty DataRequirementCompiler output composed with the configured resolver; this current test calls _n7_capability_resolver directly for its positive and short-circuits explicit empty/any_of requests.",
+    "C: provide the exact source-variable/profile mapping and current permission/admission evidence for a supported N7 action; a fixture capability-index release does not supply these.",
+    "A/C: exercise native N7 permission, source admission, durable readback and same-case WMR/downstream calculation change. None is established by this unit test.",
+    "No DataStateSubstrate behavior is claimed: the helper test module imports its L1VariableAvailability type, but the seven selectors do not exercise S1 data-state materialization.",
+    "The prior owner-inputs-N7 packet marked this new test UNRUN because its earlier receipt did not include these outputs; this handoff records the later 9e run only and does not alter its B12/LA-046 boundary."
+  ],
+  "source_history_note": "The prompted slice base is e74decd8… (tree a54b2d75…); it is also the historical configured-resolver source/test introduction commit. No source edit was made by this evidence task. The actual run targets later candidate 9e4753…/tree b20c0656…. Current branch HEAD 055ceb1… is later, but every N7 source/test blob cited below matches the run target.",
+  "source_footprint": {
+    "selected_test": {
+      "path": "policy-engine/tests/unit/runtime/quality/test_e02_configured_n7_resolver.py",
+      "git_blob_at_9e_and_055": "c399ead7eb9de3e8ba585e40142425359c1a1a3b",
+      "role": "seven selected cases and fixture/query construction"
+    },
+    "behavioral_path": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "git_blob": "24bc51b91a70e763076221228095573eb1d0e554",
+        "role": "_n7_capability_resolver, _n7_data_requirement_specs controls, and bounded controller routing"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/capability_discovery.py",
+        "git_blob": "234f381f03013cc610493845af9168481da713e6",
+        "role": "configured release loader; direct positive and failure-path input"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/capability_index_compiler.py",
+        "git_blob": "1a3315a0ccc37dbb27c8cad9eea28eab84dd3efd",
+        "role": "canonical compiler used by the test to emit fixture-mode persisted release"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/capability_index.py",
+        "git_blob": "ecc9e18bbd91d65a8021efcbb322854aad69a3df",
+        "role": "loaded index and emitted capability records"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/capability_resolver.py",
+        "git_blob": "eb37257c06905fe6a80faa6536b4b1b35a6e3b6b",
+        "role": "resolver constructed from loaded index and query resolution"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py",
+        "git_blob": "da680b58a7d4bde1ddba87944f82912c52e9faa9",
+        "role": "exact any_of requirement-gap constructor used in the no-load control"
+      }
+    ],
+    "test_helper": {
+      "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "git_blob": "274058481969fb5c2fab9db4edc4833e3a4a6880",
+      "role": "_problem, _budget, and fake candidate/grounding ports for the controller refusal case"
+    },
+    "loaded_not_behaviorally_established": {
+      "path": "policy-engine/src/polisyos/runtime/quality/data_state_substrate.py",
+      "git_blob": "a5a90eafe30e7c6f8c89c5cf50c7a25a00d68033",
+      "role": "helper module imports L1VariableAvailability; no data-state materialization behavior is asserted"
+    },
+    "selected_origin_hook_modules": [
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "git_blob": "72127a25ff25d4a034d376ba1452f54e96914931"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+        "git_blob": "9494717e0536fe6d9a2bbc360b0a0f5ea1ee0636"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "git_blob": "77f0743bebfdf72f635a0f0477884c279b865da6"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "git_blob": "24bc51b91a70e763076221228095573eb1d0e554"
+      }
+    ],
+    "origin_hook_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/e02_origin.py@sha256:b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+    "origins_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/origins.json@sha256:fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+    "origin_hook_limit": "The hook captures only its explicitly selected module names; direct test imports (including capability_discovery) are recorded above from test source, not inferred absent from origins.json.",
+    "same_blobs_at_current_head": true,
+    "source_introducer_commit_scope": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/capability_discovery.py",
+        "git_blob_at_9e": "234f381f03013cc610493845af9168481da713e6",
+        "selected_in_run": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/data_state_substrate.py",
+        "git_blob_at_9e": "a5a90eafe30e7c6f8c89c5cf50c7a25a00d68033",
+        "selected_in_run": false,
+        "reason": "Only helper type import; no data-state behavior asserted."
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "git_blob_at_9e": "24bc51b91a70e763076221228095573eb1d0e554",
+        "selected_in_run": true
+      },
+      {
+        "path": "policy-engine/tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+        "git_blob_at_9e": "020814605f28e6988ab1d14abd7d095d61ee083e",
+        "selected_in_run": false,
+        "reason": "Sibling test touched by e74; not among the seven JUnit cases in this run."
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_e02_configured_n7_resolver.py",
+        "git_blob_at_9e": "c399ead7eb9de3e8ba585e40142425359c1a1a3b",
+        "selected_in_run": true
+      }
+    ],
+    "source_introducer_commit_scope_ref": "e74decd8ac6c244f8950d73989e61dc6708f8ae4"
+  },
+  "test_case_outcomes_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/configured-n7-checks.json",
+  "evidence_refs": {
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/receipt.json@sha256:a4055d8e9775ab0f4588cddded7097cd21655389f64ce0df4224b7bf7b8cd181",
+    "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/stdout.txt@sha256:fdcf0a2c5ef80655b3a64eb8fa880e4ecf8bc743c111256a84727546016d413e",
+    "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/junit.xml@sha256:c5b466c748708510dfd28a456c03734e84614488b40803e454703f8d1f065164",
+    "origins": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/origins.json@sha256:fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+    "origin_hook": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/e02_origin.py@sha256:b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+  },
+  "independent_source_review": {
+    "reviewer": "/root/n7_acquisition",
+    "disposition": "GO, bounded",
+    "boundary": "Independent read of this resolver/test slice; it does not establish C source authority, permission, admission, readback, or changed WMR.",
+    "review_artifact": "No separate reviewer artifact was included in the six-file run evidence copy."
+  },
+  "handoff_contract": {
+    "minimum_literal_fields": 17,
+    "field_count_is_capped": false,
+    "required_fields_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+    "all_required_fields_present": true,
+    "required_check_keys": [
+      "command",
+      "target_sha",
+      "environment",
+      "input_closure",
+      "outcome",
+      "output"
+    ]
+  },
+  "pattern_pass": {
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P05",
+      "P10",
+      "P12",
+      "P29",
+      "P32",
+      "P37",
+      "P38",
+      "P41"
+    ],
+    "risk": "Treating the configured fixture resolver pass as the complete N7 capability would confuse loader success with C authority, permission, source admission, and changed world state.",
+    "closure_move": "Keep this evidence bounded to the configured index consumer and hand the missing typed mapping/action admission and same-case readback to A/C."
+  },
+  "candidate_snapshot_diff": {
+    "base_commit": "9a4321da7e339d9626516cddaf116d41f2f877a9",
+    "candidate_commit": "9e4753f12aa554faf19075c368123b7b914d63df",
+    "candidate_tree": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+    "complete_diff_command": [
+      "git",
+      "diff",
+      "--name-status",
+      "--no-renames",
+      "9a4321da7e339d9626516cddaf116d41f2f877a9..9e4753f12aa554faf19075c368123b7b914d63df"
+    ],
+    "complete_path_denominator": 481,
+    "product_test_paths": [
+      "policy-engine/src/polisyos/core/contracts/__init__.py",
+      "policy-engine/src/polisyos/core/contracts/runtime.py",
+      "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+      "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/evaluation_safety.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+      "policy-engine/src/polisyos/runtime/quality/capability_discovery.py",
+      "policy-engine/src/polisyos/runtime/quality/data_state_substrate.py",
+      "policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py",
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "policy-engine/src/polisyos/runtime/quality/production_invocation.py",
+      "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/provider_quality.py",
+      "policy-engine/src/polisyos/scientist/policy_design/search.py",
+      "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_informative_voi_execution.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_revision_context_reentry.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_served_cycle_custody.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_voi_artifact_projection.py",
+      "policy-engine/tests/integration/runtime_quality/test_e02_candidate_model_revision.py",
+      "policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+      "policy-engine/tests/unit/data_requirement/test_e02_named_profile_context.py",
+      "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py",
+      "policy-engine/tests/unit/remediation/test_e02_source_strangle_owner_resolution.py",
+      "policy-engine/tests/unit/remediation/test_emp_01.py",
+      "policy-engine/tests/unit/remediation/test_frc_01.py",
+      "policy-engine/tests/unit/remediation/test_sim_01.py",
+      "policy-engine/tests/unit/runtime/http/services/control/test_nl_pipeline_cost_projection.py",
+      "policy-engine/tests/unit/runtime/http/services/test_e02_monetary_usage_projection.py",
+      "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+      "policy-engine/tests/unit/runtime/quality/recursive_generation_cycle_fixtures.py",
+      "policy-engine/tests/unit/runtime/quality/test_depth_n_universality.py",
+      "policy-engine/tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+      "policy-engine/tests/unit/runtime/quality/test_e02_configured_n7_resolver.py",
+      "policy-engine/tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py",
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py",
+      "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+      "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+      "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+      "policy-engine/tests/unit/runtime/quality/test_workspace_composition.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_provider_quality.py",
+      "policy-engine/tests/unit/scientist/policy_design/test_structure_context_bridge.py"
+    ],
+    "other_tracked_companions": {
+      "path_count": 429,
+      "source_of_truth": "complete_diff_command above; existing tracked artifacts are Git-addressed, not copied"
+    },
+    "boundary": "This is the complete intervening snapshot delta, including independent slices. The property-owned changed_paths and implementation_commits select the bounded mechanism; neither list nor current test PASS admits the whole carrier."
+  }
+}

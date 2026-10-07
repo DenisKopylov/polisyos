@@ -1,0 +1,612 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "sparse-owner-v2-intake",
+  "slice_base_sha": "aaa89a6988ed553310fc7950054e7b6af4a05956",
+  "slice_base_tree_sha": "783954226a2e68486c7fc8d6b63f5e7f19093097",
+  "implementation_commits": [
+    {
+      "sha": "69b607ed84132797edbdbbe1d65dbee07f749d06",
+      "tree": "1f4d4c2bb30b2a58d25fa87111c3d90a0295c7e7",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "change": "Distinguishes a nonempty selected owner profile below the existing four-row minimum from an empty profile and from a cap-truncated profile, returning the typed value-owner refusal."
+    },
+    {
+      "sha": "4ef715efc89865325b789eed3ccd340da7b9f3be",
+      "tree": "b6fddbfb771ab158dd8145daa551e181510477f4",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "change": "Allows the direct FoundryValuePort path to resolve the content-bound supported N5 v2 evaluation input used by the sparse-owner refusal test."
+    }
+  ],
+  "test_history_commits": [
+    {
+      "sha": "5a1fff2f8c922af8289e5eff9fe7f1545edbd1ee",
+      "role": "introduces sparse/nonempty/empty/cap characterization"
+    },
+    {
+      "sha": "38040393a4c5c418e08e0a51c6aca2414acd65e0",
+      "role": "binds synthetic profile fixtures to baseline catalog state"
+    },
+    {
+      "sha": "aaa89a6988ed553310fc7950054e7b6af4a05956",
+      "role": "lint-aligned test-first red immediately before the insufficient-row source change"
+    },
+    {
+      "sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+      "role": "aligns the focused scope harness with the actual CAST predicate"
+    },
+    {
+      "sha": "d89826093652d1ce9bf563d975570ca04119e2f1",
+      "role": "adds default-cycle sparse refusal/readback attempt"
+    },
+    {
+      "sha": "ca038ac238af074b938ea532f0182664fe611b41",
+      "role": "adds real persisted N5 fixture to default N5/N8 attempt; fixture owner-scope failure retained"
+    },
+    {
+      "sha": "cfeaecf1ab4390abd91f5ee82e9e289811f7ff41",
+      "role": "resolves persisted outputs under owner contexts; default simulation-only attempted assertion retained as failure"
+    },
+    {
+      "sha": "c8f774587013b16b6851fc106192ad55e8b58a7f",
+      "role": "separates direct intake from default simulation-only route; pre-v2 input gate and history mismatch retained"
+    },
+    {
+      "sha": "4ef715efc89865325b789eed3ccd340da7b9f3be",
+      "role": "adds supported-v2 direct FoundryValuePort sparse refusal assertions"
+    }
+  ],
+  "candidate_sha": "4ef715efc89865325b789eed3ccd340da7b9f3be",
+  "candidate_tree_sha": "b6fddbfb771ab158dd8145daa551e181510477f4",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "closure_ids": [],
+  "finding_ids": [
+    "B16"
+  ],
+  "bundle_ids": [
+    "EMP-01"
+  ],
+  "slice_owned_paths": [
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/tests/unit/remediation/test_emp_01.py"
+  ],
+  "shared_commit_adjacent_test_paths": [
+    "policy-engine/tests/integration/core_runtime/test_e02_informative_voi_execution.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_voi_artifact_projection.py"
+  ],
+  "candidate_source_pins": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "git_blob": "e3c369a8a40db0849db4bb08ca732fd7c5761fa7",
+      "sha256": "abc8728d73670ec97dd1bc25f9a17580629d65bea812d417ff01fb48f273f15c",
+      "bytes": 644666
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_emp_01.py",
+      "git_blob": "284f373c87eb7212aaf8bc9d67a1a3fcbb34e203",
+      "sha256": "dcac18b265ac923922ea9fd0ba775f271cdb4e96f84f121eb5bba7026fa4680b",
+      "bytes": 37792
+    }
+  ],
+  "authority_purpose": "Distinguish sparse selected owner data from empty or truncated data and preserve a typed refusal through a direct supported-v2 FoundryValuePort intake. This evidence grants no empirical, causal, forecast, or publication authority.",
+  "criterion": {
+    "id": "B16",
+    "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a#L387-L398",
+    "summary": "Task scope must constrain selected rows before LIMIT and aggregation; preserve source/unit distinctions; separate absent data, incomplete data, and truncation; and avoid treating a truly small sample as complete.",
+    "source_history_note": "The earlier B16 wording specifically calls for scope before row cap/aggregation and says not to solve the risk by merely raising LIMIT."
+  },
+  "provenance": {
+    "implementation_owner": "RealValueOwnerGateway / _load_value_data_profile_from_l1_dcat in generation_cycle.py",
+    "direct_consumer": "FoundryValuePort with RealValueOwnerGateway, invoked directly by the current supported-v2 test; not the default GenerationCycleController route.",
+    "simulation_input": "The test builds and resolves a real content-bound N5 joint-simulation-result v2 CAS input through the existing evaluation-context path.",
+    "sparse_profile_fixture": "Owner profile rows are synthetic baseline-only rows delivered through a test connection and availability stub; they are not a C-activated observation projection or production-data read.",
+    "previous_full_member_intake": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/empirical-intake.json@sha256:efe21fe2ed3962696cfbf53a8d41ce4077e7ac916ecca502001c689b07569a26; earlier four-member C→A intake evidence is separate and is not combined with this later direct-port candidate into one fresh run."
+  },
+  "observed_behavior": {
+    "nonempty_under_minimum": "Selected profile sizes 1, 2, and 3 raise acquire_data:value_owner_rows_insufficient at both loader and direct gateway, rather than being presented as a usable profile.",
+    "empty_profile": "Zero selected rows returns no profile from the loader and is mapped by the gateway to acquire_data:value_owner_rows_missing.",
+    "truncation": "The cap control uses LIMIT ? with a 20,001 sentinel row limit and refuses with acquire_data:value_owner_rows_truncated.",
+    "scope": "Focused tests verify the country predicate is present before LIMIT and that another region is excluded; these use a synthetic RowsConnection, not real DuckDB query execution.",
+    "unit": "Synthetic within-scope mixed-unit and cross-period mixed-dataset cases fail closed rather than being averaged into one profile.",
+    "direct_port": "At the 4ef candidate the three under-four profiles produce value_blocked, evaluation_mode=simulate_only, the exact insufficient-row blocker, and no acquisition requirement."
+  },
+  "scope_and_cardinality": {
+    "fixture_country": "UA",
+    "fixture_dataset_rows": "One synthetic baseline dataset identity per sparse parameter case.",
+    "tested_cardinalities": [
+      0,
+      1,
+      2,
+      3,
+      20001
+    ],
+    "minimum_rows_behavior": "Four is the existing implementation minimum. It is a refusal threshold, not a completeness or representativeness proof.",
+    "selected_period_semantics": "Synthetic period coordinates are fixture inputs only; valid time, as-of, policy time, source freshness, and forecast horizon are not bound.",
+    "population_scope": "No population or subpopulation definition is supplied or established.",
+    "geography_scope": "Only a synthetic declared UA country filter is exercised; no general multi-country completeness is established.",
+    "dataset_scope": "No activated C passport/projection is used by the sparse direct-port fixture; this slice does not establish activated-member source provenance."
+  },
+  "finding_outcome": {
+    "id": "B16",
+    "outcome": "limited",
+    "capability_label": "verification_missing",
+    "ledger_status": "partial",
+    "appendix_c_status": "partial",
+    "closure_now": "not_adjudicated",
+    "outcome_basis": "The direct path now distinguishes a nonempty under-minimum owner profile from empty and truncated data and preserves a typed refusal over a content-bound N5 v2 input. The original criterion still lacks an admitted ETS forecast, paired held-out outcomes, training-only verification, leakage rejection, independently recomputed held-out scope/time/threshold/coverage, and predictive-only served support. No B16 closure ID is assigned."
+  },
+  "checks_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json",
+  "checks_contract": {
+    "required_literal_keys_per_check": [
+      "command",
+      "target_sha",
+      "environment",
+      "input_closure",
+      "outcome",
+      "output"
+    ],
+    "allowed_outcomes": [
+      "PASS",
+      "FAIL",
+      "ERROR",
+      "SKIP",
+      "UNRUN"
+    ],
+    "count_is_not_capped": true,
+    "current_check_count": 11
+  },
+  "separate_open_issue": {
+    "id": "default_cycle_history_negative_control",
+    "outcome": "resolved_for_corrected_history_validation",
+    "capability_label": "verification_missing",
+    "description": "The earlier c8 historical_projection_mismatch was addressed by commit 75115a021. The 0aba reason-only mutation was an invalid negative oracle because free-text reason is not integrity-bound. At 9e, the corrected negative removes authority blockers while retaining the persisted conditional interaction evidence, and the default-cycle history test passes after fresh restore. This resolves the bounded history-validation issue only; it does not establish B16 forecast/holdout acceptance.",
+    "current_evidence_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/junit.xml@sha256:5d0194fa3d30f5f3d45ec130ecb99bb69107285639adf24ab3e4fd21a96af3e0",
+    "historical_projection_fix_commit": "75115a021",
+    "previous_evidence_ref": "policy-engine/_build/e02-A-continuation-20261007/thirteenth-affected-frozen-0aba/junit.xml@sha256:ac0368995c8f1c8ad369fc56605041c321934d1a7fe342768a8f1d2ff4832070",
+    "previous_outcome": "FAIL at 0aba: invalid reason-only negative oracle",
+    "corrected_validation_outcome": "PASS for test_default_cycle_preserves_simulation_only_result_and_history at 9e"
+  },
+  "related_work_not_combined": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/empirical-intake.json",
+      "sha256": "efe21fe2ed3962696cfbf53a8d41ce4077e7ac916ecca502001c689b07569a26",
+      "note": "Earlier 6f9 C-member→A-profile positive; separate candidate and run, not evidence that the sparse 4ef direct-port case traversed C activation or the default cycle."
+    }
+  ],
+  "decision": "B16 remains limited with verification_missing and no closure IDs. The 0aba mixed wave remains historical FAIL (42/44); the 9e corrected default-cycle history test passes, while the separate served GET/N4 selector fails because the real LEX DuckDB input is absent. The sparse refusal and history evidence do not establish population/time completeness, the original B16 forecast/holdout criterion, or B31 closure.",
+  "documentation_files_written": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/sparse-owner-v2-intake.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json"
+  ],
+  "source_patch_base_sha": "aaa89a6988ed553310fc7950054e7b6af4a05956",
+  "source_patch_base_tree_sha": "783954226a2e68486c7fc8d6b63f5e7f19093097",
+  "shared_source_file_caveat": "generation_cycle.py is a shared owner file across neighboring slices. Only the two named implementation commits are attributed to this sparse-owner slice; the complete 4ef candidate includes separate adjacent work.",
+  "latest_followup_validation": {
+    "candidate_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+    "candidate_tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+    "run_id": "thirteenth-two-corrected-consumers-9e47",
+    "overall_outcome": "FAIL",
+    "junit_counts": {
+      "tests": 2,
+      "passed": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "default_cycle_history": "PASS: corrected authority-blocker negative control and fresh history validation",
+    "served_get_real_n4": "FAIL: required read-only LEX DuckDB file is absent from this checkout",
+    "served_get_missing_input": "policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb",
+    "scope": "Mixed affected-consumer follow-up; it does not expand B16 acceptance or adjudicate B31.",
+    "evidence": {
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/stdout.txt@sha256:a6e9d5b6b26f3de945265fde553af61e8134db16d4175055272ecf1a172ff2bf",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/junit.xml@sha256:5d0194fa3d30f5f3d45ec130ecb99bb69107285639adf24ab3e4fd21a96af3e0",
+      "runner_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/receipt.json@sha256:83b12435d7d4c7ca9e6cf5c8a0ada1d8fffd1d72742233bef78c5b11afeffd40"
+    }
+  },
+  "candidate_scope_note": "candidate_sha remains 4ef715efc89865325b789eed3ccd340da7b9f3be as the sparse-owner implementation candidate. The 0aba mixed affected-consumer wave is a later validation candidate recorded separately and includes neighboring work.",
+  "changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/tests/unit/remediation/test_emp_01.py"
+  ],
+  "baseline_cells": [],
+  "property": {
+    "statement": "The selected empirical owner profile is scoped before the row cap and aggregation; empty, nonempty-under-minimum, and cap-truncated selections remain distinct, and a small sample is not represented as complete.",
+    "runtime_path": [
+      "the empirical owner-profile loader and its typed sparse/truncation refusals",
+      "the direct FoundryValuePort and RealValueOwnerGateway using a content-bound N5 v2 evaluation input"
+    ],
+    "proxy_divergence": "A four-row implementation floor, LIMIT 20001, or a synthetic SQL predicate harness does not establish population completeness, valid time, source freshness, or a real multi-region task scope.",
+    "negative_controls": [
+      "empty selection maps to acquire_data:value_owner_rows_missing",
+      "1/2/3 selected rows refuse with acquire_data:value_owner_rows_insufficient through loader, gateway, and direct FoundryValuePort",
+      "a 20,001-row sentinel profile refuses as truncated",
+      "synthetic scope-before-limit, cross-region, mixed-unit, and cross-period controls fail closed"
+    ]
+  },
+  "predicate_details": {
+    "minimum_row_count_refusal": "recomputed by the imported runtime over synthetic rows through the real loader/gateway path",
+    "scope_filter_controls": "consumer_asserted through a test-owned RowsConnection that emulates the current query predicate; bounded synthetic harness only",
+    "N5_evaluation_input": "resolved and content-bound by the real ArtifactStore path in the test fixture",
+    "population_time_and_source_completeness": "not_established"
+  },
+  "predicate_basis": "not_established",
+  "capability_state_or_finding_state": "limited; direct sparse-profile refusal is verified, while original B16 forecast/holdout scope, population/time completeness, and predictive-only served support remain verification_missing; no closure.",
+  "checks": [
+    {
+      "check_id": "sparse_nonempty_red_before_source_fix",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/empirical-sparse-profile-final-red-aaa8/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/empirical-sparse-profile-final-red-aaa8/pytest-basetemp",
+        "tests/unit/remediation/test_emp_01.py::test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway",
+        "tests/unit/remediation/test_emp_01.py::test_empty_selected_profile_returns_no_profile_before_unit_binding",
+        "tests/unit/remediation/test_emp_01.py::test_owner_row_cap_refuses_truncated_profile"
+      ],
+      "target_sha": "aaa89a6988ed553310fc7950054e7b6af4a05956",
+      "environment": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/0/environment"
+      },
+      "input_closure": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/0/input_closure"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/0/output"
+      }
+    },
+    {
+      "check_id": "owner_row_minimum_and_scope_controls_first_source_wave",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/empirical-sparse-profile-native-69b6/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/empirical-sparse-profile-native-69b6/pytest-basetemp",
+        "tests/unit/remediation/test_emp_01.py::test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway",
+        "tests/unit/remediation/test_emp_01.py::test_empty_selected_profile_returns_no_profile_before_unit_binding",
+        "tests/unit/remediation/test_emp_01.py::test_owner_row_cap_refuses_truncated_profile",
+        "tests/unit/remediation/test_emp_01.py::test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed",
+        "tests/unit/remediation/test_emp_01.py::test_scope_filter_excludes_other_regions_before_profile_limit",
+        "tests/unit/remediation/test_emp_01.py::test_cross_period_mixed_dataset_units_fail_closed"
+      ],
+      "target_sha": "69b607ed84132797edbdbbe1d65dbee07f749d06",
+      "environment": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/1/environment"
+      },
+      "input_closure": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/1/input_closure"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/1/output"
+      }
+    },
+    {
+      "check_id": "corrected_scoped_sql_harness",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/empirical-scope-harness-current-3ba1/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/empirical-scope-harness-current-3ba1/pytest-basetemp",
+        "tests/unit/remediation/test_emp_01.py::test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed",
+        "tests/unit/remediation/test_emp_01.py::test_scope_filter_excludes_other_regions_before_profile_limit"
+      ],
+      "target_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+      "environment": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/2/environment"
+      },
+      "input_closure": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/2/input_closure"
+      },
+      "outcome": "PASS",
+      "output": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/2/output"
+      }
+    },
+    {
+      "check_id": "default_cycle_sparse_profile_attempt",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/sparse-and-voi-owned-readback-final/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/sparse-and-voi-owned-readback-final/pytest-basetemp",
+        "tests/unit/remediation/test_emp_01.py::test_default_cycle_value_refusal_survives_persisted_run_readback",
+        "tests/integration/core_runtime/test_e02_voi_artifact_projection.py::test_informative_voi_candidate_core_readback_and_preview_refusal"
+      ],
+      "target_sha": "cfeaecf1ab4390abd91f5ee82e9e289811f7ff41",
+      "environment": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/3/environment"
+      },
+      "input_closure": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/3/input_closure"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/3/output"
+      }
+    },
+    {
+      "check_id": "pre_v2_direct_input_and_default_history_attempt",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/sparse-direct-and-simulation-only-split/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/sparse-direct-and-simulation-only-split/pytest-basetemp",
+        "tests/unit/remediation/test_emp_01.py::test_default_cycle_preserves_simulation_only_result_and_history",
+        "tests/unit/remediation/test_emp_01.py::test_direct_foundry_value_port_refuses_sparse_owner_profile"
+      ],
+      "target_sha": "c8f774587013b16b6851fc106192ad55e8b58a7f",
+      "environment": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/4/environment"
+      },
+      "input_closure": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/4/input_closure"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/4/output"
+      }
+    },
+    {
+      "check_id": "supported_v2_direct_foundry_value_port_sparse_refusal",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/supported-v2-n5-direct-value-intake/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/supported-v2-n5-direct-value-intake/pytest-basetemp",
+        "tests/unit/remediation/test_emp_01.py::test_direct_foundry_value_port_refuses_sparse_owner_profile"
+      ],
+      "target_sha": "4ef715efc89865325b789eed3ccd340da7b9f3be",
+      "environment": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/5/environment"
+      },
+      "input_closure": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/5/input_closure"
+      },
+      "outcome": "PASS",
+      "output": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/5/output"
+      }
+    },
+    {
+      "check_id": "independent_source_review",
+      "command": "UNRUN: no independent reviewer source review was executed for this sparse-owner continuation.",
+      "target_sha": "4ef715efc89865325b789eed3ccd340da7b9f3be",
+      "environment": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/6/environment"
+      },
+      "input_closure": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/6/input_closure"
+      },
+      "outcome": "UNRUN",
+      "output": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/6/output"
+      }
+    },
+    {
+      "check_id": "original_b16_acceptance",
+      "command": "UNRUN: no full B16 acceptance command was run in this sparse-owner slice.",
+      "target_sha": "4ef715efc89865325b789eed3ccd340da7b9f3be",
+      "environment": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/7/environment"
+      },
+      "input_closure": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/7/input_closure"
+      },
+      "outcome": "UNRUN",
+      "output": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/7/output"
+      }
+    },
+    {
+      "check_id": "history_replay_unrun_at_4ef_snapshot",
+      "command": "UNRUN at target 4ef: no fresh history replay was recorded on that exact candidate after the issue was isolated; the later 0aba candidate has a separate replay receipt.",
+      "target_sha": "4ef715efc89865325b789eed3ccd340da7b9f3be",
+      "environment": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/8/environment"
+      },
+      "input_closure": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/8/input_closure"
+      },
+      "outcome": "UNRUN",
+      "output": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/8/output"
+      }
+    },
+    {
+      "check_id": "thirteenth_affected_frozen_wave_0aba",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-affected-frozen-0aba/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-affected-frozen-0aba/pytest-basetemp",
+        "tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py",
+        "tests/unit/remediation/test_emp_01.py::test_empty_selected_profile_returns_no_profile_before_unit_binding",
+        "tests/unit/remediation/test_emp_01.py::test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway",
+        "tests/integration/core_runtime/test_e02_informative_voi_execution.py::test_default_information_value_advance_executes_real_n5_and_budget_blocks_it",
+        "tests/unit/remediation/test_frc_01.py::test_missing_calibration_evidence_refs_stays_typed_blocked",
+        "tests/unit/remediation/test_frc_01.py::test_gateway_rejects_temporal_roles_that_disagree_with_loaded_evidence",
+        "tests/unit/remediation/test_frc_01.py::test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero",
+        "tests/unit/remediation/test_frc_01.py::test_resolver_failures_change_and_survive_fresh_forecast_disposition",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_history_preserves_typed_conditional_interaction_evidence",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_blocked_terminal_semantics_remain_enforced_in_history",
+        "tests/unit/remediation/test_emp_01.py::test_default_cycle_preserves_simulation_only_result_and_history",
+        "tests/unit/remediation/test_emp_01.py::test_direct_foundry_value_port_refuses_sparse_owner_profile",
+        "tests/integration/core_runtime/test_e02_served_cycle_custody.py::test_served_candidate_value_fresh_get_with_candidate_only_substrate"
+      ],
+      "target_sha": "0aba32b8ce9c40ee178d39d44c70fe6994698938",
+      "environment": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/9/environment"
+      },
+      "input_closure": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/9/input_closure"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/9/output"
+      }
+    },
+    {
+      "check_id": "thirteenth_two_corrected_consumers_9e47",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-two-corrected-consumers-9e47/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-two-corrected-consumers-9e47/pytest-basetemp",
+        "tests/unit/remediation/test_emp_01.py::test_default_cycle_preserves_simulation_only_result_and_history",
+        "tests/integration/core_runtime/test_e02_served_cycle_custody.py::test_served_candidate_value_fresh_get_with_candidate_only_substrate"
+      ],
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "environment": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/10/environment"
+      },
+      "input_closure": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/10/input_closure"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "companion_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json#/checks/10/output"
+      }
+    }
+  ],
+  "evidence_custody": {
+    "four_ef_deciding_artifacts": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/receipt.json",
+        "sha256": "bc4700a0ee99d7da3fe2abeee0c943611208178c287e0dedf1c92782650cbd6f",
+        "bytes": 12269
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/stdout.txt",
+        "sha256": "06964d1b9ea00926b96b1120e0ab45980daf1dbccd3a23eb6b687b2657ed1208",
+        "bytes": 99
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/junit.xml",
+        "sha256": "8af317643ac3e569e65fa02db43eb19168cb96d4ad5a5e2b1b928f332dc99966",
+        "bytes": 686
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/origins.json",
+        "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+        "bytes": 1095
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/e02_origin.py",
+        "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+        "bytes": 656
+      }
+    ],
+    "synthetic_fixture_data": {
+      "evidence_copy_contains_fixture_cas": false,
+      "preserved_source_build_run": "policy-engine/_build/e02-A-continuation-20261007/supported-v2-n5-direct-value-intake",
+      "original_fixture_data_present": true,
+      "duplicate_fixture_files_verified_byte_identical": 693,
+      "duplicate_copy_disposition": "pytest-basetemp and __pycache__ duplicate directories moved to native Trash; Trash not emptied.",
+      "trash_receipt": "policy-engine/_build/e02-A-continuation-20261007/duplicate-fixture-native-trash/receipt.json@sha256:fd9cbe0ea44dbcbc2949973c10450fc43595449c74fd72f40f1040df92ad6628"
+    }
+  },
+  "limitations_and_next_owner": [
+    "B16 remains limited with verification_missing and no closure IDs; the original criterion still lacks an admitted ETS forecast, paired held-out outcomes, training-only verification, leakage rejection, independently recomputed held-out scope/time/threshold/coverage, and predictive-only served support.",
+    "Population, valid-time, source-freshness, and task-scope completeness are not established by the four-row refusal floor or the synthetic scope controls.",
+    "The corrected default-cycle history test is a separate bounded follow-up; the served GET/N4 selector failed because the real LEX DuckDB input is absent. This slice assigns no next owner for the missing forecast/holdout acceptance work."
+  ],
+  "candidate_snapshot_diff": {
+    "base_commit": "aaa89a6988ed553310fc7950054e7b6af4a05956",
+    "candidate_commit": "4ef715efc89865325b789eed3ccd340da7b9f3be",
+    "candidate_tree": "b6fddbfb771ab158dd8145daa551e181510477f4",
+    "complete_diff_command": [
+      "git",
+      "diff",
+      "--name-status",
+      "--no-renames",
+      "aaa89a6988ed553310fc7950054e7b6af4a05956..4ef715efc89865325b789eed3ccd340da7b9f3be"
+    ],
+    "complete_path_denominator": 149,
+    "product_test_paths": [
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_voi_artifact_projection.py",
+      "policy-engine/tests/integration/runtime_quality/test_e02_candidate_model_revision.py",
+      "policy-engine/tests/unit/remediation/test_emp_01.py",
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py"
+    ],
+    "other_tracked_companions": {
+      "path_count": 143,
+      "source_of_truth": "complete_diff_command above; existing tracked artifacts are Git-addressed, not copied"
+    },
+    "boundary": "This is the complete intervening snapshot delta, including independent slices. The property-owned changed_paths and implementation_commits select the bounded mechanism; neither list nor current test PASS admits the whole carrier."
+  }
+}

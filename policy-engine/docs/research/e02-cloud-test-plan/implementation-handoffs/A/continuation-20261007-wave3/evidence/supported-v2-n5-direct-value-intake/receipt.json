@@ -1,0 +1,131 @@
+{
+  "workspace_dirty_before": [
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/LA045-caller-census.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/compiler-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/context-guard-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b23-physical-cache-current-3ba1/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-caller-census-1a52/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-global-residual-3ba1/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-native-operational-1a52/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/informative-voi-artifact-readback-cfeaecf1/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/informative-voi-execution-5a1f/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/informative-voi-execution-final-3ba1/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/informative-voi-r1-3ba1/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/model-revision-locator-control/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-12ea/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-4bea/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-85bf/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-r1-ca03/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/registered-fallback-n5-n8-4bea/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/registered-fallback-n5-n8-b7ec/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/fallback-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/finding-recommendations.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/ksim-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/model-locator-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/physical-cache-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/progress-row-adjudication-draft.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/voi-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/voi-projection-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/informative-voi-artifact-readback.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/informative-voi-execution.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/ksim-carrier-removal.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/model-revision-locator-control.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/nonhandoff-context-guard.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/physical-cache-current-inputs.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/registered-fallback-n5-n8.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-source-input-gap.json"
+  ],
+  "workspace_dirty_after": [
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/LA045-caller-census.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/compiler-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/context-guard-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b23-physical-cache-current-3ba1/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-caller-census-1a52/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-global-residual-3ba1/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/compiler-native-operational-1a52/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/informative-voi-artifact-readback-cfeaecf1/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/informative-voi-execution-5a1f/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/informative-voi-execution-final-3ba1/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/informative-voi-r1-3ba1/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/ksim-carrier-removal-3ba1/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/model-revision-locator-control/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-12ea/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-4bea/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-85bf/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/nonhandoff-context-guard-r1-ca03/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/registered-fallback-n5-n8-4bea/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/registered-fallback-n5-n8-b7ec/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/fallback-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/finding-recommendations.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/ksim-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/model-locator-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/physical-cache-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/progress-row-adjudication-draft.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/voi-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/voi-projection-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/informative-voi-artifact-readback.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/informative-voi-execution.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/ksim-carrier-removal.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/model-revision-locator-control.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/nonhandoff-context-guard.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/physical-cache-current-inputs.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/registered-fallback-n5-n8.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-source-input-gap.json"
+  ],
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "e02_origin",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "-q",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/supported-v2-n5-direct-value-intake/junit.xml",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/supported-v2-n5-direct-value-intake/pytest-basetemp",
+    "tests/unit/remediation/test_emp_01.py::test_direct_foundry_value_port_refuses_sparse_owner_profile"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "4ef715efc89865325b789eed3ccd340da7b9f3be",
+  "candidate_tree": "b6fddbfb771ab158dd8145daa551e181510477f4",
+  "exit_code": 0,
+  "wall_s": 26.493072084034793,
+  "environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/supported-v2-n5-direct-value-intake:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "JAX_PLATFORMS": "cpu"
+  },
+  "probe_environment": {},
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+    "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 99,
+      "sha256": "06964d1b9ea00926b96b1120e0ab45980daf1dbccd3a23eb6b687b2657ed1208"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "e02_origin.py": {
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    },
+    "junit.xml": {
+      "bytes": 686,
+      "sha256": "8af317643ac3e569e65fa02db43eb19168cb96d4ad5a5e2b1b928f332dc99966"
+    },
+    "origins.json": {
+      "bytes": 1095,
+      "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+    }
+  }
+}

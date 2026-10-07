@@ -1,0 +1,61 @@
+{
+  "argv": [
+    "uv",
+    "run",
+    "--no-sync",
+    "polisyos-tools",
+    "architecture",
+    "guardrails",
+    "check"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+  "candidate_tree": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+  "workspace_dirty_before": [
+    " M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/partial-recursive-checkpoint.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/monetary-raw-json-stdlib-oracle/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/finding-recommendations.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/progress-row-adjudication-draft.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/monetary-producer-decoder-input-gap.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/sparse-owner-v2-intake.json"
+  ],
+  "workspace_dirty_after": [
+    " M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/partial-recursive-checkpoint.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/conditional-interaction-history-readback.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/monetary-raw-json-stdlib-oracle/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/s10-resolver-disposition-frozen-red/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-affected-frozen-0aba/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/finding-recommendations.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/interaction-history-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/progress-row-adjudication-draft.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/reason-preservation-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/structure-context-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/monetary-producer-decoder-input-gap.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/s10-resolver-reason-preservation.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/sparse-owner-v2-intake.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/structure-context-forwarding-current.json"
+  ],
+  "exit_code": 1,
+  "wall_s": 262.1817564999801,
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_command.py",
+    "sha256": "ef58301dceda92cf4a17214fd281cfcb3f6f50ba98480533bc0b191878a43798"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 122628,
+      "sha256": "4c537c9f6daddbcbb5fad8a1db085a30db7a7be3617c58760e1d4a64257670c0"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

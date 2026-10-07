@@ -1,0 +1,219 @@
+{
+  "schema": "policyos.e02.configured_n7_checks.v1",
+  "unit": "A",
+  "slice": "configured-n7-resolver-current",
+  "candidate": {
+    "commit": "9e4753f12aa554faf19075c368123b7b914d63df",
+    "tree": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46"
+  },
+  "checks_contract": {
+    "required_literal_keys_per_check": [
+      "command",
+      "target_sha",
+      "environment",
+      "input_closure",
+      "outcome",
+      "output"
+    ],
+    "allowed_outcomes": [
+      "PASS",
+      "FAIL",
+      "ERROR",
+      "SKIP",
+      "UNRUN"
+    ],
+    "count_is_not_capped": true
+  },
+  "run_summary": {
+    "argv_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/receipt.json@sha256:a4055d8e9775ab0f4588cddded7097cd21655389f64ce0df4224b7bf7b8cd181#/argv",
+    "exit_code": 0,
+    "receipt_wall_seconds": 20.135453541006427,
+    "pytest_reported_seconds": 16.04,
+    "pytest_cases": 7,
+    "passed": 7,
+    "failed": 0,
+    "skipped": 0,
+    "output_refs": {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/receipt.json@sha256:a4055d8e9775ab0f4588cddded7097cd21655389f64ce0df4224b7bf7b8cd181",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/stdout.txt@sha256:fdcf0a2c5ef80655b3a64eb8fa880e4ecf8bc743c111256a84727546016d413e",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/junit.xml@sha256:c5b466c748708510dfd28a456c03734e84614488b40803e454703f8d1f065164",
+      "origins": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/origins.json@sha256:fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+      "origin_hook": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/e02_origin.py@sha256:b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    }
+  },
+  "run_environment": {
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+    "python": "3.14.3",
+    "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+    "versions": {
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5",
+      "numpy": "2.3.5",
+      "scipy": "1.16.3"
+    },
+    "variables": {
+      "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-configured-n7-resolver-9e47:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "JAX_PLATFORMS": "cpu"
+    },
+    "probe_environment": {},
+    "launcher_ref": "policy-engine/_build/e02-A-continuation-20261007/run_check.py@sha256:679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+  },
+  "shared_input_closure": {
+    "slice_base": {
+      "commit": "e74decd8ac6c244f8950d73989e61dc6708f8ae4",
+      "tree": "a54b2d75f6b61a153c9f8abe4abad39f934ab547"
+    },
+    "test_target": {
+      "commit": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "tree": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46"
+    },
+    "test_source": "policy-engine/tests/unit/runtime/quality/test_e02_configured_n7_resolver.py@c399ead7eb9de3e8ba585e40142425359c1a1a3b",
+    "helper_source": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py@274058481969fb5c2fab9db4edc4833e3a4a6880",
+    "fixture": "The positive creates a temporary mode=fixture capability index with the canonical CapabilityIndexCompiler, then reads its DuckDB release/manifest through the configured loader. Fixture inputs and DuckDB/CAS/temp artifacts remain in ignored pytest-basetemp and are not copied into this handoff.",
+    "source_footprint_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/configured-n7-resolver-current.json#/source_footprint"
+  },
+  "check_count": 7,
+  "checks": [
+    {
+      "check_id": "configured-persisted-release-positive",
+      "test_case": "test_default_n7_resolver_uses_configured_persisted_release",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-configured-n7-resolver-9e47/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-configured-n7-resolver-9e47/pytest-basetemp tests/unit/runtime/quality/test_e02_configured_n7_resolver.py",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "environment": {
+        "ref": "#/run_environment"
+      },
+      "input_closure": {
+        "ref": "#/shared_input_closure"
+      },
+      "outcome": "PASS",
+      "output": {
+        "result": "Canonical compiler emits a fixture DuckDB+manifest; the configured loader is observed, governed_fixture fallback is forbidden, and an index-derived query resolves with the loaded release_ref.",
+        "junit_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/junit.xml@sha256:c5b466c748708510dfd28a456c03734e84614488b40803e454703f8d1f065164",
+        "aggregate_stdout_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/stdout.txt@sha256:fdcf0a2c5ef80655b3a64eb8fa880e4ecf8bc743c111256a84727546016d413e"
+      }
+    },
+    {
+      "check_id": "unconfigured-release-negative",
+      "test_case": "test_unavailable_configured_release_is_a_typed_n7_error[unconfigured-capability_index_release_path_unconfigured]",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-configured-n7-resolver-9e47/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-configured-n7-resolver-9e47/pytest-basetemp tests/unit/runtime/quality/test_e02_configured_n7_resolver.py",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "environment": {
+        "ref": "#/run_environment"
+      },
+      "input_closure": {
+        "ref": "#/shared_input_closure"
+      },
+      "outcome": "PASS",
+      "output": {
+        "result": "Typed n7_capability_index_unavailable with provider reason capability_index_release_path_unconfigured.",
+        "junit_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/junit.xml@sha256:c5b466c748708510dfd28a456c03734e84614488b40803e454703f8d1f065164",
+        "aggregate_stdout_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/stdout.txt@sha256:fdcf0a2c5ef80655b3a64eb8fa880e4ecf8bc743c111256a84727546016d413e"
+      }
+    },
+    {
+      "check_id": "missing-release-negative",
+      "test_case": "test_unavailable_configured_release_is_a_typed_n7_error[missing-capability_index_release_missing]",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-configured-n7-resolver-9e47/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-configured-n7-resolver-9e47/pytest-basetemp tests/unit/runtime/quality/test_e02_configured_n7_resolver.py",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "environment": {
+        "ref": "#/run_environment"
+      },
+      "input_closure": {
+        "ref": "#/shared_input_closure"
+      },
+      "outcome": "PASS",
+      "output": {
+        "result": "Typed N7 refusal with provider reason capability_index_release_missing.",
+        "junit_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/junit.xml@sha256:c5b466c748708510dfd28a456c03734e84614488b40803e454703f8d1f065164",
+        "aggregate_stdout_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/stdout.txt@sha256:fdcf0a2c5ef80655b3a64eb8fa880e4ecf8bc743c111256a84727546016d413e"
+      }
+    },
+    {
+      "check_id": "invalid-manifest-negative",
+      "test_case": "test_unavailable_configured_release_is_a_typed_n7_error[invalid_manifest-capability_index_release_invalid]",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-configured-n7-resolver-9e47/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-configured-n7-resolver-9e47/pytest-basetemp tests/unit/runtime/quality/test_e02_configured_n7_resolver.py",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "environment": {
+        "ref": "#/run_environment"
+      },
+      "input_closure": {
+        "ref": "#/shared_input_closure"
+      },
+      "outcome": "PASS",
+      "output": {
+        "result": "Invalid manifest digest produces typed N7 refusal with reason capability_index_release_invalid.",
+        "junit_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/junit.xml@sha256:c5b466c748708510dfd28a456c03734e84614488b40803e454703f8d1f065164",
+        "aggregate_stdout_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/stdout.txt@sha256:fdcf0a2c5ef80655b3a64eb8fa880e4ecf8bc743c111256a84727546016d413e"
+      }
+    },
+    {
+      "check_id": "malformed-database-negative",
+      "test_case": "test_unavailable_configured_release_is_a_typed_n7_error[malformed_database-capability_index_release_invalid]",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-configured-n7-resolver-9e47/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-configured-n7-resolver-9e47/pytest-basetemp tests/unit/runtime/quality/test_e02_configured_n7_resolver.py",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "environment": {
+        "ref": "#/run_environment"
+      },
+      "input_closure": {
+        "ref": "#/shared_input_closure"
+      },
+      "outcome": "PASS",
+      "output": {
+        "result": "Malformed DuckDB bytes produce typed N7 refusal with reason capability_index_release_invalid.",
+        "junit_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/junit.xml@sha256:c5b466c748708510dfd28a456c03734e84614488b40803e454703f8d1f065164",
+        "aggregate_stdout_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/stdout.txt@sha256:fdcf0a2c5ef80655b3a64eb8fa880e4ecf8bc743c111256a84727546016d413e"
+      }
+    },
+    {
+      "check_id": "explicit-empty-and-any-of-no-load",
+      "test_case": "test_explicit_empty_and_any_of_requirements_do_not_load_an_index",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-configured-n7-resolver-9e47/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-configured-n7-resolver-9e47/pytest-basetemp tests/unit/runtime/quality/test_e02_configured_n7_resolver.py",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "environment": {
+        "ref": "#/run_environment"
+      },
+      "input_closure": {
+        "ref": "#/shared_input_closure"
+      },
+      "outcome": "PASS",
+      "output": {
+        "result": "Empty requirement tuple remains empty and exact any_of gap remains unmet; resolver monkeypatch proves no index resolver load.",
+        "junit_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/junit.xml@sha256:c5b466c748708510dfd28a456c03734e84614488b40803e454703f8d1f065164",
+        "aggregate_stdout_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/stdout.txt@sha256:fdcf0a2c5ef80655b3a64eb8fa880e4ecf8bc743c111256a84727546016d413e"
+      }
+    },
+    {
+      "check_id": "controller-refusal-no-receipt",
+      "test_case": "test_unavailable_n7_index_is_routed_without_minting_a_receipt",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-configured-n7-resolver-9e47/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-configured-n7-resolver-9e47/pytest-basetemp tests/unit/runtime/quality/test_e02_configured_n7_resolver.py",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "environment": {
+        "ref": "#/run_environment"
+      },
+      "input_closure": {
+        "ref": "#/shared_input_closure"
+      },
+      "outcome": "PASS",
+      "output": {
+        "result": "Controller reports acquisition_required with n6.acquisition.n7_capability_index_unavailable and no acquisition receipt/routing report.",
+        "junit_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/junit.xml@sha256:c5b466c748708510dfd28a456c03734e84614488b40803e454703f8d1f065164",
+        "aggregate_stdout_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/stdout.txt@sha256:fdcf0a2c5ef80655b3a64eb8fa880e4ecf8bc743c111256a84727546016d413e"
+      }
+    }
+  ],
+  "interpretation": {
+    "positive_boundary": "The actual configured loader and RequirementToCapabilityResolver use the persisted row emitted by a canonical fixture-mode CapabilityIndexCompiler; the positive also forbids governed fixture fallback.",
+    "not_established": [
+      "DataRequirementCompiler -> configured resolver composition for nonempty family requirements.",
+      "C native N7 permission, source admission, readback, WorldModelRecord change, or same-case downstream calculation.",
+      "Production source rights, live source profile, or source authority from a fixture capability-index release.",
+      "DataStateSubstrate materialization semantics; the helper import loads its L1VariableAvailability type but these cases do not exercise its data-state behavior."
+    ],
+    "origin_hook_limit": "origins.json records the hook-selected module subset; its absence of a module is not an import-absence claim."
+  }
+}

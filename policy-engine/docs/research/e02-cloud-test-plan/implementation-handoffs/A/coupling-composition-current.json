@@ -1,0 +1,206 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "coupling-composition-current",
+  "closure_ids": [],
+  "primary_finding_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "579788751baefe065fd5b94c446ab665eb65861a",
+  "slice_base_tree_sha": "e3ff953110c39ab11635f1c2ae99454d6333865c",
+  "implementation_commits": [
+    "04767a85dc6822958d5628d07410313cbf62c42a"
+  ],
+  "test_companion_commits": [
+    "a92da88ae5b20df707731f348dd6257edaa209df"
+  ],
+  "candidate_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+  "candidate_tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+    "policy-engine/tests/unit/runtime/quality/test_design_axes_coupling_composition.py"
+  ],
+  "changed_paths_scope": "The two historical paths reviewed here; not the complete branch diff.",
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-coupling-and-structure-current-9e47/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-coupling-and-structure-current-9e47/pytest-basetemp tests/unit/runtime/quality/test_design_axes_coupling_composition.py::test_candidate_graph_with_same_none_strength_edge_cannot_claim_modularity tests/unit/runtime/quality/test_design_axes_coupling_composition.py::test_modular_graph_can_compose_only_with_coupling_proof tests/unit/scientist/policy_design/test_structure_context_bridge.py",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "python": "3.14.3",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "environment_variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-coupling-and-structure-current-9e47:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "module_origin": "polisyos.runtime.quality.design_axes.coupling_composition resolved to the canonical source path."
+      },
+      "input_closure": {
+        "candidate_tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+        "source": {
+          "path": "policy-engine/src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+          "git_blob": "9494717e0536fe6d9a2bbc360b0a0f5ea1ee0636"
+        },
+        "test": {
+          "path": "policy-engine/tests/unit/runtime/quality/test_design_axes_coupling_composition.py",
+          "git_blob": "f80d3cc5585c74fb533bc49a02a60687bdaad500"
+        },
+        "selectors": [
+          "tests/unit/runtime/quality/test_design_axes_coupling_composition.py::test_candidate_graph_with_same_none_strength_edge_cannot_claim_modularity",
+          "tests/unit/runtime/quality/test_design_axes_coupling_composition.py::test_modular_graph_can_compose_only_with_coupling_proof",
+          "tests/unit/scientist/policy_design/test_structure_context_bridge.py"
+        ],
+        "junit_counts": {
+          "tests": 9,
+          "passed": 9,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/coupling-checks.json#/execution (single runner receipt and complete output manifest)."
+    }
+  ],
+  "property": {
+    "statement": "For an otherwise identical graph with a discovery ref and a none-strength edge, candidate and absent evidence states must not reach the observed classifier or produce modular decomposition.",
+    "runtime_path": [
+      "_modular_graph fixture",
+      "CouplingGraph.evidence_state",
+      "classify_coupling",
+      "decompose_design"
+    ],
+    "observed_control": "The same fixture in observed state classifies as modular; its receipt limits whole-design authority to shadow-governed-only.",
+    "negative_controls": [
+      "The test copies the graph with only evidence_state changed to candidate and asserts entangled, defaulted_to_more_coupling, blocked, and system_evidence_required decomposition.",
+      "The same graph with evidence_state absent remains entangled, defaulted_to_more_coupling, and blocked."
+    ],
+    "proxy_divergence": "The intended evidence predicate is that a graph is genuinely observed. The code checks the caller-supplied evidence_state plus reference/edge presence. A graph with unresolved or fabricated module_discovery_ref and edge evidence_ref but evidence_state='observed' is a source-visible divergent case that can enter observed classification; this falsifier was not executed and is not a provenance pass."
+  },
+  "predicate_basis": "not_established",
+  "capability_state_or_finding_state": "GO_bounded for the candidate/absent state selector and its classification/decomposition effect. Provenance of an observed coupling graph is not established. No E02 finding closure is claimed.",
+  "limitations_and_next_owner": [
+    "The observed evidence-state field is caller-supplied. classify_coupling checks its value, module_discovery_ref presence, and edge presence but does not resolve or content-bind module_discovery_ref or ordinary edge evidence_ref.",
+    "The classifier's optional independence_consistency_ref can be resolved for a none-strength edge when supplied; that does not authenticate the evidence_state or ordinary edge refs.",
+    "The positive test is a fixture-level classification/decomposition control. It does not exercise compose_subdesigns as a persisted producer-to-authority consumer path. The modular receipt remains shadow-governed-only.",
+    "This review concerns P17 coupling classification only. It provides no B23 physical-cache or B26 cubic-interaction evidence and does not close B15 child production.",
+    "Canonical code owner is runtime/quality/design_axes/coupling_composition.py. The continuation plan assigns the coupling-state test lease to recursive_status. A content-bound observed-graph producer/verifier owner is not established by this slice; keep that provenance question open."
+  ],
+  "source_history": {
+    "slice_base_source_blob": "d67a243fe351562334ded896078d9beec8c672fb",
+    "slice_base_test_blob": "09869d9d65a21cd0caf95c36bd02af73ee1138f8",
+    "test_commit": "a92da88ae5b20df707731f348dd6257edaa209df",
+    "source_commit": "04767a85dc6822958d5628d07410313cbf62c42a",
+    "source_change": "Change the fail-closed selector from evidence_state == 'absent' to evidence_state != 'observed'; candidate states no longer take the observed path.",
+    "current_source_blob": "9494717e0536fe6d9a2bbc360b0a0f5ea1ee0636",
+    "current_test_blob": "f80d3cc5585c74fb533bc49a02a60687bdaad500"
+  },
+  "related_finding_context": {
+    "status": "not_adjudicated_by_this_source_slice_receipt",
+    "reference": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-plan.md:48",
+    "note": "The plan names the state-selector property and explicitly says it does not implement B15 child production. Finding and bundle mapping remain separate from this P17 source review."
+  },
+  "pattern_pass": {
+    "relevant": [
+      "P17",
+      "P29",
+      "P32",
+      "P37",
+      "P38"
+    ],
+    "existing_anti_pattern": "P17 observed classification previously rejected only absent state, allowing candidate state through the observed classifier; the source selector now rejects every non-observed state and has a runtime negative control.",
+    "target_pattern": "Fail closed on candidate/absent state while keeping observed classification bounded to the declared graph inputs; separately require content-bound provenance before describing observed state as established evidence.",
+    "missing_capability_labels": [
+      "verification_missing: content-bound provenance for the observed coupling graph predicate"
+    ],
+    "acceptance_signal": "The two coupling selectors pass at the pinned current candidate. Provenance closure requires a genuine content-bound graph producer/verifier and a fake-observed-reference negative; neither is supplied here."
+  },
+  "candidate_snapshot_diff": {
+    "base_commit": "579788751baefe065fd5b94c446ab665eb65861a",
+    "candidate_commit": "9e4753f12aa554faf19075c368123b7b914d63df",
+    "candidate_tree": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+    "complete_diff_command": [
+      "git",
+      "diff",
+      "--name-status",
+      "--no-renames",
+      "579788751baefe065fd5b94c446ab665eb65861a..9e4753f12aa554faf19075c368123b7b914d63df"
+    ],
+    "complete_path_denominator": 486,
+    "product_test_paths": [
+      "policy-engine/src/polisyos/core/contracts/__init__.py",
+      "policy-engine/src/polisyos/core/contracts/runtime.py",
+      "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+      "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/evaluation_safety.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+      "policy-engine/src/polisyos/runtime/quality/capability_discovery.py",
+      "policy-engine/src/polisyos/runtime/quality/data_state_substrate.py",
+      "policy-engine/src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+      "policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py",
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "policy-engine/src/polisyos/runtime/quality/production_invocation.py",
+      "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/provider_quality.py",
+      "policy-engine/src/polisyos/scientist/policy_design/search.py",
+      "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_informative_voi_execution.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_revision_context_reentry.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_served_cycle_custody.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_voi_artifact_projection.py",
+      "policy-engine/tests/integration/runtime_quality/test_e02_candidate_model_revision.py",
+      "policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+      "policy-engine/tests/unit/data_requirement/test_e02_named_profile_context.py",
+      "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py",
+      "policy-engine/tests/unit/remediation/test_e02_source_strangle_owner_resolution.py",
+      "policy-engine/tests/unit/remediation/test_emp_01.py",
+      "policy-engine/tests/unit/remediation/test_frc_01.py",
+      "policy-engine/tests/unit/remediation/test_sim_01.py",
+      "policy-engine/tests/unit/runtime/http/services/control/test_nl_pipeline_cost_projection.py",
+      "policy-engine/tests/unit/runtime/http/services/test_e02_monetary_usage_projection.py",
+      "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+      "policy-engine/tests/unit/runtime/quality/recursive_generation_cycle_fixtures.py",
+      "policy-engine/tests/unit/runtime/quality/test_depth_n_universality.py",
+      "policy-engine/tests/unit/runtime/quality/test_design_axes_coupling_composition.py",
+      "policy-engine/tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+      "policy-engine/tests/unit/runtime/quality/test_e02_configured_n7_resolver.py",
+      "policy-engine/tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py",
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py",
+      "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+      "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+      "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+      "policy-engine/tests/unit/runtime/quality/test_workspace_composition.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_provider_quality.py",
+      "policy-engine/tests/unit/scientist/policy_design/test_structure_context_bridge.py",
+      "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py"
+    ],
+    "other_tracked_companions": {
+      "path_count": 430,
+      "source_of_truth": "complete_diff_command above; existing tracked artifacts are Git-addressed, not copied"
+    },
+    "boundary": "This is the complete intervening snapshot delta, including independent slices. The property-owned changed_paths and implementation_commits select the bounded mechanism; neither list nor current test PASS admits the whole carrier."
+  }
+}

@@ -1,0 +1,605 @@
+{
+  "schema": "policyos.e02.implementation_handoff_checks.v1",
+  "unit": "A",
+  "slice": "structure-context-forwarding-current",
+  "source_candidate": {
+    "sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+    "tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+    "branch": "codex/e02-A-delivery-attached"
+  },
+  "required_check_keys": [
+    "command",
+    "target_sha",
+    "environment",
+    "input_closure",
+    "outcome",
+    "output"
+  ],
+  "outcome_enum": [
+    "PASS",
+    "FAIL",
+    "ERROR",
+    "SKIP",
+    "UNRUN"
+  ],
+  "run_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+    "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7",
+    "json_pointer": "#"
+  },
+  "run_summary": {
+    "run_id": "thirteenth-coupling-and-structure-current-9e47",
+    "exit_code": 0,
+    "wall_seconds": 19.785549207997974,
+    "junit_passed": 9,
+    "junit_failed": 0,
+    "junit_errors": 0,
+    "structure_context_target_passed": 7,
+    "coupling_controls_passed": 2,
+    "counting_rule": "The 7 structure-context cases are a subset of the aggregate 9-case invocation; the 2 coupling controls are disjoint. Do not add the target count to the aggregate count.",
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stdout.txt",
+      "bytes": 99,
+      "sha256": "cd89912cc4facf7f1059f6e67e6ecf3ed5fa8d8687f530902f5b1ef80df6c65c"
+    },
+    "stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/junit.xml",
+      "bytes": 2020,
+      "sha256": "91557d25fa231ca98d82c30e1fd62834bdd200631ab56f6fc24ae25a58bd3315"
+    }
+  },
+  "checks": [
+    {
+      "check_id": "coupling-none-strength-blocks-modularity",
+      "name": "test_candidate_graph_with_same_none_strength_edge_cannot_claim_modularity",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "command": {
+        "argv_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7",
+          "json_pointer": "#/argv"
+        },
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "selector": "tests/unit/runtime/quality/test_design_axes_coupling_composition.py::test_candidate_graph_with_same_none_strength_edge_cannot_claim_modularity"
+      },
+      "environment": {
+        "availability": "captured",
+        "reference": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7",
+          "json_pointer": "#/environment"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+        "source_and_test_pins": [
+          {
+            "path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+            "git_blob": "75b018e3e0bb5f10fa8e6847ddfbc4fdc20de7c5"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/policy_design/test_structure_context_bridge.py",
+            "git_blob": "da690bda71e44ac451b07e1e89fc227927ab3813"
+          }
+        ],
+        "test_selector": "tests/unit/runtime/quality/test_design_axes_coupling_composition.py::test_candidate_graph_with_same_none_strength_edge_cannot_claim_modularity",
+        "fixture_scope": "Synthetic source/target records are created under pytest tmp_path; the positive bridge writes a persisted registry catalog and reads it through a newly constructed ParetoRegistry pointed at the same root."
+      },
+      "outcome": "PASS",
+      "output": {
+        "junit_case": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/junit.xml",
+          "sha256": "91557d25fa231ca98d82c30e1fd62834bdd200631ab56f6fc24ae25a58bd3315",
+          "classname": "tests.unit.runtime.quality.test_design_axes_coupling_composition",
+          "name": "test_candidate_graph_with_same_none_strength_edge_cannot_claim_modularity",
+          "outcome": "PASS"
+        },
+        "stdout_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stdout.txt",
+          "sha256": "cd89912cc4facf7f1059f6e67e6ecf3ed5fa8d8687f530902f5b1ef80df6c65c"
+        },
+        "stderr_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "run_receipt_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7"
+        }
+      },
+      "interpretation": "Control: a candidate graph with the same none-strength edge cannot claim modularity."
+    },
+    {
+      "check_id": "coupling-proof-required-for-modularity",
+      "name": "test_modular_graph_can_compose_only_with_coupling_proof",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "command": {
+        "argv_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7",
+          "json_pointer": "#/argv"
+        },
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "selector": "tests/unit/runtime/quality/test_design_axes_coupling_composition.py::test_modular_graph_can_compose_only_with_coupling_proof"
+      },
+      "environment": {
+        "availability": "captured",
+        "reference": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7",
+          "json_pointer": "#/environment"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+        "source_and_test_pins": [
+          {
+            "path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+            "git_blob": "75b018e3e0bb5f10fa8e6847ddfbc4fdc20de7c5"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/policy_design/test_structure_context_bridge.py",
+            "git_blob": "da690bda71e44ac451b07e1e89fc227927ab3813"
+          }
+        ],
+        "test_selector": "tests/unit/runtime/quality/test_design_axes_coupling_composition.py::test_modular_graph_can_compose_only_with_coupling_proof",
+        "fixture_scope": "Synthetic source/target records are created under pytest tmp_path; the positive bridge writes a persisted registry catalog and reads it through a newly constructed ParetoRegistry pointed at the same root."
+      },
+      "outcome": "PASS",
+      "output": {
+        "junit_case": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/junit.xml",
+          "sha256": "91557d25fa231ca98d82c30e1fd62834bdd200631ab56f6fc24ae25a58bd3315",
+          "classname": "tests.unit.runtime.quality.test_design_axes_coupling_composition",
+          "name": "test_modular_graph_can_compose_only_with_coupling_proof",
+          "outcome": "PASS"
+        },
+        "stdout_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stdout.txt",
+          "sha256": "cd89912cc4facf7f1059f6e67e6ecf3ed5fa8d8687f530902f5b1ef80df6c65c"
+        },
+        "stderr_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "run_receipt_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7"
+        }
+      },
+      "interpretation": "Control: modular composition requires coupling proof."
+    },
+    {
+      "check_id": "structure-context-forwarded-to-persisted-seed",
+      "name": "test_run_forwards_outer_context_to_persisted_structure_seed_without_changing_loop_id",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "command": {
+        "argv_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7",
+          "json_pointer": "#/argv"
+        },
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "selector": "tests/unit/scientist/policy_design/test_structure_context_bridge.py::test_run_forwards_outer_context_to_persisted_structure_seed_without_changing_loop_id"
+      },
+      "environment": {
+        "availability": "captured",
+        "reference": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7",
+          "json_pointer": "#/environment"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+        "source_and_test_pins": [
+          {
+            "path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+            "git_blob": "75b018e3e0bb5f10fa8e6847ddfbc4fdc20de7c5"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/policy_design/test_structure_context_bridge.py",
+            "git_blob": "da690bda71e44ac451b07e1e89fc227927ab3813"
+          }
+        ],
+        "test_selector": "tests/unit/scientist/policy_design/test_structure_context_bridge.py::test_run_forwards_outer_context_to_persisted_structure_seed_without_changing_loop_id",
+        "fixture_scope": "Synthetic source/target records are created under pytest tmp_path; the positive bridge writes a persisted registry catalog and reads it through a newly constructed ParetoRegistry pointed at the same root."
+      },
+      "outcome": "PASS",
+      "output": {
+        "junit_case": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/junit.xml",
+          "sha256": "91557d25fa231ca98d82c30e1fd62834bdd200631ab56f6fc24ae25a58bd3315",
+          "classname": "tests.unit.scientist.policy_design.test_structure_context_bridge",
+          "name": "test_run_forwards_outer_context_to_persisted_structure_seed_without_changing_loop_id",
+          "outcome": "PASS"
+        },
+        "stdout_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stdout.txt",
+          "sha256": "cd89912cc4facf7f1059f6e67e6ecf3ed5fa8d8687f530902f5b1ef80df6c65c"
+        },
+        "stderr_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "run_receipt_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7"
+        }
+      },
+      "interpretation": "A published catalog is read by a fresh ParetoRegistry instance; outer context resolves to nested_family/target_domain/outer_run/tenant_a; a transfer_seed enters the structure candidates; parameter loop_id remains parameter_loop and initial_context identity is preserved. Numeric parameter search is deliberately stubbed in this test."
+    },
+    {
+      "check_id": "resolver-precedence-source-run-and-top-level",
+      "name": "test_structure_seed_context_uses_existing_resolver_precedence[source-run-and-top-level-values-win]",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "command": {
+        "argv_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7",
+          "json_pointer": "#/argv"
+        },
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "selector": "tests/unit/scientist/policy_design/test_structure_context_bridge.py::test_structure_seed_context_uses_existing_resolver_precedence[source-run-and-top-level-values-win]"
+      },
+      "environment": {
+        "availability": "captured",
+        "reference": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7",
+          "json_pointer": "#/environment"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+        "source_and_test_pins": [
+          {
+            "path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+            "git_blob": "75b018e3e0bb5f10fa8e6847ddfbc4fdc20de7c5"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/policy_design/test_structure_context_bridge.py",
+            "git_blob": "da690bda71e44ac451b07e1e89fc227927ab3813"
+          }
+        ],
+        "test_selector": "tests/unit/scientist/policy_design/test_structure_context_bridge.py::test_structure_seed_context_uses_existing_resolver_precedence[source-run-and-top-level-values-win]",
+        "fixture_scope": "Synthetic source/target records are created under pytest tmp_path; the positive bridge writes a persisted registry catalog and reads it through a newly constructed ParetoRegistry pointed at the same root."
+      },
+      "outcome": "PASS",
+      "output": {
+        "junit_case": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/junit.xml",
+          "sha256": "91557d25fa231ca98d82c30e1fd62834bdd200631ab56f6fc24ae25a58bd3315",
+          "classname": "tests.unit.scientist.policy_design.test_structure_context_bridge",
+          "name": "test_structure_seed_context_uses_existing_resolver_precedence[source-run-and-top-level-values-win]",
+          "outcome": "PASS"
+        },
+        "stdout_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stdout.txt",
+          "sha256": "cd89912cc4facf7f1059f6e67e6ecf3ed5fa8d8687f530902f5b1ef80df6c65c"
+        },
+        "stderr_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "run_receipt_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7"
+        }
+      },
+      "interpretation": "Existing resolver precedence: source_run_id wins run_id; top-level task family/domain/tenant beat nested/base values."
+    },
+    {
+      "check_id": "resolver-precedence-nested-and-run-over-base",
+      "name": "test_structure_seed_context_uses_existing_resolver_precedence[run-and-nested-family-win-over-base]",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "command": {
+        "argv_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7",
+          "json_pointer": "#/argv"
+        },
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "selector": "tests/unit/scientist/policy_design/test_structure_context_bridge.py::test_structure_seed_context_uses_existing_resolver_precedence[run-and-nested-family-win-over-base]"
+      },
+      "environment": {
+        "availability": "captured",
+        "reference": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7",
+          "json_pointer": "#/environment"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+        "source_and_test_pins": [
+          {
+            "path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+            "git_blob": "75b018e3e0bb5f10fa8e6847ddfbc4fdc20de7c5"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/policy_design/test_structure_context_bridge.py",
+            "git_blob": "da690bda71e44ac451b07e1e89fc227927ab3813"
+          }
+        ],
+        "test_selector": "tests/unit/scientist/policy_design/test_structure_context_bridge.py::test_structure_seed_context_uses_existing_resolver_precedence[run-and-nested-family-win-over-base]",
+        "fixture_scope": "Synthetic source/target records are created under pytest tmp_path; the positive bridge writes a persisted registry catalog and reads it through a newly constructed ParetoRegistry pointed at the same root."
+      },
+      "outcome": "PASS",
+      "output": {
+        "junit_case": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/junit.xml",
+          "sha256": "91557d25fa231ca98d82c30e1fd62834bdd200631ab56f6fc24ae25a58bd3315",
+          "classname": "tests.unit.scientist.policy_design.test_structure_context_bridge",
+          "name": "test_structure_seed_context_uses_existing_resolver_precedence[run-and-nested-family-win-over-base]",
+          "outcome": "PASS"
+        },
+        "stdout_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stdout.txt",
+          "sha256": "cd89912cc4facf7f1059f6e67e6ecf3ed5fa8d8687f530902f5b1ef80df6c65c"
+        },
+        "stderr_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "run_receipt_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7"
+        }
+      },
+      "interpretation": "Existing resolver precedence: top-level run_id and nested policy_search_context.task_family beat typed base values."
+    },
+    {
+      "check_id": "resolver-preserves-typed-base",
+      "name": "test_structure_seed_context_uses_existing_resolver_precedence[typed-base-is-preserved]",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "command": {
+        "argv_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7",
+          "json_pointer": "#/argv"
+        },
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "selector": "tests/unit/scientist/policy_design/test_structure_context_bridge.py::test_structure_seed_context_uses_existing_resolver_precedence[typed-base-is-preserved]"
+      },
+      "environment": {
+        "availability": "captured",
+        "reference": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7",
+          "json_pointer": "#/environment"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+        "source_and_test_pins": [
+          {
+            "path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+            "git_blob": "75b018e3e0bb5f10fa8e6847ddfbc4fdc20de7c5"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/policy_design/test_structure_context_bridge.py",
+            "git_blob": "da690bda71e44ac451b07e1e89fc227927ab3813"
+          }
+        ],
+        "test_selector": "tests/unit/scientist/policy_design/test_structure_context_bridge.py::test_structure_seed_context_uses_existing_resolver_precedence[typed-base-is-preserved]",
+        "fixture_scope": "Synthetic source/target records are created under pytest tmp_path; the positive bridge writes a persisted registry catalog and reads it through a newly constructed ParetoRegistry pointed at the same root."
+      },
+      "outcome": "PASS",
+      "output": {
+        "junit_case": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/junit.xml",
+          "sha256": "91557d25fa231ca98d82c30e1fd62834bdd200631ab56f6fc24ae25a58bd3315",
+          "classname": "tests.unit.scientist.policy_design.test_structure_context_bridge",
+          "name": "test_structure_seed_context_uses_existing_resolver_precedence[typed-base-is-preserved]",
+          "outcome": "PASS"
+        },
+        "stdout_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stdout.txt",
+          "sha256": "cd89912cc4facf7f1059f6e67e6ecf3ed5fa8d8687f530902f5b1ef80df6c65c"
+        },
+        "stderr_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "run_receipt_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7"
+        }
+      },
+      "interpretation": "When no higher-precedence context is supplied, the typed TransferContext base is preserved."
+    },
+    {
+      "check_id": "resolver-present-empty-context-defaults",
+      "name": "test_structure_seed_context_uses_existing_resolver_precedence[present-empty-context-keeps-resolver-defaults]",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "command": {
+        "argv_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7",
+          "json_pointer": "#/argv"
+        },
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "selector": "tests/unit/scientist/policy_design/test_structure_context_bridge.py::test_structure_seed_context_uses_existing_resolver_precedence[present-empty-context-keeps-resolver-defaults]"
+      },
+      "environment": {
+        "availability": "captured",
+        "reference": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7",
+          "json_pointer": "#/environment"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+        "source_and_test_pins": [
+          {
+            "path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+            "git_blob": "75b018e3e0bb5f10fa8e6847ddfbc4fdc20de7c5"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/policy_design/test_structure_context_bridge.py",
+            "git_blob": "da690bda71e44ac451b07e1e89fc227927ab3813"
+          }
+        ],
+        "test_selector": "tests/unit/scientist/policy_design/test_structure_context_bridge.py::test_structure_seed_context_uses_existing_resolver_precedence[present-empty-context-keeps-resolver-defaults]",
+        "fixture_scope": "Synthetic source/target records are created under pytest tmp_path; the positive bridge writes a persisted registry catalog and reads it through a newly constructed ParetoRegistry pointed at the same root."
+      },
+      "outcome": "PASS",
+      "output": {
+        "junit_case": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/junit.xml",
+          "sha256": "91557d25fa231ca98d82c30e1fd62834bdd200631ab56f6fc24ae25a58bd3315",
+          "classname": "tests.unit.scientist.policy_design.test_structure_context_bridge",
+          "name": "test_structure_seed_context_uses_existing_resolver_precedence[present-empty-context-keeps-resolver-defaults]",
+          "outcome": "PASS"
+        },
+        "stdout_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stdout.txt",
+          "sha256": "cd89912cc4facf7f1059f6e67e6ecf3ed5fa8d8687f530902f5b1ef80df6c65c"
+        },
+        "stderr_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "run_receipt_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7"
+        }
+      },
+      "interpretation": "A present empty context uses resolver defaults (policy/fiscal/unknown), distinct from absent-context candidate-id fallback."
+    },
+    {
+      "check_id": "resolver-absent-context-candidate-fallback",
+      "name": "test_structure_seed_context_uses_existing_resolver_precedence[absent-context-keeps-candidate-id-fallback]",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "command": {
+        "argv_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7",
+          "json_pointer": "#/argv"
+        },
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "selector": "tests/unit/scientist/policy_design/test_structure_context_bridge.py::test_structure_seed_context_uses_existing_resolver_precedence[absent-context-keeps-candidate-id-fallback]"
+      },
+      "environment": {
+        "availability": "captured",
+        "reference": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7",
+          "json_pointer": "#/environment"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+        "source_and_test_pins": [
+          {
+            "path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+            "git_blob": "75b018e3e0bb5f10fa8e6847ddfbc4fdc20de7c5"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/policy_design/test_structure_context_bridge.py",
+            "git_blob": "da690bda71e44ac451b07e1e89fc227927ab3813"
+          }
+        ],
+        "test_selector": "tests/unit/scientist/policy_design/test_structure_context_bridge.py::test_structure_seed_context_uses_existing_resolver_precedence[absent-context-keeps-candidate-id-fallback]",
+        "fixture_scope": "Synthetic source/target records are created under pytest tmp_path; the positive bridge writes a persisted registry catalog and reads it through a newly constructed ParetoRegistry pointed at the same root."
+      },
+      "outcome": "PASS",
+      "output": {
+        "junit_case": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/junit.xml",
+          "sha256": "91557d25fa231ca98d82c30e1fd62834bdd200631ab56f6fc24ae25a58bd3315",
+          "classname": "tests.unit.scientist.policy_design.test_structure_context_bridge",
+          "name": "test_structure_seed_context_uses_existing_resolver_precedence[absent-context-keeps-candidate-id-fallback]",
+          "outcome": "PASS"
+        },
+        "stdout_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stdout.txt",
+          "sha256": "cd89912cc4facf7f1059f6e67e6ecf3ed5fa8d8687f530902f5b1ef80df6c65c"
+        },
+        "stderr_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "run_receipt_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7"
+        }
+      },
+      "interpretation": "An absent context keeps candidate-id fallback for the source run id."
+    },
+    {
+      "check_id": "persisted-reader-rejects-family-and-tenant-mismatch",
+      "name": "test_structure_seed_reader_rejects_wrong_task_family_and_tenant",
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "command": {
+        "argv_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7",
+          "json_pointer": "#/argv"
+        },
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "selector": "tests/unit/scientist/policy_design/test_structure_context_bridge.py::test_structure_seed_reader_rejects_wrong_task_family_and_tenant"
+      },
+      "environment": {
+        "availability": "captured",
+        "reference": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7",
+          "json_pointer": "#/environment"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+        "source_and_test_pins": [
+          {
+            "path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+            "git_blob": "75b018e3e0bb5f10fa8e6847ddfbc4fdc20de7c5"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/policy_design/test_structure_context_bridge.py",
+            "git_blob": "da690bda71e44ac451b07e1e89fc227927ab3813"
+          }
+        ],
+        "test_selector": "tests/unit/scientist/policy_design/test_structure_context_bridge.py::test_structure_seed_reader_rejects_wrong_task_family_and_tenant",
+        "fixture_scope": "Synthetic source/target records are created under pytest tmp_path; the positive bridge writes a persisted registry catalog and reads it through a newly constructed ParetoRegistry pointed at the same root."
+      },
+      "outcome": "PASS",
+      "output": {
+        "junit_case": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/junit.xml",
+          "sha256": "91557d25fa231ca98d82c30e1fd62834bdd200631ab56f6fc24ae25a58bd3315",
+          "classname": "tests.unit.scientist.policy_design.test_structure_context_bridge",
+          "name": "test_structure_seed_reader_rejects_wrong_task_family_and_tenant",
+          "outcome": "PASS"
+        },
+        "stdout_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stdout.txt",
+          "sha256": "cd89912cc4facf7f1059f6e67e6ecf3ed5fa8d8687f530902f5b1ef80df6c65c"
+        },
+        "stderr_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "run_receipt_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+          "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7"
+        }
+      },
+      "interpretation": "Negative control: persisted wrong-family and wrong-tenant seeds do not enter target structure candidates."
+    }
+  ],
+  "interpretation_rules": {
+    "case_rows_are_selectors_within_one_actual_invocation": true,
+    "target_7_and_aggregate_9_are_distinct_non_additive_counts": true,
+    "source_review_is_not_a_runtime_check": true,
+    "injected_numeric_search_stub_does_not_prove_numeric_parameter_search": true
+  },
+  "raw_output_policy": "Complete common-run receipt, stdout, stderr, JUnit, origin manifest, and origin hook are copied byte-for-byte once under the evidence directory and cited by path and SHA-256; no derived raw output is duplicated."
+}

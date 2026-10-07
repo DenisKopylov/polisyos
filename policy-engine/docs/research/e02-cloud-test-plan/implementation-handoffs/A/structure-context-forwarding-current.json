@@ -1,0 +1,332 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "structure-context-forwarding-current",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "e74decd8ac6c244f8950d73989e61dc6708f8ae4",
+  "slice_base_tree_sha": "a54b2d75f6b61a153c9f8abe4abad39f934ab547",
+  "implementation_commits": [
+    "33a271865a2b1f1c3f2339672c334f94d01447d9"
+  ],
+  "implementation_commit_records": [
+    {
+      "sha": "33a271865a2b1f1c3f2339672c334f94d01447d9",
+      "tree": "e4aee54fc6b9f0c353437543da04f3602309ece4",
+      "parents": [
+        "e74decd8ac6c244f8950d73989e61dc6708f8ae4"
+      ],
+      "subject": "fix(e02-A): forward outer context to structure seed resolver",
+      "changed_paths": [
+        {
+          "status": "M",
+          "path": "policy-engine/src/polisyos/scientist/policy_design/search.py"
+        },
+        {
+          "status": "A",
+          "path": "policy-engine/tests/unit/scientist/policy_design/test_structure_context_bridge.py"
+        }
+      ]
+    }
+  ],
+  "candidate_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+  "candidate_tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "full_path_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+      "base_blob": "49ddb4c29f333de12211a1e7222a1d8368f8cd85",
+      "candidate_blob": "75b018e3e0bb5f10fa8e6847ddfbc4fdc20de7c5",
+      "net_status": "modified",
+      "touched_in": [
+        {
+          "commit": "33a271865a2b1f1c3f2339672c334f94d01447d9",
+          "status_in_commit": "M"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/policy_design/test_structure_context_bridge.py",
+      "base_blob": null,
+      "candidate_blob": "da690bda71e44ac451b07e1e89fc227927ab3813",
+      "net_status": "added",
+      "touched_in": [
+        {
+          "commit": "33a271865a2b1f1c3f2339672c334f94d01447d9",
+          "status_in_commit": "A"
+        }
+      ]
+    }
+  ],
+  "baseline_cells": [],
+  "property": {
+    "statement": "HierarchicalSearchCoordinator.run forwards its outer initial_context to the structure-seed reader, which resolves it through the existing TransferContext resolver and reads a persisted Pareto seed without changing the parameter loop id.",
+    "runtime_path": [
+      "HierarchicalSearchCoordinator.run(initial_context)",
+      "generate_structure_candidates(initial_context)",
+      "_transfer_seed_candidates(initial_context)",
+      "resolve_transfer_context(existing D resolver)",
+      "ParetoRegistry.get_seed_bundle(persisted catalog read)",
+      "transfer_seed structure candidate"
+    ],
+    "proxy_divergence": "Checking only the method signature or context field names would miss whether structure generation actually reads a persisted eligible seed under outer scope; the positive test exercises persisted write -> new registry instance -> seed admission, while the family/tenant test exercises exclusion.",
+    "negative_controls": [
+      "wrong task family seed rejected",
+      "wrong tenant seed rejected",
+      "absent context retains candidate-id fallback",
+      "present empty context uses resolver defaults"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "focused_behavior_implemented_and_verified_with_bounded_runtime_scope",
+  "limitations_and_next_owner": [
+    "The positive bridge test replaces numeric run_parameter_search with a test stub that records loop_id and context; it does not run numerical parameter search.",
+    "The registry integration is a persisted local tmp_path catalog read by a fresh ParetoRegistry instance; it does not establish a production default-registry appointment or deployed external registry wiring.",
+    "The captured origin manifest omits the changed structure-search and D resolver/registry modules, so import-origin verification for those modules is not established by this run.",
+    "The 7-case target is a subset of the 9 passing cases in the same command; the 2 coupling controls are separate and not additive with the target count.",
+    "Root owns cross-slice criterion/finding adjudication and any broader numerical-search or deployment claim."
+  ],
+  "handoff_state": "current-head source candidate and focused test evidence recorded; broader capability and finding closure remain for root adjudication",
+  "candidate_role": "current-branch-HEAD-as-of-recorded-run",
+  "source_review": {
+    "status": "GO_bounded",
+    "scope": "Read-only inspection of implementation at 33a271865a2b1f1c3f2339672c334f94d01447d9 and current-head source/test blobs; preserved 20-symbol ABI and existing D resolver/registry ownership.",
+    "reviewer": "replay_execution",
+    "independent_of_source_author": true,
+    "not_a_finding_closure": true,
+    "evidence_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/structure-context-checks.json",
+      "sha256": "c4e9e27d2fde6edca6bbdcace55e12bc274c4b1065df2ded3e3ae9ee0bf5484c",
+      "check_ids": [
+        "coupling-none-strength-blocks-modularity",
+        "coupling-proof-required-for-modularity",
+        "structure-context-forwarded-to-persisted-seed",
+        "resolver-precedence-source-run-and-top-level",
+        "resolver-precedence-nested-and-run-over-base",
+        "resolver-preserves-typed-base",
+        "resolver-present-empty-context-defaults",
+        "resolver-absent-context-candidate-fallback",
+        "persisted-reader-rejects-family-and-tenant-mismatch"
+      ]
+    }
+  },
+  "check_catalogue_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/structure-context-checks.json",
+    "sha256": "c4e9e27d2fde6edca6bbdcace55e12bc274c4b1065df2ded3e3ae9ee0bf5484c",
+    "schema": "policyos.e02.implementation_handoff_checks.v1",
+    "check_ids": [
+      "coupling-none-strength-blocks-modularity",
+      "coupling-proof-required-for-modularity",
+      "structure-context-forwarded-to-persisted-seed",
+      "resolver-precedence-source-run-and-top-level",
+      "resolver-precedence-nested-and-run-over-base",
+      "resolver-preserves-typed-base",
+      "resolver-present-empty-context-defaults",
+      "resolver-absent-context-candidate-fallback",
+      "persisted-reader-rejects-family-and-tenant-mismatch"
+    ],
+    "note": "SHA-256 is filled after writing and readback; checks refer to the one retained current-head run and do not count target and aggregate twice."
+  },
+  "run_evidence": {
+    "run_id": "thirteenth-coupling-and-structure-current-9e47",
+    "source_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+      "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7"
+    },
+    "evidence_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47",
+    "files": {
+      "receipt.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+        "bytes": 4700,
+        "sha256": "23d28527c9f051f77c4771167d1af650cd56f3f6ce5c037182fdbafc689b9bd7"
+      },
+      "stdout.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stdout.txt",
+        "bytes": 99,
+        "sha256": "cd89912cc4facf7f1059f6e67e6ecf3ed5fa8d8687f530902f5b1ef80df6c65c"
+      },
+      "stderr.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "junit.xml": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/junit.xml",
+        "bytes": 2020,
+        "sha256": "91557d25fa231ca98d82c30e1fd62834bdd200631ab56f6fc24ae25a58bd3315"
+      },
+      "origins.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/origins.json",
+        "bytes": 1095,
+        "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+      },
+      "e02_origin.py": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/e02_origin.py",
+        "bytes": 656,
+        "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+      }
+    },
+    "exit_code": 0,
+    "wall_seconds": 19.785549207997974,
+    "aggregate_passed": 9,
+    "target_passed": 7,
+    "coupling_controls_passed": 2,
+    "origin_scope_note": "The retained origins.json reports Python/package versions and selected loaded module origins, but does not enumerate the changed structure search or transfer resolver/registry modules."
+  },
+  "pattern_pass": {
+    "relevant_ids": [
+      "P02",
+      "P12",
+      "P29",
+      "P32",
+      "P38"
+    ],
+    "existing_anti_pattern": "Outer search context was available at the orchestration entry but did not reach the structure-stage persisted seed lookup; method signatures alone would not establish the readback property.",
+    "target_pattern": "Forward typed scope into the existing resolver and persisted D registry consumer; verify eligible persisted seed admission plus family/tenant refusal and preserve loop identity.",
+    "missing_capability_labels": [
+      "production_registry_activation_not_established",
+      "numeric_parameter_search_not_exercised",
+      "runtime_origin_for_changed_modules_not_established"
+    ],
+    "acceptance_signal": "Current-head retained JUnit has all seven structure-context cases passing, including fresh persisted-reader positive, precedence, absent/present-empty distinction, loop-id preservation, and wrong-family/tenant negatives."
+  },
+  "predicate_details": "current-head focused behavioral test output plus read-only source inspection; the exact origin hook does not list the changed search.py/transfer_context.py/pareto_registry.py modules.",
+  "changed_paths": [
+    "policy-engine/src/polisyos/scientist/policy_design/search.py",
+    "policy-engine/tests/unit/scientist/policy_design/test_structure_context_bridge.py"
+  ],
+  "checks": [
+    {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-coupling-and-structure-current-9e47/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-coupling-and-structure-current-9e47/pytest-basetemp",
+        "tests/unit/runtime/quality/test_design_axes_coupling_composition.py::test_candidate_graph_with_same_none_strength_edge_cannot_claim_modularity",
+        "tests/unit/runtime/quality/test_design_axes_coupling_composition.py::test_modular_graph_can_compose_only_with_coupling_proof",
+        "tests/unit/scientist/policy_design/test_structure_context_bridge.py"
+      ],
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-coupling-and-structure-current-9e47:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "input_closure": {
+        "source_and_test": [
+          {
+            "path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+            "base_blob": "49ddb4c29f333de12211a1e7222a1d8368f8cd85",
+            "candidate_blob": "75b018e3e0bb5f10fa8e6847ddfbc4fdc20de7c5",
+            "net_status": "modified",
+            "touched_in": [
+              {
+                "commit": "33a271865a2b1f1c3f2339672c334f94d01447d9",
+                "status_in_commit": "M"
+              }
+            ]
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/policy_design/test_structure_context_bridge.py",
+            "base_blob": null,
+            "candidate_blob": "da690bda71e44ac451b07e1e89fc227927ab3813",
+            "net_status": "added",
+            "touched_in": [
+              {
+                "commit": "33a271865a2b1f1c3f2339672c334f94d01447d9",
+                "status_in_commit": "A"
+              }
+            ]
+          }
+        ],
+        "scope": "seven structure-context cases with two separate coupling controls; not numeric parameter-search/default-registry proof"
+      },
+      "outcome": "PASS",
+      "output": {
+        "receipt": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+        "summary": "9 passed; seven structure-context, two separate coupling; full deciding outputs retained beside receipt"
+      }
+    }
+  ],
+  "candidate_snapshot_diff": {
+    "base_commit": "e74decd8ac6c244f8950d73989e61dc6708f8ae4",
+    "candidate_commit": "9e4753f12aa554faf19075c368123b7b914d63df",
+    "candidate_tree": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+    "complete_diff_command": [
+      "git",
+      "diff",
+      "--name-status",
+      "--no-renames",
+      "e74decd8ac6c244f8950d73989e61dc6708f8ae4..9e4753f12aa554faf19075c368123b7b914d63df"
+    ],
+    "complete_path_denominator": 478,
+    "product_test_paths": [
+      "policy-engine/src/polisyos/core/contracts/__init__.py",
+      "policy-engine/src/polisyos/core/contracts/runtime.py",
+      "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+      "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/evaluation_safety.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+      "policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py",
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "policy-engine/src/polisyos/runtime/quality/production_invocation.py",
+      "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/provider_quality.py",
+      "policy-engine/src/polisyos/scientist/policy_design/search.py",
+      "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_informative_voi_execution.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_revision_context_reentry.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_served_cycle_custody.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_voi_artifact_projection.py",
+      "policy-engine/tests/integration/runtime_quality/test_e02_candidate_model_revision.py",
+      "policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+      "policy-engine/tests/unit/data_requirement/test_e02_named_profile_context.py",
+      "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py",
+      "policy-engine/tests/unit/remediation/test_e02_source_strangle_owner_resolution.py",
+      "policy-engine/tests/unit/remediation/test_emp_01.py",
+      "policy-engine/tests/unit/remediation/test_frc_01.py",
+      "policy-engine/tests/unit/remediation/test_sim_01.py",
+      "policy-engine/tests/unit/runtime/http/services/control/test_nl_pipeline_cost_projection.py",
+      "policy-engine/tests/unit/runtime/http/services/test_e02_monetary_usage_projection.py",
+      "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+      "policy-engine/tests/unit/runtime/quality/recursive_generation_cycle_fixtures.py",
+      "policy-engine/tests/unit/runtime/quality/test_depth_n_universality.py",
+      "policy-engine/tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+      "policy-engine/tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py",
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py",
+      "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+      "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+      "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+      "policy-engine/tests/unit/runtime/quality/test_workspace_composition.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_provider_quality.py",
+      "policy-engine/tests/unit/scientist/policy_design/test_structure_context_bridge.py"
+    ],
+    "other_tracked_companions": {
+      "path_count": 429,
+      "source_of_truth": "complete_diff_command above; existing tracked artifacts are Git-addressed, not copied"
+    },
+    "boundary": "This is the complete intervening snapshot delta, including independent slices. The property-owned changed_paths and implementation_commits select the bounded mechanism; neither list nor current test PASS admits the whole carrier."
+  }
+}

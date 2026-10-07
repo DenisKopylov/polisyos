@@ -1,0 +1,1311 @@
+{
+  "schema": "policyos.e02.A.sparse_owner_v2_checks.v1",
+  "unit": "A",
+  "slice": "sparse-owner-v2-intake",
+  "source_candidate": {
+    "sha": "4ef715efc89865325b789eed3ccd340da7b9f3be",
+    "tree_sha": "b6fddbfb771ab158dd8145daa551e181510477f4"
+  },
+  "required_check_keys": [
+    "command",
+    "target_sha",
+    "environment",
+    "input_closure",
+    "outcome",
+    "output"
+  ],
+  "outcome_enum": [
+    "PASS",
+    "FAIL",
+    "ERROR",
+    "SKIP",
+    "UNRUN"
+  ],
+  "check_count": 11,
+  "checks": [
+    {
+      "check_id": "sparse_nonempty_red_before_source_fix",
+      "name": "empirical-sparse-profile-final-red-aaa8",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/empirical-sparse-profile-final-red-aaa8/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/empirical-sparse-profile-final-red-aaa8/pytest-basetemp",
+        "tests/unit/remediation/test_emp_01.py::test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway",
+        "tests/unit/remediation/test_emp_01.py::test_empty_selected_profile_returns_no_profile_before_unit_binding",
+        "tests/unit/remediation/test_emp_01.py::test_owner_row_cap_refuses_truncated_profile"
+      ],
+      "target_sha": "aaa89a6988ed553310fc7950054e7b6af4a05956",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "recorded_variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/empirical-sparse-profile-final-red-aaa8:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "launcher_sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078",
+        "probe_environment": {},
+        "python_runtime": {
+          "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+          "pytest": "9.0.2"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "783954226a2e68486c7fc8d6b63f5e7f19093097",
+        "selectors": [
+          "tests/unit/remediation/test_emp_01.py::test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway",
+          "tests/unit/remediation/test_emp_01.py::test_empty_selected_profile_returns_no_profile_before_unit_binding",
+          "tests/unit/remediation/test_emp_01.py::test_owner_row_cap_refuses_truncated_profile"
+        ],
+        "baseline_fixture_scope": "Read from the candidate commit tree; synthetic inputs are described by the named test selectors and retained pytest/JUnit output.",
+        "source_and_test_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob": "5d274319c2dfefd84d7e70ae8a988e5f7344c89c",
+            "sha256": "95deb3008f074f4c6730767e4deff1350b76c860f5d2d2043b3573aa52927a1a",
+            "bytes": 643623
+          },
+          {
+            "path": "policy-engine/tests/unit/remediation/test_emp_01.py",
+            "git_blob": "4f24f1b7cbcf10f4211c49e911855c53edc431f0",
+            "sha256": "e283eb1765916eac870a969289addcd91f7e2001afae6e42fd436103756bcd2c",
+            "bytes": 25183
+          }
+        ],
+        "origin_harness_pins": [
+          {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/empirical-sparse-profile-final-red-aaa8/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          },
+          {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/empirical-sparse-profile-final-red-aaa8/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          }
+        ]
+      },
+      "outcome": "FAIL",
+      "output": {
+        "exit_code": 1,
+        "wall_seconds": 16.249910416954663,
+        "junit_counts": {
+          "tests": 5,
+          "passed": 2,
+          "failures": 3,
+          "errors": 0,
+          "skipped": 0
+        },
+        "case_results": [
+          {
+            "testcase": "test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway[1]",
+            "outcome": "FAIL",
+            "detail": "Failed: DID NOT RAISE <class 'polisyos.runtime.quality.generation_cycle.ValueOwnerAccessError'>"
+          },
+          {
+            "testcase": "test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway[2]",
+            "outcome": "FAIL",
+            "detail": "Failed: DID NOT RAISE <class 'polisyos.runtime.quality.generation_cycle.ValueOwnerAccessError'>"
+          },
+          {
+            "testcase": "test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway[3]",
+            "outcome": "FAIL",
+            "detail": "Failed: DID NOT RAISE <class 'polisyos.runtime.quality.generation_cycle.ValueOwnerAccessError'>"
+          },
+          {
+            "testcase": "test_empty_selected_profile_returns_no_profile_before_unit_binding",
+            "outcome": "PASS"
+          },
+          {
+            "testcase": "test_owner_row_cap_refuses_truncated_profile",
+            "outcome": "PASS"
+          }
+        ],
+        "artifacts": {
+          "stdout": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/empirical-sparse-profile-final-red-aaa8/stdout.txt",
+            "bytes": 8434,
+            "sha256": "11a95ace22d6d217ad7b1d86140d45561dac1325afe55982cbca22be842fee20"
+          },
+          "stderr": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/empirical-sparse-profile-final-red-aaa8/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/empirical-sparse-profile-final-red-aaa8/junit.xml",
+            "bytes": 9017,
+            "sha256": "6e93168aa1fb679fcb3a3ae33c28ba8bdd75b1d9d4dc442d5612d664d6de2d67"
+          },
+          "runner_receipt": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/empirical-sparse-profile-final-red-aaa8/receipt.json",
+            "bytes": 4081,
+            "sha256": "54d2bab71a77c2685f43624d87453521baf3c255a7789ccdf0ecd15c0e95f87c"
+          }
+        }
+      },
+      "interpretation": "On the test-first candidate, all three nonempty 1/2/3-row cases failed to raise the intended typed refusal. The empty-profile and cap controls passed. This is the distinguishing pre-fix red, not a current-source failure.",
+      "classification": "intentional_pre_fix_red"
+    },
+    {
+      "check_id": "owner_row_minimum_and_scope_controls_first_source_wave",
+      "name": "empirical-sparse-profile-native-69b6",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/empirical-sparse-profile-native-69b6/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/empirical-sparse-profile-native-69b6/pytest-basetemp",
+        "tests/unit/remediation/test_emp_01.py::test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway",
+        "tests/unit/remediation/test_emp_01.py::test_empty_selected_profile_returns_no_profile_before_unit_binding",
+        "tests/unit/remediation/test_emp_01.py::test_owner_row_cap_refuses_truncated_profile",
+        "tests/unit/remediation/test_emp_01.py::test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed",
+        "tests/unit/remediation/test_emp_01.py::test_scope_filter_excludes_other_regions_before_profile_limit",
+        "tests/unit/remediation/test_emp_01.py::test_cross_period_mixed_dataset_units_fail_closed"
+      ],
+      "target_sha": "69b607ed84132797edbdbbe1d65dbee07f749d06",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "recorded_variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/empirical-sparse-profile-native-69b6:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "launcher_sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078",
+        "probe_environment": {},
+        "python_runtime": {
+          "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+          "pytest": "9.0.2"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "1f4d4c2bb30b2a58d25fa87111c3d90a0295c7e7",
+        "selectors": [
+          "tests/unit/remediation/test_emp_01.py::test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway",
+          "tests/unit/remediation/test_emp_01.py::test_empty_selected_profile_returns_no_profile_before_unit_binding",
+          "tests/unit/remediation/test_emp_01.py::test_owner_row_cap_refuses_truncated_profile",
+          "tests/unit/remediation/test_emp_01.py::test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed",
+          "tests/unit/remediation/test_emp_01.py::test_scope_filter_excludes_other_regions_before_profile_limit",
+          "tests/unit/remediation/test_emp_01.py::test_cross_period_mixed_dataset_units_fail_closed"
+        ],
+        "baseline_fixture_scope": "Read from the candidate commit tree; synthetic inputs are described by the named test selectors and retained pytest/JUnit output.",
+        "source_and_test_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob": "2c0dc500c055624687b3b6f9ab74ebba5b3f6881",
+            "sha256": "a1b87490e228fc9364ef77955bb0d911eaa4571e093ee7183108d91b37681f6b",
+            "bytes": 643928
+          },
+          {
+            "path": "policy-engine/tests/unit/remediation/test_emp_01.py",
+            "git_blob": "4f24f1b7cbcf10f4211c49e911855c53edc431f0",
+            "sha256": "e283eb1765916eac870a969289addcd91f7e2001afae6e42fd436103756bcd2c",
+            "bytes": 25183
+          }
+        ],
+        "origin_harness_pins": [
+          {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/empirical-sparse-profile-native-69b6/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          },
+          {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/empirical-sparse-profile-native-69b6/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          }
+        ]
+      },
+      "outcome": "FAIL",
+      "output": {
+        "exit_code": 1,
+        "wall_seconds": 17.141356499982066,
+        "junit_counts": {
+          "tests": 8,
+          "passed": 6,
+          "failures": 2,
+          "errors": 0,
+          "skipped": 0
+        },
+        "case_results": [
+          {
+            "testcase": "test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway[1]",
+            "outcome": "PASS"
+          },
+          {
+            "testcase": "test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway[2]",
+            "outcome": "PASS"
+          },
+          {
+            "testcase": "test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway[3]",
+            "outcome": "PASS"
+          },
+          {
+            "testcase": "test_empty_selected_profile_returns_no_profile_before_unit_binding",
+            "outcome": "PASS"
+          },
+          {
+            "testcase": "test_owner_row_cap_refuses_truncated_profile",
+            "outcome": "PASS"
+          },
+          {
+            "testcase": "test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed",
+            "outcome": "FAIL",
+            "detail": "ValueError: substring not found"
+          },
+          {
+            "testcase": "test_scope_filter_excludes_other_regions_before_profile_limit",
+            "outcome": "FAIL",
+            "detail": "polisyos.runtime.quality.generation_cycle.ValueOwnerAccessError: owner observations span multiple or missing dataset/source identities, but the catalog has no declared measurement-unit binding over the selected profile; refusing to combine periods owner_access_ref=catalog://emp01/outcome#measurement"
+          },
+          {
+            "testcase": "test_cross_period_mixed_dataset_units_fail_closed",
+            "outcome": "PASS"
+          }
+        ],
+        "artifacts": {
+          "stdout": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/empirical-sparse-profile-native-69b6/stdout.txt",
+            "bytes": 26432,
+            "sha256": "04abbe062bc6d6825f07eb79cac6a1fc34cc80e1e3cf3c3df95221e67fdeed78"
+          },
+          "stderr": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/empirical-sparse-profile-native-69b6/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/empirical-sparse-profile-native-69b6/junit.xml",
+            "bytes": 27649,
+            "sha256": "395687bfb56eb52828d05b5d0855525337550b44fe630c4cff3df925628d4273"
+          },
+          "runner_receipt": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/empirical-sparse-profile-native-69b6/receipt.json",
+            "bytes": 4389,
+            "sha256": "219833fe0cbfd639b54d1c24c3fef103184a9b19c55221f604660c38c4e53e66"
+          }
+        }
+      },
+      "interpretation": "The three nonempty under-four cases, empty-vs-absent distinction, cap refusal, and cross-period mixed-dataset refusal passed. Two scope cases failed because the fake RowsConnection did not model the current country_code = CAST(? AS VARCHAR) SQL predicate; the full command is FAIL and is not treated as an all-green semantic result.",
+      "classification": "harness_mismatch_retained"
+    },
+    {
+      "check_id": "corrected_scoped_sql_harness",
+      "name": "empirical-scope-harness-current-3ba1",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/empirical-scope-harness-current-3ba1/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/empirical-scope-harness-current-3ba1/pytest-basetemp",
+        "tests/unit/remediation/test_emp_01.py::test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed",
+        "tests/unit/remediation/test_emp_01.py::test_scope_filter_excludes_other_regions_before_profile_limit"
+      ],
+      "target_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "recorded_variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/empirical-scope-harness-current-3ba1:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "launcher_sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078",
+        "probe_environment": {},
+        "python_runtime": {
+          "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+          "pytest": "9.0.2"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+        "selectors": [
+          "tests/unit/remediation/test_emp_01.py::test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed",
+          "tests/unit/remediation/test_emp_01.py::test_scope_filter_excludes_other_regions_before_profile_limit"
+        ],
+        "baseline_fixture_scope": "Read from the candidate commit tree; synthetic inputs are described by the named test selectors and retained pytest/JUnit output.",
+        "source_and_test_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob": "2c0dc500c055624687b3b6f9ab74ebba5b3f6881",
+            "sha256": "a1b87490e228fc9364ef77955bb0d911eaa4571e093ee7183108d91b37681f6b",
+            "bytes": 643928
+          },
+          {
+            "path": "policy-engine/tests/unit/remediation/test_emp_01.py",
+            "git_blob": "b744fca4edf8f062987de7bec240932edeb70497",
+            "sha256": "41671733310a2ea10735a5272094daee7e179fc3be6fae0555a717f98281b095",
+            "bytes": 25217
+          }
+        ],
+        "origin_harness_pins": [
+          {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/empirical-scope-harness-current-3ba1/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          },
+          {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/empirical-scope-harness-current-3ba1/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          }
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "exit_code": 0,
+        "wall_seconds": 18.17831541702617,
+        "junit_counts": {
+          "tests": 2,
+          "passed": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "case_results": [
+          {
+            "testcase": "test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed",
+            "outcome": "PASS"
+          },
+          {
+            "testcase": "test_scope_filter_excludes_other_regions_before_profile_limit",
+            "outcome": "PASS"
+          }
+        ],
+        "artifacts": {
+          "stdout": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/empirical-scope-harness-current-3ba1/stdout.txt",
+            "bytes": 99,
+            "sha256": "2f008e9bdea73d99daafe0b697233baab07ef6ac9d61e8421c103fc40092bfc8"
+          },
+          "stderr": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/empirical-scope-harness-current-3ba1/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/empirical-scope-harness-current-3ba1/junit.xml",
+            "bytes": 545,
+            "sha256": "16aa419abb0111f76b87b8628ea6c9102c1022dfaaaab847e548c56ce992a9ee"
+          },
+          "runner_receipt": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/empirical-scope-harness-current-3ba1/receipt.json",
+            "bytes": 4344,
+            "sha256": "d4da78cf989d12e29ac0f793bda0ee42350e50a950b32546799b96bde5b3793d"
+          }
+        }
+      },
+      "interpretation": "The two focused scope tests passed after the fake RowsConnection was aligned with the current CAST predicate. This still exercises the loader through a synthetic connection and does not establish actual DuckDB scope behavior.",
+      "classification": "focused_synthetic_harness"
+    },
+    {
+      "check_id": "default_cycle_sparse_profile_attempt",
+      "name": "sparse-and-voi-owned-readback-final",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/sparse-and-voi-owned-readback-final/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/sparse-and-voi-owned-readback-final/pytest-basetemp",
+        "tests/unit/remediation/test_emp_01.py::test_default_cycle_value_refusal_survives_persisted_run_readback",
+        "tests/integration/core_runtime/test_e02_voi_artifact_projection.py::test_informative_voi_candidate_core_readback_and_preview_refusal"
+      ],
+      "target_sha": "cfeaecf1ab4390abd91f5ee82e9e289811f7ff41",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "recorded_variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/sparse-and-voi-owned-readback-final:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "launcher_sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078",
+        "probe_environment": {},
+        "python_runtime": {
+          "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+          "pytest": "9.0.2"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "044ac2581a609badbf9ae3d3278e0c9111297d09",
+        "selectors": [
+          "tests/unit/remediation/test_emp_01.py::test_default_cycle_value_refusal_survives_persisted_run_readback",
+          "tests/integration/core_runtime/test_e02_voi_artifact_projection.py::test_informative_voi_candidate_core_readback_and_preview_refusal"
+        ],
+        "baseline_fixture_scope": "Read from the candidate commit tree; synthetic inputs are described by the named test selectors and retained pytest/JUnit output.",
+        "source_and_test_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob": "c970465dd426bc29495ea6dbbff9d1f1cbcd8cb8",
+            "sha256": "899159c295220e43b464ce34ef2de4549b2c78804e8ffbb4a77a58eb3acef691",
+            "bytes": 644405
+          },
+          {
+            "path": "policy-engine/tests/unit/remediation/test_emp_01.py",
+            "git_blob": "935a57fff2da14e6811a51395a35ab1ff251cde1",
+            "sha256": "8ed8cac760b2726eb75c315a78f4c09aea8d8b891d6837f050a07f2a8187d243",
+            "bytes": 32958
+          }
+        ],
+        "origin_harness_pins": [
+          {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/sparse-and-voi-owned-readback-final/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          },
+          {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/sparse-and-voi-owned-readback-final/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          }
+        ],
+        "fixture_source_pins": [
+          {
+            "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+            "git_blob": "274058481969fb5c2fab9db4edc4833e3a4a6880",
+            "sha256": "3d1d70b4f47bb2115469efc4a726b2bea1aa9ba812f71a25a86b5d617cb1d41c",
+            "bytes": 409256,
+            "role": "N5 witness / problem fixture imported by the selected test node"
+          }
+        ]
+      },
+      "outcome": "FAIL",
+      "output": {
+        "exit_code": 1,
+        "wall_seconds": 31.641943749971688,
+        "junit_counts": {
+          "tests": 4,
+          "passed": 1,
+          "failures": 3,
+          "errors": 0,
+          "skipped": 0
+        },
+        "case_results": [
+          {
+            "testcase": "test_default_cycle_value_refusal_survives_persisted_run_readback[1]",
+            "outcome": "FAIL",
+            "detail": "AssertionError: {'acquisition_requirement': None, 'authority_blockers': ['exec_plan_provenance_not_established', 'horizon_time_alignme...mulation_only_k_sim_not_world_evidence'], 'calibration_receipt': None, 'candidate_id': 'candidate_cyc_n5_builder', ...}"
+          },
+          {
+            "testcase": "test_default_cycle_value_refusal_survives_persisted_run_readback[2]",
+            "outcome": "FAIL",
+            "detail": "AssertionError: {'acquisition_requirement': None, 'authority_blockers': ['exec_plan_provenance_not_established', 'horizon_time_alignme...mulation_only_k_sim_not_world_evidence'], 'calibration_receipt': None, 'candidate_id': 'candidate_cyc_n5_builder', ...}"
+          },
+          {
+            "testcase": "test_default_cycle_value_refusal_survives_persisted_run_readback[3]",
+            "outcome": "FAIL",
+            "detail": "AssertionError: {'acquisition_requirement': None, 'authority_blockers': ['exec_plan_provenance_not_established', 'horizon_time_alignme...mulation_only_k_sim_not_world_evidence'], 'calibration_receipt': None, 'candidate_id': 'candidate_cyc_n5_builder', ...}"
+          },
+          {
+            "testcase": "test_informative_voi_candidate_core_readback_and_preview_refusal",
+            "outcome": "PASS"
+          }
+        ],
+        "artifacts": {
+          "stdout": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/sparse-and-voi-owned-readback-final/stdout.txt",
+            "bytes": 23152,
+            "sha256": "77f33427053e5294887634b02d63df90da3b2aec441e44152872a5c875a40e81"
+          },
+          "stderr": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/sparse-and-voi-owned-readback-final/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/sparse-and-voi-owned-readback-final/junit.xml",
+            "bytes": 22810,
+            "sha256": "d0308614799bef5739803e035df9bb91a9672d583be89aa8f6832a60dd2c759c"
+          },
+          "runner_receipt": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/sparse-and-voi-owned-readback-final/receipt.json",
+            "bytes": 8821,
+            "sha256": "a15b17ca386b72018c187e6cc0ab728ed03ae7bc2f1bfb77a736a3668deb3c88"
+          }
+        }
+      },
+      "interpretation": "Three default-cycle cases expected an empirical owner refusal but returned a value_conditional simulation-only result with K_sim limitations; the separate VOI case passed. This shows the default route did not demonstrate sparse-profile consumption. It is retained as a failed attempted composition, not evidence that the gateway accepted sparse rows.",
+      "classification": "nondeciding_default_route_attempt"
+    },
+    {
+      "check_id": "pre_v2_direct_input_and_default_history_attempt",
+      "name": "sparse-direct-and-simulation-only-split",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/sparse-direct-and-simulation-only-split/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/sparse-direct-and-simulation-only-split/pytest-basetemp",
+        "tests/unit/remediation/test_emp_01.py::test_default_cycle_preserves_simulation_only_result_and_history",
+        "tests/unit/remediation/test_emp_01.py::test_direct_foundry_value_port_refuses_sparse_owner_profile"
+      ],
+      "target_sha": "c8f774587013b16b6851fc106192ad55e8b58a7f",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "recorded_variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/sparse-direct-and-simulation-only-split:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "launcher_sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078",
+        "probe_environment": {},
+        "python_runtime": {
+          "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+          "pytest": "9.0.2"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "dd5c5edc9177736bb0aa7f8de891f3d691e317a4",
+        "selectors": [
+          "tests/unit/remediation/test_emp_01.py::test_default_cycle_preserves_simulation_only_result_and_history",
+          "tests/unit/remediation/test_emp_01.py::test_direct_foundry_value_port_refuses_sparse_owner_profile"
+        ],
+        "baseline_fixture_scope": "Read from the candidate commit tree; synthetic inputs are described by the named test selectors and retained pytest/JUnit output.",
+        "source_and_test_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob": "c970465dd426bc29495ea6dbbff9d1f1cbcd8cb8",
+            "sha256": "899159c295220e43b464ce34ef2de4549b2c78804e8ffbb4a77a58eb3acef691",
+            "bytes": 644405
+          },
+          {
+            "path": "policy-engine/tests/unit/remediation/test_emp_01.py",
+            "git_blob": "a8791336ffcbb4c890b2c45ca1442152d6b1449f",
+            "sha256": "3274d8bbe253c100f673440a69be6c03299d3f7a4144a5b566f36e59a1b402a0",
+            "bytes": 35218
+          }
+        ],
+        "origin_harness_pins": [
+          {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/sparse-direct-and-simulation-only-split/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          },
+          {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/sparse-direct-and-simulation-only-split/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          }
+        ],
+        "fixture_source_pins": [
+          {
+            "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+            "git_blob": "274058481969fb5c2fab9db4edc4833e3a4a6880",
+            "sha256": "3d1d70b4f47bb2115469efc4a726b2bea1aa9ba812f71a25a86b5d617cb1d41c",
+            "bytes": 409256,
+            "role": "N5 witness / problem fixture imported by the selected test node"
+          }
+        ]
+      },
+      "outcome": "FAIL",
+      "output": {
+        "exit_code": 1,
+        "wall_seconds": 24.067600332957227,
+        "junit_counts": {
+          "tests": 4,
+          "passed": 0,
+          "failures": 4,
+          "errors": 0,
+          "skipped": 0
+        },
+        "case_results": [
+          {
+            "testcase": "test_default_cycle_preserves_simulation_only_result_and_history",
+            "outcome": "FAIL",
+            "detail": "AssertionError: assert ({'code': 'ge...n_mismatch'},) == ()"
+          },
+          {
+            "testcase": "test_direct_foundry_value_port_refuses_sparse_owner_profile[1]",
+            "outcome": "FAIL",
+            "detail": "ValueError: eval_safety_simulation_input_unresolved"
+          },
+          {
+            "testcase": "test_direct_foundry_value_port_refuses_sparse_owner_profile[2]",
+            "outcome": "FAIL",
+            "detail": "ValueError: eval_safety_simulation_input_unresolved"
+          },
+          {
+            "testcase": "test_direct_foundry_value_port_refuses_sparse_owner_profile[3]",
+            "outcome": "FAIL",
+            "detail": "ValueError: eval_safety_simulation_input_unresolved"
+          }
+        ],
+        "artifacts": {
+          "stdout": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/sparse-direct-and-simulation-only-split/stdout.txt",
+            "bytes": 17695,
+            "sha256": "cc062cf7a60d59f1c975d1f74d0946ca109d03ff72900c00a6b30c97e6dbcc39"
+          },
+          "stderr": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/sparse-direct-and-simulation-only-split/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/sparse-direct-and-simulation-only-split/junit.xml",
+            "bytes": 16452,
+            "sha256": "4c23e1384100369cbcab9824505f9e54c1609f8944c2670ae9a37551a082934a"
+          },
+          "runner_receipt": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/sparse-direct-and-simulation-only-split/receipt.json",
+            "bytes": 9720,
+            "sha256": "4778f33c6ba1ffdeba170d9086414180dd565bf1c4ec173bd0f3870212df5e1b"
+          }
+        }
+      },
+      "interpretation": "At c8, direct checks failed because the supported-v2 input gate did not yet accept the real N5 v2 result; the default history check exposed a genuine historical_projection_mismatch. The latter was addressed by commit 75115a021, and the 0aba follow-up passed typed interaction round-trip/history replay positive assertions. The 0aba default-cycle test still fails only its invalid free-text reason tamper assertion; retain that as a separate negative-oracle correction, not as an unresolved projection defect.",
+      "classification": "superseded_direct_attempt_and_open_history_gap"
+    },
+    {
+      "check_id": "supported_v2_direct_foundry_value_port_sparse_refusal",
+      "name": "supported-v2-n5-direct-value-intake",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/supported-v2-n5-direct-value-intake/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/supported-v2-n5-direct-value-intake/pytest-basetemp",
+        "tests/unit/remediation/test_emp_01.py::test_direct_foundry_value_port_refuses_sparse_owner_profile"
+      ],
+      "target_sha": "4ef715efc89865325b789eed3ccd340da7b9f3be",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "recorded_variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/supported-v2-n5-direct-value-intake:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "launcher_sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078",
+        "probe_environment": {},
+        "python_runtime": {
+          "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+          "pytest": "9.0.2"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "b6fddbfb771ab158dd8145daa551e181510477f4",
+        "selectors": [
+          "tests/unit/remediation/test_emp_01.py::test_direct_foundry_value_port_refuses_sparse_owner_profile"
+        ],
+        "baseline_fixture_scope": "Read from the candidate commit tree; synthetic inputs are described by the named test selectors and retained pytest/JUnit output.",
+        "source_and_test_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob": "e3c369a8a40db0849db4bb08ca732fd7c5761fa7",
+            "sha256": "abc8728d73670ec97dd1bc25f9a17580629d65bea812d417ff01fb48f273f15c",
+            "bytes": 644666
+          },
+          {
+            "path": "policy-engine/tests/unit/remediation/test_emp_01.py",
+            "git_blob": "284f373c87eb7212aaf8bc9d67a1a3fcbb34e203",
+            "sha256": "dcac18b265ac923922ea9fd0ba775f271cdb4e96f84f121eb5bba7026fa4680b",
+            "bytes": 37792
+          }
+        ],
+        "origin_harness_pins": [
+          {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/supported-v2-n5-direct-value-intake/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          },
+          {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/supported-v2-n5-direct-value-intake/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          }
+        ],
+        "fixture_source_pins": [
+          {
+            "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+            "git_blob": "274058481969fb5c2fab9db4edc4833e3a4a6880",
+            "sha256": "3d1d70b4f47bb2115469efc4a726b2bea1aa9ba812f71a25a86b5d617cb1d41c",
+            "bytes": 409256,
+            "role": "N5 witness / problem fixture imported by the selected test node"
+          }
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "exit_code": 0,
+        "wall_seconds": 26.493072084034793,
+        "junit_counts": {
+          "tests": 3,
+          "passed": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "case_results": [
+          {
+            "testcase": "test_direct_foundry_value_port_refuses_sparse_owner_profile[1]",
+            "outcome": "PASS"
+          },
+          {
+            "testcase": "test_direct_foundry_value_port_refuses_sparse_owner_profile[2]",
+            "outcome": "PASS"
+          },
+          {
+            "testcase": "test_direct_foundry_value_port_refuses_sparse_owner_profile[3]",
+            "outcome": "PASS"
+          }
+        ],
+        "artifacts": {
+          "stdout": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/supported-v2-n5-direct-value-intake/stdout.txt",
+            "bytes": 99,
+            "sha256": "06964d1b9ea00926b96b1120e0ab45980daf1dbccd3a23eb6b687b2657ed1208"
+          },
+          "stderr": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/supported-v2-n5-direct-value-intake/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/supported-v2-n5-direct-value-intake/junit.xml",
+            "bytes": 686,
+            "sha256": "8af317643ac3e569e65fa02db43eb19168cb96d4ad5a5e2b1b928f332dc99966"
+          },
+          "runner_receipt": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/supported-v2-n5-direct-value-intake/receipt.json",
+            "bytes": 12269,
+            "sha256": "bc4700a0ee99d7da3fe2abeee0c943611208178c287e0dedf1c92782650cbd6f"
+          }
+        },
+        "evidence_copy": {
+          "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake",
+          "source_build_directory": "policy-engine/_build/e02-A-continuation-20261007/supported-v2-n5-direct-value-intake",
+          "retained_deciding_file_count": 6,
+          "retained_deciding_bytes": 14805,
+          "retained_deciding_files": [
+            {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/receipt.json",
+              "sha256": "bc4700a0ee99d7da3fe2abeee0c943611208178c287e0dedf1c92782650cbd6f",
+              "bytes": 12269
+            },
+            {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/stdout.txt",
+              "sha256": "06964d1b9ea00926b96b1120e0ab45980daf1dbccd3a23eb6b687b2657ed1208",
+              "bytes": 99
+            },
+            {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/stderr.txt",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "bytes": 0
+            },
+            {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/junit.xml",
+              "sha256": "8af317643ac3e569e65fa02db43eb19168cb96d4ad5a5e2b1b928f332dc99966",
+              "bytes": 686
+            },
+            {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/origins.json",
+              "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+              "bytes": 1095
+            },
+            {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/e02_origin.py",
+              "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+              "bytes": 656
+            }
+          ],
+          "verification": "Each of the six retained standard artifacts matches its source SHA-256; only these deciding output files are in the evidence copy. The synthetic fixture CAS/cache trees remain in the ignored build run.",
+          "fixture_data_custody": {
+            "original_ignored_build_run": "policy-engine/_build/e02-A-continuation-20261007/supported-v2-n5-direct-value-intake",
+            "original_fixture_data_preserved": true,
+            "duplicate_fixture_files_verified_byte_identical": 693,
+            "duplicate_copy_disposition": "The evidence-copy pytest-basetemp and __pycache__ directories were moved to native Trash; Trash was not emptied.",
+            "trash_receipt": "policy-engine/_build/e02-A-continuation-20261007/duplicate-fixture-native-trash/receipt.json@sha256:fd9cbe0ea44dbcbc2949973c10450fc43595449c74fd72f40f1040df92ad6628"
+          }
+        }
+      },
+      "interpretation": "Three 1/2/3-row parameter cases passed through a real FoundryValuePort and RealValueOwnerGateway using a content-bound persisted N5 v2 evaluation input. The synthetic baseline-only owner rows produce acquire_data:value_owner_rows_insufficient, no acquisition requirement, and a query limit of 20,001. This proves the direct consumer refusal only; it is not the default generation-cycle path, C active-projection admission, population completeness, or a B16 forecast/holdout result.",
+      "classification": "bounded_direct_consumer_positive"
+    },
+    {
+      "check_id": "independent_source_review",
+      "name": "source review at supported-v2 candidate",
+      "command": "UNRUN: no independent reviewer source review was executed for this sparse-owner continuation.",
+      "target_sha": "4ef715efc89865325b789eed3ccd340da7b9f3be",
+      "environment": {
+        "execution": "not_run"
+      },
+      "input_closure": {
+        "candidate_tree_sha": "b6fddbfb771ab158dd8145daa551e181510477f4",
+        "source_pin": {
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "git_blob": "e3c369a8a40db0849db4bb08ca732fd7c5761fa7",
+          "sha256": "abc8728d73670ec97dd1bc25f9a17580629d65bea812d417ff01fb48f273f15c",
+          "bytes": 644666
+        },
+        "test_pin": {
+          "path": "policy-engine/tests/unit/remediation/test_emp_01.py",
+          "git_blob": "284f373c87eb7212aaf8bc9d67a1a3fcbb34e203",
+          "sha256": "dcac18b265ac923922ea9fd0ba775f271cdb4e96f84f121eb5bba7026fa4680b",
+          "bytes": 37792
+        },
+        "review_scope": "Typed insufficient-vs-empty/truncated owner-row path and supported-v2 evaluation-input bridge."
+      },
+      "outcome": "UNRUN",
+      "output": {
+        "artifacts": [],
+        "reason": "No independent source-review receipt exists in this slice."
+      },
+      "interpretation": "Do not infer source-level review completion from behavioral tests."
+    },
+    {
+      "check_id": "original_b16_acceptance",
+      "name": "B16 original empirical acceptance replay",
+      "command": "UNRUN: no full B16 acceptance command was run in this sparse-owner slice.",
+      "target_sha": "4ef715efc89865325b789eed3ccd340da7b9f3be",
+      "environment": {
+        "execution": "not_run"
+      },
+      "input_closure": {
+        "candidate_tree_sha": "b6fddbfb771ab158dd8145daa551e181510477f4",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a#L387-L398",
+        "missing_in_this_slice": [
+          "admitted ETS forecast through the strict CAS/default owner path",
+          "paired held-out outcomes",
+          "training-only verification",
+          "independently recomputed held-out scope/time/threshold/coverage",
+          "predictive-only served support result",
+          "leakage rejection"
+        ]
+      },
+      "outcome": "UNRUN",
+      "output": {
+        "artifacts": [],
+        "reason": "The slice exercises sparse owner intake and bounded direct-port refusal, not the original forecast/holdout acceptance criterion."
+      },
+      "interpretation": "B16 remains limited with verification_missing; no closure ID is asserted."
+    },
+    {
+      "check_id": "history_replay_unrun_at_4ef_snapshot",
+      "name": "history replay status at the 4ef direct-intake candidate snapshot",
+      "command": "UNRUN at target 4ef: no fresh history replay was recorded on that exact candidate after the issue was isolated; the later 0aba candidate has a separate replay receipt.",
+      "target_sha": "4ef715efc89865325b789eed3ccd340da7b9f3be",
+      "environment": {
+        "execution": "not_run"
+      },
+      "input_closure": {
+        "candidate_tree_sha": "b6fddbfb771ab158dd8145daa551e181510477f4",
+        "prior_failure_ref": "policy-engine/_build/e02-A-continuation-20261007/sparse-direct-and-simulation-only-split/junit.xml@sha256:4c23e1384100369cbcab9824505f9e54c1609f8944c2670ae9a37551a082934a",
+        "scope": "Separate historical v3 projection / conditional_interaction_evidence issue; not part of the direct sparse gateway assertion."
+      },
+      "outcome": "UNRUN",
+      "output": {
+        "artifacts": [],
+        "reason": "This is an historical 4ef-snapshot status only; see thirteenth-affected-frozen-0aba for the subsequent positive projection replay and invalid negative assertion."
+      },
+      "interpretation": "Exact 4ef candidate replay was not performed. The projection positive is later verified at 0aba; the current open work is correction of the free-text reason negative test oracle."
+    },
+    {
+      "check_id": "thirteenth_affected_frozen_wave_0aba",
+      "name": "thirteenth-affected-frozen-0aba",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-affected-frozen-0aba/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-affected-frozen-0aba/pytest-basetemp",
+        "tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py",
+        "tests/unit/remediation/test_emp_01.py::test_empty_selected_profile_returns_no_profile_before_unit_binding",
+        "tests/unit/remediation/test_emp_01.py::test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway",
+        "tests/integration/core_runtime/test_e02_informative_voi_execution.py::test_default_information_value_advance_executes_real_n5_and_budget_blocks_it",
+        "tests/unit/remediation/test_frc_01.py::test_missing_calibration_evidence_refs_stays_typed_blocked",
+        "tests/unit/remediation/test_frc_01.py::test_gateway_rejects_temporal_roles_that_disagree_with_loaded_evidence",
+        "tests/unit/remediation/test_frc_01.py::test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero",
+        "tests/unit/remediation/test_frc_01.py::test_resolver_failures_change_and_survive_fresh_forecast_disposition",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_history_preserves_typed_conditional_interaction_evidence",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_blocked_terminal_semantics_remain_enforced_in_history",
+        "tests/unit/remediation/test_emp_01.py::test_default_cycle_preserves_simulation_only_result_and_history",
+        "tests/unit/remediation/test_emp_01.py::test_direct_foundry_value_port_refuses_sparse_owner_profile",
+        "tests/integration/core_runtime/test_e02_served_cycle_custody.py::test_served_candidate_value_fresh_get_with_candidate_only_substrate"
+      ],
+      "target_sha": "0aba32b8ce9c40ee178d39d44c70fe6994698938",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "recorded_variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-affected-frozen-0aba:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "launcher_sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078",
+        "probe_environment": {},
+        "python_runtime": {
+          "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+          "pytest": "9.0.2"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "f3de7250f955ee9d75da901817e12247711fe493",
+        "selectors": [
+          "tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py",
+          "tests/unit/remediation/test_emp_01.py::test_empty_selected_profile_returns_no_profile_before_unit_binding",
+          "tests/unit/remediation/test_emp_01.py::test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway",
+          "tests/integration/core_runtime/test_e02_informative_voi_execution.py::test_default_information_value_advance_executes_real_n5_and_budget_blocks_it",
+          "tests/unit/remediation/test_frc_01.py::test_missing_calibration_evidence_refs_stays_typed_blocked",
+          "tests/unit/remediation/test_frc_01.py::test_gateway_rejects_temporal_roles_that_disagree_with_loaded_evidence",
+          "tests/unit/remediation/test_frc_01.py::test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero",
+          "tests/unit/remediation/test_frc_01.py::test_resolver_failures_change_and_survive_fresh_forecast_disposition",
+          "tests/unit/runtime/quality/test_generation_cycle_history.py::test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly",
+          "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_history_preserves_typed_conditional_interaction_evidence",
+          "tests/unit/runtime/quality/test_generation_cycle_history.py::test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph",
+          "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_blocked_terminal_semantics_remain_enforced_in_history",
+          "tests/unit/remediation/test_emp_01.py::test_default_cycle_preserves_simulation_only_result_and_history",
+          "tests/unit/remediation/test_emp_01.py::test_direct_foundry_value_port_refuses_sparse_owner_profile",
+          "tests/integration/core_runtime/test_e02_served_cycle_custody.py::test_served_candidate_value_fresh_get_with_candidate_only_substrate"
+        ],
+        "source_and_selected_test_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob": "24bc51b91a70e763076221228095573eb1d0e554",
+            "sha256": "197e9a6cd83e0403ce9e2e76b634bbf663a8cd5434ed4d39820a925d9c51a523",
+            "bytes": 644722
+          },
+          {
+            "path": "policy-engine/tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py",
+            "git_blob": "ab587ee423ba999bfe985b7baaf686ba93c7b0da",
+            "sha256": "c8ad2d349e4ebc5f4c9225570595d9089545611cfec1a548263b4b7017686e7e",
+            "bytes": 11365
+          },
+          {
+            "path": "policy-engine/tests/unit/remediation/test_emp_01.py",
+            "git_blob": "b89c4f405460afd96b6c9c29da3a7e3fdcbeb98e",
+            "sha256": "f428c7f04def65214cf60649d6ad5bcff2647709c74f97df20b59476060d9d2e",
+            "bytes": 38063
+          },
+          {
+            "path": "policy-engine/tests/integration/core_runtime/test_e02_informative_voi_execution.py",
+            "git_blob": "9403ab4d41eadca013237847c1bbbe36b38e8d68",
+            "sha256": "51a2d6e80ebf1142b78b4d944c2dd0a79ab54c1185d925653e8935537b9cc5fb",
+            "bytes": 7804
+          },
+          {
+            "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+            "git_blob": "4bd28e35a248691147742816e51e2f541c6d81e8",
+            "sha256": "a31387163f42c847b75ae6eaaa408ee37c879ab70065e12b820c14ab1c46d685",
+            "bytes": 39733
+          },
+          {
+            "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py",
+            "git_blob": "bdf76cab090e5a519a5222b260c287e98d56f2b9",
+            "sha256": "5c7efd01a6dc12e6d7cdf4aaa1000b2efc36b81318515d6b347e6087b5ff154a",
+            "bytes": 66412
+          },
+          {
+            "path": "policy-engine/tests/integration/core_runtime/test_e02_served_cycle_custody.py",
+            "git_blob": "15a09295246a0c783bc61f87cf8777d9f905ee76",
+            "sha256": "0d9e89643fdaa166b72dd66ebdcd6fc4c17db4d275e51656b5f9c3c5755bf020",
+            "bytes": 42721
+          }
+        ],
+        "fixture_and_history_schema_pins": [
+          {
+            "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+            "git_blob": "274058481969fb5c2fab9db4edc4833e3a4a6880",
+            "sha256": "3d1d70b4f47bb2115469efc4a726b2bea1aa9ba812f71a25a86b5d617cb1d41c",
+            "bytes": 409256
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+            "git_blob": "3448a9a7792071e90d56f6e7130e4cde7920ab76",
+            "sha256": "b42648ef5ce0455e41fc5ea850389261f0d0b6667b0b6aa66ec59aebd91b7bec",
+            "bytes": 196123
+          }
+        ],
+        "origin_harness_pins": [
+          {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/thirteenth-affected-frozen-0aba/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          },
+          {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/thirteenth-affected-frozen-0aba/origins.json",
+            "bytes": 1270,
+            "sha256": "109afc05f7b6d88f1c55726c09127366efb2b412cba48f219707076583ece603"
+          }
+        ],
+        "scope_note": "This is a mixed affected-consumer wave. B16 interpretation is limited to its named empty/sparse/direct-port/default-history selectors; other bundle tests are not adjudicated here."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "exit_code": 1,
+        "wall_seconds": 36.43257749994518,
+        "junit_counts": {
+          "tests": 44,
+          "passed": 42,
+          "failures": 2,
+          "errors": 0,
+          "skipped": 0
+        },
+        "b16_relevant_case_results": [
+          {
+            "testcase": "test_empty_selected_profile_returns_no_profile_before_unit_binding",
+            "outcome": "PASS"
+          },
+          {
+            "testcase": "test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway[1]",
+            "outcome": "PASS"
+          },
+          {
+            "testcase": "test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway[2]",
+            "outcome": "PASS"
+          },
+          {
+            "testcase": "test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway[3]",
+            "outcome": "PASS"
+          },
+          {
+            "testcase": "test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly",
+            "outcome": "PASS"
+          },
+          {
+            "testcase": "test_v3_history_preserves_typed_conditional_interaction_evidence",
+            "outcome": "PASS"
+          },
+          {
+            "testcase": "test_default_cycle_preserves_simulation_only_result_and_history",
+            "outcome": "FAIL",
+            "detail": "AssertionError: assert ()"
+          },
+          {
+            "testcase": "test_direct_foundry_value_port_refuses_sparse_owner_profile[1]",
+            "outcome": "PASS"
+          },
+          {
+            "testcase": "test_direct_foundry_value_port_refuses_sparse_owner_profile[2]",
+            "outcome": "PASS"
+          },
+          {
+            "testcase": "test_direct_foundry_value_port_refuses_sparse_owner_profile[3]",
+            "outcome": "PASS"
+          },
+          {
+            "testcase": "test_served_candidate_value_fresh_get_with_candidate_only_substrate",
+            "outcome": "FAIL",
+            "detail": "ValueError: catalog_fetch_source_unreadable"
+          }
+        ],
+        "failures": [
+          {
+            "testcase": "test_default_cycle_preserves_simulation_only_result_and_history",
+            "classification": "invalid negative oracle after all preceding positive history assertions passed",
+            "detail": "AssertionError: assert ()"
+          },
+          {
+            "testcase": "test_served_candidate_value_fresh_get_with_candidate_only_substrate",
+            "classification": "served-cycle fixture cannot read production-data catalog; outside B16 sparse gateway property",
+            "detail": "ValueError: catalog_fetch_source_unreadable"
+          }
+        ],
+        "artifacts": {
+          "stdout": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/thirteenth-affected-frozen-0aba/stdout.txt",
+            "bytes": 22525,
+            "sha256": "f73d74c636dcc02c42d3193bf38ff7a51c3c2a5e2fe4d179ebd8e56399c1e11a"
+          },
+          "stderr": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/thirteenth-affected-frozen-0aba/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/thirteenth-affected-frozen-0aba/junit.xml",
+            "bytes": 28172,
+            "sha256": "ac0368995c8f1c8ad369fc56605041c321934d1a7fe342768a8f1d2ff4832070"
+          },
+          "runner_receipt": {
+            "path": "policy-engine/_build/e02-A-continuation-20261007/thirteenth-affected-frozen-0aba/receipt.json",
+            "bytes": 5568,
+            "sha256": "e789996d53b3e3581668a4faacc20644b0fbe156be2bc0b8011d3dee2f4d2c7f"
+          }
+        }
+      },
+      "interpretation": "The overall command is FAIL (42/44). All selected empty-profile, nonempty 1/2/3-row loader/gateway, and direct FoundryValuePort sparse-profile cases passed. The default-cycle test also passed its positive simulation-only, typed evidence serialization, fresh restore, and history-validation assertions; it fails only when it changes the opaque reason string and expects the validator to reject it. That validator does not bind free-text reason content, so this is an invalid negative oracle, not a source projection regression. The other failure is a served-cycle fixture unable to read the production-data catalog. Keep the B16 evidence bounded; no B31 conclusion follows."
+    },
+    {
+      "check_id": "thirteenth_two_corrected_consumers_9e47",
+      "name": "thirteenth-two-corrected-consumers-9e47",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-two-corrected-consumers-9e47/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-two-corrected-consumers-9e47/pytest-basetemp",
+        "tests/unit/remediation/test_emp_01.py::test_default_cycle_preserves_simulation_only_result_and_history",
+        "tests/integration/core_runtime/test_e02_served_cycle_custody.py::test_served_candidate_value_fresh_get_with_candidate_only_substrate"
+      ],
+      "target_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "recorded_variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-two-corrected-consumers-9e47:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "launcher_sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078",
+        "probe_environment": {},
+        "python_runtime": {
+          "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+          "pytest": "9.0.2"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+        "selectors": [
+          "tests/unit/remediation/test_emp_01.py::test_default_cycle_preserves_simulation_only_result_and_history",
+          "tests/integration/core_runtime/test_e02_served_cycle_custody.py::test_served_candidate_value_fresh_get_with_candidate_only_substrate"
+        ],
+        "scope_note": "Mixed affected-consumer follow-up: the default simulation-only history correction and served GET/N4 path are distinct observations. Only the history selector informs the bounded history issue; the served GET failure is recorded as a missing real LEX input, not a B16 result."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "exit_code": 1,
+        "wall_seconds": 24.44478766596876,
+        "junit_counts": {
+          "tests": 2,
+          "passed": 1,
+          "failures": 1,
+          "errors": 0,
+          "skipped": 0
+        },
+        "case_results": [
+          {
+            "testcase": "test_default_cycle_preserves_simulation_only_result_and_history",
+            "outcome": "PASS",
+            "detail": "The corrected negative removes authority blockers while retaining the persisted conditional-interaction evidence; fresh restore and history validation pass."
+          },
+          {
+            "testcase": "test_served_candidate_value_fresh_get_with_candidate_only_substrate",
+            "outcome": "FAIL",
+            "detail": "The served natural-language run enters real N4 generation, which cannot open the required LEX DuckDB because the file is absent from this checkout."
+          }
+        ],
+        "failures": [
+          {
+            "testcase": "test_served_candidate_value_fresh_get_with_candidate_only_substrate",
+            "classification": "bounded real N4 input unavailable",
+            "detail": "Control job state was failed instead of completed. DuckDB reports the real read-only input does not exist: policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb."
+          }
+        ],
+        "artifacts": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/stdout.txt",
+            "source_build_path": "policy-engine/_build/e02-A-continuation-20261007/thirteenth-two-corrected-consumers-9e47/stdout.txt",
+            "bytes": 43660,
+            "sha256": "a6e9d5b6b26f3de945265fde553af61e8134db16d4175055272ecf1a172ff2bf"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/stderr.txt",
+            "source_build_path": "policy-engine/_build/e02-A-continuation-20261007/thirteenth-two-corrected-consumers-9e47/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/junit.xml",
+            "source_build_path": "policy-engine/_build/e02-A-continuation-20261007/thirteenth-two-corrected-consumers-9e47/junit.xml",
+            "bytes": 12303,
+            "sha256": "5d0194fa3d30f5f3d45ec130ecb99bb69107285639adf24ab3e4fd21a96af3e0"
+          },
+          "runner_receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/receipt.json",
+            "source_build_path": "policy-engine/_build/e02-A-continuation-20261007/thirteenth-two-corrected-consumers-9e47/receipt.json",
+            "bytes": 4339,
+            "sha256": "83b12435d7d4c7ca9e6cf5c8a0ada1d8fffd1d72742233bef78c5b11afeffd40"
+          }
+        }
+      },
+      "interpretation": "The corrected default-cycle simulation-only history test passes. The other selector reaches a real served N4 path but fails because its required LEX DuckDB input is not present. This mixed wave is FAIL (1/2); it does not establish B16 population/time completeness or B31 closure.",
+      "classification": "mixed_followup_history_pass_and_real_n4_input_missing"
+    }
+  ],
+  "interpretation_rules": {
+    "attempts_are_not_aggregated": true,
+    "failed_harness_attempts_remain_fail": true,
+    "default_cycle_simulation_only_path_is_separate_from_direct_gateway_path": true,
+    "unrun_original_criterion_is_not_inferred_from_unit_or_port_tests": true
+  },
+  "raw_output_policy": "The six standard 4ef deciding output files and six standard 9e deciding artifacts have one evidence copy each. The synthetic 4ef fixture CAS/cache trees remain in the ignored _build run; their duplicate evidence-copy directories were moved to native Trash, which was not emptied. The custody action is recorded in policy-engine/_build/e02-A-continuation-20261007/duplicate-fixture-native-trash/receipt.json. Historical rows retain their existing build-path references; logs are not inlined."
+}

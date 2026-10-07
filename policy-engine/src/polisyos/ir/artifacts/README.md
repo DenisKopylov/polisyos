@@ -19,6 +19,8 @@ store contract, schema metadata и helpers, через которые `analytics
 - **Lineage normalization** — input refs и artifact refs нормализуются до записи.
 - **Profile-bound writes** — общий byte writer выводит `CanonInfo` из того же `CanonSpec`, что
   сериализует bytes; конфликтующая метаинформация отклоняется до CAS write.
+- **Profile-bound reads** — читатель принимает только поддерживаемый IR profile и декодирует с
+  его persisted `max_depth`; для исторических manifests без `canon` остаётся предел 128.
 - **Shared helpers** — analytics и observation bundles используют один и тот же `put_json_artifact()` / `get_json_artifact()` surface.
 
 ## Public API
@@ -30,7 +32,7 @@ store contract, schema metadata и helpers, через которые `analytics
 | `PutOptions`, `StorePutOptions`                      | Метаданные записи, schema info и lineage inputs                         |
 | `normalize_artifact_ref()`, `normalize_input_refs()` | Нормализуют typed refs перед persistence                                |
 | `put_json_artifact()`                                | Сохраняет canonical JSON artifact и возвращает standardized ref payload |
-| `get_json_artifact()`                                | Загружает artifact bytes и декодирует их в JSON object                  |
+| `get_json_artifact()`                                | Проверяет persisted IR profile и декодирует bytes с его `max_depth`; для старых manifests без `canon` использует 128 |
 
 Full reference: [docs/reference/ir/](../../../../docs/reference/ir/index.md)
 

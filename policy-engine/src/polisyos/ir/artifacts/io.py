@@ -3,10 +3,15 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from dataclasses import is_dataclass, replace
+from dataclasses import asdict, is_dataclass, replace
 from typing import TYPE_CHECKING, Any
 
-from polisyos.ir.model_layer.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
+from polisyos.ir.model_layer.canon import (
+    CanonSpec,
+    CanonViolation,
+    from_canonical_bytes,
+    to_canonical_bytes,
+)
 
 from .contracts import (
     ArtifactID,
@@ -22,6 +27,8 @@ from .contracts import (
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+_HISTORICAL_CANON_MAX_DEPTH = 128
 
 
 def put_json_artifact(
@@ -90,23 +97,10 @@ def _put_canonical_json_bytes(
 
 def _bind_canon_profile(options: Any, canon_spec: CanonSpec) -> Any:
     """Fail on conflicting metadata and bind the exact profile used for serialization."""
-    expected = CanonInfo.from_spec(canon_spec)
+    expected = _canon_info_from_spec(canon_spec)
     supplied = getattr(options, "canon", None)
     if supplied is not None:
-        if isinstance(supplied, Mapping):
-            payload = dict(supplied)
-        else:
-            model_dump = getattr(supplied, "model_dump", None)
-            if callable(model_dump):
-                payload = model_dump(mode="python")
-            elif hasattr(supplied, "__dict__"):
-                payload = dict(vars(supplied))
-            else:
-                raise ValueError("ir_canon_profile_mismatch")
-        try:
-            actual = CanonInfo.model_validate(payload)
-        except (TypeError, ValueError) as exc:
-            raise ValueError("ir_canon_profile_mismatch") from exc
+        actual = _validated_ir_canon_info(supplied)
         if actual != expected:
             raise ValueError("ir_canon_profile_mismatch")
         return options
@@ -116,10 +110,79 @@ def _bind_canon_profile(options: Any, canon_spec: CanonSpec) -> Any:
     return replace(options, canon=expected.model_dump(mode="python"))
 
 
+def _canon_info_from_spec(canon_spec: CanonSpec) -> CanonInfo:
+    """Validate the supported IR canon profile before binding it to persisted bytes."""
+    if not is_dataclass(canon_spec) or isinstance(canon_spec, type):
+        raise TypeError("IR canon spec must be a dataclass profile")
+    return _validated_ir_canon_info(asdict(canon_spec))
+
+
+def _validated_ir_canon_info(value: Any) -> CanonInfo:
+    """Return a strict, supported profile model from a persisted or supplied value."""
+    if isinstance(value, Mapping):
+        payload = dict(value)
+    else:
+        model_dump = getattr(value, "model_dump", None)
+        if callable(model_dump):
+            payload = model_dump(mode="python")
+        elif is_dataclass(value) and not isinstance(value, type):
+            payload = asdict(value)
+        elif hasattr(value, "__dict__"):
+            payload = dict(vars(value))
+        else:
+            payload = value
+
+    if not isinstance(payload, Mapping) or set(CanonInfo.model_fields) - set(payload):
+        raise CanonViolation("unsupported_ir_canon_profile")
+    try:
+        profile = CanonInfo.model_validate(payload, strict=True)
+    except (TypeError, ValueError) as exc:
+        raise CanonViolation("unsupported_ir_canon_profile") from exc
+
+    supported = CanonInfo()
+    if (
+        profile.name != supported.name
+        or profile.version != supported.version
+        or profile.max_depth < 0
+    ):
+        raise CanonViolation("unsupported_ir_canon_profile")
+    return profile
+
+
+def _manifest_canon(store: Any, artifact_id: ArtifactID) -> Any | None:
+    """Read canon metadata through the artifact-store manifest contract."""
+    get_manifest = getattr(store, "get_manifest", None)
+    if not callable(get_manifest):
+        raise TypeError("IR artifact store must implement get_manifest for profile-aware reads")
+    manifest = get_manifest(artifact_id)
+    if manifest is None:
+        raise CanonViolation("ir_artifact_manifest_missing")
+
+    if isinstance(manifest, Mapping):
+        return manifest.get("canon")
+    model_dump = getattr(manifest, "model_dump", None)
+    if callable(model_dump):
+        payload = model_dump(mode="python")
+        if not isinstance(payload, Mapping):
+            raise TypeError("IR artifact store returned an invalid manifest")
+        return payload.get("canon")
+    if is_dataclass(manifest) and not isinstance(manifest, type):
+        return asdict(manifest).get("canon")
+    if hasattr(manifest, "canon"):
+        return manifest.canon
+    raise TypeError("IR artifact store returned an unsupported manifest")
+
+
 def get_json_artifact(store: ArtifactStore, artifact_id: ArtifactID) -> Any:
-    """Return json artifact."""
+    """Read IR-canonical JSON using its persisted profile or the legacy default."""
     normalized_id = ArtifactID.model_validate(str(artifact_id))
-    return from_canonical_bytes(store.get_bytes(normalized_id))
+    canon = _manifest_canon(store, normalized_id)
+    max_depth = (
+        _validated_ir_canon_info(canon).max_depth
+        if canon is not None
+        else _HISTORICAL_CANON_MAX_DEPTH
+    )
+    return from_canonical_bytes(store.get_bytes(normalized_id), max_depth=max_depth)
 
 
 def normalize_input_sequence(inputs: Sequence[Any] | None) -> list[InputRef]:

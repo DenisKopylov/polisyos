@@ -21,6 +21,14 @@ from polisyos.ir.artifacts.contracts import StorePutOptions
 from polisyos.ir.artifacts.io import get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
 from polisyos.ir.model_layer.canon import CanonViolation as IRCanonViolation
+from polisyos.ir.model_layer.canon import to_canonical_bytes as ir_to_canonical_bytes
+
+
+def _nested_list(depth: int) -> object:
+    value: object = 0
+    for _ in range(depth):
+        value = [value]
+    return value
 
 
 class JsonOnlyArtifactStore:
@@ -36,6 +44,21 @@ class JsonOnlyArtifactStore:
             "kind": opts.kind,
             "media_type": opts.media_type,
         }
+
+
+class MalformedProfileArtifactStore:
+    """Expose untrusted manifest metadata to the reader contract."""
+
+    def __init__(self, canon):
+        self.canon = canon
+
+    def get_manifest(self, artifact_id):
+        del artifact_id
+        return {"canon": self.canon}
+
+    def get_bytes(self, artifact_id):
+        del artifact_id
+        return b'{"value":1}'
 
 
 _IR_INCOMPATIBLE_TAG_PAYLOADS = [
@@ -314,6 +337,124 @@ def test_ir_json_helper_preserves_explicit_finite_float_profile(tmp_path) -> Non
     assert manifest.canon is not None
     assert manifest.canon.forbid_floats is False
     assert get_json_artifact(core_store, ref["artifact_id"]) == payload
+
+
+def test_ir_json_reader_uses_the_persisted_profile_depth(tmp_path) -> None:
+    core_store = FileSystemCAS(tmp_path / ".polisyos")
+    ir_store = ensure_ir_artifact_store(core_store)
+    payload = _nested_list(129)
+
+    ref = put_json_artifact(
+        core_store,
+        payload,
+        kind="test.ir-depth-profile",
+        schema_name="test.ir-depth-profile",
+        schema_version="1.0",
+        canon_spec=IRCanonSpec(max_depth=129),
+    )
+
+    manifest = core_store.get_manifest(ref["artifact_id"])
+    assert manifest.canon is not None and manifest.canon.max_depth == 129
+    assert get_json_artifact(ir_store, ref["artifact_id"]) == payload
+
+
+def test_ir_json_reader_obeys_a_too_low_persisted_profile_depth(tmp_path) -> None:
+    core_store = FileSystemCAS(tmp_path / ".polisyos")
+    payload = _nested_list(129)
+    canonical_bytes = ir_to_canonical_bytes(payload, IRCanonSpec(max_depth=129))
+
+    ref = core_store.put_bytes(
+        canonical_bytes,
+        PutOptions(
+            kind="test.ir-depth-profile-mismatch",
+            media_type="application/json",
+            canon=CoreCanonInfo(max_depth=128),
+        ),
+    )
+
+    manifest = core_store.get_manifest(ref)
+    assert manifest.canon is not None and manifest.canon.max_depth == 128
+    with pytest.raises(IRCanonViolation, match="max_depth=128"):
+        get_json_artifact(core_store, ref.artifact_id)
+
+
+def test_ir_json_reader_uses_historical_depth_only_when_profile_is_absent(tmp_path) -> None:
+    core_store = FileSystemCAS(tmp_path / ".polisyos")
+    shallow = {"legacy": True}
+    shallow_ref = core_store.put_bytes(
+        ir_to_canonical_bytes(shallow),
+        PutOptions(kind="test.ir-legacy-profile", media_type="application/json"),
+    )
+    shallow_manifest = core_store.get_manifest(shallow_ref)
+    assert shallow_manifest.canon is None
+    assert get_json_artifact(core_store, shallow_ref.artifact_id) == shallow
+
+    deep = _nested_list(129)
+    deep_ref = core_store.put_bytes(
+        ir_to_canonical_bytes(deep, IRCanonSpec(max_depth=129)),
+        PutOptions(kind="test.ir-legacy-depth", media_type="application/json"),
+    )
+    deep_manifest = core_store.get_manifest(deep_ref)
+    assert deep_manifest.canon is None
+    with pytest.raises(IRCanonViolation, match="max_depth=128"):
+        get_json_artifact(core_store, deep_ref.artifact_id)
+
+
+@pytest.mark.parametrize(
+    "canon",
+    [
+        CoreCanonInfo(name="polisyos.canon.future"),
+        CoreCanonInfo(version="0.3.0"),
+        CoreCanonInfo(max_depth=-1),
+    ],
+)
+def test_ir_json_reader_rejects_unsupported_persisted_profiles(tmp_path, canon) -> None:
+    core_store = FileSystemCAS(tmp_path / ".polisyos")
+    ref = core_store.put_bytes(
+        b'{"value":1}',
+        PutOptions(
+            kind="test.ir-unsupported-profile",
+            media_type="application/json",
+            canon=canon,
+        ),
+    )
+
+    with pytest.raises(IRCanonViolation, match="unsupported_ir_canon_profile"):
+        get_json_artifact(core_store, ref.artifact_id)
+
+
+@pytest.mark.parametrize("canon", [{"max_depth": "129"}, {"max_depth": 129}])
+def test_ir_json_reader_rejects_malformed_profile_parameters(canon) -> None:
+    store = MalformedProfileArtifactStore(canon)
+
+    with pytest.raises(IRCanonViolation, match="unsupported_ir_canon_profile"):
+        get_json_artifact(store, "sha256:" + "a" * 64)
+
+
+@pytest.mark.parametrize(
+    "canon_spec",
+    [
+        IRCanonSpec(name="polisyos.canon.future"),
+        IRCanonSpec(version="0.3.0"),
+        IRCanonSpec(max_depth=True),
+    ],
+)
+def test_ir_json_writer_refuses_unsupported_profile_identity_before_persisting(
+    tmp_path, canon_spec
+) -> None:
+    core_store = FileSystemCAS(tmp_path / ".polisyos")
+
+    with pytest.raises(IRCanonViolation, match="unsupported_ir_canon_profile"):
+        put_json_artifact(
+            core_store,
+            {"value": 1},
+            kind="test.ir-unsupported-profile",
+            schema_name="test.ir-unsupported-profile",
+            schema_version="1.0",
+            canon_spec=canon_spec,
+        )
+
+    assert core_store.iter_artifact_ids() == []
 
 
 def test_ir_json_helper_refuses_json_only_store_without_fallback() -> None:

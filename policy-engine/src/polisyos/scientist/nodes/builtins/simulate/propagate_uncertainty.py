@@ -10,9 +10,10 @@ from typing import Any, Protocol, cast
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
+from polisyos.core import canon as core_canon
+from polisyos.core import contracts as core_contracts
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import Metrics, SimulationResult, SimulationResultRef
@@ -44,6 +45,9 @@ from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutc
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
+CanonSpec = core_canon.CanonSpec
+from_canonical_bytes = core_canon.from_canonical_bytes
+
 logger = get_logger(__name__)
 
 _PROPAGATION_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
@@ -56,6 +60,41 @@ class _PropagationFunction(Protocol):
     _sensitivity_map: dict[str, dict[str, float]]
 
     def __call__(self, **current_params: Any) -> dict[str, Any]: ...
+
+
+def _admit_output_envelope_ref(
+    ctx: ExecutionContext, raw_ref: ArtifactRef, payload: dict[str, Any]
+) -> tuple[ArtifactRef, core_contracts.UncertaintyEnvelopeRef]:
+    """Bind a complete returned handle and actual CAS object before publication."""
+    ref = ArtifactRef.model_validate(raw_ref.model_dump(mode="json"))
+    # Preserve the old publisher's literal DTO and three-field normalization.
+    typed = core_contracts.UncertaintyEnvelopeRef.model_validate(
+        {"artifact_id": str(ref.artifact_id), "kind": ref.kind, "media_type": ref.media_type}
+    )
+    expected_id = core_canon.content_hash(
+        core_canon.to_canonical_bytes(payload, CanonSpec(forbid_floats=False)), prefix=True
+    )
+    try:
+        manifest = ctx.store.get_manifest(ref)
+        data = ctx.store.get_bytes(ref)
+        verification = ctx.store.verify(ref)
+    except _PROPAGATION_LOAD_ERRORS as exc:
+        raise ValueError("persisted output envelope cannot be resolved") from exc
+    schema = manifest.artifact_schema
+    if (
+        str(ref.artifact_id) != expected_id
+        or core_canon.content_hash(data, prefix=True) != expected_id
+        or manifest.kind != "ir.uncertainty_envelope"
+        or manifest.media_type != "application/json"
+        or schema is None
+        or schema.name != "ir.uncertainty_envelope"
+        or schema.version != "1.1"
+        or not verification.ok
+    ):
+        raise ValueError("persisted output envelope kind/schema/content is invalid")
+    # A declared selected view was resolved above; the existing SimulationResult
+    # contract carries the same three fields as the old typed IR publisher.
+    return ArtifactRef.model_validate(typed.model_dump(mode="json")), typed
 
 
 def _has_missing_output(result: PropagationResult) -> bool:
@@ -202,10 +241,12 @@ class PropagateUncertaintyNode:
         ]
 
         envelope_refs: dict[str, ArtifactRef] = {}
+        simulation_envelope_refs: dict[str, core_contracts.UncertaintyEnvelopeRef] = {}
         artifacts: list[ArtifactRef] = []
         for item in results:
-            ref = ctx.store.put_json(
-                item.envelope.model_dump(mode="python", round_trip=True),
+            payload = item.envelope.model_dump(mode="python", round_trip=True)
+            raw_ref = ctx.store.put_json(
+                payload,
                 PutOptions(
                     kind="ir.uncertainty_envelope",
                     media_type="application/json",
@@ -213,12 +254,14 @@ class PropagateUncertaintyNode:
                 ),
                 canon_spec=CanonSpec(forbid_floats=False),
             )
+            ref, typed_ref = _admit_output_envelope_ref(ctx, raw_ref, payload)
             persisted_envelope = load_uncertainty_envelope(ctx.store, ref)
             verify_mean_certificate(persisted_envelope)
             if item.diagnostics.get("output_coverage_complete") is False:
                 if persisted_envelope.gate_eligible:
                     raise ValueError("incomplete execution cannot publish a gating envelope")
             envelope_refs[item.metric_id] = ref
+            simulation_envelope_refs[item.metric_id] = typed_ref
             artifacts.append(ref)
 
         config_ref = _persist_config(ctx, config)
@@ -242,7 +285,7 @@ class PropagateUncertaintyNode:
 
         updated_sim = sim_result.model_copy(
             update={
-                "uncertainty_envelopes": envelope_refs,
+                "uncertainty_envelopes": simulation_envelope_refs,
                 "propagation_config_ref": config_ref,
                 "propagation_report_ref": report_ref,
             }

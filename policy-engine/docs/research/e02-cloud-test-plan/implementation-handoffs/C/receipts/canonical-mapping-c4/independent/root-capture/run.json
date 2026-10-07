@@ -1,0 +1,132 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos/.tmp/e02-C4/raw/can-independent/final/mapping_oracle.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos/policy-engine",
+  "env_overrides": {
+    "PYTHONPATH": "src"
+  },
+  "exit_code": 0,
+  "wall_seconds": 0.4050390000338666,
+  "implementation_commit": "e3cb3fafc847b94a5d4b3adc03b814b4c711920c",
+  "implementation_tree": "2d27c9c182cf550088c5a8c072dc2f36df84e20d",
+  "docs_only_HEAD": "519b6739eb5e59cd9692465355ab68a9b231de82",
+  "inputs_before": {
+    "policy-engine/src/polisyos/ir/artifacts/io.py": "d5126942fc680556cb8ed6b9044afde88696846a6e6748de36c3859e774d35f3",
+    "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py": "db25fc7dc21dfde8056df039bad1f6786a4f9175f0f0c36aec7b7241a4ec4efe",
+    ".tmp/e02-C4/raw/can-independent/final/mapping_oracle.py": "313ce03b42deda32563c262fa71c5bc3e296872a431a86a522d4ed52cde0f3f7"
+  },
+  "inputs_after": {
+    "policy-engine/src/polisyos/ir/artifacts/io.py": "d5126942fc680556cb8ed6b9044afde88696846a6e6748de36c3859e774d35f3",
+    "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py": "db25fc7dc21dfde8056df039bad1f6786a4f9175f0f0c36aec7b7241a4ec4efe",
+    ".tmp/e02-C4/raw/can-independent/final/mapping_oracle.py": "313ce03b42deda32563c262fa71c5bc3e296872a431a86a522d4ed52cde0f3f7"
+  },
+  "head_after": "519b6739eb5e59cd9692465355ab68a9b231de82",
+  "stdout_sha256": "86d1657265d680b6ad226db794e3d80dd5b9f9f43240563d874b057acac30ba0",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "result": {
+    "io_source": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos/policy-engine/src/polisyos/ir/artifacts/io.py",
+    "negative_profiles": {
+      "absent_profile": {
+        "byte_reads": 0,
+        "refused": true
+      },
+      "boolean_depth": {
+        "byte_reads": 0,
+        "refused": true
+      },
+      "extra_profile_field": {
+        "byte_reads": 0,
+        "refused": true
+      },
+      "missing_separator_field": {
+        "byte_reads": 0,
+        "refused": true
+      },
+      "negative_depth": {
+        "byte_reads": 0,
+        "refused": true
+      },
+      "separator_bool": {
+        "byte_reads": 0,
+        "refused": true
+      },
+      "separator_list_len_1": {
+        "byte_reads": 0,
+        "refused": true
+      },
+      "separator_list_len_3": {
+        "byte_reads": 0,
+        "refused": true
+      },
+      "separator_nonstring": {
+        "byte_reads": 0,
+        "refused": true
+      },
+      "unsupported_name": {
+        "byte_reads": 0,
+        "refused": true
+      },
+      "unsupported_version": {
+        "byte_reads": 0,
+        "refused": true
+      },
+      "wrong_boolean_field_type": {
+        "byte_reads": 0,
+        "refused": true
+      },
+      "wrong_depth_type": {
+        "byte_reads": 0,
+        "refused": true
+      },
+      "wrong_ensure_ascii_type": {
+        "byte_reads": 0,
+        "refused": true
+      },
+      "wrong_exclude_none_type": {
+        "byte_reads": 0,
+        "refused": true
+      },
+      "wrong_forbid_nan_inf_type": {
+        "byte_reads": 0,
+        "refused": true
+      },
+      "wrong_name_type": {
+        "byte_reads": 0,
+        "refused": true
+      },
+      "wrong_sort_keys_type": {
+        "byte_reads": 0,
+        "refused": true
+      },
+      "wrong_version_type": {
+        "byte_reads": 0,
+        "refused": true
+      }
+    },
+    "positive": {
+      "byte_reads": 1,
+      "full_mapping_unchanged": true,
+      "manifest_reads": 1,
+      "manifest_ref": "sha256:e1b6a767efda695ed26993a0a7ddd323c19c0cc20f97685ee2a8e203e531f766",
+      "payload_equal": true,
+      "profile_max_depth": 129,
+      "separators_json_value": [
+        ",",
+        ":"
+      ],
+      "typed_ref": "sha256:e1b6a767efda695ed26993a0a7ddd323c19c0cc20f97685ee2a8e203e531f766"
+    },
+    "pydantic": "2.12.5",
+    "python": "3.14.0",
+    "python_executable": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "remove_property_keep_markers": {
+      "byte_reads_after_removal": 0,
+      "candidate_mapping_with_normalizer": "passes",
+      "normalizer_removed_in_memory": "unsupported_ir_canon_profile",
+      "on_disk_positive_and_negative_test_markers_remain": true
+    }
+  },
+  "scope": "Independent Root capture closes stderr/exit gap for the exact reviewer oracle. No source or probe edit, original capture preserved."
+}

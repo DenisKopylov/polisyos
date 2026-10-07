@@ -175,7 +175,15 @@
     "negative_result": "All 19 independent malformed, unsupported, or absent-profile variants are refused before payload-byte reads.",
     "normalizer_removal_control": "Independent reviewer executed candidate source in memory with only the normalization block removed. With positive and negative markers left on disk, the same valid full Mapping failed unsupported_ir_canon_profile with zero payload-byte reads.",
     "raw_core_boundary": "A raw Core float_hex write remains outside this C-owned Mapping repair and is not admitted by the IR decoder. B owns Core storage/admission. This handoff does not claim a full writer strangle.",
-    "historical_profileless": "No actual historical artifact/reference or owner-supported compatibility contract was provided; profileless input remains unsupported/not established."
+    "historical_profileless": "No actual historical artifact/reference or owner-supported compatibility contract was provided; profileless input remains unsupported/not established.",
+    "b_owned_boundary_status": {
+      "supplier_contract": "No ratified B-owned byte-emission/admission contract is present in the reviewed inputs for the Core-to-IR artifact boundary.",
+      "profile_decision": "No B-owner profile decision was found establishing which Core canon metadata/profile is admitted for IR-consumed JSON artifacts or how raw Core bypass writes are intercepted.",
+      "cross_boundary_proof": "Not established: no end-to-end evidence proves every Core write consumed as IR JSON traverses the shared canonical writer or is rejected at an admission boundary.",
+      "observed_counterexample": "A direct Core put_json path can persist float_hex metadata using the canon name/version while the IR decoder refuses that profile.",
+      "typed_state": "The cross-boundary proof remains verification_missing. This label describes missing verification only; it does not imply that a supplier contract or profile decision already exists. The B-owned contract/profile decision itself is unresolved and unratified.",
+      "ownership": "B owns Core storage/admission. C4 did not modify B-owned paths and does not claim to close this boundary."
+    }
   },
   "pattern_pass": {
     "ids": [
@@ -387,6 +395,51 @@
           "bytes": 34
         }
       ]
+    },
+    "independent_root_capture": {
+      "purpose": "Separate complete root-side replay capture of the independent reviewer oracle; this does not replace or rewrite the original reviewer-reported capture.",
+      "source_candidate_commit": "e3cb3fafc847b94a5d4b3adc03b814b4c711920c",
+      "source_candidate_tree_sha": "2d27c9c182cf550088c5a8c072dc2f36df84e20d",
+      "docs_only_head_during_replay": "519b6739eb5e59cd9692465355ab68a9b231de82",
+      "exit_code": 0,
+      "stderr_empty": true,
+      "head_and_input_hashes_unchanged": true,
+      "run_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/root-capture/run.json",
+        "sha256": "56ca4a867f7ba1e05ced63d07496f7f8c2ea82c7360103bb064969c53d535875",
+        "bytes": 4497
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/root-capture/stdout.json",
+        "sha256": "86d1657265d680b6ad226db794e3d80dd5b9f9f43240563d874b057acac30ba0",
+        "bytes": 2475
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/root-capture/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "result_detail": "The root replay reproduced the same typed-reference/manifest read, depth-129 full JSON Mapping acceptance, 19 pre-byte strict negatives, and removal-control failure described in the oracle output. The same stdout hash as the original reviewer capture is recorded independently; this root replay additionally captures empty stderr, exit 0, unchanged source/probe input hashes, and docs-only HEAD 519b."
+    },
+    "default_docs_commit_diff_check": {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "519b6739eb5e59cd9692465355ab68a9b231de82^",
+        "519b6739eb5e59cd9692465355ab68a9b231de82"
+      ],
+      "exit_code": 2,
+      "captured_output_whitespace_warnings": 17,
+      "classification": "documentation-receipt warning; warnings are in byte-exact captured test/oracle/diagnostic outputs and the test input line reported by the command; payload bytes were preserved.",
+      "capture": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/diagnostic/default-docs-diff-check.json",
+        "sha256": "3f1bc61ae2b61124349edd8710c38fe4c4b558fbd018a830a7269c125e44ce11",
+        "bytes": 3339
+      },
+      "source_candidate_diff_check": "Root separately reported the frozen source candidate e3cb3fafc847b94a5d4b3adc03b814b4c711920c check as exit 0.",
+      "limitation": "A supplemental diff check with blank-at-end-of-line whitespace disabled is not a default full diff-check pass; the captured default result remains exit 2.",
+      "captured_stdout_lines": 34
     }
   },
   "production_invocation_diagnostic": {
@@ -425,16 +478,17 @@
     "LA-021": "HELD",
     "closure_ids": [],
     "bounded_mapping_property": "GO at the shared IR Mapping intake.",
-    "why_full_finding_remains_held": "The B-owned raw Core writer/admission boundary remains an unstrangled bypass; no owner-supported historical profileless artifact or compatibility promise was provided. The C54/closure ledger is unchanged."
+    "why_full_finding_remains_held": "The B-owned Core byte-emission/admission supplier contract and profile decision are absent or unratified in the reviewed inputs, and no cross-boundary proof establishes that all IR-consumed Core writes traverse the shared canonical writer or are intercepted. A direct Core put_json path can persist float_hex metadata under the same canon name/version while the IR decoder refuses it. Historical profileless support also remains unestablished. The C54/closure ledger is unchanged."
   },
   "capability_reality": {
     "bounded_mapping_reader": "implemented and verified with a real persisted CAS artifact, ordinary reader, strict negatives, and a property-removal control; API/dashboard surface is surface_out_of_scope.",
-    "full_LA_021": "held; Core-owned byte-write/profile-admission contract and historical profileless support remain not established.",
+    "full_LA_021": "held; B-owned Core byte-emission/admission supplier contract and profile decision are unresolved/unratified; cross-boundary verification and historical profileless support remain not established.",
     "closure_ledger_updated": false,
     "remaining_typed_labels": [
       "verification_missing",
       "surface_out_of_scope"
-    ]
+    ],
+    "b_owned_boundary": "No ratified byte-emission/admission contract or profile decision was found in reviewed B-owner inputs. The cross-boundary property is verification_missing, but that label does not imply a contract exists; the supplier contract itself remains unresolved."
   },
   "related_owner_input": {
     "B_packet_commit": "12d77b34ea845adde0bf27a653fa70fd2ea8ad35",
@@ -446,8 +500,8 @@
   "receipt_files": [
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/README.md",
-      "sha256": "aa36a08cbc2fef615edf82aaae414f87c96138cb432e77c4e71412d7a4708d74",
-      "bytes": 2509
+      "sha256": "f4d735d7a694b81ed01b8b6b5106a4c5d590f95af9488d815b995b9c8647b63f",
+      "bytes": 3949
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/author/ruff-capture.json",
@@ -478,6 +532,11 @@
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/author/toml-parse.output.txt",
       "sha256": "db8835aeb9b1ec3ef8f5702aa82f7f15a351f40567254a0fc87a943272dc3b71",
       "bytes": 34
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/diagnostic/default-docs-diff-check.json",
+      "sha256": "3f1bc61ae2b61124349edd8710c38fe4c4b558fbd018a830a7269c125e44ce11",
+      "bytes": 3339
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/diagnostic/production-invocation.command.txt",
@@ -568,6 +627,21 @@
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/review-report.md",
       "sha256": "28a0f716289433dc4d9cd318865b77d554bf4609f5f17c773d2216b4c1a37cf7",
       "bytes": 5539
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/root-capture/run.json",
+      "sha256": "56ca4a867f7ba1e05ced63d07496f7f8c2ea82c7360103bb064969c53d535875",
+      "bytes": 4497
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/root-capture/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/root-capture/stdout.json",
+      "sha256": "86d1657265d680b6ad226db794e3d80dd5b9f9f43240563d874b057acac30ba0",
+      "bytes": 2475
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/command.txt",

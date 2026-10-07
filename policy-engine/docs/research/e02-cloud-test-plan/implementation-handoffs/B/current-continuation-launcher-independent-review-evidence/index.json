@@ -1,0 +1,15 @@
+{
+  "objects": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-launcher-independent-review-evidence/reviewed-launcher.py.txt",
+      "sha256": "6d1722088bb4c3d63dfb6aa63d30606b2687b5dc991107c2eae5b7eaf33281a6",
+      "bytes": 10720
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-launcher-independent-review-evidence/source-review.json",
+      "sha256": "ba149d5208407cf62c4f3a1c50a06875b2d9cf3deb66780b722d7106a2d91718",
+      "bytes": 6660
+    }
+  ],
+  "payload_bytes": 17380
+}

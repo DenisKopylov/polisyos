@@ -22,7 +22,13 @@
   "baseline_cells": [],
   "checks": [
     {
-      "command": "git diff --check",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "920fed5d97c2a7572e4073f556c51f5b8a190977",
+        "8795fa4d1150b3a67e855cb2987b8558a8cf80d8"
+      ],
       "target_sha": "8795fa4d1150b3a67e855cb2987b8558a8cf80d8",
       "environment": {
         "cwd": "/workspace/e02-B-current-runtime",
@@ -79,7 +85,8 @@
           "bytes": 2169,
           "sha256": "6051e6fc993d4c113991b3750a70d7eeb3428ceee080f24348cae287c8dfc0d8"
         }
-      }
+      },
+      "qualification": "Exact immutable base/candidate diff command also executed after implementation commit, exit0/stdout empty. Decode equality is independently recomputed for both stored wrappers against original Git bytes."
     }
   ],
   "property": {

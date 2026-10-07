@@ -500,17 +500,17 @@
     "B79": {
       "value": "limited",
       "basis": "unchanged_source_prior_criterion_evidence_reviewed",
-      "reason": "Limited to the demonstrated original criterion scope after reviewing fresh_source_handoff_reviewed: The served batch_incremental route injects the exact persisted hint into the real REST request, and its since filter persists the independently expected rows. Promotion of that tenant cursor still lacks a source-confirmed evidence-content binder. Remaining boundary: Frozen integration dependent checks by G; production backend/raw VM archives unrun and not used as this candidate proof."
+      "reason": "Limited to the demonstrated original criterion scope after reviewing unchanged_source_prior_criterion_evidence_reviewed (C2 criterion evidence carried forward): The served batch_incremental route injects the exact persisted hint into the real REST request, and its since filter persists the independently expected rows. Promotion of that tenant cursor still lacks a source-confirmed evidence-content binder. Remaining boundary: Frozen integration dependent checks by G; production backend/raw VM archives unrun and not used as this candidate proof."
     },
     "B80": {
       "value": "held",
       "basis": "unchanged_source_prior_criterion_evidence_reviewed",
-      "reason": "Held on the original criterion after reviewing fresh_source_handoff_reviewed. Missing condition: Owner-supplied verified source evidence must content-bind dataset and ingestion_run_id before cursor promotion; production backend/raw VM archives were not run. Available bounded result: Per-source storage and fail/retry behavior are exercised; unverified source progress is not promoted. The confirmed-cursor writer remains fail-closed until owner evidence content-binds dataset and ingestion_run_id."
+      "reason": "Held on the original criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed (C2 criterion evidence carried forward). Missing condition: Owner-supplied verified source evidence must content-bind dataset and ingestion_run_id before cursor promotion; production backend/raw VM archives were not run. Available bounded result: Per-source storage and fail/retry behavior are exercised; unverified source progress is not promoted. The confirmed-cursor writer remains fail-closed until owner evidence content-binds dataset and ingestion_run_id."
     },
     "B81": {
       "value": "closed",
       "basis": "fresh_criterion_evidence_reviewed",
-      "reason": "Closed for the original bounded criterion after reviewing fresh_source_handoff_reviewed: The ING source receipt retains the failure/reopen/retry checks for exact raw bytes, ordered row IDs, committed frontier/cursor, and the returned checkpoint payload. The composed four-process sequence prepares at cap 3, refuses cap 1 before polling or writes while preserving the predecessor, then recovers exactly three rows and their chunk/window references under cap 3 with a fresh readback. A no-output replay emits no rows or new chunk/window references but does write checkpoint/cursor metadata and indexes; full checkpoint-byte idempotence is not claimed. This disposition does not assign G formal closure."
+      "reason": "Closed for the original bounded criterion after reviewing fresh_criterion_evidence_reviewed via the exact NET-ING-current-frontier supplemental handoff: The ING source receipt retains the failure/reopen/retry checks for exact raw bytes, ordered row IDs, committed frontier/cursor, and the returned checkpoint payload. The composed four-process sequence prepares at cap 3, refuses cap 1 before polling or writes while preserving the predecessor, then recovers exactly three rows and their chunk/window references under cap 3 with a fresh readback. A no-output replay emits no rows or new chunk/window references but does write checkpoint/cursor metadata and indexes; full checkpoint-byte idempotence is not claimed. This disposition does not assign G formal closure."
     },
     "B82": {
       "value": "closed",
@@ -520,7 +520,7 @@
     "B83": {
       "value": "held",
       "basis": "unchanged_source_prior_criterion_evidence_reviewed",
-      "reason": "Held on the original criterion after reviewing fresh_source_handoff_reviewed. Missing condition: B connector source-owned event/version identity is not supplied; synthesized offset _message_id is not authority. Production backend/raw VM archives were not run. Available bounded result: The persisted UTC ingestion horizon is 86,400 seconds, composite primitive keys and source/partition isolation are exercised, and live-key overflow refuses before eviction. The connector does not supply source-owned event/version identity; synthesized _message_id is not that authority."
+      "reason": "Held on the original criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed (C2 criterion evidence carried forward). Missing condition: B connector source-owned event/version identity is not supplied; synthesized offset _message_id is not authority. Production backend/raw VM archives were not run. Available bounded result: The persisted UTC ingestion horizon is 86,400 seconds, composite primitive keys and source/partition isolation are exercised, and live-key overflow refuses before eviction. The connector does not supply source-owned event/version identity; synthesized _message_id is not that authority."
     },
     "B84": {
       "value": "closed",
@@ -530,17 +530,17 @@
     "B85": {
       "value": "closed",
       "basis": "fresh_criterion_evidence_reviewed",
-      "reason": "Closed for the original bounded criterion after reviewing fresh_source_handoff_reviewed: After compatible restart the installed sequence returns exactly three source rows with their chunk/window references, and a separate fresh readback resolves them. The repeated no-output call adds no data rows or new chunk/window references, while checkpoint/cursor metadata and indexes change. This disposition does not assign G formal closure."
+      "reason": "Closed for the original bounded criterion after reviewing fresh_criterion_evidence_reviewed via the exact NET-ING-current-frontier supplemental handoff: After compatible restart the installed sequence returns exactly three source rows with their chunk/window references, and a separate fresh readback resolves them. The repeated no-output call adds no data rows or new chunk/window references, while checkpoint/cursor metadata and indexes change. This disposition does not assign G formal closure."
     },
     "B86": {
       "value": "closed",
       "basis": "unchanged_source_prior_criterion_evidence_reviewed",
-      "reason": "Closed for the original bounded criterion after reviewing fresh_source_handoff_reviewed: Required, optional, missing, null, type, and finite row membership produces identical accepted IDs, keyed quarantine reasons, and accepted-data digest at batch sizes 1, 2, and 8. This disposition does not assign G formal closure."
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed (C2 criterion evidence carried forward): Required, optional, missing, null, type, and finite row membership produces identical accepted IDs, keyed quarantine reasons, and accepted-data digest at batch sizes 1, 2, and 8. This disposition does not assign G formal closure."
     },
     "B88": {
       "value": "closed",
       "basis": "unchanged_source_prior_criterion_evidence_reviewed",
-      "reason": "Closed for the original bounded criterion after reviewing fresh_source_handoff_reviewed: Served replay opens the retained exact owned CAS request/response artifact; missing or corrupt artifacts refuse without native connector egress from both repository and product working directories. Scope is the retained source-card replay profile. This disposition does not assign G formal closure."
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed (C2 criterion evidence carried forward): Served replay opens the retained exact owned CAS request/response artifact; missing or corrupt artifacts refuse without native connector egress from both repository and product working directories. Scope is the retained source-card replay profile. This disposition does not assign G formal closure."
     },
     "LA-005": {
       "value": "held",

@@ -19,8 +19,8 @@ from polisyos.calibration import (
     load_empirical_calibration_evidence,
     load_forecast_candidate_receipt,
 )
-from polisyos.core.artifacts import FileSystemCAS
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core import artifacts as core_artifacts
+from polisyos.core import canon as core_canon
 from polisyos.scientist.methods.backtesting.forecast_owner import ForecastOwner
 from tests._helpers.forecast import configured_forecast_request
 
@@ -110,7 +110,11 @@ def test_failed_estimator_diagnostic_remains_limited() -> None:
 
 
 def _fresh_gateway_inputs(
-    store: FileSystemCAS, request: Any, result: Any, *, fields: dict[str, Any] | None = None
+    store: core_artifacts.FileSystemCAS,
+    request: Any,
+    result: Any,
+    *,
+    fields: dict[str, Any] | None = None,
 ) -> Any:
     """Consume actual persisted producer refs through the public native gateway."""
 
@@ -140,10 +144,10 @@ def _fresh_gateway_inputs(
 def test_calibration_time_roles_are_preserved_from_bound_evidence(tmp_path: Path) -> None:
     """Actual ETS/CAS refs retain six distinct roles through a fresh consumer."""
 
-    store = FileSystemCAS(tmp_path / "cas")
+    store = core_artifacts.FileSystemCAS(tmp_path / "cas")
     request, profile = configured_forecast_request(store, [31.0, 32.0, 33.0, 34.0])
     result = ForecastOwner(store, empirical_profile_ref=profile).run(request)
-    fresh = FileSystemCAS(tmp_path / "cas")
+    fresh = core_artifacts.FileSystemCAS(tmp_path / "cas")
     receipt = load_forecast_candidate_receipt(fresh, result.candidate_receipt_ref)
     evidence = load_empirical_calibration_evidence(fresh, result.empirical_evidence_ref)
     assert result.candidate_receipt_ref.artifact_id != result.empirical_evidence_ref.artifact_id
@@ -152,9 +156,15 @@ def test_calibration_time_roles_are_preserved_from_bound_evidence(tmp_path: Path
 
     # Independent oracle reads source rows and issued bounds from different CAS
     # artifacts. It does not consume the report's hit/count/result loop.
-    source = from_canonical_bytes(fresh.get_bytes(request.observed_source_ref.artifact_id))
-    rows = from_canonical_bytes(fresh.get_bytes(source["data_ref"]["artifact_id"]))["metric"][30:34]
-    bundle = from_canonical_bytes(fresh.get_bytes(result.uncertainty_bundle_ref.artifact_id))
+    source = core_canon.from_canonical_bytes(
+        fresh.get_bytes(request.observed_source_ref.artifact_id)
+    )
+    rows = core_canon.from_canonical_bytes(fresh.get_bytes(source["data_ref"]["artifact_id"]))[
+        "metric"
+    ][30:34]
+    bundle = core_canon.from_canonical_bytes(
+        fresh.get_bytes(result.uncertainty_bundle_ref.artifact_id)
+    )
     intervals = sorted(bundle["prediction_interval"], key=lambda item: item["horizon"])
     bounds = [(float(item["lower"]), float(item["upper"])) for item in intervals]
     assert bounds == pytest.approx([(31.0, 31.0), (32.0, 32.0), (33.0, 33.0), (34.0, 34.0)])
@@ -191,7 +201,9 @@ def test_calibration_time_roles_are_preserved_from_bound_evidence(tmp_path: Path
     )
     assert envelope.calibration_record_ref == record.calibration_ref
     # A second configured CAS instance resolves the producer artifacts again.
-    reopened = _fresh_gateway_inputs(FileSystemCAS(tmp_path / "cas"), request, result)
+    reopened = _fresh_gateway_inputs(
+        core_artifacts.FileSystemCAS(tmp_path / "cas"), request, result
+    )
     assert reopened["forecast_calibration_record"] == record
 
 
@@ -210,10 +222,10 @@ def test_fresh_gateway_rejects_unresolved_or_misbound_artifacts(
 ) -> None:
     """Actual resolver calls refuse altered producer fields and preserve a reason."""
 
-    store = FileSystemCAS(tmp_path / "cas")
+    store = core_artifacts.FileSystemCAS(tmp_path / "cas")
     request, profile = configured_forecast_request(store, [31.0, 32.0, 33.0, 34.0])
     result = ForecastOwner(store, empirical_profile_ref=profile).run(request)
-    fresh = FileSystemCAS(tmp_path / "cas")
+    fresh = core_artifacts.FileSystemCAS(tmp_path / "cas")
     fields = result.to_s10_input_fields(fresh)
     if defect == "missing_ref":
         fields["empirical_calibration_evidence_ref"] = None

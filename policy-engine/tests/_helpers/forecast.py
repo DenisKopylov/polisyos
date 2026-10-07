@@ -5,8 +5,8 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 
 from polisyos.calibration import ForecastCalibrationProfile
-from polisyos.core.artifacts import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec
+from polisyos.core import artifacts as core_artifacts
+from polisyos.core import canon as core_canon
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.fabric import DataSchema
 from polisyos.ir.artifacts import normalize_artifact_ref, put_json_artifact
@@ -18,7 +18,7 @@ from polisyos.scientist.methods.backtesting.forecast_owner import (
 
 
 def configured_forecast_request(
-    store: FileSystemCAS, holdout: list[float]
+    store: core_artifacts.FileSystemCAS, holdout: list[float]
 ) -> tuple[ForecastOwnerRequest, ArtifactRefModel]:
     """Persist one synthetic typed ETS source, request, rule, and candidate profile.
 
@@ -29,8 +29,8 @@ def configured_forecast_request(
     def put(payload: object, kind: str):
         return store.put_json(
             payload,
-            PutOptions(kind=kind, media_type="application/json"),
-            canon_spec=CanonSpec(forbid_floats=False),
+            core_artifacts.PutOptions(kind=kind, media_type="application/json"),
+            canon_spec=core_canon.CanonSpec(forbid_floats=False),
         )
 
     data = put({"metric": [float(i) for i in range(1, 31)] + holdout}, "test.observed")
@@ -44,7 +44,7 @@ def configured_forecast_request(
         kind="fabric.data_schema",
         schema_name="polisyos.fabric.DataSchema",
         schema_version="1.0",
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=core_canon.CanonSpec(forbid_floats=False),
     )
     source = put(
         DataSnapshot(data_ref=data, data_schema_ref=schema).model_dump(mode="json"),
@@ -115,7 +115,7 @@ def configured_forecast_request(
             schema_name="polisyos.calibration.forecast_calibration_profile",
             schema_version="1.0",
             inputs=[{"artifact_id": str(request_ref.artifact_id), "role": "forecast_request"}],
-            canon_spec=CanonSpec(forbid_floats=False),
+            canon_spec=core_canon.CanonSpec(forbid_floats=False),
         )
     )
     return request, profile_ref

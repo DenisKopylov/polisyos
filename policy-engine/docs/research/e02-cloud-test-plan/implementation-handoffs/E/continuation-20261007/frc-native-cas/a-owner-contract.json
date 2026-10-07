@@ -50,7 +50,7 @@
     "verifier_provenance": "not_established"
   },
   "A_next_verified_results": [
-    "Apply current status/reason test packet and two-hunk patch after owner review: absent ref drives blocked tier plus same named empirical_evidence_ref_missing S6 reason; resolved 0/4 evidence retains calibration_floor_not_met in both disposition and S6.",
+    "Apply current status/reason test packet and three-hunk patch after owner review: absent ref drives blocked tier plus same named empirical_evidence_ref_missing S6 reason; resolved 0/4 evidence retains calibration_floor_not_met in both disposition and S6.",
     "Resolve candidate receipt, configured admitted profile/request/source/rule artifacts in the same runtime CAS; independently recompute source metric/unit/scale, train/holdout split, horizon, row pairing/counts/threshold and six time roles. Producer flags and role/hash alone are not verifier provenance.",
     "Build ForecastOwnerRequest from the admitted source/profile before terminal causal refusal; invoke existing E producer; persist A verification decision and configured verifier provenance; fresh default/HTTP read resolves and re-verifies instead of trusting saved flags.",
     "Keep causal_effect_authority, treatment_assignment_authority and policy/recommendation/production authority denied; a predictive sibling must not remove treatment_assignment_not_owner_derived."

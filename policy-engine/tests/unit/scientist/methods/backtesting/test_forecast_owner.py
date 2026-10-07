@@ -15,8 +15,8 @@ from polisyos.calibration.forecast_bridge import (
     load_forecast_candidate_receipt,
     persist_forecast_candidate_receipt,
 )
-from polisyos.core.artifacts import FileSystemCAS
-from polisyos.core.canon import CanonSpec
+from polisyos.core import artifacts as core_artifacts
+from polisyos.core import canon as core_canon
 from polisyos.core.contracts.fabric import DataSnapshotRef
 from polisyos.ir.analytics.backtest import load_backtest_report
 from polisyos.ir.analytics.forecasting_uncertainty import load_forecasting_uncertainty_bundle
@@ -26,12 +26,12 @@ from tests._helpers.forecast import configured_forecast_request as _configured
 
 
 def test_configured_ets_emits_separate_evidence_and_candidate_receipt(tmp_path: Path):
-    store = FileSystemCAS(tmp_path / "cas")
+    store = core_artifacts.FileSystemCAS(tmp_path / "cas")
     request, profile_ref = _configured(store, [31.0, 32.0, 33.0, 34.0])
     result = ForecastOwner(store, empirical_profile_ref=profile_ref).run(request)
     assert result.empirical_evidence_ref is not None
     assert result.candidate_receipt_ref is not None
-    fresh = FileSystemCAS(tmp_path / "cas")
+    fresh = core_artifacts.FileSystemCAS(tmp_path / "cas")
     receipt = load_forecast_candidate_receipt(fresh, result.candidate_receipt_ref)
     evidence = load_empirical_calibration_evidence(fresh, receipt.empirical_evidence_ref)
     report = load_backtest_report(fresh, evidence.report_ref)
@@ -78,7 +78,7 @@ def test_measurement_admission_precedes_any_method_callback(tmp_path: Path, monk
 
     from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 
-    store = FileSystemCAS(tmp_path / "cas")
+    store = core_artifacts.FileSystemCAS(tmp_path / "cas")
     request, _ = _configured(store, [31.0, 32.0, 33.0, 34.0])
     source = get_json_artifact(store, request.observed_source_ref.artifact_id)
     schema = get_json_artifact(store, source["data_schema_ref"]["artifact_id"])
@@ -111,7 +111,7 @@ def test_measurement_admission_precedes_any_method_callback(tmp_path: Path, monk
             kind=kind,
             schema_name=schema_name,
             schema_version="1.0",
-            canon_spec=CanonSpec(forbid_floats=False),
+            canon_spec=core_canon.CanonSpec(forbid_floats=False),
         )
     source_ref = put_json_artifact(
         store,
@@ -119,7 +119,7 @@ def test_measurement_admission_precedes_any_method_callback(tmp_path: Path, monk
         kind="fabric.data_snapshot",
         schema_name="polisyos.fabric.DataSnapshot",
         schema_version="1.0",
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=core_canon.CanonSpec(forbid_floats=False),
     )
     request = request.model_copy(
         update={"observed_source_ref": DataSnapshotRef(artifact_id=source_ref["artifact_id"])}
@@ -138,10 +138,10 @@ def test_measurement_admission_precedes_any_method_callback(tmp_path: Path, monk
 
 
 def test_adapter_returns_fresh_resolved_a_fields_without_verifier_authority(tmp_path: Path):
-    store = FileSystemCAS(tmp_path / "cas")
+    store = core_artifacts.FileSystemCAS(tmp_path / "cas")
     request, profile = _configured(store, [31.0, 32.0, 33.0, 34.0])
     result = ForecastOwner(store, empirical_profile_ref=profile).run(request)
-    fields = result.to_s10_input_fields(FileSystemCAS(tmp_path / "cas"))
+    fields = result.to_s10_input_fields(core_artifacts.FileSystemCAS(tmp_path / "cas"))
     assert fields["empirical_calibration_evidence_ref"] == result.empirical_evidence_ref
     assert fields["forecast_candidate_receipt_ref"] == result.candidate_receipt_ref
     assert fields["expected_rule_version_ref"] == request.calibration_rule.rule_id
@@ -166,7 +166,7 @@ def test_fresh_receipt_reader_refuses_integrity_valid_measurement_forgery(
 ):
     """CAS-correct refs do not establish request/source measurement agreement."""
 
-    store = FileSystemCAS(tmp_path / "cas")
+    store = core_artifacts.FileSystemCAS(tmp_path / "cas")
     request, profile_ref = _configured(store, [31.0, 32.0, 33.0, 34.0])
     result = ForecastOwner(store, empirical_profile_ref=profile_ref).run(request)
     forged_request = request.model_dump(mode="json")
@@ -177,7 +177,7 @@ def test_fresh_receipt_reader_refuses_integrity_valid_measurement_forgery(
         kind="ir.forecast_owner_request",
         schema_name="polisyos.calibration.forecast_owner_request",
         schema_version="2.0",
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=core_canon.CanonSpec(forbid_floats=False),
     )
     profile = get_json_artifact(store, profile_ref.artifact_id)
     profile["request_ref"] = request_ref
@@ -188,7 +188,7 @@ def test_fresh_receipt_reader_refuses_integrity_valid_measurement_forgery(
         schema_name="polisyos.calibration.forecast_calibration_profile",
         schema_version="1.0",
         inputs=[{"artifact_id": request_ref["artifact_id"], "role": "forecast_request"}],
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=core_canon.CanonSpec(forbid_floats=False),
     )
     receipt = load_forecast_candidate_receipt(store, result.candidate_receipt_ref).model_dump(
         mode="json"
@@ -208,11 +208,11 @@ def test_fresh_receipt_reader_refuses_integrity_valid_measurement_forgery(
                 "role": "empirical_evidence",
             },
         ],
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=core_canon.CanonSpec(forbid_floats=False),
     )
     with pytest.raises(ValueError, match="unit|scale"):
         load_forecast_candidate_receipt(
-            FileSystemCAS(tmp_path / "cas"),
+            core_artifacts.FileSystemCAS(tmp_path / "cas"),
             ForecastCandidateReceiptRef.model_validate(forged_receipt_ref),
         )
 
@@ -221,7 +221,7 @@ def test_same_forecasts_changed_holdout_changes_persisted_evidence(tmp_path: Pat
     results = []
     evidence = []
     for index, holdout in enumerate(([31.0, 32.0, 33.0, 34.0], [1000.0, 1000.0, 1000.0, 1000.0])):
-        store = FileSystemCAS(tmp_path / str(index))
+        store = core_artifacts.FileSystemCAS(tmp_path / str(index))
         request, profile = _configured(store, holdout)
         result = ForecastOwner(store, empirical_profile_ref=profile).run(request)
         results.append(result)
@@ -235,7 +235,7 @@ def test_same_forecasts_changed_holdout_changes_persisted_evidence(tmp_path: Pat
 
 
 def test_configured_request_mismatch_refuses_before_method_callback(tmp_path: Path, monkeypatch):
-    store = FileSystemCAS(tmp_path / "cas")
+    store = core_artifacts.FileSystemCAS(tmp_path / "cas")
     request, profile = _configured(store, [31.0, 32.0, 33.0, 34.0])
     from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 
@@ -250,7 +250,7 @@ def test_configured_request_mismatch_refuses_before_method_callback(tmp_path: Pa
 
 
 def test_content_valid_forged_receipt_cannot_switch_source_request(tmp_path: Path):
-    store = FileSystemCAS(tmp_path / "cas")
+    store = core_artifacts.FileSystemCAS(tmp_path / "cas")
     request, profile = _configured(store, [31.0, 32.0, 33.0, 34.0])
     result = ForecastOwner(store, empirical_profile_ref=profile).run(request)
     _, wrong_profile = _configured(store, [1000.0, 1000.0, 1000.0, 1000.0])
@@ -265,7 +265,7 @@ def test_content_valid_forged_receipt_cannot_switch_source_request(tmp_path: Pat
 
 
 def test_content_valid_false_counts_are_rejected_on_fresh_consumer_read(tmp_path: Path):
-    store = FileSystemCAS(tmp_path / "cas")
+    store = core_artifacts.FileSystemCAS(tmp_path / "cas")
     request, profile = _configured(store, [31.0, 32.0, 33.0, 34.0])
     result = ForecastOwner(store, empirical_profile_ref=profile).run(request)
     evidence = load_empirical_calibration_evidence(store, result.empirical_evidence_ref)
@@ -289,7 +289,7 @@ def test_content_valid_false_counts_are_rejected_on_fresh_consumer_read(tmp_path
         schema_name="polisyos.calibration.empirical_calibration_evidence",
         schema_version="1.1",
         inputs=manifest.inputs,
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=core_canon.CanonSpec(forbid_floats=False),
     )
     receipt = load_forecast_candidate_receipt(store, result.candidate_receipt_ref)
     false_receipt = ForecastCandidateReceipt.model_validate(
@@ -309,9 +309,9 @@ def test_content_valid_false_counts_are_rejected_on_fresh_consumer_read(tmp_path
             {"artifact_id": str(receipt.request_ref.artifact_id), "role": "forecast_request"},
             {"artifact_id": false_ref["artifact_id"], "role": "empirical_evidence"},
         ],
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=core_canon.CanonSpec(forbid_floats=False),
     )
-    fresh = FileSystemCAS(tmp_path / "cas")
+    fresh = core_artifacts.FileSystemCAS(tmp_path / "cas")
     with pytest.raises(ValueError, match="reproduced|reconciled|payload"):
         load_forecast_candidate_receipt(
             fresh,

@@ -13,7 +13,7 @@ from typing import Any
 import pytest
 
 from polisyos.calibration import load_empirical_calibration_evidence
-from polisyos.core.artifacts import FileSystemCAS
+from polisyos.core import artifacts as core_artifacts
 from polisyos.runtime.quality.generation_cycle import (
     RealValueOwnerGateway,
     _build_s10_forecast_inputs,
@@ -66,10 +66,10 @@ def test_missing_ref_tier_and_s6_share_named_missing_ref_reason() -> None:
 
 
 def test_resolved_limited_evidence_keeps_floor_failure_reason(tmp_path: Path) -> None:
-    store = FileSystemCAS(tmp_path / "cas")
+    store = core_artifacts.FileSystemCAS(tmp_path / "cas")
     request, profile = configured_forecast_request(store, [1000.0] * 4)
     result = ForecastOwner(store, empirical_profile_ref=profile).run(request)
-    fresh = FileSystemCAS(tmp_path / "cas")
+    fresh = core_artifacts.FileSystemCAS(tmp_path / "cas")
     fields = result.to_s10_input_fields(fresh)
     evidence = load_empirical_calibration_evidence(fresh, result.empirical_evidence_ref)
     assert (evidence.recomputed_numerator, evidence.recomputed_denominator) == (0, 4)
@@ -105,10 +105,10 @@ def test_resolved_limited_evidence_keeps_floor_failure_reason(tmp_path: Path) ->
 def test_native_gateway_tier_s6_and_disposition_share_resolver_reason(
     tmp_path: Path, defect: str, reason: str
 ) -> None:
-    store = FileSystemCAS(tmp_path / "cas")
+    store = core_artifacts.FileSystemCAS(tmp_path / "cas")
     request, profile = configured_forecast_request(store, [31.0, 32.0, 33.0, 34.0])
     result = ForecastOwner(store, empirical_profile_ref=profile).run(request)
-    fresh = FileSystemCAS(tmp_path / "cas")
+    fresh = core_artifacts.FileSystemCAS(tmp_path / "cas")
     fields = result.to_s10_input_fields(fresh)
     if defect == "missing_ref":
         fields["empirical_calibration_evidence_ref"] = None

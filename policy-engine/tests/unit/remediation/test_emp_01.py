@@ -66,6 +66,19 @@ def _project_value_outer_set(
     )
 
 
+def _seed_synthetic_baseline_identity(catalog_path: Path) -> None:
+    """Build a bounded C baseline-only state with no active epochs or passports."""
+
+    catalog_path.write_bytes(b"emp01 synthetic baseline-only fixture")
+    state = read_api.catalog.project_catalog_acquisition_state(
+        catalog_path,
+        overlay_path=None,
+    )
+    assert state.overlay_exists is False
+    assert state.epochs == ()
+    assert state.passports == ()
+
+
 class _RowsCursor:
     description = tuple(
         (name,)
@@ -115,7 +128,7 @@ def test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed(
     """Unbound measurement units are refused after applying the geographic scope."""
 
     catalog_path = tmp_path / "l1.duckdb"
-    catalog_path.touch()
+    _seed_synthetic_baseline_identity(catalog_path)
     rows = (
         ("UA", 2020, 10.0, "dataset-percent", "obs-ua-percent-2020", '{"unit":"percent"}'),
         ("UA", 2020, 1000.0, "dataset-usd", "obs-ua-usd-2020", '{"unit":"usd"}'),
@@ -186,7 +199,7 @@ def test_scope_filter_excludes_other_regions_before_profile_limit(
     """A declared region is applied in the owner query before profile shaping."""
 
     catalog_path = tmp_path / "l1.duckdb"
-    catalog_path.touch()
+    _seed_synthetic_baseline_identity(catalog_path)
     rows = (
         ("UA", 2020, 10.0, "dataset-percent", "obs-ua-2020", '{"unit":"percent"}'),
         ("UA", 2021, 11.0, "dataset-percent", "obs-ua-2021", '{"unit":"percent"}'),
@@ -251,7 +264,7 @@ def test_cross_period_mixed_dataset_units_fail_closed(
     """Distinct source identities across periods cannot masquerade as one unit."""
 
     catalog_path = tmp_path / "l1.duckdb"
-    catalog_path.touch()
+    _seed_synthetic_baseline_identity(catalog_path)
     rows = (
         ("UA", 2020, 10.0, "dataset-percent", "obs-ua-2020", '{"unit":"percent"}'),
         ("UA", 2021, 1000.0, "dataset-usd", "obs-ua-2021", '{"unit":"usd"}'),
@@ -342,7 +355,7 @@ def test_owner_row_cap_refuses_truncated_profile(
     """A bounded catalog read never classifies an incomplete owner panel."""
 
     catalog_path = tmp_path / "l1.duckdb"
-    catalog_path.touch()
+    _seed_synthetic_baseline_identity(catalog_path)
     rows = tuple(
         ("UA", 2000 + index, float(index), "dataset-percent", f"obs-{index}", '{"unit":"percent"}')
         for index in range(20_001)
@@ -377,17 +390,18 @@ def test_owner_row_cap_refuses_truncated_profile(
 
     assert exc_info.value.code == "acquire_data:value_owner_rows_truncated"
     assert connection.calls
-    assert "LIMIT 20001" in connection.calls[0][0]
+    assert "LIMIT ?" in connection.calls[0][0]
+    assert connection.calls[0][1][-1] == 20_001
 
 
 def test_empty_selected_profile_returns_no_profile_before_unit_binding(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    """An empty scoped selection is incomplete, not a unit-binding violation."""
+    """An empty synthetic baseline-only selection remains distinct from insufficient."""
 
     catalog_path = tmp_path / "l1.duckdb"
-    catalog_path.touch()
+    _seed_synthetic_baseline_identity(catalog_path)
     connection = _RowsConnection(())
     monkeypatch.setattr(
         substrate_registry,
@@ -447,10 +461,10 @@ def test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway(
     tmp_path: Path,
     row_count: int,
 ) -> None:
-    """Three selected rows are insufficient, distinct from empty and truncated."""
+    """Synthetic baseline rows 1–3 are insufficient, distinct from empty and truncated."""
 
     catalog_path = tmp_path / "l1.duckdb"
-    catalog_path.touch()
+    _seed_synthetic_baseline_identity(catalog_path)
     rows = tuple(
         (
             "UA",
@@ -515,7 +529,8 @@ def test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway(
 
     assert exc_info.value.code == "acquire_data:value_owner_rows_insufficient"
     assert len(connection.calls) == 2
-    assert all("LIMIT 20001" in statement for statement, _ in connection.calls)
+    assert all("LIMIT ?" in statement for statement, _ in connection.calls)
+    assert all(parameters[-1] == 20_001 for _, parameters in connection.calls)
     assert all(parameters[0] == "outcome" for _, parameters in connection.calls)
     assert all(parameters[3] == "UA" for _, parameters in connection.calls)
 

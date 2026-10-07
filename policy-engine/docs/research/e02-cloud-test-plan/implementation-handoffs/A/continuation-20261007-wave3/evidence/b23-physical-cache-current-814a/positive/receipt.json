@@ -1,0 +1,69 @@
+{
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "pytest_b23_input_provenance",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "-q",
+    "--showlocals",
+    "--junitxml=_build/e02-A-continuation-20261007/B23-positive-current-814a-v2/junit.xml",
+    "--basetemp=_build/e02-A-continuation-20261007/B23-positive-current-814a-v2/pytest-basetemp",
+    "tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "814a9cbc1f93f0b6f7b86203d2347a4866d84b96",
+  "candidate_tree": "441fd4a6c4eaee55a3b68ac6b08b4bf609284da3",
+  "workspace_dirty_before": [
+    " M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/registered-fallback-n5-n8.json",
+    " M policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B06-two-refused-engines-current-0662/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-B30-qualified-controls-red-e848/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-N6-persisted-refusal-red-0fbc/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-container-intake-frozen-red-055c/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-refusal-and-manual-fresh-GET-814a/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-numeric-scanner-engine-affected-f1df/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/finding-recommendations.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/progress-row-adjudication-draft.json"
+  ],
+  "workspace_dirty_after": [
+    " M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/registered-fallback-n5-n8.json",
+    " M policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B06-two-refused-engines-current-0662/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-B30-qualified-controls-red-e848/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-N6-persisted-refusal-red-0fbc/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-container-intake-frozen-red-055c/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-refusal-and-manual-fresh-GET-814a/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-numeric-scanner-engine-affected-f1df/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/finding-recommendations.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/progress-row-adjudication-draft.json"
+  ],
+  "exit_code": 0,
+  "wall_s": 20.442262625030708,
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_command.py",
+    "sha256": "ef58301dceda92cf4a17214fd281cfcb3f6f50ba98480533bc0b191878a43798"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 99,
+      "sha256": "0a4e8763164bff4a981f9e042753891c0b3e1770ad5d771298db6bd445a98715"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "input-provenance.json": {
+      "bytes": 248159,
+      "sha256": "5b2625035e146893ad33a5c3d9ac2d2302cd19b415f6bb68d59cfd51a4158cb8"
+    },
+    "junit.xml": {
+      "bytes": 414,
+      "sha256": "39451f4edf756edd14bdcc4b5856542eaff6779c7e79d6244945b1749fa81898"
+    }
+  }
+}

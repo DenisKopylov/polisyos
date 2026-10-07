@@ -1,0 +1,74 @@
+{
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "e02_origin",
+    "-p",
+    "trace_conditional_replay",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "-q",
+    "--junitxml=_build/e02-A-continuation-20261007/manual-fresh-GET-replay-trace-exec-178a/junit.xml",
+    "--basetemp=_build/e02-A-continuation-20261007/manual-fresh-GET-replay-trace-exec-178a/pytest-basetemp",
+    "tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "178aae968e6e4c699245cbfe74310be3633d4c20",
+  "candidate_tree": "5e9b2b9a25ea63ea2b6b6aeece1a43d9b706adae",
+  "workspace_dirty_before": [
+    " M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B30-owner-census.json",
+    " M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+    " M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/registered-fallback-n5-n8.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B06-two-refused-engines-current-0662/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-B30-qualified-controls-red-e848/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-N6-persisted-refusal-red-0fbc/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-container-intake-frozen-red-055c/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-refusal-and-manual-fresh-GET-814a/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b23-physical-cache-current-814a/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-numeric-scanner-engine-affected-f1df/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/occurrence-voi-compiler-current-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/required-numeric-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/required-numeric-output-intake.json"
+  ],
+  "workspace_dirty_after": [
+    " M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B30-owner-census.json",
+    " M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+    " M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/registered-fallback-n5-n8.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B06-two-refused-engines-current-0662/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-B30-qualified-controls-red-e848/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-N6-persisted-refusal-red-0fbc/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-container-intake-frozen-red-055c/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-refusal-and-manual-fresh-GET-814a/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b23-physical-cache-current-814a/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-numeric-scanner-engine-affected-f1df/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/occurrence-voi-compiler-current-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/required-numeric-checks.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/required-numeric-output-intake.json"
+  ],
+  "exit_code": 1,
+  "wall_s": 29.67384329100605,
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_command.py",
+    "sha256": "ef58301dceda92cf4a17214fd281cfcb3f6f50ba98480533bc0b191878a43798"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 79159,
+      "sha256": "22b9ee5b41be4ac810cfce8ab7b3a22198b708c93d4523fd8f8d7c22e6fbdd58"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "junit.xml": {
+      "bytes": 28207,
+      "sha256": "9f8572f81c646f508a4bcb3acbed8ff9e615250ed2cf06a5fb2e7c7a5591a193"
+    }
+  }
+}

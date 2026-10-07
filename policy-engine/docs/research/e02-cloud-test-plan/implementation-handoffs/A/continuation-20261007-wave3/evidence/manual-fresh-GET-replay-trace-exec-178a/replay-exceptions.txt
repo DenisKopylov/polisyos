@@ -1,0 +1,7 @@
+thread=6245593088 replay_line=395 exception=builtins.ValueError: candidate_simulation_n8_limiter_not_allowlisted
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/conditional_simulation_replay.py", line 395, in _replay_cycle
+    raise ValueError("candidate_simulation_n8_limiter_not_allowlisted")
+ValueError: candidate_simulation_n8_limiter_not_allowlisted
+
+---

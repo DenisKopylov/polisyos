@@ -271,5 +271,26 @@
       "Public three-atom GET is separate surface verification, not added to B26 original criterion.",
       "G code/integration acceptance pending."
     ]
+  },
+  "versioned_history_epoch_correction_20261008": {
+    "supersedes_source_change_only": "751 history-width widening of frozen v3 is superseded by the new versioned shape; historical check outcomes remain unchanged.",
+    "source_base_sha": "7f28de050adebd83ddfe3b75453caec9f3e6efc8",
+    "implementation_commits": [
+      "6f35cc556be70d84851eb3ac0c5600326ba5a692",
+      "be29c75bfb6134969b704d93bc0cdab56fd91f74"
+    ],
+    "current_execution_candidate_sha": "8856ca1ea29bbbea62d07d346e2ceb2a6fda2787",
+    "current_execution_candidate_tree_sha": "4a4d6fd4c7625bce130390018f0333297e7d6a60",
+    "canonical_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/interaction-history-epochs.json",
+    "exact_output": "policy-engine/_build/e02-A-continuation-20261007/interaction-epoch-normative-GET-corrected/junit.xml@sha256:7e8fde4207323fd3137cd25c0836b97bf41f243b9ab6aee7adced6574b300282",
+    "outcome": "PASS",
+    "scope": [
+      "Old v1/v2/v3 frozen model graph equals pre-751 graph; v4 retains limited v3 semantics.",
+      "Actual evidence-producing cycle emits v5 and normative source manifest records actual epoch; fresh source owner/history/GET readback is exercised.",
+      "v6 source-limited evidence path is a serializer-only counterfactual, not an executed source-limited v6 producer.",
+      "Removing all evidence, missing cycles, one-sided projection and bilateral false verifier provenance are refused by actual reader."
+    ],
+    "G_acceptance": "pending",
+    "finding_closure": "B26 original bounded decision separate; B01/B02/B03/B09/B27 ordinary source-backed lifecycle/reentry remain open."
   }
 }

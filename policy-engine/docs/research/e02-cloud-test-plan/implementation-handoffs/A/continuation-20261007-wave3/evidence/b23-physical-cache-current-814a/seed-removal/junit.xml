@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="16.321" timestamp="2026-10-07T23:50:33.476762+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.remediation.test_sim_03" name="test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request" time="4.279"><failure message="AssertionError: assert 2 == 3&#10; +  where 2 = len({'sha256:44abc836a8b7d422d2124243bd7e60a874981a658e6e21381bef21bd9060d3cb', 'sha256:d2b97a6a2ede1c9ca5142fc65e64bf16e1faa32f41573670aee2ed127aae9ed0'})">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x13abb36f0&gt;
+
+    def test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """B23: changed inputs get new refs; the same counted witness can remove either input."""
+    
+        original = NCMEngineMethod.pure_step
+        observed_seeds: list[int] = []
+    
+        def counted(state: Mapping[str, object], params: Mapping[str, object]) -&gt; dict[str, Any]:
+            observed_seeds.append(int(params["__seed__"]))
+            return original(state, params)
+    
+        removal_probe = os.environ.get(_REMOVAL_PROBE_ENV)
+        if removal_probe not in {None, "seed", "plan"}:
+            raise ValueError("B23 removal probe must be 'seed', 'plan', or unset")
+        removal_hash_call_count = 0
+        if removal_probe is not None:
+            from polisyos.runtime.quality import (
+                joint_simulation_horizon as joint_simulation,
+            )
+    
+            original_hash = joint_simulation.gy_content_hash
+            original_physical_run_ref = joint_simulation._physical_run_ref
+            removed_fields = {"seed", "replication_seeds"} if removal_probe == "seed" else {"plan"}
+            inside_physical_run_ref = False
+    
+            def hash_without_selected_input(payload: object) -&gt; str:
+                nonlocal removal_hash_call_count
+                if inside_physical_run_ref:
+                    if not isinstance(payload, dict):
+                        raise AssertionError("physical_run_ref_hash_payload_not_mapping")
+                    if not removed_fields.issubset(payload):
+                        raise AssertionError("physical_run_ref_removal_marker_missing")
+                    payload = {
+                        key: value for key, value in payload.items() if key not in removed_fields
+                    }
+                    removal_hash_call_count += 1
+                return original_hash(payload)
+    
+            def physical_run_ref_with_removal(
+                request: JointSimulationRequest,
+                plan: EnginePlan,
+                decision: EngineDecision,
+                subset: Sequence[InterventionAtomBinding],
+            ) -&gt; str:
+                nonlocal inside_physical_run_ref
+                previous_context = inside_physical_run_ref
+                inside_physical_run_ref = True
+                try:
+                    return original_physical_run_ref(request, plan, decision, subset)
+                finally:
+                    inside_physical_run_ref = previous_context
+    
+            monkeypatch.setattr(joint_simulation, "gy_content_hash", hash_without_selected_input)
+            monkeypatch.setattr(joint_simulation, "_physical_run_ref", physical_run_ref_with_removal)
+    
+        monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(counted))
+        request = _request().model_copy(update={"seed": 17, "horizon": HorizonSpec(start=0, end=0)})
+        changed_seed = request.model_copy(update={"seed": 18})
+        changed_plan = _request_with_interaction_multiplier(request, 6.0)
+        controller = JointSimulationHorizonController()
+    
+        results = (
+            controller.run(request),
+            controller.run(changed_seed),
+            controller.run(changed_plan),
+        )
+        if removal_probe is not None:
+            assert removal_hash_call_count &gt; 0, (  # noqa: S101
+                "removed_property_keep_markers:no _physical_run_ref hash payload was mutated"
+            )
+    
+        pair = ("income_subsidy", "balance_grant")
+        role_views = []
+        for result in results:
+            pairwise = result.trajectory_for("pairwise", pair)
+            joint = result.trajectory_for("joint", pair)
+            assert pairwise.diagnostics["physical_run_ref"] == joint.diagnostics["physical_run_ref"]  # noqa: S101
+            assert pairwise.diagnostics["physical_run_reused"] is False  # noqa: S101
+            assert joint.diagnostics["physical_run_reused"] is True  # noqa: S101
+            assert pairwise.points == joint.points  # noqa: S101
+            role_views.append((pairwise, joint))
+    
+        base_pair, base_joint = role_views[0]
+        seed_pair, seed_joint = role_views[1]
+        plan_pair, plan_joint = role_views[2]
+        physical_refs = {
+            base_pair.diagnostics["physical_run_ref"],
+            seed_pair.diagnostics["physical_run_ref"],
+            plan_pair.diagnostics["physical_run_ref"],
+        }
+&gt;       assert len(physical_refs) == 3  # noqa: S101
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: assert 2 == 3
+E        +  where 2 = len({'sha256:44abc836a8b7d422d2124243bd7e60a874981a658e6e21381bef21bd9060d3cb', 'sha256:d2b97a6a2ede1c9ca5142fc65e64bf16e1faa32f41573670aee2ed127aae9ed0'})
+
+base_joint = SimulationTrajectory(run_level='joint', atom_ids=('income_subsidy', 'balance_grant'), engine_kind='ncm_parallel_worlds...ha256:d2b97a6a2ede1c9ca5142fc65e64bf16e1faa32f41573670aee2ed127aae9ed0', 'physical_run_reused': True, 'role': 'joint'})
+base_pair  = SimulationTrajectory(run_level='pairwise', atom_ids=('income_subsidy', 'balance_grant'), engine_kind='ncm_parallel_wor...6:d2b97a6a2ede1c9ca5142fc65e64bf16e1faa32f41573670aee2ed127aae9ed0', 'physical_run_reused': False, 'role': 'pairwise'})
+changed_plan = JointSimulationRequest(world_model_record_ref='world_model_record_eb68ee16539903e3', world_model_record=WorldModelReco...None, budget_ref=None, seed=17, replications=1, world_credal_state_before={'firm_survival': {'low': 0.2, 'high': 0.8}})
+changed_seed = JointSimulationRequest(world_model_record_ref='world_model_record_eb68ee16539903e3', world_model_record=WorldModelReco...None, budget_ref=None, seed=18, replications=1, world_credal_state_before={'firm_survival': {'low': 0.2, 'high': 0.8}})
+controller = &lt;polisyos.runtime.quality.joint_simulation_horizon.JointSimulationHorizonController object at 0x13b09c2f0&gt;
+counted    = &lt;function test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request.&lt;locals&gt;.counted at 0x13b01c040&gt;
+hash_without_selected_input = &lt;function test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request.&lt;locals&gt;.hash_without_selected_input at 0x13b01c670&gt;
+inside_physical_run_ref = False
+joint      = SimulationTrajectory(run_level='joint', atom_ids=('income_subsidy', 'balance_grant'), engine_kind='ncm_parallel_worlds...ha256:44abc836a8b7d422d2124243bd7e60a874981a658e6e21381bef21bd9060d3cb', 'physical_run_reused': True, 'role': 'joint'})
+joint_simulation = &lt;module 'polisyos.runtime.quality.joint_simulation_horizon' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py'&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x13abb36f0&gt;
+observed_seeds = [17, 17, 17, 18, 18, 18, ...]
+original   = &lt;function NCMEngineMethod.pure_step at 0x128f064b0&gt;
+original_hash = &lt;function gy_content_hash at 0x13561ea30&gt;
+original_physical_run_ref = &lt;function _physical_run_ref at 0x13a382f00&gt;
+pair       = ('income_subsidy', 'balance_grant')
+pairwise   = SimulationTrajectory(run_level='pairwise', atom_ids=('income_subsidy', 'balance_grant'), engine_kind='ncm_parallel_wor...6:44abc836a8b7d422d2124243bd7e60a874981a658e6e21381bef21bd9060d3cb', 'physical_run_reused': False, 'role': 'pairwise'})
+physical_refs = {'sha256:44abc836a8b7d422d2124243bd7e60a874981a658e6e21381bef21bd9060d3cb', 'sha256:d2b97a6a2ede1c9ca5142fc65e64bf16e1faa32f41573670aee2ed127aae9ed0'}
+physical_run_ref_with_removal = &lt;function test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request.&lt;locals&gt;.physical_run_ref_with_removal at 0x13b01c5c0&gt;
+plan_joint = SimulationTrajectory(run_level='joint', atom_ids=('income_subsidy', 'balance_grant'), engine_kind='ncm_parallel_worlds...ha256:44abc836a8b7d422d2124243bd7e60a874981a658e6e21381bef21bd9060d3cb', 'physical_run_reused': True, 'role': 'joint'})
+plan_pair  = SimulationTrajectory(run_level='pairwise', atom_ids=('income_subsidy', 'balance_grant'), engine_kind='ncm_parallel_wor...6:44abc836a8b7d422d2124243bd7e60a874981a658e6e21381bef21bd9060d3cb', 'physical_run_reused': False, 'role': 'pairwise'})
+removal_hash_call_count = 24
+removal_probe = 'seed'
+removed_fields = {'replication_seeds', 'seed'}
+request    = JointSimulationRequest(world_model_record_ref='world_model_record_eb68ee16539903e3', world_model_record=WorldModelReco...None, budget_ref=None, seed=17, replications=1, world_credal_state_before={'firm_survival': {'low': 0.2, 'high': 0.8}})
+result     = JointSimulationResult(schema_version='policyos.runtime.joint_simulation_horizon.v1', world_model_record_ref='world_mod...nty',), may_not_use_for=('world_credal_state_shrinkage', 'promotion'), calibration_status='content_bound_run_receipt'))
+results    = (JointSimulationResult(schema_version='policyos.runtime.joint_simulation_horizon.v1', world_model_record_ref='world_mo...ty',), may_not_use_for=('world_credal_state_shrinkage', 'promotion'), calibration_status='content_bound_run_receipt')))
+role_views = [(SimulationTrajectory(run_level='pairwise', atom_ids=('income_subsidy', 'balance_grant'), engine_kind='ncm_parallel_w...256:44abc836a8b7d422d2124243bd7e60a874981a658e6e21381bef21bd9060d3cb', 'physical_run_reused': True, 'role': 'joint'}))]
+seed_joint = SimulationTrajectory(run_level='joint', atom_ids=('income_subsidy', 'balance_grant'), engine_kind='ncm_parallel_worlds...ha256:d2b97a6a2ede1c9ca5142fc65e64bf16e1faa32f41573670aee2ed127aae9ed0', 'physical_run_reused': True, 'role': 'joint'})
+seed_pair  = SimulationTrajectory(run_level='pairwise', atom_ids=('income_subsidy', 'balance_grant'), engine_kind='ncm_parallel_wor...6:d2b97a6a2ede1c9ca5142fc65e64bf16e1faa32f41573670aee2ed127aae9ed0', 'physical_run_reused': False, 'role': 'pairwise'})
+
+tests/unit/remediation/test_sim_03.py:447: AssertionError</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,1053 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="19.542" timestamp="2026-10-08T00:39:44.034115+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.runtime.quality.test_e02_interaction_history_epoch" name="test_actual_default_n5_n8_interaction_history_is_versioned_and_replayable" time="3.338"><failure message="AssertionError: assert {'checked_int...tart': 0, ...} == {'authority_p..._end': 1, ...}&#10;  &#10;  Omitting 10 identical items, use -vv to show&#10;  Right contains 6 more items:&#10;  {'authority_purpose': 'conditional_simulation_only',&#10;   'predicate_provenance': 'recomputed',&#10;   'sampling_uncertainty_status': 'not_established',&#10;   'schema_version': 'policyos.runtime.conditional_simulation_interaction_evidence.v1',...&#10;  &#10;  ...Full output truncated (3 lines hidden), use '-vv' to show">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x13d7abe10&gt;
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/interaction-epoch-and-normative-GET-final/pytest-basetemp/test_actual_default_n5_n8_inte0')
+
+    @pytest.mark.asyncio
+    async def test_actual_default_n5_n8_interaction_history_is_versioned_and_replayable(
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+    ) -&gt; None:
+        """Persist real default N5 output without widening the frozen v3/v4 epochs."""
+    
+        problem_seed = _problem("e02_actual_interaction_history").model_copy(
+            update={"problem_statement": "Synthetic owner fixture; no policy claim."}
+        )
+        witness = _owner_program_graph_n5_witness(
+            tmp_path / "n5",
+            income_values=(1000.0, 2000.0),
+            problem_seed=problem_seed,
+        )
+        try:
+            outcome = witness.problem.outcome_of_interest.target_variable
+            connection = _install_synthetic_baseline_profile(
+                monkeypatch,
+                tmp_path,
+                outcome=outcome,
+                row_count=1,
+            )
+    
+            class _FixtureGenerationPort:
+                async def __call__(self, _problem: Any, *, cycle_index: int) -&gt; Any:
+                    assert cycle_index == 0
+                    candidate = witness.candidate
+                    return SimpleNamespace(
+                        status="generated",
+                        candidates=(candidate,),
+                        surrogate_rankings=(
+                            SimpleNamespace(
+                                candidate_id=candidate.candidate_id,
+                                score=0.9,
+                                voi_estimate=10.0,
+                            ),
+                        ),
+                        grounding_dispositions=(),
+                    )
+    
+            class _FixtureGroundingPort:
+                def __call__(self, *, candidate: Any, **_kwargs: Any) -&gt; Any:
+                    return generation.CandidateGroundingObservation(
+                        candidate_id=str(candidate.candidate_id),
+                        status="grounded_shadow",
+                        grounding_score=0.8,
+                        current_valid=False,
+                        grounding_source="cgf_firewall",
+                        grounding_disposition="synthetic_test_only",
+                        report_ref="synthetic-fixture://e02/grounding",
+                    )
+    
+            class _FixturePromotionPort:
+                def __call__(self, **_kwargs: Any) -&gt; Any:
+                    return generation.PromotionPortObservation(
+                        status="not_promoted",
+                        reason="synthetic_e02_test_only",
+                    )
+    
+            controller = generation.GenerationCycleController(
+                generation_port=_FixtureGenerationPort(),
+                grounding_port=_FixtureGroundingPort(),
+                promotion_port=_FixturePromotionPort(),
+                repo_root=tmp_path,
+                cycle_substrate_context=witness.context,
+                artifact_store=witness.store,
+                authority_scope="contract_testing",
+            )
+            assert isinstance(controller._simulation_port, generation.JointSimulationPort)
+            assert isinstance(
+                controller._value_port,
+                generation._DefaultSimulationBoundFoundryValuePort,
+            )
+    
+            with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+                run = await controller.run(
+                    witness.problem,
+                    budget_state=BudgetState(
+                        limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+                    ),
+                    min_cycles=1,
+                    max_cycles=1,
+                )
+                result_ref = run.cycles[-1].simulation.simulation_result_ref
+                assert result_ref is not None
+                assert witness.store.verify(result_ref.artifact_id).ok
+    
+            assert run.schema_version == "policyos.runtime.generation_cycle_controller.v5"
+            assert run.source_custody_limitation is None
+            assert run.cycles[-1].simulation.status == "joint_simulated"
+            assert result_ref is not None
+            assert run.value_port.status == "value_conditional"
+            assert run.value_port.evaluation_mode == "simulate_only"
+            assert run.value_port.decision_grade == "low"
+            assert connection.calls == []
+    
+            expected_evidence = run.value_port.conditional_interaction_evidence
+            assert expected_evidence is not None
+            expected_wire = expected_evidence.model_dump(mode="json")
+            assert run.cycles[-1].value_port.conditional_interaction_evidence == expected_evidence
+    
+            persisted_path = tmp_path / "generation-cycle-run.json"
+            persisted_path.write_text(
+                json.dumps(run.model_dump(mode="json"), sort_keys=True, separators=(",", ":")),
+                encoding="utf-8",
+            )
+            persisted = json.loads(persisted_path.read_text(encoding="utf-8"))
+            restored = generation.GenerationCycleRun.from_persisted_payload(persisted)
+            assert restored.model_dump(mode="json") == persisted
+            restored_root_evidence = restored.value_port.conditional_interaction_evidence
+            restored_cycle_evidence = restored.cycles[-1].value_port.conditional_interaction_evidence
+            assert restored_root_evidence is not None
+            assert restored_cycle_evidence is not None
+            assert restored_root_evidence.model_dump(mode="json") == expected_wire
+            assert restored_cycle_evidence.model_dump(mode="json") == expected_wire
+            assert generation.validate_generation_cycle_run_history(persisted) == ()
+    
+            # Old owners remain frozen: non-null v5 fields cannot be re-labeled v3/v4.
+            for version in ("v3", "v4"):
+                legacy = copy.deepcopy(persisted)
+                legacy["schema_version"] = f"policyos.runtime.generation_cycle_controller.{version}"
+                if version == "v3":
+                    legacy.pop("source_custody_limitation", None)
+                else:
+                    legacy["source_custody_limitation"] = (
+                        generation.GenerationSourceCustodyLimitation().model_dump(mode="json")
+                    )
+                with pytest.raises(
+                    ValueError,
+                    match="generation_cycle_interaction_evidence_requires_v5",
+                ):
+                    generation.GenerationCycleRun.from_persisted_payload(legacy)
+                _assert_history_parse_error(
+                    legacy,
+                    "generation_cycle_interaction_evidence_requires_v5",
+                )
+    
+            # The limited v6 branch is serializer coverage only. The limitation is
+            # supplied as its existing typed owner; this does not claim a limited
+            # producer path ran or that source custody was established.
+            limited = copy.deepcopy(persisted)
+            limited["schema_version"] = "policyos.runtime.generation_cycle_controller.v6"
+            limited["source_custody_limitation"] = (
+                generation.GenerationSourceCustodyLimitation().model_dump(mode="json")
+            )
+            limited["source_preservation_receipt"] = None
+            limited_run = generation.GenerationCycleRun.model_validate(limited)
+            limited_wire = limited_run.model_dump(mode="json")
+            limited_path = tmp_path / "generation-cycle-run-v6.json"
+            limited_path.write_text(
+                json.dumps(limited_wire, sort_keys=True, separators=(",", ":")),
+                encoding="utf-8",
+            )
+            limited_persisted = json.loads(limited_path.read_text(encoding="utf-8"))
+            restored_limited = generation.GenerationCycleRun.from_persisted_payload(limited_persisted)
+            assert restored_limited.schema_version.endswith(".v6")
+            assert restored_limited.source_custody_limitation == (
+                generation.GenerationSourceCustodyLimitation()
+            )
+            limited_root_evidence = restored_limited.value_port.conditional_interaction_evidence
+            limited_cycle_evidence = restored_limited.cycles[
+                -1
+            ].value_port.conditional_interaction_evidence
+            assert limited_root_evidence is not None
+            assert limited_cycle_evidence is not None
+            assert limited_root_evidence.model_dump(mode="json") == expected_wire
+            assert limited_cycle_evidence.model_dump(mode="json") == expected_wire
+            assert generation.validate_generation_cycle_run_history(limited_persisted) == ()
+    
+            v5_with_limitation = copy.deepcopy(persisted)
+            v5_with_limitation["source_custody_limitation"] = (
+                generation.GenerationSourceCustodyLimitation().model_dump(mode="json")
+            )
+            with pytest.raises(ValueError, match="generation_cycle_source_limitation_requires_v4"):
+                generation.GenerationCycleRun.from_persisted_payload(v5_with_limitation)
+    
+            missing_limited_owner = copy.deepcopy(limited_persisted)
+            missing_limited_owner.pop("source_custody_limitation")
+            with pytest.raises(ValueError):
+                generation.GenerationCycleRun.from_persisted_payload(missing_limited_owner)
+    
+            missing_both = copy.deepcopy(persisted)
+            missing_both["value_port"].pop("conditional_interaction_evidence")
+            missing_both["cycles"][-1]["value_port"].pop("conditional_interaction_evidence")
+            with pytest.raises(
+                ValueError,
+                match="generation_cycle_interaction_evidence_missing",
+            ):
+                generation.GenerationCycleRun.from_persisted_payload(missing_both)
+    
+            missing_cycles = copy.deepcopy(persisted)
+            missing_cycles["cycles"] = []
+&gt;           assert missing_cycles["value_port"]["conditional_interaction_evidence"] == expected_wire
+E           AssertionError: assert {'checked_int...tart': 0, ...} == {'authority_p..._end': 1, ...}
+E             
+E             Omitting 10 identical items, use -vv to show
+E             Right contains 6 more items:
+E             {'authority_purpose': 'conditional_simulation_only',
+E              'predicate_provenance': 'recomputed',
+E              'sampling_uncertainty_status': 'not_established',
+E              'schema_version': 'policyos.runtime.conditional_simulation_interaction_evidence.v1',...
+E             
+E             ...Full output truncated (3 lines hidden), use '-vv' to show
+
+tests/unit/runtime/quality/test_e02_interaction_history_epoch.py:227: AssertionError</failure></testcase><testcase classname="tests.integration.core_runtime.test_e02_manual_n5_interaction_readback" name="test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get" time="5.128"><failure message="pydantic_core._pydantic_core.ValidationError: 1 validation error for ArtifactRef&#10;  Input should be a valid dictionary or instance of ArtifactRef [type=model_type, input_value='sha256:684b3eb7eb48ee1b1...64b1e7d12eecbbb81c88519', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/model_type">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/interaction-epoch-and-normative-GET-final/pytest-basetemp/test_manual_n5_interaction_evi0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x13e2132f0&gt;
+
+    @pytest.mark.integration
+    def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """Fresh GET replays the actual one-atom N5 trajectory and its bounded grid."""
+    
+        limiter_removal_probe = os.environ.get(
+            "POLISYOS_E02_CANDIDATE_LIMITER_REMOVAL"
+        )
+        if limiter_removal_probe not in {None, "1"}:
+            raise ValueError(
+                "POLISYOS_E02_CANDIDATE_LIMITER_REMOVAL must be unset or '1'"
+            )
+    
+        pytest.importorskip("fastapi.testclient")
+        from fastapi.testclient import TestClient
+    
+        from polisyos.core import canon
+        from polisyos.core.artifacts.manifest import ArtifactRef
+        from polisyos.core.security.tenant_context import tenant_scope
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.http.app import create_runtime_api_app
+        from polisyos.runtime.http.container import RuntimeContainerOverrides
+        from polisyos.runtime.http.dependencies import build_runtime_api_context
+        from polisyos.runtime.http.security import build_fixture_identity_claims
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+            CompiledRecursiveGenerationCycleRun,
+            _normative_generation_sources,
+        )
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationContextHandoff,
+            CandidateSimulationContextOffer,
+            CandidateSimulationN5InputV5,
+            candidate_simulation_profile_ref,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContextArtifactOwner,
+            VerifiedNLJobScope,
+            cycle_job_profile_selection_ref,
+        )
+        from polisyos.runtime.quality.design_axes.coupling_composition import (
+            derive_recursive_design_graph,
+        )
+        from polisyos.runtime.quality.design_axes.value_choice_provenance import (
+            NORMATIVE_GENERATION_SOURCE_KIND,
+            NormativeValueScheduleOwner,
+        )
+        from polisyos.runtime.quality.design_generation import (
+            N4CandidateProposalSource,
+            N4CandidateScenarioProposalRun,
+            generate_design_candidate_proposal_under_a,
+        )
+        from polisyos.runtime.quality.generation_cycle import (
+            GENERATION_CYCLE_SCHEMA_VERSION,
+            GenerationCycleController,
+            JointSimulationPort,
+            SimulationPortObservation,
+            ValuePortObservation,
+            _DefaultSimulationBoundFoundryValuePort,
+            load_joint_simulation_result,
+            validate_generation_cycle_run_history,
+        )
+        from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationResult
+        from polisyos.runtime.quality.recursive_generation_cycle import (
+            RecursiveCycleBudget,
+            RecursiveGenerationCycleController,
+            RecursiveGenerationCycleRun,
+        )
+        from tests._helpers.control_worker import dispatch_one_control_job
+        from tests.integration.core_runtime.test_e02_informative_voi_execution import (
+            _bounded_budget,
+        )
+        from tests.unit.runtime.http.test_control_job_execution_intent import (
+            _valid_intake_for_mode,
+        )
+    
+        @contextmanager
+        def owner_scoped_test_client(app: Any) -&gt; Iterator[Any]:
+            """Keep the fixture tenant active while each app owns its runtime store."""
+    
+            with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID), TestClient(app) as client:
+                yield client
+    
+        monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
+        monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+        monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+        monkeypatch.setenv(
+            "POLISYOS_CONTROL_SQLITE_PATH", (tmp_path / "control.sqlite3").as_posix()
+        )
+        monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
+        monkeypatch.setenv("JAX_PLATFORMS", "cpu")
+        monkeypatch.setenv("OMP_NUM_THREADS", "1")
+    
+        from tests._helpers.bounded_run_catalog import bind_bounded_run_api_catalog
+    
+        bind_bounded_run_api_catalog(tmp_path=tmp_path, monkeypatch=monkeypatch)
+    
+        recording = next(
+            item
+            for item in n4_contract._load_recordings(REPO_ROOT)
+            if item.get("design_problem_id") == RECORDING_ID
+        )
+        problem = _current_compiler_problem(recording)
+        raw_request = problem.nl_provenance.raw_request
+        model_id = str(recording["model_id"])
+        controlled_recording = _controlled_procurement_recording(
+            recording,
+            outcome_variable=problem.outcome_of_interest.target_variable,
+        )
+    
+        cas_root = tmp_path / ".polisyos"
+        first_context = build_runtime_api_context(
+            cas_root=cas_root,
+            core_runs_root=cas_root / "runs",
+        )
+        profile, model_declaration = _configured_procurement_profile(
+            recorded_problem=problem,
+            artifact_store=first_context.store,
+            tenant_id=TENANT_ID,
+            cell_id=CELL_ID,
+            intervention_substrate=_candidate_only_procurement_intervention_bundle(),
+        )
+        assert profile.profile_selection_ref == cycle_job_profile_selection_ref(problem)
+        assert profile.context_inputs.intervention_substrate is not None
+    
+        first_app = create_runtime_api_app(
+            cas_root=cas_root,
+            container_overrides=RuntimeContainerOverrides(runtime_api_context=first_context),
+            allow_fixture_identity=True,
+            candidate_simulation_profiles=(profile,),
+            candidate_simulation_model_declarations=(model_declaration,),
+        )
+        n5_calls: list[str] = []
+        n8_calls: list[ValuePortObservation] = []
+        limiter_removal_applied: list[str] = []
+        original_n5 = JointSimulationPort.__call__
+        original_n8 = _DefaultSimulationBoundFoundryValuePort.__call__
+    
+        def observe_n5(
+            port: object, *args: Any, **kwargs: Any
+        ) -&gt; SimulationPortObservation:
+            candidate = kwargs.get("candidate")
+            n5_calls.append(str(getattr(candidate, "candidate_id", "")))
+            observation = original_n5(port, *args, **kwargs)
+            assert type(observation) is SimulationPortObservation
+            if limiter_removal_probe == "1":
+                blockers = observation.authority_blockers
+                assert blockers.count("candidate_scenario_n5_only") == 1
+                stripped = observation.model_copy(
+                    update={
+                        "authority_blockers": tuple(
+                            blocker
+                            for blocker in blockers
+                            if blocker != "candidate_scenario_n5_only"
+                        )
+                    }
+                )
+                assert stripped.model_dump(mode="json", exclude={"authority_blockers"}) == (
+                    observation.model_dump(mode="json", exclude={"authority_blockers"})
+                )
+                limiter_removal_applied.append("candidate_scenario_n5_only")
+                return stripped
+            return observation
+    
+        def observe_n8(
+            port: object, *args: Any, **kwargs: Any
+        ) -&gt; ValuePortObservation:
+            observation = original_n8(port, *args, **kwargs)
+            assert isinstance(observation, ValuePortObservation)
+            n8_calls.append(observation)
+            return observation
+    
+        monkeypatch.setattr(JointSimulationPort, "__call__", observe_n5)
+        monkeypatch.setattr(_DefaultSimulationBoundFoundryValuePort, "__call__", observe_n8)
+    
+        with owner_scoped_test_client(first_app) as client:
+            accepted_response = client.post(
+                "/api/v1/control/runs/nl",
+                json={
+                    "request": raw_request,
+                    "llm_model": model_id,
+                    "context": {
+                        "evaluation_safety_attempt": _valid_intake_for_mode(
+                            "simulate_only"
+                        ).model_dump(mode="json")
+                    },
+                },
+            )
+            assert accepted_response.status_code == 200, accepted_response.text
+            accepted = accepted_response.json()
+            assert accepted["status"] == "accepted"
+            service = first_app.state._control_service
+            admission_owner = service._cycle_substrate_context_admission_owner
+            assert admission_owner is not None
+            assert admission_owner.store is first_context.store
+    
+            compiled_refs: dict[str, ArtifactRef] = {}
+            produced_inputs: dict[str, CandidateSimulationN5InputV5] = {}
+            produced_results: dict[str, JointSimulationResult] = {}
+            produced_world_model_ids: dict[str, str] = {}
+            produced_result_refs: dict[str, ArtifactRef] = {}
+    
+            def produce_manual_candidate_run_for_owned_job(_snapshot: object) -&gt; None:
+                admission = service._control_store.current_execution_job_admission()
+                job = admission.job
+                scope = admission.scope
+                assert job.job_id == accepted["job_id"]
+                assert job.kind == "natural_language_run"
+                assert scope.status == "established"
+                assert (scope.tenant_id, scope.cell_id) == (TENANT_ID, CELL_ID)
+    
+                with service._install_execution_scope(scope):
+                    payload = service._payload_for_execution_scope(
+                        service._load_payload_ref(job.payload_ref),
+                        job=job,
+                        execution_scope=scope,
+                    )
+                    capability_manifest_ref, capability_manifest = (
+                        service._resolve_capability_manifest_for_execution(
+                            job=job,
+                            admission=admission,
+                            execution_scope=scope,
+                        )
+                    )
+                    execution_intent_binding = (
+                        service._require_nl_job_execution_intent_binding(
+                            job=job,
+                            admission=admission,
+                            execution_scope=scope,
+                            payload=payload,
+                            capability_manifest_ref=capability_manifest_ref,
+                            capability_manifest=capability_manifest,
+                        )
+                    )
+                    verified_nl_job_scope = execution_intent_binding.get(
+                        "_verified_nl_job_scope"
+                    )
+                    assert type(verified_nl_job_scope) is VerifiedNLJobScope
+                    assert verified_nl_job_scope._was_issued_by_verified_nl_execution_owner
+    
+                    core_run_id, core_context = service._start_generation_run_context(
+                        job=job,
+                        execution_scope=scope,
+                    )
+                    context_owner = CycleSubstrateContextArtifactOwner(
+                        store=service._artifact_store,
+                        control_store=service._control_store,
+                    )
+                    offer = admission_owner.admit_context(
+                        problem=problem,
+                        job_id=job.job_id,
+                        run_id=str(job.run_id),
+                        tenant_id=TENANT_ID,
+                        cell_id=CELL_ID,
+                    )
+                    assert type(offer) is CandidateSimulationContextOffer
+                    context_ref = context_owner.persist_for_current_job(
+                        offer.context,
+                        problem=problem,
+                        verified_nl_job_scope=verified_nl_job_scope,
+                    )
+                    resolved_context = context_owner.resolve_for_current_job(
+                        context_ref,
+                        problem=problem,
+                        verified_nl_job_scope=verified_nl_job_scope,
+                    )
+                    assert resolved_context.context == offer.context
+                    handoff = CandidateSimulationContextHandoff(
+                        context=resolved_context.context,
+                        context_job_ref=context_ref,
+                        profile=offer.profile,
+                        profile_config_ref=offer.profile_config_ref,
+                        job_id=job.job_id,
+                        run_id=str(job.run_id),
+                        tenant_id=TENANT_ID,
+                        cell_id=CELL_ID,
+                        model_declaration=offer.model_declaration,
+                        model_declaration_ref=offer.model_declaration_ref,
+                        ncm_ref=offer.ncm_ref,
+                    )
+    
+                    def current_owner_binding_is_exact() -&gt; bool:
+                        try:
+                            current = service._control_store.current_execution_job_admission()
+                            current_context = context_owner.resolve_for_current_job(
+                                context_ref,
+                                problem=problem,
+                                verified_nl_job_scope=verified_nl_job_scope,
+                            )
+                            current_offer = admission_owner.admit_context(
+                                problem=problem,
+                                job_id=job.job_id,
+                                run_id=str(job.run_id),
+                                tenant_id=TENANT_ID,
+                                cell_id=CELL_ID,
+                            )
+                        except (OSError, RuntimeError, TypeError, ValueError):
+                            return False
+                        return (
+                            type(current_offer) is CandidateSimulationContextOffer
+                            and current.job.job_id == handoff.job_id
+                            and current.job.run_id == handoff.run_id
+                            and current.job.state == "running"
+                            and current.job.attempt == job.attempt
+                            and current.scope.status == "established"
+                            and (current.scope.tenant_id, current.scope.cell_id)
+                            == (handoff.tenant_id, handoff.cell_id)
+                            and current_context.context == handoff.context
+                            and current_offer.context == handoff.context
+                            and current_offer.profile == handoff.profile
+                            and current_offer.profile_config_ref == handoff.profile_config_ref
+                            and current_offer.model_declaration == handoff.model_declaration
+                            and current_offer.model_declaration_ref
+                            == handoff.model_declaration_ref
+                            and current_offer.ncm_ref == handoff.ncm_ref
+                        )
+    
+                    proposal = asyncio.run(
+                        generate_design_candidate_proposal_under_a(
+                            problem,
+                            model_id=model_id,
+                            llm_client=n4_contract.RecordedGenerationReplayClient(
+                                controlled_recording
+                            ),
+                            repo_root=REPO_ROOT,
+                        )
+                    )
+                    assert type(proposal) is N4CandidateProposalSource
+                    proposal_run = N4CandidateScenarioProposalRun(
+                        proposal=proposal,
+                        l2_confidence_vintage=None,
+                        k_ref_limitation_code="candidate_scenario_l2_not_consumed",
+                    )
+                    root_ref = (
+                        "design-problem://"
+                        + gy_content_hash(problem.model_dump(mode="json")).removeprefix("sha256:")
+                    )
+                    graph = derive_recursive_design_graph(
+                        design_ref=root_ref,
+                        module_refs=(),
+                        parent_child_edges=(),
+                        rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+                    )
+    
+                    def build_cycle_controller(node_ref: str, node_problem: object) -&gt; Any:
+                        assert node_ref == root_ref
+                        assert node_problem == problem
+    
+                        def replay_recorded_proposal(
+                            replay_problem: object,
+                            *,
+                            cycle_index: int,
+                        ) -&gt; N4CandidateScenarioProposalRun:
+                            assert replay_problem == problem
+                            assert cycle_index == 0
+                            return proposal_run
+    
+                        return GenerationCycleController(
+                            generation_port=replay_recorded_proposal,
+                            repo_root=REPO_ROOT,
+                            artifact_store=service._artifact_store,
+                            cycle_substrate_context=handoff.context,
+                            candidate_simulation_handoff=handoff,
+                            candidate_simulation_currentness_resolver=(
+                                current_owner_binding_is_exact
+                            ),
+                            promotion_runtime=service._promotion_runtime,
+                            eval_safety_verifier=(
+                                service._evaluation_safety_admission_verifier
+                            ),
+                        )
+    
+                    recursive_controller = (
+                        RecursiveGenerationCycleController.for_contract_testing(
+                            cycle_controller_factory=build_cycle_controller,
+                            repo_root=REPO_ROOT,
+                            artifact_store=service._artifact_store,
+                        )
+                    )
+                    recursive_run = asyncio.run(
+                        recursive_controller.run(
+                            graph,
+                            problems_by_node={root_ref: problem},
+                            budget_state=_bounded_budget("1.0"),
+                            recursive_budget=RecursiveCycleBudget(
+                                max_depth=0,
+                                max_nodes=1,
+                                min_cycles_per_leaf=1,
+                                max_cycles_per_leaf=1,
+                            ),
+                            cycle_substrate_contexts_by_node={
+                                root_ref: handoff.context,
+                            },
+                            execution_intents_by_node={root_ref: "simulate_only"},
+                        )
+                    )
+                    assert type(recursive_run) is RecursiveGenerationCycleRun
+                    assert recursive_run.authority_scope == "contract_testing"
+                    leaf = recursive_run.leaf_nodes[0]
+                    assert leaf.cycle_run is not None
+                    cycle = leaf.cycle_run.cycles[0]
+                    assert cycle.simulation.status == "joint_simulated"
+                    assert cycle.value_port.status == "value_conditional"
+                    assert not leaf.cycle_run.promotion_port.receipts
+                    assert not leaf.cycle_run.promotion_port.certified_candidate_ids
+                    assert not any(
+                        summary.certified_by_n9
+                        for summary in leaf.cycle_run.candidate_summaries
+                    )
+    
+                    diagnostics = cycle.simulation.diagnostics
+                    input_ref = ArtifactRef.model_validate(
+                        diagnostics["candidate_simulation_n5_input_selected_ref"]
+                    )
+                    with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
+                        input_record = CandidateSimulationN5InputV5.model_validate(
+                            canon.from_canonical_bytes(
+                                service._artifact_store.get_bytes(input_ref)
+                            )
+                        )
+                        result_ref = cycle.simulation.simulation_result_ref
+                        assert result_ref is not None
+                        result = load_joint_simulation_result(
+                            result_ref,
+                            store=service._artifact_store,
+                        )
+                    assert result.atom_ids == (
+                        input_record.materialization.derived_n5_atom.intervention_id,
+                    )
+                    assert result.selected_outcomes == (input_record.outcome_variable,)
+                    compiled_payload: dict[str, object] = {
+                        "schema_version": COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+                        "design_problem_ref": gy_content_hash(
+                            problem.model_dump(mode="json")
+                        ),
+                        "design_problem": problem.model_dump(mode="json"),
+                        "cycle_substrate_context_ref": handoff.context.content_hash,
+                        "recursive_run": recursive_run.model_dump(
+                            mode="json",
+                            exclude={"leaf_nodes"},
+                        ),
+                    }
+                    compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+                        {
+                            **compiled_payload,
+                            "recursive_run": recursive_run,
+                            "content_hash": gy_content_hash(compiled_payload),
+                        }
+                    )
+                    compiled_ref = service._put_json_artifact_ref(
+                        compiled.model_dump(mode="json"),
+                        kind="runtime.compiled_recursive_generation_cycle",
+                        schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
+                    )
+                    # Persist the exact current leaf cycle run through the canonical
+                    # normative-source bridge. This exercises source-byte custody
+                    # only; it emits no schedule, authorization, or ranking.
+                    source_bindings = _normative_generation_sources(
+                        service._artifact_store,
+                        str(compiled_ref.artifact_id),
+                        persist=True,
+                        compiled_artifact_ref=compiled_ref,
+                    )
+                    assert set(source_bindings) == {leaf.node_ref}
+                    source_binding = source_bindings[leaf.node_ref]
+                    assert source_binding.compiled_run_ref == str(compiled_ref.artifact_id)
+                    assert source_binding.node_ref == leaf.node_ref
+                    assert leaf.cycle_run.schema_version == (
+                        "policyos.runtime.generation_cycle_controller.v5"
+                    )
+                    source_ref = ArtifactRef.model_validate(source_binding.source_run_ref)
+                    with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
+                        source_raw = service._artifact_store.get_bytes(source_ref)
+                        source_manifest = service._artifact_store.get_manifest(source_ref)
+                    source_payload = canon.from_canonical_bytes(source_raw)
+                    assert isinstance(source_payload, dict)
+                    assert source_manifest.kind == NORMATIVE_GENERATION_SOURCE_KIND
+                    assert source_manifest.artifact_schema is not None
+                    assert source_manifest.artifact_schema.name == NORMATIVE_GENERATION_SOURCE_KIND
+                    assert source_manifest.artifact_schema.version == leaf.cycle_run.schema_version
+                    assert source_payload == leaf.cycle_run.model_dump(mode="json")
+    
+                    # The existing owner reader uses the current schema sentinel,
+                    # validates the manifest and replays the persisted history. It
+                    # remains a read-only inspection here, with no authority output.
+                    normative_owner = NormativeValueScheduleOwner(
+                        store=service._artifact_store
+                    )
+                    owner_source_payload = normative_owner._read(
+                        source_binding.source_run_ref,
+                        kind=NORMATIVE_GENERATION_SOURCE_KIND,
+                        schema=GENERATION_CYCLE_SCHEMA_VERSION,
+                    )
+                    assert owner_source_payload == source_payload
+                    assert not validate_generation_cycle_run_history(owner_source_payload)
+                    core_manifest_ref = service._publish_generation_run(
+                        job=job,
+                        payload={},
+                        execution_scope=scope,
+                        core_run_id=core_run_id,
+                        run_context=core_context,
+                        compiled_run_ref=compiled_ref,
+                    )
+                    progress: dict[str, Any] = {
+                        "state": "completed",
+                        "phase": "natural_language_run",
+                        "status": "manual_candidate_only_n5_recorded",
+                        "execution_band": "candidate",
+                        "candidate_computation_status": "completed",
+                        "execution_intent_band": "simulate_only",
+                        "run_id": job.run_id,
+                        "compiled_recursive_generation_cycle_ref": str(
+                            compiled_ref.artifact_id
+                        ),
+                        "compiled_recursive_generation_cycle_artifact_ref": (
+                            compiled_ref.model_dump(mode="json")
+                        ),
+                        "n5_status": cycle.simulation.status,
+                        "n8_status": cycle.value_port.status,
+                        "root_n9_status": "not_promoted",
+                        "publication_status": "not_run",
+                        **service._core_run_progress_fields(
+                            job=job,
+                            core_run_id=core_run_id,
+                            manifest_ref=core_manifest_ref,
+                        ),
+                    }
+                    service._control_store.complete_job(
+                        job_id=job.job_id,
+                        run_id=job.run_id,
+                        capability_manifest_ref=job.capability_manifest_ref,
+                        progress=progress,
+                    )
+                    compiled_refs[job.job_id] = compiled_ref
+                    produced_inputs[job.job_id] = input_record
+                    produced_results[job.job_id] = result
+                    produced_world_model_ids[job.job_id] = (
+                        handoff.context.world_model_record.world_model_record_id
+                    )
+                    produced_result_refs[job.job_id] = result_ref
+    
+            assert (
+&gt;               dispatch_one_control_job(
+                    store=service._control_store,
+                    handler=produce_manual_candidate_run_for_owned_job,
+                    expected_job_id=accepted["job_id"],
+                )
+                == accepted["job_id"]
+            )
+
+tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py:585: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/_helpers/control_worker.py:69: in dispatch_one_control_job
+    dispatched = worker.dispatch_once()
+                 ^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/services/control_worker.py:159: in dispatch_once
+    self._run_with_lease_heartbeat(job)
+src/polisyos/runtime/http/services/control_worker.py:253: in _run_with_lease_heartbeat
+    self._handler(job)
+tests/_helpers/control_worker.py:61: in dispatch_expected
+    handler(job)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+_snapshot = ControlJobRecord(job_id='958f9d4cead041d9903a483e4200a8d0', kind='natural_language_run', state='running', run_id='R_72..._plane_store', 'schema_version': 'policyos.evidence_spine_handoff.v1'}], 'phase': 'job_admission', 'state': 'pending'})
+
+    def produce_manual_candidate_run_for_owned_job(_snapshot: object) -&gt; None:
+        admission = service._control_store.current_execution_job_admission()
+        job = admission.job
+        scope = admission.scope
+        assert job.job_id == accepted["job_id"]
+        assert job.kind == "natural_language_run"
+        assert scope.status == "established"
+        assert (scope.tenant_id, scope.cell_id) == (TENANT_ID, CELL_ID)
+    
+        with service._install_execution_scope(scope):
+            payload = service._payload_for_execution_scope(
+                service._load_payload_ref(job.payload_ref),
+                job=job,
+                execution_scope=scope,
+            )
+            capability_manifest_ref, capability_manifest = (
+                service._resolve_capability_manifest_for_execution(
+                    job=job,
+                    admission=admission,
+                    execution_scope=scope,
+                )
+            )
+            execution_intent_binding = (
+                service._require_nl_job_execution_intent_binding(
+                    job=job,
+                    admission=admission,
+                    execution_scope=scope,
+                    payload=payload,
+                    capability_manifest_ref=capability_manifest_ref,
+                    capability_manifest=capability_manifest,
+                )
+            )
+            verified_nl_job_scope = execution_intent_binding.get(
+                "_verified_nl_job_scope"
+            )
+            assert type(verified_nl_job_scope) is VerifiedNLJobScope
+            assert verified_nl_job_scope._was_issued_by_verified_nl_execution_owner
+    
+            core_run_id, core_context = service._start_generation_run_context(
+                job=job,
+                execution_scope=scope,
+            )
+            context_owner = CycleSubstrateContextArtifactOwner(
+                store=service._artifact_store,
+                control_store=service._control_store,
+            )
+            offer = admission_owner.admit_context(
+                problem=problem,
+                job_id=job.job_id,
+                run_id=str(job.run_id),
+                tenant_id=TENANT_ID,
+                cell_id=CELL_ID,
+            )
+            assert type(offer) is CandidateSimulationContextOffer
+            context_ref = context_owner.persist_for_current_job(
+                offer.context,
+                problem=problem,
+                verified_nl_job_scope=verified_nl_job_scope,
+            )
+            resolved_context = context_owner.resolve_for_current_job(
+                context_ref,
+                problem=problem,
+                verified_nl_job_scope=verified_nl_job_scope,
+            )
+            assert resolved_context.context == offer.context
+            handoff = CandidateSimulationContextHandoff(
+                context=resolved_context.context,
+                context_job_ref=context_ref,
+                profile=offer.profile,
+                profile_config_ref=offer.profile_config_ref,
+                job_id=job.job_id,
+                run_id=str(job.run_id),
+                tenant_id=TENANT_ID,
+                cell_id=CELL_ID,
+                model_declaration=offer.model_declaration,
+                model_declaration_ref=offer.model_declaration_ref,
+                ncm_ref=offer.ncm_ref,
+            )
+    
+            def current_owner_binding_is_exact() -&gt; bool:
+                try:
+                    current = service._control_store.current_execution_job_admission()
+                    current_context = context_owner.resolve_for_current_job(
+                        context_ref,
+                        problem=problem,
+                        verified_nl_job_scope=verified_nl_job_scope,
+                    )
+                    current_offer = admission_owner.admit_context(
+                        problem=problem,
+                        job_id=job.job_id,
+                        run_id=str(job.run_id),
+                        tenant_id=TENANT_ID,
+                        cell_id=CELL_ID,
+                    )
+                except (OSError, RuntimeError, TypeError, ValueError):
+                    return False
+                return (
+                    type(current_offer) is CandidateSimulationContextOffer
+                    and current.job.job_id == handoff.job_id
+                    and current.job.run_id == handoff.run_id
+                    and current.job.state == "running"
+                    and current.job.attempt == job.attempt
+                    and current.scope.status == "established"
+                    and (current.scope.tenant_id, current.scope.cell_id)
+                    == (handoff.tenant_id, handoff.cell_id)
+                    and current_context.context == handoff.context
+                    and current_offer.context == handoff.context
+                    and current_offer.profile == handoff.profile
+                    and current_offer.profile_config_ref == handoff.profile_config_ref
+                    and current_offer.model_declaration == handoff.model_declaration
+                    and current_offer.model_declaration_ref
+                    == handoff.model_declaration_ref
+                    and current_offer.ncm_ref == handoff.ncm_ref
+                )
+    
+            proposal = asyncio.run(
+                generate_design_candidate_proposal_under_a(
+                    problem,
+                    model_id=model_id,
+                    llm_client=n4_contract.RecordedGenerationReplayClient(
+                        controlled_recording
+                    ),
+                    repo_root=REPO_ROOT,
+                )
+            )
+            assert type(proposal) is N4CandidateProposalSource
+            proposal_run = N4CandidateScenarioProposalRun(
+                proposal=proposal,
+                l2_confidence_vintage=None,
+                k_ref_limitation_code="candidate_scenario_l2_not_consumed",
+            )
+            root_ref = (
+                "design-problem://"
+                + gy_content_hash(problem.model_dump(mode="json")).removeprefix("sha256:")
+            )
+            graph = derive_recursive_design_graph(
+                design_ref=root_ref,
+                module_refs=(),
+                parent_child_edges=(),
+                rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+            )
+    
+            def build_cycle_controller(node_ref: str, node_problem: object) -&gt; Any:
+                assert node_ref == root_ref
+                assert node_problem == problem
+    
+                def replay_recorded_proposal(
+                    replay_problem: object,
+                    *,
+                    cycle_index: int,
+                ) -&gt; N4CandidateScenarioProposalRun:
+                    assert replay_problem == problem
+                    assert cycle_index == 0
+                    return proposal_run
+    
+                return GenerationCycleController(
+                    generation_port=replay_recorded_proposal,
+                    repo_root=REPO_ROOT,
+                    artifact_store=service._artifact_store,
+                    cycle_substrate_context=handoff.context,
+                    candidate_simulation_handoff=handoff,
+                    candidate_simulation_currentness_resolver=(
+                        current_owner_binding_is_exact
+                    ),
+                    promotion_runtime=service._promotion_runtime,
+                    eval_safety_verifier=(
+                        service._evaluation_safety_admission_verifier
+                    ),
+                )
+    
+            recursive_controller = (
+                RecursiveGenerationCycleController.for_contract_testing(
+                    cycle_controller_factory=build_cycle_controller,
+                    repo_root=REPO_ROOT,
+                    artifact_store=service._artifact_store,
+                )
+            )
+            recursive_run = asyncio.run(
+                recursive_controller.run(
+                    graph,
+                    problems_by_node={root_ref: problem},
+                    budget_state=_bounded_budget("1.0"),
+                    recursive_budget=RecursiveCycleBudget(
+                        max_depth=0,
+                        max_nodes=1,
+                        min_cycles_per_leaf=1,
+                        max_cycles_per_leaf=1,
+                    ),
+                    cycle_substrate_contexts_by_node={
+                        root_ref: handoff.context,
+                    },
+                    execution_intents_by_node={root_ref: "simulate_only"},
+                )
+            )
+            assert type(recursive_run) is RecursiveGenerationCycleRun
+            assert recursive_run.authority_scope == "contract_testing"
+            leaf = recursive_run.leaf_nodes[0]
+            assert leaf.cycle_run is not None
+            cycle = leaf.cycle_run.cycles[0]
+            assert cycle.simulation.status == "joint_simulated"
+            assert cycle.value_port.status == "value_conditional"
+            assert not leaf.cycle_run.promotion_port.receipts
+            assert not leaf.cycle_run.promotion_port.certified_candidate_ids
+            assert not any(
+                summary.certified_by_n9
+                for summary in leaf.cycle_run.candidate_summaries
+            )
+    
+            diagnostics = cycle.simulation.diagnostics
+            input_ref = ArtifactRef.model_validate(
+                diagnostics["candidate_simulation_n5_input_selected_ref"]
+            )
+            with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
+                input_record = CandidateSimulationN5InputV5.model_validate(
+                    canon.from_canonical_bytes(
+                        service._artifact_store.get_bytes(input_ref)
+                    )
+                )
+                result_ref = cycle.simulation.simulation_result_ref
+                assert result_ref is not None
+                result = load_joint_simulation_result(
+                    result_ref,
+                    store=service._artifact_store,
+                )
+            assert result.atom_ids == (
+                input_record.materialization.derived_n5_atom.intervention_id,
+            )
+            assert result.selected_outcomes == (input_record.outcome_variable,)
+            compiled_payload: dict[str, object] = {
+                "schema_version": COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+                "design_problem_ref": gy_content_hash(
+                    problem.model_dump(mode="json")
+                ),
+                "design_problem": problem.model_dump(mode="json"),
+                "cycle_substrate_context_ref": handoff.context.content_hash,
+                "recursive_run": recursive_run.model_dump(
+                    mode="json",
+                    exclude={"leaf_nodes"},
+                ),
+            }
+            compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+                {
+                    **compiled_payload,
+                    "recursive_run": recursive_run,
+                    "content_hash": gy_content_hash(compiled_payload),
+                }
+            )
+            compiled_ref = service._put_json_artifact_ref(
+                compiled.model_dump(mode="json"),
+                kind="runtime.compiled_recursive_generation_cycle",
+                schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
+            )
+            # Persist the exact current leaf cycle run through the canonical
+            # normative-source bridge. This exercises source-byte custody
+            # only; it emits no schedule, authorization, or ranking.
+            source_bindings = _normative_generation_sources(
+                service._artifact_store,
+                str(compiled_ref.artifact_id),
+                persist=True,
+                compiled_artifact_ref=compiled_ref,
+            )
+            assert set(source_bindings) == {leaf.node_ref}
+            source_binding = source_bindings[leaf.node_ref]
+            assert source_binding.compiled_run_ref == str(compiled_ref.artifact_id)
+            assert source_binding.node_ref == leaf.node_ref
+            assert leaf.cycle_run.schema_version == (
+                "policyos.runtime.generation_cycle_controller.v5"
+            )
+&gt;           source_ref = ArtifactRef.model_validate(source_binding.source_run_ref)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           pydantic_core._pydantic_core.ValidationError: 1 validation error for ArtifactRef
+E             Input should be a valid dictionary or instance of ArtifactRef [type=model_type, input_value='sha256:684b3eb7eb48ee1b1...64b1e7d12eecbbb81c88519', input_type=str]
+E               For further information visit https://errors.pydantic.dev/2.12/v/model_type
+
+tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py:513: ValidationError</failure></testcase></testsuite></testsuites>

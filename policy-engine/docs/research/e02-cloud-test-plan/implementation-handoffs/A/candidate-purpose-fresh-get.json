@@ -1,0 +1,633 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "candidate-purpose-fresh-get",
+  "finding_ids": [
+    "B10",
+    "B18"
+  ],
+  "closure_ids": [],
+  "bundle_ids": [
+    "CYC-04",
+    "SIM-02"
+  ],
+  "slice_base_sha": "178aae968e6e4c699245cbfe74310be3633d4c20",
+  "slice_base_tree_sha": "5e9b2b9a25ea63ea2b6b6aeece1a43d9b706adae",
+  "implementation_commits": [
+    "d67630dadc2196468db319fdf1f25d5ebe4908d5",
+    "1d5195729b0df5c17d8520c76021eb23c41eb87b"
+  ],
+  "candidate_sha": "8856ca1ea29bbbea62d07d346e2ceb2a6fda2787",
+  "candidate_tree_sha": "4a4d6fd4c7625bce130390018f0333297e7d6a60",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+    "policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+    "policy-engine/tests/unit/runtime/quality/test_e02_interaction_history_epoch.py",
+    "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+    "policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py"
+  ],
+  "baseline_cells": [
+    "F01-P016",
+    "F01-P066",
+    "F04-P102",
+    "F05-P089",
+    "F06-P031",
+    "F07-P060",
+    "F09-P024",
+    "F09-P103",
+    "F11-P072",
+    "F12-P023",
+    "F13-P078",
+    "F13-P117",
+    "F15-P021"
+  ],
+  "checks": [
+    {
+      "check_id": "interaction-history-and-fresh-get-be29",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/interaction-history-and-fresh-GET-be29/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/interaction-history-and-fresh-GET-be29/pytest-basetemp tests/unit/runtime/quality/test_e02_interaction_history_epoch.py tests/unit/runtime/quality/test_generation_cycle_history.py::test_v5_history_preserves_typed_conditional_interaction_evidence tests/unit/runtime/quality/test_generation_cycle_history.py::test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph tests/unit/runtime/quality/test_generation_cycle_history.py::test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly tests/unit/remediation/test_emp_01.py::test_default_cycle_preserves_simulation_only_result_and_history tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get tests/unit/runtime/quality/test_generation_cycle.py::test_default_production_n7_without_runtime_store_keeps_typed_limit",
+      "target_sha": "be29c75bfb6134969b704d93bc0cdab56fd91f74",
+      "environment": {
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/interaction-history-and-fresh-GET-be29:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        }
+      },
+      "input_closure": {
+        "selected_test_inputs": [
+          {
+            "selector": "tests/unit/runtime/quality/test_e02_interaction_history_epoch.py::test_actual_default_n5_n8_interaction_history_is_versioned_and_replayable",
+            "path": "policy-engine/tests/unit/runtime/quality/test_e02_interaction_history_epoch.py",
+            "git_blob_at_target": "e46c0c1dd13048caeb9ae31d176e636dcc38d611"
+          },
+          {
+            "selector": "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v5_history_preserves_typed_conditional_interaction_evidence",
+            "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py",
+            "git_blob_at_target": "119ddd754f452474eb786b8bd220c2ccc87fa760"
+          },
+          {
+            "selector": "tests/unit/runtime/quality/test_generation_cycle_history.py::test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph",
+            "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py",
+            "git_blob_at_target": "119ddd754f452474eb786b8bd220c2ccc87fa760"
+          },
+          {
+            "selector": "tests/unit/runtime/quality/test_generation_cycle_history.py::test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly",
+            "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py",
+            "git_blob_at_target": "119ddd754f452474eb786b8bd220c2ccc87fa760"
+          },
+          {
+            "selector": "tests/unit/remediation/test_emp_01.py::test_default_cycle_preserves_simulation_only_result_and_history",
+            "path": "policy-engine/tests/unit/remediation/test_emp_01.py",
+            "git_blob_at_target": "b60ef0cdd5edee272adca6e5faf4ee94ae9ce3ab"
+          },
+          {
+            "selector": "tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get",
+            "path": "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+            "git_blob_at_target": "13d0a0150b6a05f2a2aaedd4ecb579b392cba2a9"
+          },
+          {
+            "selector": "tests/unit/runtime/quality/test_generation_cycle.py::test_default_production_n7_without_runtime_store_keeps_typed_limit",
+            "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+            "git_blob_at_target": "9c884687260c580bb2820f10685fff31eb6e7fb8"
+          }
+        ],
+        "runtime_source_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob_at_target": "f07a836f2dcb38971bf28e18ae0fd477662a009e"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+            "git_blob_at_target": "1e735f2322a1f15fc8cb6a439d8231b2dc19c898"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+            "git_blob_at_target": "8342187ff3948200fc2515757dad14a1fdf00a4d"
+          }
+        ],
+        "current_candidate_comparison": {
+          "candidate_sha": "ca8503e8836ca76a132e8eea15b47045b53d8388",
+          "candidate_tree_sha": "7196f9905589968fb149ba008796a74bd58919b4",
+          "method": "git rev-parse <candidate>:<path> for the selected manual GET test and three runtime source paths",
+          "equal_paths": [
+            {
+              "path": "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+              "git_blob_at_be29": "13d0a0150b6a05f2a2aaedd4ecb579b392cba2a9",
+              "git_blob_at_ca8503": "13d0a0150b6a05f2a2aaedd4ecb579b392cba2a9"
+            },
+            {
+              "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+              "git_blob_at_be29": "f07a836f2dcb38971bf28e18ae0fd477662a009e",
+              "git_blob_at_ca8503": "f07a836f2dcb38971bf28e18ae0fd477662a009e"
+            },
+            {
+              "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+              "git_blob_at_be29": "1e735f2322a1f15fc8cb6a439d8231b2dc19c898",
+              "git_blob_at_ca8503": "1e735f2322a1f15fc8cb6a439d8231b2dc19c898"
+            },
+            {
+              "path": "policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+              "git_blob_at_be29": "8342187ff3948200fc2515757dad14a1fdf00a4d",
+              "git_blob_at_ca8503": "8342187ff3948200fc2515757dad14a1fdf00a4d"
+            }
+          ],
+          "scope_note": "The exercised manual selector and runtime source files are byte-identical at ca8503; the be29 aggregate run remains bound to be29 and does not establish a full ca850 suite."
+        }
+      },
+      "outcome": "FAIL",
+      "property_result": "Manual fresh GET and foreign-run refusal case PASS; seven-case batch FAIL from unrelated epoch-version assertion.",
+      "output": {
+        "details_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/candidate-purpose-checks.json#/checks/7",
+        "summary": "pytest exit=1; JUnit 6/7 passed, 1 failed, 0 errors, 0 skipped; runner wall_s=31.787570540967863."
+      }
+    },
+    {
+      "check_id": "latest-candidate-negative-environment-limiter",
+      "command": "UNRUN: root-designated negative environment-limiter check; exact selector and invocation have not been supplied.",
+      "target_sha": "ca8503e8836ca76a132e8eea15b47045b53d8388",
+      "environment": {
+        "status": "not_established; no execution at this target",
+        "cwd": "not established",
+        "python": "not established",
+        "variables": {}
+      },
+      "input_closure": {
+        "slice_base": {
+          "commit": "178aae968e6e4c699245cbfe74310be3633d4c20",
+          "tree": "5e9b2b9a25ea63ea2b6b6aeece1a43d9b706adae"
+        },
+        "test_target": {
+          "commit": "ca8503e8836ca76a132e8eea15b47045b53d8388",
+          "tree": "7196f9905589968fb149ba008796a74bd58919b4"
+        },
+        "selected_test_inputs": [],
+        "runtime_source_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob_at_target": "f07a836f2dcb38971bf28e18ae0fd477662a009e"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+            "git_blob_at_target": "1e735f2322a1f15fc8cb6a439d8231b2dc19c898"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+            "git_blob_at_target": "8342187ff3948200fc2515757dad14a1fdf00a4d"
+          }
+        ],
+        "scope": "Negative candidate-simulation environment-limiter property requested by root; selector and invocation are not yet available, so no test target or result is inferred."
+      },
+      "outcome": "UNRUN",
+      "output": {
+        "details_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/candidate-purpose-checks.json#/checks/8",
+        "status": "not produced",
+        "owner": "root"
+      }
+    },
+    {
+      "check_id": "interaction-epoch-and-normative-get-c8639-2f",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/interaction-epoch-and-normative-GET-final/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/interaction-epoch-and-normative-GET-final/pytest-basetemp tests/unit/runtime/quality/test_e02_interaction_history_epoch.py::test_actual_default_n5_n8_interaction_history_is_versioned_and_replayable tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get",
+      "target_sha": "c8639fb4a4161bef6a692103c44a65ded0c49195",
+      "environment": {
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/interaction-epoch-and-normative-GET-final:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        }
+      },
+      "input_closure": {
+        "selected_test_inputs": [
+          {
+            "selector": "tests/unit/runtime/quality/test_e02_interaction_history_epoch.py::test_actual_default_n5_n8_interaction_history_is_versioned_and_replayable",
+            "path": "policy-engine/tests/unit/runtime/quality/test_e02_interaction_history_epoch.py",
+            "git_blob_at_target": "c6b70998d1a827961dbc8e682b0fe6b8f507c5b1"
+          },
+          {
+            "selector": "tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get",
+            "path": "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+            "git_blob_at_target": "e1b90f80f8160cdb54743790f76a80c3bc9b1b62"
+          }
+        ],
+        "runtime_source_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob_at_target": "f07a836f2dcb38971bf28e18ae0fd477662a009e"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+            "git_blob_at_target": "1e735f2322a1f15fc8cb6a439d8231b2dc19c898"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+            "git_blob_at_target": "8342187ff3948200fc2515757dad14a1fdf00a4d"
+          }
+        ]
+      },
+      "outcome": "FAIL",
+      "property_result": "Both selected tests failed at their recorded test assertion/conversion points; no source failure attribution.",
+      "output": {
+        "details_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/candidate-purpose-checks.json#/checks/9",
+        "summary": "pytest exit=1; JUnit 0/2 passed, 2 failed, 0 errors, 0 skipped; runner wall_s=23.788292167009786."
+      }
+    },
+    {
+      "check_id": "interaction-epoch-normative-get-corrected-8856",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/interaction-epoch-normative-GET-corrected/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/interaction-epoch-normative-GET-corrected/pytest-basetemp tests/unit/runtime/quality/test_e02_interaction_history_epoch.py::test_actual_default_n5_n8_interaction_history_is_versioned_and_replayable tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get",
+      "target_sha": "8856ca1ea29bbbea62d07d346e2ceb2a6fda2787",
+      "environment": {
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/interaction-epoch-normative-GET-corrected:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        }
+      },
+      "input_closure": {
+        "selected_test_inputs": [
+          {
+            "selector": "tests/unit/runtime/quality/test_e02_interaction_history_epoch.py::test_actual_default_n5_n8_interaction_history_is_versioned_and_replayable",
+            "path": "policy-engine/tests/unit/runtime/quality/test_e02_interaction_history_epoch.py",
+            "git_blob_at_target": "7f4fd20890d2fc351b7ced8bd79c654792871c38"
+          },
+          {
+            "selector": "tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get",
+            "path": "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+            "git_blob_at_target": "d8e7d575224bd54f547eb01387865246005bf9c0"
+          }
+        ],
+        "runtime_source_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob_at_target": "f07a836f2dcb38971bf28e18ae0fd477662a009e"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+            "git_blob_at_target": "1e735f2322a1f15fc8cb6a439d8231b2dc19c898"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+            "git_blob_at_target": "8342187ff3948200fc2515757dad14a1fdf00a4d"
+          }
+        ]
+      },
+      "outcome": "PASS",
+      "property_result": "Separate two-case epoch/normative GET run passed.",
+      "output": {
+        "details_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/candidate-purpose-checks.json#/checks/10",
+        "summary": "pytest exit=0; JUnit 2/2 passed, 0 failed, 0 errors, 0 skipped; runner wall_s=25.76028316700831.",
+        "canonical_evidence_folder": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/interaction-epoch-normative-GET-corrected-8856"
+      }
+    },
+    {
+      "check_id": "candidate-purpose-removal-fresh-get-8856",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/candidate-purpose-removal-fresh-GET-8856/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/candidate-purpose-removal-fresh-GET-8856/pytest-basetemp tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get",
+      "target_sha": "8856ca1ea29bbbea62d07d346e2ceb2a6fda2787",
+      "environment": {
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/candidate-purpose-removal-fresh-GET-8856:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_environment": {
+          "POLISYOS_E02_CANDIDATE_LIMITER_REMOVAL": "1"
+        }
+      },
+      "input_closure": {
+        "selected_test_inputs": [
+          {
+            "selector": "tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get",
+            "path": "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+            "git_blob_at_target": "d8e7d575224bd54f547eb01387865246005bf9c0"
+          }
+        ],
+        "runtime_source_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob_at_target": "f07a836f2dcb38971bf28e18ae0fd477662a009e"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+            "git_blob_at_target": "1e735f2322a1f15fc8cb6a439d8231b2dc19c898"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+            "git_blob_at_target": "8342187ff3948200fc2515757dad14a1fdf00a4d"
+          }
+        ],
+        "probe_semantics": "The consumer removes only the N5 candidate-scenario limiter while holding the rest of the fixture input constant; the fresh GET is expected to be blocked with no conditional evidence and no additional N8 call."
+      },
+      "outcome": "PASS",
+      "property_result": "Separate one-case fail-closed negative passes: blocked fresh GET, no evidence, no additional N8 call.",
+      "output": {
+        "details_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/candidate-purpose-checks.json#/checks/11",
+        "summary": "pytest exit=0; JUnit 1/1 passed, 0 failed, 0 errors, 0 skipped; runner wall_s=21.217098833003547.",
+        "canonical_evidence_folder": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/candidate-purpose-removal-fresh-GET-8856"
+      }
+    }
+  ],
+  "check_catalogue_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/candidate-purpose-checks.json#/checks",
+  "source_history": {
+    "purpose_retention_commit": "d67630dadc2196468db319fdf1f25d5ebe4908d5",
+    "limiter_actual_consumption_commit": "1d5195729b0df5c17d8520c76021eb23c41eb87b",
+    "latest_candidate_epoch_commits": [
+      "6f35cc556be70d84851eb3ac0c5600326ba5a692",
+      "be29c75bfb6134969b704d93bc0cdab56fd91f74"
+    ],
+    "test_commits": [
+      "0fbcc3859d4295ad1561d579ba8cec5c1c135960",
+      "98bfc195b94f42ff05ed23ae8088da9e0118552b",
+      "c33103ec3487c2f8d5681811ade85b8ba071804a",
+      "178aae968e6e4c699245cbfe74310be3633d4c20",
+      "3ecc512c12f0f6209d02d7647409cd3973ad5001",
+      "8f2a0dcc28da58d9707cc07b485531fc9488e8c6",
+      "b99af11b0c6cf7ae12c35e81cd7fb18e05bfb4a8",
+      "a12322de1656c8cd1e86676da2fa867fb053694f",
+      "7f28de050adebd83ddfe3b75453caec9f3e6efc8",
+      "cbb94d82dd95b35907aba47c9acf41870a2c2007",
+      "be29c75bfb6134969b704d93bc0cdab56fd91f74",
+      "ca8503e8836ca76a132e8eea15b47045b53d8388",
+      "c8639fb4a4161bef6a692103c44a65ded0c49195",
+      "8856ca1ea29bbbea62d07d346e2ceb2a6fda2787"
+    ],
+    "invalid_supplied_pin": "0fbc98bfcc331178a3ecc8f2a7f28a123 is not a local Git object; the related valid baseline manual fresh-GET test commit is 0fbcc3859d4295ad1561d579ba8cec5c1c135960.",
+    "tested_source_boundary": "The BE29 seven-case run was 6/7: its earlier manual GET test blob 13d0a015\u2026 passed, including the fresh GET readback, and the separate epoch-version assertion failed. c8639 changed the selected tests to add the normative witness; its 2-case run failed at the epoch empty-cycles frozen-vs-expanded assertion and ArtifactRef.model_validate(string), while production-source blobs remained unchanged. The corrected 8856 test blobs then passed the two-case epoch/normative GET run. A separate 8856 removal run passed the blocked/no-evidence/no-extra-N8 negative. The positive and negative JUnit counts are recorded separately. The previous ca8503 ENV-limiter UNRUN row remains unchanged.",
+    "purpose_retention_commit_relation_to_slice_base": "d67630dadc2196468db319fdf1f25d5ebe4908d5 follows the 178a slice base and adds purpose retention; 1d5195729b0df5c17d8520c76021eb23c41eb87b is the later actual-consumption limiter change.",
+    "source_blob_refs": {
+      "slice_base_generation_cycle": {
+        "commit": "178aae968e6e4c699245cbfe74310be3633d4c20",
+        "git_blob": "1759e1578eca6a4d70f4d5429035f08077c7062e"
+      },
+      "purpose_retention_generation_cycle": {
+        "commit": "d67630dadc2196468db319fdf1f25d5ebe4908d5",
+        "git_blob": "227b02631b145eb60c9a13b3122e225ed9638a1e"
+      },
+      "actual_consumption_limiter_generation_cycle": {
+        "commit": "1d5195729b0df5c17d8520c76021eb23c41eb87b",
+        "git_blob": "792ffef321b73daf6182c57db92ccebcc5eb0fe5"
+      },
+      "current_generation_cycle": {
+        "commit": "8856ca1ea29bbbea62d07d346e2ceb2a6fda2787",
+        "git_blob": "f07a836f2dcb38971bf28e18ae0fd477662a009e"
+      },
+      "current_http_generation_cycle": {
+        "commit": "8856ca1ea29bbbea62d07d346e2ceb2a6fda2787",
+        "git_blob": "1e735f2322a1f15fc8cb6a439d8231b2dc19c898"
+      },
+      "current_history_schema": {
+        "commit": "8856ca1ea29bbbea62d07d346e2ceb2a6fda2787",
+        "git_blob": "8342187ff3948200fc2515757dad14a1fdf00a4d"
+      }
+    },
+    "latest_candidate_test_only_commit": "8856ca1ea29bbbea62d07d346e2ceb2a6fda2787",
+    "relevant_manual_get_inputs_at_ca8503": {
+      "candidate_sha": "ca8503e8836ca76a132e8eea15b47045b53d8388",
+      "candidate_tree_sha": "7196f9905589968fb149ba008796a74bd58919b4",
+      "method": "git rev-parse <candidate>:<path> for the selected manual GET test and three runtime source paths",
+      "equal_paths": [
+        {
+          "path": "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+          "git_blob_at_be29": "13d0a0150b6a05f2a2aaedd4ecb579b392cba2a9",
+          "git_blob_at_ca8503": "13d0a0150b6a05f2a2aaedd4ecb579b392cba2a9"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "git_blob_at_be29": "f07a836f2dcb38971bf28e18ae0fd477662a009e",
+          "git_blob_at_ca8503": "f07a836f2dcb38971bf28e18ae0fd477662a009e"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+          "git_blob_at_be29": "1e735f2322a1f15fc8cb6a439d8231b2dc19c898",
+          "git_blob_at_ca8503": "1e735f2322a1f15fc8cb6a439d8231b2dc19c898"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+          "git_blob_at_be29": "8342187ff3948200fc2515757dad14a1fdf00a4d",
+          "git_blob_at_ca8503": "8342187ff3948200fc2515757dad14a1fdf00a4d"
+        }
+      ],
+      "scope_note": "The exercised manual selector and runtime source files are byte-identical at ca8503; the be29 aggregate run remains bound to be29 and does not establish a full ca850 suite."
+    },
+    "relevant_manual_get_inputs_at_latest_candidate": {
+      "method": "git rev-parse <commit>:<path>",
+      "test_blobs": [
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_e02_interaction_history_epoch.py",
+          "be29": "e46c0c1dd13048caeb9ae31d176e636dcc38d611",
+          "c8639": "c6b70998d1a827961dbc8e682b0fe6b8f507c5b1",
+          "8856": "7f4fd20890d2fc351b7ced8bd79c654792871c38"
+        },
+        {
+          "path": "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+          "be29": "13d0a0150b6a05f2a2aaedd4ecb579b392cba2a9",
+          "c8639": "e1b90f80f8160cdb54743790f76a80c3bc9b1b62",
+          "8856": "d8e7d575224bd54f547eb01387865246005bf9c0"
+        }
+      ],
+      "runtime_blobs": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "be29": "f07a836f2dcb38971bf28e18ae0fd477662a009e",
+          "c8639": "f07a836f2dcb38971bf28e18ae0fd477662a009e",
+          "8856": "f07a836f2dcb38971bf28e18ae0fd477662a009e"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+          "be29": "1e735f2322a1f15fc8cb6a439d8231b2dc19c898",
+          "c8639": "1e735f2322a1f15fc8cb6a439d8231b2dc19c898",
+          "8856": "1e735f2322a1f15fc8cb6a439d8231b2dc19c898"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+          "be29": "8342187ff3948200fc2515757dad14a1fdf00a4d",
+          "c8639": "8342187ff3948200fc2515757dad14a1fdf00a4d",
+          "8856": "8342187ff3948200fc2515757dad14a1fdf00a4d"
+        }
+      ],
+      "interpretation": "Runtime-source blobs are unchanged across these targets. The manual test changed after be29 to add the normative witness, then 8856 corrected the ArtifactID parsing and wire assertion; the be29 PASS applies only to its earlier test blob."
+    },
+    "c8639_failure_run": {
+      "target_sha": "c8639fb4a4161bef6a692103c44a65ded0c49195",
+      "target_tree_sha": "4608bc9199124338224295c59ba75e4c6f98aa69",
+      "summary": "2/2 failed at test assertions/conversion; production-source attribution not established.",
+      "raw_receipt_ref": {
+        "path": "policy-engine/_build/e02-A-continuation-20261007/interaction-epoch-and-normative-GET-final/receipt.json",
+        "sha256": "e6f3a61a1a0406cba8d809e29631b103c659f30b490c43db3bb3b9082d86b7a5",
+        "bytes": 10485
+      },
+      "raw_stdout_ref": {
+        "path": "policy-engine/_build/e02-A-continuation-20261007/interaction-epoch-and-normative-GET-final/stdout.txt",
+        "sha256": "3dc169c83485b1636a0b6e5a2eb67c5a6466865e1bae063588943359a1ca31bb",
+        "bytes": 106731
+      },
+      "raw_junit_ref": {
+        "path": "policy-engine/_build/e02-A-continuation-20261007/interaction-epoch-and-normative-GET-final/junit.xml",
+        "sha256": "5e3e908764dd6f4b99f9d0d10498e000d7fd5144f00dc4e2536c5cf9a0502839",
+        "bytes": 54912
+      },
+      "classification": "Raw two-case failure retained by path+SHA only; not copied or attributed to production source. The canonical output-copy for the current 8856 positive run belongs to public_ir."
+    },
+    "8856_positive_run": {
+      "target_sha": "8856ca1ea29bbbea62d07d346e2ceb2a6fda2787",
+      "target_tree_sha": "4a4d6fd4c7625bce130390018f0333297e7d6a60",
+      "check_ref": "policyos.e02.candidate_purpose_checks.v1#/checks/10",
+      "canonical_evidence_folder": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/interaction-epoch-normative-GET-corrected-8856"
+    },
+    "8856_removal_run": {
+      "target_sha": "8856ca1ea29bbbea62d07d346e2ceb2a6fda2787",
+      "target_tree_sha": "4a4d6fd4c7625bce130390018f0333297e7d6a60",
+      "check_ref": "policyos.e02.candidate_purpose_checks.v1#/checks/11",
+      "canonical_evidence_folder": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/candidate-purpose-removal-fresh-GET-8856"
+    }
+  },
+  "property": {
+    "statement": "For N5, retain the admitted candidate-simulation purpose as a scenario-only observation only when the candidate input record was actually consumed. Persisted interaction/history evidence must be observable through a fresh RunDetails GET without promoting candidate-scenario output into policy authority.",
+    "runtime_path": [
+      "JointSimulationPort validates/consumes the candidate simulation input and records candidate_scenario_n5_only only on the consumed-input path.",
+      "The SimulationPortObservation and interaction history are persisted through the generation-cycle owner/CAS history path.",
+      "A fresh RunDetails HTTP GET reads the persisted run projection and asserts candidate/value/horizon observations."
+    ],
+    "proxy_divergence": "The presence of candidate_simulation_input is a proxy for actual consumption: a prepared N5 invocation can carry a candidate input while not consuming it. The a123 prepared-input test passed and distinguishes this case; the 1d519 implementation records the blocker only when candidate_input_consumed is true. The purpose marker is provenance/status, not authority.",
+    "negative_controls": [
+      "Prepared/unconsumed-input negative passed in the earlier a123 run and was not repeated at 8856.",
+      "The earlier be29 manual GET passed with its older test blob; c8639 added the normative witness, and the corrected 8856 test passed.",
+      "The 8856 negative sets POLISYOS_E02_CANDIDATE_LIMITER_REMOVAL=1; only the limiter is removed, and the fresh GET is blocked with no evidence and no extra N8 call.",
+      "Positive and negative tests are independent runs; their test counts are not combined."
+    ],
+    "authority_boundary": "Numerical execution and persisted scenario purpose do not establish N8 action permission, normative authority, publication authority, or a verified real-world effect."
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "limited",
+  "limitations_and_next_owner": [
+    "The 8856 positive two-case run and one-case limiter-removal negative are fixture-backed and establish only this bounded behavior.",
+    "The c8639 2/2 failures remain recorded as historical test outcomes; 8856 corrected test inputs, while the production-source blobs stayed unchanged. No source-level cause is attributed.",
+    "The previous ca8503 ENV-limiter UNRUN record remains preserved; the 8856 negative execution is appended as a separate PASS.",
+    "B10/CYC-04 remains broader than this slice: full applicability-before-VOI/top-k, first-infeasible/second-executable direct-engine oracle, typed retained rejection, shared budget, diversity, and all-infeasible behavior are not adjudicated here.",
+    "B18/SIM-02 remains broader than the selected malformed-NCM CAS control: absent numeric output versus valid zero, all engine output shapes, atom conflicts/permutation, and trajectory coverage are not adjudicated here.",
+    "The B18 N6 CAS case passed in the 814a and a123 batches, but that one control is not B18 closure.",
+    "The two partial-fresh-get-* runs target recursive-checkpoint readback and are distinct from candidate-purpose evidence."
+  ],
+  "finding_scope": {
+    "B10": "CYC-04 context. This report only covers purpose retention, prepared/unconsumed-input handling, and a bounded persisted-readback path; no full finding closure.",
+    "B18": "SIM-02 context. The malformed-NCM CAS history test is only a selected refusal-persistence control; it does not test the original missing-numeric-output-versus-zero criterion."
+  },
+  "pattern_pass": {
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P04",
+      "P05",
+      "P08",
+      "P10",
+      "P29",
+      "P37",
+      "P38",
+      "P41"
+    ],
+    "existing_anti_patterns_found": [
+      "The history keeps c8639 test failures distinct from corrected 8856 test-only passes.",
+      "A marker/presence proxy would mislabel prepared N5 inputs that were not consumed.",
+      "The removal probe exercises the actual consumer and persisted GET instead of treating the environment flag or marker as sufficient."
+    ],
+    "target_pattern": "Exercise producer-to-persisted-history-to-fresh-GET behavior with an unconsumed-input negative; distinguish scenario provenance from authority and bind each check to exact source/test commit and full output.",
+    "missing_capability_labels": [
+      "verification_missing for full B10 and B18 finding criteria"
+    ],
+    "acceptance_signal": "The bounded readback/removal predicates are recomputed by separate 8856 tests; results remain fixture-limited and establish no finding closure."
+  },
+  "evidence_refs": {
+    "checks": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/candidate-purpose-checks.json#/checks",
+    "existing_814a_evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-refusal-and-manual-fresh-GET-814a/",
+    "b10_baseline_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-applicability.json#/baseline_cells",
+    "b10_criterion": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-applicability.json#/source_criteria/0",
+    "b18_criterion": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SIM-02.md#B18"
+  },
+  "baseline_cell_scope_note": "Baseline IDs are carried from the existing B10/CYC-04 source handoff for context; this slice does not replay those historical cells.",
+  "check_catalogue_note": "Each JUnit run has its own recorded count. The c8639 2/2 FAIL remains historical, the prior ca8503 UNRUN row is unchanged, and the 8856 positive 2/2 and negative 1/1 PASS records are appended separately.",
+  "acceptance_signal": "Separate 8856 checks pass: the two-case positive epoch/normative GET and the one-case limiter-removal negative. The latter passes because the fresh GET is blocked without evidence or an extra N8 call. Capability remains limited to this fixture-backed behavior; no B10/B18 closure is claimed.",
+  "predicate_basis_detail": {
+    "property": "A candidate-scenario limiter is honored by the actual N5/consumer path; persisted interaction evidence is reconstructed by a fresh RunDetails GET, and removing only the limiter causes refusal.",
+    "basis": "The positive fixture performs the N5/owner/CAS/fresh-GET path and validates the persisted payload. The negative probe removes only the limiter, then observes blocked status, absent conditional evidence, and no extra N8 call through the same fresh GET consumer.",
+    "scope_limits": [
+      "Synthetic contract-testing fixture, not a production deployment.",
+      "Evidence remains conditional_simulation_only; unit/time/sampling bindings remain not_established.",
+      "Does not establish publication authority, N8 action permission, full B10/CYC-04, or B18/SIM-02 closure."
+    ],
+    "falsifier": "POLISYOS_E02_CANDIDATE_LIMITER_REMOVAL=1; the consumer and fresh GET remain active while only candidate_scenario_n5_only is removed."
+  },
+  "capability_state_detail": "The bounded 8856 N5 candidate-purpose/CAS/fresh-GET chain and its limiter-removal refusal passed in separate runs. c8639 records earlier test failures corrected by test-only changes; runtime-source blobs did not change. The fixture establishes no B10/B18 closure or publication authority.",
+  "snapshot_footprint": {
+    "candidate_diff_base": {
+      "commit": "178aae968e6e4c699245cbfe74310be3633d4c20",
+      "tree": "5e9b2b9a25ea63ea2b6b6aeece1a43d9b706adae"
+    },
+    "mechanism_paths_count": 8,
+    "mechanism_path_breakdown": {
+      "production_source_paths": 3,
+      "test_paths": 5
+    },
+    "mechanism_paths": [
+      "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+      "policy-engine/tests/unit/runtime/quality/test_e02_interaction_history_epoch.py",
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py"
+    ],
+    "mandatory_companion_documentation_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/candidate-purpose-fresh-get.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/candidate-purpose-checks.json"
+    ],
+    "evidence_retention": [
+      {
+        "run": "interaction-epoch-and-normative-get-c8639-2f",
+        "handling": "raw ignored output references only; no c8639 folder copy"
+      },
+      {
+        "run": "interaction-epoch-normative-get-corrected-8856",
+        "handling": "public_ir canonical copy; four output refs used, no duplicate copy"
+      },
+      {
+        "run": "candidate-purpose-removal-fresh-get-8856",
+        "handling": "six standard output files copied once by compiler_retirement"
+      }
+    ],
+    "accounting_note": "The eight source/test paths are the mechanism footprint. Mandatory handoff documents and evidence records are companions and are excluded from that count."
+  }
+,
+  "assembly_snapshot": {
+    "head_sha": "9aac0a7236de352df15e7bb38157d9eae069c720",
+    "tree_sha": "8125a6ddef06e3e9c974e67f494b6d463e86993d",
+    "kind": "docs-only assembly checkpoint",
+    "relation_to_tested_candidate": "This assembly checkpoint is later than the tested 8856 candidate. The tracked delta from 8856 is documentation/evidence only; policy-engine/src and policy-engine/tests have no diff. Test evidence remains bound to 8856 and is not attributed to this assembly checkpoint."
+  }
+}

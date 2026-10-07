@@ -1,0 +1,117 @@
+F......                                                                  [100%]
+=================================== FAILURES ===================================
+__ test_actual_default_n5_n8_interaction_history_is_versioned_and_replayable ___
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10ba9ac40>
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/interaction-history-and-fresh-GET-be29/pytest-basetemp/test_actual_default_n5_n8_inte0')
+
+    @pytest.mark.asyncio
+    async def test_actual_default_n5_n8_interaction_history_is_versioned_and_replayable(
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+    ) -> None:
+        """Persist real default N5 output without widening the frozen v3/v4 epochs."""
+    
+        problem_seed = _problem("e02_actual_interaction_history").model_copy(
+            update={"problem_statement": "Synthetic owner fixture; no policy claim."}
+        )
+        witness = _owner_program_graph_n5_witness(
+            tmp_path / "n5",
+            income_values=(1000.0, 2000.0),
+            problem_seed=problem_seed,
+        )
+        try:
+            outcome = witness.problem.outcome_of_interest.target_variable
+            connection = _install_synthetic_baseline_profile(
+                monkeypatch,
+                tmp_path,
+                outcome=outcome,
+                row_count=1,
+            )
+    
+            class _FixtureGenerationPort:
+                async def __call__(self, _problem: Any, *, cycle_index: int) -> Any:
+                    assert cycle_index == 0
+                    candidate = witness.candidate
+                    return SimpleNamespace(
+                        status="generated",
+                        candidates=(candidate,),
+                        surrogate_rankings=(
+                            SimpleNamespace(
+                                candidate_id=candidate.candidate_id,
+                                score=0.9,
+                                voi_estimate=10.0,
+                            ),
+                        ),
+                        grounding_dispositions=(),
+                    )
+    
+            class _FixtureGroundingPort:
+                def __call__(self, *, candidate: Any, **_kwargs: Any) -> Any:
+                    return generation.CandidateGroundingObservation(
+                        candidate_id=str(candidate.candidate_id),
+                        status="grounded_shadow",
+                        grounding_score=0.8,
+                        current_valid=False,
+                        grounding_source="cgf_firewall",
+                        grounding_disposition="synthetic_test_only",
+                        report_ref="synthetic-fixture://e02/grounding",
+                    )
+    
+            class _FixturePromotionPort:
+                def __call__(self, **_kwargs: Any) -> Any:
+                    return generation.PromotionPortObservation(
+                        status="not_promoted",
+                        reason="synthetic_e02_test_only",
+                    )
+    
+            controller = generation.GenerationCycleController(
+                generation_port=_FixtureGenerationPort(),
+                grounding_port=_FixtureGroundingPort(),
+                promotion_port=_FixturePromotionPort(),
+                repo_root=tmp_path,
+                cycle_substrate_context=witness.context,
+                artifact_store=witness.store,
+                authority_scope="contract_testing",
+            )
+            assert isinstance(controller._simulation_port, generation.JointSimulationPort)
+            assert isinstance(
+                controller._value_port,
+                generation._DefaultSimulationBoundFoundryValuePort,
+            )
+    
+            with tenant_scope(None, tenant_id="tenant-e02-history", cell_id="cell-e02-history"):
+                run = await controller.run(
+                    witness.problem,
+                    budget_state=BudgetState(
+                        limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+                    ),
+                    min_cycles=1,
+                    max_cycles=1,
+                )
+    
+>           assert run.schema_version == "policyos.runtime.generation_cycle_controller.v5"
+E           AssertionError: assert 'policyos.run...controller.v3' == 'policyos.run...controller.v5'
+E             
+E             Skipping 36 identical leading characters in diff, use -v to show
+E             - ntroller.v5
+E             ?           ^
+E             + ntroller.v3
+E             ?           ^
+
+tests/unit/runtime/quality/test_e02_interaction_history_epoch.py:119: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 00:28:09 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.adaptive_agent@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['adaptive-agent', 'builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-08 00:28:09 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.income_tax@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'tax'] version=1.0.0
+2026-10-08 00:28:09 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.labor_market@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'labor', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-08 00:28:09 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.queue@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'queue', 'runtime', 'structural'] version=1.0.0
+2026-10-08 00:28:09 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.tax_subsidy@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'subsidy'] version=1.0.0
+=============================== warnings summary ===============================
+tests/unit/runtime/quality/test_generation_cycle_history.py::test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly
+  tests/unit/runtime/quality/test_generation_cycle_history.py:530: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/quality/test_e02_interaction_history_epoch.py::test_actual_default_n5_n8_interaction_history_is_versioned_and_replayable
+1 failed, 6 passed, 1 warning in 27.60s

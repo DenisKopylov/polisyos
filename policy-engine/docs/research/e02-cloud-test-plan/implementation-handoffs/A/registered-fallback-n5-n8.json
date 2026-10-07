@@ -970,5 +970,31 @@
     "check_outcome": "PASS",
     "receipt_ref": "#/checks/2",
     "preserve_prior_outcomes": true
-  }
+  },
+  "closure_ids_semantics": "Scoped criterion IDs addressed by this packet; not a list of closed verdicts. Historical B06/B07 coverage is preserved.",
+  "current_root_finding_outcomes": {
+    "B06": "closed",
+    "B07": "limited"
+  },
+  "changed_paths_scope": "Top-level changed_paths describes the scoped implementation test; full historical snapshot and later one-path test slice are separately pinned.",
+  "historical_candidate_complete_diff_footprint": {
+    "base_sha": "b7ec8d8d8104c319d1396d2a95ceaff85d0aad03",
+    "candidate_sha": "4bea6beadcd86c34446ba0f8fd85aa65831bb1b6",
+    "candidate_tree_sha": "3cebd1c96cc6b4c2f877ae4ea2954076f44339bd",
+    "command": "git diff --no-renames --name-only b7ec8d8d8104c319d1396d2a95ceaff85d0aad03 4bea6beadcd86c34446ba0f8fd85aa65831bb1b6",
+    "paths": [
+      "policy-engine/tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_voi_artifact_projection.py",
+      "policy-engine/tests/unit/remediation/test_emp_01.py",
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py"
+    ],
+    "path_count": 4,
+    "file_type_denominator": {
+      ".py": 4
+    }
+  },
+  "documentation_companions": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/registered-fallback-n5-n8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json"
+  ]
 }

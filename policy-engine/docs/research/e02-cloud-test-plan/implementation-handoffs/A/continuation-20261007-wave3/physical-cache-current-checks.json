@@ -1,0 +1,566 @@
+{
+  "baseline_cells": [
+    {
+      "baseline_sha": "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f",
+      "baseline_tree_sha": "ba0f37a481beaa782166b88ef29e21ac48f5aa2c",
+      "cell_id": "previous bounded B23 closure",
+      "evidence_grade": "Prior adjudicated scope reference only; current 814a checks are separately preserved below.",
+      "reported_state": "CLOSED_ORIGINAL_BOUNDED_CRITERION",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/physical-cache.json:latest_frozen_recheck"
+    }
+  ],
+  "branch": "codex/e02-A-delivery-attached",
+  "bundle_ids": [
+    "SIM-03"
+  ],
+  "candidate_tree_sha": "441fd4a6c4eaee55a3b68ac6b08b4bf609284da3",
+  "capability_state_or_finding_state": "surface_out_of_scope",
+  "changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+    "policy-engine/tests/unit/remediation/test_sim_03.py"
+  ],
+  "checks": [
+    {
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B23-positive-current-814a/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B23-positive-current-814a/pytest-basetemp -p pytest_b23_input_provenance --showlocals tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request",
+      "environment": {
+        "JAX_PLATFORMS": "cpu",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B23-positive-current-814a:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "probe_environment": {}
+      },
+      "input_closure": {
+        "candidate_tree_sha": "441fd4a6c4eaee55a3b68ac6b08b4bf609284da3",
+        "plugin_load": "failed before pytest collection; no target test executed",
+        "target_selector": "tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request"
+      },
+      "name": "Initial positive attempt \u2014 plugin import harness error, excluded from behavioral evidence",
+      "outcome": "ERROR",
+      "output": {
+        "artifact_directory": "evidence/b23-physical-cache-current-814a/positive-plugin-import-error",
+        "files": {
+          "receipt": {
+            "bytes": 3670,
+            "path": "evidence/b23-physical-cache-current-814a/positive-plugin-import-error/receipt.json",
+            "sha256": "1e6731362c2643a2e1350d02e458efc957b892380bb3646406bdfc7e94cf8d71"
+          },
+          "stderr": {
+            "bytes": 4902,
+            "path": "evidence/b23-physical-cache-current-814a/positive-plugin-import-error/stderr.txt",
+            "sha256": "e53420b6905be4ca6f7c50a76c32a364f0a5b83e6595497d07fd2b4c0ae567b0"
+          },
+          "stdout": {
+            "bytes": 0,
+            "path": "evidence/b23-physical-cache-current-814a/positive-plugin-import-error/stdout.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        "junit_state": "not produced: pytest failed during plugin import before collection"
+      },
+      "target_sha": "814a9cbc1f93f0b6f7b86203d2347a4866d84b96"
+    },
+    {
+      "command": ".venv/bin/python -m pytest -p pytest_b23_input_provenance -o addopts= --import-mode=importlib --strict-markers -q --showlocals --junitxml=_build/e02-A-continuation-20261007/B23-positive-current-814a-v2/junit.xml --basetemp=_build/e02-A-continuation-20261007/B23-positive-current-814a-v2/pytest-basetemp tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "inherited_environment": {
+          "PYTHONPATH": "not captured in run_command.py receipts; wrapper copies inherited os.environ unchanged, so exact value is not established",
+          "other_inherited_variables": "not serialized by launcher"
+        },
+        "probe_environment": {
+          "POLISYOS_SIM03_PHYSICAL_IDENTITY_REMOVAL_PROBE": "unset"
+        },
+        "provenance_path": "policy-engine/_build/e02-A-continuation-20261007/B23-positive-current-814a-v2/input-provenance.json@sha256:5b2625035e146893ad33a5c3d9ac2d2302cd19b415f6bb68d59cfd51a4158cb8",
+        "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "thread_and_jax_variables_set_by_run_command_py": {
+          "JAX_PLATFORMS": "cpu",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "441fd4a6c4eaee55a3b68ac6b08b4bf609284da3",
+        "direct_input_count": 11,
+        "direct_source_inputs": [
+          "policy-engine/src/polisyos/foundry/coupling/estimation.py",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/__init__.py",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+          "policy-engine/src/polisyos/foundry/methods/selection/registry.py",
+          "policy-engine/src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+          "policy-engine/src/polisyos/runtime/quality/intervention_atom_binding.py",
+          "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "policy-engine/src/polisyos/runtime/quality/world_model_record.py",
+          "policy-engine/tests/unit/remediation/test_sim_03.py",
+          "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py"
+        ],
+        "target_selector": "tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request"
+      },
+      "name": "Fresh registered-NCM positive witness on frozen 814a source",
+      "outcome": "PASS",
+      "output": {
+        "artifact_directory": "evidence/b23-physical-cache-current-814a/positive",
+        "files": {
+          "junit": {
+            "bytes": 414,
+            "path": "evidence/b23-physical-cache-current-814a/positive/junit.xml",
+            "sha256": "39451f4edf756edd14bdcc4b5856542eaff6779c7e79d6244945b1749fa81898"
+          },
+          "receipt": {
+            "bytes": 4604,
+            "path": "evidence/b23-physical-cache-current-814a/positive/receipt.json",
+            "sha256": "8ba50c81e2c4aa12ab4e1c4100ce150d78cd73f7ee7f4ce4396c39b0eda09f5d"
+          },
+          "stderr": {
+            "bytes": 0,
+            "path": "evidence/b23-physical-cache-current-814a/positive/stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "bytes": 99,
+            "path": "evidence/b23-physical-cache-current-814a/positive/stdout.txt",
+            "sha256": "0a4e8763164bff4a981f9e042753891c0b3e1770ad5d771298db6bd445a98715"
+          }
+        },
+        "junit_state": "produced"
+      },
+      "target_sha": "814a9cbc1f93f0b6f7b86203d2347a4866d84b96"
+    },
+    {
+      "command": ".venv/bin/python -m pytest -p pytest_b23_input_provenance -o addopts= --import-mode=importlib --strict-markers -q --showlocals --junitxml=_build/e02-A-continuation-20261007/B23-seed-removal-current-814a/junit.xml --basetemp=_build/e02-A-continuation-20261007/B23-seed-removal-current-814a/pytest-basetemp tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "inherited_environment": {
+          "PYTHONPATH": "not captured in run_command.py receipts; wrapper copies inherited os.environ unchanged, so exact value is not established",
+          "other_inherited_variables": "not serialized by launcher"
+        },
+        "probe_environment": {
+          "POLISYOS_SIM03_PHYSICAL_IDENTITY_REMOVAL_PROBE": "seed"
+        },
+        "provenance_path": "policy-engine/_build/e02-A-continuation-20261007/B23-seed-removal-current-814a/input-provenance.json@sha256:8b8d4a48bfffbd21039ddbb91b82af030127e26c1fc483eda85f23880db81511",
+        "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "thread_and_jax_variables_set_by_run_command_py": {
+          "JAX_PLATFORMS": "cpu",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "441fd4a6c4eaee55a3b68ac6b08b4bf609284da3",
+        "direct_input_count": 11,
+        "direct_source_inputs": [
+          "policy-engine/src/polisyos/foundry/coupling/estimation.py",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/__init__.py",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+          "policy-engine/src/polisyos/foundry/methods/selection/registry.py",
+          "policy-engine/src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+          "policy-engine/src/polisyos/runtime/quality/intervention_atom_binding.py",
+          "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "policy-engine/src/polisyos/runtime/quality/world_model_record.py",
+          "policy-engine/tests/unit/remediation/test_sim_03.py",
+          "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py"
+        ],
+        "removed_actual_payload_fields": [
+          "seed",
+          "replication_seeds"
+        ],
+        "target_selector": "tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request"
+      },
+      "name": "Seed and replication-seed removal \u2014 qualified expected behavioral falsifier",
+      "outcome": "FAIL",
+      "output": {
+        "artifact_directory": "evidence/b23-physical-cache-current-814a/seed-removal",
+        "files": {
+          "junit": {
+            "bytes": 10687,
+            "path": "evidence/b23-physical-cache-current-814a/seed-removal/junit.xml",
+            "sha256": "811c24c84d050d794e4793bbdd79d39915a1a7b8a4a1e3d5f555cda8b80afb73"
+          },
+          "receipt": {
+            "bytes": 4611,
+            "path": "evidence/b23-physical-cache-current-814a/seed-removal/receipt.json",
+            "sha256": "6ccf3004d95b8b79534f27136bad5d9e639de754a7b7f3367017eaad262bb78c"
+          },
+          "stderr": {
+            "bytes": 0,
+            "path": "evidence/b23-physical-cache-current-814a/seed-removal/stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "bytes": 61490,
+            "path": "evidence/b23-physical-cache-current-814a/seed-removal/stdout.txt",
+            "sha256": "b731d0d9d16f79b0e9b78298bab0fcffed81fe295c4cf75e8f820e00b32bbfda"
+          }
+        },
+        "interpretation": "Expected falsifier, not a product-test PASS: 24 actual _physical_run_ref hash payload mutations were counted; pytest failed at test_sim_03.py:447 because the physical-ref set collapsed to 2 rather than 3.",
+        "junit_state": "produced"
+      },
+      "target_sha": "814a9cbc1f93f0b6f7b86203d2347a4866d84b96"
+    },
+    {
+      "command": ".venv/bin/python -m pytest -p pytest_b23_input_provenance -o addopts= --import-mode=importlib --strict-markers -q --showlocals --junitxml=_build/e02-A-continuation-20261007/B23-plan-removal-current-814a/junit.xml --basetemp=_build/e02-A-continuation-20261007/B23-plan-removal-current-814a/pytest-basetemp tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "inherited_environment": {
+          "PYTHONPATH": "not captured in run_command.py receipts; wrapper copies inherited os.environ unchanged, so exact value is not established",
+          "other_inherited_variables": "not serialized by launcher"
+        },
+        "probe_environment": {
+          "POLISYOS_SIM03_PHYSICAL_IDENTITY_REMOVAL_PROBE": "plan"
+        },
+        "provenance_path": "policy-engine/_build/e02-A-continuation-20261007/B23-plan-removal-current-814a/input-provenance.json@sha256:8c16cdb6f953a9b28170fb73dacf21a5c16f385e22c2d6552b3bf6b596b2689e",
+        "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "thread_and_jax_variables_set_by_run_command_py": {
+          "JAX_PLATFORMS": "cpu",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "441fd4a6c4eaee55a3b68ac6b08b4bf609284da3",
+        "direct_input_count": 11,
+        "direct_source_inputs": [
+          "policy-engine/src/polisyos/foundry/coupling/estimation.py",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/__init__.py",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+          "policy-engine/src/polisyos/foundry/methods/selection/registry.py",
+          "policy-engine/src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+          "policy-engine/src/polisyos/runtime/quality/intervention_atom_binding.py",
+          "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "policy-engine/src/polisyos/runtime/quality/world_model_record.py",
+          "policy-engine/tests/unit/remediation/test_sim_03.py",
+          "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py"
+        ],
+        "removed_actual_payload_fields": [
+          "plan"
+        ],
+        "target_selector": "tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request"
+      },
+      "name": "Plan removal \u2014 qualified expected behavioral falsifier",
+      "outcome": "FAIL",
+      "output": {
+        "artifact_directory": "evidence/b23-physical-cache-current-814a/plan-removal",
+        "files": {
+          "junit": {
+            "bytes": 10666,
+            "path": "evidence/b23-physical-cache-current-814a/plan-removal/junit.xml",
+            "sha256": "909327208c193adda133cf41f6ba29b025b14f7c29d8208f01816a5e894771f1"
+          },
+          "receipt": {
+            "bytes": 4513,
+            "path": "evidence/b23-physical-cache-current-814a/plan-removal/receipt.json",
+            "sha256": "4b55d7c41731841c4e99fb0099f778ef29ab1fed3935b46702f3197f4b04cbe6"
+          },
+          "stderr": {
+            "bytes": 0,
+            "path": "evidence/b23-physical-cache-current-814a/plan-removal/stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "bytes": 61469,
+            "path": "evidence/b23-physical-cache-current-814a/plan-removal/stdout.txt",
+            "sha256": "ace25a318eabda53b077c1a308c764107d6bb0e9eb0cf0c942a94b5447f4e5aa"
+          }
+        },
+        "interpretation": "Expected falsifier, not a product-test PASS: 24 actual _physical_run_ref hash payload mutations were counted; pytest failed at test_sim_03.py:447 because the physical-ref set collapsed to 2 rather than 3.",
+        "junit_state": "produced"
+      },
+      "target_sha": "814a9cbc1f93f0b6f7b86203d2347a4866d84b96"
+    },
+    {
+      "command": "Read-only Git reconciliation: git diff --name-status 814a9cbc1f93f0b6f7b86203d2347a4866d84b96..98bfc195b94f42ff05ed23ae8088da9e0118552b; compare git rev-parse <revision>:<path> for each of the 11 provenance-named direct inputs.",
+      "environment": {
+        "mode": "read-only Git; no tests executed",
+        "repository": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos"
+      },
+      "input_closure": {
+        "candidate_a": "814a9cbc1f93f0b6f7b86203d2347a4866d84b96",
+        "candidate_b": "98bfc195b94f42ff05ed23ae8088da9e0118552b",
+        "compared_paths": [
+          "policy-engine/src/polisyos/foundry/coupling/estimation.py",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/__init__.py",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+          "policy-engine/src/polisyos/foundry/methods/selection/registry.py",
+          "policy-engine/src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+          "policy-engine/src/polisyos/runtime/quality/intervention_atom_binding.py",
+          "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "policy-engine/src/polisyos/runtime/quality/world_model_record.py",
+          "policy-engine/tests/unit/remediation/test_sim_03.py",
+          "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py"
+        ]
+      },
+      "name": "Direct B23 input source identity across 814a to 98bfc",
+      "outcome": "PASS",
+      "output": {
+        "all_11_direct_b23_input_git_blobs_equal_at_both_candidates": true,
+        "b23_runtime_and_test_sources_changed": false,
+        "changed_paths_between_candidates": [
+          "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py"
+        ]
+      },
+      "target_sha": "98bfc195b94f42ff05ed23ae8088da9e0118552b"
+    },
+    {
+      "command": "Read-only parse/reconciliation of the three plugin-produced input-provenance.json artifacts; compare all named direct-role sha256/Git-blob values across the four recorded snapshots.",
+      "environment": {
+        "mode": "read-only provenance review; no tests executed"
+      },
+      "input_closure": {
+        "direct_input_count": 11,
+        "provenance_artifacts": [
+          "policy-engine/_build/e02-A-continuation-20261007/B23-positive-current-814a-v2/input-provenance.json@sha256:5b2625035e146893ad33a5c3d9ac2d2302cd19b415f6bb68d59cfd51a4158cb8",
+          "policy-engine/_build/e02-A-continuation-20261007/B23-seed-removal-current-814a/input-provenance.json@sha256:8b8d4a48bfffbd21039ddbb91b82af030127e26c1fc483eda85f23880db81511",
+          "policy-engine/_build/e02-A-continuation-20261007/B23-plan-removal-current-814a/input-provenance.json@sha256:8c16cdb6f953a9b28170fb73dacf21a5c16f385e22c2d6552b3bf6b596b2689e"
+        ],
+        "snapshot_count_per_run": 4
+      },
+      "name": "Runtime provenance artifact and named-closure scope",
+      "outcome": "PASS",
+      "output": {
+        "direct_inputs_sha256_and_working_tree_git_blob_stable_across_snapshots": true,
+        "full_transitive_import_closure": "not_established; only 11 named direct inputs plus capped module-origin prefixes were captured",
+        "module_origin_inventory_by_snapshot": {
+          "after/test": {
+            "omitted": 186,
+            "stored": 80,
+            "total": 266
+          },
+          "before/collection": {
+            "omitted": 185,
+            "stored": 80,
+            "total": 265
+          }
+        },
+        "plan_probe_head_transition": {
+          "b23_inputs_stable": true,
+          "finish": "98bfc195b94f42ff05ed23ae8088da9e0118552b",
+          "head_unchanged": false,
+          "start": "814a9cbc1f93f0b6f7b86203d2347a4866d84b96"
+        },
+        "target_and_helper_loaded_from_repo_paths": true,
+        "test_fixture_callables_are_bound_to_helper_exports": true,
+        "test_module_and_helper_module_names_and_paths_stable": true
+      },
+      "target_sha": "814a9cbc1f93f0b6f7b86203d2347a4866d84b96"
+    }
+  ],
+  "closure_ids": [
+    "B23"
+  ],
+  "current_input_closure": [
+    {
+      "git_blob_814a": "5f574d9aa735d843722b429bb8c00c3721ca6911",
+      "path": "policy-engine/src/polisyos/foundry/coupling/estimation.py",
+      "role": "smm_test_import",
+      "working_tree_sha256_at_documentation": "6c53fa2224cd6e7c8333c51db5eb3fee93728a9bde03c01064bd7c757f232205"
+    },
+    {
+      "git_blob_814a": "bdac41f4fa8589110117966f44731b92c0bd73b2",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/__init__.py",
+      "role": "causal_registration",
+      "working_tree_sha256_at_documentation": "9988079c7d39566f3c059861759a8027115581ed8d2eaa994a798ce74fd4ed2e"
+    },
+    {
+      "git_blob_814a": "8128f09f62cfc9a3c6a2591097c61d5191243334",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
+      "role": "ncm_engine",
+      "working_tree_sha256_at_documentation": "6db900ee270a88ef20f9b5c000eb5b612417ce96be2781aab109ea279eb2a948"
+    },
+    {
+      "git_blob_814a": "2d35616ebe69a23b820cca258c77cf296d155bef",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+      "role": "causal_protocols",
+      "working_tree_sha256_at_documentation": "250497e0024481a5bdc4e0b941fb31e57eaeb841702164490874f3978a3134c1"
+    },
+    {
+      "git_blob_814a": "36ffa3565869a4d0e4f0ab731714300abe65aa9a",
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/registry.py",
+      "role": "method_registry",
+      "working_tree_sha256_at_documentation": "3250f70d07a658c9beb9b9210254d425715129a1b9eb29cdbbcdc4a208c977b9"
+    },
+    {
+      "git_blob_814a": "9494717e0536fe6d9a2bbc360b0a0f5ea1ee0636",
+      "path": "policy-engine/src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+      "role": "coupling_composition",
+      "working_tree_sha256_at_documentation": "a67ac7883324184c5f353ecd8f2d6c96517befaf03e81b94732d419ae13dd737"
+    },
+    {
+      "git_blob_814a": "d775ab73429e8c668aa99b91af070e6ef92ad46a",
+      "path": "policy-engine/src/polisyos/runtime/quality/intervention_atom_binding.py",
+      "role": "intervention_atom_binding",
+      "working_tree_sha256_at_documentation": "9d239d7e00a8868eea29ee1e966cdfa7b33b9011d4289fb551775bed137d2256"
+    },
+    {
+      "git_blob_814a": "f5dc2873aab2e2a58b9167f5ea27e2186957f1d4",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "role": "joint_simulation_controller",
+      "working_tree_sha256_at_documentation": "6990f14360a7490818dd2add430618b0780fc60cb0662d110666d6e5809405c4"
+    },
+    {
+      "git_blob_814a": "27c54eb017475c4d7b8054508ae0b88c45be6e2e",
+      "path": "policy-engine/src/polisyos/runtime/quality/world_model_record.py",
+      "role": "world_model_binding",
+      "working_tree_sha256_at_documentation": "84bbec4b46114d5fb1872c969c0dd374e9de28c183c567c888cca54fefc2f495"
+    },
+    {
+      "git_blob_814a": "4804ffac006db662bbd912ae835c1c8fafbb6f05",
+      "path": "policy-engine/tests/unit/remediation/test_sim_03.py",
+      "role": "target_test",
+      "working_tree_sha256_at_documentation": "fa52277ca351e95ae50ed9cea086281036475aae5c8f8ebf4209309c50e333c8"
+    },
+    {
+      "git_blob_814a": "8f432835dbf5db938e2750de5bb50379b7e18ea0",
+      "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+      "role": "test_fixture_helper",
+      "working_tree_sha256_at_documentation": "dca7e04d70c7382fa2357a7d20518a192f2258da3dcae94a1c86ca7f3e35e6c8"
+    }
+  ],
+  "implementation_commits": [
+    "9794b716a74aee98545449ac97dc98825d2471de"
+  ],
+  "limitations_and_next_owner": [
+    "The 814a positive and removal tests are a one-selector registered-NCM recheck; the broader prior suite and same-invocation semantic-miss tests remain in their already-owned receipts and were not rerun or duplicated.",
+    "The provenance plugin pins 11 named direct inputs and captured native loaded origins for selected module prefixes. It records 265/266 modules while storing 80, truncating 185/186; complete transitive import closure is not established.",
+    "For the positive v2 and removal invocations, run_command.py does not record the full inherited PYTHONPATH or other inherited environment. It forwards os.environ unchanged, sets the five recorded thread/JAX variables, and the plugin proves the loaded target/helper source paths. Do not infer an exact PYTHONPATH string from module origins.",
+    "The plan-removal run began at 814a and finished after HEAD moved to 98bfc; its plugin shows the B23 direct inputs remained byte/Git-blob stable across four snapshots. The 814a..98bfc commit diff is only the manual N5 GET integration test.",
+    "Next owner: root HANDOFF integrator; retain the existing B23 adjudication scope and treat these records as current positive and removal evidence only."
+  ],
+  "predicate_basis": "recomputed",
+  "property": {
+    "initial_harness_error": "The first positive invocation failed while importing pytest_b23_input_provenance before pytest collection; preserved as ERROR, not counted as a behavioral result. A second fresh positive invocation passed.",
+    "observed_positive_behavior": {
+      "cache_scope": "Three calls to controller.run each create a fresh invocation-local cache; reuse occurs only across pairwise/joint roles within each call.",
+      "distinct_request_refs": "The test requires 3 refs across baseline, changed-seed, and changed-plan requests; it asserts the changed plan outcome by +1.0.",
+      "expected_and_asserted_seed_sequence": [
+        17,
+        17,
+        17,
+        18,
+        18,
+        18,
+        17,
+        17,
+        17
+      ],
+      "registered_engine": "NCMEngineMethod.pure_step is wrapped to count actual calls and delegate to the original method.",
+      "role_checks": "For each separate controller.run, pairwise/joint refs match; pairwise physical_run_reused=False; joint physical_run_reused=True; role points match.",
+      "test": "tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request"
+    },
+    "removal_witnesses": [
+      {
+        "falsifier": "actual ref set collapses to 2, failing the required cardinality 3 at test_sim_03.py:447",
+        "input_removed": [
+          "seed",
+          "replication_seeds"
+        ],
+        "mutations_observed": 24
+      },
+      {
+        "falsifier": "actual ref set collapses to 2, failing the required cardinality 3 at test_sim_03.py:447",
+        "input_removed": [
+          "plan"
+        ],
+        "mutations_observed": 24
+      }
+    ],
+    "scope_boundary": "Only the original bounded registered-NCM invocation-local physical-spec cache criterion. No other-engine, scientific validity, causal truth, sampling precision, or workload-wide savings claim.",
+    "source_criterion": {
+      "id": "B23",
+      "lines": [
+        477,
+        487
+      ],
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "requirement": "For deterministic one-/two-atom cases, identical physical work is computed once while both role references remain; changed seed/parameters do not hit; independent required experiments are separate runs."
+    }
+  },
+  "provenance_artifacts_not_copied": [
+    {
+      "bytes": 248159,
+      "path": "policy-engine/_build/e02-A-continuation-20261007/B23-positive-current-814a-v2/input-provenance.json",
+      "sha256": "5b2625035e146893ad33a5c3d9ac2d2302cd19b415f6bb68d59cfd51a4158cb8"
+    },
+    {
+      "bytes": 252303,
+      "path": "policy-engine/_build/e02-A-continuation-20261007/B23-seed-removal-current-814a/input-provenance.json",
+      "sha256": "8b8d4a48bfffbd21039ddbb91b82af030127e26c1fc483eda85f23880db81511"
+    },
+    {
+      "bytes": 252304,
+      "path": "policy-engine/_build/e02-A-continuation-20261007/B23-plan-removal-current-814a/input-provenance.json",
+      "sha256": "8c16cdb6f953a9b28170fb73dacf21a5c16f385e22c2d6552b3bf6b596b2689e"
+    },
+    {
+      "path": "policy-engine/_build/e02-A-continuation-20261007/b23-r1-dc42/pytest_b23_input_provenance.py",
+      "sha256": "eac23f4052e11f6ee9a59405b4e0d66d84c0a092c56497b19591c83024da0684"
+    }
+  ],
+  "provenance_limits": {
+    "complete_transitive_import_closure": "not_established",
+    "large_provenance_files_remain_ignored": true,
+    "loaded_module_origin_prefixes": [
+      "polisyos.runtime.quality",
+      "polisyos.foundry.methods.catalog.causal",
+      "polisyos.foundry.methods.selection",
+      "polisyos.runtime.quality.design_axes",
+      "polisyos.foundry.coupling",
+      "tests.unit.runtime.quality.test_generation_cycle"
+    ],
+    "module_origin_capture_cap": 80,
+    "named_direct_input_roles": 11,
+    "observed_module_origin_counts": [
+      265,
+      266
+    ],
+    "plugin_path": "policy-engine/_build/e02-A-continuation-20261007/b23-r1-dc42/pytest_b23_input_provenance.py",
+    "plugin_sha256": "eac23f4052e11f6ee9a59405b4e0d66d84c0a092c56497b19591c83024da0684",
+    "reason": "The plugin pins 11 explicitly named direct source/test inputs and caps the loaded-module prefix inventory at 80 entries; it is not a recursive import-closure proof.",
+    "truncated_counts": [
+      185,
+      186
+    ]
+  },
+  "pull_request": null,
+  "root_acceptance": "Pending root readback/adjudication; this document records evidence and limits, not a new scope expansion.",
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "slice": "physical-cache",
+  "slice_base_sha": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+  "source_candidate_reconciliation": {
+    "all_11_named_B23_direct_input_blobs_equal": true,
+    "changed_path": "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+    "comparison": "814a9cbc1f93f0b6f7b86203d2347a4866d84b96 to 98bfc195b94f42ff05ed23ae8088da9e0118552b",
+    "controller_blob": "f5dc2873aab2e2a58b9167f5ea27e2186957f1d4",
+    "source_test_blob": "4804ffac006db662bbd912ae835c1c8fafbb6f05"
+  },
+  "tested_candidate": {
+    "commit": "814a9cbc1f93f0b6f7b86203d2347a4866d84b96",
+    "tree": "441fd4a6c4eaee55a3b68ac6b08b4bf609284da3"
+  },
+  "unit": "A",
+  "changed_paths_scope": "The two top-level paths are the defining implementation commit footprint, not the entire base905→tested814 snapshot.",
+  "complete_candidate_snapshot_footprint": {
+    "base_sha": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+    "candidate_sha": "814a9cbc1f93f0b6f7b86203d2347a4866d84b96",
+    "candidate_tree_sha": "441fd4a6c4eaee55a3b68ac6b08b4bf609284da3",
+    "exact_recompute_command": "git diff --no-renames --name-status 905820ceac5860c7d1c4ebcbdde7b1265afb0b15 814a9cbc1f93f0b6f7b86203d2347a4866d84b96",
+    "path_count": 748,
+    "status_counts": {
+      "A": 702,
+      "M": 46
+    },
+    "full_measured_inventory": "policy-engine/_build/e02-A-continuation-20261007/b23-current-814a/full-tree-snapshot-diff-905-to-814.name-status@sha256:573bfd025134217b47dfeaa2a9d2f0a2162b3c25f695f0341566f0f7119fb7cc",
+    "delivery_note": "All inventory paths are exactly recomputable from ordinary Git on the given two commits; no duplicate source postimages retained."
+  }
+}

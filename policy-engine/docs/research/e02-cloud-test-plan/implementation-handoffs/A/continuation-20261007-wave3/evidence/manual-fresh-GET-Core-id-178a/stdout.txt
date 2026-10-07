@@ -1,0 +1,702 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__ test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get __
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/manual-fresh-GET-Core-id-178a/pytest-basetemp/test_manual_n5_interaction_evi0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13f90b820>
+
+    @pytest.mark.integration
+    def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Fresh GET replays the actual one-atom N5 trajectory and its bounded grid."""
+    
+        pytest.importorskip("fastapi.testclient")
+        from fastapi.testclient import TestClient
+    
+        from polisyos.core import canon
+        from polisyos.core.artifacts.manifest import ArtifactRef
+        from polisyos.core.security.tenant_context import tenant_scope
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.http.app import create_runtime_api_app
+        from polisyos.runtime.http.container import RuntimeContainerOverrides
+        from polisyos.runtime.http.dependencies import build_runtime_api_context
+        from polisyos.runtime.http.security import build_fixture_identity_claims
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+            CompiledRecursiveGenerationCycleRun,
+        )
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationContextHandoff,
+            CandidateSimulationContextOffer,
+            CandidateSimulationN5InputV5,
+            candidate_simulation_profile_ref,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContextArtifactOwner,
+            VerifiedNLJobScope,
+            cycle_job_profile_selection_ref,
+        )
+        from polisyos.runtime.quality.design_axes.coupling_composition import (
+            derive_recursive_design_graph,
+        )
+        from polisyos.runtime.quality.design_generation import (
+            N4CandidateProposalSource,
+            N4CandidateScenarioProposalRun,
+            generate_design_candidate_proposal_under_a,
+        )
+        from polisyos.runtime.quality.generation_cycle import (
+            GenerationCycleController,
+            JointSimulationPort,
+            ValuePortObservation,
+            _DefaultSimulationBoundFoundryValuePort,
+            load_joint_simulation_result,
+        )
+        from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationResult
+        from polisyos.runtime.quality.recursive_generation_cycle import (
+            RecursiveCycleBudget,
+            RecursiveGenerationCycleController,
+            RecursiveGenerationCycleRun,
+        )
+        from tests._helpers.control_worker import dispatch_one_control_job
+        from tests.integration.core_runtime.test_e02_informative_voi_execution import (
+            _bounded_budget,
+        )
+        from tests.unit.runtime.http.test_control_job_execution_intent import (
+            _valid_intake_for_mode,
+        )
+    
+        @contextmanager
+        def owner_scoped_test_client(app: Any) -> Iterator[Any]:
+            """Keep the fixture tenant active while each app owns its runtime store."""
+    
+            with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID), TestClient(app) as client:
+                yield client
+    
+        monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
+        monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+        monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+        monkeypatch.setenv(
+            "POLISYOS_CONTROL_SQLITE_PATH", (tmp_path / "control.sqlite3").as_posix()
+        )
+        monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
+        monkeypatch.setenv("JAX_PLATFORMS", "cpu")
+        monkeypatch.setenv("OMP_NUM_THREADS", "1")
+    
+        from tests._helpers.bounded_run_catalog import bind_bounded_run_api_catalog
+    
+        bind_bounded_run_api_catalog(tmp_path=tmp_path, monkeypatch=monkeypatch)
+    
+        recording = next(
+            item
+            for item in n4_contract._load_recordings(REPO_ROOT)
+            if item.get("design_problem_id") == RECORDING_ID
+        )
+        problem = _current_compiler_problem(recording)
+        raw_request = problem.nl_provenance.raw_request
+        model_id = str(recording["model_id"])
+        controlled_recording = _controlled_procurement_recording(
+            recording,
+            outcome_variable=problem.outcome_of_interest.target_variable,
+        )
+    
+        cas_root = tmp_path / ".polisyos"
+        first_context = build_runtime_api_context(
+            cas_root=cas_root,
+            core_runs_root=cas_root / "runs",
+        )
+        profile, model_declaration = _configured_procurement_profile(
+            recorded_problem=problem,
+            artifact_store=first_context.store,
+            tenant_id=TENANT_ID,
+            cell_id=CELL_ID,
+            intervention_substrate=_candidate_only_procurement_intervention_bundle(),
+        )
+        assert profile.profile_selection_ref == cycle_job_profile_selection_ref(problem)
+        assert profile.context_inputs.intervention_substrate is not None
+    
+        first_app = create_runtime_api_app(
+            cas_root=cas_root,
+            container_overrides=RuntimeContainerOverrides(runtime_api_context=first_context),
+            allow_fixture_identity=True,
+            candidate_simulation_profiles=(profile,),
+            candidate_simulation_model_declarations=(model_declaration,),
+        )
+        n5_calls: list[str] = []
+        n8_calls: list[ValuePortObservation] = []
+        original_n5 = JointSimulationPort.__call__
+        original_n8 = _DefaultSimulationBoundFoundryValuePort.__call__
+    
+        def observe_n5(port: object, *args: Any, **kwargs: Any) -> object:
+            candidate = kwargs.get("candidate")
+            n5_calls.append(str(getattr(candidate, "candidate_id", "")))
+            return original_n5(port, *args, **kwargs)
+    
+        def observe_n8(
+            port: object, *args: Any, **kwargs: Any
+        ) -> ValuePortObservation:
+            observation = original_n8(port, *args, **kwargs)
+            assert isinstance(observation, ValuePortObservation)
+            n8_calls.append(observation)
+            return observation
+    
+        monkeypatch.setattr(JointSimulationPort, "__call__", observe_n5)
+        monkeypatch.setattr(_DefaultSimulationBoundFoundryValuePort, "__call__", observe_n8)
+    
+        with owner_scoped_test_client(first_app) as client:
+            accepted_response = client.post(
+                "/api/v1/control/runs/nl",
+                json={
+                    "request": raw_request,
+                    "llm_model": model_id,
+                    "context": {
+                        "evaluation_safety_attempt": _valid_intake_for_mode(
+                            "simulate_only"
+                        ).model_dump(mode="json")
+                    },
+                },
+            )
+            assert accepted_response.status_code == 200, accepted_response.text
+            accepted = accepted_response.json()
+            assert accepted["status"] == "accepted"
+            service = first_app.state._control_service
+            admission_owner = service._cycle_substrate_context_admission_owner
+            assert admission_owner is not None
+            assert admission_owner.store is first_context.store
+    
+            compiled_refs: dict[str, ArtifactRef] = {}
+            produced_inputs: dict[str, CandidateSimulationN5InputV5] = {}
+            produced_results: dict[str, JointSimulationResult] = {}
+            produced_world_model_ids: dict[str, str] = {}
+            produced_result_refs: dict[str, ArtifactRef] = {}
+    
+            def produce_manual_candidate_run_for_owned_job(_snapshot: object) -> None:
+                admission = service._control_store.current_execution_job_admission()
+                job = admission.job
+                scope = admission.scope
+                assert job.job_id == accepted["job_id"]
+                assert job.kind == "natural_language_run"
+                assert scope.status == "established"
+                assert (scope.tenant_id, scope.cell_id) == (TENANT_ID, CELL_ID)
+    
+                with service._install_execution_scope(scope):
+                    payload = service._payload_for_execution_scope(
+                        service._load_payload_ref(job.payload_ref),
+                        job=job,
+                        execution_scope=scope,
+                    )
+                    capability_manifest_ref, capability_manifest = (
+                        service._resolve_capability_manifest_for_execution(
+                            job=job,
+                            admission=admission,
+                            execution_scope=scope,
+                        )
+                    )
+                    execution_intent_binding = (
+                        service._require_nl_job_execution_intent_binding(
+                            job=job,
+                            admission=admission,
+                            execution_scope=scope,
+                            payload=payload,
+                            capability_manifest_ref=capability_manifest_ref,
+                            capability_manifest=capability_manifest,
+                        )
+                    )
+                    verified_nl_job_scope = execution_intent_binding.get(
+                        "_verified_nl_job_scope"
+                    )
+                    assert type(verified_nl_job_scope) is VerifiedNLJobScope
+                    assert verified_nl_job_scope._was_issued_by_verified_nl_execution_owner
+    
+                    core_run_id, core_context = service._start_generation_run_context(
+                        job=job,
+                        execution_scope=scope,
+                    )
+                    context_owner = CycleSubstrateContextArtifactOwner(
+                        store=service._artifact_store,
+                        control_store=service._control_store,
+                    )
+                    offer = admission_owner.admit_context(
+                        problem=problem,
+                        job_id=job.job_id,
+                        run_id=str(job.run_id),
+                        tenant_id=TENANT_ID,
+                        cell_id=CELL_ID,
+                    )
+                    assert type(offer) is CandidateSimulationContextOffer
+                    context_ref = context_owner.persist_for_current_job(
+                        offer.context,
+                        problem=problem,
+                        verified_nl_job_scope=verified_nl_job_scope,
+                    )
+                    resolved_context = context_owner.resolve_for_current_job(
+                        context_ref,
+                        problem=problem,
+                        verified_nl_job_scope=verified_nl_job_scope,
+                    )
+                    assert resolved_context.context == offer.context
+                    handoff = CandidateSimulationContextHandoff(
+                        context=resolved_context.context,
+                        context_job_ref=context_ref,
+                        profile=offer.profile,
+                        profile_config_ref=offer.profile_config_ref,
+                        job_id=job.job_id,
+                        run_id=str(job.run_id),
+                        tenant_id=TENANT_ID,
+                        cell_id=CELL_ID,
+                        model_declaration=offer.model_declaration,
+                        model_declaration_ref=offer.model_declaration_ref,
+                        ncm_ref=offer.ncm_ref,
+                    )
+    
+                    def current_owner_binding_is_exact() -> bool:
+                        try:
+                            current = service._control_store.current_execution_job_admission()
+                            current_context = context_owner.resolve_for_current_job(
+                                context_ref,
+                                problem=problem,
+                                verified_nl_job_scope=verified_nl_job_scope,
+                            )
+                            current_offer = admission_owner.admit_context(
+                                problem=problem,
+                                job_id=job.job_id,
+                                run_id=str(job.run_id),
+                                tenant_id=TENANT_ID,
+                                cell_id=CELL_ID,
+                            )
+                        except (OSError, RuntimeError, TypeError, ValueError):
+                            return False
+                        return (
+                            type(current_offer) is CandidateSimulationContextOffer
+                            and current.job.job_id == handoff.job_id
+                            and current.job.run_id == handoff.run_id
+                            and current.job.state == "running"
+                            and current.job.attempt == job.attempt
+                            and current.scope.status == "established"
+                            and (current.scope.tenant_id, current.scope.cell_id)
+                            == (handoff.tenant_id, handoff.cell_id)
+                            and current_context.context == handoff.context
+                            and current_offer.context == handoff.context
+                            and current_offer.profile == handoff.profile
+                            and current_offer.profile_config_ref == handoff.profile_config_ref
+                            and current_offer.model_declaration == handoff.model_declaration
+                            and current_offer.model_declaration_ref
+                            == handoff.model_declaration_ref
+                            and current_offer.ncm_ref == handoff.ncm_ref
+                        )
+    
+                    proposal = asyncio.run(
+                        generate_design_candidate_proposal_under_a(
+                            problem,
+                            model_id=model_id,
+                            llm_client=n4_contract.RecordedGenerationReplayClient(
+                                controlled_recording
+                            ),
+                            repo_root=REPO_ROOT,
+                        )
+                    )
+                    assert type(proposal) is N4CandidateProposalSource
+                    proposal_run = N4CandidateScenarioProposalRun(
+                        proposal=proposal,
+                        l2_confidence_vintage=None,
+                        k_ref_limitation_code="candidate_scenario_l2_not_consumed",
+                    )
+                    root_ref = (
+                        "design-problem://"
+                        + gy_content_hash(problem.model_dump(mode="json")).removeprefix("sha256:")
+                    )
+                    graph = derive_recursive_design_graph(
+                        design_ref=root_ref,
+                        module_refs=(),
+                        parent_child_edges=(),
+                        rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+                    )
+    
+                    def build_cycle_controller(node_ref: str, node_problem: object) -> Any:
+                        assert node_ref == root_ref
+                        assert node_problem == problem
+    
+                        def replay_recorded_proposal(
+                            replay_problem: object,
+                            *,
+                            cycle_index: int,
+                        ) -> N4CandidateScenarioProposalRun:
+                            assert replay_problem == problem
+                            assert cycle_index == 0
+                            return proposal_run
+    
+                        return GenerationCycleController(
+                            generation_port=replay_recorded_proposal,
+                            repo_root=REPO_ROOT,
+                            artifact_store=service._artifact_store,
+                            cycle_substrate_context=handoff.context,
+                            candidate_simulation_handoff=handoff,
+                            candidate_simulation_currentness_resolver=(
+                                current_owner_binding_is_exact
+                            ),
+                            promotion_runtime=service._promotion_runtime,
+                            eval_safety_verifier=(
+                                service._evaluation_safety_admission_verifier
+                            ),
+                        )
+    
+                    recursive_controller = (
+                        RecursiveGenerationCycleController.for_contract_testing(
+                            cycle_controller_factory=build_cycle_controller,
+                            repo_root=REPO_ROOT,
+                            artifact_store=service._artifact_store,
+                        )
+                    )
+                    recursive_run = asyncio.run(
+                        recursive_controller.run(
+                            graph,
+                            problems_by_node={root_ref: problem},
+                            budget_state=_bounded_budget("1.0"),
+                            recursive_budget=RecursiveCycleBudget(
+                                max_depth=0,
+                                max_nodes=1,
+                                min_cycles_per_leaf=1,
+                                max_cycles_per_leaf=1,
+                            ),
+                            cycle_substrate_contexts_by_node={
+                                root_ref: handoff.context,
+                            },
+                            execution_intents_by_node={root_ref: "simulate_only"},
+                        )
+                    )
+                    assert type(recursive_run) is RecursiveGenerationCycleRun
+                    assert recursive_run.authority_scope == "contract_testing"
+                    leaf = recursive_run.leaf_nodes[0]
+                    assert leaf.cycle_run is not None
+                    cycle = leaf.cycle_run.cycles[0]
+                    assert cycle.simulation.status == "joint_simulated"
+                    assert cycle.value_port.status == "value_conditional"
+                    assert not leaf.cycle_run.promotion_port.receipts
+                    assert not leaf.cycle_run.promotion_port.certified_candidate_ids
+                    assert not any(
+                        summary.certified_by_n9
+                        for summary in leaf.cycle_run.candidate_summaries
+                    )
+    
+                    diagnostics = cycle.simulation.diagnostics
+                    input_ref = ArtifactRef.model_validate(
+                        diagnostics["candidate_simulation_n5_input_selected_ref"]
+                    )
+                    with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
+                        input_record = CandidateSimulationN5InputV5.model_validate(
+                            canon.from_canonical_bytes(
+                                service._artifact_store.get_bytes(input_ref)
+                            )
+                        )
+                        result_ref = cycle.simulation.simulation_result_ref
+                        assert result_ref is not None
+                        result = load_joint_simulation_result(
+                            result_ref,
+                            store=service._artifact_store,
+                        )
+                    assert result.atom_ids == (
+                        input_record.materialization.derived_n5_atom.intervention_id,
+                    )
+                    assert result.selected_outcomes == (input_record.outcome_variable,)
+                    compiled_payload: dict[str, object] = {
+                        "schema_version": COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+                        "design_problem_ref": gy_content_hash(
+                            problem.model_dump(mode="json")
+                        ),
+                        "design_problem": problem.model_dump(mode="json"),
+                        "cycle_substrate_context_ref": handoff.context.content_hash,
+                        "recursive_run": recursive_run.model_dump(
+                            mode="json",
+                            exclude={"leaf_nodes"},
+                        ),
+                    }
+                    compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+                        {
+                            **compiled_payload,
+                            "recursive_run": recursive_run,
+                            "content_hash": gy_content_hash(compiled_payload),
+                        }
+                    )
+                    compiled_ref = service._put_json_artifact_ref(
+                        compiled.model_dump(mode="json"),
+                        kind="runtime.compiled_recursive_generation_cycle",
+                        schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
+                    )
+                    core_manifest_ref = service._publish_generation_run(
+                        job=job,
+                        payload={},
+                        execution_scope=scope,
+                        core_run_id=core_run_id,
+                        run_context=core_context,
+                        compiled_run_ref=compiled_ref,
+                    )
+                    progress: dict[str, Any] = {
+                        "state": "completed",
+                        "phase": "natural_language_run",
+                        "status": "manual_candidate_only_n5_recorded",
+                        "execution_band": "candidate",
+                        "candidate_computation_status": "completed",
+                        "execution_intent_band": "simulate_only",
+                        "run_id": job.run_id,
+                        "compiled_recursive_generation_cycle_ref": str(
+                            compiled_ref.artifact_id
+                        ),
+                        "compiled_recursive_generation_cycle_artifact_ref": (
+                            compiled_ref.model_dump(mode="json")
+                        ),
+                        "n5_status": cycle.simulation.status,
+                        "n8_status": cycle.value_port.status,
+                        "root_n9_status": "not_promoted",
+                        "publication_status": "not_run",
+                        **service._core_run_progress_fields(
+                            job=job,
+                            core_run_id=core_run_id,
+                            manifest_ref=core_manifest_ref,
+                        ),
+                    }
+                    service._control_store.complete_job(
+                        job_id=job.job_id,
+                        run_id=job.run_id,
+                        capability_manifest_ref=job.capability_manifest_ref,
+                        progress=progress,
+                    )
+                    compiled_refs[job.job_id] = compiled_ref
+                    produced_inputs[job.job_id] = input_record
+                    produced_results[job.job_id] = result
+                    produced_world_model_ids[job.job_id] = (
+                        handoff.context.world_model_record.world_model_record_id
+                    )
+                    produced_result_refs[job.job_id] = result_ref
+    
+            assert (
+                dispatch_one_control_job(
+                    store=service._control_store,
+                    handler=produce_manual_candidate_run_for_owned_job,
+                    expected_job_id=accepted["job_id"],
+                )
+                == accepted["job_id"]
+            )
+            completed = service._control_store.get_job(accepted["job_id"])
+            assert completed is not None and completed.state == "completed"
+            assert completed.run_id is not None
+            core_run_id = completed.progress["core_run_id"]
+            assert isinstance(core_run_id, str) and core_run_id
+            assert core_run_id != completed.run_id
+            core_manifest_ref = ArtifactRef.model_validate(
+                completed.progress["core_manifest_artifact_ref"]
+            )
+            assert str(core_manifest_ref.artifact_id) == completed.progress["manifest_ref"]
+            compiled_ref = compiled_refs[completed.job_id]
+            assert str(compiled_ref.artifact_id) == completed.progress[
+                "compiled_recursive_generation_cycle_ref"
+            ]
+            input_record = produced_inputs[completed.job_id]
+            n5_result = produced_results[completed.job_id]
+            world_model_record_id = produced_world_model_ids[completed.job_id]
+            n5_result_ref = produced_result_refs[completed.job_id]
+    
+        assert len(n5_calls) == 1
+        assert len(n8_calls) == 1
+        assert n5_calls[0] == input_record.original_candidate_id
+    
+        fresh_context = build_runtime_api_context(
+            cas_root=cas_root,
+            core_runs_root=cas_root / "runs",
+        )
+        fresh_app = create_runtime_api_app(
+            cas_root=cas_root,
+            container_overrides=RuntimeContainerOverrides(runtime_api_context=fresh_context),
+            allow_fixture_identity=True,
+            candidate_simulation_profiles=(profile,),
+            candidate_simulation_model_declarations=(model_declaration,),
+        )
+        # RunDetails is indexed by the attempt Core ID; the control ID remains the
+        # stable job identity and is carried in the Core manifest's control_job_id.
+        run_path = f"/api/v1/runs/{core_run_id}"
+        with owner_scoped_test_client(fresh_app) as fresh_client:
+            response = fresh_client.get(run_path)
+            assert response.status_code == 200, response.text
+            run = response.json()["run"]
+            assert run["run_id"] == core_run_id
+            assert run["control_job_id"] == completed.job_id
+            readback_manifest_ref = ArtifactRef.model_validate(run["manifest_ref"])
+            assert readback_manifest_ref.artifact_id == core_manifest_ref.artifact_id
+            rows = run["conditional_simulation_values"]
+            assert len(rows) == 1
+            row = rows[0]
+            assert row["job_id"] == completed.job_id
+            assert row["run_id"] == core_run_id
+            assert row["candidate_id"] == input_record.original_candidate_id
+            assert row["profile_config_ref"] == input_record.profile_config_ref
+            assert row["profile_config_ref"] == candidate_simulation_profile_ref(profile)
+            assert ArtifactRef.model_validate(row["n5_result_ref"]).artifact_id == (
+                n5_result_ref.artifact_id
+            )
+            assert row["world_model_record_content_hash"] == (
+                input_record.materialization.world_model_record_hash
+            )
+            assert row["world_model_record_id"] == str(world_model_record_id)
+            observation = row["observation"]
+>           assert observation["status"] == "value_conditional"
+E           AssertionError: assert 'value_blocked' == 'value_conditional'
+E             
+E             - value_conditional
+E             + value_blocked
+
+tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py:570: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.advanced.bunching@1.0.0 lazy=True namespace=causal.advanced override=False tags=['builtin', 'bunching', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'kink', 'kleven', 'notch'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.advanced.marginal_treatment_effect@1.0.0 lazy=True namespace=causal.advanced override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'essential-heterogeneity', 'estimation', 'family:causal', 'local-iv', 'marginal-treatment-effect', 'mte'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.advanced.regression_kink@1.0.0 lazy=True namespace=causal.advanced override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'quasi-experimental', 'regression-kink', 'rkd'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.advanced.shift_share_iv@1.0.0 lazy=True namespace=causal.advanced override=False tags=['bartik-iv', 'builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'instrumental-variable', 'shift-share'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.bounds.balke_pearl@1.0.0 lazy=True namespace=causal.bounds override=False tags=['balke-pearl', 'bounds', 'builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'iv', 'lp', 'partial-identification'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.bounds.bounds_engine@1.0.0 lazy=True namespace=causal.bounds override=False tags=['balke-pearl', 'bounds', 'builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'lee', 'manski', 'miv', 'mtr', 'orchestration', 'partial-identification'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.bounds.copula_bounds@1.0.0 lazy=True namespace=causal.bounds override=False tags=['bounds', 'builtin', 'causal', 'copula', 'cross-section', 'distributional', 'domain:causal', 'estimation', 'family:causal', 'partial-identification'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.bounds.distributional_bounds_engine@1.0.0 lazy=True namespace=causal.bounds override=False tags=['bounds', 'builtin', 'causal', 'cross-section', 'distributional', 'domain:causal', 'estimation', 'family:causal', 'partial-identification'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.bounds.general_balke_pearl@1.0.0 lazy=True namespace=causal.bounds override=False tags=['balke-pearl', 'bounds', 'builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'iv', 'lp', 'multi-valued'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.bounds.imbens_manski@1.0.0 lazy=True namespace=causal.bounds override=False tags=['bounds', 'builtin', 'causal', 'confidence-interval', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'manski', 'partial-identification'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.bounds.intersection_bounds@1.0.0 lazy=True namespace=causal.bounds override=False tags=['bounds', 'builtin', 'causal', 'clr', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'intersection', 'partial-identification'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.bounds.lee@1.0.0 lazy=True namespace=causal.bounds override=False tags=['bounds', 'builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'lee', 'partial-identification', 'sample-selection'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.bounds.manski@1.0.0 lazy=True namespace=causal.bounds override=False tags=['bounds', 'builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'manski', 'partial-identification', 'worst-case'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.bounds.optimization@1.0.0 lazy=True namespace=causal.bounds override=False tags=['bounds', 'builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'lp', 'miv', 'mtr', 'mts', 'optimization', 'partial-identification'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.bounds.rosenbaum_sharp@1.0.0 lazy=True namespace=causal.bounds override=False tags=['bounds', 'builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'matched-pairs', 'partial-identification', 'rosenbaum', 'sensitivity'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.bounds.tan_bounds@1.0.0 lazy=True namespace=causal.bounds override=False tags=['bounds', 'builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'msm', 'partial-identification', 'sensitivity', 'tan'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.compiler.fold_aggregator@1.0.0 lazy=True namespace=causal.compiler override=False tags=['aggregator', 'builtin', 'causal', 'compiler', 'cross-fitting', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'oof'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.continuous_treatment.entropy_balancing@1.0.0 lazy=True namespace=causal.continuous_treatment override=False tags=['builtin', 'causal', 'continuous_treatment', 'cross-section', 'domain:causal', 'dose_response', 'entropy_balancing', 'estimation', 'family:causal', 'nonparametric', 'tabular', 'weighting'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.continuous_treatment.gps@1.0.0 lazy=True namespace=causal.continuous_treatment override=False tags=['builtin', 'causal', 'continuous_treatment', 'cross-section', 'domain:causal', 'dose_response', 'estimation', 'family:causal', 'gps', 'observational', 'tabular'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.continuous_treatment.kernel_dr@1.0.0 lazy=True namespace=causal.continuous_treatment override=False tags=['builtin', 'causal', 'continuous_treatment', 'cross-section', 'domain:causal', 'dose_response', 'doubly_robust', 'eif', 'estimation', 'family:causal', 'kernel', 'semiparametric', 'tabular'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.continuous_treatment.shift@1.0.0 lazy=True namespace=causal.continuous_treatment override=False tags=['builtin', 'causal', 'continuous_treatment', 'cross-section', 'domain:causal', 'doubly_robust', 'estimation', 'family:causal', 'mtp', 'shift', 'shift_intervention', 'tabular'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.counterfactual.actual_causality@1.0.0 lazy=True namespace=causal.counterfactual override=False tags=['builtin', 'causal', 'counterfactual', 'domain:causal', 'estimation', 'family:causal', 'l3', 'ncm', 'pns', 'probability_of_causation', 'structural'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.counterfactual.hp_actual_cause@1.0.0 lazy=True namespace=causal.counterfactual override=False tags=['actual_causality', 'builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'halpern_pearl', 'l3', 'ncm', 'responsibility', 'structural'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.counterfactual.ncm_engine@1.0.0 lazy=True namespace=causal.counterfactual override=False tags=['aap', 'builtin', 'causal', 'counterfactual', 'domain:causal', 'estimation', 'family:causal', 'l3', 'ncm', 'structural'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.counterfactual.path_specific_effects@1.0.0 lazy=True namespace=causal.counterfactual override=False tags=['builtin', 'causal', 'counterfactual', 'cross-section', 'domain:causal', 'eif', 'estimation', 'family:causal', 'l3', 'mediation', 'nde', 'nie', 'path_specific', 'semiparametric'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.design.causal_experiment_designer@1.0.0 lazy=True namespace=causal.design override=False tags=['adaptive', 'adjustment', 'builtin', 'causal', 'cross-section', 'd_optimal', 'design', 'domain:causal', 'estimation', 'family:causal', 'henckel_maathuis', 'iv', 'minimum_cost', 'o_set', 'optimal_experiment', 'thompson'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.diagnostics.independence.categorical_ci@1.0.0 lazy=True namespace=causal.diagnostics.independence override=False tags=['builtin', 'categorical', 'causal', 'chi-square', 'cross-section', 'diagnostics', 'domain:causal', 'falsification', 'family:causal', 'g-test', 'independence'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.diagnostics.independence.hsic@1.0.0 lazy=True namespace=causal.diagnostics.independence override=False tags=['builtin', 'causal', 'cross-section', 'diagnostics', 'domain:causal', 'falsification', 'family:causal', 'hsic', 'independence', 'kernel'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.diagnostics.independence.kci@1.0.0 lazy=True namespace=causal.diagnostics.independence override=False tags=['builtin', 'causal', 'conditional', 'cross-section', 'diagnostics', 'domain:causal', 'falsification', 'family:causal', 'independence', 'kci', 'kernel'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.diagnostics.independence.partial_correlation@1.0.0 lazy=True namespace=causal.diagnostics.independence override=False tags=['builtin', 'causal', 'cross-section', 'diagnostics', 'domain:causal', 'falsification', 'family:causal', 'independence', 'linear', 'partial-correlation'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.diagnostics.invariance.icp_invariance@1.0.0 lazy=True namespace=causal.diagnostics.invariance override=False tags=['builtin', 'causal', 'cross-section', 'diagnostics', 'domain:causal', 'family:causal', 'icp', 'invariance', 'multi-domain', 'transportability'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.diagnostics.invariance.ks_invariance@1.0.0 lazy=True namespace=causal.diagnostics.invariance override=False tags=['builtin', 'causal', 'cross-section', 'diagnostics', 'domain:causal', 'family:causal', 'invariance', 'ks-test', 'multi-domain', 'transportability'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.diagnostics.parallel_trends_check@1.0.0 lazy=True namespace=causal.diagnostics override=False tags=['builtin', 'causal', 'cross-section', 'diagnostics', 'domain:causal', 'family:causal', 'panel', 'parallel-trends'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.diagnostics.policy_overlap@1.0.0 lazy=True namespace=causal.diagnostics override=False tags=['builtin', 'causal', 'cross-section', 'diagnostics', 'domain:causal', 'family:causal', 'overlap', 'policy', 'stochastic', 'weights'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.diagnostics.positivity_check@1.0.0 lazy=True namespace=causal.diagnostics override=False tags=['builtin', 'causal', 'cross-section', 'diagnostics', 'domain:causal', 'family:causal', 'governance', 'identification', 'overlap', 'positivity'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.diagnostics.support_mismatch@1.0.0 lazy=True namespace=causal.diagnostics override=False tags=['builtin', 'causal', 'cross-section', 'density-ratio', 'diagnostics', 'domain:causal', 'family:causal', 'governance', 'support', 'transportability'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.discovery.dagma_discovery@1.0.0 lazy=True namespace=causal.discovery override=False tags=['builtin', 'causal', 'dagma', 'discovery', 'domain:causal', 'family:causal', 'scale', 'structural', 'tabular'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.discovery.fci_discovery@1.0.0 lazy=True namespace=causal.discovery override=False tags=['builtin', 'causal', 'constraint-based', 'discovery', 'domain:causal', 'family:causal', 'fci', 'pag', 'structural', 'tabular'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.discovery.ges_discovery@1.0.0 lazy=True namespace=causal.discovery override=False tags=['builtin', 'causal', 'discovery', 'domain:causal', 'family:causal', 'ges', 'score-based', 'structural', 'tabular'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.discovery.invariant_discovery_from_regimes@1.0.0 lazy=True namespace=causal.discovery override=False tags=['builtin', 'causal', 'discovery', 'domain:causal', 'family:causal', 'icp', 'mec-contraction', 'regime-shift', 'structural'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.discovery.pc_discovery@1.0.0 lazy=True namespace=causal.discovery override=False tags=['builtin', 'causal', 'constraint-based', 'discovery', 'domain:causal', 'family:causal', 'pc', 'structural', 'tabular'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.discovery.pcmci_discovery@1.0.0 lazy=True namespace=causal.discovery override=False tags=['builtin', 'causal', 'discovery', 'domain:causal', 'family:causal', 'pcmci', 'structural', 'time-series'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.discovery.unified_causal_discovery@1.1.0 lazy=True namespace=causal.discovery override=False tags=['builtin', 'causal', 'discovery', 'domain:causal', 'family:causal', 'pag', 'pipeline', 'structural', 'unified'] version=1.1.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.distributional.endogenous_group_decomposition@1.0.0 lazy=True namespace=causal.distributional override=False tags=['builtin', 'causal', 'cross-section', 'distributional', 'domain:causal', 'estimation', 'family:causal', 'generalized_entropy', 'inequality', 'mediation', 'tabular', 'theil'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.distributional.unconditional_qte@1.0.0 lazy=True namespace=causal.distributional override=False tags=['builtin', 'causal', 'cross-section', 'distributional', 'domain:causal', 'estimation', 'family:causal', 'frontier', 'qte', 'tabular'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.dynamic.a_learning.a_learning@1.0.0 lazy=True namespace=causal.dynamic.a_learning override=False tags=['a_learning', 'advantage_learning', 'builtin', 'causal', 'cross-section', 'domain:causal', 'dtr', 'dynamic', 'estimation', 'family:causal', 'treatment_regime'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.dynamic.causal_bandit.causal_bandit@1.0.0 lazy=True namespace=causal.dynamic.causal_bandit override=False tags=['bandit', 'builtin', 'causal', 'causal_rl', 'cross-section', 'domain:causal', 'estimation', 'exploration', 'family:causal', 'intervention', 'off_policy', 'ucb'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.dynamic.dr_dtr.dr_dtr@1.0.0 lazy=True namespace=causal.dynamic.dr_dtr override=False tags=['augmented_ipw', 'builtin', 'causal', 'cross-section', 'domain:causal', 'doubly_robust', 'dtr', 'dynamic', 'estimation', 'family:causal', 'treatment_regime'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.dynamic.g_computation.parametric_g_formula@1.0.0 lazy=True namespace=causal.dynamic.g_computation override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'dynamic', 'estimation', 'family:causal', 'g_computation', 'longitudinal', 'sequential', 'time_varying'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.dynamic.ice_g_formula.ice_g_formula@1.0.0 lazy=True namespace=causal.dynamic.ice_g_formula override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'dynamic', 'estimation', 'family:causal', 'g_computation', 'ice', 'longitudinal', 'time_varying'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.dynamic.ltmle.ltmle@1.0.0 lazy=True namespace=causal.dynamic.ltmle override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'doubly_robust', 'dynamic', 'estimation', 'family:causal', 'longitudinal', 'ltmle', 'tabular', 'time_varying', 'tmle'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.dynamic.ope.ope@1.0.0 lazy=True namespace=causal.dynamic.ope override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'doubly_robust', 'dynamic', 'estimation', 'family:causal', 'importance_sampling', 'off_policy', 'ope', 'policy_evaluation'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.dynamic.owl.owl@1.0.0 lazy=True namespace=causal.dynamic.owl override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'dtr', 'dynamic', 'estimation', 'family:causal', 'outcome_weighted', 'owl', 'svm', 'treatment_regime'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.dynamic.q_learning.q_learning@1.0.0 lazy=True namespace=causal.dynamic.q_learning override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'dtr', 'dynamic', 'estimation', 'family:causal', 'longitudinal', 'q_learning', 'treatment_regime'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.dynamic.snmm.snmm_g_estimation@1.0.0 lazy=True namespace=causal.dynamic.snmm override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'dynamic', 'estimation', 'family:causal', 'g_estimation', 'longitudinal', 'snmm', 'structural_nested', 'time_varying'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.dynamic_graph.dscm@1.0.0 lazy=True namespace=causal.dynamic_graph override=False tags=['builtin', 'causal', 'diagnostics', 'domain:causal', 'dscm', 'dynamic-graph', 'estimation', 'family:causal', 'network', 'structural', 'time-series'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.fairness.causal_fairness_engine@1.0.0 lazy=True namespace=causal.fairness override=False tags=['builtin', 'causal', 'counterfactual', 'cross-section', 'domain:causal', 'estimation', 'fairness', 'family:causal', 'phase9', 'standard_fairness_model', 'tabular'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.fairness.counterfactual_fairness@1.0.0 lazy=True namespace=causal.fairness override=False tags=['abduction', 'builtin', 'causal', 'counterfactual', 'cross-section', 'domain:causal', 'estimation', 'fairness', 'family:causal', 'individual_fairness', 'l3', 'ncm', 'phase8', 'tabular'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.fairness.path_specific_fairness@1.0.0 lazy=True namespace=causal.fairness override=False tags=['builtin', 'causal', 'cross-section', 'discrimination', 'domain:causal', 'estimation', 'fairness', 'family:causal', 'graph', 'path_specific', 'phase8', 'tabular'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.fairness.tv_fairness_decomposer@1.0.0 lazy=True namespace=causal.fairness override=False tags=['aipw', 'builtin', 'causal', 'cross-section', 'discrimination', 'domain:causal', 'estimation', 'fairness', 'family:causal', 'phase8', 'semiparametric', 'tabular', 'tv_decomposition'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.fusion.data_fusion@1.0.0 lazy=True namespace=causal.fusion override=False tags=['bareinboim_pearl', 'builtin', 'causal', 'cross-section', 'ctf_transport', 'domain:causal', 'estimation', 'family:causal', 'fusion', 'mz_id', 'selection_diagram', 'tr_algorithm', 'transport', 'z_id'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.hte.causal_bcf@1.0.0 lazy=True namespace=causal.hte override=False tags=['bayesian-causal-forest', 'bcf', 'builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'hte', 'tabular'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.hte.causal_forest@1.0.0 lazy=True namespace=causal.hte override=False tags=['builtin', 'cate', 'causal', 'causal-forest', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'hte', 'tabular'] version=1.0.0
+2026-10-07 23:58:28 [info     ] method_registered              backend=numpy fqn=causal.hte.double_ml@1.0.0 lazy=True namespace=causal.hte override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'double-ml', 'estimation', 'family:causal', 'hte', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.hte.dr_learner@1.0.0 lazy=True namespace=causal.hte override=False tags=['builtin', 'cate', 'causal', 'cross-section', 'domain:causal', 'doubly-robust', 'dr-learner', 'estimation', 'family:causal', 'hte'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.hte.forest_dr@1.0.0 lazy=True namespace=causal.hte override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'doubly-robust', 'estimation', 'family:causal', 'forest-dr', 'hte', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.hte.meta_learner@1.0.0 lazy=True namespace=causal.hte override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'hte', 'meta-learner', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.hte.r_learner@1.0.0 lazy=True namespace=causal.hte override=False tags=['builtin', 'cate', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'hte', 'r-learner', 'robinson'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.inference.did.borusyak_jaravel_spiess@1.0.0 lazy=True namespace=causal.inference.did override=False tags=['borusyak', 'borusyak-jaravel-spiess', 'builtin', 'causal', 'cross-section', 'did', 'domain:causal', 'estimation', 'family:causal', 'imputation', 'staggered'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.inference.did.callaway_santanna@1.0.0 lazy=True namespace=causal.inference.did override=False tags=['builtin', 'callaway-santanna', 'causal', 'cross-section', 'did', 'domain:causal', 'estimation', 'family:causal', 'heterogeneous-timing', 'staggered'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.inference.did.dechaisemartin@1.0.0 lazy=True namespace=causal.inference.did override=False tags=['builtin', 'causal', 'cross-section', 'dechaisemartin', 'did', 'domain:causal', 'estimation', 'family:causal', 'heterogeneous-effects', 'robust'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.inference.did.staggered@1.0.0 lazy=True namespace=causal.inference.did override=False tags=['builtin', 'causal', 'cross-section', 'difference-in-differences', 'domain:causal', 'estimation', 'family:causal', 'panel', 'uncertainty'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.inference.did.standard@1.0.0 lazy=True namespace=causal.inference.did override=False tags=['builtin', 'causal', 'cross-section', 'difference-in-differences', 'domain:causal', 'estimation', 'family:causal', 'panel', 'uncertainty'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.inference.did.sun_abraham@1.0.0 lazy=True namespace=causal.inference.did override=False tags=['builtin', 'causal', 'cross-section', 'did', 'domain:causal', 'estimation', 'family:causal', 'interaction-weighted', 'staggered', 'sun-abraham'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.inference.dowhy_identify_estimate@2.0.0 lazy=True namespace=causal.inference override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'dowhy', 'estimate', 'estimation', 'family:causal', 'identification', 'identify', 'structural', 'tabular'] version=2.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.inference.dowhy_identify_estimate@1.0.0 lazy=True namespace=causal.inference override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'dowhy', 'estimate', 'estimation', 'family:causal', 'identification', 'identify', 'legacy', 'structural', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.inference.regression_discontinuity@1.0.0 lazy=True namespace=causal.inference override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'quasi-experimental', 'regression-discontinuity'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.inference.structural_time_series@1.0.0 lazy=True namespace=causal.inference override=False tags=['bsts-approximation', 'builtin', 'causal', 'causal-impact', 'domain:causal', 'estimation', 'family:causal', 'panel', 'structural-time-series'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.inference.synthetic_control@2.0.0 lazy=True namespace=causal.inference override=False tags=['builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'panel', 'quasi-experimental', 'synthetic-control'] version=2.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.interference.bipartite@1.0.0 lazy=True namespace=causal.interference override=False tags=['bipartite', 'builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'interference', 'spillover', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.interference.network_aipw@1.0.0 lazy=True namespace=causal.interference override=False tags=['aipw', 'builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'interference', 'network', 'spillover', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.interference.network_cate@1.0.0 lazy=True namespace=causal.interference override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'frontier', 'hte', 'interference', 'network-aware', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.interference.partial@1.0.0 lazy=True namespace=causal.interference override=False tags=['builtin', 'causal', 'cluster', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'interference', 'spillover', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.interference.spatial@1.0.0 lazy=True namespace=causal.interference override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'interference', 'spatial', 'spillover', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.kernel.cme_plugin@1.0.0 lazy=True namespace=causal.kernel override=False tags=['builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'kernel', 'plugin', 'rkhs', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.kernel.dr_cme@1.0.0 lazy=True namespace=causal.kernel override=False tags=['builtin', 'causal', 'domain:causal', 'dr', 'estimation', 'family:causal', 'kernel', 'rkhs', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.kernel.effect_test@1.0.0 lazy=True namespace=causal.kernel override=False tags=['builtin', 'causal', 'diagnostics', 'distributional', 'domain:causal', 'estimation', 'family:causal', 'kernel', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.kernel.frontdoor_cme@1.0.0 lazy=True namespace=causal.kernel override=False tags=['builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'frontdoor', 'kernel', 'rkhs', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.kernel.kernel_semantics_diagnostics@1.0.0 lazy=True namespace=causal.kernel override=False tags=['builtin', 'causal', 'diagnostics', 'domain:causal', 'estimation', 'family:causal', 'kernel', 'rkhs', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.kernel.kiv@1.0.0 lazy=True namespace=causal.kernel override=False tags=['builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'iv', 'kernel', 'rkhs', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.kernel.nuisance.fit_cme_m_given_x@1.0.0 lazy=True namespace=causal.kernel.nuisance override=False tags=['builtin', 'causal', 'cme', 'domain:causal', 'estimation', 'family:causal', 'frontdoor', 'kernel', 'nuisance', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.kernel.nuisance.fit_cme_y_given_mx@1.0.0 lazy=True namespace=causal.kernel.nuisance override=False tags=['builtin', 'causal', 'cme', 'domain:causal', 'estimation', 'family:causal', 'frontdoor', 'kernel', 'nuisance', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.kernel.nuisance.fit_cme_y_given_xz@1.0.0 lazy=True namespace=causal.kernel.nuisance override=False tags=['builtin', 'causal', 'cme', 'domain:causal', 'estimation', 'family:causal', 'kernel', 'nuisance', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.kernel.nuisance.fit_density_ratio@1.0.0 lazy=True namespace=causal.kernel.nuisance override=False tags=['builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'kernel', 'nuisance', 'tabular', 'transport'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.kernel.nuisance.fit_kiv_first_stage@1.0.0 lazy=True namespace=causal.kernel.nuisance override=False tags=['builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'iv', 'kernel', 'nuisance', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.kernel.nuisance.fit_kiv_second_stage@1.0.0 lazy=True namespace=causal.kernel.nuisance override=False tags=['builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'iv', 'kernel', 'nuisance', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.kernel.nuisance.fit_propensity@1.0.0 lazy=True namespace=causal.kernel.nuisance override=False tags=['builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'kernel', 'nuisance', 'propensity', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.kernel.nuisance.solve_proximal_bridge@1.0.0 lazy=True namespace=causal.kernel.nuisance override=False tags=['builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'kernel', 'nuisance', 'proximal', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.kernel.proximal_minimax@1.0.0 lazy=True namespace=causal.kernel override=False tags=['builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'kernel', 'proximal', 'rkhs', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.kernel.refusal@1.0.0 lazy=True namespace=causal.kernel override=False tags=['builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'kernel', 'refusal', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.kernel.regularization_diagnostics@1.0.0 lazy=True namespace=causal.kernel override=False tags=['builtin', 'causal', 'diagnostics', 'domain:causal', 'estimation', 'family:causal', 'kernel', 'regularization', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.kernel.transport_cme@1.0.0 lazy=True namespace=causal.kernel override=False tags=['builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'kernel', 'rkhs', 'tabular', 'transport'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.measurement_error.measurement_error_proxy@1.0.0 lazy=True namespace=causal.measurement_error override=False tags=['builtin', 'calibration', 'carroll', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'kuroki_pearl', 'measurement_error', 'proxy', 'simex', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.mediation.causal_mediation@1.0.0 lazy=True namespace=causal.mediation override=False tags=['acme', 'ade', 'baron-kenny', 'builtin', 'causal', 'causal-mediation', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'mediation'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.mediation.controlled_direct_effect@1.0.0 lazy=True namespace=causal.mediation override=False tags=['builtin', 'causal', 'cde', 'controlled-direct-effect', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'mediation'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.mediation.natural_effects@1.0.0 lazy=True namespace=causal.mediation override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'eif', 'estimation', 'family:causal', 'mediation', 'natural_effects', 'nde', 'nie', 'semiparametric'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.missing_data.administrative_missingness_assessment@1.0.0 lazy=True namespace=causal.missing_data override=False tags=['administrative-missingness', 'builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'm-graph', 'missing-data', 'readiness', 'recoverability', 'structural'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.missing_data.full_law_identify@1.0.0 lazy=True namespace=causal.missing_data override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'full-law', 'id-algorithm', 'identification', 'm-graph', 'missing-data'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.missing_data.ordered_recovery@1.0.0 lazy=True namespace=causal.missing_data override=False tags=['builtin', 'causal', 'domain:causal', 'estimand', 'estimation', 'family:causal', 'fixing-operator', 'm-graph', 'missing-data', 'ordered-recovery', 'structural'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.missing_data.recoverability_test@1.0.0 lazy=True namespace=causal.missing_data override=False tags=['builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'm-graph', 'mar', 'mcar', 'missing-data', 'mnar', 'recoverability', 'structural'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.multi_treatment.aipw@1.0.0 lazy=True namespace=causal.multi_treatment override=False tags=['aipw', 'builtin', 'causal', 'cross-section', 'domain:causal', 'doubly_robust', 'eif', 'estimation', 'family:causal', 'multi_treatment', 'semiparametric', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.multi_treatment.ipw@1.0.0 lazy=True namespace=causal.multi_treatment override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'ipw', 'multi_treatment', 'observational', 'propensity_score', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.nuisance.multinomial_propensity@1.0.0 lazy=True namespace=causal.nuisance override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'multi_arm', 'multi_treatment', 'multinomial', 'nuisance', 'propensity', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.nuisance.parametric_conditional_density@1.0.0 lazy=True namespace=causal.nuisance override=False tags=['builtin', 'causal', 'conditional_density', 'continuous_treatment', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'gps', 'nuisance', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.nuisance.super_learner@1.0.0 lazy=True namespace=causal.nuisance override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'ensemble', 'estimation', 'family:causal', 'nuisance', 'semiparametric', 'super_learner', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.operator.apply_probe@1.0.0 lazy=True namespace=causal.operator override=False tags=['builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'operator-valued', 'probe-application', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.operator.cme_krr@1.0.0 lazy=True namespace=causal.operator override=False tags=['builtin', 'causal', 'cme', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'krr', 'operator-valued', 'rkhs', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.operator.export_basis@1.0.0 lazy=True namespace=causal.operator override=False tags=['basis-export', 'builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'operator-valued', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.operator.kiv@1.0.0 lazy=True namespace=causal.operator override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'iv', 'kiv', 'operator-valued', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.operator.operator_r_learner@1.0.0 lazy=True namespace=causal.operator override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'operator-valued', 'orthogonal', 'r-learner', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.operator.proximal_minimax@1.0.0 lazy=True namespace=causal.operator override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'minimax', 'operator-valued', 'proximal', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.operator.unsupported_target@1.0.0 lazy=True namespace=causal.operator override=False tags=['builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'operator-valued', 'tabular', 'unsupported'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.prior.build_literature_prior@1.0.0 lazy=True namespace=causal.prior override=False tags=['builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'literature', 'prior', 'structural'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.prior.reconcile_causal_graph@1.0.0 lazy=True namespace=causal.prior override=False tags=['builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'prior', 'reconciliation', 'structural'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.proximal.proximal_bridge@1.0.0 lazy=True namespace=causal.proximal override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'frontier', 'negative-controls', 'proximal', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.proximal.proximal_mediation@1.0.0 lazy=True namespace=causal.proximal override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'mediation', 'oracle_backed', 'path_specific', 'proximal', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.proximal.spatial_proximal_bridge@1.0.0 lazy=True namespace=causal.proximal override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'frontier', 'negative-controls', 'proximal', 'spatial', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.refutation.dowhy_refute@1.0.0 lazy=True namespace=causal.refutation override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'dowhy', 'estimation', 'family:causal', 'refutation', 'robustness', 'structural', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.semiparametric.efficiency_bound@1.0.0 lazy=True namespace=causal.semiparametric override=False tags=['aipw', 'ate', 'att', 'builtin', 'causal', 'cramér-rao', 'cross-section', 'domain:causal', 'efficiency', 'eif', 'estimation', 'family:causal', 'late', 'semiparametric'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.sensitivity.sensitivity_metrics@1.0.0 lazy=True namespace=causal.sensitivity override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'evalue', 'family:causal', 'robustness', 'rosenbaum', 'sensemakr', 'sensitivity', 'structural', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.space_time.fem_spde_g_computation@1.0.0 lazy=True namespace=causal.space_time override=False tags=['builtin', 'causal', 'domain:causal', 'dscm', 'estimation', 'family:causal', 'g-computation', 'space-time', 'spatial', 'spde', 'spillover', 'time-series'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.stochastic.policy_aipw@1.0.0 lazy=True namespace=causal.stochastic override=False tags=['aipw', 'builtin', 'causal', 'cross-section', 'domain:causal', 'doubly-robust', 'estimation', 'family:causal', 'policy', 'stochastic'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.stochastic.policy_plugin@1.0.0 lazy=True namespace=causal.stochastic override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'g-formula', 'plugin', 'policy', 'stochastic'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.stochastic.policy_tmle@1.0.0 lazy=True namespace=causal.stochastic override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'efficient', 'estimation', 'family:causal', 'policy', 'stochastic', 'targeted-learning', 'tmle'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.structural.gcm_fit@1.0.0 lazy=True namespace=causal.structural override=False tags=['builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'gcm', 'hybrid', 'structural'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.structural.gcm_query@1.0.0 lazy=True namespace=causal.structural override=False tags=['builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'gcm', 'query', 'structural'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=jax fqn=causal.structural.parameter_transfer@1.0.0 lazy=True namespace=causal.structural override=False tags=['bridge', 'builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'parameters', 'structural'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.structural.twin_network_query@1.0.0 lazy=True namespace=causal.structural override=False tags=['builtin', 'causal', 'counterfactual', 'domain:causal', 'estimation', 'family:causal', 'structural', 'twin_network'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.targeting.policy_tree@1.0.0 lazy=True namespace=causal.targeting override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'family:causal', 'policy-learning', 'tabular', 'targeting'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.transport.check_transportability@1.0.0 lazy=True namespace=causal.transport override=False tags=['builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'structural', 'transportability'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.transport.density_ratio@1.0.0 lazy=True namespace=causal.transport override=False tags=['builtin', 'causal', 'covariate-shift', 'density-ratio', 'domain:causal', 'estimation', 'family:causal', 'kliep', 'reweighting', 'rulsif', 'structural', 'transport'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.transport.symbolic_identify@2.0.0 lazy=True namespace=causal.transport override=False tags=['builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'id-algorithm', 'pearl-bareinboim', 'structural', 'symbolic', 'transportability'] version=2.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.transport.symbolic_identify@1.0.0 lazy=True namespace=causal.transport override=False tags=['builtin', 'causal', 'domain:causal', 'estimation', 'family:causal', 'structural', 'symbolic', 'transportability', 'y0'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.treatment_effects.aipw@1.0.0 lazy=True namespace=causal.treatment_effects override=False tags=['aipw', 'ate', 'builtin', 'causal', 'cross-section', 'domain:causal', 'doubly-robust', 'estimation', 'family:causal', 'treatment-effects'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.treatment_effects.cbps@1.0.0 lazy=True namespace=causal.treatment_effects override=False tags=['builtin', 'causal', 'cbps', 'covariate-balance', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'treatment-effects'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.treatment_effects.cross_fit@1.0.0 lazy=True namespace=causal.treatment_effects override=False tags=['aipw', 'builtin', 'causal', 'cross-fitting', 'cross-section', 'dml', 'domain:causal', 'eif', 'estimation', 'family:causal', 'semiparametric'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.treatment_effects.cross_fit_continuous@1.0.0 lazy=True namespace=causal.treatment_effects override=False tags=['builtin', 'causal', 'continuous', 'continuous-treatment', 'cross-fitting', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'gps', 'nuisance', 'tabular'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.treatment_effects.entropy_balancing@1.0.0 lazy=True namespace=causal.treatment_effects override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'entropy-balancing', 'estimation', 'family:causal', 'reweighting', 'treatment-effects'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.treatment_effects.ipw@1.0.0 lazy=True namespace=causal.treatment_effects override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'horvitz-thompson', 'ipw', 'treatment-effects'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.treatment_effects.propensity_matching@1.0.0 lazy=True namespace=causal.treatment_effects override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'estimation', 'family:causal', 'nearest-neighbor', 'propensity-matching', 'treatment-effects'] version=1.0.0
+2026-10-07 23:58:29 [info     ] method_registered              backend=numpy fqn=causal.treatment_effects.tmle@1.0.0 lazy=True namespace=causal.treatment_effects override=False tags=['builtin', 'causal', 'cross-section', 'domain:causal', 'efficient', 'estimation', 'family:causal', 'semiparametric', 'tmle', 'treatment-effects'] version=1.0.0
+=========================== short test summary info ============================
+FAILED tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get
+1 failed in 16.84s

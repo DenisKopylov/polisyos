@@ -963,5 +963,120 @@
     "existing_failure_mode": "The historical 6565 exact-key guard let the marker remain while it skipped mutating the actual _physical_run_ref payload; those PASS runs remain classified INVALID_NO_OP.",
     "closure_move": "The R1 harness mutates actual emitted seed/replication_seeds or plan inputs, proves the mutation counter is positive, and observes the expected physical-reference collapse; full output is hashed and the central 217 test wave is referenced without duplicate logs.",
     "predicate_basis": "recomputed from the actual test callback, physical refs, JUnit failure point, and nonzero mutation assertion; scope remains the bounded registered-NCM cache criterion."
-  }
+  },
+  "current_recheck_catalogues": [
+    {
+      "catalogue": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/physical-cache-current-checks.json",
+        "sha256": "7f10c5fa3e1b32a9fdc9266fac1fab6edc4204679b829545573e140e91379c8f",
+        "schema": "policyos.e02.implementation_handoff.v1",
+        "check_count": 6,
+        "outcomes": {
+          "PASS": 3,
+          "FAIL": 2,
+          "ERROR": 1
+        }
+      },
+      "candidate": {
+        "commit": "814a9cbc1f93f0b6f7b86203d2347a4866d84b96",
+        "tree": "441fd4a6c4eaee55a3b68ac6b08b4bf609284da3",
+        "source_implementation_commit": "9794b716a74aee98545449ac97dc98825d2471de"
+      },
+      "six_check_readout": [
+        {
+          "name": "Initial positive attempt — plugin import harness error, excluded from behavioral evidence",
+          "outcome": "ERROR",
+          "interpretation": "Plugin import failed before collection; no target test ran; excluded from behavioral evidence."
+        },
+        {
+          "name": "Fresh registered-NCM positive witness on frozen 814a source",
+          "outcome": "PASS",
+          "interpretation": "Fresh positive witness: 1 test passed."
+        },
+        {
+          "name": "Seed and replication-seed removal — qualified expected behavioral falsifier",
+          "outcome": "FAIL",
+          "interpretation": "Expected seed/replication_seeds removal falsifier: 24 actual hash-payload mutations; test observed 2 physical refs rather than 3."
+        },
+        {
+          "name": "Plan removal — qualified expected behavioral falsifier",
+          "outcome": "FAIL",
+          "interpretation": "Expected plan removal falsifier: 24 actual hash-payload mutations; test observed 2 physical refs rather than 3."
+        },
+        {
+          "name": "Direct B23 input source identity across 814a to 98bfc",
+          "outcome": "PASS",
+          "interpretation": "All 11 named direct B23 inputs retained the same blobs across 814a→98bfc; unrelated changed path is recorded in catalogue."
+        },
+        {
+          "name": "Runtime provenance artifact and named-closure scope",
+          "outcome": "PASS",
+          "interpretation": "Four provenance snapshots reconciled; 11 named direct inputs; full transitive import closure not_established."
+        }
+      ],
+      "root_adjudication_as_instructed": {
+        "B23": "closed",
+        "criterion_scope": "Original bounded registered-NCM invocation-local physical-spec cache criterion",
+        "G_acceptance": "pending"
+      },
+      "full_tree_snapshot_footprint": {
+        "command": "git diff --no-renames --name-status 905820ceac5860c7d1c4ebcbdde7b1265afb0b15 814a9cbc1f93f0b6f7b86203d2347a4866d84b96",
+        "base_tree": "98405fab6c567d9fd44a5e30387c0ba32a7c7cf9",
+        "candidate_tree": "441fd4a6c4eaee55a3b68ac6b08b4bf609284da3",
+        "path": "policy-engine/_build/e02-A-continuation-20261007/b23-current-814a/full-tree-snapshot-diff-905-to-814.name-status",
+        "sha256": "573bfd025134217b47dfeaa2a9d2f0a2162b3c25f695f0341566f0f7119fb7cc",
+        "bytes": 109953,
+        "entries": 748,
+        "status_counts": {
+          "A": 702,
+          "M": 46,
+          "D": 0
+        },
+        "scope": "Complete repository path inventory for the base-to-candidate snapshot; not a mechanism-only path subset."
+      },
+      "provenance_limits": {
+        "named_direct_inputs": 11,
+        "module_origins_stored_cap": 80,
+        "observed_module_origin_totals": [
+          265,
+          266
+        ],
+        "omitted": [
+          185,
+          186
+        ],
+        "complete_transitive_import_closure": "not_established"
+      },
+      "B25_reuse": {
+        "criterion": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a#L503-L516",
+        "existing_decision": "Separate exact-moment closure retained; no B25 test was rerun and this receipt does not reopen it.",
+        "consumer_functions": [
+          "summary_distance",
+          "calibrate_coupled_smm",
+          "_average_summaries"
+        ],
+        "tests": [
+          "test_summary_distance_requires_one_declared_metric_set",
+          "test_smm_missing_required_moment_cannot_win_calibration",
+          "test_smm_all_incomparable_candidates_are_explicitly_blocked"
+        ],
+        "blob_identity_by_revision": {
+          "source_9794": {
+            "estimation_py_blob": "5f574d9aa735d843722b429bb8c00c3721ca6911",
+            "test_sim_03_py_blob": "4804ffac006db662bbd912ae835c1c8fafbb6f05"
+          },
+          "tested_candidate_814a": {
+            "estimation_py_blob": "5f574d9aa735d843722b429bb8c00c3721ca6911",
+            "test_sim_03_py_blob": "4804ffac006db662bbd912ae835c1c8fafbb6f05"
+          },
+          "current_HEAD": {
+            "commit": "9aac0a7236de352df15e7bb38157d9eae069c720",
+            "estimation_py_blob": "5f574d9aa735d843722b429bb8c00c3721ca6911",
+            "test_sim_03_py_blob": "4804ffac006db662bbd912ae835c1c8fafbb6f05"
+          }
+        },
+        "finding": "Both complete consumer and test-module blobs are identical at source commit 9794, tested candidate 814a, and current HEAD; named functions/tests therefore remain byte-identical."
+      }
+    }
+  ]
 }

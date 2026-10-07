@@ -2915,18 +2915,18 @@
       "closure_now": "not_adjudicated",
       "selected_plan_not_executed": {
         "selected_minimal_route": "**Рекомендуемое исправление.** Передавать остановке снимок фактического учёта от существующего владельца бюджета с областью, валютой/единицей, уже подтверждёнными расходами и, где нужно, резервами. Проверять возможность нового расхода до запуска, а не использовать post-factum stopping как замену admission. Для budget-required режима отсутствие состояния — неизвестный учёт, не автоматически нулевой расход.",
-        "concrete_next_task": "Выполнить `selected_minimal_route`, сохранив её ограничение; затем закрыть только этот остаток: Real evaluator retry/cache-ledger admission and an independent production budget provider are not established by these CTL fixtures. Назначенный владелец: FUN/evaluator ledger provider and SearchService caller own actual spend source..",
-        "next_owner": "FUN/evaluator ledger provider and SearchService caller own actual spend source.",
-        "remaining_input": "Real evaluator retry/cache-ledger admission and an independent production budget provider are not established by these CTL fixtures.",
+        "concrete_next_task": "Exact D 68070854 has a G-executed 10-case canonical owner→controller→CAS/fresh-resume witness. Accept owner-compatible source and verify only affected consumers on the frozen integrated SHA; do not repeat unchanged deciding runs. Formal closure remains not_adjudicated.",
+        "next_owner": "D native factory and G integration, preserving B's canonical BudgetMiddleware/FileBudgetLedger.",
+        "remaining_input": "Exact integrated-source consumer verification and G code acceptance remain pending. Universal deployed production-provider or invoice-truth proof is not a prerequisite of original B120; deployment truth/use stays a separate not_established claim.",
         "consumer_paths": [
           "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
           "policy-engine/src/polisyos/scientist/methods/search/controller.py",
           "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py"
         ],
-        "independent_oracle_after_integration": "Reopen the existing FileBudgetLedger and compare snapshots around one actual resource-owner event: measured spend, limit key/unit, reservation settlement, stable charge_event_id, and no duplicate on retry. For FUN-01 also require equal full/split persisted snapshots and resume only against the changed owner snapshot; maintain warm/new/sentinel/evaluation counts separately. Stage trace or `compute_actual_usd` is not the oracle.",
+        "independent_oracle_after_integration": "Reopen the existing FileBudgetLedger and compare snapshots around the canonical resource-owner event: spend, key/unit, reservation settlement, stable event identity and no duplicate on restore/retry. Carry exact-680 test_service_owner_budget_factory.py evidence only for unchanged source/test/dependencies; after an upstream contract change rerun its affected cases on the frozen integrated SHA. Stage trace or agent-supplied compute_actual_usd is not the oracle. FUN-01 full/split requirements remain on their own criteria.",
         "negative_control": "Keep declared/stage cost (`compute_actual_usd=1`) and markers; suppress the actual ledger charge then reopen FileBudgetLedger: persisted spend must not advance and the gate must fail. Redeliver one charge_event_id and prove it is not charged twice. A changed stage trace without ledger mutation cannot pass.",
-        "acceptance_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_cost_stopping.py tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/scientist/orchestration/engine/test_budget.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/orchestration/engine/test_budget_ledger.py -ra",
-        "capability_state_label": "bridge_missing",
+        "acceptance_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/test_service_owner_budget_factory.py -ra",
+        "capability_state_label": "verification_missing",
         "P40": {
           "bucket": "new_or_distinct_class",
           "relation": null

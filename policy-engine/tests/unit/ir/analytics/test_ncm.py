@@ -16,9 +16,7 @@ from polisyos.runtime.quality.generation_source import (
 
 def _declaration(*, coefficient: float) -> CandidateSimulationSyntheticModelDeclarationV1:
     fields = {
-        "schema_version": (
-            "policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"
-        ),
+        "schema_version": ("policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"),
         "profile_config_ref": "runtime-config:candidate-simulation:fixture",
         "profile_content_hash": "sha256:" + "a" * 64,
         "profile_selection_ref": "sha256:" + "b" * 64,
@@ -125,6 +123,10 @@ def test_candidate_ncm_is_derived_from_declared_baseline_and_selected_view(
 
         assert selected_ref.manifest_profile_sha256 is not None
         assert default_view_ref.manifest_profile_sha256 is None
+        selected_manifest = store.get_manifest(selected_ref)
+        assert selected_manifest.canon is not None
+        assert selected_manifest.canon.forbid_floats is False
+        assert selected_manifest.canon.exclude_none is False
         loaded = load_ncm_spec_selected_view(
             store,
             selected_ref,
@@ -153,9 +155,7 @@ def test_candidate_ncm_is_derived_from_declared_baseline_and_selected_view(
                 expected_declaration_ref=alternate_ref,
             )
 
-        stripped_selector = selected_ref.model_copy(
-            update={"manifest_profile_sha256": None}
-        )
+        stripped_selector = selected_ref.model_copy(update={"manifest_profile_sha256": None})
         with pytest.raises(ValueError, match="ncm_selected_view_manifest_mismatch"):
             load_ncm_spec_selected_view(
                 store,

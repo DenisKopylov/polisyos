@@ -4,16 +4,20 @@ from decimal import Decimal
 
 import pytest
 
+from polisyos.core.artifacts import ArtifactOwnershipError
 from polisyos.core.artifacts.ir_adapter import (
     CoreToIRArtifactStoreAdapter,
     ensure_ir_artifact_store,
 )
+from polisyos.core.artifacts.manifest import CanonInfo as CoreCanonInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.ir.analytics.backtest import (
     BacktestReport,
     load_backtest_report,
     persist_backtest_report,
 )
+from polisyos.ir.artifacts.contracts import StorePutOptions
 from polisyos.ir.artifacts.io import get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
 from polisyos.ir.model_layer.canon import CanonViolation as IRCanonViolation
@@ -97,6 +101,143 @@ def test_ir_adapter_persists_decimal_bytes_that_the_ir_reader_accepts(tmp_path) 
         b'{"amount":{"_type":"decimal","value":"12.30"}}'
     )
     assert get_json_artifact(ir_store, ref["artifact_id"]) == payload
+
+
+def test_ir_adapter_preserves_all_write_options_and_selected_input_view(tmp_path) -> None:
+    """The Core manifest retains every typed IR-to-CAS option across adaptation."""
+    store = FileSystemCAS(tmp_path / "scoped-cas").with_ambient_ownership_enforcement()
+    adapter = CoreToIRArtifactStoreAdapter(store)
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        store.put_bytes(
+            b"shared parent bytes",
+            PutOptions(kind="test.parent.default", media_type="text/plain"),
+        )
+        selected_parent = store.put_bytes(
+            b"shared parent bytes",
+            PutOptions(kind="test.parent.selected", media_type="text/plain"),
+        )
+        assert selected_parent.manifest_profile_sha256 is not None
+
+        ref = adapter.put_bytes(
+            b'{"value":1}',
+            StorePutOptions(
+                kind="test.ir-adapter.options",
+                media_type="application/json",
+                schema={"name": "test.ir-adapter.options", "version": "1.0"},
+                producer={"component": "test-suite", "version": "1.0"},
+                env={
+                    "python": "3.14",
+                    "platform": "test",
+                    "deps_lock_hash": "sha256:" + "a" * 64,
+                },
+                inputs=[
+                    {
+                        "artifact_id": str(selected_parent.artifact_id),
+                        "role": "selected_parent",
+                        "manifest_profile_sha256": selected_parent.manifest_profile_sha256,
+                    }
+                ],
+                canon={"forbid_floats": False},
+                governance={"classification": "internal"},
+                tenant_context={"tenant_id": "tenant-a", "cell_id": "cell-a"},
+                same_input_closure={
+                    "closure_id": "closure-a",
+                    "status": "candidate_only",
+                    "run_id": "run-a",
+                    "job_id": "job-a",
+                    "tenant_id": "tenant-a",
+                    "cell_id": "cell-a",
+                    "evidence_input_refs": [str(selected_parent.artifact_id)],
+                },
+                authority={
+                    "authority_envelope_ref": "envelope://a",
+                    "diagnostic_event_ref": "event://a",
+                    "manifest_ref": "manifest://a",
+                    "payload_sha256": "sha256:" + "b" * 64,
+                },
+                warnings=[{"code": "retained", "msg": "keep this warning"}],
+            ),
+        )
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        manifest = store.get_manifest(ref)
+        assert manifest.kind == "test.ir-adapter.options"
+        assert manifest.media_type == "application/json"
+        assert manifest.artifact_schema.name == "test.ir-adapter.options"
+        assert manifest.artifact_schema.version == "1.0"
+        assert manifest.producer.component == "test-suite"
+        assert manifest.env.python == "3.14"
+        assert manifest.canon is not None and manifest.canon.forbid_floats is False
+        assert manifest.governance.classification == "internal"
+        assert manifest.tenant_context.tenant_id == "tenant-a"
+        assert manifest.tenant_context.cell_id == "cell-a"
+        assert manifest.same_input_closure.closure_id == "closure-a"
+        assert manifest.same_input_closure.evidence_input_refs == (
+            str(selected_parent.artifact_id),
+        )
+        assert manifest.authority.authority_envelope_ref == "envelope://a"
+        assert manifest.warnings[0].code == "retained"
+        assert manifest.warnings[0].msg == "keep this warning"
+        assert str(manifest.inputs[0].artifact_id) == str(selected_parent.artifact_id)
+        assert manifest.inputs[0].manifest_profile_sha256 == (
+            selected_parent.manifest_profile_sha256
+        )
+        assert store.get_bytes(ref) == b'{"value":1}'
+
+
+def test_ir_adapter_preserves_foreign_selected_input_for_core_admission(tmp_path) -> None:
+    """A foreign selected input remains visible to Core's ownership rejection."""
+    store = FileSystemCAS(tmp_path / "scoped-cas").with_ambient_ownership_enforcement()
+    adapter = CoreToIRArtifactStoreAdapter(store)
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        store.put_bytes(
+            b"foreign parent bytes",
+            PutOptions(kind="test.foreign-parent.default", media_type="text/plain"),
+        )
+        foreign_parent = store.put_bytes(
+            b"foreign parent bytes",
+            PutOptions(kind="test.foreign-parent.selected", media_type="text/plain"),
+        )
+
+    assert foreign_parent.manifest_profile_sha256 is not None
+    with tenant_scope(None, tenant_id="tenant-b", cell_id="cell-b"):
+        with pytest.raises(ArtifactOwnershipError, match="write input:foreign_parent"):
+            adapter.put_bytes(
+                b"child with foreign selected input",
+                StorePutOptions(
+                    kind="test.foreign-child",
+                    media_type="application/octet-stream",
+                    inputs=[
+                        {
+                            "artifact_id": str(foreign_parent.artifact_id),
+                            "role": "foreign_parent",
+                            "manifest_profile_sha256": foreign_parent.manifest_profile_sha256,
+                        }
+                    ],
+                ),
+            )
+        assert store.iter_artifact_ids() == []
+
+
+def test_ir_adapter_refuses_a_canon_profile_that_does_not_match_its_bytes(tmp_path) -> None:
+    """A mismatched Core canon declaration cannot accompany IR-profile bytes."""
+    core_store = FileSystemCAS(tmp_path / ".polisyos")
+    adapter = CoreToIRArtifactStoreAdapter(core_store)
+
+    with pytest.raises(ValueError, match="ir_canon_profile_mismatch"):
+        adapter.put_json(
+            {"score": 0.25},
+            PutOptions(
+                kind="test.ir-canon-profile",
+                media_type="application/json",
+                canon=CoreCanonInfo(forbid_floats=True),
+            ),
+            canon_spec=IRCanonSpec(forbid_floats=False),
+        )
+
+    assert core_store.iter_artifact_ids() == []
 
 
 @pytest.mark.parametrize("payload", _IR_INCOMPATIBLE_TAG_PAYLOADS)

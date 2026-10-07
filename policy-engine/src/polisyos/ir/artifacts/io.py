@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+from dataclasses import is_dataclass, replace
 from typing import TYPE_CHECKING, Any
 
 from polisyos.ir.model_layer.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
@@ -62,7 +64,6 @@ def _put_json_artifact_ref(
         media_type="application/json",
         schema=SchemaInfo(name=schema_name, version=schema_version),
         inputs=normalize_input_refs(inputs),
-        canon=CanonInfo.from_spec(canon_spec),
     )
     return _put_canonical_json_bytes(
         store,
@@ -78,12 +79,41 @@ def _put_canonical_json_bytes(
     options: Any,
     canon_spec: CanonSpec,
 ) -> Any:
-    """Serialize once with IR's typed profile, then persist those exact bytes."""
+    """Bind IR's declared profile, serialize once, and persist those exact bytes."""
+    options = _bind_canon_profile(options, canon_spec)
     canonical_bytes = to_canonical_bytes(payload, canon_spec)
     put_bytes = getattr(store, "put_bytes", None)
     if not callable(put_bytes):
         raise TypeError("IR artifact store must implement put_bytes for profile-bound writes")
     return put_bytes(canonical_bytes, opts=options)
+
+
+def _bind_canon_profile(options: Any, canon_spec: CanonSpec) -> Any:
+    """Fail on conflicting metadata and bind the exact profile used for serialization."""
+    expected = CanonInfo.from_spec(canon_spec)
+    supplied = getattr(options, "canon", None)
+    if supplied is not None:
+        if isinstance(supplied, Mapping):
+            payload = dict(supplied)
+        else:
+            model_dump = getattr(supplied, "model_dump", None)
+            if callable(model_dump):
+                payload = model_dump(mode="python")
+            elif hasattr(supplied, "__dict__"):
+                payload = dict(vars(supplied))
+            else:
+                raise ValueError("ir_canon_profile_mismatch")
+        try:
+            actual = CanonInfo.model_validate(payload)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("ir_canon_profile_mismatch") from exc
+        if actual != expected:
+            raise ValueError("ir_canon_profile_mismatch")
+        return options
+
+    if not is_dataclass(options) or isinstance(options, type):
+        raise TypeError("IR artifact write options must support canon profile binding")
+    return replace(options, canon=expected.model_dump(mode="python"))
 
 
 def get_json_artifact(store: ArtifactStore, artifact_id: ArtifactID) -> Any:

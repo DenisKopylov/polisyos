@@ -2,12 +2,24 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import MISSING, dataclass, fields, is_dataclass, replace
 from typing import TYPE_CHECKING, Any, overload
 
 from .backends.config import ArtifactStoreConfig, build_artifact_store
 from .ids import ArtifactID
-from .manifest import ArtifactGovernanceInfo, ArtifactRef, CanonInfo, InputRef, SchemaInfo
+from .manifest import (
+    ArtifactAuthorityInfo,
+    ArtifactGovernanceInfo,
+    ArtifactRef,
+    ArtifactSameInputClosureInfo,
+    ArtifactTenantContextInfo,
+    CanonInfo,
+    EnvInfo,
+    InputRef,
+    ProducerInfo,
+    SchemaInfo,
+    WarningRecord,
+)
 from .write_contract import ArtifactWriteOptions
 
 if TYPE_CHECKING:
@@ -23,6 +35,8 @@ if TYPE_CHECKING:
 def _coerce_payload(value: Any) -> dict[str, Any]:
     if isinstance(value, dict):
         return dict(value)
+    if is_dataclass(value) and not isinstance(value, type):
+        return {field.name: getattr(value, field.name) for field in fields(value)}
     model_dump = getattr(value, "model_dump", None)
     if callable(model_dump):
         dumped = model_dump(mode="python")
@@ -41,8 +55,14 @@ def _coerce_schema(schema: Any | None) -> SchemaInfo | None:
     return SchemaInfo.model_validate(_coerce_payload(schema))
 
 
+def _coerce_model(model_type: type, value: Any | None) -> Any | None:
+    if value is None or isinstance(value, model_type):
+        return value
+    return model_type.model_validate(_coerce_payload(value))
+
+
 def _coerce_inputs(inputs: Any | None) -> list[InputRef] | None:
-    if not inputs:
+    if inputs is None:
         return None
     return [InputRef.model_validate(_coerce_payload(item)) for item in inputs]
 
@@ -64,19 +84,38 @@ def _coerce_governance(governance: Any | None) -> ArtifactGovernanceInfo | None:
 
 
 def _coerce_write_options(opts: Any) -> ArtifactWriteOptions:
-    if isinstance(opts, ArtifactWriteOptions):
-        return opts
     payload = _coerce_payload(opts)
-    return ArtifactWriteOptions(
-        kind=str(payload["kind"]),
-        media_type=str(payload["media_type"]),
-        schema=_coerce_schema(payload.get("schema")),
-        producer=payload.get("producer"),
-        env=payload.get("env"),
-        inputs=_coerce_inputs(payload.get("inputs")),
-        canon=_coerce_canon_info(payload.get("canon")),
-        governance=_coerce_governance(payload.get("governance")),
-    )
+    converters = {
+        "schema": _coerce_schema,
+        "producer": lambda value: _coerce_model(ProducerInfo, value),
+        "env": lambda value: _coerce_model(EnvInfo, value),
+        "inputs": _coerce_inputs,
+        "canon": _coerce_canon_info,
+        "governance": _coerce_governance,
+        "tenant_context": lambda value: _coerce_model(ArtifactTenantContextInfo, value),
+        "same_input_closure": lambda value: _coerce_model(ArtifactSameInputClosureInfo, value),
+        "authority": lambda value: _coerce_model(ArtifactAuthorityInfo, value),
+        "warnings": lambda values: (
+            None if values is None else [_coerce_model(WarningRecord, value) for value in values]
+        ),
+    }
+    options: dict[str, Any] = {}
+    for field in fields(ArtifactWriteOptions):
+        name = field.name
+        if name in {"kind", "media_type"}:
+            options[name] = str(payload[name])
+            continue
+        if name in payload:
+            value = payload[name]
+        elif field.default is not MISSING:
+            value = field.default
+        elif field.default_factory is not MISSING:
+            value = field.default_factory()
+        else:
+            raise TypeError(f"IR write options are missing required Core field: {name}")
+        converter = converters.get(name)
+        options[name] = converter(value) if converter is not None else value
+    return ArtifactWriteOptions(**options)
 
 
 @dataclass(frozen=True, slots=True)
@@ -107,7 +146,6 @@ class CoreToIRArtifactStoreAdapter:
         write_options = replace(
             write_options,
             media_type="application/json",
-            canon=write_options.canon or CanonInfo.from_spec(spec),
         )
         return _put_canonical_json_bytes(self, obj, write_options, spec)
 

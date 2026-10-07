@@ -1,0 +1,83 @@
+{
+  "schema": "e02-moderate-publication-selection:1",
+  "candidate": "d0038a6e52867e820fd96f4706746ec501a80273",
+  "candidate_tree": "7cba4710faa6f504be29ac44a68397afb16e7dd2",
+  "base": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-facade-test-d003-independent-20261007/review.json",
+      "path": "review.json",
+      "bytes": 12312,
+      "sha256": "e5f382781ff0c376a1932ac84904cf663e976dff06465bec810a32e6d9211587"
+    },
+    {
+      "source_path": "/tmp/e02-E-facade-test-d003-independent-20261007/review.py.txt",
+      "path": "review.py.txt",
+      "bytes": 10803,
+      "sha256": "f2582337c33e3bd367a82f5ef4b4526612a2499c362375c49ee4279ae7ef28f8"
+    },
+    {
+      "source_path": "/tmp/e02-E-facade-test-d003-independent-20261007/removed-function.py.txt",
+      "path": "removed-function.py.txt",
+      "bytes": 734,
+      "sha256": "bc8a118ac76d2d4df0d1e9a2c4516a334122da6a26214665013707733559f52f"
+    },
+    {
+      "source_path": "/tmp/e02-E-facade-test-d003-independent-20261007/command.json",
+      "path": "command.json",
+      "bytes": 1302,
+      "sha256": "2bfcde5365583eb155a2c1432c27b1c82aa229bee9bfd35994c297c413164820"
+    },
+    {
+      "source_path": "/tmp/e02-E-facade-test-d003-independent-20261007/pytest.xml",
+      "path": "pytest.xml",
+      "bytes": 397,
+      "sha256": "7af41c118fa13e68193cbd2e21563a53dc2905bb4f5cde7f5dc2cbabdceec30d"
+    },
+    {
+      "source_path": "/tmp/e02-E-facade-test-d003-independent-20261007/pytest.stdout.txt",
+      "path": "pytest.stdout.txt",
+      "bytes": 80,
+      "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+    },
+    {
+      "source_path": "/tmp/e02-E-facade-test-d003-independent-20261007/pytest.stderr.txt",
+      "path": "pytest.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-facade-test-d003-independent-20261007/stdout.txt",
+      "path": "stdout.txt",
+      "bytes": 3199,
+      "sha256": "e5981e15b7fa993dafa58d47b1423c715081c1e05311ade4d703dd96bf00603d"
+    },
+    {
+      "source_path": "/tmp/e02-E-facade-test-d003-independent-20261007/stderr.txt",
+      "path": "stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-facade-test-d003-independent-20261007/author-output-ref-readback.json",
+      "path": "author-output-ref-readback.json",
+      "bytes": 2111,
+      "sha256": "72cf297d98320b24aa627130354f733fc51853492f1148c45179804c9ca53a38"
+    }
+  ],
+  "asset_count": 10,
+  "asset_bytes": 30938,
+  "prior_oracle_reuse": {
+    "original317_facade_test_FAIL_retained": true,
+    "path": "/tmp/e02-E-facade-finite-bucket-independent-31782-20261007/review.json",
+    "production_assets_rechecked": 4,
+    "reuse_scope": [
+      "exact Fraction cuts",
+      "native 3atom Sobol257 callbacks128/1/127",
+      "4atom UNKNOWN/callback0",
+      "native sole-bucket-predicate removal257callbacks/skipped positive category1"
+    ],
+    "sha256": "c0200a604c643d69c1fac2b043864d7570621e310a4887d9ceec40f324f2d2f0"
+  },
+  "scope": "One immutable test companion source GO; complete earlier wave and finding outcomes stay separate."
+}

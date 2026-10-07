@@ -1,0 +1,34 @@
+{
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/calibration/test_evidence_facades.py::test_public_finite_law_admission_preserves_atoms_and_domain",
+    "--junitxml",
+    "/tmp/e02-E-facade-test-d003-independent-20261007/pytest.xml",
+    "--basetemp",
+    "/tmp/e02-E-facade-test-d003-independent-20261007/pytest-base",
+    "-o",
+    "cache_dir=/tmp/e02-E-facade-test-d003-independent-20261007/pytest-cache",
+    "--benchmark-storage=file:///tmp/e02-E-facade-test-d003-independent-20261007/benchmarks"
+  ],
+  "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+  "exit_code": 0,
+  "elapsed_seconds": 10.613544464111328,
+  "env": {
+    "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TMPDIR": "/tmp/e02-E-facade-test-d003-independent-20261007/tmp",
+    "UV_NO_SYNC": "1",
+    "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "XLA_FLAGS": null
+  },
+  "case": {
+    "classname": "tests.unit.calibration.test_evidence_facades",
+    "name": "test_public_finite_law_admission_preserves_atoms_and_domain",
+    "status": "PASS"
+  }
+}

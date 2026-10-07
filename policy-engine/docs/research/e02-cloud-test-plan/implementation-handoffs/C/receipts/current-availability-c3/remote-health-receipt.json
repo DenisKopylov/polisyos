@@ -1,0 +1,15 @@
+{
+  "started_at_utc": "2026-10-07T08:40:42.640346+00:00",
+  "ended_at_utc": "2026-10-07T08:40:50.663793+00:00",
+  "wall_seconds": 8.023,
+  "exit_code": 255,
+  "timed_out": false,
+  "stdout_bytes": 0,
+  "stderr_bytes": 66,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "c11f84a2c271e8bb678b98284f21c7d743438e3146e9dbee1d97be61f1577bce",
+  "command": "remote-health-command.json",
+  "stdout": "remote-health.stdout.txt",
+  "stderr": "remote-health.stderr.txt",
+  "interpretation": "pending bounded result parsing; no retry or trust-policy change authorized"
+}

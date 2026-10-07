@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "/usr/bin/ssh",
+    "-o",
+    "BatchMode=yes",
+    "-o",
+    "StrictHostKeyChecking=yes",
+    "-o",
+    "ConnectTimeout=8",
+    "-p",
+    "22",
+    "root@204.168.164.187",
+    "uname -s; getconf _NPROCESSORS_ONLN; awk '/^MemTotal:/ { print $2, $3 }' /proc/meminfo"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+  "overall_timeout_seconds": 15,
+  "remote_commands": [
+    "uname -s",
+    "getconf _NPROCESSORS_ONLN",
+    "awk '/^MemTotal:/ { print $2, $3 }' /proc/meminfo"
+  ],
+  "remote_scope": "Read-only OS name, online CPU count, and MemTotal only. No hostname, env, process list, storage, source/data, Docker, provider metadata, or service state requested.",
+  "ssh_policy": {
+    "batch_mode": true,
+    "strict_host_key_checking": "yes",
+    "connect_timeout_seconds": 8,
+    "host": "root@204.168.164.187",
+    "port": 22,
+    "retry": false
+  },
+  "candidate_repo_source": {
+    "path": "policy-engine/tools/devx/workspace/remote_acceptance.py",
+    "blob_at_audit": "see linux-c7-availability-v2.json source_files.remote_tool",
+    "g_head_at_check": "591359ab692207a6356d7773c07ce8db97f42a02"
+  },
+  "environment_values_recorded": false
+}

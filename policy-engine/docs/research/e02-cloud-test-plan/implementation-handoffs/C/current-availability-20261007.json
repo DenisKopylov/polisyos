@@ -1,0 +1,103 @@
+{
+  "schema": "policyos.e02.c3.current_availability_adjudication.v1",
+  "unit": "C",
+  "source_candidate": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+  "authority_scope": "C candidate-grade current availability and remaining-work assessment only. This does not admit production law/data/model authority, change finding verdicts, or constitute G formal closure.",
+  "input_boundary": "Production data remains local/read-only; no source rows, vectors, weights, DB/Parquet files or production-derived raw dumps are exported. Local deciding references require local G readback and remain explicitly separate from portable source evidence.",
+  "finding_notes": {
+    "LA-029": {
+      "verdict": "held",
+      "executor": "c2_environment, independently inspected by C root",
+      "availability": "Repository-configured Linux candidate root@204.168.164.187:22 exists as a configuration. One authorized read-only BatchMode/StrictHostKeyChecking SSH health check timed out before remote execution: exit 255 in 8.023 seconds. No current CPU/RAM, authentication, Linux identity, or C7 lifecycle was observed.",
+      "code_outcome": "Earlier bounded Linux-process criterion remains UNRUN; a Mac fixture or host configuration does not establish it.",
+      "missing_input": "Reachable eligible Linux/C7 resource and actual process-lifecycle positive/removal control; no global provider absence or product failure claim.",
+      "next_owner": "G local resource coordinator / UDF process owner",
+      "deciding_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current-availability-c3/remote-health-command.json",
+          "sha256": "2cbc8957d655c1db65f7647776e9955c7713045e6ee9319d8081dbd06965faad",
+          "bytes": 1212
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current-availability-c3/remote-health-receipt.json",
+          "sha256": "8a01ed7d0e7703d953dba59641a5be17b5c7f44369e78e78e98186d4f487509b",
+          "bytes": 618
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current-availability-c3/remote-health.stdout.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current-availability-c3/remote-health.stderr.txt",
+          "sha256": "c11f84a2c271e8bb678b98284f21c7d743438e3146e9dbee1d97be61f1577bce",
+          "bytes": 66
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current-availability-c3/remote-health-adjudication-v1.json",
+          "sha256": "050aa1023be87d6125f70affe6e4794d89b6a9d25a175f4aef560005b6b82f1f",
+          "bytes": 1530
+        }
+      ]
+    },
+    "LA-040": {
+      "verdict": "held",
+      "executor": "demography_owner metadata-only census; C root source/readback adjudication",
+      "availability": "The selected local Legal DuckDB exists. The ab441 producer deterministically selects all rows ordered by ID from entity/fact/provision tables; it does not claim a legally-current subset. Snapshot membership does not need a new institutional ratification or full history. The selected bundle has no paired persisted embedding generation/profile manifest; producer 1024-dimensional multilingual-e5 and query 3072-dimensional OpenAI paths are different profiles. Named inspected model-cache locations lack the paired immutable assets; external caches are outside this scope.",
+      "code_outcome": "Fixture/native-index and actual Legal reader evidence remains bounded. No production source rows, text, vectors, weights or exact membership digest were read by this census.",
+      "missing_input": "Minimal read-only snapshot projection/digest pass and paired same-profile persisted generation→consumer readback with immutable model/tokenizer/normalization identity. Source DB is present, not unavailable. This is not a legal-in-force membership claim.",
+      "next_owner": "G local criterion run after source/model owner supplies paired assets/profile; C remains canonical producer owner",
+      "local_deciding_ref": {
+        "local_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/legal-census/LA040-readonly-handoff.md",
+        "sha256": "42f293558dfc35ea50162eeb19a890c5ca4001474aff0531d9d717b485053adf",
+        "bytes": 18301,
+        "delivery": "Local G readback/rerun only; no production-derived payload is copied into Git."
+      }
+    },
+    "LA-032": {
+      "verdict": "held",
+      "executor": "c2_obs_udf_writer read-only filesystem/footer census; C root adjudication",
+      "availability": "Two target-named D3 Parquets and manifest entries exist; footer metadata matches their declared sizes/row counts. Their bytes/authority were not admitted, artifact_id is null, and no current UDF-05 versioned inventory/selector or target/prior/donor mapping was supplied by the inspected source. No period is invented for registered-stage consumers.",
+      "code_outcome": "Registered-stage and direct-importer finite OBS/UDF criteria remain closed on their own unchanged receipts. D3 metadata is not a persisted UDF inventory or bridge.",
+      "missing_input": "C-W19 authority/versioned inventory producer→artifact→bridge linking actual selected source identities to all four readers, with missing/forged/swapped inventory controls.",
+      "next_owner": "C-W19 inventory owner; G local consumer verification",
+      "local_deciding_ref": {
+        "local_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/obs-udf-prep/C3-OBS-UDF-PREP.md",
+        "sha256": "337ca91f90baab1a58395280ae3bdce8f45b544892b5c110ba4f780009989c4a",
+        "bytes": 19557,
+        "delivery": "Local G readback/rerun only; no production-derived payload is copied into Git."
+      }
+    },
+    "LA-036": {
+      "verdict": "held",
+      "executor": "berl_writer complete six-ref source/test census; C root adjudication",
+      "availability": "The six pinned E/F supplier trees contain real source-row/CAS/model/calibration artifacts, but no admitted BER conditional feature law/model/structural-bound bridge for the exact population, schema, epoch, variable order, support and verifier purpose. E authority remains consumer_asserted/not_established; F source-bound SCM rows do not establish IID conditional feature law or causal identification.",
+      "code_outcome": "Unchanged C coalition mathematics and Gaussian/discrete/fixed-N diagnostics retain their bounded receipts. Markers or marginal background replacement cannot activate conditional authority or certified nonlinear precision.",
+      "missing_input": "E/F owner-supplied content-bound, verifier-admitted conditional law and exact model/bound input; Runtime explanation_reliability and Scientist phase5_preflight readback/removal checks on that admitted artifact.",
+      "next_owner": "E/F law/model/bound suppliers; C BER consumer owner; G independent integration",
+      "source_deciding_ref": {
+        "local_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/ber-prep/supplier-refresh.json",
+        "sha256": "7b96d251845d2baf0ae7b4a38e1d75a904cbbbc90e76b734f2ea51a05e88043f",
+        "bytes": 53787,
+        "delivery": "Local G readback/rerun only; no production-derived payload is copied into Git."
+      }
+    }
+  },
+  "latest_G_metadata_fetch": {
+    "sha": "76746fececd1a183a516c48f07ce2835baa8a2d1",
+    "tree": "51929dd44a3650c7842bf77aedcdeba6ecd1a755",
+    "delta": "21 review/evidence docs only; no new source accepted or findings closed; five C task inputs byte-equal to ebae",
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current-availability-c3/intake-refresh-76746.json",
+      "sha256": "b7c735b2447d57a6eadcf9c2a080ca401a74c2320846f5c6cf9dc2122f88b251"
+    }
+  },
+  "pattern_pass": [
+    "P14",
+    "P35",
+    "P37",
+    "P38",
+    "P41"
+  ],
+  "gate_basis": "Availability is independently_reconciled by root against named source/local observations; production authority and intrinsically data-dependent candidate closure remain not_established."
+}

@@ -1,0 +1,28 @@
+{
+  "captured_at_utc": "2026-10-07T08:41:11.381671+00:00",
+  "source_receipt": "remote-health-receipt.json",
+  "source_command": "remote-health-command.json",
+  "source_stdout": "remote-health.stdout.txt",
+  "source_stderr": "remote-health.stderr.txt",
+  "source_hashes": {
+    "receipt_sha256": "8a01ed7d0e7703d953dba59641a5be17b5c7f44369e78e78e98186d4f487509b",
+    "command_sha256": "2cbc8957d655c1db65f7647776e9955c7713045e6ee9319d8081dbd06965faad",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "c11f84a2c271e8bb678b98284f21c7d743438e3146e9dbee1d97be61f1577bce"
+  },
+  "outcome": {
+    "classification": "configured_endpoint_connection_timeout",
+    "exit_code": 255,
+    "wall_seconds": 8.023,
+    "connect_timeout_seconds": 8,
+    "overall_timeout_seconds": 15,
+    "stderr": "ssh: connect to host 204.168.164.187 port 22: Operation timed out",
+    "stdout_empty": true,
+    "remote_command_started": false,
+    "host_key_check_reached": false,
+    "authentication_reached": false,
+    "cpu_ram_metadata": "not observed because TCP/SSH connection timed out before remote command execution"
+  },
+  "scope_limit": "This establishes only that this client could not reach this exact configured endpoint within the bounded attempt. It does not establish global provider absence or that the remote host is down.",
+  "followup": "No retry, StrictHostKeyChecking bypass, alternate endpoint, credential/config inspection, bootstrap, sync, or remote process action."
+}

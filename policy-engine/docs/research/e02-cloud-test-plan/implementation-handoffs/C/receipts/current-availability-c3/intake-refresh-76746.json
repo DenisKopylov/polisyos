@@ -1,0 +1,59 @@
+{
+  "schema": "policyos.e02.c3.g_final_readback.v1",
+  "fetched_G": "76746fececd1a183a516c48f07ce2835baa8a2d1",
+  "tree": "51929dd44a3650c7842bf77aedcdeba6ecd1a755",
+  "previous_G": "ebae80eaa25482d84bc6ad2e78721bc318bc0228",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/candidate.junit.xml.lossless.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/candidate.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/candidate.stdout.txt.lossless.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/control.junit.xml.lossless.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/control.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/control.stdout.txt.lossless.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/executed-observer-ruff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/g_origin_plugin.executed.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/independent-review.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/ruff.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/ruff.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/B.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/D.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/E.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/F-merge-tree.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/F.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/independent-review.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/pins.json"
+  ],
+  "C_inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/COMMON.md",
+      "sha256": "f408d34394bab5f708df7afb6f59195588b5fc394b8304434c9e2fbe2238be79",
+      "equal_previous": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/C.md",
+      "sha256": "e12da55ecf538f579588cd1b601e39575667ee2ed7d36ac3b5f2cf4133b31ee1",
+      "equal_previous": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/C.md",
+      "sha256": "3180269559c0803a4a2a999886d8f06106f50ef27cdee5c4def9e5b0570fd3f3",
+      "equal_previous": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md",
+      "sha256": "8a2697280ff17913847806fa09cfa932a6260ce5053a2d293c5f6878ccf3b990",
+      "equal_previous": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "sha256": "03481f3fef76c5f6eab78a64febe95cb61d7c79555e18dcfc846c505c96d3bce",
+      "equal_previous": true
+    }
+  ],
+  "new_runtime_source_accepted": [],
+  "new_findings_closed": [],
+  "scope": "Ninth-wave documentation/evidence review only; later owner commits outside its frozen snapshot; C inputs unchanged."
+}

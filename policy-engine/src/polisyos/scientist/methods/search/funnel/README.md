@@ -81,3 +81,19 @@ unknown; an observed known subset alongside unknown input is partial. Pending
 producer event payloads retain each amount, origin and stable identity. The
 ordinary runtime outcome serializer and fresh JSON/CAS reader retain both
 components. These input amounts do not establish settled debit or invoice truth.
+
+
+The full native runtime consumer test literally calls
+`RunPolicyBlueprintRuntimeNode.execute` with `PolicyBudgetExecutionContext`, then
+reads the returned `ExperimentState` through a fresh CAS instance. It retains
+the actual L3/L4 workflow adapters and funnel while adding the existing native
+worker call inside a controlled workflow observer. The gateway transport and
+unrelated scientific/evidence boundaries are controlled; this does not prove
+that the default scientific backend creates paid calls. The supplied canonical
+B owner settles those actual calls and a fresh ledger verifies their amounts.
+Full/split, real zero, empty/capped stages, CI-width and final-action controls
+retain their distinct output states. Removing only the Node-to-Funnel owner
+port retains the physical producer and ledger debit but loses the returned
+financial projection, which must fail the test. Native executed draw evidence,
+authorized estimate refinement and a current promotion permit remain separate
+owner inputs.

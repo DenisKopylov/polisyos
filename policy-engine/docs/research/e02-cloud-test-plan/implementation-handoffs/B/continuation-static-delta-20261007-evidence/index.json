@@ -1,0 +1,68 @@
+{
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/README.md",
+      "bytes": 1130,
+      "sha256": "8d5ddbc44ecdbc2f84c6e59c15844115bbc2d07bedde905724a8634d3ad0de8d",
+      "git_blob_sha1": "abc3a595529aa64ad8110cc767b1666a77ae31cb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/ast.json",
+      "bytes": 465,
+      "sha256": "1c96aed9c5b92d9e62d6ef7cbc24a3125ba2ce28e1c16a2b47e42c8e25c29695",
+      "git_blob_sha1": "c95694a85f9afc78a5b4e1d57df317e8babc1e9e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/classify_global.py.source.txt",
+      "bytes": 4619,
+      "sha256": "2101b99c1fb0fcf715092a69e3c7f83242b7edb0af883abec123e20c2a7a6b69",
+      "git_blob_sha1": "93e31db8062273581d3a0375af82486de5f92914"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob_sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-format.stdout.txt",
+      "bytes": 26,
+      "sha256": "8e93d18ae56550d4eef2feac77e6630617c7e169246e56e39c75d58b46167985",
+      "git_blob_sha1": "bca3ee507c1d69eaf29c54fa12b2bfe1ae507dcc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob_sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-ruff.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "git_blob_sha1": "1f5f344d054fae10f39140fb7199c99321d9190a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/delta-checks.json",
+      "bytes": 8566,
+      "sha256": "5cc50a02fa05bdcf53e39bf605780a8ce6ce684203b0e99344b83d2c7436957c",
+      "git_blob_sha1": "61cce05d4f16c68bb74e243b98515ba7d2be64b4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/global-summary.json",
+      "bytes": 86612,
+      "sha256": "98fc7482039d4ab64ceac194968379ee7173edfea23a3cde90e361b492d5ecf8",
+      "git_blob_sha1": "2d4c289dfd3749b0ae980202a82deea50ae3f18b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/run_delta.py.source.txt",
+      "bytes": 4224,
+      "sha256": "f625e99b06e37d770ef369bce759d105c3c1ca8cb144fe7bc13924d53fa87b49",
+      "git_blob_sha1": "8efe810945f049d69425a47efd77946990442b6b"
+    }
+  ],
+  "artifact_count": 10,
+  "payload_bytes": 105661,
+  "native_rerun": false,
+  "code_edits": false
+}

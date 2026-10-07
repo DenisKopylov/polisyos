@@ -1,3 +1,5 @@
+Current delta instructions: [latest E actions](../../integration/reviews/E-next-wave-2026-10-06.md). For E also use [PR38 r2 continuation](E-resume-after-pr38-r2.md). Apply historical tasks below only to the still-unresolved original criterion; do not repeat already-measured unchanged source.
+
 # E — продолжение PR38 после независимого разбора G
 
 Продолжай E02 как облачный оркестратор E. Заверши доступные code/mechanism, verification и default-consumer остатки, публикуя законченные slices по готовности. Доведи весь набор из 22 bundles / 54 findings до решений по исходным критериям и конкретных owner handoffs. Реализуемый bridge, ошибочная математика или отсутствующий положительный witness требуют работы. Внешний input/решение должен иметь точного владельца, минимальные входы и следующий проверяемый результат. G принимает код отдельно от finding closure.

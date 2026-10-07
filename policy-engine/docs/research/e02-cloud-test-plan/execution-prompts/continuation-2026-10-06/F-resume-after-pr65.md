@@ -1,3 +1,5 @@
+Current delta instructions: [latest F actions](../../integration/reviews/F-next-wave-2026-10-06.md). For E also use [PR38 r2 continuation](E-resume-after-pr38-r2.md). Apply historical tasks below only to the still-unresolved original criterion; do not repeat already-measured unchanged source.
+
 # F — продолжить после PR65: закончить consumers и исходные критерии
 
 Ты — облачный оркестратор F. Продолжи append-only работу после передачи 17 bundles/35 IDs. Сильные численные результаты сохраняются; выполненный synthetic профиль не превращается в завершённый authority/consumer contract. Цель — исправить доступные shared-boundary дефекты, закончить реальные migrations/companions и передать G критерийно полные slices, а не остановиться на ещё одной таблице `limited`. Scientific law/институциональную authority не выдумывать; missing owner input записывать точным минимальным packet.

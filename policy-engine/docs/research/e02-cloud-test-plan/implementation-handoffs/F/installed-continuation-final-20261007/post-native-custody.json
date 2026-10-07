@@ -1,0 +1,16 @@
+{
+  "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+  "outcome": "PASS",
+  "complete_site_product_resource_file_checks": 6918,
+  "complete_archives_rechecked": 3,
+  "complete_Git_source_files_rechecked": 17843,
+  "complete_Git_source_bytes_rechecked": 550021601,
+  "complete_carrier_files_each_profile": 41,
+  "source_aggregate": "e41e977c3416854676bf70423effdb2d6e4f4f307e586fd006a25ab493b82182",
+  "literal_dependency_pth_only": true,
+  "product_Python_extra_missing": [],
+  "source_fallback": false,
+  "wall_seconds": 1.5489509220060427,
+  "scope": "Custody only; scientific/numerical/native outcomes retain own PASS/FAIL/ERROR statuses."
+}

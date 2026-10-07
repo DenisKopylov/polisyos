@@ -1,0 +1,6 @@
+{
+  "schema": "policyos.e02.lossless_utf8_text.v1",
+  "decoded_bytes": 89,
+  "decoded_sha256": "b3bbdafdaa281bb99eba81b7b24a290ab8b5734130b09bfe046f28bff290a1be",
+  "text": "3.12.14\n/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python\n"
+}

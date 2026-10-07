@@ -1,0 +1,175 @@
+{
+  "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "primary_review": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/b5-independent-review.json",
+    "bytes": 53667,
+    "sha256": "7ebcaf5a9b2d9154f35a272677f6299a15707f624172678022586de46afcb5ac"
+  },
+  "outcome": "FAIL",
+  "consumer_verdict": "NO-GO",
+  "custody_verdict": "PASS",
+  "resource_absence_own_actual_two_profile_probes": [
+    {
+      "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+      "kind": "wheel",
+      "argv": [
+        "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/bin/python",
+        "-I",
+        "-c",
+        "import json,sys,pathlib,hashlib\nfrom polisyos.data_forge.read_api.catalog import default_seed_alignments_path\np=default_seed_alignments_path();owner=sys.modules[default_seed_alignments_path.__module__]\nprint(json.dumps({'python':sys.version,'isolated':sys.flags.isolated,'function_module':default_seed_alignments_path.__module__,'owner':owner.__file__,'owner_sha256':hashlib.sha256(pathlib.Path(owner.__file__).read_bytes()).hexdigest(),'path_type':type(p).__name__,'default_path':str(p),'exists':p.exists(),'scope':'PathABI/resource absence only, no seed injection/native rerun'}))\n"
+      ],
+      "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-consumer",
+      "env": {
+        "PYTHONPATH": "absent",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "seconds": 1.6908231760025956,
+      "observed": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "isolated": 1,
+        "function_module": "polisyos.data_forge.domains.catalog.knowledge.variable_alignment",
+        "owner": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/lib/python3.14/site-packages/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+        "owner_sha256": "6dbfbb04cddff8d1af11ed226e68092a2763a8d007b73f911f4ed9eaa5e54cd9",
+        "path_type": "PosixPath",
+        "default_path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/lib/python3.14/data/dataset_catalog/seed_variable_alignments.yaml",
+        "exists": false,
+        "scope": "PathABI/resource absence only, no seed injection/native rerun"
+      },
+      "full_stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/wheel-resource-absence.stdout.txt",
+        "bytes": 724,
+        "sha256": "2f3a2f2976a0c87512aa88013b265af72fd62bb80f908cb81c024f9d6056f331"
+      },
+      "full_stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/wheel-resource-absence.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+      "kind": "sdist",
+      "argv": [
+        "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/bin/python",
+        "-I",
+        "-c",
+        "import json,sys,pathlib,hashlib\nfrom polisyos.data_forge.read_api.catalog import default_seed_alignments_path\np=default_seed_alignments_path();owner=sys.modules[default_seed_alignments_path.__module__]\nprint(json.dumps({'python':sys.version,'isolated':sys.flags.isolated,'function_module':default_seed_alignments_path.__module__,'owner':owner.__file__,'owner_sha256':hashlib.sha256(pathlib.Path(owner.__file__).read_bytes()).hexdigest(),'path_type':type(p).__name__,'default_path':str(p),'exists':p.exists(),'scope':'PathABI/resource absence only, no seed injection/native rerun'}))\n"
+      ],
+      "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-consumer",
+      "env": {
+        "PYTHONPATH": "absent",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "seconds": 1.6811744080041535,
+      "observed": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "isolated": 1,
+        "function_module": "polisyos.data_forge.domains.catalog.knowledge.variable_alignment",
+        "owner": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/lib/python3.14/site-packages/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+        "owner_sha256": "6dbfbb04cddff8d1af11ed226e68092a2763a8d007b73f911f4ed9eaa5e54cd9",
+        "path_type": "PosixPath",
+        "default_path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/lib/python3.14/data/dataset_catalog/seed_variable_alignments.yaml",
+        "exists": false,
+        "scope": "PathABI/resource absence only, no seed injection/native rerun"
+      },
+      "full_stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/sdist-resource-absence.stdout.txt",
+        "bytes": 724,
+        "sha256": "2bcaf79fe54d806caf65c6d87a69048adf71cb2821dce9d2d3ad79280120df33"
+      },
+      "full_stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/sdist-resource-absence.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "warning_review": {
+    "wheel": {
+      "pytest_terminal_warnings": 16,
+      "PytestUnknownMarkWarning_unit": 1,
+      "grouped_Equinox_deprecation_count_source_observation": "15 case locations grouped under one unchanged LayerNorm warning; full raw warning summary retained",
+      "decoded_TMLe_child_stderr_warning_episodes": 36,
+      "decoded_Prometheus_bootstrap_failure_episodes": 36,
+      "literal_9464_in_child_stderr": 0,
+      "port_scope": "Parent census names default9464; raw stderr reports address-in-use without port. No exporter positive witness",
+      "literal_SimulationResult_in_child_stderr": 12,
+      "actual_AnomalyFlag_str_pattern": "\\[(?:INFO|WARNING|ERROR)\\]\\s+[^:\\n]+:\\s+(?:nan_detected|inf_detected|unexpected_key|missing_key|empty_array|shape_mismatch|distribution_shift)\\b",
+      "literal_anomaly_matches": [],
+      "stderr_expected_negative_Gini_callbacks": 2,
+      "source_quotas_or_warning_suppression_added": false,
+      "historical_warning_proof_not_promoted": "Prior8236 fourteen false runtime anomalies/zero on corrected199 and90LGBM warning profile are separate source-specific observations, not newly measured here"
+    },
+    "sdist": {
+      "pytest_terminal_warnings": 16,
+      "PytestUnknownMarkWarning_unit": 1,
+      "grouped_Equinox_deprecation_count_source_observation": "15 case locations grouped under one unchanged LayerNorm warning; full raw warning summary retained",
+      "decoded_TMLe_child_stderr_warning_episodes": 36,
+      "decoded_Prometheus_bootstrap_failure_episodes": 36,
+      "literal_9464_in_child_stderr": 0,
+      "port_scope": "Parent census names default9464; raw stderr reports address-in-use without port. No exporter positive witness",
+      "literal_SimulationResult_in_child_stderr": 12,
+      "actual_AnomalyFlag_str_pattern": "\\[(?:INFO|WARNING|ERROR)\\]\\s+[^:\\n]+:\\s+(?:nan_detected|inf_detected|unexpected_key|missing_key|empty_array|shape_mismatch|distribution_shift)\\b",
+      "literal_anomaly_matches": [],
+      "stderr_expected_negative_Gini_callbacks": 2,
+      "source_quotas_or_warning_suppression_added": false,
+      "historical_warning_proof_not_promoted": "Prior8236 fourteen false runtime anomalies/zero on corrected199 and90LGBM warning profile are separate source-specific observations, not newly measured here"
+    }
+  },
+  "observer_errors_only": {
+    "first_error": "Metadata assumed all failure assertions print actual seed diagnostic (26 direct,6 status-only actual); preserved original script/output",
+    "second_error": "Observer lives in exact frozen parent JSON child_stdout; nested decoding fixed without native rerun",
+    "commands": [
+      {
+        "argv": [
+          "python3",
+          "/tmp/e02-F-continuation-20261007/api/installed-final-independent/review_b5_packet.py"
+        ],
+        "cwd": "/workspace",
+        "stdout": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/b5-first-observer-error.stdout.txt",
+        "stderr": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/b5-first-observer-error.stderr.txt",
+        "exit_code": 1,
+        "script_snapshot": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/review_b5_packet_first_observer_error.py"
+      },
+      {
+        "argv": [
+          "python3",
+          "/tmp/e02-F-continuation-20261007/api/installed-final-independent/review_b5_packet.py"
+        ],
+        "cwd": "/workspace",
+        "stdout": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/b5-second-observer-error.stdout.txt",
+        "stderr": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/b5-second-observer-error.stderr.txt",
+        "exit_code": 1,
+        "script_snapshot": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/review_b5_packet_second_observer_error.py"
+      },
+      {
+        "argv": [
+          "python3",
+          "/tmp/e02-F-continuation-20261007/api/installed-final-independent/review_b5_packet.py"
+        ],
+        "cwd": "/workspace",
+        "stdout": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/b5-independent-review.stdout.txt",
+        "stderr": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/b5-independent-review.stderr.txt",
+        "exit_code": 0,
+        "script_snapshot": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/review_b5_packet.py"
+      }
+    ]
+  },
+  "warning_observer_error": {
+    "outcome": "ERROR",
+    "scope": "Literal SimulationResult/9464 matcher was too narrow for default loader episodes/address-in-use messages; corrected explicit operation and exporter failure predicates; complete old stdout/stderr and script preserved",
+    "argv": [
+      "python3",
+      "/tmp/e02-F-continuation-20261007/api/installed-final-independent/finish_b5_review.py"
+    ],
+    "cwd": "/workspace",
+    "exit_code": 1
+  },
+  "native_or_heavyfit_reexecuted": false,
+  "all_graph_product_resource_source_corrections_held_to_canonical_author": true,
+  "authority_positive": "UNRUN/not established"
+}

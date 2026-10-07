@@ -1,0 +1,54 @@
+{
+  "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+  "kind": "sdist",
+  "argv": [
+    "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/bin/python",
+    "-I",
+    "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/launch.py",
+    "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/installed-config.json",
+    "sdist"
+  ],
+  "measured_argv": [
+    "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/bin/python",
+    "-I",
+    "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/launch.py",
+    "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/installed-config.json",
+    "sdist"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-consumer",
+  "environment": {
+    "PYTHONPATH": "absent",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "OMP_NUM_THREADS": "absent",
+    "OPENBLAS_NUM_THREADS": "absent",
+    "MKL_NUM_THREADS": "absent",
+    "NUMEXPR_NUM_THREADS": "absent",
+    "XLA_FLAGS": "absent",
+    "XLA_PYTHON_CLIENT_PREALLOCATE": "absent",
+    "JAX_PLATFORM_NAME": "absent",
+    "JAX_PLATFORMS": "absent",
+    "POLISYOS_DOWHY_WORKER_PYTHON": "absent"
+  },
+  "new_quota": false,
+  "parallel_profiles": 2,
+  "status": "FAIL",
+  "pid": 942498,
+  "exit_code": 1,
+  "wall_seconds": 554.751582382014,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-native-v2.stdout.txt",
+    "bytes": 734078,
+    "sha256": "1a3679d85a59c963018a4c2298ad49fd1ea855ddc07054c3cb0c4144f6b43ff3"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-native-v2.stderr.txt",
+    "bytes": 2688,
+    "sha256": "d11abf395b590f8a66ef903c5b321bf5acca4d41ba6975dbca7b503fd6563880"
+  },
+  "resources": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-resources-v2.json",
+    "bytes": 241,
+    "sha256": "58f27b7ff031b126fceed306ffdec4623c366692cbdc66437bd3be8babebc855"
+  }
+}

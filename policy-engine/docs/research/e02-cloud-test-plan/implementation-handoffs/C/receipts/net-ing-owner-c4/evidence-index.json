@@ -146,8 +146,8 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/README.md",
-      "bytes": 2990,
-      "sha256": "a47c1db10813ca242ca8cc24ff098ddbdbd38d24a2597568fbb9867591f3bfa0",
+      "bytes": 3547,
+      "sha256": "31e9e60f0f04f541b24cf0f9d7a556c7e93bc99d282bd988d5df7e7b32bd0765",
       "source": "authored in this handoff receipt",
       "role": "Scope and evidence guide, including the two failed checks and scoped byte-preserving exceptions."
     },
@@ -164,6 +164,20 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "source": ".tmp/e02-C4/raw capture of the second staged diff-check run",
       "role": "Complete second stderr output."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/environment/focused-v2-profile.json",
+      "bytes": 4612,
+      "sha256": "a402681ca6ec0510458f9c5a9d4194e70440dd640b54f4730e577734852a116b",
+      "source": ".tmp/e02-C4/raw/stream-replay/focused-v2/profile.json",
+      "role": "Supplemental observed interpreter/package-version profile; captured at C3 base with the new test untracked, while all ten source/test fingerprints match focused-v4 pre_run_hashes."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/ruff-v1/net-ruff.json",
+      "bytes": 806,
+      "sha256": "bf4d50ec859f1991c9f9158ec752515781ef7b63f99108433f2791159926a321",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C4/raw/root-lint/net-ruff.json",
+      "role": "Root-captured exact Ruff invocation and complete output on the unchanged C4 test bytes; later PASS supplements the earlier initial-handoff UNRUN inventory."
     }
   ],
   "excluded_ignored_artifacts": [

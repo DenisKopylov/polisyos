@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "ruff",
+    "check",
+    "policy-engine/tests/unit/fabric/data_plane/test_net_ing_registry_cleanup.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos",
+  "source_candidate": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+  "source_path": "policy-engine/tests/unit/fabric/data_plane/test_net_ing_registry_cleanup.py",
+  "sha256_before": "e716a8b501dea4e88c805ff0b707e6bfe2084a735ee94d86d15c25e9691fc68c",
+  "sha256_after": "e716a8b501dea4e88c805ff0b707e6bfe2084a735ee94d86d15c25e9691fc68c",
+  "exit_code": 0,
+  "elapsed_seconds": 0.09577220899518579,
+  "stdout": "All checks passed!\n",
+  "stderr": "",
+  "scope": "exact unchanged source bytes; documentation tip may advance; no test rerun"
+}

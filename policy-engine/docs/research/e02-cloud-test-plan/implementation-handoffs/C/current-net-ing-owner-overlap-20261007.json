@@ -180,7 +180,7 @@
     "P41": "No inherited-red claim is made. The C4 targeted run is candidate verification, not a replay of the earlier C3 B oracle setup failures."
   },
   "property": {
-    "statement": "After a stream startup sanitizer failure and two controlled disconnect failures, the registry retains the exact old cleanup owner (connector ID, private pool, handle, pending permit state). A separate fresh stream with a distinct pool can complete and persist its own row/checkpoint without replacing the old obligation; registry shutdown retries that exact old handle and clears the retained owner.",
+    "statement": "After a stream startup sanitizer failure and one observed controlled disconnect failure, the registry retains the exact old cleanup owner (connector ID, private pool, handle, pending permit state). A separate fresh stream with a distinct pool can complete and persist its own row/checkpoint without replacing the old obligation; registry shutdown retries that exact old handle and clears the retained owner.",
     "runtime_path": [
       "process_stream_dataset",
       "StreamingSourceSession startup/close",
@@ -228,6 +228,14 @@
       "outcome": "PASS",
       "summary": "10 selected tests passed on the frozen 8580 candidate; existing frontier and cleanup checks plus the new one-test owner-overlap witness.",
       "environment": "Observed system Python 3.14.0 / pytest 9.0.2; PYTHONPATH points at this checkout; Hypothesis disabled; not frozen/offline venv and not an installed wheel receipt.",
+      "supplemental_environment_profile": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/environment/focused-v2-profile.json",
+        "sha256": "a402681ca6ec0510458f9c5a9d4194e70440dd640b54f4730e577734852a116b",
+        "bytes": 4612,
+        "capture_git_head": "13c0cde6bd8275d5b8d0deb73affa198325aa7c0",
+        "capture_git_tree": "1ced36ad643f4e59e20e5fad9892c1aafc683f97",
+        "use_limit": "Supplemental interpreter/package-version evidence only. The capture predates the focused-v4 candidate and shows the new test as untracked; its ten source/test fingerprints match the focused-v4 pre_run_hashes, but it is not the focused-v4 run identity."
+      },
       "output": [
         {
           "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/focused-v4/stdout.txt",
@@ -244,7 +252,7 @@
         "status": "not_generated",
         "reason": "Captured pytest argv has no junitxml option."
       },
-      "input_closure": "Full interpreter/profile, exact pytest_args, imported/source/test SHA-256s, pre/post Git identities, and unchanged filesystem hashes are in the tracked run.json."
+      "input_closure": "The tracked run.json contains interpreter, Python version, pytest arguments, loaded runtime-module hashes, source/test hashes, pre/post Git identities, and unchanged filesystem hashes. The separate focused-v2 profile supplements observed package versions under its explicitly bounded capture identity."
     },
     {
       "id": "Independent-C4-review-and-one-test-run",
@@ -326,11 +334,30 @@
       }
     },
     {
-      "id": "ruff-on-c4-test",
+      "id": "ruff-on-c4-test-at-initial-handoff",
       "target_sha": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
-      "command": "UNRUN; no C4 Ruff output was present in the frozen evidence packet and no code was edited during receipt authoring.",
+      "command": "UNRUN in the initial handoff evidence inventory; no C4 Ruff output was then present.",
       "outcome": "UNRUN",
       "output": null
+    },
+    {
+      "id": "ruff-on-c4-test",
+      "target_sha": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+      "command": {
+        "record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/ruff-v1/net-ruff.json",
+        "sha256": "bf4d50ec859f1991c9f9158ec752515781ef7b63f99108433f2791159926a321"
+      },
+      "outcome": "PASS",
+      "summary": "Root ran Ruff on the exact frozen test file bytes after the initial handoff inventory. Exit 0, 0.095772 seconds; source SHA-256 was unchanged before and after. Full argv/stdout/stderr are in the captured record. No pytest rerun was performed.",
+      "input_sha256": "e716a8b501dea4e88c805ff0b707e6bfe2084a735ee94d86d15c25e9691fc68c",
+      "elapsed_seconds": 0.09577220899518579,
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/ruff-v1/net-ruff.json",
+          "sha256": "bf4d50ec859f1991c9f9158ec752515781ef7b63f99108433f2791159926a321",
+          "bytes": 806
+        }
+      ]
     },
     {
       "id": "documentation-git-diff-check",
@@ -413,8 +440,12 @@
       "basis": "not_established for a frozen local environment; failure is environment-only"
     },
     {
-      "check": "ruff-on-c4-test",
+      "check": "ruff-on-c4-test-at-initial-handoff",
       "basis": "not_established"
+    },
+    {
+      "check": "ruff-on-c4-test",
+      "basis": "recomputed"
     }
   ],
   "dependency_and_provider_context": {
@@ -479,17 +510,17 @@
     "B81/B82/B84/B85 are narrow dependent evidence references only; the C4 test does not assign them fresh basis or prove complete criterion semantics.",
     "No frozen/offline environment or installed-wheel execution of this new test. Offline uv sync failed on an uncached jaxlib CPython 3.14.3 wheel; focused author/reviewer runs used system Python 3.14.0 and checkout PYTHONPATH.",
     "No full suite, Linux, external network source, production data, source-law authority, RSS, throughput, or global resource claim.",
-    "No JUnit XML was generated; Ruff was UNRUN. Task-scoped hooks are UNRUN."
+    "No JUnit XML was generated. Ruff later passed on the exact frozen test bytes; the initial handoff inventory had no output and remains recorded as UNRUN separately. Task-scoped hooks are UNRUN."
   ],
   "next_owner": "B owner for the decoder-only current provider fixture and B87 source-side decision; C root for any selector-level C54 linkage; G for independent source admission only after complete exact receipts. Preserve existing verdicts until separate adjudication.",
   "receipt": {
     "evidence_index": {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/evidence-index.json",
-      "sha256": "d6cd9a0cce7e11d3a37049cee6806adae5f547b79f05d01029afafe982846b5c"
+      "sha256": "3c81a803a71f7b49ebf3761e9a4b974692865c196f4d93ccaa8ff9573f3a3ca2"
     },
     "README": {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/README.md",
-      "sha256": "a47c1db10813ca242ca8cc24ff098ddbdbd38d24a2597568fbb9867591f3bfa0"
+      "sha256": "31e9e60f0f04f541b24cf0f9d7a556c7e93bc99d282bd988d5df7e7b32bd0765"
     },
     "receipt_root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4",
     "captured_deciding_outputs_byte_exact": true

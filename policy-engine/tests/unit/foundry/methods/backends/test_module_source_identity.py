@@ -36,6 +36,7 @@ _DATA_FIELDS = ("product",)
 params = "product"
 field_names = ("product",)
 field_name = "product"
+reader = abs
 
 
 class _DataFieldState(NamedTuple):
@@ -184,8 +185,32 @@ def _closure_collision_source(field_name):
     return ClosureCollisionSource
 
 
+def _getter_collision_source(reader):
+    class GetterCollisionSource:
+        signature: ClassVar = _ShadowedSelectorSource.signature
+        metadata: ClassVar = _METADATA
+
+        @staticmethod
+        def pure_step(state, params):
+            def unused():
+                global reader
+                return reader
+
+            with open(params["effect_path"], "a", encoding="utf-8") as output:
+                output.write("body\n")
+            return {"product": reader(state, params, state)}
+
+    return GetterCollisionSource
+
+
 @pytest.mark.parametrize(
-    "source", [_ShadowedSelectorSource, _ShadowedIteratorSource, _closure_collision_source("other")]
+    "source",
+    [
+        _ShadowedSelectorSource,
+        _ShadowedIteratorSource,
+        _closure_collision_source("other"),
+        _getter_collision_source(getattr),
+    ],
 )
 def test_recursive_global_capture_cannot_authorize_other_root_bindings(tmp_path, source):
     _, registry = _chain()

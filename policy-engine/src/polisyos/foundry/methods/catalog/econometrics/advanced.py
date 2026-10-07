@@ -57,7 +57,7 @@ from .protocols import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts import ArtifactStore
+    from polisyos.core import artifacts as core_artifacts
 
 
 def _safe_float(value: Any) -> float | None:
@@ -550,7 +550,7 @@ def _summarize_interval_diagnostics(
     intervals_by_level: Mapping[float, list[tuple[float, float]]],
     all_levels: tuple[float, ...],
     nominal_coverage: float,
-    calibration_store: ArtifactStore | None = None,
+    calibration_store: core_artifacts.ArtifactStore | None = None,
     source_binding: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     y_true = np.asarray(y_values, dtype=float)
@@ -738,7 +738,7 @@ def _evaluate_panel_volatility_scenario(
     holdout_periods: int,
     data: PanelData,
     times: np.ndarray,
-    calibration_store: ArtifactStore | None = None,
+    calibration_store: core_artifacts.ArtifactStore | None = None,
     source_binding: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     entity_list = entities.tolist()
@@ -1518,17 +1518,17 @@ class NonstationaryGARCHEstimator:
         group_map, grouping_strategy = _resolve_entity_group_map(data, entities)
         source_ref = None
         if calibration_store is not None:
-            from polisyos.core.artifacts import ArtifactWriteOptions, SchemaInfo
-            from polisyos.core.canon import CanonSpec
+            from polisyos.core import artifacts as core_artifacts
+            from polisyos.core import canon as core_canon
 
             source_ref = calibration_store.put_json(
                 data.model_dump(mode="json"),
-                ArtifactWriteOptions(
+                core_artifacts.ArtifactWriteOptions(
                     kind="foundry.econometric_panel_data",
                     media_type="application/json",
-                    schema=SchemaInfo(name=data.contract_id, version="1.0"),
+                    schema=core_artifacts.SchemaInfo(name=data.contract_id, version="1.0"),
                 ),
-                canon_spec=CanonSpec(forbid_floats=False),
+                canon_spec=core_canon.CanonSpec(forbid_floats=False),
             )
         source_binding = {
             "source_data_ref": None if source_ref is None else source_ref.model_dump(mode="json"),

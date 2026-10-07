@@ -7,7 +7,7 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts import ArtifactStore
+    from polisyos.core import artifacts as core_artifacts
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +54,7 @@ class SensitivityBridge:
         n_levels: int = 4,
         seed: int | None = None,
         input_law: Literal["unknown", "independent", "dependent"] = "unknown",
-        store: ArtifactStore | None = None,
+        store: core_artifacts.ArtifactStore | None = None,
         max_estimated_runs: int = 1000,
     ) -> dict[str, Any]:
         """Run sensitivity analysis over a search space.

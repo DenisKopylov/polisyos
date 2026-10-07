@@ -3165,6 +3165,132 @@ def test_joint_port_uses_runtime_store_for_context_selected_ncm_and_keeps_no_con
         store.close()
 
 
+def test_prepared_n5_ignores_unconsumed_candidate_input_for_ksim(
+    tmp_path: Path,
+) -> None:
+    """An unused candidate input cannot relabel a prepared owner-request result."""
+
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationN5InputV2
+    from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+
+    store, _expected_ncm, ncm_ref = _runtime_ncm_fixture_store(tmp_path)
+    problem, context, fixture_candidate = _owner_n5_case_with_selected_ncm_ref(
+        ncm_ref,
+        runtime_hints={
+            "joint_simulation_horizon": {"start": 0, "end": 0, "step": 1},
+            "joint_simulation_baseline_state": {"firm_survival": 1.0},
+        },
+    )
+    # The owner fixture contains two atoms, while this preflight seam is the
+    # single-atom NCM path (multi-atom requests require a bound coupling graph).
+    # Reuse its exact typed, problem/WMR-bound atom rather than changing its bytes.
+    atom = fixture_candidate.intervention_atoms[0]
+    candidate = SimpleNamespace(
+        candidate_id=fixture_candidate.candidate_id,
+        atom=atom,
+        intervention_atoms=(atom,),
+    )
+    port = JointSimulationPort(
+        repo_root=tmp_path / "empty-repo",
+        cycle_substrate_context=context,
+        artifact_store=store,
+    )
+    # This incomplete typed record is an explicit stray non-None value, not an
+    # admitted/persisted candidate-simulation input. The prepared-request path
+    # must ignore it and retain the exact request it already assessed.
+    unused_candidate_input = CandidateSimulationN5InputV2.model_construct(
+        authority_purpose="candidate_scenario_n5_only",
+    )
+    assert unused_candidate_input.authority_purpose == "candidate_scenario_n5_only"
+    value_port = generation_cycle_module._DefaultSimulationBoundFoundryValuePort(
+        repo_root=tmp_path,
+        cycle_substrate_context=context,
+        artifact_store=store,
+    )
+
+    try:
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            prepared = port.prepare_candidate(
+                candidate=candidate,
+                problem=problem,
+                cycle_index=0,
+            )
+            assert prepared.applicability.status == "eligible"
+            assert prepared.applicability.request_digest is not None
+            assert prepared.request is not None
+            assert tuple(plan.engine_kind for plan in prepared.request.engine_plan) == (
+                "ncm_parallel_worlds",
+            )
+            assert len(prepared.request.intervention_atoms) == 1
+
+            with_unused_input = port(
+                candidate=candidate,
+                problem=problem,
+                cycle_index=0,
+                prepared_candidate=prepared,
+                candidate_simulation_input=unused_candidate_input,
+            )
+            without_candidate_input = port(
+                candidate=candidate,
+                problem=problem,
+                cycle_index=0,
+                prepared_candidate=prepared,
+            )
+
+            for observation in (with_unused_input, without_candidate_input):
+                assert observation.status == "joint_simulated"
+                assert observation.simulation_result_ref is not None
+                assert store.verify(observation.simulation_result_ref).ok
+                assert "candidate_scenario_n5_only" not in observation.authority_blockers
+                assert observation.diagnostics["trajectory_count"] > 0
+                assert any(
+                    item["decision"] == "selected"
+                    for item in observation.diagnostics["engine_decisions"]
+                )
+
+            observed_result = load_joint_simulation_result(
+                with_unused_input.simulation_result_ref,
+                store=store,
+                expected_world_model_record_content_hash=context.world_model_record.content_hash,
+                expected_atom_ids=(atom.intervention_id,),
+                expected_selected_outcomes=("firm_survival",),
+            )
+            control_result = load_joint_simulation_result(
+                without_candidate_input.simulation_result_ref,
+                store=store,
+                expected_world_model_record_content_hash=context.world_model_record.content_hash,
+                expected_atom_ids=(atom.intervention_id,),
+                expected_selected_outcomes=("firm_survival",),
+            )
+            assert observed_result.engine_decisions == control_result.engine_decisions
+            assert observed_result.trajectories == control_result.trajectories
+            assert observed_result.marginal_effects == control_result.marginal_effects
+            assert observed_result.horizon == control_result.horizon
+
+            with_unused_value = value_port(
+                candidate=candidate,
+                simulation=with_unused_input,
+                problem=problem,
+                cycle_index=0,
+            )
+            without_candidate_value = value_port(
+                candidate=candidate,
+                simulation=without_candidate_input,
+                problem=problem,
+                cycle_index=0,
+            )
+
+        for value in (with_unused_value, without_candidate_value):
+            assert value.status == "value_conditional"
+            assert value.evaluation_mode == "simulate_only"
+            assert "simulation_only_k_sim_not_world_evidence" in value.authority_blockers
+            assert "candidate_scenario_n5_only" not in value.authority_blockers
+        assert with_unused_value.value_ref == without_candidate_value.value_ref
+    finally:
+        store.close()
+
+
 def test_joint_port_resolves_exact_selected_candidate_ncm_view(
     tmp_path: Path,
 ) -> None:

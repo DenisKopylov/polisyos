@@ -64,6 +64,7 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
     )
     from polisyos.runtime.quality.cycle_substrate import (
         CycleSubstrateContextArtifactOwner,
+        VerifiedNLJobScope,
         cycle_job_profile_selection_ref,
     )
     from polisyos.runtime.quality.design_axes.coupling_composition import (
@@ -209,6 +210,34 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
             assert (scope.tenant_id, scope.cell_id) == (TENANT_ID, CELL_ID)
 
             with service._install_execution_scope(scope):
+                payload = service._payload_for_execution_scope(
+                    service._load_payload_ref(job.payload_ref),
+                    job=job,
+                    execution_scope=scope,
+                )
+                capability_manifest_ref, capability_manifest = (
+                    service._resolve_capability_manifest_for_execution(
+                        job=job,
+                        admission=admission,
+                        execution_scope=scope,
+                    )
+                )
+                execution_intent_binding = (
+                    service._require_nl_job_execution_intent_binding(
+                        job=job,
+                        admission=admission,
+                        execution_scope=scope,
+                        payload=payload,
+                        capability_manifest_ref=capability_manifest_ref,
+                        capability_manifest=capability_manifest,
+                    )
+                )
+                verified_nl_job_scope = execution_intent_binding.get(
+                    "_verified_nl_job_scope"
+                )
+                assert type(verified_nl_job_scope) is VerifiedNLJobScope
+                assert verified_nl_job_scope._was_issued_by_verified_nl_execution_owner
+
                 core_run_id, core_context = service._start_generation_run_context(
                     job=job,
                     execution_scope=scope,
@@ -228,10 +257,12 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
                 context_ref = context_owner.persist_for_current_job(
                     offer.context,
                     problem=problem,
+                    verified_nl_job_scope=verified_nl_job_scope,
                 )
                 resolved_context = context_owner.resolve_for_current_job(
                     context_ref,
                     problem=problem,
+                    verified_nl_job_scope=verified_nl_job_scope,
                 )
                 assert resolved_context.context == offer.context
                 handoff = CandidateSimulationContextHandoff(
@@ -254,6 +285,7 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
                         current_context = context_owner.resolve_for_current_job(
                             context_ref,
                             problem=problem,
+                            verified_nl_job_scope=verified_nl_job_scope,
                         )
                         current_offer = admission_owner.admit_context(
                             problem=problem,

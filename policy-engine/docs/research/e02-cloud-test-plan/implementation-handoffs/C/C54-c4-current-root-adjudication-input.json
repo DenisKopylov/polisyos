@@ -1,0 +1,883 @@
+{
+  "schema": "policyos.e02.c54.c4.current-root-adjudication-input.v2",
+  "c2_source": {
+    "commit": "c158689d692d47b6300609ac2ba5e7dac28650dc",
+    "tree": "573063f560533e73518ef87d29acc1a46959cf33",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.json",
+    "git_blob": "61e1abe90ae5f81e37077e2dc8e92f7e4de0cb76",
+    "sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc",
+    "bytes": 322414
+  },
+  "portable_receipt_bindings": [
+    {
+      "receipt_id": "R209",
+      "historical_path_at_sha256": ".tmp/e02-C2/raw/dfi-resource-review/review.md@sha256:cae650006ba318a3e6e0d348dd8c81da9832a1b3854405ea6ac05a591a925057",
+      "portable_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/source-inputs/dfi-resource-independent-review.md",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/source-inputs/dfi-resource-independent-review.md",
+      "source_commit": "80010e1b1e7d7d1a1d92b3ddd05d97edb071ae59",
+      "source_tree": "0c177cd582dd63b5a503b4e003a43c5334216abb",
+      "source_git_blob": "0419f8d4c6765033705e5fa02638c7951f287b44",
+      "sha256": "cae650006ba318a3e6e0d348dd8c81da9832a1b3854405ea6ac05a591a925057",
+      "size_bytes": 7513,
+      "role": "independent DFI installed resource/profile review; source has no production payload",
+      "provenance_note": "Exact byte copy of the local-only R209 source cited by the frozen C2 v10 cut; the historical source path remains separate and unchanged."
+    }
+  ],
+  "base": {
+    "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+  },
+  "g_snapshot": {
+    "commit": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+    "tree": "dc1a7697f506b23f2db0f1c80bf929fd2d6a2e0d"
+  },
+  "g_inputs": {
+    "coverage": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "git_blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+      "bytes": 550854
+    },
+    "allocation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/allocation.json",
+      "git_blob": "dbf94aec21acbccf5429bb7a1d6cafd6451025c7",
+      "sha256": "a1fe5cad509e32606df9710e5cbf942313a243341f58ccb0708692204d15c253",
+      "bytes": 6607
+    },
+    "finding_owners": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "git_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+      "bytes": 9504
+    },
+    "bundle_owners": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "git_blob": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b",
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75",
+      "bytes": 12413
+    },
+    "common_prompt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/COMMON.md",
+      "git_blob": "d549b92b6a33efc32ffcb7c27261538f06a8e26e",
+      "sha256": "f408d34394bab5f708df7afb6f59195588b5fc394b8304434c9e2fbe2238be79",
+      "bytes": 8565
+    },
+    "c_prompt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/C.md",
+      "git_blob": "1352e9ec7ac3a77482c6df324c63744df216bf54",
+      "sha256": "e12da55ecf538f579588cd1b601e39575667ee2ed7d36ac3b5f2cf4133b31ee1",
+      "bytes": 12699
+    },
+    "integration_c_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/C.md",
+      "git_blob": "3811f1341f068125742acd6c877d266757920bb8",
+      "sha256": "3180269559c0803a4a2a999886d8f06106f50ef27cdee5c4def9e5b0570fd3f3",
+      "bytes": 12392
+    },
+    "closure_c": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md",
+      "git_blob": "eb335a62bc1f8bce2cddfcf59f649980a08e88c4",
+      "sha256": "8a2697280ff17913847806fa09cfa932a6260ce5053a2d293c5f6878ccf3b990",
+      "bytes": 96417
+    }
+  },
+  "family_refresh_states": {
+    "default": {
+      "state": "c2_frozen_evidence_carried_forward",
+      "note": "For rows without a verified current-family handoff or explicit binding correction, the C2 criterion evidence is reviewed as prior evidence, not as a new runtime pass."
+    },
+    "ING": {
+      "required_source_family_handoff": true,
+      "note": "Required scope key. The current row basis is derived from the Git-verified ING handoff, not a label in this object."
+    },
+    "CAN": {
+      "required_source_family_handoff": true,
+      "note": "Required scope key. The current row basis is derived from the Git-verified CAN handoff, not a label in this object."
+    }
+  },
+  "row_overrides": {
+    "LA-006": {
+      "state": "criterion_binding_corrected",
+      "state_note": "The C2 narrative described a present tombstone, but the exact path is absent from both pinned Git trees. This correction does not authorize removal or claim external absence.",
+      "code_outcome": "The DFK b8 handoff records the bounded source/package and installed ImportFrom audit. At both the pinned base and b8 candidate, the exact tracked mechanisms path has no entries; C2 did not delete a tombstone. The installed ImportFrom control is bounded to the selected path. The 317 nonliteral loader destinations and external consumers remain unobserved; no owner decision establishes a supported exact FQN or admits full external absence.",
+      "evidence_refs": [
+        {
+          "receipt_id": "R16",
+          "json_pointers": [
+            "/candidate_sha",
+            "/candidate_tree_sha",
+            "/findings/1/evidence",
+            "/findings/1/missing_input",
+            "/findings/1/remaining_verification"
+          ]
+        }
+      ],
+      "git_tree_path_checks": [
+        {
+          "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+          "path": "policy-engine/src/polisyos/foundry/domain/mechanisms",
+          "tracked_entry_count": 0
+        },
+        {
+          "commit": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+          "tree": "467cd6f01ec204767dc60bb939955578428bf102",
+          "path": "policy-engine/src/polisyos/foundry/domain/mechanisms",
+          "tracked_entry_count": 0
+        }
+      ],
+      "remaining_work": {
+        "mechanism": {
+          "status": "exact_path_already_absent_at_both_pinned_trees",
+          "text": "No tombstone was removed in C2. Do not recreate the path or claim a new removal; any future change requires a scoped owner decision."
+        },
+        "verification": {
+          "status": "bounded_tree_query_complete_external_scope_open",
+          "text": "The base and b8 trees have zero entries at the exact path; installed ImportFrom behavior is covered only for the selected path. The 317 nonliteral loader destinations and external callers remain unobserved."
+        },
+        "input": {
+          "status": "owner_admission_of_existing_absence_missing",
+          "text": "A package/public-surface owner must admit the bounded absence contract or name the exact supported FQN and caller set; no further deletion is proposed."
+        },
+        "decision": {
+          "status": "pending_owner_decision",
+          "owner": "C package/public-surface and integration owners; G for integration disposition."
+        }
+      },
+      "missing_inputs_or_skipped_backend": "The exact tracked mechanisms path is already absent at both pinned trees; no C2 tombstone deletion occurred. A package/public-surface owner must admit this bounded absence contract or identify an exact supported FQN/caller set. The 317 nonliteral loader destinations and external installed callers/registries remain unobserved.",
+      "remaining_verification": "Do not recreate the already-absent path or perform further deletion. Obtain owner admission for the bounded absence or an exact supported-FQN ruling; resolve or explicitly bound the 317 nonliteral loader destinations and external installed callers/registries, then record G integration disposition.",
+      "next_owner": "C package/public-surface and integration owners to admit bounded absence or identify exact supported FQN/caller set and resolve/bound the 317 loader destinations; G for integration disposition."
+    },
+    "LA-010": {
+      "state": "criterion_binding_corrected",
+      "state_note": "The source delegation test and installed DTO/CLI probes support distinct properties and are kept separate.",
+      "code_outcome": "R14's source suite checks root migrate.py delegation to the canonical executor. Separate source CLI/readback and callable-removal checks exercise DatasetManifest behavior; the frozen installed wheel evidence covers public CLI conversion, strict DTO readback, and refusal controls, not root-script delegation. The bounded source and installed results remain distinct.",
+      "evidence_refs": [
+        {
+          "receipt_id": "R13",
+          "json_pointers": [
+            "/source_verification/0"
+          ]
+        },
+        {
+          "receipt_id": "R14",
+          "json_pointers": [
+            "/checks/0",
+            "/checks/3",
+            "/checks/6"
+          ]
+        },
+        {
+          "receipt_id": "R27",
+          "json_pointers": [
+            "/commands/4",
+            "/commands/5",
+            "/commands/8",
+            "/commands/9"
+          ]
+        },
+        {
+          "receipt_id": "R28",
+          "json_pointers": [
+            "/commands/0",
+            "/commands/1",
+            "/commands/2",
+            "/commands/3"
+          ]
+        },
+        {
+          "receipt_id": "R29",
+          "json_pointers": [
+            ""
+          ]
+        }
+      ]
+    },
+    "LA-047": {
+      "state": "criterion_binding_corrected",
+      "state_note": "The evidence is the focused source suite; installed root-layout sentinels are excluded as unrelated.",
+      "code_outcome": "R14's focused source suite includes the Common/IR profile tests for callback mutation and exceptions, version and no-op identity, cycle/chain behavior, missing edges, and duplicate registration. This is source-suite evidence only; the malformed workspace-root probes in installed R27 are unrelated and do not establish installed Common/IR semantics.",
+      "evidence_refs": [
+        {
+          "receipt_id": "R13",
+          "json_pointers": [
+            "/source_verification/0"
+          ]
+        },
+        {
+          "receipt_id": "R14",
+          "json_pointers": [
+            "/checks/0"
+          ]
+        }
+      ]
+    },
+    "LA-048": {
+      "state": "criterion_binding_corrected",
+      "state_note": "The RunManifest source CLI and reader receipts replace the DuckDB/PostgreSQL evidence that measured a different property.",
+      "code_outcome": "R14's source suite covers the RunManifest route. In the source CLI check, a nested sub/data.json reference survives persistence, strict RunManifest readback, and Runtime resolution with its original bytes; the same-basename decoy is not selected. The focused source tests also cover conflicting path aliases, missing/external objects, symlink escape, idempotence, and explicit target versions. This is source evidence only; DuckDB-to-PostgreSQL dry-run and driver probes do not test RunManifest path identity.",
+      "evidence_refs": [
+        {
+          "receipt_id": "R13",
+          "json_pointers": [
+            "/artifact_and_owner_boundaries/run_manifest"
+          ]
+        },
+        {
+          "receipt_id": "R14",
+          "json_pointers": [
+            "/checks/0",
+            "/checks/4"
+          ]
+        }
+      ]
+    },
+    "LA-049": {
+      "state": "criterion_binding_corrected",
+      "state_note": "The current-version Trinity property is source-suite evidence only; no installed Trinity route is claimed.",
+      "code_outcome": "R14's focused source suite exercises the public policy_ir route, actual Trinity model validation, current-version behavior, malformed inputs, and compatibility helpers. The installed audit does not invoke policy_ir or Trinity migration, so no installed-route claim is made. Native production admission remains outside this source-suite result.",
+      "evidence_refs": [
+        {
+          "receipt_id": "R13",
+          "json_pointers": [
+            "/source_verification/0"
+          ]
+        },
+        {
+          "receipt_id": "R14",
+          "json_pointers": [
+            "/checks/0"
+          ]
+        },
+        {
+          "receipt_id": "R27",
+          "json_pointers": [
+            "/commands"
+          ]
+        }
+      ]
+    },
+    "B81": {
+      "code_outcome": "The ING source receipt retains the failure/reopen/retry checks for exact raw bytes, ordered row IDs, committed frontier/cursor, and the returned checkpoint payload. The composed four-process sequence prepares at cap 3, refuses cap 1 before polling or writes while preserving the predecessor, then recovers exactly three rows and their chunk/window references under cap 3 with a fresh readback. A no-output replay emits no rows or new chunk/window references but does write checkpoint/cursor metadata and indexes; full checkpoint-byte idempotence is not claimed.",
+      "evidence_refs": [
+        {
+          "receipt_id": "R02",
+          "json_pointers": [
+            "/findings/2"
+          ]
+        }
+      ]
+    },
+    "B82": {
+      "code_outcome": "The original logical-window checks restore pending COUNT, TUMBLING, SESSION, and SLIDING state; schema/window/key/TTL mismatches refuse before rewind or poll and preserve the predecessor CAS and cursor. The supplemental four-process composed sequence also refuses a lower-cap restore before polling or writes, preserves the predecessor checkpoint/cursor, then recovers exactly three rows and their chunk/window references in a separate process. A no-output replay adds no rows or new chunk/window references but changes checkpoint/cursor metadata and indexes; full checkpoint-byte idempotence is not claimed.",
+      "evidence_refs": [
+        {
+          "receipt_id": "R02",
+          "json_pointers": [
+            "/findings/3"
+          ]
+        }
+      ]
+    },
+    "B84": {
+      "code_outcome": "The current C-root 128-test importer receipt preserves the retained-state, input-row/serialized-byte, and output-reference budget checks before publication (current ING handoff `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-ing-cleanup-20261007.json@sha256:82e88234b74ee5123e5ca40cf2ee419df69ea2fffd1cc97df44c9c09a0e82c40#/checks/0`; 128 passed). The original bounded checks refuse lower-cap restore before flush, write, rewind, poll, or frontier advance and preserve the predecessor; no RSS, pre-return connector-allocation, or staged-spill claim is made, and a real spill reader is absent. The supplemental B+C four-process installed sequence also refuses cap-1 restore before poll, flush, frontier commit, or CAS write with predecessor state/indexes intact; a separate process recovers at cap 3. No-output replay emits no rows or new chunk/window references but changes checkpoint/cursor metadata and indexes. No full checkpoint-byte idempotence claim is made.",
+      "evidence_refs": [
+        {
+          "receipt_id": "R02",
+          "json_pointers": [
+            "/findings/5"
+          ]
+        }
+      ]
+    },
+    "B85": {
+      "code_outcome": "After compatible restart the installed sequence returns exactly three source rows with their chunk/window references, and a separate fresh readback resolves them. The repeated no-output call adds no data rows or new chunk/window references, while checkpoint/cursor metadata and indexes change.",
+      "evidence_refs": [
+        {
+          "receipt_id": "R02",
+          "json_pointers": [
+            "/findings/6"
+          ]
+        }
+      ]
+    },
+    "LA-021": {
+      "code_outcome": "The current e3 CAN source candidate adds one shared IR Mapping-intake normalization for the JSON-mode separators list while retaining strict validation for all other profile fields. Its frozen source selector passed 46 tests; the independent review passed 14 focused checks, and an actual FileSystemCAS oracle consumed the unchanged complete JSON-mode Mapping at depth 129. Nineteen unsupported or malformed profiles refused before payload-byte reads, and removing the normalizer made the positive case fail. The exact e3 non-editable wheel was not built or installed because offline Hatchling >=1.27 is unavailable. The separate installed-wheel receipt is for older source commit 55b45d9a and predates this normalization, so it does not establish installed e3 behavior. Direct raw Core.put_json still writes a Core-only float_hex payload rejected by the IR reader; the B supplier/admission contract and historical profile-less support remain unestablished.",
+      "evidence_refs": [
+        {
+          "receipt_id": "R18",
+          "json_pointers": [
+            "/property"
+          ]
+        }
+      ],
+      "missing_inputs_or_skipped_backend": "The B-owned raw Core byte-write supplier/admission contract remains missing: direct Core.put_json can persist float_hex payloads outside the supported IR profile. The exact e3 non-editable wheel/readback is UNRUN because offline Hatchling >=1.27 is unavailable; the older installed-wheel receipt predates the seven-line e3 normalization. No actual historical profile-less artifact/ref or owner-supported compatibility rule was supplied.",
+      "remaining_verification": "B must supply/admit the Core byte-emission contract or bound the raw bypass. When the offline Hatchling backend is available, build the exact e3 non-editable wheel and run the installed JSON-mode Mapping round-trip and pre-byte refusal controls; do not substitute the older 55b45d9a wheel. Keep historical profile-less support unclaimed absent an actual artifact/ref and an owner-supported compatibility rule."
+    }
+  },
+  "status_semantics": {
+    "c2_root_verdict": "The frozen C2 decision remains historical context. The current C4 root disposition is separately assigned per finding against the same original hash-bound criterion.",
+    "g_formal_status": "G formal status is copied from the exact pinned G coverage rows and remains separate; C candidate evidence does not assign G closure.",
+    "c3_current_evaluation": "C4 evidence state is derived from exact criterion-scoped current handoffs, corrected criterion bindings, or reviewed prior criterion evidence. Availability context may update only missing-input, remaining-verification, and next-owner fields; it cannot change criterion evidence, code outcome, or root-verdict basis.",
+    "root_current_availability_adjudication": {
+      "schema": "policyos.e02.c3.current_availability_adjudication.v1",
+      "source_candidate": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+      "commit": "bf0ea1c7f2067b30c3badc222e6d7ab14e162fdc",
+      "tree": "da4504ae28d5529b9a6b724f62b8d996655a0a77",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-availability-20261007.json",
+      "sha256": "af2ddd0c790d7c9bbe9c2fccec161294947a08fc530b8f9981ce6a7053886a88",
+      "git_blob": "6aa19dbbed07a8ae55a24a1a971a669bb4660b64",
+      "bytes": 8470,
+      "finding_pointers": {
+        "LA-029": "/finding_notes/LA-029",
+        "LA-032": "/finding_notes/LA-032",
+        "LA-036": "/finding_notes/LA-036",
+        "LA-040": "/finding_notes/LA-040"
+      },
+      "scope": "Root current availability and remaining-work assessment only; does not establish code behavior, production authority, input content admission, or G formal closure."
+    },
+    "g_snapshot_semantics": "This cut pins the complete G C-ownership and closure review at 83e7c0e/tree dc1a769. G formal statuses are copied from its 54 C coverage rows and remain not_adjudicated; no newer or adjacent documentation is treated as closure."
+  },
+  "current_source_family_refs": {
+    "ING": {
+      "candidate_commit": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+      "candidate_tree": "4bb3d7ef227f7745ab22a23f41f4618766e8b350",
+      "handoff_commit": "cf13c8db5e70a51ce5cedb35d0ad0b17ca71ed3e",
+      "handoff_tree": "72351cf7ad14a135c2d5856ec5661a06da5cb4c6",
+      "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-ing-cleanup-20261007.json",
+      "handoff_sha256": "82e88234b74ee5123e5ca40cf2ee419df69ea2fffd1cc97df44c9c09a0e82c40",
+      "handoff_git_blob": "985af44c38cfca8cc7d98fa28f7e4bb57a6cc554",
+      "candidate_commit_pointer": "/candidate_sha",
+      "candidate_tree_pointer": "/candidate_tree_sha",
+      "implementation_changed_paths": [
+        "policy-engine/src/polisyos/fabric/data_plane/streaming.py"
+      ],
+      "evidence_pointers": [
+        "/property",
+        "/supplemental_frozen_source_verification",
+        "/checks/0",
+        "/checks/1"
+      ],
+      "finding_scope_pointers": [],
+      "handoff_branch": "codex/e02-C-continuation-20261006",
+      "handoff_branch_pointer": "/branch",
+      "criterion_scope_pointers": [
+        "/criterion_ids"
+      ]
+    },
+    "CAN": {
+      "candidate_commit": "e3cb3fafc847b94a5d4b3adc03b814b4c711920c",
+      "candidate_tree": "2d27c9c182cf550088c5a8c072dc2f36df84e20d",
+      "handoff_commit": "60b523c2d0e1a587f2f1d4b92a0ac9a89a1f49db",
+      "handoff_tree": "75308c9d306bc8187008613597f2acc917cb0d74",
+      "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-canonical-json-mapping-20261007.json",
+      "handoff_sha256": "529f473f1546e1035f7abb0571d08088fb1f1d1749cf655e7248c8f2bdccd1bc",
+      "handoff_git_blob": "6dda17e5d9c2e04c383883bda5e8196c319d9d4b",
+      "candidate_commit_pointer": "/candidate_commit",
+      "candidate_tree_pointer": "/candidate_tree_sha",
+      "implementation_changed_paths": [
+        "policy-engine/src/polisyos/ir/artifacts/README.md",
+        "policy-engine/src/polisyos/ir/artifacts/io.py"
+      ],
+      "evidence_pointers": [
+        "/bounded_verdict",
+        "/property",
+        "/verification",
+        "/finding_disposition"
+      ],
+      "finding_scope_pointers": [],
+      "handoff_branch": "codex/e02-C-canon-20261006",
+      "handoff_branch_pointer": "/branch",
+      "criterion_scope_pointers": [
+        "/criterion_ids"
+      ]
+    }
+  },
+  "root_adjudication_authority": "root",
+  "supplemental_source_handoffs": [
+    {
+      "ref_id": "NET-ING-current-frontier",
+      "family": "ING",
+      "source_commit": "13c0cde6bd8275d5b8d0deb73affa198325aa7c0",
+      "source_tree": "1ced36ad643f4e59e20e5fad9892c1aafc683f97",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-net-ing-20261007.json",
+      "sha256": "8f9c3e7caace89b4b0c130424608434448b187e61fe15660b6b3f6f60caf5c43",
+      "git_blob": "cd582f6ee06f812731b659e7d6d3a970dd3f10ec",
+      "size_bytes": 43779,
+      "finding_ids": [
+        "B81",
+        "B82",
+        "B84",
+        "B85"
+      ],
+      "criterion_ids_pointer": "/criterion_ids",
+      "evidence_pointers": [
+        "/property",
+        "/p37",
+        "/p38",
+        "/checks/1",
+        "/checks/2",
+        "/checks/8",
+        "/independent_review",
+        "/limitations"
+      ],
+      "candidate_bindings": [
+        {
+          "role": "composed B+C product source",
+          "commit_pointer": "/source_freeze/composition/commit",
+          "tree_pointer": "/source_freeze/composition/tree",
+          "parents_pointer": "/source_freeze/composition/parents",
+          "source_file_pointers": [
+            "/source_freeze/product_source"
+          ]
+        },
+        {
+          "role": "test-only candidate",
+          "commit_pointer": "/source_freeze/test/commit",
+          "tree_pointer": "/candidate_tree_sha",
+          "source_file_pointers": [
+            "/source_freeze/test"
+          ]
+        }
+      ]
+    }
+  ],
+  "root_current_adjudications": {
+    "B138": {
+      "value": "closed",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: A→B→C and A→C→B are compared to the independent per-cell trust oracle; the B-origin value is attributed to B before comparison with C; a local DuckDB persisted result is reopened and read. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record the bounded JOIN lineage and saved-result readback evidence; do not generalize to every production route.",
+      "next_owner": "G integration reviewer for B138"
+    },
+    "B139": {
+      "value": "closed",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: Both tests use actual DataComposer.compose JOIN. The tie case has 80 rows with one shared join key and distinct ordered source values, exact independent resolver choice and counters, equal sample ranks, expected occurrence order at cap 1/3, and frame equality across SUMMARY/FULL/NONE. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record the actual JOIN/SUMMARY occurrence identity in the selected input order; keep source_a_value as an occurrence witness, not a permutation-invariant event identity.",
+      "next_owner": "G integration reviewer for B139"
+    },
+    "B140": {
+      "value": "closed",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: Actual JOIN checks the declared many-to-one relation, explicitly admitted many-to-many row bound, unmatched rows, and null-category policy against relational fixtures before unsafe expansion. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record the fixture-bound request-contract result; leave caller-wide domain identity policy outside this criterion.",
+      "next_owner": "G integration reviewer for B140"
+    },
+    "B141": {
+      "value": "closed",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: Real UNION/JOIN/OVERLAY/CONSENSUS paths preserve generated-looking user fields and exact values through local SQL readback. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record the fixture schema and local SQL readback; do not create a global column-naming rule.",
+      "next_owner": "G integration reviewer for B141"
+    },
+    "B142": {
+      "value": "closed",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: The declared DataSchema drives dtype restoration for a valid empty result; DuckDB persists/reopens it and reports BIGINT/DOUBLE/VARCHAR with zero rows; no sources still raises FederationError. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record the isolated DuckDB fixture readback; do not claim behavior for a deployed database service.",
+      "next_owner": "G integration reviewer for B142"
+    },
+    "B143": {
+      "value": "closed",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: For 80 conflicts at cap=1, active-frame baseline live-entry peak=2; an unnamed transient list mutant reaches 80, and both release to one live reference after GC. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record the live MergeLogEntry-reference peak measured inside _union; do not describe it as process RSS or a global O(1) memory bound.",
+      "next_owner": "G integration reviewer for B143"
+    },
+    "B144": {
+      "value": "closed",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: Three-source, multi-column OVERLAY matches a separate nested-loop row/audit oracle, preserves null masks and primary values, and calls set_index three times total (one primary plus two secondary frames). This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record the tested operation-count preparation bound; do not claim wall-time or production-memory speedup.",
+      "next_owner": "G integration reviewer for B144"
+    },
+    "B145": {
+      "value": "closed",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: The real consensus path keeps [10,14]→12 as control, rejects infinity and invalid numeric input under strict policy, and reports exact participant/exclusion source IDs and reasons. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record the consensus result only for the declared inputs; preserve the exclusions for global source independence, measurement validity, unit comparability, and all possible consensus inputs.",
+      "next_owner": "G integration reviewer for B145"
+    },
+    "B146": {
+      "value": "closed",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: OBS-01 implementation was already present at the slice base; its calendar, malformed/missing period, and consumer quarantine selectors passed in the final focused suite. No source code was changed for this finding and no population-wide invalid-period prevalence or production refresh was established. This disposition does not assign G formal closure.",
+      "next_action": "G registered-stage reviewer: record the six-stage parity/readback result and retain the D3 optional-input limitation.",
+      "next_owner": "G integration reviewer for B146"
+    },
+    "B147": {
+      "value": "closed",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: Each source artifact is copied to a private per-run temporary file before first yield. Streaming and fallback read that same copy; a row offset plus confirmed metric-frame ordinal resumes after a reader error and retains the prefix without duplicate observation IDs. This disposition does not assign G formal closure.",
+      "next_action": "G registered-stage reviewer: record the six-stage parity/readback result and retain the D5 clock compare-projection limitation.",
+      "next_owner": "G integration reviewer for B147"
+    },
+    "B17": {
+      "value": "closed",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: Provider policy order continues after empty, unsuitable, or error results and stops at the first useful result. A shared logical deadline cancels timed-out provider work and persists a typed budget stop distinct from exhaustion; cancellation/finalization can exceed that logical deadline, so it is not a hard total-process-duration cap. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record only B17's finite provider/deadline criterion result and its cited evidence; do not add a license-policy prerequisite.",
+      "next_owner": "G integration reviewer for B17's finite provider/deadline criterion"
+    },
+    "B79": {
+      "value": "limited",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Limited to the demonstrated original criterion scope after reviewing unchanged_source_prior_criterion_evidence_reviewed (C2 criterion evidence carried forward): The served batch_incremental route injects the exact persisted hint into the real REST request, and its since filter persists the independently expected rows. Promotion of that tenant cursor still lacks a source-confirmed evidence-content binder. Remaining boundary: Frozen integration dependent checks by G; production backend/raw VM archives unrun and not used as this candidate proof.",
+      "next_action": "B connector/cursor evidence owner: supply a source-confirmed content binder for dataset, ingestion_run_id, and source-owned version; then verify promotion, refusal for absent/mismatched evidence, and restart against the same bound source. Do not make archives or broad G replay a prerequisite.",
+      "next_owner": "B connector/cursor evidence owner; G integration reviewer"
+    },
+    "B80": {
+      "value": "held",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Held on the original criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed (C2 criterion evidence carried forward). Missing condition: Owner-supplied verified source evidence must content-bind dataset and ingestion_run_id before cursor promotion; production backend/raw VM archives were not run. Available bounded result: Per-source storage and fail/retry behavior are exercised; unverified source progress is not promoted. The confirmed-cursor writer remains fail-closed until owner evidence content-binds dataset and ingestion_run_id.",
+      "next_action": "B connector/cursor evidence owner: supply verified evidence bound to dataset, ingestion_run_id, and source-owned version; then verify a positive promotion plus marker-kept refusal when the binder is absent, forged, or mismatched, including restart. Do not make archives or broad G replay a prerequisite.",
+      "next_owner": "B connector/cursor evidence owner; G integration reviewer"
+    },
+    "B81": {
+      "value": "closed",
+      "basis": "fresh_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing fresh_criterion_evidence_reviewed via the exact NET-ING-current-frontier supplemental handoff: The ING source receipt retains the failure/reopen/retry checks for exact raw bytes, ordered row IDs, committed frontier/cursor, and the returned checkpoint payload. The composed four-process sequence prepares at cap 3, refuses cap 1 before polling or writes while preserving the predecessor, then recovers exactly three rows and their chunk/window references under cap 3 with a fresh readback. A no-output replay emits no rows or new chunk/window references but does write checkpoint/cursor metadata and indexes; full checkpoint-byte idempotence is not claimed. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record the finite at-least-once-with-dedupe result, retaining the failure/reopen/retry evidence and the composed cap-3/refusal/recovery sequence; preserve the checkpoint-metadata limitation.",
+      "next_owner": "G integration reviewer for B81"
+    },
+    "B82": {
+      "value": "closed",
+      "basis": "fresh_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing both the frozen logical-window evidence and the current composed sequence. The original logical-window checks restore pending COUNT, TUMBLING, SESSION, and SLIDING state; schema/window/key/TTL mismatches refuse before rewind or poll and preserve the predecessor CAS and cursor. The supplemental four-process composed sequence also refuses a lower-cap restore before polling or writes, preserves the predecessor checkpoint/cursor, then recovers exactly three rows and their chunk/window references in a separate process. A no-output replay adds no rows or new chunk/window references but changes checkpoint/cursor metadata and indexes; full checkpoint-byte idempotence is not claimed. This does not claim full checkpoint-byte idempotence or G formal closure.",
+      "next_action": "G integration reviewer: record both original COUNT/TUMBLING/SESSION/SLIDING restore profiles and the supplemental cap refusal/recovery sequence; preserve the fact that no-output replay changes checkpoint/cursor metadata.",
+      "next_owner": "G integration reviewer for B82"
+    },
+    "B83": {
+      "value": "held",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Held on the original criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed (C2 criterion evidence carried forward). Missing condition: B connector source-owned event/version identity is not supplied; synthesized offset _message_id is not authority. Production backend/raw VM archives were not run. Available bounded result: The persisted UTC ingestion horizon is 86,400 seconds, composite primitive keys and source/partition isolation are exercised, and live-key overflow refuses before eviction. The connector does not supply source-owned event/version identity; synthesized _message_id is not that authority.",
+      "next_action": "B source-contract owner: provide source-owned event/version identity and bind it to cursor/replay state; verify a positive restart and marker-kept refusal for missing or substituted identity. Do not promote synthesized _message_id as authority or block first on archives/broad G replay.",
+      "next_owner": "B source-contract owner; G integration reviewer"
+    },
+    "B84": {
+      "value": "closed",
+      "basis": "fresh_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing the current C-root retained-state, input-row/serialized-byte, and output-reference checks plus the supplemental composed sequence. The current C-root 128-test importer receipt preserves the retained-state, input-row/serialized-byte, and output-reference budget checks before publication (current ING handoff `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-ing-cleanup-20261007.json@sha256:82e88234b74ee5123e5ca40cf2ee419df69ea2fffd1cc97df44c9c09a0e82c40#/checks/0`; 128 passed). The original bounded checks refuse lower-cap restore before flush, write, rewind, poll, or frontier advance and preserve the predecessor; no RSS, pre-return connector-allocation, or staged-spill claim is made, and a real spill reader is absent. The supplemental B+C four-process installed sequence also refuses cap-1 restore before poll, flush, frontier commit, or CAS write with predecessor state/indexes intact; a separate process recovers at cap 3. No-output replay emits no rows or new chunk/window references but changes checkpoint/cursor metadata and indexes. No full checkpoint-byte idempotence claim is made. This does not establish G formal closure.",
+      "next_action": "G integration reviewer: record the bounded retained-state, input-row/serialized-byte, and output-reference controls together with the supplemental cap refusal/recovery; retain the explicit no-RSS, no pre-return-allocation, and no-spill claims.",
+      "next_owner": "G integration reviewer for B84"
+    },
+    "B85": {
+      "value": "closed",
+      "basis": "fresh_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing fresh_criterion_evidence_reviewed via the exact NET-ING-current-frontier supplemental handoff: After compatible restart the installed sequence returns exactly three source rows with their chunk/window references, and a separate fresh readback resolves them. The repeated no-output call adds no data rows or new chunk/window references, while checkpoint/cursor metadata and indexes change. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record exact contributor lineage for the three recovered rows and fresh readback; do not infer byte-idempotent checkpoint replay.",
+      "next_owner": "G integration reviewer for B85"
+    },
+    "B86": {
+      "value": "closed",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed (C2 criterion evidence carried forward): Required, optional, missing, null, type, and finite row membership produces identical accepted IDs, keyed quarantine reasons, and accepted-data digest at batch sizes 1, 2, and 8. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record only the declared FieldSpec profiles; do not infer schema from batch DataFrame dtype.",
+      "next_owner": "G integration reviewer for B86"
+    },
+    "B88": {
+      "value": "closed",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed (C2 criterion evidence carried forward): Served replay opens the retained exact owned CAS request/response artifact; missing or corrupt artifacts refuse without native connector egress from both repository and product working directories. Scope is the retained source-card replay profile. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record the retained source-card replay profile only; keep other replay protocols outside this criterion.",
+      "next_owner": "G integration reviewer for B88"
+    },
+    "LA-005": {
+      "value": "held",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Held on the original criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed. Missing condition: Public-surface owner ruling on whether polisyos.foundry.domain.schema is in the supported allowlist. If supported, provide shipped-version/import/persisted-identity evidence; if retirement is selected, separately authorize the exact removal. Available bounded result: Early schema DTO remains; no API support claim or retirement was made.",
+      "next_action": "Public-surface owner: decide whether the exact polisyos.foundry.domain.schema FQN is supported or may be retired, and bind the decision to shipped-version evidence.",
+      "next_owner": "Public-surface owner; G integration reviewer"
+    },
+    "LA-006": {
+      "value": "limited",
+      "basis": "criterion_evidence_binding_corrected",
+      "reason": "Limited to the demonstrated bounded absence and ImportFrom criterion. The exact tracked mechanisms path is absent at both pinned trees, and C2 did not delete a tombstone. No recreation or further deletion is proposed. The local ImportFrom control covers only the selected path; 317 nonliteral loader destinations and external installed callers/registries remain unobserved. The next decision is to admit the existing bounded absence contract or identify an exact supported FQN/caller set, resolve or explicitly bound those 317 destinations, and record G integration disposition.",
+      "next_action": "C package/public-surface and integration owners: admit the existing bounded absence contract or identify the exact supported FQN/caller set, then resolve or explicitly bound the 317 nonliteral loader destinations; do not recreate or further delete the absent path.",
+      "next_owner": "C package/public-surface and integration owners; G integration reviewer"
+    },
+    "LA-008": {
+      "value": "closed",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: Prior census and import-negative remain deciding; no adjacent Scientist evidence, provenance, or claims owner was retired. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record the selected bounded import/package result; leave unpublished external dynamic-import and configuration consumers unclaimed.",
+      "next_owner": "G integration reviewer for LA-008"
+    },
+    "LA-009": {
+      "value": "closed",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: Prior real workflow class-identity and representative validator issue outputs pass; exact alias negatives pass. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record the bounded plugin/configuration consumer result; leave unpublished external consumers unclaimed.",
+      "next_owner": "G integration reviewer for LA-009"
+    },
+    "LA-010": {
+      "value": "closed",
+      "basis": "criterion_evidence_binding_corrected",
+      "reason": "Closed for the original bounded criterion after reviewing criterion_evidence_binding_corrected: R14's source suite checks root migrate.py delegation to the canonical executor. Separate source CLI/readback and callable-removal checks exercise DatasetManifest behavior; the frozen installed wheel evidence covers public CLI conversion, strict DTO readback, and refusal controls, not root-script delegation. The bounded source and installed results remain distinct. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: preserve the source migrate.py delegation result separately from installed CLI/strict-DTO behavior; do not treat one as proof of the other.",
+      "next_owner": "G integration reviewer for LA-010"
+    },
+    "LA-011": {
+      "value": "closed",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: Exact 1e8 wheel installed under -I from site-packages; bootstrap and doctor help exit 0 from exact candidate checkout; safe docs-profile route called the real installed CLI and captured the exact fake-uv `sync --frozen --extra lint --extra docs` argv/cwd; malformed roots and outside-checkout command failed typed. Existing source tests preserve all profiles and JAX order/override behavior. The fake uv did not install dependencies, so no completed host setup is claimed. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record the selected workspace-map and package result; do not claim out-of-checkout bootstrap or dependency-sync behavior.",
+      "next_owner": "G integration reviewer for LA-011"
+    },
+    "LA-012": {
+      "value": "closed",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: The canonical public CLI deterministic-smoke command exited 0: all five cases passed with zero errors, failures, skips, or over-budget outcomes. The full compressed log is retained by the handoff; the documented benchmark workflow is checkout-scoped, with installed-wheel execution out of scope. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record the bounded wrapper result and leave unpublished external users and the unrun benchmarks/JAX surface outside this disposition.",
+      "next_owner": "G integration reviewer for LA-012"
+    },
+    "LA-013": {
+      "value": "closed",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: The exact 1e8 wheel and 954 sdist have zero member/source-byte mismatches; source and archive censuses cover workspace READMEs and apps/packages exclusions, with installed root-origin probes. No actual host dependency setup is claimed. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record the exact wheel/sdist member-byte and five-root workspace-map result; keep host dependency setup and external source history outside scope.",
+      "next_owner": "G integration reviewer for LA-013"
+    },
+    "LA-018": {
+      "value": "held",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Held on the original criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed. Missing condition: A real marker-kept-live negative witness fails: source_auth:null still lets Lex select doc.source.hyg18unauth. Trusted-source identity/authorization authority is not established, and the consumer does not enforce it. Available bounded result: Real marker-kept-live negative witness FAILS refusal: source_auth:null still selects doc.source.hyg18unauth. Trusted-source authorization producer and consumer gate remain absent.",
+      "next_action": "A source-rights/trusted-source authority must supply source-bound identity, permitted purpose, and a verifiable trust input. HYG/C-W08 and canonical Lex/F-W07 owners then gate selection on that artifact and re-evaluate the existing marker-kept source_auth:null witness, which currently demonstrates unauthorized selection.",
+      "next_owner": "Unallocated source-rights/trusted-source authority; HYG/C-W08 and canonical Lex/F-W07 producer/consumer owners; G integration reviewer"
+    },
+    "LA-021": {
+      "value": "held",
+      "basis": "fresh_criterion_evidence_reviewed",
+      "reason": "Held overall. The e3 source candidate has 46 passing frozen source tests; independent review and the real FileSystemCAS oracle accept the unchanged complete JSON-mode Mapping through the IR reader at depth 129, while 19 malformed/unsupported profiles refuse before payload reads and the marker-kept removal control fails. The exact e3 non-editable wheel is UNRUN because offline Hatchling >=1.27 is unavailable; the older installed-wheel result predates this normalization. Direct Core.put_json still writes a Core-only float_hex payload rejected by IR, so the B supplier/admission boundary remains open. Historical profile-less support is not established. This does not claim a complete writer strangle or G formal closure.",
+      "next_action": "B Core owner: supply/admit the raw byte-emission contract or bound the bypass. CAN-01: when offline Hatchling >=1.27 is available, build the exact e3 non-editable wheel and run installed Mapping readback plus pre-byte refusal controls. G records the held boundary until both supplier and installed layers are resolved.",
+      "next_owner": "B Core byte-emission/admission owner; CAN-01 package owner for exact e3 wheel; G integration reviewer"
+    },
+    "LA-022": {
+      "value": "closed",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: The latest handoff records installed discovery/consumer evidence and 26 source tests for LA-022, plus the two focused LA-023 selectors: true zero-gradient refusal and bounded seeded evaluation/reset behavior. Typed cross-call checkpoint/resume, historical TrainingResult compatibility, and Product-owner public .train scope remain unresolved. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record the finite DomainPlugin discovery/ABI migration result; keep future owner-issued admission and verification as a separate capability.",
+      "next_owner": "G integration reviewer for the finite DomainPlugin discovery/ABI criterion"
+    },
+    "LA-023": {
+      "value": "held",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Held on the original criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed. Missing condition: Typed cross-call/checkpoint/composite contract is absent. The focused zero-gradient and seeded in-memory/reset selectors cover their explicit Economics fixture; Product-owner public .train scope and historical TrainingResult compatibility remain unresolved. Available bounded result: The installed one-call CPU PPO path writes the expected result through tenant CAS and the runtime consumer. Separate zero-gradient refusal and initialize-reset controls pass. This does not establish cross-call typed continuation; Product-owner public .train scope and historical TrainingResult compatibility remain unresolved.",
+      "next_action": "Product owner: decide the public .train promise and historical TrainingResult compatibility. C-W15 owner: decide whether cross-call checkpoint/RNG continuation is unsupported or requires a typed profile; do not rerun the completed one-call suite.",
+      "next_owner": "Product owner (.train/public compatibility); C-W15 checkpoint-continuation owner; G integration reviewer"
+    },
+    "LA-024": {
+      "value": "limited",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Limited to the demonstrated original criterion scope after reviewing unchanged_source_prior_criterion_evidence_reviewed: Fresh search/seed responses and cached CAS bytes pass one current URL/MIME/actual-byte-size admission seam. Cached reuse resolves and verifies the original raw snapshot and refuses missing, denied, or mismatched bytes; response metadata, license strings, and acquisition profile remain provenance fields, not permission authority. Remaining boundary: License admissibility remains not_established because the authoritative license-policy owner and rule are absent/unallocated. The candidate preserves license metadata without treating `public-web` or another nonempty value as permission; do not claim disallowed-license refusal coverage or reuse authorization. The exact 01c source received passing technical delta review, while G integration admission remains separate.",
+      "next_action": "License-policy owner: supply an authoritative source-specific reuse rule for fetch/storage/normalization/inference and downstream use; until then preserve the technical result as limited, not authorized.",
+      "next_owner": "License-policy authority; G integration reviewer"
+    },
+    "LA-025": {
+      "value": "held",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Held on the original criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed. Missing condition: Authoritative license-policy owner/rule remains absent; current nonempty license strings are provenance, not permission. Available bounded result: Technical snapshot continuity: enrichment and the downstream decision-packet web-evidence consumer bind to exact search-time CAS v1 after the mutable URL cache advances to v2; unavailable, denied, missing, or mismatched refs yield typed gaps without a second URL fetch. Final reuse admissibility is held because a nonempty license string or `public-web` default is not permission and no authoritative license owner rule exists.",
+      "next_action": "License-policy owner: provide permission bound to the exact source bytes and intended Scholar reuse operations; the nonempty license string remains provenance, not permission.",
+      "next_owner": "License-policy authority; G integration reviewer"
+    },
+    "LA-026": {
+      "value": "held",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Held on the original criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed. Missing condition: Data Forge schema-owner decision on whether GeneratedSchemaModule has an intended producer/consumer contract or supported external FQN; if so, name producer and consumer and provide persisted-identity evidence. Available bounded result: Existing three-string GeneratedSchemaModule descriptor and module remain; no generator, canonical export, or retirement was introduced.",
+      "next_action": "Data Forge schema owner: decide whether GeneratedSchemaModule has an intended producer/consumer and supported FQN; if not, authorize retiring only the placeholder while preserving kernel.schemas APIs.",
+      "next_owner": "Data Forge schema owner; G integration reviewer"
+    },
+    "LA-027": {
+      "value": "held",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Held on the original criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed. Missing condition: Data Forge schema-owner ruling on canonical import path and alias support-window end, plus active-plan owner ruling on accepted migration window and external/persisted consumers. Available bounded result: Canonical kernel schemas and identity-preserving pipeline alias remain; no sunset or data-format change was made.",
+      "next_action": "Data Forge schema and active-plan owners: decide the canonical import path, alias support window, and migration timing before changing the compatibility export.",
+      "next_owner": "Data Forge schema and active-plan owners; G integration reviewer"
+    },
+    "LA-028": {
+      "value": "held",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Held on the original criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed. Missing condition: A-owned serving profile/context and actual same-profile producer→HTTP-consumer path are absent; no profile default is inferred. Available bounded result: The final CAT handoff confirms strict registry intake, explicit-profile selection, and publisher readiness, but its serving-caller criterion FAILs: API, NL, and acquisition callers do not carry the required run_profile; the same-profile HTTP lifecycle remains UNRUN. A separate exact 8dfa editable fixture route writes 26 rows across 16 datasets through benchmark/QC/publish and post-publication RetrievalService; an incomplete 20%-transport profile is refused, and a synthetic HTTP 503 negative is recorded. These direct-profile results do not supply A's missing profile/context bridge or establish live HTTP behavior.",
+      "next_action": "A runtime/lifecycle owner: provide the typed run_profile/context carrier; C consumer owner: wire it through the same-profile producer-to-HTTP path and verify missing-profile refusal without inventing a default.",
+      "next_owner": "A runtime/lifecycle profile owner; C consumer owner; G integration reviewer"
+    },
+    "LA-029": {
+      "value": "held",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Held on the original criterion after reviewing its unchanged bounded source evidence and the current availability assessment. The current availability adjudication finds that the configured Linux candidate exists, but one authorized read-only SSH health check timed out before remote execution (exit 255, 8.023 seconds); no CPU/RAM, authentication, Linux identity, or C7 lifecycle was observed. The criterion remains UNRUN, and the timeout is neither a product failure nor evidence of global provider absence. Remaining requirement: Run create/start/stop/restart/cleanup on an eligible Linux/C7 candidate and bind the exact result; the observed timeout limits present availability and does not establish global host absence. Availability source: `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-availability-20261007.json@sha256:af2ddd0c790d7c9bbe9c2fccec161294947a08fc530b8f9981ce6a7053886a88#/finding_notes/LA-029`. This assessment does not supply candidate code/runtime proof or change G formal status.",
+      "next_action": "G local resource coordinator/UDF process owner: provision one eligible Linux/C7 candidate and run create/start/stop/restart/cleanup with a removal control, binding the exact command and result. The observed SSH timeout is bounded availability evidence, not product failure or global provider absence.",
+      "next_owner": "G local resource coordinator and UDF process owner"
+    },
+    "LA-030": {
+      "value": "closed",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: The real registered D4 orchestrator route produces a persisted BuildRunManifest and ArtifactRecord; public read_api CAS resolution and the Scientist consumer reopen the exact output bytes and retain may_not_use_for limits. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record the bounded D4 producer-to-artifact-to-public-read_api path; do not generalize to all pipeline governance or production data.",
+      "next_owner": "G integration reviewer for LA-030"
+    },
+    "LA-031": {
+      "value": "closed",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: Independent GO: all six registered-stage parity/readback routes and five direct common importers agree. D5 uses the declared clock compare-projection; D3 has two optional unmanifested inputs. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record all six registered-stage parity/readback routes and five direct importers; retain the D5 clock projection and D3 optional-input limits.",
+      "next_owner": "G integration reviewer for LA-031"
+    },
+    "LA-032": {
+      "value": "held",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Held on the original criterion after reviewing its unchanged bounded source evidence and the current availability assessment. The current availability adjudication finds two target-named D3 Parquets and manifest entries with footer metadata matching declared sizes and row counts. Their bytes/authority are not admitted; artifact_id is null, and no current UDF-05 versioned inventory/selector or target/prior/donor mapping was supplied. This metadata does not establish the missing source-to-ID mapping or inventory bridge. Remaining requirement: C-W19 must provide an admitted authority/versioned inventory producer, artifact, and bridge that bind selected source identities to all four readers, with missing/forged/swapped-inventory controls. Current footer metadata does not close that gap. Availability source: `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-availability-20261007.json@sha256:af2ddd0c790d7c9bbe9c2fccec161294947a08fc530b8f9981ce6a7053886a88#/finding_notes/LA-032`. This assessment does not supply candidate code/runtime proof or change G formal status.",
+      "next_action": "C-W19 inventory owner: provide an admitted, versioned source-to-ID inventory producer/artifact/bridge for all four readers, then demonstrate correct selection and refusal for missing, forged, and swapped inventories.",
+      "next_owner": "C-W19 inventory owner; G local consumer verifier"
+    },
+    "LA-034": {
+      "value": "limited",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Limited to the demonstrated original criterion scope after reviewing unchanged_source_prior_criterion_evidence_reviewed: The complete pinned tracked-tree census names known Runtime and Phase-5 schema consumers; 14 installed profiles and package readback are recorded. External static-schema support and third-party consumer identity remain not established, so only the bounded in-repository/runtime scope is supported. Remaining boundary: The tracked-consumer census is complete; external/resource consumer behavior remains bounded and not established.",
+      "next_action": "G resource/integration owner: record the bounded tracked-consumer disposition; if external-resource behavior is added to scope, name its exact producer and consumer before requesting a test.",
+      "next_owner": "G resource/integration owner; external source owner only if that boundary is added"
+    },
+    "LA-036": {
+      "value": "held",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Held on the original criterion after reviewing its unchanged bounded source evidence and the current availability assessment. The current availability adjudication finds real source-row/CAS/model/calibration artifacts in the six pinned E/F supplier trees, but no admitted BER conditional feature law/model/structural-bound bridge for the exact population, schema, epoch, variable order, support, and verifier purpose. E remains consumer_asserted/not_established; F source-bound SCM rows do not establish an IID conditional feature law or causal identification. Remaining requirement: E/F owners must supply the exact conditional-law/model/bound inputs, content binding, and verifier provenance; then verify the admitted artifact at Runtime explanation_reliability and Scientist phase5_preflight, including removal controls. Availability source: `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-availability-20261007.json@sha256:af2ddd0c790d7c9bbe9c2fccec161294947a08fc530b8f9981ce6a7053886a88#/finding_notes/LA-036`. This assessment does not supply candidate code/runtime proof or change G formal status.",
+      "next_action": "E/F law/model owners: supply a content-bound conditional feature law with exact population, schema, epoch, support, and verifier provenance. C BER owner then verifies the admitted artifact at both Runtime explanation_reliability and Scientist phase5_preflight consumers.",
+      "next_owner": "E/F law/model/bound suppliers; C BER consumer; G integration reviewer"
+    },
+    "LA-038": {
+      "value": "limited",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Limited to the demonstrated original criterion scope after reviewing unchanged_source_prior_criterion_evidence_reviewed: The exact ab441 installed canonical entrypoint and CAT 8dfa descendant profile both persist distinct UA/PL observations through real writers; six common modules are byte-identical and CAT completes the 26-shard persisted producer-to-RetrievalService fixture route. External transport is fixture-stubbed; external/dynamic callers and production source history remain unestablished; the compatibility facade is retained. Remaining boundary: The exact ab441 installed canonical entrypoint and CAT 8dfa descendant profile both persist distinct UA/PL observations through real writers; six common modules are byte-identical and CAT completes the 26-shard persisted producer-to-RetrievalService fixture route. External transport is fixture-stubbed; external/dynamic callers and production source history remain unestablished; the compatibility facade is retained.",
+      "next_action": "G downstream-stage owner: record the bounded writer/readback handoff. Source/model owners must provide immutable production-corpus and asset provenance before any production-authority claim.",
+      "next_owner": "G downstream-stage owner; source/model owners if production scope expands"
+    },
+    "LA-039": {
+      "value": "limited",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Limited to the demonstrated original criterion scope after reviewing unchanged_source_prior_criterion_evidence_reviewed: Fresh installed CAT 8dfa probes exercise Academic's two-row producer through a complete 4D generation and ScholarKnowledgeStore readback, and Catalog's one-row graph/embedding producer through DatasetCatalogStore. Readers return the expected fixture IDs; removing a selected native index or deleting the contributing source row returns no result with markers retained. Native hnswlib is 0.8.0. The encoder is a fixture, not production weights. Remaining boundary: The fresh installed fixture producer-to-reader path and native-index/source-row removal controls pass. Production corpus membership, immutable encoder/tokenizer/weight provenance, external source history, and full-corpus performance remain not_established.",
+      "next_action": "G downstream-stage owner: retain the fresh fixture producer/reader and source-removal result as bounded evidence; request immutable model and corpus provenance only if production scope is claimed.",
+      "next_owner": "G downstream-stage owner; source/model owner if production scope expands"
+    },
+    "LA-040": {
+      "value": "held",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Held on the original criterion after reviewing its unchanged bounded source evidence and the current availability assessment. The current availability adjudication confirms the selected local Legal DuckDB exists and the ab441 producer deterministically selects all rows ordered by ID from entity/fact/provision tables; it does not claim a legally-current subset, and a new institutional ratification or full history is not required for this snapshot. The selected bundle lacks a paired persisted embedding-generation/profile manifest; producer and query paths use different 1024- and 3072-dimensional profiles, and inspected cache locations lack paired immutable assets. No production rows, text, vectors, weights, or membership digest were read. Remaining requirement: Perform the bounded read-only source projection/digest and pair generation with a persisted same-profile consumer readback, binding immutable model/tokenizer/normalization identity; finish the allocated digest/reader verification. Do not infer a legally-current membership subset from the all-row snapshot. Availability source: `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-availability-20261007.json@sha256:af2ddd0c790d7c9bbe9c2fccec161294947a08fc530b8f9981ce6a7053886a88#/finding_notes/LA-040`. This assessment does not supply candidate code/runtime proof or change G formal status.",
+      "next_action": "C-W04/DFI first: identify a paired persisted generation, immutable assets, and served query profile. Then obtain an explicit decision whether the user’s restriction permits a bounded read-only membership projection. Until that authorization, do not read or hash production rows, text, vectors, or weights; a raw database hash is not a substitute.",
+      "next_owner": "C-W04/DFI producer owner and served model/query-profile owner; G local read-only verifier after authorization"
+    },
+    "LA-041": {
+      "value": "limited",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Limited to the demonstrated original criterion scope after reviewing unchanged_source_prior_criterion_evidence_reviewed: The final handoff includes an independent eight-control source cache-validity review, current ab441 installed checkpoint/cache/failure/retry behavior, and a separate CAT 8dfa supported exact-archive editable fixture route (26 persisted shards through benchmark/QC/publish/RetrievalService, plus a 20%-transport preflight refusal). Remote/global source history, production corpus completeness/performance, and external authorization remain not_established; non-editable wheel resource behavior remains separate. Remaining boundary: The final handoff includes an independent eight-control source cache-validity review, current ab441 installed checkpoint/cache/failure/retry behavior, and a separate CAT 8dfa supported exact-archive editable fixture route (26 persisted shards through benchmark/QC/publish/RetrievalService, plus a 20%-transport preflight refusal). Remote/global source history, production corpus completeness/performance, and external authorization remain not_established; non-editable wheel resource behavior remains separate.",
+      "next_action": "G downstream-stage owner: record the bounded cache invalidation/checkpoint/retry behavior; require a named same-profile caller only before extending the claim to external consumers.",
+      "next_owner": "G downstream-stage owner; profile owner only if external consumer scope expands"
+    },
+    "LA-042": {
+      "value": "limited",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Limited to the demonstrated original criterion scope after reviewing unchanged_source_prior_criterion_evidence_reviewed: The retained `build_embeddings_and_index` compatibility entrypoint delegates into the canonical Legal producer, calls the supplied supported encoder, binds its identity in the selected generation and supports actual LegalKnowledgeStore readback. The exact ab441 installed probe observed one encoder call and returned fixture entity-1; wrong backend and undeclared device were rejected before output. Native HNSW is real; model weights are synthetic/absent. Remaining boundary: The retained legacy entrypoint was exercised through the exact ab441 installed profile, with CAT 8dfa same-profile integration confirmation. External caller/model-release policy and real immutable encoder assets remain not_established.",
+      "next_action": "G downstream-stage owner: record the retained legacy-entrypoint result within its tested profile; keep external caller history and model-release policy unclaimed until their owner supplies them.",
+      "next_owner": "G downstream-stage owner; model-release owner only if external history is claimed"
+    },
+    "LA-043": {
+      "value": "closed",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: Candidate package-owned generator and schema toolchain produced the three intended outputs; independent review inspected all three outputs and six missing/extra/corrupt controls. Current parent scope is original CLI-01 package/install-consumer behavior. This disposition does not assign G formal closure.",
+      "next_action": "G primary-scope reviewer: record all three generator corruption/missing/extra cases and the independent consumer result; do not demand unbounded external operations.",
+      "next_owner": "G integration reviewer for LA-043"
+    },
+    "LA-044": {
+      "value": "closed",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: Candidate package-owned generator and schema toolchain produced the three intended outputs; independent review inspected all three outputs and six missing/extra/corrupt controls. Current parent scope is original CLI-01 package/install-consumer behavior. This disposition does not assign G formal closure.",
+      "next_action": "G primary-scope reviewer: record the package-generation and actual installed consumer result for the declared scope.",
+      "next_owner": "G integration reviewer for LA-044"
+    },
+    "LA-047": {
+      "value": "closed",
+      "basis": "criterion_evidence_binding_corrected",
+      "reason": "Closed for the original bounded criterion after reviewing criterion_evidence_binding_corrected: R14's focused source suite includes the Common/IR profile tests for callback mutation and exceptions, version and no-op identity, cycle/chain behavior, missing edges, and duplicate registration. This is source-suite evidence only; the malformed workspace-root probes in installed R27 are unrelated and do not establish installed Common/IR semantics. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record the focused Common/IR source-suite result; do not imply an installed root-layout result.",
+      "next_owner": "G integration reviewer for LA-047"
+    },
+    "LA-048": {
+      "value": "closed",
+      "basis": "criterion_evidence_binding_corrected",
+      "reason": "Closed for the original bounded criterion after reviewing criterion_evidence_binding_corrected: R14's source suite covers the RunManifest route. In the source CLI check, a nested sub/data.json reference survives persistence, strict RunManifest readback, and Runtime resolution with its original bytes; the same-basename decoy is not selected. The focused source tests also cover conflicting path aliases, missing/external objects, symlink escape, idempotence, and explicit target versions. This is source evidence only; DuckDB-to-PostgreSQL dry-run and driver probes do not test RunManifest path identity. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record the RunManifest nested-path persistence/readback and Runtime resolution result; do not substitute database dry-run evidence.",
+      "next_owner": "G integration reviewer for LA-048"
+    },
+    "LA-049": {
+      "value": "closed",
+      "basis": "criterion_evidence_binding_corrected",
+      "reason": "Closed for the original bounded criterion after reviewing criterion_evidence_binding_corrected: R14's focused source suite exercises the public policy_ir route, actual Trinity model validation, current-version behavior, malformed inputs, and compatibility helpers. The installed audit does not invoke policy_ir or Trinity migration, so no installed-route claim is made. Native production admission remains outside this source-suite result. This disposition does not assign G formal closure.",
+      "next_action": "G integration reviewer: record the source-suite Trinity current-version result; do not claim installed Trinity migration behavior.",
+      "next_owner": "G integration reviewer for LA-049"
+    },
+    "LA-050": {
+      "value": "limited",
+      "basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "reason": "Limited to the demonstrated original criterion scope after reviewing unchanged_source_prior_criterion_evidence_reviewed: The tracked local audit covers four genuine current 1.0 tiny manifests tested as private copies through the installed 004 public CLI and strict DTO reader: semantic JSON equality in all cases, one byte-identical output, and three serialization-only differences. The originals and copies were unchanged. Its read-only census is confined to 19 documented manifest-named paths and DuckDB information_schema (129 column rows/10 tables); no historical 0.9 artifact was found within that scope. This is not an external-corpus absence claim and no bulk/full production rows/history were processed or exported. Remaining boundary: The published exact-scope audit covers a 19-path manifest-name census and DuckDB information_schema only (129 column rows/10 tables), plus four genuine current 1.0 manifests tested as private local copies through the installed 004 CLI. No historical 0.9 artifact was found within those checked paths; external corpora remain unassessed. Bulk/full production rows/history were not processed or exported, and original production inputs were not modified. Synthetic 0.9 alias-renaming is separate fixture evidence.",
+      "next_action": "MIG owner: provide a real historical 0.9 manifest from an authorized source or keep the result limited to the four tested current 1.0 manifests; do not infer absence from the 19 documented paths or metadata-only census.",
+      "next_owner": "MIG owner; G integration reviewer"
+    }
+  },
+  "current_context_sources": {
+    "availability": {
+      "source_commit": "bf0ea1c7f2067b30c3badc222e6d7ab14e162fdc",
+      "source_tree": "da4504ae28d5529b9a6b724f62b8d996655a0a77",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-availability-20261007.json",
+      "sha256": "af2ddd0c790d7c9bbe9c2fccec161294947a08fc530b8f9981ce6a7053886a88",
+      "git_blob": "6aa19dbbed07a8ae55a24a1a971a669bb4660b64",
+      "size_bytes": 8470,
+      "format": "json",
+      "role": "Root-reconciled current availability; context only, no criterion proof or G closure."
+    },
+    "la040-digest-prep": {
+      "source_commit": "1806b7815887f354c4d25018b5ab430158f7352c",
+      "source_tree": "7a1d531eeb82bff31401ccdb83bac224a3ae0b1b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/availability/LA040-digest-prep.md",
+      "sha256": "8c119eba5529d74a21c1c3596149614fc68500e80d3cae71f5e959461e6ddcb6",
+      "git_blob": "969c0032655ea7f73f09e331bf3fcfbd9b362cb4",
+      "size_bytes": 9891,
+      "format": "text",
+      "role": "Read-only LA-040 input availability and no-row-read boundary; supplementary context only."
+    }
+  },
+  "current_context_updates": {
+    "LA-029": {
+      "source_ref_id": "availability",
+      "availability_pointer": "/finding_notes/LA-029/availability",
+      "missing_input_pointer": "/finding_notes/LA-029/missing_input",
+      "remaining_verification_pointer": "/finding_notes/LA-029/code_outcome",
+      "next_owner_pointer": "/finding_notes/LA-029/next_owner",
+      "supporting_source_ref_ids": []
+    },
+    "LA-032": {
+      "source_ref_id": "availability",
+      "availability_pointer": "/finding_notes/LA-032/availability",
+      "missing_input_pointer": "/finding_notes/LA-032/missing_input",
+      "remaining_verification_pointer": "/finding_notes/LA-032/code_outcome",
+      "next_owner_pointer": "/finding_notes/LA-032/next_owner",
+      "supporting_source_ref_ids": []
+    },
+    "LA-036": {
+      "source_ref_id": "availability",
+      "availability_pointer": "/finding_notes/LA-036/availability",
+      "missing_input_pointer": "/finding_notes/LA-036/missing_input",
+      "remaining_verification_pointer": "/finding_notes/LA-036/code_outcome",
+      "next_owner_pointer": "/finding_notes/LA-036/next_owner",
+      "supporting_source_ref_ids": []
+    },
+    "LA-040": {
+      "source_ref_id": "availability",
+      "availability_pointer": "/finding_notes/LA-040/availability",
+      "missing_input_pointer": "/finding_notes/LA-040/missing_input",
+      "remaining_verification_pointer": "/finding_notes/LA-040/code_outcome",
+      "next_owner_pointer": "/finding_notes/LA-040/next_owner",
+      "supporting_source_ref_ids": [
+        "la040-digest-prep"
+      ]
+    }
+  }
+}

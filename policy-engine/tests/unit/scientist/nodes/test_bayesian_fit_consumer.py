@@ -8,6 +8,7 @@ import copy
 import inspect
 import json
 import logging
+import textwrap
 from collections import Counter
 from fractions import Fraction
 
@@ -692,3 +693,183 @@ def test_public_uncertainty_and_calibration_facades_preserve_typed_identity():
     assert CalibrationBinding is BayesianFitBinding
     assert CalibrationFit is PersistedBayesianFit
     assert calibration_persist is persist_bayesian_fit_envelopes
+
+
+def _spy_output_store(real_fit, tmp_path, monkeypatch, case):
+    store, r, e, binding = _copy_pair(tmp_path, real_fit)
+    existing = persist_bayesian_fit_envelopes(store, r, e, binding)
+    original_put = FileSystemCAS.put_json
+    returned = []
+
+    def spy(self, obj, opts, canon_spec=None):
+        is_output = (
+            opts.kind == "ir.uncertainty_envelope"
+            and isinstance(obj, dict)
+            and "posterior_summary_profile" not in obj.get("metadata", {})
+        )
+        if not is_output:
+            return original_put(self, obj, opts, canon_spec)
+        if case in {"stored_kind", "stored_media_type", "stored_schema", "stored_no_schema"}:
+            chosen = PutOptions(
+                kind="forged.stored_kind" if case == "stored_kind" else opts.kind,
+                media_type="text/plain" if case == "stored_media_type" else opts.media_type,
+                schema=None
+                if case == "stored_no_schema"
+                else SchemaInfo(
+                    name="forged.schema" if case == "stored_schema" else "ir.uncertainty_envelope",
+                    version="1.1",
+                ),
+                inputs=opts.inputs,
+            )
+            ref = self.put_bytes(to_canonical_bytes(obj, canon_spec), chosen).model_copy(
+                update={"kind": opts.kind, "media_type": opts.media_type}
+            )
+        else:
+            ref = original_put(self, obj, opts, canon_spec)
+            changes = {
+                "returned_kind": {"kind": "forged.wrong_kind"},
+                "returned_media_type": {"media_type": "text/plain"},
+                "returned_malformed_id": {"artifact_id": "invalid_id"},
+                "returned_malformed_profile": {"manifest_profile_sha256": False},
+                "returned_missing_profile": {"manifest_profile_sha256": "sha256:" + "a" * 64},
+            }
+            if case in changes:
+                ref = ref.model_copy(update=changes[case])
+            elif case == "wrong_valid_content":
+                ref = existing.envelope_refs["intercept"]
+            elif case == "valid_selected_profile":
+                aid = str(ref.artifact_id).removeprefix("sha256:")
+                views = sorted(
+                    (tmp_path / "artifacts/sha256" / aid[:2] / aid[2:4]).glob(
+                        aid + ".view.*.manifest.json"
+                    )
+                )
+                assert views
+                profile = views[0].name.split(".view.", 1)[1].removesuffix(".manifest.json")
+                ref = ref.model_copy(update={"manifest_profile_sha256": "sha256:" + profile})
+                assert self.has_manifest_view(ref.artifact_id, ref.manifest_profile_sha256)
+            else:
+                raise ValueError("unknown returned-ref control")
+        returned.append(ref)
+        return ref
+
+    monkeypatch.setattr(FileSystemCAS, "put_json", spy)
+    return store, r, e, binding, returned
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        "returned_kind",
+        "returned_media_type",
+        "returned_malformed_id",
+        "returned_malformed_profile",
+        "returned_missing_profile",
+        "stored_kind",
+        "stored_media_type",
+        "stored_schema",
+        "stored_no_schema",
+        "wrong_valid_content",
+    ],
+)
+def test_output_ref_admission_refuses_before_fresh_reader_and_report(
+    real_fit, tmp_path, monkeypatch, case
+):
+    store, r, e, binding, returned = _spy_output_store(real_fit, tmp_path, monkeypatch, case)
+    ctx, state = _node_fixture(store, r, e, binding)
+    reads = 0
+
+    def forbidden(*args, **kwargs):
+        nonlocal reads
+        reads += 1
+        raise AssertionError("invalid output ref reached fresh reader")
+
+    monkeypatch.setattr(node, "load_uncertainty_envelope", forbidden)
+    with pytest.raises(ValueError):
+        node.PropagateUncertaintyNode().execute(ctx, state)
+    assert reads == 0 and len(returned) == 1
+    assert ARTIFACT_PROPAGATION_REPORT_REF not in state.artifacts_index
+    print(
+        json.dumps(
+            {
+                "case": case,
+                "fresh_output_reader_calls": reads,
+                "output_write_calls": len(returned),
+                "report_published": False,
+            }
+        )
+    )
+
+
+def test_valid_selected_output_ref_retains_old_three_field_contract(
+    real_fit, tmp_path, monkeypatch
+):
+    store, r, e, binding, returned = _spy_output_store(
+        real_fit, tmp_path, monkeypatch, "valid_selected_profile"
+    )
+    ctx, state = _node_fixture(store, r, e, binding)
+    outcome = node.PropagateUncertaintyNode().execute(ctx, state)
+    assert outcome.status == "ok" and returned[0].manifest_profile_sha256 is not None
+    sim_ref = outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF]
+    raw_sim = from_canonical_bytes(store.get_bytes(sim_ref))
+    reopened = SimulationResult.model_validate(raw_sim)
+    for ref in reopened.uncertainty_envelopes.values():
+        assert set(ref.model_dump(mode="json")) == {"artifact_id", "kind", "media_type"}
+    assert set(raw_sim["uncertainty_envelopes"]["y"]) == {"artifact_id", "kind", "media_type"}
+    print(
+        json.dumps(
+            {
+                "case": "valid_selected_profile",
+                "actual_selected_view_resolved": True,
+                "legacy_wire_field_count": 3,
+                "fresh_simulation_result_valid": True,
+            }
+        )
+    )
+
+
+@pytest.mark.parametrize("case", ["returned_kind", "stored_schema", "wrong_valid_content"])
+def test_output_ref_admission_removal_is_detected(real_fit, tmp_path, monkeypatch, case):
+    store, r, e, binding, returned = _spy_output_store(real_fit, tmp_path, monkeypatch, case)
+    tree = ast.parse(textwrap.dedent(inspect.getsource(node.PropagateUncertaintyNode.execute)))
+    function = tree.body[0]
+    calls = [
+        part
+        for part in ast.walk(function)
+        if isinstance(part, ast.Call)
+        and isinstance(part.func, ast.Name)
+        and part.func.id == "_admit_output_envelope_ref"
+    ]
+    assert len(calls) == 1
+    call = calls[0]
+    replacement = ast.Tuple(
+        elts=[ast.Name(id="raw_ref", ctx=ast.Load()), ast.Name(id="raw_ref", ctx=ast.Load())],
+        ctx=ast.Load(),
+    )
+
+    class RemoveAdmission(ast.NodeTransformer):
+        def visit_Call(self, current):
+            if current is call:
+                return ast.copy_location(replacement, current)
+            return self.generic_visit(current)
+
+    mutated = RemoveAdmission().visit(tree)
+    namespace = dict(vars(node))
+    exec(  # noqa: S102 — compile the inspected local returned-ref admission removal only.
+        compile(ast.fix_missing_locations(mutated), "output-ref-admission-removed", "exec"),
+        namespace,
+    )
+    monkeypatch.setattr(node.PropagateUncertaintyNode, "execute", namespace["execute"])
+    ctx, state = _node_fixture(store, r, e, binding)
+    outcome = node.PropagateUncertaintyNode().execute(ctx, state)
+    assert outcome.status == "ok" and returned
+    print(
+        json.dumps(
+            {
+                "case": case,
+                "control": "remove_complete_output_ref_admission",
+                "defining_refusal_property": "FAIL",
+                "node_status": outcome.status,
+            }
+        )
+    )

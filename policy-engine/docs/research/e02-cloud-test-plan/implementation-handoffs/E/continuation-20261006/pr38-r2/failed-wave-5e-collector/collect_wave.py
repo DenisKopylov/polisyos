@@ -314,7 +314,7 @@ def collect(args: argparse.Namespace) -> dict[str, object]:
         admit_source(candidate, packet["source"])
     admitted_freeze_path = getattr(args, "freeze_receipt", None)
     if admitted_freeze_path is not None:
-        admitted_freeze_path = public_evidence(
+        admitted_freeze_path = inside(
             admitted_freeze_path.parent.resolve(), admitted_freeze_path
         )
         admitted_freeze = read_json(admitted_freeze_path)

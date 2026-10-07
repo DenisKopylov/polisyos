@@ -1,0 +1,90 @@
+import ast
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+
+ROOT = Path('/workspace/e02-B-current-coordination')
+SHA = 'fae38a6b8ceceabec2967aebe02df9fdccd67509'
+BASE = 'f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/'
+UNION_SHA = '92601021ba17032ec15151e2e3bdbc36dfa61510'
+UNION_PATH = PREFIX + 'current-final-full-B-evidence/G-complete-union-selector-UNRUN.json'
+
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT)
+
+
+def raw(sha, path):
+    return git('show', sha + ':' + path)
+
+
+def ref(sha, path):
+    b = raw(sha, path)
+    return {'git_sha': sha, 'path': path, 'git_blob': git('rev-parse', sha + ':' + path).decode().strip(), 'bytes': len(b), 'sha256': hashlib.sha256(b).hexdigest()}
+
+
+plan = json.loads(raw(UNION_SHA, UNION_PATH))
+assert len(plan['canonical250_paths']) == 250
+old_sha, old_path = plan['canonical250_exact_ref'].split(':', 1)
+old = json.loads(raw(old_sha, old_path))
+assert plan['canonical250_paths'] == old['test_paths'] and old['candidate_whole_file_count'] == 250
+assert raw(SHA, UNION_PATH) == raw(UNION_SHA, UNION_PATH)
+old_tracked = set(plan['canonical250_paths']) | set(plan['additional_actual35_consumer_paths'])
+assert len(old_tracked) == 252 and len(plan['additional_actual35_consumer_paths']) == 2
+new = git('diff', '--name-only', BASE, SHA, '--', 'policy-engine/tests').decode().splitlines()
+assert len(new) == 6
+new_rows = []
+for path in new:
+    content = raw(SHA, path)
+    parsed = ast.parse(content)
+    defs = [n.name for n in ast.walk(parsed) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.name.startswith('test_')]
+    normalized = path.removeprefix('policy-engine/')
+    assert normalized not in old_tracked
+    new_rows.append({'identity': ref(SHA, path), 'selector_path': normalized, 'already_in_tracked253_plan': False, 'test_definition_names_only': defs, 'grade': 'Static native input; parameterized case count and runtime outcome UNRUN'})
+recommended = sorted(old_tracked | {x['selector_path'] for x in new_rows})
+assert len(recommended) == 258
+full_inputs = [ref(SHA, 'policy-engine/' + x) for x in recommended]
+runner = []
+for path in plan['additional_actual35_consumer_paths']:
+    full = 'policy-engine/' + path
+    delta = git('diff', '--name-only', '198076863e143dea9f89f02734b13d50dae3eed5', SHA, '--', full).decode().splitlines()
+    assert not delta
+    runner.append({'identity': ref(SHA, full), 'planned_selector': path, 'changed_from_published198': False, 'admission_note': 'Changed-test fallback cannot supply this planned consumer. Compare actual derive result with the tracked plan and add explicit planned-input lineage if absent.'})
+coverage_path = 'policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json'
+coverage = json.loads(raw(SHA, coverage_path))
+cards = [x for x in coverage['bundles'] if x['unit'] == 'B']
+assert len(cards) == 25
+card_refs = []
+for card in cards:
+    path = card['criterion_card']
+    assert raw(BASE, path) == raw(SHA, path)
+    card_refs.append({'bundle_id': card['id'], 'identity': ref(SHA, path), 'base_identity': ref(BASE, path), 'full_byte_equal': True})
+external = plan['additional_external_defining_input']
+external_ref = ref(external['commit'], external['path'])
+external_driver_path = PREFIX + 'current-b93-half-open-evidence/run_probe.py.source.txt'
+external_driver_ref = ref(external['commit'], external_driver_path)
+assert raw(SHA, external['path']) == raw(external['commit'], external['path'])
+assert raw(SHA, external_driver_path) == raw(external['commit'], external_driver_path)
+source = raw(SHA, PREFIX + 'final-cohort-selector.py').decode()
+assert '"198076863e143dea9f89f02734b13d50dae3eed5", sha' in source
+assert '"current-"' in source and 'additional_actual35_consumer_paths' not in source
+assert 'canonical250_paths' not in source
+selector = ref(SHA, PREFIX + 'final-cohort-selector.py')
+map_path = PREFIX + 'current-adapters-evidence/cohort-selector-equivalents.json'
+option_path = PREFIX + 'final-root-evidence/pytest-cli-option-profile.json'
+recipe = ['python3', str(ROOT / selector['path']), '--repo', str(ROOT), '--sha', SHA, '--equivalents', str(ROOT / map_path), '--output', str(ROOT / '.polisyos/e02-B-current/raw/continuation-20261007/selector-fae38a6b8cec.json')]
+result = {'schema': 'policyos.e02.selector_input_review.v1', 'state': 'PROSPECTIVE_IMMUTABLE_INPUT_REVIEW_NO_DERIVE_COLLECTION_OR_RUNTIME', 'source_snapshot_sha': SHA, 'source_snapshot_tree': git('rev-parse', SHA + '^{tree}').decode().strip(), 'comparison_base_sha': BASE, 'tracked_253_plan': ref(UNION_SHA, UNION_PATH), 'tracked_plan_pointer': ref(SHA, PREFIX + 'current-final-full-B.json'), 'historical250': ref(old_sha, old_path), 'retained_plan_decomposition': {'historical_tracked': 250, 'additional_runner_consumers': 2, 'external_B93': 1, 'declarative_total': 253, 'grade': 'Tracked planned native-input roles; never collection or case outcome'}, 'new_mirrored_tests': new_rows, 'runner_consumers': runner, 'recommended_tracked_union': recommended, 'recommended_tracked_input_identities': full_inputs, 'recommended_tracked_count_only': 258, 'external_defining_input': {'test_ref': external_ref, 'driver_ref': external_driver_ref, 'recreate_exact_bytes_as_fresh_py': True, 'native_mode': 'E02_REMOVE_PROTECTION=0; matched removal is separate evidence, never ordinary cohort', 'source_guard_boundary': 'Old run_probe SOURCE is literal1862 and ROOT cloud path. Bind a new source-specific caller/custody profile explicitly; do not reuse old guard as proof of final source. The test file bytes can stay exact.', 'whole_external_file_roles': 1, 'historical_positive_parameterized_cases': 3, 'future_collection_case_count': 'UNRUN'}, 'source_cards_25': card_refs, 'derivation_inputs': {'selector_source': selector, 'equivalence_map': ref(SHA, map_path), 'observed_pytest_option_grammar': ref(SHA, option_path), 'coverage': ref(SHA, coverage_path), 'snapshot_recipe': recipe, 'execution': 'UNRUN by reviewer; root may derive a separate final-source output only after all writers settle'}, 'source_only_mechanism_trace': {'changed_test_fallback': 'Every genuinely changed tracked test_*.py from198 is added, so six new mirrored files have explicit lineage.', 'tracked_future_manifest_arrays': 'Driver does not itself consume canonical250_paths/additional_actual35_consumer_paths as input declarations. Runner coverage must be reconciled with actual final derive, not presumed.', 'external_profile': 'Only tracked pytest modules are emitted by the generic selector. Documentary B93 .source.txt is separate reconstruction/input-closure role.', 'installed_profile': 'Keep whole outer installed-wheel test; non-test installed consumer remains child input rather than duplicate root collection.', 'B74_pending': 'New frame assertion is expected in an existing test file. No future SHA, byte hash, case count or PASS is claimed.'}, 'required_final_checks': ['Exact final derive SHA/tree and immutable Git input identities, with no ignored253 as selector baseline.', 'Assert every252 old tracked-plan path is retained; reconcile any absence against explicit input role, never silently drop old consumer.', 'Assert all six new mirrored test files are retained; source/test changes after this snapshot require fresh byte identities.', 'Preserve all absent canonical/incidental selector references and unresolved argv grammar as UNRUN; do not equate absent names with satisfied criterion.', 'Explicitly dispatch the one exact B93 external whole file with final-source guards/custody and native mode; do not add matched removal to ordinary cohort.', 'Measure actual collection/parameterized cases only in the final native session; do not sum old807/712/3882 or confuse258+external role counts with test cases.'], 'verdict': 'NONBLOCKING prospective input recommendations; final selector retention is UNRUN until exact final derivation/readback', 'formal_closure_ids': []}
+FINAL = '6fa9b7142ba590c3173f1cd3be097286db5acc4d'
+changed_final = []
+for path in recommended:
+    full = 'policy-engine/' + path
+    before_bytes, final_bytes = raw(SHA, full), raw(FINAL, full)
+    if before_bytes != final_bytes:
+        changed_final.append({'path': full, 'prospective_ref': ref(SHA, full), 'final_freeze_ref': ref(FINAL, full)})
+for card in cards:
+    assert raw(SHA, card['criterion_card']) == raw(FINAL, card['criterion_card'])
+result['announced_final_freeze_input_delta_only'] = {'source_sha': FINAL, 'tree': git('rev-parse', FINAL + '^{tree}').decode().strip(), 'tracked_input_paths_same': True, 'whole_file_inputs': len(recommended), 'byte_equal_inputs': len(recommended) - len(changed_final), 'changed_existing_input_records': changed_final, 'cards_25_byte_equal': True, 'actual_final_selector_readback': 'UNRUN until root supplies actual output; this is not an executed derivation or native session'}
+Path('/tmp/e02-B-runtime-continuation-20261007/selector-input-review/result.json').write_text(json.dumps(result, indent=2) + '\n')
+print(json.dumps({'snapshot': SHA, 'tracked_old_plan': len(old_tracked), 'new_mirrored': len(new_rows), 'recommended_tracked_inputs': len(recommended), 'separate_external_roles': 1, 'unchanged_cards': len(cards), 'derive_collection_native': 'UNRUN'}, indent=2))

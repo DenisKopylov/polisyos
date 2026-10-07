@@ -1,0 +1,68 @@
+{
+  "basis": "Actual read-only tool-returned procfs observation from earlier command in this turn; complete relevant rows copied losslessly as JSON text. Not a new live measurement, no signing/authority assertion.",
+  "phase": "Before full selector readback checker repeated procfs sample; exact UTC was not captured.",
+  "command": [
+    "python3",
+    "-"
+  ],
+  "cwd": "/workspace/e02-B-current-runtime",
+  "source_file": "earlier-proc-observation.source.txt",
+  "output_file": "earlier-proc-observation.txt",
+  "exit_code": 0,
+  "retained_environment_scope": "Only E02_REMOVE_PROTECTION and its presence; other process environment including credentials was not printed or retained.",
+  "rows": [
+    {
+      "pid": 762209,
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+        "--repo",
+        "/workspace/e02-B-current-coordination",
+        "--tag",
+        "continuation-6fa9b7142ba5-admitted-native",
+        "--",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "-p",
+        "current_cohort_inventory",
+        "@/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/whole-files.args",
+        "--continue-on-collection-errors",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/cache",
+        "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/native.xml"
+      ],
+      "E02_REMOVE_PROTECTION": "0",
+      "present": true,
+      "cwd": "/workspace/e02-B-current-coordination"
+    },
+    {
+      "pid": 762212,
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "-p",
+        "current_cohort_inventory",
+        "@/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/whole-files.args",
+        "--continue-on-collection-errors",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/cache",
+        "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/native.xml"
+      ],
+      "E02_REMOVE_PROTECTION": "0",
+      "present": true,
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine"
+    }
+  ],
+  "limits": [
+    "Input observation proves ordinary mode for these observed process instances only; no native count/PASS or universal runtime origin claim.",
+    "Later resample had no matching live processes and is retained as failed metadata-premise attempt."
+  ]
+}

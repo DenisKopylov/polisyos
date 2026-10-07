@@ -1,0 +1,17 @@
+{
+  "verdict": "NONBLOCKING_INPUT_RETENTION_READBACK_ONLY",
+  "source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+  "old_tracked_plan": 252,
+  "new_continuation_mirrored": 6,
+  "additional_G_dependencies": 2,
+  "derived_tracked": 258,
+  "explicit_runner_additions": 2,
+  "final_tracked": 260,
+  "external_roles": 1,
+  "whole_file_argv": 261,
+  "native_collection_case_count_and_outcomes": "UNRUN_BY_REVIEWER",
+  "tracked_source_bytes_verified": 260,
+  "actual_B93_process_mode_rows": 0,
+  "absent_UNRUN": 21,
+  "root_head_unchanged": true
+}

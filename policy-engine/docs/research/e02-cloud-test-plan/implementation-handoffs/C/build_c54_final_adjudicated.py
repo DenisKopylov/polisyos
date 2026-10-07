@@ -211,6 +211,48 @@ def json_pointer_value(document: object, pointer: str) -> object:
     return value
 
 
+def declared_finding_scope(
+    handoff_doc: dict, pointers: object, family: str, c2_rows: dict[str, dict]
+) -> list[str]:
+    """Resolve a handoff's finding scope from its selected Git-bound fields."""
+    if (
+        not isinstance(pointers, list)
+        or not pointers
+        or any(not isinstance(pointer, str) or not pointer.startswith("/") for pointer in pointers)
+        or len(pointers) != len(set(pointers))
+    ):
+        raise RuntimeError(f"source-family finding-scope pointers are invalid: {family}")
+    finding_ids: set[str] = set()
+    for pointer in pointers:
+        selected = json_pointer_value(handoff_doc, pointer)
+        if not isinstance(selected, list):
+            raise RuntimeError(
+                f"source-family finding-scope pointer is not an array: {family} {pointer}"
+            )
+        pointer_ids: set[str] = set()
+        for item in selected:
+            finding_id = (
+                item
+                if isinstance(item, str)
+                else item.get("id")
+                if isinstance(item, dict)
+                else None
+            )
+            if not isinstance(finding_id, str) or not finding_id or finding_id in pointer_ids:
+                raise RuntimeError(
+                    f"source-family finding scope has an invalid or repeated ID: {family}"
+                )
+            row = c2_rows.get(finding_id)
+            if row is None or row["source_family"] != family:
+                raise RuntimeError(
+                    "source-family finding scope names an unknown or other-family row: "
+                    f"{family} {finding_id}"
+                )
+            pointer_ids.add(finding_id)
+        finding_ids.update(pointer_ids)
+    return sorted(finding_ids)
+
+
 def criterion_cell(row: dict) -> str:
     return "<br>".join(
         f"{item['criterion_id']} {item['document_ref']} L{item['line_span']} "
@@ -223,24 +265,108 @@ def derive_c3_evidence_state(
     finding_id: str,
     source_family: str,
     c3_input: dict,
-    verified_current_families: set[str],
+    verified_current_families: dict,
+    supplemental_by_finding: dict[str, list[str]],
 ) -> str:
     """Classify evidence from scope and verified receipts, never state labels."""
     override = c3_input.get("row_overrides", {}).get(finding_id, {})
     refresh_scope = c3_input.get("family_refresh_states", {})
-    if source_family in verified_current_families:
-        return "fresh_source_handoff_reviewed"
-    if source_family in refresh_scope and source_family != "default":
+    current_ref = verified_current_families.get(source_family, {})
+    if finding_id in current_ref.get(
+        "declared_finding_scope_ids", []
+    ) or supplemental_by_finding.get(finding_id):
+        return "fresh_criterion_evidence_reviewed"
+    if source_family in refresh_scope and source_family != "default" and not current_ref:
         return "c3_source_refresh_pending"
     if override.get("code_outcome") and override.get("evidence_refs"):
         return "criterion_binding_corrected"
     return "c2_frozen_evidence_carried_forward"
 
 
-def c3_evidence_state_note(state: str, source_family: str) -> str:
+def c3_evidence_scope_source(
+    finding_id: str,
+    source_family: str,
+    verified_current_families: dict,
+    supplemental_by_finding: dict[str, list[str]],
+) -> str | None:
+    """Return which bound handoff actually names this finding's criterion scope."""
+    current_ref = verified_current_families.get(source_family, {})
+    if finding_id in current_ref.get("declared_finding_scope_ids", []):
+        return "current_family"
+    if supplemental_by_finding.get(finding_id):
+        return "supplemental"
+    return None
+
+
+def c3_evidence_state_pointer(
+    finding_id: str,
+    source_family: str,
+    state: str,
+    family_state_key: str,
+    c3_input: dict,
+    verified_current_families: dict,
+    supplemental_by_finding: dict[str, list[str]],
+) -> str:
+    """Point to the bound input object that establishes the current evidence state."""
+    scope_source = c3_evidence_scope_source(
+        finding_id, source_family, verified_current_families, supplemental_by_finding
+    )
+    if scope_source == "current_family":
+        return f"/current_source_family_refs/{source_family}"
+    if scope_source == "supplemental":
+        refs = supplemental_by_finding[finding_id]
+        for index, item in enumerate(c3_input.get("supplemental_source_handoffs", [])):
+            if item.get("ref_id") in refs:
+                return f"/supplemental_source_handoffs/{index}"
+        raise RuntimeError(f"supplemental state pointer is missing: {finding_id}")
+    if state == "criterion_binding_corrected":
+        return f"/row_overrides/{finding_id}"
+    if source_family in verified_current_families:
+        return f"/current_source_family_refs/{source_family}"
+    return f"/family_refresh_states/{family_state_key}"
+
+
+def source_family_version_binding(
+    finding_id: str, source_family: str, verified_current_families: dict
+) -> dict:
+    """Keep current family-version verification separate from criterion evidence."""
+    current_ref = verified_current_families.get(source_family)
+    if current_ref is None:
+        return {
+            "status": "c2_source_family_version_carried_forward",
+            "source_family_ref_key": source_family,
+            "family_handoff_criterion_scope_includes_finding": None,
+        }
+    declared_ids = current_ref["declared_finding_scope_ids"]
+    return {
+        "status": "current_source_family_version_verified",
+        "source_family_ref_key": source_family,
+        "candidate_commit": current_ref["candidate_commit"],
+        "candidate_tree": current_ref["candidate_tree"],
+        "handoff_path_at_sha256": current_ref["handoff_path_at_sha256"],
+        "declared_finding_scope_ids": declared_ids,
+        "finding_scope_pointers": current_ref["finding_scope_pointers"],
+        "family_handoff_criterion_scope_includes_finding": finding_id in declared_ids,
+    }
+
+
+def c3_evidence_state_note(
+    state: str,
+    source_family: str,
+    scope_source: str | None,
+    current_family_verified: bool,
+) -> str:
     """Render a state explanation from the evidence classification."""
-    if state == "fresh_source_handoff_reviewed":
-        return f"A current source-family handoff for {source_family} is bound and verified."
+    if state == "fresh_criterion_evidence_reviewed":
+        if scope_source == "supplemental":
+            return (
+                "A verified supplemental handoff explicitly declares this finding's "
+                "criterion scope."
+            )
+        return (
+            f"The verified {source_family} handoff explicitly declares this finding's "
+            "criterion scope."
+        )
     if state == "c3_source_refresh_pending":
         return (
             f"A C3 source refresh is in scope for {source_family}, but no current source-family "
@@ -249,6 +375,12 @@ def c3_evidence_state_note(state: str, source_family: str) -> str:
     if state == "criterion_binding_corrected":
         return (
             "The row-specific criterion and evidence binding is corrected by the listed receipts."
+        )
+    if current_family_verified:
+        return (
+            f"The current {source_family} source-family version is verified, but its declared "
+            "finding scope does not include this row; frozen C2 criterion evidence is carried "
+            "forward."
         )
     return (
         "No C3 source refresh or row correction is bound; "
@@ -564,7 +696,14 @@ def render_c3_markdown(cut: dict, c2_cut: dict, c3_input: dict) -> str:
                 markdown_cell(f"{g['capability_label'] or '—'}<br>{g['canonical_source_owner']}"),
                 markdown_cell(source_family),
                 markdown_cell(f"{c2verdict['value']} ({c2verdict['status']})"),
-                markdown_cell(current["evidence_basis"]),
+                markdown_cell(
+                    f"{current['evidence_basis']}<br>"
+                    f"{current['state_note']}<br>"
+                    f"source-family version: "
+                    f"{current['source_family_version_binding']['status']}; "
+                    f"family-handoff criterion scope includes finding: "
+                    f"{current['source_family_version_binding']['family_handoff_criterion_scope_includes_finding']}"
+                ),
                 markdown_cell(current["code_outcome"]),
                 f"**{final_verdict['value'].upper()}** — {markdown_cell(final_verdict['reason'])}",
                 markdown_cell(current["missing_inputs_or_skipped_backend"]),
@@ -814,7 +953,7 @@ def apply_c3_root_adjudications(
             raise RuntimeError(f"invalid final C3 verdict or evidence basis: {finding_id}")
         current = row["current_evaluation"]
         derived_basis = {
-            "fresh_source_handoff_reviewed": "fresh_source_handoff_reviewed",
+            "fresh_criterion_evidence_reviewed": "fresh_criterion_evidence_reviewed",
             "criterion_binding_corrected": "criterion_evidence_binding_corrected",
             "c2_frozen_evidence_carried_forward": (
                 "unchanged_source_prior_criterion_evidence_reviewed"
@@ -980,6 +1119,7 @@ def verify_current_source_family_refs(root: Path, c2_cut: dict, c3_input: dict) 
         "handoff_branch_pointer",
         "implementation_changed_paths",
         "evidence_pointers",
+        "finding_scope_pointers",
     }
     for family, ref in raw_refs.items():
         if family not in prior_families or not isinstance(ref, dict):
@@ -1073,6 +1213,10 @@ def verify_current_source_family_refs(root: Path, c2_cut: dict, c3_input: dict) 
             selected = json_pointer_value(handoff_doc, pointer)
             if selected is None or selected == "" or selected == [] or selected == {}:
                 raise RuntimeError(f"source-family evidence pointer is empty: {family} {pointer}")
+        source_rows = {row["id"]: row for row in c2_cut["rows"]}
+        finding_scope_ids = declared_finding_scope(
+            handoff_doc, ref["finding_scope_pointers"], family, source_rows
+        )
 
         verified[family] = {
             "candidate_commit": candidate_commit,
@@ -1089,6 +1233,8 @@ def verify_current_source_family_refs(root: Path, c2_cut: dict, c3_input: dict) 
             "tree": handoff_tree,
             "handoff_branch_pointer": ref["handoff_branch_pointer"],
             "evidence_pointers": list(evidence_pointers),
+            "finding_scope_pointers": list(ref["finding_scope_pointers"]),
+            "declared_finding_scope_ids": finding_scope_ids,
         }
     return verified
 
@@ -1520,7 +1666,17 @@ def build_c3(root: Path, json_path: Path, markdown_path: Path, input_path: Path)
         override = overrides.get(finding_id, {})
         family_state_key = source_family if source_family in family_states else "default"
         state = derive_c3_evidence_state(
-            finding_id, source_family, c3_input, set(verified_current_families)
+            finding_id,
+            source_family,
+            c3_input,
+            verified_current_families,
+            supplemental_by_finding,
+        )
+        scope_source = c3_evidence_scope_source(
+            finding_id,
+            source_family,
+            verified_current_families,
+            supplemental_by_finding,
         )
         c2_row_index = c2_row_indexes[finding_id]
         code_outcome = override.get("code_outcome")
@@ -1581,15 +1737,23 @@ def build_c3(root: Path, json_path: Path, markdown_path: Path, input_path: Path)
         )
         current = {
             "state": state,
-            "state_note": c3_evidence_state_note(state, source_family),
-            "state_note_source_pointer": (
-                f"/current_source_family_refs/{source_family}"
-                if source_family in verified_current_families
-                else (
-                    f"/row_overrides/{finding_id}"
-                    if state == "criterion_binding_corrected"
-                    else f"/family_refresh_states/{family_state_key}"
-                )
+            "state_note": c3_evidence_state_note(
+                state,
+                source_family,
+                scope_source,
+                source_family in verified_current_families,
+            ),
+            "state_note_source_pointer": c3_evidence_state_pointer(
+                finding_id,
+                source_family,
+                state,
+                family_state_key,
+                c3_input,
+                verified_current_families,
+                supplemental_by_finding,
+            ),
+            "source_family_version_binding": source_family_version_binding(
+                finding_id, source_family, verified_current_families
             ),
             "code_outcome": code_outcome,
             "code_outcome_source_pointer": code_outcome_source_pointer,

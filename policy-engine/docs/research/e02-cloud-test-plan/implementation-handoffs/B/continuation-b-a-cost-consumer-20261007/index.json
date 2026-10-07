@@ -1,0 +1,47 @@
+{
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/actual-four-case-quantities.json",
+      "bytes": 27823,
+      "sha256": "dc2c45bd45d79aaffb145e8c9b6990f56452315454c0e8b90bae6f7f2e0ddf95"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/baseline-navigation.json",
+      "bytes": 53697,
+      "sha256": "aa9e977faa9aea4ae40dd716f31093ead75abf31556dde73dfba34f99bfe5038"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/native.txt",
+      "bytes": 21529,
+      "sha256": "674c6f26b084418ff9fc9cf961252c4e32a6205ae0f901e63c1c58f71c23211e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/native.xml",
+      "bytes": 1844,
+      "sha256": "8d151883c8dda5376ce5c674f7aadd2c6e4a45162241b558e1efb94e0fcdc2bc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/owner-packet.json",
+      "bytes": 13568,
+      "sha256": "5ccf4ef1d0dc3a7c967210422091fdedce199e9ffe9db62e71444712515d001e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/run-native.source.txt",
+      "bytes": 3650,
+      "sha256": "73c2280b0eb4d6b994528f1513191a6c770bce70bcd2ef6807757dd5604e64f7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/source-context.json",
+      "bytes": 764468,
+      "sha256": "b37d7363e913aa5fe12b0ab448f6999d6dbec648a50dcfef410404acb90e4649"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/wrapper.json",
+      "bytes": 2326,
+      "sha256": "973426bb91cbf98bde74b643517d057b17f1e961374986b645eb8e9fa6baaacc"
+    }
+  ],
+  "total_bytes": 888905,
+  "source_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+  "test_sha": "2c7a6398efc773a18bf04abd7d119b6462a8809b"
+}

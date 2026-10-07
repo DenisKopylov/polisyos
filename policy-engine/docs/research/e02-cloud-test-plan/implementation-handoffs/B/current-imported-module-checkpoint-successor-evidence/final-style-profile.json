@@ -1,0 +1,37 @@
+{
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/ruff",
+        "check",
+        "tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "ce3b983d2c249cd945c6766f9a83bb8af409739f",
+      "target_tree": "cdb4892d899401fb5b065dd3779a7c987f760e6d",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-ruff.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19,
+      "test_sha256": "1c22fd256f2038def925ed5467c5bc842d680bfa0669cee202a75ea881cc71f8"
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/ruff",
+        "format",
+        "--check",
+        "tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "ce3b983d2c249cd945c6766f9a83bb8af409739f",
+      "target_tree": "cdb4892d899401fb5b065dd3779a7c987f760e6d",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-format.txt",
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "bytes": 25,
+      "test_sha256": "1c22fd256f2038def925ed5467c5bc842d680bfa0669cee202a75ea881cc71f8"
+    }
+  ],
+  "source_test_before_after_equal": true,
+  "qualification": "Exact ce3 HEAD/test byteequal a4 and native1970; authored Ruff PT012 history retained, no waiver."
+}

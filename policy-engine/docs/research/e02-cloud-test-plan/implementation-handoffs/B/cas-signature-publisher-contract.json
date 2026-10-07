@@ -1,0 +1,64 @@
+{
+  "schema": "policyos.e02.consumer_contract.v1",
+  "unit": "B",
+  "finding_id": "B154",
+  "status": "consumer_missing",
+  "source_sha": "441f79f173df5e0d2a08c161120e634bb0e4f5aa",
+  "source_tree": "135c30d39535b9e103648ea8facf7595db6267b1",
+  "producer": "FileSystemCAS.verify_all_signatures(verifier, artifact_ids=required_refs, pending_window=..., cancel_event=..., deadline=<absolute monotonic>) -> BulkVerificationReport",
+  "consumer_predicate": "report.require_complete_valid(required_refs) -> None or raises ValueError. Required refs come from actual existing declared publication set, including selected profile/kind/media identity. Consume the fresh canonical in-process report, not externally provided JSON or counters.",
+  "contract_fields": [
+    "state complete|aborted",
+    "actual admitted and finished",
+    "inventory_exhausted and abort_reason",
+    "every details row artifact_id + exact artifact_ref + SignatureVerificationStatus"
+  ],
+  "purpose": "Structural full valid signature confirmation prerequisite only where the existing owner already requires all confirmations; this API does not appoint authority, a trust policy, population or public publisher.",
+  "positive_input": {
+    "native_ref": "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py@441f79f173df5e0d2a08c161120e634bb0e4f5aa::test_real_full_batch_all_confirmations_are_required",
+    "input": "Three real CAS objects, fresh Ed25519 key+trusted verifier, exact persisted signatures; all3 distinct exact refs require_complete_valid succeeds."
+  },
+  "negative_inputs": [
+    {
+      "native_ref": "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py@441f79f173df5e0d2a08c161120e634bb0e4f5aa::test_local_corruption_preserves_full_typed_results_and_refuses_admission",
+      "input": "Same real3 signed objects, actually corrupt second blob; report has2VALID1ERROR and completeness refuses. No publication may occur under an existing all-confirmations law."
+    },
+    {
+      "native_ref": "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py@441f79f173df5e0d2a08c161120e634bb0e4f5aa::test_cancel_preserves_actual_finished_item_and_explicit_abort",
+      "input": "Same3, cancel after actual first signature verification, pending1; retain actual finished row but stateaborted, completeness refuses."
+    },
+    {
+      "native_ref": "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py@441f79f173df5e0d2a08c161120e634bb0e4f5aa::test_real_full_batch_all_confirmations_are_required",
+      "input": "Keep validcounter3 and report metadata but remove actual final per-item row; predicate refuses. Callerboolean/reportcount is insufficient."
+    },
+    {
+      "native_ref": "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py@441f79f173df5e0d2a08c161120e634bb0e4f5aa::test_selected_and_default_same_blob_remain_two_exact_confirmations",
+      "input": "Same blob default+selected have distinct required view identities; duplicate/missing/default-substitution confirmations refuse."
+    }
+  ],
+  "existing_consumers": {
+    "bulk_signature": "Actual --all cryptoCLI retains unsigned/trust options and refuses aborted state; it is not publication.",
+    "integrity_publisher": "Actual CASimport consumes TransferVerificationBatch.require_complete_valid against all measured staged intake before publisher. This is byte/manifest integrity, not signature trust admission.",
+    "a_owned_paths": [
+      {
+        "ref": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@441f79f173df5e0d2a08c161120e634bb0e4f5aa",
+        "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+        "bytes": 578822
+      },
+      {
+        "ref": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py@441f79f173df5e0d2a08c161120e634bb0e4f5aa",
+        "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+        "bytes": 347497
+      }
+    ],
+    "source_observation": "At441 repository source call sites of verify_all_signatures are the CAS canonical producer/adapter and CLI; require_complete_valid signature consumer is absent from A publication paths. A signature custody monitor is advisory and explicitly supplied population, not appointed all-confirmations publisher."
+  },
+  "required_owner_work": "A/G chooses and integrates actual current appointed all-confirmations publication consumer, supplies exact required population and existing trust/identity settings, invokes fresh producer+predicate before durable publication under existing owner fences, and runs actual no-publication missing/local-error/aborted negatives. No A source edited by B.",
+  "boundaries": [
+    "Report is a fresh local verifier result, not serialized proof or permission token.",
+    "A owns current authorization, trust/identity law, population and publication time fences. No global snapshot/time or authority claim comes from batch complete.",
+    "Unsigned/untrusted rows remain allowed by legacy .ok behavior but never satisfy require_complete_valid; this does not retroactively mandate all-signature policy.",
+    "Incomplete callbacks/iterator can outlive a deadline; explicit aborted output cannot authorize publication."
+  ],
+  "evidence_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-completion.json"
+}

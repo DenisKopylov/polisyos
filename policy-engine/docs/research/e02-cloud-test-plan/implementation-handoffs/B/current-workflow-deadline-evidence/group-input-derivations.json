@@ -1,0 +1,128 @@
+[
+  {
+    "label": "native-final-typed-group-consumers",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+      "--kind",
+      "native",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-group-inputs/native-final-typed-group-consumers/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-typed-group-consumers/input-closure.json",
+      "sha256": "bed647d412b7cf93d1b8e238ead2b636d39da9830928a4ef477e481a072931a5",
+      "paths": 2741,
+      "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-group-inputs/native-final-typed-group-consumers/input-closure.json",
+      "source_sha": "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+      "kind": "native",
+      "paths": 2741,
+      "bytes": 520934,
+      "sha256": "bed647d412b7cf93d1b8e238ead2b636d39da9830928a4ef477e481a072931a5"
+    }
+  },
+  {
+    "label": "native-final-bundle-consumers",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "3eb2e887e07452a316aab95b7dbe3b4f2874951d",
+      "--kind",
+      "native",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-group-inputs/native-final-bundle-consumers/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-bundle-consumers/input-closure.json",
+      "sha256": "50747331c10b9cb5210799dc5de82044c1aaf7347aaa9b50982892ae97984da9",
+      "paths": 2732,
+      "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-group-inputs/native-final-bundle-consumers/input-closure.json",
+      "source_sha": "3eb2e887e07452a316aab95b7dbe3b4f2874951d",
+      "kind": "native",
+      "paths": 2732,
+      "bytes": 519041,
+      "sha256": "50747331c10b9cb5210799dc5de82044c1aaf7347aaa9b50982892ae97984da9"
+    }
+  },
+  {
+    "label": "final-typed-group-ruff",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "3eb2e887e07452a316aab95b7dbe3b4f2874951d",
+      "--kind",
+      "full-tracked",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-group-inputs/final-typed-group-ruff/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-typed-group-ruff/input-closure.json",
+      "sha256": "44c4a288acbbcf1c47b0005fa667cf78935473415c24d4c8b155c10e10eb040d",
+      "tracked_paths": 13939,
+      "additional_git_input": "immutable base198076863e143dea9f89f02734b13d50dae3eed5/tree2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-group-inputs/final-typed-group-ruff/input-closure.json",
+      "source_sha": "3eb2e887e07452a316aab95b7dbe3b4f2874951d",
+      "kind": "full-tracked",
+      "paths": 13939,
+      "bytes": 2816006,
+      "sha256": "44c4a288acbbcf1c47b0005fa667cf78935473415c24d4c8b155c10e10eb040d"
+    }
+  },
+  {
+    "label": "final-typed-group-format",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "3eb2e887e07452a316aab95b7dbe3b4f2874951d",
+      "--kind",
+      "full-tracked",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-group-inputs/final-typed-group-format/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-typed-group-format/input-closure.json",
+      "sha256": "44c4a288acbbcf1c47b0005fa667cf78935473415c24d4c8b155c10e10eb040d",
+      "tracked_paths": 13939,
+      "additional_git_input": "immutable base198076863e143dea9f89f02734b13d50dae3eed5/tree2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-group-inputs/final-typed-group-format/input-closure.json",
+      "source_sha": "3eb2e887e07452a316aab95b7dbe3b4f2874951d",
+      "kind": "full-tracked",
+      "paths": 13939,
+      "bytes": 2816006,
+      "sha256": "44c4a288acbbcf1c47b0005fa667cf78935473415c24d4c8b155c10e10eb040d"
+    }
+  }
+]

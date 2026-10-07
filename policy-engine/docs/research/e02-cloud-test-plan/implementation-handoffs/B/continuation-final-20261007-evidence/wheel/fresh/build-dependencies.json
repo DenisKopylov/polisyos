@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+    "pip",
+    "install",
+    "--python",
+    "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/build-env/bin/python",
+    "hatchling==1.27.0"
+  ],
+  "cwd": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5",
+  "start_utc": "2026-10-07T08:37:36.980924+00:00",
+  "end_utc": "2026-10-07T08:37:39.880430+00:00",
+  "wall_s": 2.899518774007447,
+  "child_maxrss_platform_units": 43416,
+  "maxrss_unit": "KiB on Linux; bytes on macOS",
+  "exit": 0,
+  "output": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/build-dependencies.txt",
+  "output_bytes": 243,
+  "output_sha256": "339f26e7a23d9815c47965081bd8a02863b3e7ef17978b3ffff285bc385e175d",
+  "source": {
+    "head": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+    "tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+    "status": ""
+  }
+}

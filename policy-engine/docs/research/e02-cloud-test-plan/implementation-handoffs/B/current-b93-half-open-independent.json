@@ -1,0 +1,915 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-b93-half-open-independent",
+  "closure_ids": [],
+  "bundle_ids": [
+    "NET-02"
+  ],
+  "slice_base_sha": "da0fd9abba7a6be9871503224962c7419321ead0",
+  "implementation_commits": [
+    "0463d5cf181fb8641cd69d5f8963bd9f2615a9da",
+    "ff5f481923328bf221ffd3f8e934a83176abd760"
+  ],
+  "candidate_tree_sha": "4fd085392707d84681b75f00c88eae8668a11770",
+  "branch": "codex/e02-B-current-runtime",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/46",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/baseline-context.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/baseline-query.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/criterion-qualification.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/source-context.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/test_actual_half_open_provider0/physical-provider.jsonl.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/test_actual_half_open_provider1/physical-provider.jsonl.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/test_actual_half_open_provider2/physical-provider.jsonl.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/source-context.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/test_actual_half_open_provider0/physical-provider.jsonl.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/run_probe.py.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/test_half_open_consumer.py.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/source-context.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/test_actual_half_open_provider0/physical-provider.jsonl.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/test_actual_half_open_provider1/physical-provider.jsonl.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/test_actual_half_open_provider2/physical-provider.jsonl.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/source-context.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/test_actual_half_open_provider0/physical-provider.jsonl.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/run_probe.py.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/test_half_open_consumer.py.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/tool-profile.json"
+  ],
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-independent.json",
+  "source_target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "source_target_tree_sha": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "baseline_cells": [
+    {
+      "id": "F04-P021",
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+      "state": "PASS",
+      "collected": "30",
+      "calls": "30",
+      "call_pass": "30",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.896",
+      "rss_kib": "175336",
+      "receipt_status": "valid_reconciled_parent",
+      "source_file": "received/F04.txt",
+      "source_line": "231",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F06-P037",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+      "state": "PASS",
+      "collected": "17",
+      "calls": "17",
+      "call_pass": "17",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "4.862162828445435",
+      "rss_kib": "222908",
+      "receipt_status": "valid",
+      "source_file": "received/F06.txt",
+      "source_line": "221",
+      "extra_json": "{\"reason\":\"null\"}"
+    },
+    {
+      "id": "F08-P029",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+      "state": "PASS",
+      "collected": "30",
+      "calls": "30",
+      "call_pass": "30",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "6.015228509902954",
+      "rss_kib": "212800",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "152",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F10-P024",
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+      "state": "PASS",
+      "collected": "17",
+      "calls": "17",
+      "call_pass": "17",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "5.7",
+      "rss_kib": "233892",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F10.txt",
+      "source_line": "144",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F13-P024",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+      "state": "PASS",
+      "collected": "30",
+      "calls": "30",
+      "call_pass": "30",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.2",
+      "rss_kib": "227924",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F13.txt",
+      "source_line": "151",
+      "extra_json": "{}"
+    }
+  ],
+  "baseline_environment_and_input_context": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/baseline-context.json",
+    "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+    "git_blob": "61babe4bbc7ac37b3f88e8cd889c60e6dee8d483",
+    "bytes": 42862,
+    "sha256": "db96d63c43be5de838c5aa331a526c0f49b617e2693b38fb5b087914f69fe752"
+  },
+  "baseline_grade": "five source-reported routed whole-file PASS observations; raw archives unavailable; not candidate proof",
+  "checks": [
+    {
+      "id": "preparation-native",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-current-runtime/.polisyos/e02-B-current-runtime/b93-half-open/run_probe.py --mode native",
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/wrapper.json#environment",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/source-context.json",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/native.txt",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/native.xml",
+      "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/wrapper.json",
+      "quantity": {
+        "literal_cases": 3,
+        "passed": 3,
+        "failed": 0,
+        "errors": 0
+      },
+      "wall_seconds": 2.9981549410003936,
+      "max_rss_kib": 147236,
+      "interpretation": "actual canonical decorator consumer PASS; preparation is earlier input and not added to qualified denominator",
+      "environment_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/wrapper.json",
+        "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+        "git_blob": "317ae1054f04b1ae2e62994f96682848021ad149",
+        "bytes": 9900,
+        "sha256": "9c7882fe0ea09d2fc07b771fb19f28f70793d1bd67e7073f1333972b8df8b386"
+      },
+      "input_closure_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/source-context.json",
+        "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+        "git_blob": "4e47fdf3041547833628c6817a49ee965ba3cc53",
+        "bytes": 111096,
+        "sha256": "a73066fc08f52214171def3f21857c055a06fc614d1ed5f5fbf322044c20a09a"
+      },
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/native.txt",
+        "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+        "git_blob": "33749437f2e12a6bf60e1b5be6df95e28203ca5b",
+        "bytes": 5935,
+        "sha256": "e631d11dd301fd1c94e35cc7ffd0424247e8193e7f2bf1b9c35c2b0af5955e26"
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/native.xml",
+        "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+        "git_blob": "d8d1d1b7e0987f7adc9a3a48149ebd056fc84c97",
+        "bytes": 595,
+        "sha256": "5889705232f89a9066ab40eb7e6e6aaa8d2f7b14c64b73b60ecf12e4864fb463"
+      },
+      "wrapper_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/wrapper.json",
+        "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+        "git_blob": "317ae1054f04b1ae2e62994f96682848021ad149",
+        "bytes": 9900,
+        "sha256": "9c7882fe0ea09d2fc07b771fb19f28f70793d1bd67e7073f1333972b8df8b386"
+      },
+      "executed_source_identity": "semantic/runtime source1862 pinned by all actual loaded source refs; root metadata HEAD recorded per before/after capture and not claimed identical checkout"
+    },
+    {
+      "id": "preparation-remove",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-current-runtime/.polisyos/e02-B-current-runtime/b93-half-open/run_probe.py --mode remove",
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/wrapper.json#environment",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/source-context.json",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/native.txt",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/native.xml",
+      "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/wrapper.json",
+      "quantity": {
+        "literal_cases": 1,
+        "passed": 0,
+        "failed": 1,
+        "errors": 0
+      },
+      "wall_seconds": 2.850494583006366,
+      "max_rss_kib": 152620,
+      "interpretation": "HALF_OPEN premise not_established: removal activated before real HALF_OPEN entry; retained historical preparation FAIL, not deciding half-open negative",
+      "environment_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/wrapper.json",
+        "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+        "git_blob": "5de62eca59bf799a224a6cfa087be4f251ddc363",
+        "bytes": 9900,
+        "sha256": "c29f11d70b695505d716fb22ac109587581150402db58fca5d16907a8d5162f3"
+      },
+      "input_closure_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/source-context.json",
+        "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+        "git_blob": "7b0394959f8b3e98e1dcdb2ed763d918be17aae0",
+        "bytes": 111096,
+        "sha256": "fd821aca14f9ae2b83a23f6894d34104cab9c0579e757722de89cef3a09a7c1d"
+      },
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/native.txt",
+        "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+        "git_blob": "37b334e57656dc48389ffaba412742bdb823480b",
+        "bytes": 12328,
+        "sha256": "12c16d8153400baf4427480c65d9091bf57cfb5f7dbc926f010f50241373159d"
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/native.xml",
+        "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+        "git_blob": "05f2b540157b9a14577b9a89b2810b6d521fe710",
+        "bytes": 12478,
+        "sha256": "3547055289da086dd68969dadda8b8541b1268ac75842105fddc22c500d9dbb8"
+      },
+      "wrapper_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/wrapper.json",
+        "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+        "git_blob": "5de62eca59bf799a224a6cfa087be4f251ddc363",
+        "bytes": 9900,
+        "sha256": "c29f11d70b695505d716fb22ac109587581150402db58fca5d16907a8d5162f3"
+      },
+      "executed_source_identity": "semantic/runtime source1862 pinned by all actual loaded source refs; root metadata HEAD recorded per before/after capture and not claimed identical checkout"
+    },
+    {
+      "id": "qualified-native",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-current-runtime/.polisyos/e02-B-current-runtime/b93-half-open/qualified/run_probe.py --mode native",
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/wrapper.json#environment",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/source-context.json",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/native.txt",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/native.xml",
+      "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/wrapper.json",
+      "quantity": {
+        "literal_cases": 3,
+        "passed": 3,
+        "failed": 0,
+        "errors": 0
+      },
+      "wall_seconds": 2.6924501419998705,
+      "max_rss_kib": 147224,
+      "interpretation": "actual canonical decorator consumer PASS; preparation is earlier input and not added to qualified denominator",
+      "environment_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/wrapper.json",
+        "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+        "git_blob": "e90e6278178de84ee70e62e370fd8646f42b85a4",
+        "bytes": 9940,
+        "sha256": "b671f0d4a8c5c543e70241237b1cd8ee54ac13c414a876265fe3c418bf6f4c06"
+      },
+      "input_closure_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/source-context.json",
+        "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+        "git_blob": "a02468c573b5212ce44e20b7102c2d5bf67c85ae",
+        "bytes": 111116,
+        "sha256": "4e60b15981589bee817a766f2afcb78838b195ced678c86e9fd87d8d73784cb1"
+      },
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/native.txt",
+        "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+        "git_blob": "c410df880ba307221c0a9ef601fcc89b13e1224d",
+        "bytes": 5935,
+        "sha256": "da4aacb8c268834772f59464d4b780a7824b366966c812e2c7162e7cf0c0764b"
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/native.xml",
+        "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+        "git_blob": "bd76fad05858e1a4ca86524bb88752e6fc98a9c0",
+        "bytes": 595,
+        "sha256": "6ca023ec7ac70efff1c6d5d3f0378546f63cc003f76c3757cbe535d2ccee5353"
+      },
+      "wrapper_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/wrapper.json",
+        "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+        "git_blob": "e90e6278178de84ee70e62e370fd8646f42b85a4",
+        "bytes": 9940,
+        "sha256": "b671f0d4a8c5c543e70241237b1cd8ee54ac13c414a876265fe3c418bf6f4c06"
+      },
+      "executed_source_identity": "semantic/runtime source1862 pinned by all actual loaded source refs; root metadata HEAD recorded per before/after capture and not claimed identical checkout"
+    },
+    {
+      "id": "qualified-remove",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-current-runtime/.polisyos/e02-B-current-runtime/b93-half-open/qualified/run_probe.py --mode remove",
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/wrapper.json#environment",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/source-context.json",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/native.txt",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/native.xml",
+      "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/wrapper.json",
+      "quantity": {
+        "literal_cases": 1,
+        "passed": 0,
+        "failed": 1,
+        "errors": 0
+      },
+      "wall_seconds": 2.7712686309969286,
+      "max_rss_kib": 152736,
+      "interpretation": "matched actual HALF_OPEN property-removal negative: expected real failure",
+      "environment_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/wrapper.json",
+        "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+        "git_blob": "17581c8acf2cceb888b27295798d259c6c2e9d7b",
+        "bytes": 9941,
+        "sha256": "b8dc999611e9980ef02088e4b525124bd78ff4287731571a8718fbdfe1db4c80"
+      },
+      "input_closure_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/source-context.json",
+        "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+        "git_blob": "e984fb301ec2c975ebbdd65f486e9f1fa8f7bfbb",
+        "bytes": 111116,
+        "sha256": "6c010b5b8feb6e657032fff4ba354b18b8f745f83963a2da711fc6f791d78a9c"
+      },
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/native.txt",
+        "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+        "git_blob": "6c4f2eff2fb96ba322195a9df25c3c856403cf54",
+        "bytes": 17706,
+        "sha256": "dc2de91004a721de22d46e0ac0c9d282a147229e339093b11db7cde48bebf680"
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/native.xml",
+        "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+        "git_blob": "477884a5069810f2080fa9d983250e792fb5ba3d",
+        "bytes": 15568,
+        "sha256": "0972a4122b94bfa91ff491cc1e714178928cd8ca395fca88665109d1106e0431"
+      },
+      "wrapper_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/wrapper.json",
+        "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+        "git_blob": "17581c8acf2cceb888b27295798d259c6c2e9d7b",
+        "bytes": 9941,
+        "sha256": "b8dc999611e9980ef02088e4b525124bd78ff4287731571a8718fbdfe1db4c80"
+      },
+      "executed_source_identity": "semantic/runtime source1862 pinned by all actual loaded source refs; root metadata HEAD recorded per before/after capture and not claimed identical checkout"
+    },
+    {
+      "id": "committed-full-evidence-custody",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-current-runtime/.polisyos/e02-B-current-runtime/b93-half-open/handoff.py",
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_sha": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "environment": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/tool-profile.json",
+        "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+        "git_blob": "0f83350d1bd9c8a54077109cbabc92a627b51992",
+        "bytes": 1078,
+        "sha256": "6745826553ded273034d407001724495c34da4e61fd0d96e41a8f4a5a91c09cb"
+      },
+      "input_closure": {
+        "index": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/index.json",
+          "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+          "git_blob": "f622cf24164a6ad7b0480bf8ebc9a64bd8d31cc1",
+          "bytes": 9663,
+          "sha256": "e821977a92728087add4779b560347f0ee99416e5c607a0e2d2f04304a928975"
+        },
+        "denominator": {
+          "implementation_paths": 34,
+          "indexed_payloads": 33,
+          "indexed_payload_bytes": 700209,
+          "actual_canonical_prod_and_test_edits": 0
+        }
+      },
+      "outcome": "PASS",
+      "output": "Full33 indexed payload Gitbytes/blob/digest checked; union34 exact implementation paths, no future receipt path; full4 XML quantities retained and actual229 source refs per child pinned1862. Packaging check only, not another runtime gate."
+    }
+  ],
+  "property": {
+    "statement": "A genuinely leased HALF_OPEN physical provider retains the same keyed circuit/generation/issued token through TTL expiry and/or registry pressure; another same-key request cannot enter physical provider; exhausted finite protected budget rejects a new key with BoundedResourceRegistryCapacityError before provider; a real spare slot admits its provider and release returns capacity.",
+    "runtime_path": [
+      "canonical with_circuit_breaker producer issues actual generation-bound HALF_OPEN attempt and registry operation lease",
+      "physical provider body writes real flush+fsync JSONL then awaits actual asyncio.Event",
+      "TTL/pressure registry lookup and same-key/new-key canonical decorated consumer calls",
+      "typed refusal preserves original token/object/generation; actual completion releases lease and fresh key enters provider"
+    ],
+    "proxy_divergence": "All registry/decorator/lease names and finally bookkeeping kept intact while protection predicate removed AFTER live HALF_OPEN entry. Actual same-key fresh breaker/generation and extra provider with pending old token occurs; marker/collection/bounded-dict-length proxy would miss physical duplicated authority.",
+    "negative_controls": [
+      "Matched remove-the-protection-keep-decorator/lease/names: predicate disabled only after actual HALF_OPEN entry; real same-key/new-key physical extra calls before old pending probe settles, 1 native FAIL.",
+      "Capacity2 spare-key actual provider positive contrasts capacity1 typed refusal; completion then new key actual provider proves bounded capacity recovery.",
+      "First premature removal1FAIL preserved with HALF_OPEN not_established; no false deciding negative or count promotion."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "per_premise_basis": {
+    "real_HALF_OPEN_entry": "recomputed",
+    "physical_provider_effects": "recomputed",
+    "regulator_identity_and_generation": "recomputed",
+    "typed_before_provider_capacity_refusal": "recomputed",
+    "negative_second_provider_escape": "recomputed",
+    "institutional_mapping_law": "not_applicable_to_B93",
+    "vendor_HTTP_or_large_production_source_load": "not_established"
+  },
+  "capability_state_or_finding_state": "Independent B93 missing HALF_OPEN verification discriminator completed on exact1862; technical bounded CLOSED proposal pending root/G final source/receipt admission. Global native/quality RED is separate, no overall B closure.",
+  "finding_dispositions": [
+    {
+      "finding_id": "B93",
+      "criterion": {
+        "source": {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-02.md",
+          "commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "blob": "57f1cbef61fd1fa16f7da5c6b4308709056fad5e",
+          "sha256": "cacfe59ec5056d76596aeb36ea2dfa9e43925042b5bc1e77c7cbeedcbd2b240b",
+          "bytes": 16805
+        },
+        "finding_id": "B93",
+        "source_marker": "SOURCE_BEGIN B:B93..SOURCE_END B:B93",
+        "criterion_capture_sha256": "87741d3b2986ece596a60a5ae476e33558b94b6dceb92afd4b85598bfedc750d",
+        "criterion_capture_bytes": 4183,
+        "digest_convention": "raw regex re.S group1; excludes markers, preserves leading and trailing LF; same convention as canonical denominator.py",
+        "source_original": {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+          "bytes": 1336380
+        },
+        "source_original_lines": [
+          2463,
+          2476
+        ]
+      },
+      "state_proposal": "CLOSED_BOUNDED_TECHNICAL",
+      "final_authority_state": "root/G_not_yet_admitted_by_this_leaf",
+      "verification_gap": "real HALF_OPEN lease under TTL/pressure with typed no-provider capacity refusal resolved by matched3PASS+1 removalFAIL",
+      "proposed_semantic_predicate": "bounded active-regulator lifetime, not institutional source-key mapping law",
+      "historical_wrong_mapping": {
+        "scope": "Technical bounded regulator ownership, not an institutional mapping law",
+        "historical_claim_corrected": "Historical B93 held labels based on a missing canonical institutional/source-key mapping law were wrong for NET-02 B93. Exact complete canonical paragraph asks bounded runtime state retention through TTL/pressure/wait/cooldown/HALF_OPEN and typed finite admission refusal. Old records remain historical bytes; this forward packet supersedes that predicate only for B93.",
+        "changed_foreign_records": false,
+        "next_owner": "Root/G: update effective all60 B93 adjudication to technical bounded criterion; preserve historical wrong-law labels with this correction pointer. No proposed change to genuinely held institutional findings.",
+        "stale_residual_qualification": "The retained residual_ledger.rows/B93 residual and proposed typed_protocol_predicate lookalike identity concern a different predicate class and are not the complete NET-02 B93 source criterion. The same row p_triage engineering owner/next_step explicitly names bounded active regulator protection. Exact old row is preserved in baseline-context; this review resolves criterion from full original B93 paragraph rather than stale residual prose."
+      },
+      "next_owner": "/root then local G final metadata+receipt/source acceptance",
+      "next_replay_commands": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-current-runtime/.polisyos/e02-B-current-runtime/b93-half-open/qualified/run_probe.py --mode native",
+        "/workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-current-runtime/.polisyos/e02-B-current-runtime/b93-half-open/qualified/run_probe.py --mode remove"
+      ]
+    }
+  ],
+  "review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/review.json",
+    "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+    "git_blob": "1b7574a469676b90c183af54f4c5423c1f557ead",
+    "bytes": 23972,
+    "sha256": "7b403b4dcf7e52236e2724202d40fd971a14d6133896d787f1ba81b8fc435c26"
+  },
+  "evidence_index": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/index.json",
+    "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+    "git_blob": "f622cf24164a6ad7b0480bf8ebc9a64bd8d31cc1",
+    "bytes": 9663,
+    "sha256": "e821977a92728087add4779b560347f0ee99416e5c607a0e2d2f04304a928975"
+  },
+  "all_deciding_artifact_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/baseline-context.json",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "61babe4bbc7ac37b3f88e8cd889c60e6dee8d483",
+      "bytes": 42862,
+      "sha256": "db96d63c43be5de838c5aa331a526c0f49b617e2693b38fb5b087914f69fe752"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/baseline-query.json",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "099247f7ec3201a99f0bc729409ccb93fa122d1b",
+      "bytes": 44706,
+      "sha256": "4b5daf011b448d786005bc12e7e054e73f8cb4565de132139ef8259295208b93"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/criterion-qualification.json",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "c97114b59d4aa012734b52f3a3ecc01c01a33f0a",
+      "bytes": 2469,
+      "sha256": "c7b80a6ad88fbc203e7e08d0260f794e19f26597b9f58c0770c6f0083be06866"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/native.txt",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "33749437f2e12a6bf60e1b5be6df95e28203ca5b",
+      "bytes": 5935,
+      "sha256": "e631d11dd301fd1c94e35cc7ffd0424247e8193e7f2bf1b9c35c2b0af5955e26"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/native.xml",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "d8d1d1b7e0987f7adc9a3a48149ebd056fc84c97",
+      "bytes": 595,
+      "sha256": "5889705232f89a9066ab40eb7e6e6aaa8d2f7b14c64b73b60ecf12e4864fb463"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/source-context.json",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "4e47fdf3041547833628c6817a49ee965ba3cc53",
+      "bytes": 111096,
+      "sha256": "a73066fc08f52214171def3f21857c055a06fc614d1ed5f5fbf322044c20a09a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/test_actual_half_open_provider0/physical-provider.jsonl.source.txt",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "3ed5a74a4e3ab0107d8744f439cf00d626bdeff0",
+      "bytes": 173,
+      "sha256": "b4067228a5b0ed0243ac7b4baa2c52c176a615c95591c125f62c36d40f2248ea"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/test_actual_half_open_provider1/physical-provider.jsonl.source.txt",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "3ed5a74a4e3ab0107d8744f439cf00d626bdeff0",
+      "bytes": 173,
+      "sha256": "b4067228a5b0ed0243ac7b4baa2c52c176a615c95591c125f62c36d40f2248ea"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/test_actual_half_open_provider2/physical-provider.jsonl.source.txt",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "a2ac58a3b84ab1fa51603875504fbba6b784ce47",
+      "bytes": 228,
+      "sha256": "6d0eb0a331d3563dcc27ac35b0bd8450f0ebeaae30d9c520024b9a5313193aa2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/wrapper.json",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "317ae1054f04b1ae2e62994f96682848021ad149",
+      "bytes": 9900,
+      "sha256": "9c7882fe0ea09d2fc07b771fb19f28f70793d1bd67e7073f1333972b8df8b386"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/native.txt",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "37b334e57656dc48389ffaba412742bdb823480b",
+      "bytes": 12328,
+      "sha256": "12c16d8153400baf4427480c65d9091bf57cfb5f7dbc926f010f50241373159d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/native.xml",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "05f2b540157b9a14577b9a89b2810b6d521fe710",
+      "bytes": 12478,
+      "sha256": "3547055289da086dd68969dadda8b8541b1268ac75842105fddc22c500d9dbb8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/source-context.json",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "7b0394959f8b3e98e1dcdb2ed763d918be17aae0",
+      "bytes": 111096,
+      "sha256": "fd821aca14f9ae2b83a23f6894d34104cab9c0579e757722de89cef3a09a7c1d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/test_actual_half_open_provider0/physical-provider.jsonl.source.txt",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "eb009a4b14204708b4a045079638ee3d8d9b1421",
+      "bytes": 99,
+      "sha256": "2715b733c579d3867aefc975f6f3b120656dbb47892b6b42ab7d7edb53700f75"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/wrapper.json",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "5de62eca59bf799a224a6cfa087be4f251ddc363",
+      "bytes": 9900,
+      "sha256": "c29f11d70b695505d716fb22ac109587581150402db58fca5d16907a8d5162f3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/run_probe.py.source.txt",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "6b7b5baca7568f8fe0637bb9fb551026b1e2b2f5",
+      "bytes": 6126,
+      "sha256": "56dbb21f1eed6fa4a61cf9e6f69d31ae84e2e33f0f16894b6a4f7c6c409d9693"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/test_half_open_consumer.py.source.txt",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "c7a404faaffaf0254d1e3fdbb870b3eaa3c46079",
+      "bytes": 8064,
+      "sha256": "d2144e5330993c7f1c99a0365ddb8da7e35591bd25fb7ae85c15c91e1344fd0e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/native.txt",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "c410df880ba307221c0a9ef601fcc89b13e1224d",
+      "bytes": 5935,
+      "sha256": "da4aacb8c268834772f59464d4b780a7824b366966c812e2c7162e7cf0c0764b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/native.xml",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "bd76fad05858e1a4ca86524bb88752e6fc98a9c0",
+      "bytes": 595,
+      "sha256": "6ca023ec7ac70efff1c6d5d3f0378546f63cc003f76c3757cbe535d2ccee5353"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/source-context.json",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "a02468c573b5212ce44e20b7102c2d5bf67c85ae",
+      "bytes": 111116,
+      "sha256": "4e60b15981589bee817a766f2afcb78838b195ced678c86e9fd87d8d73784cb1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/test_actual_half_open_provider0/physical-provider.jsonl.source.txt",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "3ed5a74a4e3ab0107d8744f439cf00d626bdeff0",
+      "bytes": 173,
+      "sha256": "b4067228a5b0ed0243ac7b4baa2c52c176a615c95591c125f62c36d40f2248ea"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/test_actual_half_open_provider1/physical-provider.jsonl.source.txt",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "3ed5a74a4e3ab0107d8744f439cf00d626bdeff0",
+      "bytes": 173,
+      "sha256": "b4067228a5b0ed0243ac7b4baa2c52c176a615c95591c125f62c36d40f2248ea"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/test_actual_half_open_provider2/physical-provider.jsonl.source.txt",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "a2ac58a3b84ab1fa51603875504fbba6b784ce47",
+      "bytes": 228,
+      "sha256": "6d0eb0a331d3563dcc27ac35b0bd8450f0ebeaae30d9c520024b9a5313193aa2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/wrapper.json",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "e90e6278178de84ee70e62e370fd8646f42b85a4",
+      "bytes": 9940,
+      "sha256": "b671f0d4a8c5c543e70241237b1cd8ee54ac13c414a876265fe3c418bf6f4c06"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/native.txt",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "6c4f2eff2fb96ba322195a9df25c3c856403cf54",
+      "bytes": 17706,
+      "sha256": "dc2de91004a721de22d46e0ac0c9d282a147229e339093b11db7cde48bebf680"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/native.xml",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "477884a5069810f2080fa9d983250e792fb5ba3d",
+      "bytes": 15568,
+      "sha256": "0972a4122b94bfa91ff491cc1e714178928cd8ca395fca88665109d1106e0431"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/source-context.json",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "e984fb301ec2c975ebbdd65f486e9f1fa8f7bfbb",
+      "bytes": 111116,
+      "sha256": "6c010b5b8feb6e657032fff4ba354b18b8f745f83963a2da711fc6f791d78a9c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/test_actual_half_open_provider0/physical-provider.jsonl.source.txt",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "60e7aa321d4ac70ef57fa5603077749a147dd2fc",
+      "bytes": 293,
+      "sha256": "855a24e41efbd32717e52b6b89800e8be08ea948cfa43a8d80968053e9ee0a05"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/wrapper.json",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "17581c8acf2cceb888b27295798d259c6c2e9d7b",
+      "bytes": 9941,
+      "sha256": "b8dc999611e9980ef02088e4b525124bd78ff4287731571a8718fbdfe1db4c80"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/review.json",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "1b7574a469676b90c183af54f4c5423c1f557ead",
+      "bytes": 23972,
+      "sha256": "7b403b4dcf7e52236e2724202d40fd971a14d6133896d787f1ba81b8fc435c26"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/run_probe.py.source.txt",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "cc70c97b96016f140f631e86508c5da64b0f9f7d",
+      "bytes": 6106,
+      "sha256": "cbe2df29a082368961de0f97e58dc25fa138f1ad2e24a93b42d20cb7d69d6f21"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/test_half_open_consumer.py.source.txt",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "7c7a17b312a5697c8eb92b07d60badc6900ce254",
+      "bytes": 8041,
+      "sha256": "b7f681d28bb02fc47479f9f3baf7384ad7a2e8a1f4e2f679f9c4641d7622499c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/tool-profile.json",
+      "commit": "ff5f481923328bf221ffd3f8e934a83176abd760",
+      "git_blob": "0f83350d1bd9c8a54077109cbabc92a627b51992",
+      "bytes": 1078,
+      "sha256": "6745826553ded273034d407001724495c34da4e61fd0d96e41a8f4a5a91c09cb"
+    }
+  ],
+  "implementation_footprint": {
+    "total": 34,
+    "production": 0,
+    "tracked_test": 0,
+    "documentation_and_documentary_source": 34,
+    "independent_external_runtime_input": "ignored real probe .py retained byte-exact .source.txt; not a tracked product/test mutation"
+  },
+  "source_boundary": {
+    "pin": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+    "all_four_children_actual_loaded_files_each": 229,
+    "same_registry_and_circuit_as_prior943": true,
+    "rate_file_prior943_delta": "finite-value admission guards, full diff inspected; do not claim full old6 current1862 replay",
+    "existing_independent_six": {
+      "source_and_output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/independent-net02-review.json",
+          "commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "blob": "e07c1a7c41093f02f21e3fc5e6604c2356f5a473",
+          "sha256": "8d242839393d38b50770f6baf7b903dfb4e910c03007e784ccfd5af636965f65",
+          "bytes": 4945
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/independent-net02-review/independent-net02-943-5f9.txt",
+          "commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "blob": "e9345df535571f881c0e293e6f1fba117c0e6958",
+          "sha256": "4729102e59db75b5820273a0249979ca622611e03b653c221e4dadacd7a4b70d",
+          "bytes": 98
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/independent-net02-review/independent-net02-943-5f9.xml",
+          "commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "blob": "7047d0b5854a9bf8539c3178e81a5d1dd755a974",
+          "sha256": "f44ab51069e969bea2150854e6a97c093da83572dd6029abe8cdc17aa0e2cc58",
+          "bytes": 1232
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/independent-net02-review/independent-net02-943-5f9.json",
+          "commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "blob": "7564b3577cf086187181c4b7314662d482e23b8f",
+          "sha256": "0f62d07b4755d7aa3029741e52b636fdd77f728711c2b278e662a73bbdb4cd5a",
+          "bytes": 4615
+        }
+      ],
+      "production_equivalence": [
+        {
+          "path": "policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+          "old_source": {
+            "path": "policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+            "commit": "943325b228984dd949e03b609e3173d6de814dbe",
+            "blob": "24316603e405589fe7c13a433997fb0dd32ea7c4",
+            "sha256": "9003558130bcc2f378f22658a8ff685c4ab93766d8bc7f20de1d7bf5d5323429",
+            "bytes": 5871
+          },
+          "candidate_source": {
+            "path": "policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+            "commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "blob": "24316603e405589fe7c13a433997fb0dd32ea7c4",
+            "sha256": "9003558130bcc2f378f22658a8ff685c4ab93766d8bc7f20de1d7bf5d5323429",
+            "bytes": 5871
+          },
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+          "old_source": {
+            "path": "policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+            "commit": "943325b228984dd949e03b609e3173d6de814dbe",
+            "blob": "173dc65f7a507b88cf0fa3b9a211ddace25f2fcc",
+            "sha256": "f02ff7db20a47e16f4129e38c4ba2a6f445cf98551ad935e27b178fa8cc0d6f3",
+            "bytes": 25310
+          },
+          "candidate_source": {
+            "path": "policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+            "commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "blob": "173dc65f7a507b88cf0fa3b9a211ddace25f2fcc",
+            "sha256": "f02ff7db20a47e16f4129e38c4ba2a6f445cf98551ad935e27b178fa8cc0d6f3",
+            "bytes": 25310
+          },
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+          "old_source": {
+            "path": "policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+            "commit": "943325b228984dd949e03b609e3173d6de814dbe",
+            "blob": "d5dc57fa7e084d9491632253c8e64948730bda5a",
+            "sha256": "dd05419162834ba7c7f74a6a71b85b32fdbc1f26fe520094414d1e5c06763d8b",
+            "bytes": 17928
+          },
+          "candidate_source": {
+            "path": "policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+            "commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "blob": "a8d670610f73536e3831a65a7d091432d4bfb599",
+            "sha256": "2f4bd7b8f46cedacd3c26134ecc9a7b9d03dd868953b34cf306dd1702a0ec035",
+            "bytes": 18511
+          },
+          "equal": false
+        }
+      ],
+      "production_delta_qualification": "Registry and circuit files exactly byte-identical943→1862. Rate file differs by finite-value validators (complete3-path gitdiff inspected); canonical lease wrapper/quiescence/ownership mechanisms unchanged. Existing old six PASS belongs943/5f9, not a claimed1862 replay. Actual new HALF_OPEN consumers execute full1862 and pin loaded rate source too.",
+      "test_input_equivalence": {
+        "path": "policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+        "old_source": {
+          "path": "policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+          "commit": "5f9c6a359a23ac4b8d7b5bc4ae662f304aeecd82",
+          "blob": "a9503b61ee41239db51d24ae1dd5a932af6ac6af",
+          "sha256": "00ad74184b6b839c0f6e05c80ed89c400172073eed0b7f6f742008e3e42346bb",
+          "bytes": 4639
+        },
+        "candidate_source": {
+          "path": "policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+          "commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "blob": "76c81fa6a75eb11587b6012c7eb239cd9f6d7fd4",
+          "sha256": "20d6d959e58d65e676945766f3be4ceb32c5c5bc5d134659138e55c64a813049",
+          "bytes": 6312
+        },
+        "equal": false,
+        "qualification": "old six-case input is a strict earlier prefix plus later independent numeric finite-rate cases; no fullfile byte equivalence claim"
+      },
+      "quantity": {
+        "passed": 6,
+        "failed": 0
+      },
+      "scope": "Actual neutral-refilled live rate-limiter provider TTL/pressure/capacity/error/cancel. Full tests and prior review read, not rerun. Does not itself witness live HALF_OPEN registry pressure; this packet supplies missing discriminator."
+    }
+  },
+  "authority_purpose": "Independent local technical behavioral evidence only; no institutional grant, signed audit act, vendor source permission, or all60 integration authority",
+  "provenance": {
+    "reviewer": "/root/run_writer",
+    "mechanism_author": "/root/adapters_probe",
+    "input_owner": "/root/run_writer",
+    "clock_roles": "fake monotonic10→12 makes real OPEN→HALF_OPEN then TTLexpiry deterministic; events fix physical provider ownership; real wall/UTC/timewait4 only resource/custody metrics"
+  },
+  "limitations_and_next_owner": [
+    "Small canonical decorator/provider body and fake monotonic clock; no real HTTP/network supplier, 257 real production sources or full workload throughput benchmark. Criterion explicitly allows fixture clocks/state; this is not vendor operational SLA.",
+    "No rerun of whole historical defining files or global quality/cohort. Existing global RED remains separate and unwaived.",
+    "Technical producer/registry bound is local runtime semantics, not institutional authority or source-key grant.",
+    "No production/test edits; new replay input is external ignored .py and published documentary .source.txt. Git handoff consumers may recreate two exact files in fresh scratch; driver ROOT cloud path requires explicit path-only adaptation on another machine with Gitsource1862, full probe bytes unchanged.",
+    "Initial early-removal error did not establish HALF_OPEN; retained and excluded from matched negative quantity.",
+    "Root/G must read source/whole packet and explicitly supersede historical B93 wrong-law/misbound residual predicate before effective all60 closure; historical bytes preserved.",
+    "Local replay requires exact source1862 and explicit path-only driver ROOT adaptation; full external test bytes are transferable, no production data required by this bounded technical criterion."
+  ],
+  "pattern_pass": {
+    "P29_P38": "actual second-provider removal falsifier after HALF_OPEN premise, no marker-only proof",
+    "P35": "full4attempt XML/source output sets and all33payloads/34implementation paths walked; preparation and qualified denominators distinct",
+    "P37": "physical entry/token/identity/typed refusal/recovery recomputed; realvendor/sourceoperational SLO not established or required for fixture-backed criterion",
+    "P40": "same regulator lifetime class deeper HALF_OPEN escape was missing independent discriminator; no source local-patch ladder",
+    "P41": "global inherited red not asserted or waived; this external source/read-only consumer creates no product patch"
+  }
+}

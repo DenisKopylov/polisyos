@@ -1,0 +1,10 @@
+{
+  "schema": "policyos.e02.lossless_text.v1",
+  "source": {
+    "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/build-venv.txt",
+    "bytes": 212,
+    "sha256": "5205c6c365e647dd5d51df8e3bc218655c50c612beced86680157bfe98f6b61c"
+  },
+  "encoding": "utf-8",
+  "text": "Using CPython 3.14.2 interpreter at: /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14\nCreating virtual environment at: build-env\nActivate with: source build-env/bin/activate\n"
+}

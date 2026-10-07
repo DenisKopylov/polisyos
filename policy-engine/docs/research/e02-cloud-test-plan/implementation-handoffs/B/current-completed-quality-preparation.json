@@ -1,0 +1,364 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-completed-quality-preparation",
+  "slice_base_sha": "7dd59ddc2b6885ce6b917bfac6b94a0d24e2794e",
+  "implementation_commits": [
+    "36957513b0b2d58c3010cf3db9b268ba13881898",
+    "be5c558d91541cf22c960a2a472aa7fe1d178b8c"
+  ],
+  "candidate_tree_sha": "5a101d7a80bb89031259422039be7cb5662f1981",
+  "branch": "codex/e02-B-current-runtime",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/46",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/capture-preparation.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/capture_frozen.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/environment-and-stock-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/format.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/help.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/invalid-source-admission.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/preparation-qualification.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/ruff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/run_completed_cohort.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/run_successor.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/uncapped_constituents.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/completed-quality-README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py"
+  ],
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation.json",
+  "production_changed_paths": [],
+  "test_changed_paths": [],
+  "root_changed_paths": [],
+  "bundle_ids": [],
+  "closure_ids": [],
+  "baseline_cells": [],
+  "baseline_qualification": "Orchestration instrumentation preparation, not a finding closure; no historical test cell is evidence of a future gate",
+  "checks": [
+    {
+      "id": "ruff",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check --no-cache docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "target_sha": "36957513b0b2d58c3010cf3db9b268ba13881898",
+      "environment": {
+        "source_ref": "be5c558d91541cf22c960a2a472aa7fe1d178b8c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/environment-and-stock-inputs.json",
+        "git_blob": "bd99ca384957de5691dcd98c8fc6f65b1b3afd73",
+        "bytes": 4333,
+        "sha256": "3948f33393295b5a559fbf2c608c09ee3ad6a57d380d58e96ab8aa4496835b1d"
+      },
+      "input_closure": {
+        "source": {
+          "source_ref": "36957513b0b2d58c3010cf3db9b268ba13881898:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py",
+          "git_blob": "ec9400352366b64bfb4b5866153dfa86fa695e1b",
+          "bytes": 16407,
+          "sha256": "c378b81b1dc0b3cd61cefdc7d795e5fab364c708e653c438049bb467c538f17e"
+        },
+        "execution_driver": {
+          "source_ref": "be5c558d91541cf22c960a2a472aa7fe1d178b8c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/capture-preparation.source.txt",
+          "git_blob": "16a4bf71c7314faa87b0c02b44187faa7f241f5f",
+          "bytes": 3462,
+          "sha256": "3201db22a03c3468b147bf72b9a8771b0fb4c95cf706cb5ebac60a5f93dcd84a"
+        },
+        "qualification": "Author-only preparation; source369 and own configs, no final candidate gate or wheel"
+      },
+      "outcome": "PASS",
+      "observed_exit_code": 0,
+      "expected_exit_code": 0,
+      "output": {
+        "source_ref": "be5c558d91541cf22c960a2a472aa7fe1d178b8c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/ruff.txt",
+        "git_blob": "1f5f344d054fae10f39140fb7199c99321d9190a",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "grade": "Author preparation only; no quality gate/native/wheel executed"
+    },
+    {
+      "id": "format",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "target_sha": "36957513b0b2d58c3010cf3db9b268ba13881898",
+      "environment": {
+        "source_ref": "be5c558d91541cf22c960a2a472aa7fe1d178b8c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/environment-and-stock-inputs.json",
+        "git_blob": "bd99ca384957de5691dcd98c8fc6f65b1b3afd73",
+        "bytes": 4333,
+        "sha256": "3948f33393295b5a559fbf2c608c09ee3ad6a57d380d58e96ab8aa4496835b1d"
+      },
+      "input_closure": {
+        "source": {
+          "source_ref": "36957513b0b2d58c3010cf3db9b268ba13881898:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py",
+          "git_blob": "ec9400352366b64bfb4b5866153dfa86fa695e1b",
+          "bytes": 16407,
+          "sha256": "c378b81b1dc0b3cd61cefdc7d795e5fab364c708e653c438049bb467c538f17e"
+        },
+        "execution_driver": {
+          "source_ref": "be5c558d91541cf22c960a2a472aa7fe1d178b8c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/capture-preparation.source.txt",
+          "git_blob": "16a4bf71c7314faa87b0c02b44187faa7f241f5f",
+          "bytes": 3462,
+          "sha256": "3201db22a03c3468b147bf72b9a8771b0fb4c95cf706cb5ebac60a5f93dcd84a"
+        },
+        "qualification": "Author-only preparation; source369 and own configs, no final candidate gate or wheel"
+      },
+      "outcome": "PASS",
+      "observed_exit_code": 0,
+      "expected_exit_code": 0,
+      "output": {
+        "source_ref": "be5c558d91541cf22c960a2a472aa7fe1d178b8c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/format.txt",
+        "git_blob": "5e122f397b6d5d61b45621051851165eadce6a78",
+        "bytes": 25,
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+      },
+      "grade": "Author preparation only; no quality gate/native/wheel executed"
+    },
+    {
+      "id": "help",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -B /workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py --help",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py",
+        "--help"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "target_sha": "36957513b0b2d58c3010cf3db9b268ba13881898",
+      "environment": {
+        "source_ref": "be5c558d91541cf22c960a2a472aa7fe1d178b8c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/environment-and-stock-inputs.json",
+        "git_blob": "bd99ca384957de5691dcd98c8fc6f65b1b3afd73",
+        "bytes": 4333,
+        "sha256": "3948f33393295b5a559fbf2c608c09ee3ad6a57d380d58e96ab8aa4496835b1d"
+      },
+      "input_closure": {
+        "source": {
+          "source_ref": "36957513b0b2d58c3010cf3db9b268ba13881898:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py",
+          "git_blob": "ec9400352366b64bfb4b5866153dfa86fa695e1b",
+          "bytes": 16407,
+          "sha256": "c378b81b1dc0b3cd61cefdc7d795e5fab364c708e653c438049bb467c538f17e"
+        },
+        "execution_driver": {
+          "source_ref": "be5c558d91541cf22c960a2a472aa7fe1d178b8c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/capture-preparation.source.txt",
+          "git_blob": "16a4bf71c7314faa87b0c02b44187faa7f241f5f",
+          "bytes": 3462,
+          "sha256": "3201db22a03c3468b147bf72b9a8771b0fb4c95cf706cb5ebac60a5f93dcd84a"
+        },
+        "qualification": "Author-only preparation; source369 and own configs, no final candidate gate or wheel"
+      },
+      "outcome": "PASS",
+      "observed_exit_code": 0,
+      "expected_exit_code": 0,
+      "output": {
+        "source_ref": "be5c558d91541cf22c960a2a472aa7fe1d178b8c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/help.txt",
+        "git_blob": "67bb19720c57af9f89cca5668dee04a45201f55a",
+        "bytes": 752,
+        "sha256": "a2e38508e2568d4483604d2b49de5074355bb6569193e5366df608173d952068"
+      },
+      "grade": "Author preparation only; no quality gate/native/wheel executed"
+    },
+    {
+      "id": "invalid-source-admission",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -B /workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py --sha bad --gate ruff --scratch /tmp/e02-B-completed-quality-preparation-36957513/must-not-be-created",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py",
+        "--sha",
+        "bad",
+        "--gate",
+        "ruff",
+        "--scratch",
+        "/tmp/e02-B-completed-quality-preparation-36957513/must-not-be-created"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "target_sha": "36957513b0b2d58c3010cf3db9b268ba13881898",
+      "environment": {
+        "source_ref": "be5c558d91541cf22c960a2a472aa7fe1d178b8c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/environment-and-stock-inputs.json",
+        "git_blob": "bd99ca384957de5691dcd98c8fc6f65b1b3afd73",
+        "bytes": 4333,
+        "sha256": "3948f33393295b5a559fbf2c608c09ee3ad6a57d380d58e96ab8aa4496835b1d"
+      },
+      "input_closure": {
+        "source": {
+          "source_ref": "36957513b0b2d58c3010cf3db9b268ba13881898:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py",
+          "git_blob": "ec9400352366b64bfb4b5866153dfa86fa695e1b",
+          "bytes": 16407,
+          "sha256": "c378b81b1dc0b3cd61cefdc7d795e5fab364c708e653c438049bb467c538f17e"
+        },
+        "execution_driver": {
+          "source_ref": "be5c558d91541cf22c960a2a472aa7fe1d178b8c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/capture-preparation.source.txt",
+          "git_blob": "16a4bf71c7314faa87b0c02b44187faa7f241f5f",
+          "bytes": 3462,
+          "sha256": "3201db22a03c3468b147bf72b9a8771b0fb4c95cf706cb5ebac60a5f93dcd84a"
+        },
+        "qualification": "Author-only preparation; source369 and own configs, no final candidate gate or wheel"
+      },
+      "outcome": "PASS",
+      "observed_exit_code": 1,
+      "expected_exit_code": 1,
+      "output": {
+        "source_ref": "be5c558d91541cf22c960a2a472aa7fe1d178b8c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/invalid-source-admission.txt",
+        "git_blob": "fe2ad35f485adfd4bf7631de275fc7ad002de874",
+        "bytes": 780,
+        "sha256": "67f738d4e4ca95f1d9441a5d32235cfa9bc8895731f855d2b746eb5ed93a8c09"
+      },
+      "grade": "Author preparation only; no quality gate/native/wheel executed"
+    },
+    {
+      "id": "syntax-and-declared-target-census",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -B /tmp/e02-B-completed-quality-preparation-capture.py",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "/tmp/e02-B-completed-quality-preparation-capture.py"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_sha": "36957513b0b2d58c3010cf3db9b268ba13881898",
+      "environment": {
+        "source_ref": "be5c558d91541cf22c960a2a472aa7fe1d178b8c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/environment-and-stock-inputs.json",
+        "git_blob": "bd99ca384957de5691dcd98c8fc6f65b1b3afd73",
+        "bytes": 4333,
+        "sha256": "3948f33393295b5a559fbf2c608c09ee3ad6a57d380d58e96ab8aa4496835b1d"
+      },
+      "input_closure": {
+        "source": {
+          "source_ref": "36957513b0b2d58c3010cf3db9b268ba13881898:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py",
+          "git_blob": "ec9400352366b64bfb4b5866153dfa86fa695e1b",
+          "bytes": 16407,
+          "sha256": "c378b81b1dc0b3cd61cefdc7d795e5fab364c708e653c438049bb467c538f17e"
+        },
+        "execution_driver": {
+          "source_ref": "be5c558d91541cf22c960a2a472aa7fe1d178b8c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/capture-preparation.source.txt",
+          "git_blob": "16a4bf71c7314faa87b0c02b44187faa7f241f5f",
+          "bytes": 3462,
+          "sha256": "3201db22a03c3468b147bf72b9a8771b0fb4c95cf706cb5ebac60a5f93dcd84a"
+        },
+        "qualification": "Author-only preparation; source369 and own configs, no final candidate gate or wheel"
+      },
+      "outcome": "PASS",
+      "observed_exit_code": null,
+      "expected_exit_code": null,
+      "output": {
+        "source_ref": "be5c558d91541cf22c960a2a472aa7fe1d178b8c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/wrapper.json",
+        "git_blob": "975d61785beeb31e3e3de3dd18c3137775946e1f",
+        "bytes": 5283,
+        "sha256": "99cc047c9f06583b2a5499fa03f4c3c1c52f8be19e71385cda598e697ae53b3d"
+      },
+      "grade": "Complete AST literal and syntax only; no imports or gates executed",
+      "qualification": "This command is the actual outer preparation driver; it includes all inner checks and the final AST/syntax census"
+    }
+  ],
+  "property": {
+    "statement": "Prepare exact clean-root admission and full commands for eight final quality gates, with disclosed changed-input denominator and exclusive deciding outputs",
+    "runtime_path": [
+      "root final-SHA/gate/scratch caller",
+      "tracked source/config/toolchain byte admission",
+      "published198 Python or declared12 mypy input set",
+      "exclusive completed-final profile",
+      "stock capture_frozen argv/wait4/stdout",
+      "actual gate consumer and preserved full diagnostic output"
+    ],
+    "proxy_divergence": "New-script Ruff/format preparation PASS is compatible with future all-research Ruff/format FAIL or UNRUN; the old86/.py-only projection does not equal full published198 .py/.pyi denominator",
+    "negative_controls": [
+      {
+        "input": "Malformed source SHA bad",
+        "observed": "Actual ValueError before target Git, input binding, scratch or gate; full transcript committed",
+        "outcome": "PASS"
+      },
+      {
+        "input": "Wrong HEAD, detached/dirty root, mismatched tracked bytes, reused destinations, missing exact wheel/Postgres inputs",
+        "observed": "Source guards reviewed; runtime controls pending final composed root",
+        "outcome": "UNRUN"
+      }
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "prepared_source_only; all eight final quality gates and new installed wheel UNRUN",
+  "author_source_sha": "36957513b0b2d58c3010cf3db9b268ba13881898",
+  "author_source_tree": "72b126a050dbe8e7fa8de46c0c8e9998debd2315",
+  "author_preparation_environment": {
+    "source_ref": "be5c558d91541cf22c960a2a472aa7fe1d178b8c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/environment-and-stock-inputs.json",
+    "git_blob": "bd99ca384957de5691dcd98c8fc6f65b1b3afd73",
+    "bytes": 4333,
+    "sha256": "3948f33393295b5a559fbf2c608c09ee3ad6a57d380d58e96ab8aa4496835b1d"
+  },
+  "complete_preparation_outputs": {
+    "source_ref": "be5c558d91541cf22c960a2a472aa7fe1d178b8c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/index.json",
+    "git_blob": "b6ec94c44698e6b39708549cfaaf670c21b6e658",
+    "bytes": 3593,
+    "sha256": "344cfe263a2950eb9d8715bb5490b359515850473ddeb1381799162aef7f4b50"
+  },
+  "final_runtime_quality_gates": {
+    "ruff": {
+      "outcome": "UNRUN",
+      "target_sha": "not_yet_supplied",
+      "grade": "Future gate requires root final freeze and fresh actual inputs"
+    },
+    "format": {
+      "outcome": "UNRUN",
+      "target_sha": "not_yet_supplied",
+      "grade": "Future gate requires root final freeze and fresh actual inputs"
+    },
+    "mypy": {
+      "outcome": "UNRUN",
+      "target_sha": "not_yet_supplied",
+      "grade": "Future gate requires root final freeze and fresh actual inputs"
+    },
+    "architecture": {
+      "outcome": "UNRUN",
+      "target_sha": "not_yet_supplied",
+      "grade": "Future gate requires root final freeze and fresh actual inputs"
+    },
+    "runtime-api": {
+      "outcome": "UNRUN",
+      "target_sha": "not_yet_supplied",
+      "grade": "Future gate requires root final freeze and fresh actual inputs"
+    },
+    "production-invocation": {
+      "outcome": "UNRUN",
+      "target_sha": "not_yet_supplied",
+      "grade": "Future gate requires root final freeze and fresh actual inputs"
+    },
+    "verify-uncapped": {
+      "outcome": "UNRUN",
+      "target_sha": "not_yet_supplied",
+      "grade": "Future gate requires root final freeze and fresh actual inputs"
+    },
+    "parity-uncapped": {
+      "outcome": "UNRUN",
+      "target_sha": "not_yet_supplied",
+      "grade": "Future gate requires root final freeze and fresh actual inputs"
+    }
+  },
+  "writer_and_review": {
+    "writer": "RUN leaf /root/run_writer",
+    "lease": "Only unique research instrument, README, moderate evidence, separate HANDOFF",
+    "independent_source_reviewer": "EXE /root/exe_state_writer",
+    "review_message": "Full369 source/README NONBLOCKING; canonical foreign receipt pending publication",
+    "author_is_not_independent_reviewer": true
+  },
+  "limitations_and_next_owner": [
+    "Root must merge instrument/source companions before supplying actual final SHA; no temporary root or DD wheel reuse",
+    "Root orchestrator owns actual eight gates and native cohort; this preparation changes no product/test/source in root",
+    "All gate-owned import/service/authority reads remain unresolved_by_construction by this launcher; byte inventories are not observed import graphs",
+    "Mypy actual diagnostics and real imported stubs decide status; no skipimports/Any/error waiver",
+    "Full .py/.pyi research footprint may be red; preserve literal complete diagnostics, no filename filtering",
+    "verify/parity serialize only shared last-mile/pnpm writer fixtures, no artificial process/thread quota",
+    "Installed-wheel/private-Postgres profiles required for actual uncapped consumer suites; credentials stay private",
+    "Raw production-invocation receipt remains fresh ignored scratch, static diagnosis only",
+    "All runtime gate/deadline/property-removal acceptance remains UNRUN until final freeze; no closure inferred from source review/help/style"
+  ]
+}

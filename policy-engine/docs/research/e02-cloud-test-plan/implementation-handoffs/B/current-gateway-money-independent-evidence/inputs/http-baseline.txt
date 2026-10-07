@@ -1,0 +1,5 @@
+{"raw": "{\"choices\":[{\"message\":{\"content\":\"actual answer\"}}],\"usage\":{\"cost_usd\":1e-1000},\"model\":\"gpt-4o\"}", "cost_type": "float", "cost": "0.0", "status": "known", "raw_cost_type": "float", "raw_cost": "0.0"}
+{"raw": "{\"choices\":[{\"message\":{\"content\":\"actual answer\"}}],\"usage\":{\"cost_usd\":-1e-1000},\"model\":\"gpt-4o\"}", "cost_type": "float", "cost": "-0.0", "status": "known", "raw_cost_type": "float", "raw_cost": "-0.0"}
+{"raw": "{\"choices\":[{\"message\":{\"content\":\"actual answer\"}}],\"usage\":{\"cost_usd\":0},\"model\":\"gpt-4o\"}", "cost_type": "float", "cost": "0.0", "status": "known", "raw_cost_type": "int", "raw_cost": "0"}
+{"raw": "{\"choices\":[{\"message\":{\"content\":\"actual answer\"}}],\"usage\":{\"cost_usd\":0.0},\"model\":\"gpt-4o\"}", "cost_type": "float", "cost": "0.0", "status": "known", "raw_cost_type": "float", "raw_cost": "0.0"}
+{"raw": "{\"choices\":[{\"message\":{\"content\":\"actual answer\"}}],\"usage\":{\"cost_usd\":0.02},\"model\":\"gpt-4o\"}", "cost_type": "float", "cost": "0.02", "status": "known", "raw_cost_type": "float", "raw_cost": "0.02"}

@@ -1,0 +1,16 @@
+id = "2026-10-06-e02-b-foundry-compiled-inputs"
+title = "Bind compiled kernels to actual source and materialized chain inputs"
+type = "fixed"
+component = "foundry"
+owner = "team-policyos-foundry"
+summary = "Include the shared finite implementation graph in specialization identity, reconcile ready cache publications before single-flight claims, and execute compiled chains through the canonical occurrence-bound payload and context materializers. Preparation uses declared shapes without numerical body calls; execution reconciles actual input shape and dtype."
+evidence = ["tests/unit/foundry/methods/test_compiler_e02.py", "tests/unit/foundry/methods/test_compiler.py", "tests/unit/remediation/test_jit_01.py"]
+compatibility = "Same-FQN source changes select new kernels. Already traced JAX handles retain their computation; untraced source drift is refused. Mutable captures and unsupported source graphs are explicit CompilationError boundaries. UUID dynamic overrides precede FQN overrides and static overrides require recompilation."
+change_class = "behavior-change"
+surface_classification = "internal: Foundry compiler specialization and backend materialization delegations"
+migration = "Use immutable supported source captures for source-bound compilation. Recompile after source/static changes and resolve CompilationError rather than bypassing identity. Low-level specialization callers that omit implementation_hash retain a limited unbound profile."
+limitations = "The supported identity graph is finite; versioned imported modules do not establish their mutable contents or external effects. Cooperative follower cancellation does not stop physical leader compilation. Unknown data-dependent output shapes, parallel execution, checkpoint resume and exactly-once external effects are outside this change."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/foundry/methods/compiler/README.md", "src/polisyos/foundry/methods/components/README.md"]
+runbook_docs = []

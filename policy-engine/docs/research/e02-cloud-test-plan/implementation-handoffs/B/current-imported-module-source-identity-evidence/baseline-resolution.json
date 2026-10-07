@@ -1,0 +1,1387 @@
+{
+  "grade": "source_reported_navigation_only_not_candidate_behavior",
+  "raw_archives_received": 0,
+  "cells": [
+    {
+      "id": "F01-P044",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.89",
+      "rss_kib": "174068",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "161",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F03-P065",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.04",
+      "rss_kib": "165492.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "195",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F05-P065",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.67",
+      "rss_kib": "259996",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F05.txt",
+      "source_line": "475",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F07-P041",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.371877431869507",
+      "rss_kib": "259564.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "47",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F07-P059",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.220776319503784",
+      "rss_kib": "255460.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "65",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F12-P052",
+      "job": "F12",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "8.00252217599973",
+      "rss_kib": "246516.0",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F12.txt",
+      "source_line": "637",
+      "extra_json": "{\"reason\":\"native\"}"
+    },
+    {
+      "id": "F14-P054",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "7.704198632000043",
+      "rss_kib": "271952",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "404",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F14-P077",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "7.841175300000032",
+      "rss_kib": "269232",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "427",
+      "extra_json": "{}"
+    }
+  ],
+  "routes": [
+    {
+      "finding_id": "B74",
+      "unit": "B",
+      "cell_id": "F01-P044",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "research_main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B74"
+    },
+    {
+      "finding_id": "B74",
+      "unit": "B",
+      "cell_id": "F03-P065",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "research_main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B74"
+    },
+    {
+      "finding_id": "B74",
+      "unit": "B",
+      "cell_id": "F05-P065",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "e02_execution_base",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B74"
+    },
+    {
+      "finding_id": "B74",
+      "unit": "B",
+      "cell_id": "F07-P041",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "e02_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B74"
+    },
+    {
+      "finding_id": "B74",
+      "unit": "B",
+      "cell_id": "F07-P059",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "e02_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B74"
+    },
+    {
+      "finding_id": "B74",
+      "unit": "B",
+      "cell_id": "F12-P052",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B74"
+    },
+    {
+      "finding_id": "B74",
+      "unit": "B",
+      "cell_id": "F14-P054",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "integration_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B74"
+    },
+    {
+      "finding_id": "B74",
+      "unit": "B",
+      "cell_id": "F14-P077",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "integration_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B74"
+    }
+  ],
+  "finding_basis": [
+    {
+      "finding_id": "B74",
+      "bundle_ids": [
+        "RES-04"
+      ],
+      "recorded_ledger_status": "partial",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "discriminator_ref": "bundle-catalog.md#res-04; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-04.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B74",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B74",
+      "assigned_routes": [
+        {
+          "job": "F01",
+          "ref": "research_main",
+          "cell_ids": [
+            "F01-P044"
+          ]
+        },
+        {
+          "job": "F03",
+          "ref": "research_main",
+          "cell_ids": [
+            "F03-P065"
+          ]
+        },
+        {
+          "job": "F05",
+          "ref": "e02_execution_base",
+          "cell_ids": [
+            "F05-P065"
+          ]
+        },
+        {
+          "job": "F07",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F07-P041",
+            "F07-P059"
+          ]
+        },
+        {
+          "job": "F12",
+          "ref": "main",
+          "cell_ids": [
+            "F12-P052"
+          ]
+        },
+        {
+          "job": "F14",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F14-P054",
+            "F14-P077"
+          ]
+        }
+      ]
+    }
+  ],
+  "complete_job_source_bindings": [
+    {
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt",
+      "source_sha256": "5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9",
+      "transferred_bytes": 71251,
+      "raw_archive_transfer": "missing",
+      "metadata": [
+        {
+          "line_start": 4,
+          "line_end": 114,
+          "complete_parsed_metadata_keys": [
+            "job",
+            "run",
+            "source",
+            "tree",
+            "role",
+            "manifest_sha256",
+            "manifest_note",
+            "start_utc",
+            "execution_end_epoch_s",
+            "elapsed_execution_s",
+            "assigned_cells",
+            "executed_cells",
+            "attempts",
+            "states",
+            "counts",
+            "counting_scope",
+            "additional_public_reports",
+            "additional_report_note",
+            "nonpass_events_all_attempts",
+            "reconciled_bound_receipts",
+            "P001",
+            "native_property_controls",
+            "observer_sha256",
+            "selected_extras",
+            "environment",
+            "config_sha256",
+            "source_checks",
+            "resources",
+            "blockers",
+            "properties_assigned",
+            "continuation_budget",
+            "excluded_slots",
+            "archive",
+            "text_file_sha256",
+            "completion",
+            "transfer_status",
+            "raw_archive_transfer",
+            "recipient_download_verified"
+          ],
+          "environment_and_input_closure_source_fields": {
+            "source": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "tree": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+            "manifest_sha256": "a6ad0dad1bbad671dbf5a9efb3892d4a55c5445573e0060c0eac27c85f097527",
+            "native_property_controls": "absent in all 140 observed primary children",
+            "observer_sha256": "72111e340c3fabdd3a90176ddfac6cc44a0af8226a31dadd0b869d03740d4cb4",
+            "selected_extras": [
+              "lint",
+              "test",
+              "runtime",
+              "ml",
+              "analytics",
+              "bayesian",
+              "optimization-advanced",
+              "sensitivity",
+              "causal-discovery",
+              "agent-sim",
+              "causal-discovery-scale",
+              "search_bo",
+              "solvers",
+              "vector-search"
+            ],
+            "environment": {
+              "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+              "arch": "x86_64",
+              "python": "3.14.2",
+              "uv": "0.9.21",
+              "node": "22.23.3",
+              "corepack": "0.36.0",
+              "pnpm": "10.33.2",
+              "cpu_max": "400000 100000",
+              "cpuset": "0-4",
+              "memory_limit_bytes": 17179869184,
+              "disk_initial_free_bytes": 32026370048,
+              "disk_after_profile_free_bytes": 23258984448,
+              "installed_distributions": 253,
+              "post_series_distributions_match": true,
+              "lock_version_mismatches": 0,
+              "threads": 1,
+              "JAX_PLATFORMS": "cpu",
+              "profile_changes_after_native_start": 0,
+              "gnu_time_version": "time (GNU Time) UNKNOWN",
+              "gnu_time_binary_sha256": "efc0d1112e36ec76c14bf7508e287935cf1631d9d0d91fb532802d07aef51cea",
+              "gnu_time_probe": "child exit=7 and wall/user/sys/RSS verified",
+              "base_frozen_sync_exit": 0,
+              "node_frozen_install_exit": 0,
+              "union_frozen_sync_exit": 0
+            },
+            "config_sha256": {
+              "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+              "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+              "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+              "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+              "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+            },
+            "source_checks": {
+              "assigned_blobs_and_actual_bytes_match": 139,
+              "all_config_hashes_match": true,
+              "tracked_diff_empty": true,
+              "observed_owned_origins_match": true,
+              "source_drift": false,
+              "origins_scope": "session-finish snapshot only"
+            }
+          },
+          "retained_source_fields_grade": "source_reported_no_raw_archive_verification"
+        }
+      ]
+    },
+    {
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt",
+      "source_sha256": "1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318",
+      "transferred_bytes": 75761,
+      "raw_archive_transfer": "missing",
+      "metadata": [
+        {
+          "line_start": 6,
+          "line_end": 128,
+          "complete_parsed_metadata_keys": [
+            "job",
+            "role",
+            "run_id",
+            "source_sha",
+            "tree",
+            "manifest_sha256",
+            "task_start_utc",
+            "task_start_basis",
+            "execution_end_utc",
+            "execution_end_Europe_Kiev",
+            "cell_start_deadline_utc",
+            "profile",
+            "numeric_threads",
+            "JAX_PLATFORMS",
+            "cpu_max",
+            "cpuset",
+            "memory_limit_bytes",
+            "config_sha256",
+            "observer_sha256",
+            "source_drift",
+            "origin_drift",
+            "tracked_diff_empty",
+            "summary",
+            "property_target_calls",
+            "property_adequacy",
+            "canonical_parent_mismatch",
+            "recovery",
+            "junit_discrepancy",
+            "hypothesis_effective_storage",
+            "sequence_deviation",
+            "setup_interruption",
+            "cloud",
+            "transfer_status",
+            "raw_archive_transfer",
+            "raw_transfer_missing",
+            "recipient_acceptance",
+            "cause_status",
+            "archive",
+            "continuation"
+          ],
+          "environment_and_input_closure_source_fields": {
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "tree": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+            "manifest_sha256": "b5a8936a67d7e05869331c2ec7ad0c9b36148ec7b9fa7ea00e8f210d4d9a87b0",
+            "profile": {
+              "python": "3.14.2",
+              "uv": "0.9.21",
+              "node": "22.23.3",
+              "pnpm": "10.33.2",
+              "frozen": true,
+              "execution_device": "cpu",
+              "distributions": 253,
+              "extras": [
+                "lint",
+                "test",
+                "runtime",
+                "ml",
+                "analytics",
+                "bayesian",
+                "optimization-advanced",
+                "sensitivity",
+                "causal-discovery",
+                "vector-search",
+                "solvers",
+                "search_bo",
+                "agent-sim",
+                "causal-discovery-scale"
+              ],
+              "unchanged": true
+            },
+            "numeric_threads": 1,
+            "JAX_PLATFORMS": "cpu",
+            "config_sha256": {
+              "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+              "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+              "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+              "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+              "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+            },
+            "observer_sha256": "72111e340c3fabdd3a90176ddfac6cc44a0af8226a31dadd0b869d03740d4cb4",
+            "hypothesis_effective_storage": "policy-engine/_cache/hypothesis"
+          },
+          "retained_source_fields_grade": "source_reported_no_raw_archive_verification"
+        }
+      ]
+    },
+    {
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt",
+      "source_sha256": "2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0",
+      "transferred_bytes": 97032,
+      "raw_archive_transfer": "missing",
+      "metadata": [
+        {
+          "line_start": 7,
+          "line_end": 408,
+          "complete_parsed_metadata_keys": [
+            "job",
+            "run",
+            "source",
+            "source_role",
+            "tree",
+            "manifest_sha256",
+            "start",
+            "native_execution_start",
+            "budget_start_assumption",
+            "end",
+            "summary",
+            "completion",
+            "execution_quality",
+            "source_status",
+            "transfer_status",
+            "raw_archive_transfer",
+            "archive",
+            "profile",
+            "environment_compact",
+            "final_readback",
+            "config_sha256",
+            "setup_segments_compact",
+            "resource_adapter",
+            "compact_failure_schema",
+            "continuation",
+            "reproduction"
+          ],
+          "environment_and_input_closure_source_fields": {
+            "source": "78187878ee188ff6d27442ba1498bd094da9785b",
+            "tree": "595f1df8f85c0a096aa2b61cac01b7d35a81ed7e",
+            "manifest_sha256": "9f736f1d425b5eba2a5eafd45d759488f178ac3236a61a8e24b45384cd64f312",
+            "profile": {
+              "extras": [
+                "lint",
+                "test",
+                "runtime",
+                "ml",
+                "analytics",
+                "bayesian",
+                "optimization-advanced",
+                "sensitivity",
+                "causal-discovery",
+                "search_bo",
+                "solvers",
+                "vector-search"
+              ],
+              "argv": [
+                "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/uv-package/bin/uv",
+                "sync",
+                "--frozen",
+                "--python",
+                "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/python-runtime/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+                "--extra",
+                "lint",
+                "--extra",
+                "test",
+                "--extra",
+                "runtime",
+                "--extra",
+                "ml",
+                "--extra",
+                "analytics",
+                "--extra",
+                "bayesian",
+                "--extra",
+                "optimization-advanced",
+                "--extra",
+                "sensitivity",
+                "--extra",
+                "causal-discovery",
+                "--extra",
+                "search_bo",
+                "--extra",
+                "solvers",
+                "--extra",
+                "vector-search"
+              ]
+            },
+            "environment_compact": {
+              "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+              "architecture": "x86_64",
+              "cgroup": {
+                "cpu.max": "400000 100000",
+                "cpuset.cpus.effective": "0-4",
+                "memory.max": "17179869184"
+              },
+              "python": {
+                "executable": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/.venv/bin/python",
+                "resolved": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/python-runtime/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+                "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+              },
+              "toolchain": {
+                "uv": {
+                  "argv": [
+                    "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/uv-package/bin/uv",
+                    "--version"
+                  ],
+                  "exit": 0,
+                  "stdout": "uv 0.9.21\n",
+                  "stderr": "",
+                  "path": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/uv-package/bin/uv"
+                },
+                "node": {
+                  "argv": [
+                    "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/node-v22.22.0-linux-x64/bin/node",
+                    "--version"
+                  ],
+                  "exit": 0,
+                  "stdout": "v22.22.0\n",
+                  "stderr": "",
+                  "path": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/node-v22.22.0-linux-x64/bin/node"
+                },
+                "pnpm": {
+                  "argv": [
+                    "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/node-v22.22.0-linux-x64/bin/corepack",
+                    "pnpm",
+                    "--version"
+                  ],
+                  "exit": 0,
+                  "stdout": "10.33.2\n",
+                  "stderr": "",
+                  "path": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/node-v22.22.0-linux-x64/bin/corepack"
+                },
+                "compiler": {
+                  "argv": [
+                    "g++",
+                    "--version"
+                  ],
+                  "exit": 0,
+                  "stdout": "g++ (Debian 14.2.0-19) 14.2.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+                  "stderr": "",
+                  "path": "/usr/bin/g++"
+                }
+              },
+              "disk_free_bytes": 31589965824,
+              "disk_after_setup_bytes": 20976594944,
+              "native_execution_start": "2026-10-05T08:04:17.853653Z",
+              "budget_last_new_cell_deadline": "2026-10-05T11:13:00Z"
+            },
+            "config_sha256": {
+              "policy-engine/pyproject.toml": "d19b37b3ab80ad9c71e329a3f347d54033f88ea7df11d60ddadcefba6d36880f",
+              "policy-engine/uv.lock": "b87e993a35ef7d39ef046ed5f068e2ce264017a7368e848b223f9a0347470039",
+              "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+              "policy-engine/pnpm-lock.yaml": "da12dfb5ee90b8fb99eaf918d93bb8e24d056e378798d13ae88a542c1a65e217",
+              "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+            },
+            "resource_adapter": {
+              "url": "https://deb.debian.org/debian/pool/main/t/time/time_1.9-0.2_amd64.deb",
+              "package_sha256": "10257c6fe888e6578550b1f20705d282dd630b76f8df0c006aec3031fefe5e23",
+              "binary": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/time-runtime/usr/bin/time",
+              "binary_sha256": "efc0d1112e36ec76c14bf7508e287935cf1631d9d0d91fb532802d07aef51cea",
+              "probe_exit": 7
+            },
+            "reproduction": {
+              "cwd": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine",
+              "PYTHON": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/.venv/bin/python",
+              "TIME": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/time-runtime/usr/bin/time",
+              "CELL": "id column of cells.tsv",
+              "TEST_PATH": "path column with exactly the policy-engine/ prefix removed",
+              "OUT": "new absolute ignored directory under /workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/{CELL}/<new-attempt>; create observer,hypothesis,os-tmp,benchmarks subdirectories first",
+              "canonical_argv": [
+                "{TIME}",
+                "-v",
+                "-o",
+                "{OUT}/wrapper-resource.txt",
+                "{PYTHON}",
+                "-m",
+                "tools.quality.testing.run_timed_suite",
+                "--lane",
+                "e02-full-F05:{CELL}",
+                "--cwd",
+                ".",
+                "--capture-pytest-workload",
+                "--receipt-output",
+                "{OUT}/execution.json",
+                "--",
+                "{TIME}",
+                "-v",
+                "-o",
+                "{OUT}/pytest-resource.txt",
+                "{PYTHON}",
+                "-m",
+                "pytest",
+                "-c",
+                "pytest.ini",
+                "{TEST_PATH}",
+                "-p",
+                "e02_observer",
+                "-p",
+                "e02_context",
+                "--junitxml={OUT}/junit.xml",
+                "--durations=0",
+                "--basetemp={OUT}/tmp",
+                "-o",
+                "cache_dir={OUT}/pytest-cache",
+                "--benchmark-storage=file://{OUT}/benchmarks"
+              ],
+              "observer_fallback_argv_delta": "remove --capture-pytest-workload and --receipt-output plus its following path",
+              "observer_fallback_attempts": [
+                {
+                  "cell": "F05-P001",
+                  "attempt": "attempt-02-observer-fallback"
+                }
+              ],
+              "all_attempt_argv_templates_verified": true,
+              "env_overrides": {
+                "POLISYOS_TOOLS_TIMING_LOG": "{OUT}/timing.jsonl",
+                "E02_OBSERVER_DIR": "{OUT}/observer",
+                "HYPOTHESIS_STORAGE_DIRECTORY": "{OUT}/hypothesis",
+                "TMPDIR": "{OUT}/os-tmp",
+                "PYTHONPATH": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/plugin",
+                "PATH": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/node-v22.22.0-linux-x64/bin:/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/uv-package/bin:<inherited PATH>",
+                "OMP_NUM_THREADS": "1",
+                "OPENBLAS_NUM_THREADS": "1",
+                "MKL_NUM_THREADS": "1",
+                "NUMEXPR_NUM_THREADS": "1",
+                "VECLIB_MAXIMUM_THREADS": "1",
+                "JAX_PLATFORMS": "cpu"
+              },
+              "remove_inherited": [
+                "PYTEST_ADDOPTS",
+                "PYTEST_PLUGINS",
+                "PYTEST_XDIST_WORKER",
+                "POLISYOS_PYTEST_RECEIPT_*",
+                "POLISYOS_R1_REMOVE_V3_ARTIFACTID_SCALAR",
+                "POLISYOS_R6_FOREIGN_CONTEXT_IDENTITY_REMOVAL",
+                "POLISYOS_R7_REMOVE_ACTIVE_PROBE_SUPPRESSION"
+              ],
+              "output_capture": "open separate stdout.log/stderr.log, subprocess argv array; retain actual exit and timing",
+              "observer_sha256": "72111e340c3fabdd3a90176ddfac6cc44a0af8226a31dadd0b869d03740d4cb4",
+              "context_plugin_source": "\"\"\"Read public runtime settings; preserve the exact E02 observer unchanged.\"\"\"\nimport json\nimport os\nfrom pathlib import Path\n\n\ndef pytest_sessionstart(session):\n    from hypothesis import settings\n\n    database = settings.default.database\n    path = getattr(database, \"path\", None)\n    root = Path(os.environ[\"E02_OBSERVER_DIR\"]) / str(os.getpid())\n    root.mkdir(parents=True, exist_ok=True)\n    (root / \"hypothesis-effective.json\").write_text(json.dumps({\n        \"pid\": os.getpid(), \"scope\": \"public_settings_at_session_start\",\n        \"requested_storage\": os.environ.get(\"HYPOTHESIS_STORAGE_DIRECTORY\"),\n        \"database_type\": type(database).__name__, \"effective_path\": str(path) if path else None,\n        \"database_repr\": repr(database),\n    }) + \"\\n\")\n",
+              "context_plugin_sha256": "2371021e2ce88badddf23d2d15fec0ff6c659c58a016d9130f8152adfa6dd5de"
+            }
+          },
+          "retained_source_fields_grade": "source_reported_no_raw_archive_verification"
+        }
+      ]
+    },
+    {
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt",
+      "source_sha256": "eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866",
+      "transferred_bytes": 74977,
+      "raw_archive_transfer": "missing",
+      "metadata": [
+        {
+          "line_start": 5,
+          "line_end": 5,
+          "complete_parsed_metadata_keys": [
+            "job",
+            "run",
+            "source",
+            "tree",
+            "manifest_sha256",
+            "start",
+            "end",
+            "assigned_count",
+            "terminal_counts",
+            "phase_totals",
+            "receipt_totals",
+            "transfer_status",
+            "raw_archive_transfer",
+            "archive",
+            "profile",
+            "continuation_count",
+            "start_boundary",
+            "text_file_sha256",
+            "runtime_control_segment_counts",
+            "receipt_blockers",
+            "environment",
+            "config_sha256",
+            "measurements",
+            "excluded_slots",
+            "reproduction",
+            "instrumentation_sources"
+          ],
+          "environment_and_input_closure_source_fields": {
+            "source": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "tree": "dde3150361bb45ae3347e585a38dc297015da7ef",
+            "manifest_sha256": "d7fb66fc3665474c59f11b0463c741b1b05c1b7c8646897c9b4b7d455a68c40f",
+            "profile": [
+              "lint",
+              "test",
+              "runtime",
+              "ml",
+              "analytics",
+              "bayesian",
+              "optimization-advanced",
+              "sensitivity",
+              "causal-discovery",
+              "vector-search",
+              "solvers",
+              "search_bo"
+            ],
+            "environment": {
+              "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+              "arch": "x86_64",
+              "cpu_max": "400000 100000",
+              "cpuset": "0-4",
+              "memory_limit_bytes": 17179869184,
+              "versions": [
+                {
+                  "argv": [
+                    ".venv/bin/python",
+                    "--version"
+                  ],
+                  "version": "Python 3.14.2",
+                  "exit": 0
+                },
+                {
+                  "argv": [
+                    "/workspace/polisyos-e02-full-F07-20261005T074300Z/policy-engine/_build/e02-full/F07/20261005T074300Z/setup/uv-tool/bin/uv",
+                    "--version"
+                  ],
+                  "version": "uv 0.9.21",
+                  "exit": 0
+                },
+                {
+                  "argv": [
+                    "node",
+                    "--version"
+                  ],
+                  "version": "v22.23.3",
+                  "exit": 0
+                },
+                {
+                  "argv": [
+                    "corepack",
+                    "--version"
+                  ],
+                  "version": "0.36.0",
+                  "exit": 0
+                },
+                {
+                  "argv": [
+                    "corepack",
+                    "pnpm",
+                    "--version"
+                  ],
+                  "version": "10.33.2",
+                  "exit": 0
+                },
+                {
+                  "argv": [
+                    "/workspace/polisyos-e02-full-F07-20261005T074300Z/policy-engine/_build/e02-full/F07/20261005T074300Z/setup/gnu-time/usr/bin/time",
+                    "--version"
+                  ],
+                  "version": "time (GNU Time) UNKNOWN\nCopyright (C) 2018 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by David Keppel, David MacKenzie, and Assaf Gordon.",
+                  "exit": 0
+                }
+              ],
+              "python_executable": "/workspace/polisyos-e02-full-F07-20261005T074300Z/policy-engine/.venv/bin/python",
+              "installed_distributions": 238,
+              "distributions_unchanged_after_series": true,
+              "node_workspace_links_ref": "setup/node-workspace-links.json",
+              "GNU_time_package": {
+                "package_metadata": "Package: time\nVersion: 1.9-0.2\nArchitecture: amd64\n",
+                "exit": 0,
+                "deb_sha256": "10257c6fe888e6578550b1f20705d282dd630b76f8df0c006aec3031fefe5e23",
+                "extracted_binary_sha256": "efc0d1112e36ec76c14bf7508e287935cf1631d9d0d91fb532802d07aef51cea"
+              },
+              "disk_before_sync_final_bytes": 28581031936,
+              "disk_floor_bytes": 21474836480
+            },
+            "config_sha256": {
+              "policy-engine/pyproject.toml": "d19b37b3ab80ad9c71e329a3f347d54033f88ea7df11d60ddadcefba6d36880f",
+              "policy-engine/uv.lock": "b87e993a35ef7d39ef046ed5f068e2ce264017a7368e848b223f9a0347470039",
+              "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+              "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+              "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+            },
+            "reproduction": {
+              "cwd": "/workspace/polisyos-e02-full-F07-20261005T074300Z/policy-engine",
+              "argv_template": [
+                "{GNU_TIME}",
+                "-v",
+                "-o",
+                "{E02_OUT}/wrapper-resource.txt",
+                "{PYTHON}",
+                "-m",
+                "tools.quality.testing.run_timed_suite",
+                "--lane",
+                "e02-full-F07:{E02_CELL}",
+                "--cwd",
+                ".",
+                "--capture-pytest-workload",
+                "--receipt-output",
+                "{E02_OUT}/execution.json",
+                "--",
+                "{GNU_TIME}",
+                "-v",
+                "-o",
+                "{E02_OUT}/pytest-resource.txt",
+                "{PYTHON}",
+                "-m",
+                "pytest",
+                "-c",
+                "pytest.ini",
+                "{E02_TEST}",
+                "-p",
+                "e02_observer",
+                "-p",
+                "e02_context",
+                "--junitxml={E02_OUT}/junit.xml",
+                "--durations=0",
+                "--basetemp={E02_OUT}/tmp",
+                "-o",
+                "cache_dir={E02_OUT}/pytest-cache",
+                "--benchmark-storage=file://{E02_OUT}/benchmarks"
+              ],
+              "env_template": {
+                "E02_OBSERVER_DIR": "{E02_OUT}/observer",
+                "HYPOTHESIS_STORAGE_DIRECTORY": "{E02_OUT}/hypothesis",
+                "TMPDIR": "{E02_OUT}/os-tmp",
+                "PYTHONPATH": "{E02_PLUGIN_ROOT}",
+                "POLISYOS_TOOLS_TIMING_LOG": "{E02_OUT}/timing.jsonl",
+                "OMP_NUM_THREADS": "1",
+                "OPENBLAS_NUM_THREADS": "1",
+                "MKL_NUM_THREADS": "1",
+                "NUMEXPR_NUM_THREADS": "1",
+                "VECLIB_MAXIMUM_THREADS": "1",
+                "JAX_PLATFORMS": "cpu"
+              },
+              "unset_keys": [
+                "PYTEST_ADDOPTS",
+                "PYTEST_PLUGINS",
+                "POLISYOS_PYTEST_RECEIPT_ATTEMPT_ID",
+                "POLISYOS_PYTEST_RECEIPT_REPO_ROOT",
+                "POLISYOS_PYTEST_RECEIPT_SIDECAR",
+                "POLISYOS_PYTEST_RECEIPT_TEST_PATHS",
+                "POLISYOS_R1_REMOVE_V3_ARTIFACTID_SCALAR",
+                "POLISYOS_R6_FOREIGN_CONTEXT_IDENTITY_REMOVAL",
+                "POLISYOS_R7_REMOVE_ACTIVE_PROBE_SUPPRESSION",
+                "SCIENTIST_TORCH_NUM_THREADS",
+                "SCIENTIST_TORCH_NUM_INTEROP_THREADS",
+                "SCIENTIST_TORCH_DEVICE"
+              ],
+              "expansion": "E02_CELL is exact TSV id; E02_TEST is TSV path with only leading policy-engine/ removed. PYTHON is assigned checkout .venv/bin/python; GNU_TIME is verified time binary. E02_OUT must be fresh absolute ignored directory; precreate observer/hypothesis/os-tmp/benchmarks. E02_PLUGIN_ROOT contains transferred instrumentation sources. Include sitecustomize only for runtime-control-02; segment-01 leaves project Torch override unpinned. Set PATH to assigned .venv/bin, exact Node bin and exact uv tool bin plus inherited system PATH. Preserve proxy/CA settings. Frozen extras/versions must match metadata/environment. Effective conftest Hypothesis database must be fresh at its owner path. Never overwrite an existing attempt. All retained attempts here use canonical capture."
+            }
+          },
+          "retained_source_fields_grade": "source_reported_no_raw_archive_verification"
+        }
+      ]
+    },
+    {
+      "job": "F12",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F12.txt",
+      "source_sha256": "03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2",
+      "transferred_bytes": 110036,
+      "raw_archive_transfer": "missing",
+      "metadata": [
+        {
+          "line_start": 5,
+          "line_end": 194,
+          "complete_parsed_metadata_keys": [
+            "job",
+            "run_id",
+            "source",
+            "tree",
+            "source_role",
+            "manifest_sha256",
+            "observer_sha256",
+            "config_sha256",
+            "native_profile",
+            "post_series_profile_addition",
+            "toolchain",
+            "platform",
+            "setup",
+            "native_start",
+            "native_end",
+            "all_attempts_end",
+            "budget_clock_start",
+            "budget_clock_precision",
+            "original_new_cell_cutoff",
+            "user_authorized_necessary_new_tests_after_cutoff",
+            "attempts_started_after_original_cutoff",
+            "native_totals",
+            "all_attempts",
+            "sum_all_attempt_wall_s",
+            "additional_attempts",
+            "native_primary_rows_preserved",
+            "source_checks",
+            "resource_units",
+            "gates",
+            "properties",
+            "unrun_continuation",
+            "archive",
+            "text_validation",
+            "transfer_status",
+            "raw_archive_transfer",
+            "failure_defaults",
+            "limitations"
+          ],
+          "environment_and_input_closure_source_fields": {
+            "source": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "tree": "eb96aa6d6ebc05c23e9eb740895dd0b009ac7e65",
+            "manifest_sha256": "d4eb4eca6f827297fc217c5104fd3176da7f63e622951fa801df0f787e233a28",
+            "observer_sha256": "72111e340c3fabdd3a90176ddfac6cc44a0af8226a31dadd0b869d03740d4cb4",
+            "config_sha256": {
+              "policy-engine/pyproject.toml": "5e98214495a461efb3aa60877a3f8cf9cae109e934da1e39dafc4c1346f631be",
+              "policy-engine/uv.lock": "ca41190281680015fd7e5e1a42e55bfcddfb3e76b171417df3110553f4b01266",
+              "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+              "policy-engine/pnpm-lock.yaml": "da12dfb5ee90b8fb99eaf918d93bb8e24d056e378798d13ae88a542c1a65e217",
+              "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+            },
+            "native_profile": [
+              "lint",
+              "test",
+              "runtime",
+              "ml",
+              "analytics",
+              "bayesian",
+              "optimization-advanced",
+              "sensitivity",
+              "causal-discovery",
+              "vector-search",
+              "solvers",
+              "search_bo",
+              "agent-sim",
+              "causal-discovery-scale"
+            ],
+            "toolchain": {
+              "python": "3.14.2",
+              "uv": "0.9.21",
+              "node": "22.23.3",
+              "corepack": "0.36.0",
+              "pnpm": "10.33.2"
+            },
+            "platform": {
+              "os_arch": "Linux x86_64",
+              "cpu_max": "400000 100000",
+              "cpuset": "0-4",
+              "memory_limit_bytes": 17179869184,
+              "execution": "CPU"
+            },
+            "source_checks": {
+              "all_assigned_blobs_match": true,
+              "HEAD_and_tree_match": true,
+              "tracked_diff_empty": true,
+              "observer_matches": true,
+              "original_clone_HEAD_preserved": true,
+              "source_drift": [],
+              "custody_blockers": []
+            }
+          },
+          "retained_source_fields_grade": "source_reported_no_raw_archive_verification"
+        },
+        {
+          "line_start": 346,
+          "line_end": 527,
+          "complete_parsed_metadata_keys": [
+            "job",
+            "run_id",
+            "source",
+            "tree",
+            "role",
+            "manifest_sha256",
+            "observer_sha256",
+            "config_sha256",
+            "toolchain",
+            "platform",
+            "native_profile",
+            "profile_completion",
+            "setup",
+            "times_utc",
+            "native_totals",
+            "all_attempts",
+            "sum_all_attempt_wall_s",
+            "additional_attempts",
+            "source_drift",
+            "source_checks",
+            "resources",
+            "archive",
+            "gates",
+            "properties",
+            "unrun_continuation",
+            "failure_events",
+            "failure_groups",
+            "transfer_status",
+            "raw_archive_transfer",
+            "failure_defaults",
+            "limitations"
+          ],
+          "environment_and_input_closure_source_fields": {
+            "source": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "tree": "eb96aa6d6ebc05c23e9eb740895dd0b009ac7e65",
+            "manifest_sha256": "d4eb4eca6f827297fc217c5104fd3176da7f63e622951fa801df0f787e233a28",
+            "observer_sha256": "72111e340c3fabdd3a90176ddfac6cc44a0af8226a31dadd0b869d03740d4cb4",
+            "config_sha256": {
+              "policy-engine/pyproject.toml": "5e98214495a461efb3aa60877a3f8cf9cae109e934da1e39dafc4c1346f631be",
+              "policy-engine/uv.lock": "ca41190281680015fd7e5e1a42e55bfcddfb3e76b171417df3110553f4b01266",
+              "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+              "policy-engine/pnpm-lock.yaml": "da12dfb5ee90b8fb99eaf918d93bb8e24d056e378798d13ae88a542c1a65e217",
+              "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+            },
+            "toolchain": {
+              "python": "3.14.2",
+              "uv": "0.9.21",
+              "node": "22.23.3",
+              "corepack": "0.36.0",
+              "pnpm": "10.33.2"
+            },
+            "platform": {
+              "os_arch": "Linux x86_64",
+              "cpu_max": "400000 100000",
+              "cpuset": "0-4",
+              "memory_limit_bytes": 17179869184
+            },
+            "native_profile": [
+              "lint",
+              "test",
+              "runtime",
+              "ml",
+              "analytics",
+              "bayesian",
+              "optimization-advanced",
+              "sensitivity",
+              "causal-discovery",
+              "vector-search",
+              "solvers",
+              "search_bo",
+              "agent-sim",
+              "causal-discovery-scale"
+            ],
+            "source_checks": {
+              "all_122_expected_blobs_match_actual_bytes": true,
+              "whole_tracked_diff_empty": true,
+              "owned_module_snapshot_hashes_reconciled": true,
+              "custody_blockers": [],
+              "original_clone_head_preserved": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+              "commits_pushes_PRs": 0
+            }
+          },
+          "retained_source_fields_grade": "source_reported_no_raw_archive_verification"
+        }
+      ]
+    },
+    {
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt",
+      "source_sha256": "6746baa7b42a4fad583e640a8ba845806612b34c13a9688c86fbe7ff667fb50e",
+      "transferred_bytes": 122592,
+      "raw_archive_transfer": "missing",
+      "metadata": [
+        {
+          "line_start": 4,
+          "line_end": 113,
+          "complete_parsed_metadata_keys": [
+            "job",
+            "run_id",
+            "source_sha",
+            "tree",
+            "source_role",
+            "manifest_sha256",
+            "start",
+            "start_precision",
+            "series_first_start",
+            "native_loop_end",
+            "end",
+            "assigned_total",
+            "attempts",
+            "states",
+            "counts",
+            "counts_scope",
+            "receipts",
+            "receipt_notes",
+            "timings",
+            "environment",
+            "lock_hashes",
+            "setup_segment_columns",
+            "setup_segments",
+            "setup_full_ref",
+            "gates",
+            "property_rows",
+            "native_unrun",
+            "harness_recovery",
+            "source_checks_without_issues",
+            "original_head_preserved",
+            "archive",
+            "nonpass_events_all_attempts",
+            "transfer_status",
+            "raw_archive_transfer",
+            "cause_status",
+            "raw_transfer_missing"
+          ],
+          "environment_and_input_closure_source_fields": {
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+            "manifest_sha256": "6d22c80796c9d830c55b3b68393f43cd90593f7cb4bfa57643bc32a2da53debf",
+            "environment": {
+              "python": "3.14.2",
+              "uv": "0.9.21",
+              "node": "22.16.0",
+              "corepack_pnpm": "10.33.2",
+              "cpu_max": "400000 100000",
+              "cpu_quota": 4,
+              "cpuset_effective": "0-4",
+              "memory_max_bytes": 17179869184,
+              "numerical_threads": 1,
+              "JAX_PLATFORMS": "cpu",
+              "profile_segment": "frozen-union-1",
+              "selected_extras": [
+                "lint",
+                "test",
+                "runtime",
+                "ml",
+                "analytics",
+                "bayesian",
+                "optimization-advanced",
+                "sensitivity",
+                "causal-discovery",
+                "vector-search",
+                "solvers",
+                "search_bo",
+                "agent-sim",
+                "causal-discovery-scale"
+              ],
+              "native_property_controls": "all three removal controls absent in actual children",
+              "distribution_origins_ref": "environment.json",
+              "raw_transfer_missing": true
+            },
+            "lock_hashes": {
+              "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+              "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+              "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+              "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+              "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+            }
+          },
+          "retained_source_fields_grade": "source_reported_no_raw_archive_verification"
+        },
+        {
+          "line_start": 220,
+          "line_end": 348,
+          "complete_parsed_metadata_keys": [
+            "job",
+            "run_id",
+            "source_sha",
+            "tree",
+            "source_role",
+            "manifest_sha256",
+            "start",
+            "start_precision",
+            "series_first_start",
+            "native_loop_end",
+            "end",
+            "assigned_total",
+            "attempts",
+            "states",
+            "counts",
+            "counts_scope",
+            "receipts",
+            "timings",
+            "environment",
+            "selected_extras",
+            "source_hashes",
+            "setup_segments",
+            "harness_recovery",
+            "source_checks_without_issues",
+            "native_unrun",
+            "excluded_missing",
+            "excluded_unrun_safety",
+            "gates",
+            "property_rows",
+            "nonpass_events_all_attempts",
+            "cause_status",
+            "transfer_status",
+            "raw_archive_transfer",
+            "archive"
+          ],
+          "environment_and_input_closure_source_fields": {
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+            "manifest_sha256": "6d22c80796c9d830c55b3b68393f43cd90593f7cb4bfa57643bc32a2da53debf",
+            "environment": {
+              "python": "3.14.2",
+              "uv": "0.9.21",
+              "node": "22.16.0",
+              "corepack_pnpm": "10.33.2",
+              "cpu_max": "400000 100000",
+              "cpu_quota": 4,
+              "cpuset_effective": "0-4",
+              "memory_max_bytes": 17179869184,
+              "OMP_NUM_THREADS": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1",
+              "JAX_PLATFORMS": "cpu",
+              "UV_NO_BUILD_PACKAGE": "pillow",
+              "profile_segment": "frozen-union-1",
+              "native_property_removal_controls": "absent in actual child processes"
+            },
+            "selected_extras": [
+              "lint",
+              "test",
+              "runtime",
+              "ml",
+              "analytics",
+              "bayesian",
+              "optimization-advanced",
+              "sensitivity",
+              "causal-discovery",
+              "vector-search",
+              "solvers",
+              "search_bo",
+              "agent-sim",
+              "causal-discovery-scale"
+            ]
+          },
+          "retained_source_fields_grade": "source_reported_no_raw_archive_verification"
+        }
+      ]
+    }
+  ]
+}

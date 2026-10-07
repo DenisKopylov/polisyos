@@ -1,0 +1,72 @@
+import ast
+import hashlib
+import json
+import platform
+import subprocess
+import sys
+import tomllib
+
+TARGET = "36957513b0b2d58c3010cf3db9b268ba13881898"
+STOCK = "a942342a6724d200bde8b8cfddbe4bb88260815f"
+PRIOR_STOCK = "4703d19296998d93bac94bfcafc0934a37901126"
+PREFIX = "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/"
+
+
+def git(*argv):
+    return subprocess.check_output(["git", *argv])
+
+
+inputs = [
+    (TARGET, PREFIX + "final-root-evidence/run_completed_quality.py"),
+    (TARGET, PREFIX + "final-root-evidence/completed-quality-README.md"),
+    (TARGET, "policy-engine/ruff.toml"),
+    (TARGET, "policy-engine/architecture/tooling/ruff/generated.toml"),
+    (TARGET, "policy-engine/mypy.ini"),
+    (STOCK, PREFIX + "final-root-evidence/run_successor.py"),
+    (STOCK, PREFIX + "final-root-evidence/capture_frozen.py"),
+    (STOCK, PREFIX + "gate-input-audit/uncapped_constituents.py"),
+    (STOCK, "policy-engine/architecture/generated_artifacts.toml"),
+    (STOCK, "policy-engine/architecture/public_surface/contract.toml"),
+    (STOCK, "policy-engine/tools/devx/architecture/guardrails.py"),
+    (STOCK, "policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py"),
+    (STOCK, "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py"),
+    (STOCK, "policy-engine/tools/quality/validation/check_trust_claim_posture.py"),
+    (STOCK, "policy-engine/tools/devx/foundry/generate_stubs.py"),
+    (STOCK, "policy-engine/tools/registry.py"),
+]
+rows = []
+for sha, path in inputs:
+    body = git("show", sha + ":" + path)
+    row = {"source_sha": sha, "path": path, "bytes": len(body),
+           "sha256": hashlib.sha256(body).hexdigest(),
+           "git_blob": git("rev-parse", sha + ":" + path).decode().strip()}
+    if path.endswith(".py"):
+        ast.parse(body.decode(), filename=path)
+        row["AST_parse"] = "PASS"
+    if path.endswith(".toml"):
+        tomllib.loads(body.decode())
+        row["TOML_parse"] = "PASS"
+    if path.endswith(("run_successor.py", "capture_frozen.py", "uncapped_constituents.py")):
+        row["byte_equal_prior_review_4703"] = body == git("show", PRIOR_STOCK + ":" + path)
+        row["exists_in_author_target"] = subprocess.run(
+            ["git", "cat-file", "-e", TARGET + ":" + path],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        ).returncode == 0
+    rows.append(row)
+tree = ast.parse(git("show", TARGET + ":" + inputs[0][1]).decode())
+constants = {n.targets[0].id: ast.literal_eval(n.value) for n in tree.body
+             if isinstance(n, ast.Assign) and isinstance(n.targets[0], ast.Name)
+             and n.targets[0].id in {"GATES", "MYPY_GROUPS", "PUBLISHED_BASE"}}
+manifest = tomllib.loads(git("show", STOCK + ":policy-engine/architecture/generated_artifacts.toml").decode())
+families = manifest["family"]
+required = [f for f in families if f.get("default_freshness_check") or f.get("source_of_truth") == "schemas/runtime_api_v1.openapi.json"]
+print(json.dumps({
+    "target_sha": TARGET, "target_tree": git("rev-parse", TARGET + "^{tree}").decode().strip(),
+    "stock_sha": STOCK, "stock_tree": git("rev-parse", STOCK + "^{tree}").decode().strip(),
+    "target_parent_delta": git("diff", "--name-status", TARGET + "^", TARGET).decode().splitlines(),
+    "environment": {"python": sys.executable, "version": sys.version, "platform": platform.platform(), "git": git("--version").decode().strip()},
+    "source_inputs": rows, "declared_constants": constants,
+    "mypy_target_count": sum(map(len, constants["MYPY_GROUPS"].values())),
+    "default_generated_freshness_families": required,
+    "execution": "Git reads plus stdlib AST/TOML parsing only; no project imports, launcher/factory execution, live pytest, collection, generator, gate, backend or wheel build",
+}, indent=2))

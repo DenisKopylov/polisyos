@@ -1,0 +1,344 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "continuation-branch-reconciliation-independent-review",
+  "closure_ids": [],
+  "bundle_ids": [
+    "EXE-01",
+    "WIRE-01",
+    "RES-04",
+    "JIT-01"
+  ],
+  "slice_base_sha": "8c292c4904462a1ecd57d250f06fdfd7ff293c95",
+  "implementation_commits": [
+    "27f5ddbab8adae08458733535ff627648c731abc"
+  ],
+  "candidate_tree_sha": "ff9590f696909d268f7155cc16d7af91820104f5",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/initial-ancestry-audit.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/initial-ancestry-audit-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/ancestry-audit.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/ancestry-audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/ancestry-audit-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/source-refs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/source-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/test-source-ref.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/test-source-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/input-context.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/index.json"
+  ],
+  "baseline_cells": [],
+  "baseline_role": "No baseline cells/summary used as proof of a new change; Git metadata/source scope only.",
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "/tmp/e02-B-cas-tenth-wave-review-20261007/ancestry-audit.source.txt",
+        "/tmp/e02-B-cas-tenth-wave-review-20261007/ancestry-audit.json"
+      ],
+      "target_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "environment": {
+        "reviewer": "B cas_probe independent foreign EXE/source/Git reviewer",
+        "cwd": "/workspace/e02-B-current-cas-generation",
+        "actual_attached_checkout_head": "a058426e743e8ce8c88c0b4469451b3180458915",
+        "read_method": "Immutable explicit Git refs; complete ls-tree/cat-file/JSON/hash census; no candidate imports",
+        "git_transport": "/tmp/e02-B-tenth-wave-20261007/transport.git",
+        "object_alternate": "/workspace/polisyos/.git/objects",
+        "reviewer_native": "UNRUN",
+        "numeric_caps_added": false
+      },
+      "input_closure": {
+        "literal_executed_driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/initial-ancestry-audit.source.txt",
+          "bytes": 12532,
+          "sha256": "2674d708ee801e9e5b0c9f3692594aaf894e4726c6ab4f3cbf644a6f6fd67671",
+          "git_sha": "27f5ddbab8adae08458733535ff627648c731abc"
+        },
+        "explicit_source_headers": {
+          "main": {
+            "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+            "parents": [
+              "1ddcd7b3905e52c0d19db091823a64830139fa64"
+            ],
+            "subject": "docs(e02): publish six owner continuation prompts from main checkpoint"
+          },
+          "slice_base": {
+            "sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+            "tree": "a07dc5b12a14ce004746cb43f7fbe609e8e0ff50",
+            "parents": [
+              "c683ab749f470249565ecaf377e5a24cd74e47bc",
+              "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7"
+            ],
+            "subject": "Merge fetched G checkpoint 13 as B continuation dependency"
+          },
+          "implementation": {
+            "sha": "af03a9d9693ed73b5dd1fd5b8fe8ad06dcb19cc8",
+            "tree": "bd77335cf86ea2f1c65714cd54d3b5e9540d2a83",
+            "parents": [
+              "b371fce793afddbe15e18ee2eadec3c7b9d51e52"
+            ],
+            "subject": "Preserve complete frozen B observations, bounded JIT repair and all60 decisions"
+          },
+          "published_B": {
+            "sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+            "tree": "dc4ebd99afba72d13c60a46e77cd8fc99a002e60",
+            "parents": [
+              "af03a9d9693ed73b5dd1fd5b8fe8ad06dcb19cc8"
+            ],
+            "subject": "Add separate exact-source final B continuation handoff for G"
+          },
+          "published_G": {
+            "sha": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+            "tree": "2e228785406834ba128bb7b4dd9c636a6a2a1cb5",
+            "parents": [
+              "76746fececd1a183a516c48f07ce2835baa8a2d1"
+            ],
+            "subject": "docs(e02): publish B/F continuation and exact consumer feedback"
+          },
+          "historical_G": {
+            "sha": "76746fececd1a183a516c48f07ce2835baa8a2d1",
+            "tree": "51929dd44a3650c7842bf77aedcdeba6ecd1a755",
+            "parents": [
+              "ebae80eaa25482d84bc6ad2e78721bc318bc0228"
+            ],
+            "subject": "docs(e02): publish delta admission decisions and independent G numeric receipts"
+          },
+          "common_base": {
+            "sha": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+            "tree": "f27a36aa7eae9d6e329e0602ea40b6169a5bcf35",
+            "parents": [
+              "172db850d398d6c656a818c1f36fa6b673284dec"
+            ],
+            "subject": "docs(e02): record native Trash cleanup after checkpoint 13"
+          },
+          "reconciled_root": {
+            "sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+            "tree": "e6ec2e4bb34f84f946341004f1e5c8374fb29010",
+            "parents": [
+              "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+              "855cb26a7a2c9fea60356663cf81e7d01e20c738"
+            ],
+            "subject": "Merge commit '855cb26a7a2c9fea60356663cf81e7d01e20c738' into codex/e02-B-current-coordination"
+          }
+        },
+        "canonical_footprint": {
+          "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/full-footprint.json",
+          "bytes": 2664961,
+          "sha256": "172baca595010af6a00348d2c4d5a7be30e4274587a60ae8ad3c4d6f77f3c0b2"
+        }
+      },
+      "outcome": "ERROR",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/initial-ancestry-audit-stdout.txt",
+        "bytes": 388,
+        "sha256": "41760cc357f08741ede77886d9585136e2e56786a0d1bfd56f319c9230baf5b2",
+        "git_sha": "27f5ddbab8adae08458733535ff627648c731abc"
+      },
+      "qualification": "Initial metadata instrument used wrong worker navigation path without engine/runner prefix. KeyError is preserved; no product/runtime failure or partial audit promoted."
+    },
+    {
+      "command": [
+        "python3",
+        "/tmp/e02-B-cas-tenth-wave-review-20261007/ancestry-audit.source.txt",
+        "/tmp/e02-B-cas-tenth-wave-review-20261007/ancestry-audit.json"
+      ],
+      "target_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "environment": {
+        "reviewer": "B cas_probe independent foreign EXE/source/Git reviewer",
+        "cwd": "/workspace/e02-B-current-cas-generation",
+        "actual_attached_checkout_head": "a058426e743e8ce8c88c0b4469451b3180458915",
+        "read_method": "Immutable explicit Git refs; complete ls-tree/cat-file/JSON/hash census; no candidate imports",
+        "git_transport": "/tmp/e02-B-tenth-wave-20261007/transport.git",
+        "object_alternate": "/workspace/polisyos/.git/objects",
+        "reviewer_native": "UNRUN",
+        "numeric_caps_added": false
+      },
+      "input_closure": {
+        "literal_executed_driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/ancestry-audit.source.txt",
+          "bytes": 12539,
+          "sha256": "bc6e630bc18a41a81d42330d51e062a916dd95068dcf741b886bcd9c1b1e033f",
+          "git_sha": "27f5ddbab8adae08458733535ff627648c731abc"
+        },
+        "explicit_source_headers": {
+          "main": {
+            "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+            "parents": [
+              "1ddcd7b3905e52c0d19db091823a64830139fa64"
+            ],
+            "subject": "docs(e02): publish six owner continuation prompts from main checkpoint"
+          },
+          "slice_base": {
+            "sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+            "tree": "a07dc5b12a14ce004746cb43f7fbe609e8e0ff50",
+            "parents": [
+              "c683ab749f470249565ecaf377e5a24cd74e47bc",
+              "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7"
+            ],
+            "subject": "Merge fetched G checkpoint 13 as B continuation dependency"
+          },
+          "implementation": {
+            "sha": "af03a9d9693ed73b5dd1fd5b8fe8ad06dcb19cc8",
+            "tree": "bd77335cf86ea2f1c65714cd54d3b5e9540d2a83",
+            "parents": [
+              "b371fce793afddbe15e18ee2eadec3c7b9d51e52"
+            ],
+            "subject": "Preserve complete frozen B observations, bounded JIT repair and all60 decisions"
+          },
+          "published_B": {
+            "sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+            "tree": "dc4ebd99afba72d13c60a46e77cd8fc99a002e60",
+            "parents": [
+              "af03a9d9693ed73b5dd1fd5b8fe8ad06dcb19cc8"
+            ],
+            "subject": "Add separate exact-source final B continuation handoff for G"
+          },
+          "published_G": {
+            "sha": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+            "tree": "2e228785406834ba128bb7b4dd9c636a6a2a1cb5",
+            "parents": [
+              "76746fececd1a183a516c48f07ce2835baa8a2d1"
+            ],
+            "subject": "docs(e02): publish B/F continuation and exact consumer feedback"
+          },
+          "historical_G": {
+            "sha": "76746fececd1a183a516c48f07ce2835baa8a2d1",
+            "tree": "51929dd44a3650c7842bf77aedcdeba6ecd1a755",
+            "parents": [
+              "ebae80eaa25482d84bc6ad2e78721bc318bc0228"
+            ],
+            "subject": "docs(e02): publish delta admission decisions and independent G numeric receipts"
+          },
+          "common_base": {
+            "sha": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+            "tree": "f27a36aa7eae9d6e329e0602ea40b6169a5bcf35",
+            "parents": [
+              "172db850d398d6c656a818c1f36fa6b673284dec"
+            ],
+            "subject": "docs(e02): record native Trash cleanup after checkpoint 13"
+          },
+          "reconciled_root": {
+            "sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+            "tree": "e6ec2e4bb34f84f946341004f1e5c8374fb29010",
+            "parents": [
+              "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+              "855cb26a7a2c9fea60356663cf81e7d01e20c738"
+            ],
+            "subject": "Merge commit '855cb26a7a2c9fea60356663cf81e7d01e20c738' into codex/e02-B-current-coordination"
+          }
+        },
+        "canonical_footprint": {
+          "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/full-footprint.json",
+          "bytes": 2664961,
+          "sha256": "172baca595010af6a00348d2c4d5a7be30e4274587a60ae8ad3c4d6f77f3c0b2"
+        },
+        "canonical_receipt": {
+          "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-full-B-20261007.json",
+          "bytes": 258428,
+          "sha256": "a1d73695ed6f7454d5923892cec028a5e5737912e59aecbff1f91441c0758198",
+          "closure_ids": [],
+          "actual_check_outcomes": {
+            "FAIL": 5,
+            "PASS": 1,
+            "ERROR": 3,
+            "UNRUN": 1
+          }
+        },
+        "context": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/input-context.json",
+          "bytes": 2551,
+          "sha256": "afa7456d4e27fa2500fd4337900297d584246ca06190cdc349b7627462316a4a",
+          "git_sha": "27f5ddbab8adae08458733535ff627648c731abc"
+        }
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/ancestry-audit-stdout.txt",
+        "bytes": 7143,
+        "sha256": "ba6d0f9e58bdaad7b979236f494fc80e26a6c56384671d5bf0151de676b44c51",
+        "git_sha": "27f5ddbab8adae08458733535ff627648c731abc"
+      },
+      "complete_data": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/ancestry-audit.json",
+        "bytes": 196851,
+        "sha256": "f0c1afed972bec61be5607d35a25c832efc67daba3905eb7f31d408534874b3f",
+        "git_sha": "27f5ddbab8adae08458733535ff627648c731abc"
+      },
+      "qualification": "Independently recomputed complete948 implementation and5242 original-main paths, all base/candidate blob identities/bytes/hashes; exact normal merge79 research paths, complete ancestry/protected-owner byte custody. This is no broad runtime or source acceptance."
+    }
+  ],
+  "property": {
+    "statement": "Exact normal reconciliation of current B/G preserves B producer-grant mechanisms and dependent source/test bytes, with complete original-main and slice footprint custody. Git reconciliation success cannot substitute for active owned-graph runtime admission.",
+    "runtime_path": [
+      "canonical ExperimentState/NodeSpec.state_writes → branch_state live grant",
+      "Sequential/Async fresh node branch → actual producer mutation → completion neutral copy",
+      "shared serialized worker → typed mutation envelope → fresh CAS/cache replay consumer",
+      "ordinary mutable BaseModel/copy-update quantity → EXE defining false-admission controls"
+    ],
+    "proxy_divergence": "G feedback label, a conflict-free merge, unchanged journal or unchanged base can coexist with forbidden state changes. Actual B/G blobs reverse the strong-source wording; author model-copy negative leaves base unchanged while publishing forbidden branch99. Runtime/source acceptance remains distinct.",
+    "negative_controls": [
+      "Initial wrong worker metadata path ERROR preserved, corrected full census separate PASS.",
+      "Complete histories show neither prior topic descends from current other topic, exact merge has both parents, forbiddena3 absent; no substitute selected ancestry.",
+      "Complete source/test delta to G includes148 paths; source-backed B grant implementation/common G blob distinction retained.",
+      "Actual author2be5 model/copy-update12FAIL retained as same owned-graph quantity; no kind/instance patch or future green claim.",
+      "Real06ef dict/list positive/refusal/cache/completion test source reviewed; source-static15 input product is not execution count. Generic model source successor and matched removals await independent review."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "per_premise_basis": {
+    "Git_full_footprint_ancestry_blob_bytes_hashes": "independently_reconciled",
+    "EXE_test_source_runtime_path": "source-only independent review",
+    "author_model_false_admission_physical_outputs": "consumer_asserted actual author native; source/XML/15 observations independently read, receiver raw availability not_established until author Git packaging",
+    "whole_B_quality_and_formal_closure": "not_established"
+  },
+  "capability_state_or_finding_state": "NONBLOCKING exact Git reconciliation/source custody; ordinary model/copy-update producer-scope gap remains FAIL at author2be5; no code/finding/whole-B acceptance.",
+  "limitations_and_next_owner": [
+    "No reviewer source/test changes, imports/native/gates, new checkout/helpers, cleanup/deletion, numeric quotas or main/history rewrite.",
+    "ROOT590 source identity is an inspection checkpoint; author06ef/2be5 has four exact Foundry/Gateway source/README differences, no full-source runtime transplant.",
+    "Original gate quality/P41 remains not_established; no inherited-red waiver, all-B grade, old baseline summary proof or full production dataset claim.",
+    "B74 frame/returned namespace remains LIMITED; cross-unit/semantic held decisions unchanged. This foreign EXE metadata review does not independently accept former CAS writer mechanisms.",
+    "EXE owns single canonical ordinary model/copy-update/live alias widening and author red/successor custody; CMP owns separate generic model oracle; ROOT/G owns integrated verification/closure.",
+    "Ordinary supported model fields and finite live graph are the scope. Custom setters/methods/reflection/direct internal mutation are not inferred Python-sandbox authority.",
+    "Existing bad/local refs preserved; isolated bare fetch and explicit Git alternate reads only. Append-only review parent8c; attached source checkout/local ref remainsa058."
+  ],
+  "evidence_index": {
+    "git_sha": "27f5ddbab8adae08458733535ff627648c731abc",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/index.json",
+    "bytes": 3161,
+    "sha256": "268dcf3c28fb946f482b4cd75fcf164e444fdaa686704a4dce792ab63efaa9ed"
+  },
+  "source_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/source-review.json",
+    "bytes": 8300,
+    "sha256": "d18d6b2cb5b69755c7d9aebab57b6332c5b2a2d18fe3ba80ae0be5cba4ed1153",
+    "git_sha": "27f5ddbab8adae08458733535ff627648c731abc"
+  },
+  "test_source_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/test-source-review.json",
+    "bytes": 4085,
+    "sha256": "b02a83d1f18642b82496a83a456b2a1a3b3645a7017cec845f110b00f8fb2fdb",
+    "git_sha": "27f5ddbab8adae08458733535ff627648c731abc"
+  },
+  "reviewed_root_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+  "reviewed_root_tree": "e6ec2e4bb34f84f946341004f1e5c8374fb29010",
+  "selected_foreign_resume_admission": {
+    "path": "/tmp/e02-B-tenth-wave-20261007/cas-generation-admission.json",
+    "bytes": 135795,
+    "sha256": "4cdcab98647dedd2835ddc3cb04c50a61b86c7a12184dd18e399dcbaf5a425a1",
+    "status": "admitted",
+    "requested": {
+      "branch": "codex/e02-B-current-cas-generation",
+      "mode": "resume",
+      "path": "/workspace/e02-B-current-cas-generation"
+    },
+    "unresolved_inputs": [],
+    "qualification": "Existing admitted own checkout read-only; snapshot consumer assertion, not an atomic worktree reservation/precreation claim"
+  }
+}

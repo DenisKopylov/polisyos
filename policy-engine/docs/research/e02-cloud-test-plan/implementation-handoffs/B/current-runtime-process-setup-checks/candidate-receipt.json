@@ -1,0 +1,29 @@
+{
+  "mode": "candidate",
+  "base_sha": "e3fa47ab3004ceed17648fae58ef4a7df9d168cc",
+  "candidate_sha": "fbc5fb8dc4d300df2b1a81b78c13649e4832ad53",
+  "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "input_sha256": {
+    "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py": "c4de7e6cd725cb3094b14da6a82cd69e0088e2e628c09aefe5b13c998c922f36",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py": "11210b239c78f09f83857366ef4f470a25783386d8bcc2916f90d8760d993914",
+    "policy-engine/tests/unit/scientist/orchestration/engine/_retry_setup_probe.py": "8674a2409897c6f5a532b751a9a1187cae69f4205669d9925ac92853986ca747",
+    "policy-engine/src/polisyos/common/async_tools.py": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py": "93c5f4b5577e00dd18e83ff4b4b4423d99706da90300d0ea44d74c2a06d96bb7"
+  },
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/scientist/orchestration/engine/test_retry.py",
+    "-k",
+    "worker_setup_fault",
+    "--junitxml=/workspace/e02-B-current-runtime/_build/e02-current-runtime/setup-frozen-candidate/native.xml"
+  ],
+  "PYTHONPATH": "/workspace/e02-B-current-runtime/policy-engine/src:/workspace/e02-B-current-runtime/policy-engine",
+  "exit_code": 0,
+  "stdout_sha256": "4cb6d48789587f7795ab28aef1f195d7705e5fa0a7f6772e0fe46aa8c9026424"
+}

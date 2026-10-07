@@ -1,0 +1,349 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "continuation-imported-checkpoint-tenth",
+  "closure_ids": [],
+  "bundle_ids": [
+    "RES-04"
+  ],
+  "finding_ids": [
+    "B74"
+  ],
+  "slice_base_sha": "0bf268e7860831241e3fd193b3da46086d5893cc",
+  "implementation_commits": [
+    "2fffbf940509d220050694957bfff2b85f930b83"
+  ],
+  "candidate_tree_sha": "7314a8fd32af872fd9d43b166c0d3f165dedf683",
+  "branch": "codex/e02-B-current-durability",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/43",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/configuration-custody.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/native.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/physical-fixtures.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/projection-input.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/native.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/physical-fixtures.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/resources-after.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/run-checkpoint.source.txt"
+  ],
+  "production_changed_paths": [],
+  "test_changed_paths": [],
+  "baseline_cells": [],
+  "baseline_navigation": "Original d1efd all60 proposal and prior ed4f imported-checkpoint packet retain exact historical cells/jobs. This independent run answers the newly uncovered current four-case consumer; no historical PASS or broad setupERROR is used as current evidence.",
+  "checks": [
+    {
+      "id": "native-real-imported-checkpoint-consumer",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02-dur-imported-checkpoint-tenth-20261007/run_checkpoint.py",
+        "--source-sha",
+        "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+        "--source-tree",
+        "e6ec2e4bb34f84f946341004f1e5c8374fb29010",
+        "--git-root",
+        "/workspace/e02-B-current-coordination",
+        "--task-root",
+        "/tmp/e02-dur-imported-checkpoint-tenth-20261007/runtime-590e5d",
+        "--mode",
+        "native"
+      ],
+      "target_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "environment": {
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "PYTHONPATH": "/tmp/e02-dur-imported-checkpoint-tenth-20261007/runtime-590e5d/projection/policy-engine/src:/tmp/e02-dur-imported-checkpoint-tenth-20261007/runtime-590e5d/projection/policy-engine/product",
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+          "GIT_OBJECT_DIRECTORY": null,
+          "GIT_ALTERNATE_OBJECT_DIRECTORIES": null,
+          "GIT_INDEX_FILE": null
+        },
+        "versions": {
+          "pytest": "9.0.2",
+          "numpy": "2.3.5",
+          "jax": "0.8.2",
+          "pydantic": "2.12.5"
+        }
+      },
+      "input_closure": {
+        "source_tree": "e6ec2e4bb34f84f946341004f1e5c8374fb29010",
+        "literal_test": {
+          "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+          "path": "policy-engine/tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+          "bytes": 11096,
+          "sha256": "1c22fd256f2038def925ed5467c5bc842d680bfa0669cee202a75ea881cc71f8"
+        },
+        "literal_driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/run-checkpoint.source.txt",
+          "bytes": 9168,
+          "sha256": "f5099e0b9ac5cf4861d93d2b8f2d7d1bc8c55c258d7164fff5c4e5e1e66075c7",
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83"
+        },
+        "projection_archive": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/projection-input.json",
+          "bytes": 712,
+          "sha256": "378ead77b138af7355d34573ac755cfba320762ab7e224a0dd21f5c87bbf099a",
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83"
+        },
+        "configuration_and_test_readback": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/configuration-custody.json",
+          "bytes": 3641,
+          "sha256": "b0e5d57cd47131da9c33ef85c4a849709e02164c8b8b1512d796efef4ada193c",
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83"
+        },
+        "actual_loaded_origins_and_phase_partition": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/profile.json",
+          "bytes": 46556,
+          "sha256": "5569da0b88be11e4a34ad602c165a023d286b970e6ec742186cb0a15ccd7999c",
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83"
+        },
+        "fixture_root": "/tmp/e02-dur-imported-checkpoint-tenth-20261007/runtime-590e5d/native/fixtures",
+        "profile": "Normal pytest.ini, root/Foundry/methods conftests and auto-loaded plugins. Full tracked src/tests plus configs projected from Git; not a new checkout.",
+        "in_memory_overlay": null
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/native.stdout.json",
+        "bytes": 8362,
+        "sha256": "563c86245407ef3c77d71415af501ccd765709275a0249cb11e6322c1b9f3552",
+        "git_sha": "2fffbf940509d220050694957bfff2b85f930b83"
+      },
+      "output_representation": {
+        "kind": "lossless_utf8_json",
+        "text_key": "text",
+        "decoded_bytes": 8099,
+        "decoded_sha256": "59ab9fdbd1f315444ce65ce71893ce2a7a1a40822e38c3cef07366c2a7fccd8c"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/native.xml",
+        "bytes": 997,
+        "sha256": "d9324305685c39b803a5a6a51b4834301e732195a3229ea7a824a65999ddceec",
+        "git_sha": "2fffbf940509d220050694957bfff2b85f930b83"
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/wrapper.json",
+        "bytes": 1527,
+        "sha256": "9a6f6b6aaa55732713823a9e4d6eccbc424b75c4ddfad93a28a433f03b66a61b",
+        "git_sha": "2fffbf940509d220050694957bfff2b85f930b83"
+      },
+      "actual_filesystem_readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/physical-fixtures.json",
+        "bytes": 287380,
+        "sha256": "e380f2a62acb141b2571c01c97e8b2473c88626570e2271876dd6f15a8303d25",
+        "git_sha": "2fffbf940509d220050694957bfff2b85f930b83"
+      },
+      "actual_cases": {
+        "PASS": 4,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "wall_s": 4.84515096899122,
+      "max_rss_kib": 175792,
+      "actual_exit": 0,
+      "invocation_cwd": "/workspace",
+      "actual_child_cwd": "/tmp/e02-dur-imported-checkpoint-tenth-20261007/runtime-590e5d/projection/policy-engine",
+      "qualification": "Newly executed exact590 whole four-case consumer, twelve phases all PASS. This does not claim a standard quality gate or whole-B PASS."
+    },
+    {
+      "id": "removal-real-imported-checkpoint-consumer",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02-dur-imported-checkpoint-tenth-20261007/run_checkpoint.py",
+        "--source-sha",
+        "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+        "--source-tree",
+        "e6ec2e4bb34f84f946341004f1e5c8374fb29010",
+        "--git-root",
+        "/workspace/e02-B-current-coordination",
+        "--task-root",
+        "/tmp/e02-dur-imported-checkpoint-tenth-20261007/runtime-590e5d",
+        "--mode",
+        "removal"
+      ],
+      "target_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "environment": {
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "PYTHONPATH": "/tmp/e02-dur-imported-checkpoint-tenth-20261007/runtime-590e5d/projection/policy-engine/src:/tmp/e02-dur-imported-checkpoint-tenth-20261007/runtime-590e5d/projection/policy-engine/product",
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+          "GIT_OBJECT_DIRECTORY": null,
+          "GIT_ALTERNATE_OBJECT_DIRECTORIES": null,
+          "GIT_INDEX_FILE": null
+        },
+        "versions": {
+          "pytest": "9.0.2",
+          "numpy": "2.3.5",
+          "jax": "0.8.2",
+          "pydantic": "2.12.5"
+        }
+      },
+      "input_closure": {
+        "source_tree": "e6ec2e4bb34f84f946341004f1e5c8374fb29010",
+        "literal_test": {
+          "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+          "path": "policy-engine/tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+          "bytes": 11096,
+          "sha256": "1c22fd256f2038def925ed5467c5bc842d680bfa0669cee202a75ea881cc71f8"
+        },
+        "literal_driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/run-checkpoint.source.txt",
+          "bytes": 9168,
+          "sha256": "f5099e0b9ac5cf4861d93d2b8f2d7d1bc8c55c258d7164fff5c4e5e1e66075c7",
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83"
+        },
+        "projection_archive": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/projection-input.json",
+          "bytes": 712,
+          "sha256": "378ead77b138af7355d34573ac755cfba320762ab7e224a0dd21f5c87bbf099a",
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83"
+        },
+        "configuration_and_test_readback": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/configuration-custody.json",
+          "bytes": 3641,
+          "sha256": "b0e5d57cd47131da9c33ef85c4a849709e02164c8b8b1512d796efef4ada193c",
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83"
+        },
+        "actual_loaded_origins_and_phase_partition": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/profile.json",
+          "bytes": 44126,
+          "sha256": "2824e974f7379f0f23fe840ad22f1f0f289e530b78a3e0756f27a95512a1f7e8",
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83"
+        },
+        "fixture_root": "/tmp/e02-dur-imported-checkpoint-tenth-20261007/runtime-590e5d/removal/fixtures",
+        "profile": "Normal pytest.ini, root/Foundry/methods conftests and auto-loaded plugins. Full tracked src/tests plus configs projected from Git; not a new checkout.",
+        "in_memory_overlay": {
+          "runtime_symbol": "polisyos.foundry.methods.artifacts._implementation_identity._module_capture",
+          "input": "/tmp/e02-dur-imported-checkpoint-tenth-20261007/run_checkpoint.py",
+          "input_sha256": "f5099e0b9ac5cf4861d93d2b8f2d7d1bc8c55c258d7164fff5c4e5e1e66075c7",
+          "property_removed": "Every captured imported module retains name/version while its actually selected member projection is omitted.",
+          "disk_source_bytes_unchanged": true
+        }
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/native.stdout.json",
+        "bytes": 5205,
+        "sha256": "8e1c3601a7a5c6a82d7aacae5fad1d856afa376bf196fc42e1750c2efea1ed1f",
+        "git_sha": "2fffbf940509d220050694957bfff2b85f930b83"
+      },
+      "output_representation": {
+        "kind": "lossless_utf8_json",
+        "text_key": "text",
+        "decoded_bytes": 4969,
+        "decoded_sha256": "2c67409eb30e858f602d84e606160087bf0593cd2cee6518aac25677c4cf9c68"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/native.xml",
+        "bytes": 1239,
+        "sha256": "daff2d6d069946c4fa4923d53466f93fb63f563c426c1e6bcd533d6913b0e44d",
+        "git_sha": "2fffbf940509d220050694957bfff2b85f930b83"
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/wrapper.json",
+        "bytes": 1530,
+        "sha256": "b579af2728c05a10ea38886c0e938d2b8921971298fc4698c34deb9a1ff97bf2",
+        "git_sha": "2fffbf940509d220050694957bfff2b85f930b83"
+      },
+      "actual_filesystem_readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/physical-fixtures.json",
+        "bytes": 92621,
+        "sha256": "15054302c0d4c27862e1511fddb82b7a648afd874046fedd9f2b82650b6bd950",
+        "git_sha": "2fffbf940509d220050694957bfff2b85f930b83"
+      },
+      "actual_cases": {
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0,
+        "deselected": 3
+      },
+      "wall_s": 3.3194523010170087,
+      "max_rss_kib": 175744,
+      "actual_exit": 1,
+      "invocation_cwd": "/workspace",
+      "actual_child_cwd": "/tmp/e02-dur-imported-checkpoint-tenth-20261007/runtime-590e5d/projection/policy-engine",
+      "qualification": "Expected material rejection of the removed runtime property: actual native call FAIL, not XFAIL/ERROR. Same file one selected case; three deliberately deselected. Actual false resume107 and physical replacement effect, with pristine disk source and module/version markers."
+    }
+  ],
+  "property": {
+    "statement": "Checkpoint intake binds the selected imported member used by a not-yet-completed node, not only the unchanged module name/version; same selected member resumes the real persisted prefix and unsupported dynamic namespace intake refuses before bodies.",
+    "runtime_path": [
+      "Exact590 Git src/tests/config projection",
+      "Actual MethodRegistry/MethodComposer graph and FileSystemCAS selected input ref",
+      "CheckpointingChainExecutor saves real prefix/MethodResult history and ChainCheckpoint load",
+      "Fresh FileSystemCAS read and reopened executor resume",
+      "Filesystem original/replacement method effects and exact checkpoint-pointer byte assertions"
+    ],
+    "proxy_divergence": "Keeping module name/version but dropping selected-member identity admits changed helper work: the same negative resumes107 and writes replacement. Native intake refuses while stdout still shows only original, then a separate explicit cold control establishes replacement107.",
+    "negative_controls": [
+      "Same-version concrete imported member replacement refusal before physical effect",
+      "Unsupported __import__ intake refuses before any checkpoint directory or consumer effect",
+      "Generic in-memory _module_capture removal, same file/case: actual1FAIL with resume107/replacement effect; disk source and module/version markers unchanged"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "NONBLOCKING finite static imported-member checkpoint consumer profile; B74 LIMITED; formal_closure=false",
+  "limitations_and_next_owner": [
+    "Only this newly executed four-case profile on source590; author128 and broad6fa setupERROR are separate historical evidence. Later carriers require exact loaded-origin/test/config byte reconciliation, not an execution restamp.",
+    "Runtime frame namespaces, arbitrary mutable/opaque installed-callable internals and whole source graph remain B74 bounded residual under CMP/ROOT/G; no scientific or institutional authority is inferred.",
+    "One cache_dir config warning per invocation comes from capture disabling cacheprovider. Actual normal conftests/plugins, all four setup/call/teardown phases and full stdout/XML preserved; no skipped property.",
+    "Actual canonical source/test was read-only. Plain /tmp Git projection is not a worktree/admission; existing own admitted lane publishes only unique docs/evidence above remote0bf via alternate objects. Local checkout identity remains separately observed.",
+    "ROOT/G integrates and decides criterion/formal closure and full native/quality gates. CAS/ROOT reviews this independent evidence; no own ledger or source-mechanism acceptance."
+  ],
+  "packet_representation_qualification": {
+    "initial_unpublished_attempt": "f0173393ce53df8998950f67d11ac8e4bcfe69bb",
+    "reason": "Raw stdout has two whitespace-only pytest-warning lines, one per invocation; raw Git diff --check returned2 on those exact two lines. Before any publication, stdout uses lossless UTF8 JSON with raw byte/hash identity. Local original raw files and initial Git objects remain preserved; no published history or runtime result changed."
+  },
+  "runtime_source_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+  "runtime_source_tree_sha": "e6ec2e4bb34f84f946341004f1e5c8374fb29010",
+  "author_source_owner": "CMP; imported consumer input owner CAS; independent execution DUR",
+  "workspace_admission": {
+    "path": "/tmp/e02-B-tenth-wave-20261007/durability-admission.json",
+    "bytes": 135759,
+    "sha256": "0ffde6ba2f80d181c1de44519c2fba119cdcbd9468aaa99302b6883bdf3364a3",
+    "status": "admitted",
+    "scope": "Matching existing lane, not new checkout or projection reservation"
+  },
+  "evidence_index": {
+    "git_sha": "2fffbf940509d220050694957bfff2b85f930b83",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/index.json",
+    "bytes": 4640,
+    "sha256": "678bfc734982fb6aa88dca37c925439e99e1fc0ec6776bc97080df3a136e3ae6"
+  },
+  "review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/review.json",
+    "bytes": 3658,
+    "sha256": "4cfcf66379cdcc08e67ed9f2112971a5ea8be0eadb5966bf732060a7ff7732b2",
+    "git_sha": "2fffbf940509d220050694957bfff2b85f930b83"
+  },
+  "resources_after": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/resources-after.json",
+    "bytes": 2067,
+    "sha256": "f76303f7d02c6cf9440644f3351db53f9683db3692c9a0c30822a5c0c1a0399b",
+    "git_sha": "2fffbf940509d220050694957bfff2b85f930b83"
+  }
+}

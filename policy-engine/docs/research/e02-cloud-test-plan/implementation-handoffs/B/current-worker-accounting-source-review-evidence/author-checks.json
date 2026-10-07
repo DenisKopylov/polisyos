@@ -1,0 +1,70 @@
+[
+  {
+    "command": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "src/polisyos/scientist/policy_design/_llm_accounting.py",
+      "src/polisyos/scientist/policy_design/adversary.py",
+      "src/polisyos/scientist/policy_design/translator.py",
+      "tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py",
+      "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py"
+    ],
+    "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+    "actual_exit": 0,
+    "wall_seconds": 0.04284079400531482,
+    "max_rss_kib": 31680,
+    "output": {
+      "path": "/dev/shm/e02-B-worker-static/check-0.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    }
+  },
+  {
+    "command": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-m",
+      "ruff",
+      "format",
+      "--check",
+      "src/polisyos/scientist/policy_design/_llm_accounting.py",
+      "src/polisyos/scientist/policy_design/adversary.py",
+      "src/polisyos/scientist/policy_design/translator.py",
+      "tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py",
+      "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py"
+    ],
+    "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+    "actual_exit": 0,
+    "wall_seconds": 0.03876838799624238,
+    "max_rss_kib": 22536,
+    "output": {
+      "path": "/dev/shm/e02-B-worker-static/check-1.txt",
+      "bytes": 26,
+      "sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1"
+    }
+  },
+  {
+    "command": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-m",
+      "mypy",
+      "--follow-imports=silent",
+      "--ignore-missing-imports",
+      "--cache-dir",
+      "/dev/shm/e02-B-worker-static/mypy-cache",
+      "src/polisyos/scientist/policy_design/_llm_accounting.py",
+      "src/polisyos/scientist/policy_design/adversary.py",
+      "src/polisyos/scientist/policy_design/translator.py"
+    ],
+    "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+    "actual_exit": 1,
+    "wall_seconds": 60.0786151689972,
+    "max_rss_kib": 1153100,
+    "output": {
+      "path": "/dev/shm/e02-B-worker-static/check-2.txt",
+      "bytes": 3612,
+      "sha256": "2cc75a9a69a154db872c30e157ea99e319948184517ddff99de2268f7fc24c46"
+    }
+  }
+]

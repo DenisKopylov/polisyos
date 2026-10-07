@@ -21,7 +21,9 @@ if TYPE_CHECKING:
     )
     from polisyos.foundry.methods.backends.chain_executor import (
         ChainExecutionResult,
+        collect_chain_node_inputs,
         execute_heterogeneous_chain,
+        merge_chain_execution_context,
     )
     from polisyos.foundry.methods.backends.circuit_breaker import (
         BackendCircuitOpenError,
@@ -73,12 +75,22 @@ __all__ = [
     "ValidatedMode",
     "ValidatedStatus",
     "estimate_method_execution_cost_usd",
+    "collect_chain_node_inputs",
     "execute_heterogeneous_chain",
     "get_circuit_breaker_registry",
+    "merge_chain_execution_context",
     "validated_bound_to_envelopes",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "collect_chain_node_inputs": (
+        "polisyos.foundry.methods.backends.chain_executor",
+        "collect_chain_node_inputs",
+    ),
+    "merge_chain_execution_context": (
+        "polisyos.foundry.methods.backends.chain_executor",
+        "merge_chain_execution_context",
+    ),
     "AsyncChainExecutionError": (
         "polisyos.foundry.methods.backends.async_chain_executor",
         "AsyncChainExecutionError",

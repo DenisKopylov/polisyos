@@ -1,0 +1,67 @@
+{
+  "target_sha": "73a055e033dad61590d3ef03b9ff44aaef2c0990",
+  "target_tree": "e53602b3b7ed0c638cd196f2dc019628bcbe7cd6",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "--basetemp=../.polisyos/e02-B-current-durability/tmp/DUR-full-73",
+    "--junitxml=../.polisyos/e02-B-current-durability/raw/DUR-full-73.xml",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+    "tests/unit/remediation/test_dur_02_process.py",
+    "tests/unit/remediation/test_dur_02.py",
+    "tests/unit/runtime/http/test_control_plane_store.py",
+    "tests/unit/runtime/http/test_acquisition_control_worker.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py"
+  ],
+  "cwd": "/workspace/e02-B-current-durability/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src",
+    "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "python": "3.14.2",
+    "no_artificial_process_or_numeric_thread_quota": true
+  },
+  "start_utc": "2026-10-06T10:55:06.549012+00:00",
+  "end_utc": "2026-10-06T10:58:47.032579+00:00",
+  "exit_code": 1,
+  "wall_s": 220.48555290000513,
+  "max_child_rss_kib": 871604,
+  "status_before": "",
+  "status_after": "",
+  "inputs": [
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+    "tests/unit/remediation/test_dur_02_process.py",
+    "tests/unit/remediation/test_dur_02.py",
+    "tests/unit/runtime/http/test_control_plane_store.py",
+    "tests/unit/runtime/http/test_acquisition_control_worker.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py"
+  ],
+  "counts": {
+    "tests": 206,
+    "failures": 20,
+    "errors": 0,
+    "skipped": 0
+  },
+  "input_closure": "Actual checked checkout and complete native files; isolated unique pytest basetemp and real POSIX file/process controls or temporary SQLite typed collaborators; no production dataset/external services.",
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/raw/DUR-full-73.txt",
+      "sha256": "cb07996d24273c4fa22d1f11ce35ec041a9bd2108c9ae9ef8c520e46c1933cbb",
+      "bytes": 115411
+    },
+    {
+      "path": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/raw/DUR-full-73.xml",
+      "sha256": "401d6af8b63b6a73da2a4905d58fbd13f1111e458738291ce8a7509946632a2e",
+      "bytes": 150836
+    }
+  ]
+}

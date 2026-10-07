@@ -1,0 +1,18 @@
+import datetime, hashlib, json, os, pathlib, subprocess, time
+root=pathlib.Path("/workspace/e02-B-current-composition");cwd=root/"policy-engine";base=pathlib.Path(__file__).parent
+out=base/"static-corrected-eb4";out.mkdir(exist_ok=False)
+large=pathlib.Path("/dev/shm")/("e02-B-module-static-corrected-eb4-"+str(os.getpid()));large.mkdir(exist_ok=False)
+def source():return {"sha":subprocess.check_output(["git","rev-parse","HEAD"],cwd=root,text=True).strip(),"tree":subprocess.check_output(["git","rev-parse","HEAD^{tree}"],cwd=root,text=True).strip(),"status":subprocess.check_output(["git","status","--porcelain"],cwd=root,text=True)}
+pre=source();assert not pre["status"]
+env=os.environ.copy();env["PYTHONPATH"]=str(cwd/"src")+":"+str(cwd/"product");env["POLISYOS_METRICS_PORT"]="0"
+argv=["/workspace/polisyos/policy-engine/.venv/bin/python","-m","polisyos.runtime.quality.production_invocation","--repo-root",str(cwd),"--base","f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1","--receipt",str(large/"production-invocation-full.json")]
+keys=["PYTHONPATH","POLISYOS_METRICS_PORT","PATH","JAX_NUM_THREADS","OMP_NUM_THREADS","OPENBLAS_NUM_THREADS","MKL_NUM_THREADS","BLIS_NUM_THREADS","VECLIB_MAXIMUM_THREADS","NUMEXPR_NUM_THREADS","RAYON_NUM_THREADS","TF_NUM_INTEROP_THREADS","TF_NUM_INTRAOP_THREADS","NUMBA_NUM_THREADS","LOKY_MAX_CPU_COUNT","PYTEST_XDIST_AUTO_NUM_WORKERS","XLA_FLAGS"]
+profile={"argv":argv,"cwd":str(cwd),"source_before":pre,"environment":{key:env.get(key) for key in keys},"python_version":subprocess.check_output([argv[0],"--version"],text=True).strip(),"full_output_directory":str(large),"no_caps_added":True}
+(out/"profile.json").write_text(json.dumps(profile,indent=2)+"\n")
+start=datetime.datetime.now(datetime.UTC).isoformat();tick=time.monotonic()
+with (out/"stdout.txt").open("xb") as log:
+ proc=subprocess.Popen(argv,cwd=cwd,env=env,stdout=log,stderr=subprocess.STDOUT);pid,status,usage=os.wait4(proc.pid,0);proc.returncode=os.waitstatus_to_exitcode(status)
+post=source();assert pre==post
+output=large/"production-invocation-full.json"
+result={"started_at":start,"finished_at":datetime.datetime.now(datetime.UTC).isoformat(),"argv":argv,"cwd":str(cwd),"source_before":pre,"source_after":post,"exit_code":proc.returncode,"wait4_status":status,"signal":(-proc.returncode if proc.returncode<0 else None),"wall_seconds":time.monotonic()-tick,"max_rss_kib":usage.ru_maxrss,"user_cpu_seconds":usage.ru_utime,"system_cpu_seconds":usage.ru_stime,"stdout":{"bytes":(out/"stdout.txt").stat().st_size,"sha256":hashlib.sha256((out/"stdout.txt").read_bytes()).hexdigest()},"full_receipt":{"path":str(output),"exists":output.exists(),"bytes":output.stat().st_size if output.exists() else None,"sha256":hashlib.sha256(output.read_bytes()).hexdigest() if output.exists() else None}}
+(out/"wrapper.json").write_text(json.dumps(result,indent=2)+"\n");print(json.dumps(result))

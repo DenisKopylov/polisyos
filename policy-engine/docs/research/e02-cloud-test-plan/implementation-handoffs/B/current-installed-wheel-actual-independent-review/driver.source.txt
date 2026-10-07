@@ -1,0 +1,173 @@
+"""Foreign actual wheel evidence audit: no product imports/build/tests/gates."""
+
+import hashlib
+import json
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+import zipfile
+from pathlib import Path
+
+REPO = "/workspace/e02-B-current-runtime"
+SHA = "63713129022dc6c4b0103c1e77ee533b4d38a3e6"
+ROOT = "dd9584728bd96f204983615216efdbc58117e713"
+PREFIX = "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/"
+EP = PREFIX + "current-installed-wheel-runtime-evidence/"
+
+
+def git(*args):
+    return subprocess.check_output(["git", "-C", REPO, *args])
+
+
+def read(path):
+    return json.loads(git("show", SHA + ":" + path))
+
+
+index = read(EP + "evidence-index.json")
+rows = []
+for item in index["files"]:
+    data = git("show", SHA + ":" + item["path"])
+    digest = hashlib.sha256(data).hexdigest()
+    rows.append(
+        {
+            "path": item["path"],
+            "bytes": len(data),
+            "sha256": digest,
+            "git_blob": git("rev-parse", SHA + ":" + item["path"]).decode().strip(),
+            "match": len(data) == item["bytes"] and digest == item["sha256"],
+        }
+    )
+if not all(row["match"] for row in rows):
+    raise RuntimeError("Declared evidence byte custody mismatch")
+xml = {}
+for name in ["native.xml", "installed-child.xml"]:
+    xml_root = ET.fromstring(git("show", SHA + ":" + EP + name))
+    xml[name] = [
+        {
+            "name": case.get("name"),
+            "classname": case.get("classname"),
+            "outcome": "FAIL"
+            if case.find("failure") is not None
+            else "ERROR"
+            if case.find("error") is not None
+            else "SKIP"
+            if case.find("skipped") is not None
+            else "PASS",
+        }
+        for case in xml_root.iter("testcase")
+    ]
+if (
+    len(xml["native.xml"]) != 1
+    or len(xml["installed-child.xml"]) != 8
+    or any(row["outcome"] != "PASS" for cases in xml.values() for row in cases)
+):
+    raise RuntimeError("Actual separate XML case denominator mismatch")
+phases = [
+    json.loads(line)
+    for line in git("show", SHA + ":" + EP + "launcher.txt").decode().splitlines()
+    if line.startswith("{")
+]
+terminal = [phase for phase in phases if phase.get("phase") == "terminal"]
+if len(terminal) != 9 or any(
+    phase["exit"] != 0
+    or phase["source"]
+    != {"head": ROOT, "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e", "status": ""}
+    for phase in terminal
+):
+    raise RuntimeError("Actual complete phase/source boundary mismatch")
+profile = read(EP + "cohort-input-environment.json")
+child = read(EP + "installed-child-wrapper.json")
+origin = json.loads(
+    git("show", SHA + ":" + EP + "installed-child.txt").decode().splitlines()[0]
+)
+wheel = Path(origin["wheel"])
+if (
+    not wheel.exists()
+    or hashlib.sha256(wheel.read_bytes()).hexdigest() != origin["wheel_sha256"]
+):
+    raise RuntimeError("Actual local wheel artifact unavailable or changed")
+module_rows = []
+with zipfile.ZipFile(wheel) as archive:
+    for module in origin["modules"]:
+        data = archive.read(module["wheel_member"])
+        srcpath = "policy-engine/src/" + module["wheel_member"]
+        frozen = git("show", ROOT + ":" + srcpath)
+        installed = Path(module["origin"]).read_bytes()
+        if (
+            data != frozen
+            or data != installed
+            or hashlib.sha256(data).hexdigest() != module["sha256"]
+        ):
+            raise RuntimeError("Actual wheel/site/frozen source bytes diverged")
+        module_rows.append(
+            {
+                **module,
+                "root_ref": ROOT + ":" + srcpath,
+                "root_git_blob": git("rev-parse", ROOT + ":" + srcpath)
+                .decode()
+                .strip(),
+                "wheel_installed_root_bytes_equal": True,
+            }
+        )
+inputs = []
+for path in [
+    "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+    "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+    PREFIX + "current-installed-wheel-independent-evidence/launcher.py",
+]:
+    data = git("show", ROOT + ":" + path)
+    if data != git("show", "02b14aa0928fa32da6b46fa5169605d59e71d9ac:" + path):
+        raise RuntimeError("Whole frozen 02b input changed")
+    inputs.append(
+        {
+            "path": path,
+            "bytes": len(data),
+            "sha256": hashlib.sha256(data).hexdigest(),
+            "git_blob": git("rev-parse", ROOT + ":" + path).decode().strip(),
+            "root02b_byte_equal": True,
+        }
+    )
+if profile["E02_LA057_SOURCE_SHA"] != ROOT or len(profile) != 7:
+    raise RuntimeError("Actual complete source profile mismatch")
+result = {
+    "review": "Foreign DUR actual installed-wheel output/custody reconciliation; no reviewer build/native/gates",
+    "source": ROOT,
+    "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+    "author_handoff": SHA,
+    "all_declared_artifact_rows": rows,
+    "complete_artifact_count": len(rows),
+    "complete_artifact_bytes": sum(row["bytes"] for row in rows),
+    "actual_separate_case_rows": xml,
+    "actual_terminal_phase_rows": terminal,
+    "complete_literal_profile": profile,
+    "child_command": child["command"],
+    "actual_module_wheel_site_root_comparisons": module_rows,
+    "immutable02b_source_input_comparisons": inputs,
+    "local_wheel": {
+        "path": str(wheel),
+        "bytes": wheel.stat().st_size,
+        "sha256": origin["wheel_sha256"],
+        "availability": "Read locally at audit; rawwheel not in Git, G availability not established; exactsource/pinnedbuild profile retained.",
+    },
+    "native_root_ordinary_cohort": "UNRUN_BY_THIS_REVIEW",
+    "formal_closure_ids": [],
+    "verdict": "PASS bounded custody and finite installed consumer result, not all package imports/typing/optionaldeps/fullcohort/financial criteria.",
+}
+output = Path(sys.argv[1])
+output.write_text(json.dumps(result, indent=2) + "\n")
+print(
+    json.dumps(
+        {
+            "source": ROOT,
+            "artifacts": len(rows),
+            "bytes": sum(row["bytes"] for row in rows),
+            "outer": len(xml["native.xml"]),
+            "child": len(xml["installed-child.xml"]),
+            "phases": len(terminal),
+            "wheel_bytes": wheel.stat().st_size,
+            "module_bindings": len(module_rows),
+            "all_match": True,
+            "audit_sha256": hashlib.sha256(output.read_bytes()).hexdigest(),
+        }
+    )
+)

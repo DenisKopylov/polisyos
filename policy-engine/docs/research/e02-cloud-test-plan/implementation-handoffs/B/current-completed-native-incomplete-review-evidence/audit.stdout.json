@@ -1,0 +1,2020 @@
+{
+  "schema": "policyos.e02.completed_native_observation_review.v1",
+  "reviewer_operation": "Specific original JSON/XML/stdout/Git data reconciliation; no pytest, collection, generic 27-check parser, project imports, gates or reruns.",
+  "reviewer_environment": {
+    "python": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "cwd": "/workspace/e02-B-current-execution-state"
+  },
+  "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "target_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "source_before": {
+    "sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+    "branch": "refs/heads/codex/e02-B-current-coordination",
+    "tracked_status": ""
+  },
+  "source_after": {
+    "sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+    "branch": "refs/heads/codex/e02-B-current-coordination",
+    "tracked_status": ""
+  },
+  "input_objects": [
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.json",
+      "bytes": 2858,
+      "sha256": "128df0057719f39a62fc303c4c267fc04a1db4d34a1e67d2b49523bdef889d97",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-profile.json",
+      "bytes": 21086,
+      "sha256": "306f134d1c709a33b1e195f62775ce226fee61f9addeda95fbc3dd1151158f58",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-inventory.json",
+      "bytes": 4445184,
+      "sha256": "5904954da6fb919cf693d485fe665777b1f43cd5aa0419b244111a5ab93b46d4",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.txt",
+      "bytes": 172778,
+      "sha256": "2f1ccd3ec853f830617b714cd7041ac18f7ce6b22ed7c70cfe4ac90a4dbbc84b",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers.json",
+      "bytes": 2929,
+      "sha256": "d4ba231338db6d83de3829de20cd9592ec791596ea0f26651ba0e38d67b3cd43",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers-profile.json",
+      "bytes": 16353,
+      "sha256": "9f1559932776fcf0f215a15399b9f4329fc54a6bcd68aa2711a57523724fe9f1",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers-inventory.json",
+      "bytes": 9437835,
+      "sha256": "84d780ee59743bcafa9b5148fe4c028ec8ed98de71cc9791000b75ee4c646478",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers.txt",
+      "bytes": 1673745,
+      "sha256": "05ca33cf103234b77d78b37ce4f5731d5e14d14895bf2223a6b77e8df41e3b49",
+      "stable_during_read": true
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/whole-files.args",
+      "bytes": 14447,
+      "sha256": "e3658cfd86315cd27e62ab180a5a88604a6637754e559c78fbb1c4304274db8a",
+      "stable_during_read": true
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-affected-1862c021df74-bound/whole-files.args",
+      "bytes": 2917,
+      "sha256": "458d1f6100b18f667989312d72fc9f019a7e9b2d3a9cca2baff03202de01c973",
+      "stable_during_read": true
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-affected-1862c021df74-bound/native.xml",
+      "bytes": 151979,
+      "sha256": "e7952cf7c945b460e4511a526b0e38c4d9bc7bce54fe57c1e2c0ce1ad4d8c872",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-selector.json",
+      "bytes": 1450744,
+      "sha256": "738f7becb550dd7a39dcd549f303a588eee8542ab8d382373544a46f3d9b5cc3",
+      "stable_during_read": true
+    }
+  ],
+  "git_tree_read": {
+    "bytes": 2445241,
+    "sha256": "4a6fc1566d4ea52a6cc882eac2f5f2717f503352cb5638d91e09fe045777d25c"
+  },
+  "selected_file_source_identities": [
+    {
+      "path": "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+      "blob_oid": "82a92d8923e0db8ec8717b410f74cb42591e5451",
+      "bytes": 68820,
+      "sha256": "c94e36b922f539c2256eefe1ad653b2c99c9fc73895c598b05c8034cdaf3bea2"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/test_parallel_tier_compensation_oracle.py",
+      "blob_oid": "2d8fa0276a32ae2cc956443af834fbc18ee5861e",
+      "bytes": 12237,
+      "sha256": "6e51e94a9c352d2452e2c79b5ab71001cbf98f1d78154ac8e9e759e97144f4b7"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py",
+      "blob_oid": "71987b5a1f52c7ca8ddb4033b306d2d6fc0a6492",
+      "bytes": 39751,
+      "sha256": "38fa5c5a098c67a2fa8b30fcbfa90eb989177b817c5a66f81bfedc1aa64eb76d"
+    },
+    {
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "blob_oid": "4dd24b39596e86ff2292db550958f9f7d13729ae",
+      "bytes": 15730,
+      "sha256": "d93dbdd1b577c207e89520d2bfc2385fe738953743abab40bc75c1c24bbd7ca5"
+    },
+    {
+      "path": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+      "blob_oid": "7c8835f08c9d837e10af0274b3cf306b58acde94",
+      "bytes": 4870,
+      "sha256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py",
+      "blob_oid": "404f80fb7c7f1829bf167fce41e03f12585d284e",
+      "bytes": 34836,
+      "sha256": "df322346f50d545b2eb7049c7ff03f4827abe7282b7e8fdff2ab92fe513d1fe2"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+      "blob_oid": "acc98b33d6e5c8a5426615f273b8108c8257f9ea",
+      "bytes": 27917,
+      "sha256": "bcfa3165f4de79df0b39fbb147f3d2cb7873a56bcffd9c3d112abc223cf60af1"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+      "blob_oid": "cbd077fd37ddb1a2bf83b28b2d684614687187e0",
+      "bytes": 10082,
+      "sha256": "43c39a7064b161649c2a4cf65c1363ec4f2c02555f09523ebe47dc7a0ad36065"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_async_store.py",
+      "blob_oid": "31341a2c44d8a05f6013cb31a9d5bb0b8698b78f",
+      "bytes": 2279,
+      "sha256": "dda8d14da68846e8c2df061c18ee678d6efe0154959370b97e5473b7a037a2f4"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py",
+      "blob_oid": "c493db7680df69132ef36f14e951f001f0f993e9",
+      "bytes": 14133,
+      "sha256": "2ba68f1c9b0524ea648aef179ae63bdb20d6633571064d533282eadb51599503"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py",
+      "blob_oid": "aaec1f8f593fb1f63f36140d773ac14fe662b546",
+      "bytes": 2582,
+      "sha256": "2cf4a16829b342bd9b35a69fc28fcbfff845e3e8b56166d0a0cf207429038dda"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_cas_integrity_report.py",
+      "blob_oid": "678583397bb5375579dae6581d6ac381898d2965",
+      "bytes": 4638,
+      "sha256": "cb4bb3f5564bfc4e9e602466989e622e114e725f16c4488b12c9a051d0bf2aa4"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py",
+      "blob_oid": "facd74807e31c44f95cd13a657a001da5438f8e9",
+      "bytes": 14387,
+      "sha256": "44b8e5d352da4ada1cc4a66b9f824776e38582d28424c408474769a6c0bb14a3"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py",
+      "blob_oid": "526e6b07f3cdb250e5933b0bf3ee8bdcc921aa49",
+      "bytes": 10821,
+      "sha256": "4018de5c4c54c765ad77616a5f5da52e327aa86e995f80920c20f175b151b752"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_manifest_serialization_schema.py",
+      "blob_oid": "4f074ca831a13686135926c8fa35bf81656712e4",
+      "bytes": 5649,
+      "sha256": "c30f463f851085b56fade4aafa60d26de822062eb261e61297b1403bea41b466"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+      "blob_oid": "052d125e2b3c17497188ee5cfe096f4d13e4b709",
+      "bytes": 24787,
+      "sha256": "ea350b993f693b6421ea0bab58c01e0acbf6f6a7e7c8152c7c3043d856d7f3e4"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_put_consumer_oracle.py",
+      "blob_oid": "97190f48a671eec12e02cfe09c3ad153a462bb5f",
+      "bytes": 4011,
+      "sha256": "4c3ad9d5c7c2662b8e192570f54b13defd26beef7bda71bd378f2505b6157576"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_put_integrity_retry.py",
+      "blob_oid": "b334e3c6a9096672ace78aad280ae8e1877461aa",
+      "bytes": 5011,
+      "sha256": "1bb168058fbae8b00094c0cdec0f322bbfb5b9768ef4bafc0d5bc9f946327da7"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_signed_evidence.py",
+      "blob_oid": "c72691a8abb71cdb98aab15bd184c3d8ed5319e3",
+      "bytes": 7305,
+      "sha256": "08a2fc52ab0eebe5b3d1b465663ba566d6f59ceff81e545f867adce1157b0b3e"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+      "blob_oid": "0576973cf69602c48acae759d4fc2c8769b9994f",
+      "bytes": 7246,
+      "sha256": "058fd8c5f7c117a189b9cd86c6e369339c561e5bb38f9cb904d1257a07c9d6cd"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py",
+      "blob_oid": "b1d912b4d742d635194a6876e3a612eb86f28205",
+      "bytes": 23917,
+      "sha256": "8996cc5b02bf74aeda4d1ec36adb30cdf14bd9030c242f3425baad678b23d861"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+      "blob_oid": "e39b376a65f7cd194b439c9695da44f3a056b5e6",
+      "bytes": 9989,
+      "sha256": "16f2ac386885257997a58d97fabc78fe632c328fa6bca2780fcb35825c95fb32"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_verification_snapshot_report.py",
+      "blob_oid": "a90abb5ec4a65745be7ff82b362e151d9917a287",
+      "bytes": 5578,
+      "sha256": "d6ff2c719331efdb453b9051ff6c75c6cf3e3c67276cd7eb488f8476a0569dcc"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_artifact_export_import.py",
+      "blob_oid": "58a730654c652e68815752b9f776b9066681e3a6",
+      "bytes": 1412,
+      "sha256": "c98392b794ec39606f137b17f24379cf1c165072936c2b8b7948cdefbad7c30b"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_artifact_graph.py",
+      "blob_oid": "8c52bac732da9cbec4b1783fdc72ada19b86d7bf",
+      "bytes": 2913,
+      "sha256": "cb720254abc71c32771a848948b69f88a87711b0d0e8a4996e4483fe5fa4c86b"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_artifact_store.py",
+      "blob_oid": "5fbd693e74b17a161c7d8f4de616c2faa63c0a5f",
+      "bytes": 7257,
+      "sha256": "3c610fbed5e7c7f416b0eb9ebf0220cc2e5495452e24728ca658a5532b3cae7b"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_audit_export_verify.py",
+      "blob_oid": "d0222b65f990e1ae7a10c844bf32b056a83a1fba",
+      "bytes": 5833,
+      "sha256": "fce5b4e0c6cd7aecb12248008b7a0447322839841845a36c94abdb895858f5a7"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_audit_manifest_compat.py",
+      "blob_oid": "0cdd2a1394ab4c2fb9f680e44cd7d0793eea9c02",
+      "bytes": 4728,
+      "sha256": "88d318dce390fdcb7e7233da897bfa0c1881cf6bc581d9aa34d2d667dfdcfff1"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_canon_json.py",
+      "blob_oid": "4f17806692164a475bbef1d8a5e6c076e50750c6",
+      "bytes": 1457,
+      "sha256": "19dd0144c4ff594513cbe0aa45f3eeef03065a3c4f97970ee3b8b818a3e6fad8"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_cli.py",
+      "blob_oid": "fbef4db94912b1658f2056cc81063a7492748a10",
+      "bytes": 9895,
+      "sha256": "f57a9689060a90643bd1b61e060307ad177ff0270244e05ff50f84ddbeae5692"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_cli_resume.py",
+      "blob_oid": "6a9e33cdc3cedaf59c54c5d1dd99587d6ef35ed7",
+      "bytes": 2466,
+      "sha256": "8dbd60ab636b667c41c682262feb06fd8e7a225f955f6e02d82374c75200a357"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_cli_signing.py",
+      "blob_oid": "0cc9baedb0d22cfe0c0faf87a76140783e066ff7",
+      "bytes": 4595,
+      "sha256": "414daba848a4814c1f65ef02318efc74b326191a96abad028939fc0cda69fcd7"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_decorators.py",
+      "blob_oid": "2c408a3c84ccdbb65c1ac5617aea759ad101c22e",
+      "bytes": 5714,
+      "sha256": "d633cb5896bd84fc3bfdc9a620e2d5946cb14e78307009534b98b0001ca8a008"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_environment_manifest.py",
+      "blob_oid": "bcaef2d90ca74b8902c1b309aa984cfea57bc3dd",
+      "bytes": 13363,
+      "sha256": "ecb42584e3d65a16035ef80545e154b183225f6b9c60195619ed5a807def7588"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_logs.py",
+      "blob_oid": "e25f260a61c59c616fc932b95fd0d078315f0a65",
+      "bytes": 1627,
+      "sha256": "f9eb4cd7d76bfbed26479679c4028a83815965fe51728f8eb0e74ed0eac541c6"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_metric_validation_cli.py",
+      "blob_oid": "eb94317b0e15512a7bf4d41b79dfe58f1370d313",
+      "bytes": 1956,
+      "sha256": "0d6e2be569e39255390fa6fdf9d7948108a865e5c2219c28eb3e7597329f4a02"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_metrics.py",
+      "blob_oid": "bca79543cfdb7d33e9182f7a6c5d32209c2e8b82",
+      "bytes": 4697,
+      "sha256": "f9c5559c3a1869295d28a331f827e905cd136d17e2b6611c056e4a793338ea90"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_observability.py",
+      "blob_oid": "80611c68e9c01d6077d6b625b7626a8f09936be6",
+      "bytes": 2893,
+      "sha256": "9d3bab9129aff33cc2ddd5161972c56e6c11997fbcf05316bbc2e447b8086ca0"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_phase0_quality_validation_contract.py",
+      "blob_oid": "de07a2404f562aa31e5bd5fb3d5bcd9c1ba5bdbf",
+      "bytes": 1218,
+      "sha256": "e2c59f50e1de9dcfe5d4e4436dae0f483b762595b82e9cca84d1483786f35541"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_propagation.py",
+      "blob_oid": "b7db45a54985dd0d2b5ebb6237d06f8cd761d0f4",
+      "bytes": 3844,
+      "sha256": "30456b263fc3bf4ae9731ae8ad1f7c96d216ccef6c0de56af45386bbb7fd9c02"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_provenance_contract_shims.py",
+      "blob_oid": "8810b7bc827d5c25077784f42547ba1f1db4a03f",
+      "bytes": 2304,
+      "sha256": "6bbe79b75c96fb2dc55afe5e3e65a4caca13923fa7671af19b1761d332d0fb4c"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_registry_bundle.py",
+      "blob_oid": "0e0b6855493a4cdeb76ed1e10fcd71eeb8d911ea",
+      "bytes": 4824,
+      "sha256": "e58f4611a289e00d773f2f106137916e9311162fd789991281778d7f59b06ae5"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_run_context.py",
+      "blob_oid": "b4ae73f43b3dcd5fe69616ca69f0005af4166163",
+      "bytes": 4314,
+      "sha256": "ba2e51668cccb71a0156ff912ff10d554f7383cc8dd72d6062f6183240a6d065"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_signing.py",
+      "blob_oid": "f7a3fca5f3f158c6e91a275781e51fc5afc4e05a",
+      "bytes": 6894,
+      "sha256": "4af98942b89206f63cea7fa3e27ece121bdafcea179b1cc957cf4befe8c97973"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_store_signing.py",
+      "blob_oid": "2b49dbe9b27796a4aacce3369be5c2f4c5bbb288",
+      "bytes": 14325,
+      "sha256": "21d210a1d4b9493e3400f64b109e5f820821495c298dfbe3f3017a17bd3abf34"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_tracer.py",
+      "blob_oid": "3937eb4de4a70bbfa7c8924e54e2eba8ff47a96d",
+      "bytes": 5970,
+      "sha256": "74bb2650bb6bb65b3b5db3927d84f7686efa372a16830b29de91149541310611"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_workspace_commands.py",
+      "blob_oid": "6cb6874669c6936fe1d0244db7e444d875b68961",
+      "bytes": 2918,
+      "sha256": "36ca54ffb2b3eb1ee0b72c3a07cb646a63382da720b4a9ef04ce7d800430756f"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_worktree_admission.py",
+      "blob_oid": "754c5bcde98638fbbf9b059403b911c6406eece3",
+      "bytes": 8532,
+      "sha256": "2fc4c2c48505c8465d10cfbc44f99ea24dc03b6ef958a2af03d920fa3d8108fc"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/test_llm_core.py",
+      "blob_oid": "5caa00dce0908c19487a9eb7f9330f4788b039b4",
+      "bytes": 1942,
+      "sha256": "5de4046006fb35942a30eb161d7e403d6eceee7067c22deae8bbec1972c5da5d"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py",
+      "blob_oid": "0922937870da384a786879530f3ebe8ed1703d17",
+      "bytes": 36569,
+      "sha256": "c6fff84f61ab2ce019988e09c97f86afa57db36291f4e0282d26be17a3d631a2"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py",
+      "blob_oid": "477268cb87a178c6d246a750f8acdbb89ab55491",
+      "bytes": 10635,
+      "sha256": "a9ec798fc3e2e36c2e99c171526c3fa7a00027947f3f8776513de8b717bb11bf"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+      "blob_oid": "493824803dc6dc869c1c5dd6511c72dee59d080f",
+      "bytes": 63686,
+      "sha256": "f37a87d195dbf8a09d8d98d9f8307c9ea4026d562797c9e8846c4220cfa2b598"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+      "blob_oid": "4907e921e867a383243c6380b5ca682c435fedc6",
+      "bytes": 29464,
+      "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+      "blob_oid": "76c81fa6a75eb11587b6012c7eb239cd9f6d7fd4",
+      "bytes": 6312,
+      "sha256": "20d6d959e58d65e676945766f3be4ceb32c5c5bc5d134659138e55c64a813049"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+      "blob_oid": "7ddc6b5bbe7b09c8db0ccaecf75852d9cee252a7",
+      "bytes": 8699,
+      "sha256": "e1d4fca7abf7934f38bd789c5dcb6c4a461ba59a4e65a731bdff9104630e512d"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+      "blob_oid": "37513f22c75e7bc07904751292eb05dae8c8aeb8",
+      "bytes": 12269,
+      "sha256": "57a93345d81860b0de51fcd4fc494c82f7b4f2ef845f9253659b6e41d54bc6f9"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "blob_oid": "d7913c3de3ba60d96f5ad7f66e70311641e95633",
+      "bytes": 100684,
+      "sha256": "e5c13242e9ccd2779217102c656899f04729c4c78eaceda0a4b3e854257ad7a7"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py",
+      "blob_oid": "6a0bbc0b70b2117164c945353a19e477f8092234",
+      "bytes": 12574,
+      "sha256": "44ab7e31733758219627e35d32facd9fb7bb7ee3e8cac30aa995334a6e42421f"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+      "blob_oid": "d8bb99fae74536357d07565b9aff87a7f25e7eee",
+      "bytes": 10318,
+      "sha256": "07057da879f17797318fd14b7bc1f2bd3a1645d12cfa873e4ac71b1f2a149c00"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+      "blob_oid": "c4752a53c232c4e57a10433a48a7d0959a60732f",
+      "bytes": 33264,
+      "sha256": "23f3a815adb38d2b18ef9f68b320300788941a45e4d32bac2e9e2cfe734d13fd"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "blob_oid": "b91a1d1c70e92202cf6ccbafaeb98f307cae4e00",
+      "bytes": 13742,
+      "sha256": "025f395d25306b5a94d392489d1eea5ed9a1a0649cc0b28607b860b8d259385f"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+      "blob_oid": "0044d1a55c5f41011f32af3747c4e966b6ee1160",
+      "bytes": 30912,
+      "sha256": "70818a2e1b8c4e94f930823693ef7f0d232ff7c92f987decbf97d0c39ef18449"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/components/test_composition_e02.py",
+      "blob_oid": "692cd62434e11f8e26ee94010914b27bb7bc3e27",
+      "bytes": 12213,
+      "sha256": "059bde6f9f3550b2f77f82039cf4d258cdac28262c2b53d092228d4cdfea91cc"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_artifacts.py",
+      "blob_oid": "20064d3a57890f8f5d9d38cb37c394c2e598f8a7",
+      "bytes": 25712,
+      "sha256": "a71b81fcbfa54e81a8188ebcdcd5e4bd12b765c510949b14dc35ec4d7eeb1f2b"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py",
+      "blob_oid": "33647137a89f9d34062c7c277430a320024b7e2f",
+      "bytes": 22499,
+      "sha256": "46eefd6f29e0b417e96e746e4d0c0ac1ef8dffe6715b9361aa1b49284f75664c"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_compiler.py",
+      "blob_oid": "a1057ad067999a25584957a43543c33f03b39b5e",
+      "bytes": 34246,
+      "sha256": "a015d14b41eb7bce0ab0b9ed96e79663be29e71aebd1f19f1f7801e646a5805f"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_compiler_e02.py",
+      "blob_oid": "49988f85109b71f11448468ef0738c5cf5e52b65",
+      "bytes": 11608,
+      "sha256": "75673416c70a2f82ca72194c015a8a1c1e5d0372ffeeb103c4658667121ba462"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_compiler_leader_termination_e02.py",
+      "blob_oid": "ec5f7966da694988f965d3c50b9ba98baef284b8",
+      "bytes": 8277,
+      "sha256": "75afc999a46ea3e4697b79dbecbe0678e4946cd89e360754543a32a0ea15812f"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_composer.py",
+      "blob_oid": "2081b0f03f530823ad022ba6becd112742016206",
+      "bytes": 17844,
+      "sha256": "0aa58ad4447e7a35b2512dae8056c01e0ff9151bcabb82879b74c0a37da9a926"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_composer_hardening.py",
+      "blob_oid": "ed7426de7b8907cab990582aac712ee612e247dd",
+      "bytes": 9243,
+      "sha256": "88a67c39f5a8fa57f4c9a1c5c552321fbcfe5235370776f3b3eeace0cacffa56"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_linker.py",
+      "blob_oid": "62475f6d4eb7241852dc7770fd0a4c09ff5573c4",
+      "bytes": 30180,
+      "sha256": "3443e856ba52a04e0d2c84b80380b525acded1595e88b3642bf3c9b11f0c4efb"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_semantic_validator.py",
+      "blob_oid": "62a959c724e080098ea0f10878078821ec3ad05e",
+      "bytes": 9850,
+      "sha256": "8f3d3313aeb8f6b8ddcee0f94e0bbc922439c16b49586b1d810a48169ec22934"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/mirror_contracts/test_specialization.py",
+      "blob_oid": "63c0939a2a130d132ff8f4bf5ab23998af037ecc",
+      "bytes": 229,
+      "sha256": "0884c5e5608e78172083c7577a3b57609796cb4076451d58b0adebbb41fda3ef"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+      "blob_oid": "9b9898162c7f32190af9b17be8a4706b57c5782f",
+      "bytes": 48119,
+      "sha256": "2f5e579c9522fac98b8b1e727a12f3b3f3ab89fab6dd2827fd44d67bce8d94df"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_cas_02.py",
+      "blob_oid": "8253c577d0e953318de826e7fa6c1a8c8da381d1",
+      "bytes": 24197,
+      "sha256": "d64c46bb4055cb6cd65fcff05067ef6c89941b5af316a63931088fbebaa98771"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_cas_03.py",
+      "blob_oid": "7f72aa0992ef443b4faf042b20214745df58230b",
+      "bytes": 31421,
+      "sha256": "19636b58cf687da7ec3eb9c3ded9ef9cb0ed6c24f0b3bcb6aa10e31eda9db9b9"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+      "blob_oid": "3333ec1f3d826b1c37120bc9ee72540f15666cc8",
+      "bytes": 9897,
+      "sha256": "1430274f7228fccb77a5c29832d31d65b30e22740f9b622ef6553f63efe59a16"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_cmp_02.py",
+      "blob_oid": "76a129359a6411a929b739e7bffb89b4312de081",
+      "bytes": 9386,
+      "sha256": "368417feeb5bd2a64280de1a3e1d6071356c886e412209a4675062532974d74e"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_cmp_03.py",
+      "blob_oid": "068de90a8210a766980418685ea8bf6a8fa44fa5",
+      "bytes": 8449,
+      "sha256": "79b396b1c7766377baf471c51b215a921409fbaa4541685073a25be215967f4a"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dur_02.py",
+      "blob_oid": "83c37356e6d694fc0960e272332660431712ec6a",
+      "bytes": 8596,
+      "sha256": "22aa14c0d4e8a3ad6c0bcc0ae1101bfeff551f2fb69c89610507cf80210449a8"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dur_02_process.py",
+      "blob_oid": "74c4e396a1732ccc1524a7ea47498a46ab536272",
+      "bytes": 27256,
+      "sha256": "35f48eb3182363408dbb02e4c57b4cdb01b37b6f6df4391f3753bdf975426b48"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_exe_02.py",
+      "blob_oid": "06770a8df67aeb9d4e0b35d6bc0bbb91503c9898",
+      "bytes": 11319,
+      "sha256": "34a2a44040561fd7af9b03de765f5accb3fc6726f4c1e74e47821afa483a7104"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_jit_01.py",
+      "blob_oid": "6a7d2e6ee8b1fc0991e6fd1c543c2caed4bb887c",
+      "bytes": 24311,
+      "sha256": "c7e68d8b29bd4d61b7cd5ec9c1e3b49c42cf410d38c456730171d63d0c6daa0a"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "blob_oid": "2c9e1ab1ed6b897cc2d20ad6c4f0f517359a6b50",
+      "bytes": 8263,
+      "sha256": "b247897d69ec0c990aeb94700db0d471a46890e77ea6f181190e3eaa40d7b5de"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_res_01.py",
+      "blob_oid": "11fbc98d4b286d33ab4c7c3ba29839831cde1f6a",
+      "bytes": 17834,
+      "sha256": "e8913b401a0101c2301671962e876c97e86afed696536407f0c86e8c2acec93b"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_res_02.py",
+      "blob_oid": "3ebec124bf38ea64bf20465cff44501795281fe2",
+      "bytes": 14175,
+      "sha256": "1a8d8c7d305fe66bd8fcf261ec7423be61b37df27354e752152b001ef729d0aa"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_res_03.py",
+      "blob_oid": "9efa44360eeace88d68a87103f287458eae25fef",
+      "bytes": 8082,
+      "sha256": "8a53733d6ecfb84e68eb222c99926c0794b28d33b61c947ca97a3bf0b965e32d"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "blob_oid": "df6bf688421a390dc18ef153116c0808b5585710",
+      "bytes": 15865,
+      "sha256": "d6ea1299420903c72a42e8c6b07b506ed6aaa1dc5d0366a7bcdf144aec4838b0"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_run_03.py",
+      "blob_oid": "5d6621a7a4ef47b2d7451ef268e5a12f9d961421",
+      "bytes": 14399,
+      "sha256": "037753a3c4200bef8492b65e7e0ee0a96dd1aa09940e1e6e6b8e5b798ead835c"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_wire_01.py",
+      "blob_oid": "6f5458b393840e4ccb94d32b89759d7b4aa7a551",
+      "bytes": 12091,
+      "sha256": "20a9f68b15462ca6e20a2ffa602828a1b64354a2457f2cc18cb8fed70430e507"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/services/test__control_contracts.py",
+      "blob_oid": "67350a217036a44919a9621ca088e5c2e8ebf617",
+      "bytes": 2276,
+      "sha256": "f94ea8ab38e5469afc2841579c875f9946464b0ae4604117d1e0afc8ec7e010c"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/services/test_evaluation_safety.py",
+      "blob_oid": "9483998d874993edd7654e13d602ca74e9be6dc0",
+      "bytes": 109346,
+      "sha256": "f56f1239f79fbc3c22d9fea856df05adf00bc9006e48c3b445c450c82a4c6ffd"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/services/test_lex_pipeline.py",
+      "blob_oid": "f94bc60ea6a498d4414281e8bfd6f178bbf2de2e",
+      "bytes": 6820,
+      "sha256": "683d1bd786c70cd3c453906e89926153ebbe6a7dd6c2e3049b5896d4d30b151f"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_acquisition_admission_artifact_facade.py",
+      "blob_oid": "0df30c73f84a178a923ddc87135422643de6acf9",
+      "bytes": 1487,
+      "sha256": "e8ee45cde911b5bd084b64d4079367d05d66ad5c4525caa6e2baa474c80dbdb9"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_acquisition_authority_deployment.py",
+      "blob_oid": "4759b59c01e7a7f0bbb0e377a838a2092d11fe9a",
+      "bytes": 1718,
+      "sha256": "362dc8dd742e8b104caefef6806e1ff4e721e1e9fe4a566cfe7a7c1b4820b231"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_acquisition_control_worker.py",
+      "blob_oid": "d08e7c60b532c1b73a89ad494d35069e03f316ee",
+      "bytes": 26310,
+      "sha256": "355725bf89b01e23ecc1ee44509d46b38a7b3c4069c0ede1e2c926c2a9ff160d"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_acquisition_human_source.py",
+      "blob_oid": "98ffd14e00088110fbf31d8937059b8a29e6536d",
+      "bytes": 6700,
+      "sha256": "7381651a41fa15e4a7d57c1dd0738088fcd012b3607086cd820b6e00e996376d"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_acquisition_route_authority_sink.py",
+      "blob_oid": "aea3f6e30b35ae401d8a6f8bdbd57ea070fd8367",
+      "bytes": 11686,
+      "sha256": "9dbe70cb185806fe3d41cae16a7853a8d22308f08acbc18346d6f3a72bd614d5"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_acquisition_routes_api.py",
+      "blob_oid": "a339fe411a544f42f1dbc0eaf41917cce3f5d1ff",
+      "bytes": 2446,
+      "sha256": "506eaab840bf6018705f0a94bbdb87956f9c88bc58a07ce1899a46ce1c2c4f1d"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_acquisition_surface_projection.py",
+      "blob_oid": "c081c80defa7ed751c5352da636cef2683782f1e",
+      "bytes": 6468,
+      "sha256": "2452885a8cff7f8beaf3ea9f79091df167e3d311ba71905a579a8d08f5f0f8e4"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_analysis_api.py",
+      "blob_oid": "3eb55dbcc2159527448cee2117cc6c12b1041d62",
+      "bytes": 3717,
+      "sha256": "fb11e25613eea5ff5645fe707ebe7417f131ee9d54cb51b4fbb7091577feb0ef"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_api_maturity.py",
+      "blob_oid": "518e23e8a5accdfbd152b7fea27f617feda577ce",
+      "bytes": 10135,
+      "sha256": "60ffdd080d946190d9e3dd3dd5e8a95a95014ca13baf1877ee025224d1ad885f"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_architecture_boundaries.py",
+      "blob_oid": "6fa7ecb213372844ff33412d7e71589035e1d545",
+      "bytes": 18604,
+      "sha256": "daf21462d1bc91fc9096fb5fd6417ea82cb6bf0a3796ae0e7aa0c5da1c9362c2"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_artifact_inspector_api.py",
+      "blob_oid": "0f696ce5ece3a35eefc338828cf17a845969b44f",
+      "bytes": 6896,
+      "sha256": "07a51f2e2090ef2a1c52be5152dfbea6dc7a4f284cbd2c20ec888a7fb7cb5a0d"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_artifact_inspector_service.py",
+      "blob_oid": "fe21ce01d9f34e7f969c3938d1fe3ee243516d10",
+      "bytes": 3278,
+      "sha256": "4e9bdfca57f295a6dd7bdada1f99fd52bb5dcbe55ba88c56f203abed678d2dd9"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_artifact_surface_safety.py",
+      "blob_oid": "ddc51f458a23ed2da65e9ad57a729c0252687ce8",
+      "bytes": 8071,
+      "sha256": "5e95df05377ea7699cb3500ca861bee525d5480cd2ac8b331d70f301dc4f5aad"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_auth_api.py",
+      "blob_oid": "b5830d58bcdc22d9be2cd78819c730550a40f314",
+      "bytes": 709,
+      "sha256": "272535232c7dbfed16e7f03f63b1f4bef88b5bbf6c5f608dd860198b9bf792fe"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_authority_values.py",
+      "blob_oid": "8794a455273c38c0d70e676f23e4a57b9eaa4253",
+      "bytes": 6978,
+      "sha256": "e8c53cb5d64521f588dc62c14d8f4d87c5aae5b662dd8ffe4cbb1b2be038a691"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_authorization_audience_denials.py",
+      "blob_oid": "0e7b820f5bb42f8e5095ce1488e267add6eeb923",
+      "bytes": 5820,
+      "sha256": "3cf7160a1a05fc05a4dd116cb8a65184ca279f08fc0a94654b0a2c3b168ee315"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_b88_served_replay.py",
+      "blob_oid": "c5f8ea5baacb18bda96ea41925c69b554c3b890d",
+      "bytes": 20807,
+      "sha256": "bfe28ba23ea2e047e9e22fb11fe85b9531d6b2d9b8c5d20d57c24171d8fb6d3e"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_bureaucratic_rendering_api.py",
+      "blob_oid": "4c2d53f91cb829ad3e25b6406ed7c406f1a91092",
+      "bytes": 9337,
+      "sha256": "4c8e036b418a6883943ae0f09347da30410fcc1a9a69d2a91aff2110ae6cf5ef"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_capability_discovery_api.py",
+      "blob_oid": "ad843625970cdc6f8bd81337688970d18c925e6a",
+      "bytes": 17426,
+      "sha256": "13e18cd08d192452c89642cf91188d3ad3bbeb4021b23d4fac4304defd04daef"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_case_inspection_api.py",
+      "blob_oid": "e41795c24990bee02ced6d10adcff016642e0822",
+      "bytes": 6638,
+      "sha256": "516588ccadc313e797f74a0abd6ce5973b956393c40b1f034d09301338f6c021"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_confidence_ledger_risk_spend_api.py",
+      "blob_oid": "63049ece3df7d33c9d192c84704fb2517e9e3b22",
+      "bytes": 9101,
+      "sha256": "a0fb38676b8811f36fe5189276f5b00b3fae668068a6bad09ddcbe54378f3863"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_confidence_ledger_risk_spend_contracts.py",
+      "blob_oid": "a72979bf07bcf61ae42215e860f3b1c205457aa2",
+      "bytes": 8790,
+      "sha256": "17253abbc71403bf94b38b54efbcf09042185f78a5a89da3c07689a3eb3a601f"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_confidence_ledger_risk_spend_projection.py",
+      "blob_oid": "fe361701722197da3903999a8834ef6bdb7468d4",
+      "bytes": 18382,
+      "sha256": "0b4e6f970f69fc65311338bb193c2738c714c0eaed5c01ebaa73e5fba8a19052"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_api.py",
+      "blob_oid": "221d2d3f842b96829d04e2967dc0c24c2b0ed9b2",
+      "bytes": 100312,
+      "sha256": "2640fda5cc310bb74673467aa4ccff927d619708c22fa43a1767eeb48428750b"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_hardening.py",
+      "blob_oid": "3f577a07a236531d8fa945a2c160cbdd05a895d9",
+      "bytes": 5627,
+      "sha256": "eaa3f63b8b00bafa1daa03632f3fd64726b4feda374fa7aa874080a67cd8457c"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_import_boundary.py",
+      "blob_oid": "8c742886a2fa6a00eb43c7a77f974305a7b047b3",
+      "bytes": 6371,
+      "sha256": "610ca47afd947029bd0542ec87fff391e3bc75e0c62c711d9513f78fb4b40e5a"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_job_core_attempts.py",
+      "blob_oid": "769eb109f143686969a5f4020a6a2aab9de3b2f1",
+      "bytes": 15099,
+      "sha256": "c70dc1726c2a5de6f92a99e188752a019cd713a77c2e26edda5e2c8d6ccfd2ba"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_job_execution_intent.py",
+      "blob_oid": "099e425235d7bf5d6b2ab978c6126d4f156b1785",
+      "bytes": 75617,
+      "sha256": "765ecc3270c338e3a7753e02836f5bbfd4ad8ce28642eb3fedadf1a5453598ea"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "blob_oid": "29ffd7803891e5df9e6b2e97fc8f0776e40c4334",
+      "bytes": 81515,
+      "sha256": "a21c740a7c4c038e3fbc1af90a45dd69d09710461a5c4ecb2cef601afb79cdb0"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "blob_oid": "02894c6370a3533ab97043fc6eba8cb4bce697b0",
+      "bytes": 123424,
+      "sha256": "01278a3cecfc6d3ca20dca7c10b817adf16847cf1ed5c5d28e47d87fd5d3b821"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_worker_custody.py",
+      "blob_oid": "452ad48589bc8617c7741209d7d447e956d5a8f3",
+      "bytes": 3674,
+      "sha256": "9ad4a994b2d10486608d23a9f4a7ac2e6b1e6f26327fdb7cc9ad19d7259920c8"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_worker_maintenance.py",
+      "blob_oid": "ce8b35a309f9aa0634afc5d304923098cb4540d4",
+      "bytes": 1029,
+      "sha256": "6bb1c109d248d3517764e9d734bc040c048917614f1b995b40ed27ea21fe4fbc"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+      "blob_oid": "0993916d9cc5b7db21170147af8c3c3a5614fac2",
+      "bytes": 16407,
+      "sha256": "45b86848e80180bd702988e9c712d2eedd9eafe4faeb315949e4f7549ec06f80"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_core_only_runs_api.py",
+      "blob_oid": "d2858a86632cbb1e080aae9c544ae26a7e6b214c",
+      "bytes": 830,
+      "sha256": "c0fb4a4c1b88a86234f21ab283543412177aedebd0807bf476e0adc776966b81"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_curated_dir_resolution.py",
+      "blob_oid": "4e6c9f2cea4cbc5fee98a23300b99844c20e55c3",
+      "bytes": 2900,
+      "sha256": "e003eabde695617be0c0c97f7e42a2f2c77ca9f3e8692f46eda24339d3611900"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_cycle_board_historical_availability.py",
+      "blob_oid": "31281411880477223c89ab2720e361f09e92a998",
+      "bytes": 6961,
+      "sha256": "ee24bafb5e07f874e8f827964d49deae04ecc98734a663605e91123a3537f32c"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_cycle_board_movement.py",
+      "blob_oid": "ee162cd599417bf9b93b330dd4366bfcab0940fb",
+      "bytes": 2088,
+      "sha256": "1761a1ec65ad039c65661e3b46a8a35a5e8563b77eea9ad6af860377ae14dd6b"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_cycle_board_projection_access_replay.py",
+      "blob_oid": "7937c6fffe0753fa3355ecb62187f6b1b7599494",
+      "bytes": 3848,
+      "sha256": "3dedb4f0a08763a48ae6dd891e68b686db4488e22e9a388d617109faafd38f83"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_cycle_board_projection_fact_algebra.py",
+      "blob_oid": "8a27b8ab4ee6a8b89f99a7fa2fb917392c464ddf",
+      "bytes": 6314,
+      "sha256": "2cc6c0217ca58be23d6cab136714883cbb9f17159c05f31c549f0e9b6cf1e73e"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_cycle_board_projection_fact_owners.py",
+      "blob_oid": "33c4cd03e00a0ad65518ab3b8b14f376a8f512b5",
+      "bytes": 6065,
+      "sha256": "dfaa94c6bf30f462d6d6119be5fc9f19d17e3b7c849601885cb3080efdbe85f0"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_cycle_board_projection_loading.py",
+      "blob_oid": "e76a6dd5edd123629d40db6e6d11844bbd9a7650",
+      "bytes": 7984,
+      "sha256": "64858691046ed97ad3474a8f6bfb3d3b035f6e2eec4d1d38124ed2e1f973867d"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_cycle_board_projection_service.py",
+      "blob_oid": "ccb0e57593ae9f7922d4c41a73c40395f6c71256",
+      "bytes": 32783,
+      "sha256": "06f91e7855619ad4cfa002ea5ead5c0c757b714f0c6a9776ffdb229d6d1446fd"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py",
+      "blob_oid": "4a7ef948a768332732a55b36f1d864af9d9269f0",
+      "bytes": 32652,
+      "sha256": "797b8e4a5bbec0af46a04b1346376c2e62f42b3ada0b00daea467fb1bc536a3a"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_debug_api.py",
+      "blob_oid": "8cfa65cbb36a04dacbf8dcceef008df0021fbf5c",
+      "bytes": 3611,
+      "sha256": "2d5b72204a35df4ef2801aed793bdb6c0c4c6cc483e830807a779296b1efe658"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_decision_validity_api.py",
+      "blob_oid": "995d08e304f5b9d7649a367bdffb1676686ad140",
+      "bytes": 37372,
+      "sha256": "dc621de07ab9e3915ab8e7b67ea7ab0cdf9afdbd6769bcb3993a04e7df9e62a7"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_depth_n_route_projection_artifact.py",
+      "blob_oid": "19a363a0fdc344ff224a413c8a982bd8d8015811",
+      "bytes": 5136,
+      "sha256": "48d966e5e4071586020a0db68c8446b5789824a3ddfac9c17a71eb6ccbd0cf91"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_ds20_authorization_binding_followups.py",
+      "blob_oid": "4eb0099b7bd4ded6c231f2bc9639a0d4c0108b5b",
+      "bytes": 5113,
+      "sha256": "9c07b3bc6ac95d77145037dce595f115ff872fc8c027d7e375d46ab55fc5ef60"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_ds20_seeded_negatives.py",
+      "blob_oid": "7a0aa657f147d68b4ab550cf00b3a836902ee6fd",
+      "bytes": 8277,
+      "sha256": "5d952d3ef51c005842f29f2bb5a3954e6f4ec07b8f80a070ee6123a0e3b67349"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_e2e_ingestion.py",
+      "blob_oid": "667956e458397d4211c3d2c71e0fb5f82bc7da54",
+      "bytes": 10130,
+      "sha256": "7097f8b11672df057cfbffad7a98f720307f26e1353ba26b832ed6a05cea020a"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_epoch_custody_container.py",
+      "blob_oid": "b552e42c85fb894631255e64c57d25d41941f686",
+      "bytes": 520,
+      "sha256": "cdd8e85046c71b633cb3908bbcb58c8ef93556ebd950bd53e691ad6837b6ee68"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_epoch_issuance_composition.py",
+      "blob_oid": "6bdc31c03e0f346c062683b7f83eb3d149592c72",
+      "bytes": 4828,
+      "sha256": "a9162845e05ec0f0a69abe700a5c99fdcd4d066c7ac845b7d0027a2d7a226d04"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_error_semantics.py",
+      "blob_oid": "74760e0d8e1cc60eb0ed860f90ee88c0179677ef",
+      "bytes": 3672,
+      "sha256": "c33cc82642f2b82d3c4f25f8d211a614d4fcdef9384cf894267721c00aa4e1cd"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_fabric_integration_routes.py",
+      "blob_oid": "ee2432d57db2e39beb83c07a8d954f746ef89033",
+      "bytes": 3325,
+      "sha256": "c7411536b62f2398226b33ab7da996679ff13a21a00603497f706c257fd7736f"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_fixture_runtime_api_loader.py",
+      "blob_oid": "07341bfa618d8f0311ad14d216cd6ec409c0dc08",
+      "bytes": 1604,
+      "sha256": "0093b25d98e5ab27116426245dc8379f1dfdbb05b2753d0d1ab2fce5e06e6a57"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_governed_projection_api.py",
+      "blob_oid": "14e2ed8ba633f5b14d4cb3f78529575a9ed14247",
+      "bytes": 16209,
+      "sha256": "675c94d2b5271f330bdc78eba68f0d0a86ca20b39ada24394d6839eb4bfa257d"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_governed_projection_service.py",
+      "blob_oid": "484827e02333a3f38b9199c6838f310b524057e4",
+      "bytes": 75433,
+      "sha256": "57d2070fb7a794803e5b3fc291c630c5f8e17cd3627be88278390aef858ca099"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_governed_projection_validation_worker.py",
+      "blob_oid": "e21a71650c4db69000cb8b3ad7d5f0d0f72f16b0",
+      "bytes": 28246,
+      "sha256": "ccf4e4c7adff4832667417254674499cc4a2c023d96d136fc12e8a73462935c0"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_human_decision_api.py",
+      "blob_oid": "96f79bcf53b58ba2023d4997975a4e9c74788420",
+      "bytes": 4174,
+      "sha256": "a78ce52aad1f1a043e3c47b6625e9e3d4f2219b9d597823f318e755852d22220"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_human_decision_guarded_custody.py",
+      "blob_oid": "c43f2ab86a777eecd2ae97674793c30c5e6fc4ea",
+      "bytes": 1124,
+      "sha256": "74fd871acf56d45bafe112e3342d39517108eeeecdfeb5db21c80a728f28bb5b"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_human_decision_guarded_timeout.py",
+      "blob_oid": "26e7724d2c4ed719a00e421346b570cc98bee1bb",
+      "bytes": 7000,
+      "sha256": "8a8c919bad82bc5967677c7fa1a9f1c2d8bdc2842772fed2812cf133e510118d"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_human_decision_mutation_binding.py",
+      "blob_oid": "b6966a1f3fff86b0ebfc99c13fbf52290397e535",
+      "bytes": 2491,
+      "sha256": "c68704f8c2a917746b9f1daa3c96a0af8a636468171a77b415460b2de8969b9c"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_human_decision_service.py",
+      "blob_oid": "514ede32729c89c8612d9c73aee58c1a52e6087e",
+      "bytes": 129504,
+      "sha256": "9bac7dc0dd225e2cae3a34389cadc69bc41f9cbb6a5c0d8faee6d5cb0e1d7e38"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_insights_api.py",
+      "blob_oid": "e3d4d57695078a8733e31d91674d4bb16f2e9981",
+      "bytes": 4333,
+      "sha256": "27f122a65fd503e1a55fd173c2dc6611c2c04d63c6db3851e61429ac2ef57d53"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_lineage_api.py",
+      "blob_oid": "62b653059bd49c396c5fe8484060ca5856d7dc86",
+      "bytes": 7683,
+      "sha256": "f672b4ef2599d3bde14ffea848efd36d7cd6fe41b7d69715ab82d68103e6b655"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_lineage_routes.py",
+      "blob_oid": "360c163e9bd3242e22a8b5f611ea6a4c57f49753",
+      "bytes": 3228,
+      "sha256": "fbc6da82e6efe93371a30e5fe64b98a969fa7cae838d3372e2ce5acf6b3264dc"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_mobility_api.py",
+      "blob_oid": "272c10471947c1747197fb3ebe57d4bd92e40401",
+      "bytes": 3352,
+      "sha256": "72a8673d683b61a8eef7a9ca8b9a484b6afa8ca80ece630e0798a39ef3e8ed6d"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+      "blob_oid": "48d9d218a77e22328acd487a9116a826d03145b2",
+      "bytes": 171460,
+      "sha256": "99d6b21eab61bed66d23d58326b07df6b800aacff2d4ea916ab5e056864a85e7"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_non_data_acquisition_projection.py",
+      "blob_oid": "a47455977c3bb3114ab19302461d6cc9c63764e8",
+      "bytes": 12266,
+      "sha256": "8e2827b59d00876bcdc0ec5dfc5890c1df2a5301701c7228863bb8dda8296088"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_normative_evidence_intake.py",
+      "blob_oid": "d8e3b681a32685904330e17169092a4be1862423",
+      "bytes": 19443,
+      "sha256": "a63e4a4c1a36256cf3f15324166f09b99cb849ef43f6bcbc2a4b25e1203f9e4c"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py",
+      "blob_oid": "da76e2ff02eeb6a1176270f686efcf7d5f515d74",
+      "bytes": 46269,
+      "sha256": "7faaf00f351b304edf51462e8c02dbe8bea3fcffd2b52cbd0ea5b826131aa27b"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_public_decision_verification.py",
+      "blob_oid": "a98514c23d7fb8d592cc51d7689c0276bde667e2",
+      "bytes": 18065,
+      "sha256": "e24c4e0edec117c05f6d1aec7bc2797013506f3364c308340766bb25577831c7"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_public_decision_verification_configuration.py",
+      "blob_oid": "81468bb7e6a1f967474db224adfe4b5d3686e3dd",
+      "bytes": 6153,
+      "sha256": "58c3d0a46ab4dcab88e6e737cce84e4fe7b8c04864c6fa178d13e709524d469b"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_public_decision_verification_routes.py",
+      "blob_oid": "8e327f8ce992704b352f7becf6dcca2346ac7567",
+      "bytes": 20081,
+      "sha256": "87d7c963c8e5f998662e6c4028f09235e6a0eb3bf58509b04d8171fe0b750556"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_public_decision_verification_schema.py",
+      "blob_oid": "eb75421b24b2922d1ac833938cea27c945ce4c59",
+      "bytes": 4735,
+      "sha256": "430122863eca2963081eeadaa19513ed2a4f47d597066af69a7db722021addb0"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_public_export.py",
+      "blob_oid": "a86ee5eab4df2a67889815b7c8502dd0ab8cc454",
+      "bytes": 51511,
+      "sha256": "3a8ad7447d9728ae66370794e47addd3976c1605b294cec3eb5a9c2d66e8d66e"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_r13_ingestion_tenant_custody.py",
+      "blob_oid": "4940e76c2966374eca2a4a57ebea3e02a58cfc6d",
+      "bytes": 16981,
+      "sha256": "4190d20a165a8dff7fe7a501557dedf0734e7e591948b009548acc01a23671bf"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_resilience_guards.py",
+      "blob_oid": "6bb41a01147b17a40d98f79e077f123506be26ad",
+      "bytes": 5722,
+      "sha256": "83b37541592c28e5b949618c2d4052b88de17e09ec954d2eb9119f8ab5f7ab88"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_review_collaboration_api.py",
+      "blob_oid": "4ab41fb78362eb52c3d03e7a62ecbe952a7c5a83",
+      "bytes": 5893,
+      "sha256": "a5385918448b5501b5227671cdf4d55605a368c37b90891e2261ef06f423ea57"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_review_collaboration_service.py",
+      "blob_oid": "e0c7fb8d90b508c62d565587de8739ac8893509f",
+      "bytes": 5834,
+      "sha256": "9014d87f2318c5a4c6252d9da5f89ec92e13ee52e8d0234036cad6c645e21f1e"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_review_effectiveness_projection.py",
+      "blob_oid": "61c1ed0a82046a387f409828cbfdec4770d24c48",
+      "bytes": 11773,
+      "sha256": "87eb681139c374933a67a6d702954c9d3ec7b2d61d3fa2274e284bad2aa20d65"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_run_compare_api.py",
+      "blob_oid": "db480356c3852647fa9fa4967f084a3cfe7645e2",
+      "bytes": 6359,
+      "sha256": "2d2c6607e72c1fa735fac9c14e5c34d298b6beb6c983cfbc0e99aff1069ed2f3"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_run_evidence_context_promotions.py",
+      "blob_oid": "0c4ed93398976c582197ae6bc0daf9cee6290061",
+      "bytes": 5985,
+      "sha256": "99dceb4dcfecdac329072d9b3ee3f2a9126137ce67c9cce1bc196bea258b56fa"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_run_paper_api.py",
+      "blob_oid": "6b4da9d7f7b903147b3ef0d99c2ae5fd1ca90a4d",
+      "bytes": 50174,
+      "sha256": "d6ce9713073cf9ebd85d5d0d6033234e64dcfffa823b472a7eb60a51623ceec3"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runs_api.py",
+      "blob_oid": "508bbb1493a6c1d0b7eb3487202e7d4bfd33fd9e",
+      "bytes": 58483,
+      "sha256": "1bfcc732edbe96fd632a4c3e3bb1a359bca409c86c94fa3d9da2a0be9fb314cb"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_api_authz.py",
+      "blob_oid": "8684faf80bb3ff389a6496c3e5b4783c57848a60",
+      "bytes": 133813,
+      "sha256": "420a9579e15d894a1d342305b3ae660dbdaff56690d5202933331c8d522972d4"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
+      "blob_oid": "89c1ab1f643eeb93e80ae3d3bb8015597dd7331b",
+      "bytes": 52180,
+      "sha256": "16850e4f3caecb1bf53f6487097ce2b6f0ab763daf091d6b040f0498e6109de0"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_api_no_legacy_sources.py",
+      "blob_oid": "6fe5c91dda6174c4b51955bd63fa4a6003548549",
+      "bytes": 972,
+      "sha256": "dcc8f0db57610401d201c1a8895379c0493d64b764aca628d254ddb7848b92ee"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_api_observability.py",
+      "blob_oid": "80b8f3bc4774bff9fa793a6e913de846bc6726cf",
+      "bytes": 19482,
+      "sha256": "ecf60711696ad37c98a7e384eb4443875a110516493fdd117688932863862f56"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_api_write_path_hardening.py",
+      "blob_oid": "dcaa744198c16d36834ef2e2ad3d816ad0a3886b",
+      "bytes": 6869,
+      "sha256": "fecf4943f4e97f10c8773ac4d32645dfdf24d0eec368d2142423a42612ecdf8d"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_authorization_access_audit.py",
+      "blob_oid": "780061edcaf6ec7b2e0cedabc3f81ac08b621789",
+      "bytes": 48767,
+      "sha256": "78773ed6f46d7f68620bfdc875e2e38513beb31c2d97208e930f182d36873b42"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_deployment_security.py",
+      "blob_oid": "bf0a6c2fb1abfeb02f76ce99d6c19090f0322a3d",
+      "bytes": 51799,
+      "sha256": "b627180f417cd900d1683a35a46d2dab7f8745bc14d4b9151175d0c98673e922"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_fixture_identity_prohibition.py",
+      "blob_oid": "db081fee080e03841a7e6dc39de5bfd8ebb74ac9",
+      "bytes": 7743,
+      "sha256": "18f78dabc748b1a88a03009da4c174680dac532ea438edf56b94feaf9311cbc8"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_permission_vocabulary.py",
+      "blob_oid": "3a8d6f3c1a01746fea6151734db281b372616428",
+      "bytes": 6303,
+      "sha256": "4d8ca696d7afd47c959f4c3af75e1724e311c13c9a58942bd569e8a7236ad3a3"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_postgres_linearizability.py",
+      "blob_oid": "f43d9cc1d434698e9950e2ca7fd760ebe1dcbbfa",
+      "bytes": 17894,
+      "sha256": "2a96232af95ccc1068d79c860b142cb72bd956ecf6f7de79ad451558ede8bbfa"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_rego_authorization_parity.py",
+      "blob_oid": "45f0439672073a02e9a6f3fb8465c791f0a31bf8",
+      "bytes": 30427,
+      "sha256": "a3ba4ad43b7e2b09811a2815406bf9c8cac9207c758844578142c5baee55994a"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_security_compliance.py",
+      "blob_oid": "a8a2cf115f622f2b7a96499c70929de4d678f82b",
+      "bytes": 6992,
+      "sha256": "a8a2c6df75ad779d3ca1d7d21a11721711623dbf970bb395aa97c02e62163d1b"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_service_container.py",
+      "blob_oid": "062420bec64c292563be9ca4cf21de5e3fe9fc6e",
+      "bytes": 9008,
+      "sha256": "5945c92a78872d6420f4fd0e8d66dbc9814fc219a9e0d14c31b905ec4151f30f"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_step_up_authz.py",
+      "blob_oid": "aed98c49ea4d4c74d78e71de56ae507a4c345ed7",
+      "bytes": 58327,
+      "sha256": "7eb76c0e4a648226b18741c61798c2908eebe9a663b1e9bec7bef5ba6aab1fcd"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_sae_spatial_route.py",
+      "blob_oid": "0a79a716725d061bb84e28000e41aca76795ebe1",
+      "bytes": 5389,
+      "sha256": "dd9596a0026cf1629c2c1a8b1379dd62f0e4b90840867f5c86b5ce761848f957"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_scenarios_api.py",
+      "blob_oid": "1de52fe8a92694119658bb5c3f8f4ebef726dfd8",
+      "bytes": 17299,
+      "sha256": "2fde43eb1616e26466f3cec58b0674ad086ba052b693a7349f678dbe8bea8efe"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_served_unknown_target_scope.py",
+      "blob_oid": "b0162afbf70fa28d494d98721ba6240e2e7c7e1e",
+      "bytes": 13273,
+      "sha256": "74f214458dba8be76b23493c015c044f5ae2d1b24b4fd2062f3bd9aabad28f8f"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_temporal_api.py",
+      "blob_oid": "05203be328e02ec7cf8e73d4707094c32d284ef1",
+      "bytes": 12202,
+      "sha256": "464c72fcd19e1bc85c13082bfbeaa0fc5a9685ad907c8ff14d6018aad952cfaf"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_temporal_routes.py",
+      "blob_oid": "1db5308de0c0652175e808c385bcf901b1e6889c",
+      "bytes": 24945,
+      "sha256": "83ad5ceea2590d0e80579f7f2e0f6433772a636a36685df995a8748fbf5b4321"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_timeline_api.py",
+      "blob_oid": "9b967702c256a6a42f2dd1233316fd1290db4b7a",
+      "bytes": 5322,
+      "sha256": "fa825bcc2cff6212b908436f818e891153f040cef968cbdc9ef9cec37a29574b"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_workspace_loop_transition.py",
+      "blob_oid": "009dde587c2249653afe2b15e1212ab7533682f6",
+      "bytes": 79752,
+      "sha256": "50bdbb9bef34f016822960a97815fe628258dd322b4718e6a361aeff5d2f7522"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_chronology_proof.py",
+      "blob_oid": "83640077ad0a533468c94e29f07247c116ddcbbf",
+      "bytes": 64363,
+      "sha256": "069e7d9509449da6ee232809909d864c835eff44dbb94746433cd04f5c911f8f"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_critic_factory.py",
+      "blob_oid": "e6c5ed017f3cb2608007d8916b32a13a20526ea9",
+      "bytes": 8756,
+      "sha256": "c14556a2ee22053b6685d9b409db41ca636826a0a8a5ff57ac4a1c48c1185d1d"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py",
+      "blob_oid": "06a19386fa240d166138b2b83b4bd84bc21fd935",
+      "bytes": 6753,
+      "sha256": "42c50c12a4cbc63e92b18b5ac5fe00f62548380714a5a595f158220eeb3012e8"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_drafter_constitution.py",
+      "blob_oid": "0a9f0134c865be35c534103865479aee63f4a6c6",
+      "bytes": 1719,
+      "sha256": "4ef04ce6c5749171956579b004f0353d853e8b0e8cfb8b2abdac297664f05def"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_drafter_factory.py",
+      "blob_oid": "b344ced10afb59b826afdac3f722720a164d441d",
+      "bytes": 2680,
+      "sha256": "a980d32e78c13cca947a2162ad5f335c46ac679f49846277a037d586bc08dadf"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_drafter_formatting.py",
+      "blob_oid": "431a2c909c93c68384058d03e2120c95f0199429",
+      "bytes": 9136,
+      "sha256": "c5bc08312d351dfb184611264292229631f792f42e6a47b9a71ab15d076b9f3c"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_drafter_llm.py",
+      "blob_oid": "26dcf0d01b33431a8864ee8b35315e115e9fdada",
+      "bytes": 4996,
+      "sha256": "62e29fac63c46fa9964df55813a72ea4a980ffac24d01973d2b42e68772dffc6"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_drafter_models.py",
+      "blob_oid": "8aa0fcd1971e188c81fbd9d9d55dda8e1f68ea05",
+      "bytes": 8150,
+      "sha256": "0352363d87414965e096d3d2ff42a06873d55331f048220dbef5a9f2547b91ab"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_drafter_parsing.py",
+      "blob_oid": "ebee8e56e48caae967f0cb506fde4133f8fa4ee9",
+      "bytes": 9771,
+      "sha256": "3418b70909086c58dda8ed8082668a65e345a55632e322b7ce2f42e8bab47ccf"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_drafter_passes.py",
+      "blob_oid": "71ce132df7040f44c4c8dad138bf484fb4f05eed",
+      "bytes": 11611,
+      "sha256": "9fe8c23a811a8ecb6ed31f9e5adc8aa189543bf513f1580b14f6c1ebe77ae87e"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_optional_spend_projection_boundary.py",
+      "blob_oid": "e40f76de777d1c47d2fdc51a3ed799babf9f12c0",
+      "bytes": 4969,
+      "sha256": "5ccda8945edba376e1acab693c0042de704883abff7bb9d26f9a7264aa9fe3dc"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_response_healing.py",
+      "blob_oid": "ad2f9223a95ae9e0cbeda576060afe5487dbf085",
+      "bytes": 22755,
+      "sha256": "d0d34fc4bb86a1c4c928e305cf27026e6a19f39784c6b37b30554b683b799ea1"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+      "blob_oid": "06821330d929bc5643421745cbef58c5e3d2e838",
+      "bytes": 21415,
+      "sha256": "daaacc64978a18d4e76af2eb120b0f0146ea4779a4a3aa19683319a5a84de93c"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+      "blob_oid": "d87978bba51d1cf6bcc5dfdd4e975b76cea71b7f",
+      "bytes": 229,
+      "sha256": "27b668a1baad69ccd6ba840118a59141ff01bb1a78ef95834c87854e09ab4d82"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/mirror_contracts/test_local_runner.py",
+      "blob_oid": "645c8230a990389a7b4b78bcd2f404b353a1dd83",
+      "bytes": 227,
+      "sha256": "3ce3dca10ebb4fd828d8035ce690354f9ab2dbaa0e1134913295947ab25eee97"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
+      "blob_oid": "4b1496d2ceede09dc5fcb181e9080e769b69ced1",
+      "bytes": 10368,
+      "sha256": "3b2aabe75572c246560a0993f97085f6414dabb252d93fddb892ab6dfbfd7188"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+      "blob_oid": "597dd54a11ee8b2212537fd51a5f73d5cc20ae8b",
+      "bytes": 23634,
+      "sha256": "2c5c3308b9a8a6f28091a834d13d7286f1db3316c906f7e1ac65c3b91123f9e2"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+      "blob_oid": "fb02a58fb52eeb51e22f1904ea02db7905113368",
+      "bytes": 13006,
+      "sha256": "46ebf470762385b9f511379e1510e5c10d2455152081999b4c5d14ffd5b2dbc5"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "blob_oid": "14b5c2a343d24fab107952a7873653ca06137253",
+      "bytes": 16009,
+      "sha256": "d46a9978d496042c2372bc5ec99bc93fa6cedc0ee61e2db70a66a0cbb71f081f"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+      "blob_oid": "0c066894d2e7a35e4078725203cbc2752eb6060b",
+      "bytes": 10251,
+      "sha256": "a0a2bb4190a150b76c09239056e7f97ec9ff8506d133fb3333d8e741770f7e03"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py",
+      "blob_oid": "6c50d122b2705f133fa089a8a9197b2c9a61e067",
+      "bytes": 12414,
+      "sha256": "22925ca45c128fec913cb16417ddd2349b6127704e45da50cf335e2fdf8dc7c8"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+      "blob_oid": "93e6a0c49e34e9d5f756df8ecd69248fb7c0f3a1",
+      "bytes": 20275,
+      "sha256": "e798e0546ac1b461e603ea43e7d9feb9de5526c45e90362a96a17faf1c4cb972"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "blob_oid": "5fe7458c29f4c2ec00a1bd21f941e87cb7977680",
+      "bytes": 30571,
+      "sha256": "68a3e35f641ef68333e8c7b2c604d7d154447e705a0430081ddf348f9b7f8f2b"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+      "blob_oid": "5371ea84d9b40d7f09587285f4594c675c9b7160",
+      "bytes": 18097,
+      "sha256": "deceae4388fea387d81d3aa9e0ada4d5c797d545a2dcc998bd9e4ce0fbed8e9c"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget.py",
+      "blob_oid": "dfed1e1b55d87f7ebd732e528d00d89c7ce856d1",
+      "bytes": 5297,
+      "sha256": "fed7ad30c7621dab538ae552b5bcb557c56be2eff0b5e4cf325022dcb19690d4"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+      "blob_oid": "38c14640e53d1bffddaac44fc48b2a0ebe42722c",
+      "bytes": 26912,
+      "sha256": "e014ebecd3342c76e4e3d529d32fe0a72a0708b49f90375e59792526a077116d"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+      "blob_oid": "0d96cf6d054a24e4676352d48de8d03edea22379",
+      "bytes": 16904,
+      "sha256": "3a21ea963a4bc3e2fcdb3f62daf1456ae69153ef2f3d990cb7d56a7e9b48b8cc"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "blob_oid": "a8a6ad561cc598fb72c7fd6c0e2170b0d11dd36f",
+      "bytes": 13720,
+      "sha256": "2cd4013df96e19c5620ad8d05cf6d79151f0c532eb00b1d4638ea6975bec8a01"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "blob_oid": "ea6399f0c8de7920d18bfdfbf5882e3cdd795688",
+      "bytes": 17417,
+      "sha256": "f9a037cc70ab8c8b8eb61a5c26c2e16809d6fc20a8b438d819d69512a77b1bbc"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+      "blob_oid": "ca0e13e8bf30e6604026a7960f87f1d0b08a3ef6",
+      "bytes": 5302,
+      "sha256": "3da9f7887b520884b1d4b3a320965452f95ec1aafa519118bed5aca096811e73"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+      "blob_oid": "7e0d8869b551adb42abf099c22a0e53c3a3dd867",
+      "bytes": 6681,
+      "sha256": "08f7d895f640625f74090ec1bf5c959b539e98974c7f92b41f793a630cceae9a"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+      "blob_oid": "fd8f898025c3e77cc0f8a1d36a1babfdd5f4f453",
+      "bytes": 33109,
+      "sha256": "1e06eddf3a53bb96da51b5b233e8a5eb3421886585c114c36fcc8d29b122620c"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+      "blob_oid": "7e9001ea39ae8e7b737b8f84ecb525a24e617a5d",
+      "bytes": 7565,
+      "sha256": "05623df2c82e8538591a262daca17bd0bd27f196c106a8a8552b95c8de9fbd58"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_gc.py",
+      "blob_oid": "92bd231ddb076d1aac6e190be30af1e74e46611d",
+      "bytes": 10088,
+      "sha256": "c283ee687bd7722b02d4e02793daac83504410f6f816cd21a8fc9b9641f24ee9"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+      "blob_oid": "7086c4ec612db237c4ad6dc27e6fb228656219dc",
+      "bytes": 20042,
+      "sha256": "3db521987208d8c01f2931a7b40f5c4da6746e0ad16b33c228bc35d84c984994"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+      "blob_oid": "d5552c9e1be4dc1ba28cf61df3a57ca814024241",
+      "bytes": 11173,
+      "sha256": "b9e2005611669331441083aac3740f506bc6415f8b02bb01fb2d8310b5a7a57a"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_circuit_breaker.py",
+      "blob_oid": "a8d464739ba0a2effcdf1b7adafd783c50f23cb0",
+      "bytes": 10168,
+      "sha256": "19fdaec33d56a6082e9eb5354af176810d0f4d90902bbfd312e61af0b5d33a94"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+      "blob_oid": "aa75191df1b2ba00c653da6a766db8cac4b0a985",
+      "bytes": 16267,
+      "sha256": "7cf7fa2666eb9d7a2d504d0273cfe4e0fabf9c1a0676416001babeee723ebab6"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+      "blob_oid": "cb9e0c436c7ed4761600ecb09eef50cabdb9acdd",
+      "bytes": 15391,
+      "sha256": "0201cdaa224e24adc298c14efabf9dc1c441dd73eb291830026c4668a8fde7f6"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+      "blob_oid": "ac99313f5b20011f3e0987d4f04ff2cdaef09b16",
+      "bytes": 30145,
+      "sha256": "7089614efb8797b91f9d093a6839bc8f26522e732c871e7d83e4009d78c0ec51"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+      "blob_oid": "4110da19c4dc012fd5033324d96e7467c0a40381",
+      "bytes": 19724,
+      "sha256": "df6d564625a63469388d1f5da63c6d0db7f35e4173b86f21aa19ca529adcbe18"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+      "blob_oid": "0d90d0c94ec7ccc58e1e9f916df8f4c2beb7ce0f",
+      "bytes": 32478,
+      "sha256": "8caba8a940ecd756bbd47f7fb97e7695c8e45fc3cd258c392170b0ae2cdfd53c"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+      "blob_oid": "9da3011fd50602ec0e97c57519dd0323a6fc892b",
+      "bytes": 5301,
+      "sha256": "fba2beb39298c54788516a69fa8a5ba8bdabc47fdf6f51a772825f866110366e"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py",
+      "blob_oid": "a6afc67edd0e385a8ffa7e11d17a010109601ac9",
+      "bytes": 13231,
+      "sha256": "cc96bdff760c0cdab55f8b6f3b388610c32e1ead363325cefbeebd4cc624dcd8"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "blob_oid": "ae7769be8d7de15cbeb9fb93d2e3a783d5240f3a",
+      "bytes": 79749,
+      "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "blob_oid": "ba1de05727f270203f12f593f74651020735e88f",
+      "bytes": 13068,
+      "sha256": "f457a9163f9b2480523623dbdce531fdcaac88d64a7b73dce61e0afddb9874b2"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "blob_oid": "e0d4c98e6f3d33eddc70a4affe7c1a0f89908357",
+      "bytes": 8098,
+      "sha256": "4b2cffae6377f20558002a5895d91a6a3812c427f8c348284c6c5cf753a1fa65"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+      "blob_oid": "645e30fa190a9f66b77b468adb6ceb5826213ce7",
+      "bytes": 15169,
+      "sha256": "44597a58ee34d703db68f189d03b6e7a99a5d7bbe7a9352ac8876241537e1648"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+      "blob_oid": "d96ef006d33b273c5e1d320a154ab738fcf86d1f",
+      "bytes": 18169,
+      "sha256": "88f9f7396627a53587be19fd1a5e4859c9bf15c36df272239dea8f354eea0d2c"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+      "blob_oid": "0e99193a709e6db5c663eb2ac69f2f1c4a3169ae",
+      "bytes": 21218,
+      "sha256": "8736dff32a452af960f0de1ac944106a9f7939751527a50d94e204330d0b7821"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_builtin_profiles.py",
+      "blob_oid": "3b3b107ae7e57f1334355dd4e92a1acdb380eb7a",
+      "bytes": 1945,
+      "sha256": "d917a0f037137e78202e3fe966393d7fa74873a55e9deb56046c38d9c8d4b1e1"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+      "blob_oid": "41e01cbaf59832e3d2890b72ed03144b98d8ff08",
+      "bytes": 6644,
+      "sha256": "bad07ae1d13e7df68db4fb1a4c864003d6715fec21ab07ae1ad1f4417a0a70b9"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_factory.py",
+      "blob_oid": "1b3377c7c654829458f1bda777277c68f93095e2",
+      "bytes": 9466,
+      "sha256": "0c9582814b5e82cce3c45ad48025af72c663be2ee0759a60862b62ccf9a1c301"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_fallback_router.py",
+      "blob_oid": "d33ba8b01730b2c96692fccb5a856ddebe91f59c",
+      "bytes": 5623,
+      "sha256": "c7e6b03e654c0d695638a63427b1f37fc6265893b300fd0e4d30bd825cfaee20"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py",
+      "blob_oid": "8ead0d5bdae6b8a4115dab50011c25c4e44b8f25",
+      "bytes": 25259,
+      "sha256": "d0f8081646f625d27bd2c9eb3ea75e2a530f1c02ef3ca9dc44943bda02abe154"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_llm_cycle_preflight.py",
+      "blob_oid": "95e878bf1c4e8e8b1caee59faa8382520abbd268",
+      "bytes": 7487,
+      "sha256": "7a03e49b0830d0319b6a032ebc308043c037a5fc5a6cce0732adc481e79464cb"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "blob_oid": "4ac872ce11f1232eed5c35f66b073a76fb2d9125",
+      "bytes": 21213,
+      "sha256": "8e2a53ddf3245f983a8f030f4b07767d9be729d5a7e523c58a61cc3ddb1105fb"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "blob_oid": "e1ece585ee96f735db431cffaa870494721ca9e1",
+      "bytes": 48893,
+      "sha256": "576f2d1328f4346de00685898aacd6c90932847110b3bda7ad47dc0b690afb2d"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py",
+      "blob_oid": "f13d3fe881073d7bedebe655387be8db289d320c",
+      "bytes": 4182,
+      "sha256": "733452c3d753d3f66464152c7b11628b8a57cbb2ed12387375127d50a5ca09b0"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py",
+      "blob_oid": "eb48529c4b1698069eb033bd0a64ef0d411ee873",
+      "bytes": 11658,
+      "sha256": "b2f169797b06613024bbd3665fc0c502bb82eb86eb26a9e115cf12b7982865f9"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_provider_quality.py",
+      "blob_oid": "40546d6c45bd85b26bc340840ae477b446e595d6",
+      "bytes": 20935,
+      "sha256": "a55d222dfb55ed6fcb4c9c8428f7a09aabc5f9cd32119285d5dcae3881d4be17"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_provider_verification.py",
+      "blob_oid": "4d43ee1787d530426546f21eda55a49f240888c6",
+      "bytes": 13993,
+      "sha256": "23aa7cb1b143a1fcac5606d80ee99f67abbe4ef4253259dfc175baecbfe5aca9"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+      "blob_oid": "ec582bc0e36cf1c61541ab104783646fbb6e3862",
+      "bytes": 33838,
+      "sha256": "b21c5ffbc777e708f7426674acb599f0bca9bbebea47837a95d2abaf242fe949"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_shared_flight_completion_independent_e02.py",
+      "blob_oid": "0a4ca071bb3a14aecb6711bc5c4a25469ad22681",
+      "bytes": 15120,
+      "sha256": "988cda48feb5c8bdd4451cd3d9b798f47598050d37375cdebcb4b479284cff0e"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_streaming.py",
+      "blob_oid": "75576c8d648a4e52bdc7123776a95dcfdb5fbcb7",
+      "bytes": 4308,
+      "sha256": "1463a241bcc378be1e12415d25bd648b2e1acb9267d52fe590723e6414014c9f"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_token_estimator.py",
+      "blob_oid": "cea5b5fad62afc32643588400884d84179adf19e",
+      "bytes": 3619,
+      "sha256": "9498c519bf18e350e3764486bf448bb0a57f91b9b1db5a312ae4247db37b9996"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+      "blob_oid": "f1b5da1a9d4ca25720379dd6202318a9c26b6f35",
+      "bytes": 26797,
+      "sha256": "9b42cb92d53718bdd73e488cc425f5df5a7f332a952d1f9f7cc227a17533d8b1"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+      "blob_oid": "e54433cde268024ed5771a8ec57b831a2e03736c",
+      "bytes": 11777,
+      "sha256": "7f7bd9d73237ddc63dfda0dd5ebceb5a442215ebe19978db68b84e9edaad69f3"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py",
+      "blob_oid": "bddfc565f08c39944148c976efacd9b09ea84548",
+      "bytes": 5528,
+      "sha256": "d374fd3b01165efd691fb8620e75da5a063c90c59e7645825cfe6b2e25a292ea"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py",
+      "blob_oid": "61c8bfe60148100accaac114ca744e3bef814fde",
+      "bytes": 13669,
+      "sha256": "bb171bf9a96bc0780eb27be2e229e8c986ef18fdae5ca10fc6b950b42ee34aa6"
+    }
+  ],
+  "profiles": {
+    "completed-final-B-cohort": {
+      "keys": [
+        "sha",
+        "tree",
+        "argv",
+        "cwd",
+        "verification_inputs",
+        "selector_path",
+        "selector_sha256",
+        "test_paths",
+        "whole_file_count",
+        "inventory",
+        "fresh_scratch",
+        "ambient_cap_names_removed",
+        "all_cap_names_absent_in_child",
+        "environment",
+        "launcher_sha256",
+        "input_admission_sha256",
+        "capture_sha256",
+        "qualification"
+      ],
+      "test_paths_field": "top-level test_paths",
+      "generic_parser_inputs_field": "ABSENT; generic 27-check parser UNRUN; no alias/restamp"
+    },
+    "completed-final-affected-consumers": {
+      "keys": [
+        "source_sha",
+        "source_tree",
+        "argv",
+        "whole_file_count",
+        "test_paths",
+        "whole_file_identities",
+        "selection_basis",
+        "verification_inputs",
+        "inventory",
+        "scratch",
+        "environment",
+        "CPU_worker_process_thread_quotas_added",
+        "driver_sha256"
+      ],
+      "test_paths_field": "top-level test_paths",
+      "generic_parser_inputs_field": "ABSENT; generic 27-check parser UNRUN; no alias/restamp"
+    }
+  },
+  "full_cohort": {
+    "execution": "EXECUTED, interrupted by SIGKILL; final native partition NOT_ESTABLISHED",
+    "exit_code": -9,
+    "wall_s": 486.20474443299463,
+    "max_rss_kib": 1289484,
+    "whole_files": 250,
+    "collected_items": 3882,
+    "collection_reports": 406,
+    "inventory_state": "collection_finished_runtime_pending",
+    "persisted_runtime_phase_reports": 0,
+    "missing_terminal_artifacts": [
+      "/dev/shm/e02-B-completed-final-1862c021df74/native.xml",
+      "session_exitstatus",
+      "git_at_finish",
+      "module_origin_snapshot"
+    ],
+    "visible_stdout_rows": 1322,
+    "visible_stdout_labels": {
+      "PASSED": 1290,
+      "FAILED": 16,
+      "ERROR": 16
+    },
+    "visible_nonpass_labels": [
+      {
+        "nodeid": "tests/integration/scientist/test_res_03_real_simulation_route.py::test_res_03_real_simulation_later_failure_reaches_user_route",
+        "label": "FAILED"
+      },
+      {
+        "nodeid": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_restored_frontier_above_new_cap_refuses_before_consumer_effects",
+        "label": "FAILED"
+      },
+      {
+        "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[process-disconnect-failure]",
+        "label": "FAILED"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/services/test_evaluation_safety.py::test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read",
+        "label": "FAILED"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_acquisition_routes_api.py::test_acquisition_routes_have_exact_get_resource_binding",
+        "label": "ERROR"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_acquisition_routes_api.py::test_acquisition_mutations_are_request_bound_and_step_up_protected",
+        "label": "ERROR"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_analysis_api.py::test_attractor_analysis_route_persists_and_loads_result",
+        "label": "FAILED"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_analysis_api.py::test_attractor_analysis_route_builds_basin_map_for_ensemble",
+        "label": "FAILED"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_analysis_api.py::test_continuation_branch_route_persists_and_loads_sidecar",
+        "label": "FAILED"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_api_maturity.py::test_artifact_endpoints_emit_immutable_cache_headers",
+        "label": "ERROR"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_api_maturity.py::test_artifact_content_negotiates_raw_representation",
+        "label": "ERROR"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_api_maturity.py::test_artifact_download_endpoint_returns_attachment",
+        "label": "ERROR"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_api_maturity.py::test_artifact_batch_endpoint_avoids_n_plus_one_fetches",
+        "label": "ERROR"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_api_maturity.py::test_runs_batch_endpoint_returns_multiple_run_details",
+        "label": "ERROR"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_api_maturity.py::test_run_detail_endpoint_emits_link_relations",
+        "label": "ERROR"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_api_maturity.py::test_runtime_lifecycle_health_tracks_startup_and_shutdown",
+        "label": "FAILED"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_api_maturity.py::test_api_version_headers_surface_deprecation_policy",
+        "label": "FAILED"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_api_maturity.py::test_runs_live_endpoint_advertises_sse_flow_control",
+        "label": "FAILED"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_architecture_boundaries.py::test_runtime_container_lifecycle_keeps_legacy_state_bindings_consistent",
+        "label": "FAILED"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_architecture_boundaries.py::test_runtime_container_and_control_service_share_artifact_store",
+        "label": "FAILED"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_artifact_inspector_api.py::test_eval_safety_projection_is_informational_only",
+        "label": "ERROR"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_artifact_inspector_api.py::test_artifact_manifest_endpoint_returns_canonical_metadata",
+        "label": "ERROR"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_artifact_inspector_api.py::test_artifact_content_preview_enforces_max_bytes",
+        "label": "ERROR"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_artifact_inspector_api.py::test_artifact_lineage_and_schema_endpoints",
+        "label": "ERROR"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_artifact_surface_safety.py::test_raw_and_manifest_artifact_surfaces_block_secret_pii",
+        "label": "FAILED"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_artifact_surface_safety.py::test_composed_gate_blocks_declared_inconsistent_time_source_on_raw_and_export",
+        "label": "FAILED"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_artifact_surface_safety.py::test_composed_gate_blocks_s12_deref_bypass_on_raw_and_export",
+        "label": "FAILED"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_artifact_surface_safety.py::test_lineage_routes_block_clean_no_authority",
+        "label": "FAILED"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_auth_api.py::TestAuthMe::test_get_auth_me_returns_frontend_principal",
+        "label": "ERROR"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_authority_values.py::test_authority_values_endpoint_serves_the_complete_inventory",
+        "label": "ERROR"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_authorization_audience_denials.py::test_public_principal_is_denied_reviewer_operation_server_side",
+        "label": "ERROR"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_authorization_audience_denials.py::test_public_principal_is_denied_expert_operation_server_side",
+        "label": "ERROR"
+      }
+    ],
+    "last_complete_visible_row": [
+      "tests/unit/runtime/http/test_authorization_audience_denials.py::test_public_principal_is_denied_expert_operation_server_side",
+      "ERROR"
+    ],
+    "last_started_line": "tests/unit/runtime/http/test_authorization_audience_denials.py::test_hidden_client_action_remains_denied_when_called_directly ",
+    "qualification": "Visible labels are distinct stdout observations, not complete per-node phases or a terminal partition. Missing rows are not classified UNRUN/PASS/FAIL/ERROR. No historical DD grades or 27-check conclusions imported."
+  },
+  "affected_consumers": {
+    "execution": "EXECUTED; terminal complete native FAIL",
+    "whole_files": 47,
+    "collected_items": 807,
+    "cases": {
+      "PASS": 806,
+      "FAIL": 1
+    },
+    "runtime_phase_reports": 2421,
+    "phase_counts": [
+      {
+        "when": "call",
+        "outcome": "failed",
+        "count": 1
+      },
+      {
+        "when": "call",
+        "outcome": "passed",
+        "count": 806
+      },
+      {
+        "when": "setup",
+        "outcome": "passed",
+        "count": 807
+      },
+      {
+        "when": "teardown",
+        "outcome": "passed",
+        "count": 807
+      }
+    ],
+    "exit_code": 1,
+    "wall_s": 186.9752695250063,
+    "max_rss_kib": 1189464,
+    "stdout_pytest_s": 178.45,
+    "stdout_warning_count": 15,
+    "xml_suite_attributes": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "807",
+        "time": "175.637",
+        "timestamp": "2026-10-06T22:36:02.425457+00:00",
+        "hostname": "b878f4efbdfc"
+      }
+    ],
+    "failure_id": "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_scenario_adversary_fallback_and_execution",
+    "failure": {
+      "classname": "tests.unit.scientist.policy_design.test_phase_b_policy_workers",
+      "name": "test_scenario_adversary_fallback_and_execution",
+      "message": "assert []\n +  where [] = StressTestReport(schema_version='1.0', report_id='stress.report.sha256_df982545c0511f477027cd30cb924857c65dfcef6407a9a6f3878fa7f3f3590d', total_scenarios_evaluated=16, adversarial_plan_ref=None, fidelity_mode='stress_preset', worst_case_parameters={'shock': 0.10583519491626939, 'noise': 0.39641722724730855}, worst_case_objective=-0.5022524221635779, vulnerabilities=[], critical_count=0, high_count=0, medium_count=0, robustness_score=1.0, set_adequacy_status=None, coverage_empirical=None, coverage_target=None, inflation_mean=None, inflation_budget=None, frontier_knee_rho=None, undercoverage_vulnerability=None, overconservatism_vulnerability=None, decision_packet_ref=None, cas_artifact_id=None, metadata={'strategy': 'search_loop', 'stop_on_first_vulnerability': True, 'objective_direction': 'minimize', 'source_objective_direction': 'minimize', 'evaluation_status': 'verified', 'invalid_evaluation_count': 0, 'valid_evaluation_count': 16, 'observed_vulnerability_count': 0, 'unique_vulnerability_count': 0, 'presented_vulnerability_count': 0}).vulnerabilities\n +    where StressTestReport(schema_version='1.0', report_id='stress.report.sha256_df982545c0511f477027cd30cb924857c65dfcef6407a9a6f3878fa7f3f3590d', total_scenarios_evaluated=16, adversarial_plan_ref=None, fidelity_mode='stress_preset', worst_case_parameters={'shock': 0.10583519491626939, 'noise': 0.39641722724730855}, worst_case_objective=-0.5022524221635779, vulnerabilities=[], critical_count=0, high_count=0, medium_count=0, robustness_score=1.0, set_adequacy_status=None, coverage_empirical=None, coverage_target=None, inflation_mean=None, inflation_budget=None, frontier_knee_rho=None, undercoverage_vulnerability=None, overconservatism_vulnerability=None, decision_packet_ref=None, cas_artifact_id=None, metadata={'strategy': 'search_loop', 'stop_on_first_vulnerability': True, 'objective_direction': 'minimize', 'source_objective_direction': 'minimize', 'evaluation_status': 'verified', 'invalid_evaluation_count': 0, 'valid_evaluation_count': 16, 'observed_vulnerability_count': 0, 'unique_vulnerability_count': 0, 'presented_vulnerability_count': 0}) = AdversaryExecutionResult(scenario_bundle=AdversarialScenarioBundle(schema_version='1.0', candidate_id='candidate_policy', scenarios=[AdversarialScenarioProposal(scenario_id='adv_shift_1', scenario_type='shift', target_split='both', parameter_name='shock', intensity=0.2, rationale=\"Fallback shift stress on parameter 'shock'.\"), AdversarialScenarioProposal(scenario_id='adv_noise_2', scenario_type='noise', target_split='hidden_holdout_only', parameter_name='noise', intensity=0.30000000000000004, rationale=\"Fallback noise stress on parameter 'noise'.\")], fallback_used=True, scenario_sweep=ScenarioSweep(scenarios=[{'scenario_id': 'adv_shift_1', 'scenario_type': 'shift', 'target_split': 'both', 'parameter_name': 'shock', 'intensity': 0.2}, {'scenario_id': 'adv_noise_2', 'scenario_type': 'noise', 'target_split': 'hidden_holdout_only', 'parameter_name': 'noise', 'intensity': 0.30000000000000004}]), metadata={'preview_scenarios': [{'scenario_id': 'adv_adv_shift_1_shift', 'perturbation_type': 'level_shift', 'perturbation_magnitude': 0.2}, {'scenario_id': 'adv_adv_noise_2_noise', 'perturbation_type': 'gaussian_noise', 'perturbation_magnitude': 0.30000000000000004}]}), compiled_plan=Adversar...le=0.05, seed=None, stop_on_first_vulnerability=True, collect_top_k=2), stress_test_report=StressTestReport(schema_version='1.0', report_id='stress.report.sha256_df982545c0511f477027cd30cb924857c65dfcef6407a9a6f3878fa7f3f3590d', total_scenarios_evaluated=16, adversarial_plan_ref=None, fidelity_mode='stress_preset', worst_case_parameters={'shock': 0.10583519491626939, 'noise': 0.39641722724730855}, worst_case_objective=-0.5022524221635779, vulnerabilities=[], critical_count=0, high_count=0, medium_count=0, robustness_score=1.0, set_adequacy_status=None, coverage_empirical=None, coverage_target=None, inflation_mean=None, inflation_budget=None, frontier_knee_rho=None, undercoverage_vulnerability=None, overconservatism_vulnerability=None, decision_packet_ref=None, cas_artifact_id=None, metadata={'strategy': 'search_loop', 'stop_on_first_vulnerability': True, 'objective_direction': 'minimize', 'source_objective_direction': 'minimize', 'evaluation_status': 'verified', 'invalid_evaluation_count': 0, 'valid_evaluation_count': 16, 'observed_vulnerability_count': 0, 'unique_vulnerability_count': 0, 'presented_vulnerability_count': 0}), stress_test_report_ref=None, adversary_bundle_ref=None).stress_test_report",
+      "diagnostic": "tmp_path = PosixPath('/dev/shm/e02-B-completed-affected-1862c021df74-bound/pytest/test_scenario_adversary_fallba0')\n\n    def test_scenario_adversary_fallback_and_execution(tmp_path: Path) -> None:\n        worker = ScenarioAdversaryWorker(\n            ScenarioAdversaryConfig(max_scenarios=3, collect_top_k=2),\n            budget_middleware=_worker_budget(tmp_path),\n        )\n        surface = ScenarioAttackSurface(\n            candidate_id=\"candidate_policy\",\n            parameter_specs=[\n                DOEParameterSpec(name=\"shock\", lower_bound=0.0, upper_bound=1.0),\n                DOEParameterSpec(name=\"noise\", lower_bound=0.0, upper_bound=1.0),\n            ],\n            base_metrics={\"gdp_change\": [0.1, 0.2, 0.3]},\n            benchmark_split_manifest=BenchmarkSplitManifest(\n                suite_id=\"suite\",\n                selection_ids=[\"a\"],\n                holdout_ids=[\"b\"],\n            ),\n            vulnerability_threshold=0.5,\n        )\n        bundle = worker.propose(surface, run_id=\"adv_test\")\n    \n        assert bundle.fallback_used is True\n        assert bundle.scenarios\n        assert any(item.target_split == \"hidden_holdout_only\" for item in bundle.scenarios)\n    \n        result = worker.execute(\n            surface=surface,\n            base_objective=CompositeObjective([GDPGrowthObjective()]),\n            stage_b_evaluator=lambda candidate, context: {\n                \"simulation_results\": {\n                    \"gdp_change\": float(candidate.get(\"shock\", 0.0))\n                    + float(candidate.get(\"noise\", 0.0))\n                }\n            },\n            cas=None,\n            run_id=\"adv_test\",\n        )\n    \n        assert result.compiled_plan.parameter_specs\n        assert result.stress_test_report.total_scenarios_evaluated >= 1\n>       assert result.stress_test_report.vulnerabilities\nE       assert []\nE        +  where [] = StressTestReport(schema_version='1.0', report_id='stress.report.sha256_df982545c0511f477027cd30cb924857c65dfcef6407a9a6f3878fa7f3f3590d', total_scenarios_evaluated=16, adversarial_plan_ref=None, fidelity_mode='stress_preset', worst_case_parameters={'shock': 0.10583519491626939, 'noise': 0.39641722724730855}, worst_case_objective=-0.5022524221635779, vulnerabilities=[], critical_count=0, high_count=0, medium_count=0, robustness_score=1.0, set_adequacy_status=None, coverage_empirical=None, coverage_target=None, inflation_mean=None, inflation_budget=None, frontier_knee_rho=None, undercoverage_vulnerability=None, overconservatism_vulnerability=None, decision_packet_ref=None, cas_artifact_id=None, metadata={'strategy': 'search_loop', 'stop_on_first_vulnerability': True, 'objective_direction': 'minimize', 'source_objective_direction': 'minimize', 'evaluation_status': 'verified', 'invalid_evaluation_count': 0, 'valid_evaluation_count': 16, 'observed_vulnerability_count': 0, 'unique_vulnerability_count': 0, 'presented_vulnerability_count': 0}).vulnerabilities\nE        +    where StressTestReport(schema_version='1.0', report_id='stress.report.sha256_df982545c0511f477027cd30cb924857c65dfcef6407a9a6f3878fa7f3f3590d', total_scenarios_evaluated=16, adversarial_plan_ref=None, fidelity_mode='stress_preset', worst_case_parameters={'shock': 0.10583519491626939, 'noise': 0.39641722724730855}, worst_case_objective=-0.5022524221635779, vulnerabilities=[], critical_count=0, high_count=0, medium_count=0, robustness_score=1.0, set_adequacy_status=None, coverage_empirical=None, coverage_target=None, inflation_mean=None, inflation_budget=None, frontier_knee_rho=None, undercoverage_vulnerability=None, overconservatism_vulnerability=None, decision_packet_ref=None, cas_artifact_id=None, metadata={'strategy': 'search_loop', 'stop_on_first_vulnerability': True, 'objective_direction': 'minimize', 'source_objective_direction': 'minimize', 'evaluation_status': 'verified', 'invalid_evaluation_count': 0, 'valid_evaluation_count': 16, 'observed_vulnerability_count': 0, 'unique_vulnerability_count': 0, 'presented_vulnerability_count': 0}) = AdversaryExecutionResult(scenario_bundle=AdversarialScenarioBundle(schema_version='1.0', candidate_id='candidate_policy', scenarios=[AdversarialScenarioProposal(scenario_id='adv_shift_1', scenario_type='shift', target_split='both', parameter_name='shock', intensity=0.2, rationale=\"Fallback shift stress on parameter 'shock'.\"), AdversarialScenarioProposal(scenario_id='adv_noise_2', scenario_type='noise', target_split='hidden_holdout_only', parameter_name='noise', intensity=0.30000000000000004, rationale=\"Fallback noise stress on parameter 'noise'.\")], fallback_used=True, scenario_sweep=ScenarioSweep(scenarios=[{'scenario_id': 'adv_shift_1', 'scenario_type': 'shift', 'target_split': 'both', 'parameter_name': 'shock', 'intensity': 0.2}, {'scenario_id': 'adv_noise_2', 'scenario_type': 'noise', 'target_split': 'hidden_holdout_only', 'parameter_name': 'noise', 'intensity': 0.30000000000000004}]), metadata={'preview_scenarios': [{'scenario_id': 'adv_adv_shift_1_shift', 'perturbation_type': 'level_shift', 'perturbation_magnitude': 0.2}, {'scenario_id': 'adv_adv_noise_2_noise', 'perturbation_type': 'gaussian_noise', 'perturbation_magnitude': 0.30000000000000004}]}), compiled_plan=Adversar...le=0.05, seed=None, stop_on_first_vulnerability=True, collect_top_k=2), stress_test_report=StressTestReport(schema_version='1.0', report_id='stress.report.sha256_df982545c0511f477027cd30cb924857c65dfcef6407a9a6f3878fa7f3f3590d', total_scenarios_evaluated=16, adversarial_plan_ref=None, fidelity_mode='stress_preset', worst_case_parameters={'shock': 0.10583519491626939, 'noise': 0.39641722724730855}, worst_case_objective=-0.5022524221635779, vulnerabilities=[], critical_count=0, high_count=0, medium_count=0, robustness_score=1.0, set_adequacy_status=None, coverage_empirical=None, coverage_target=None, inflation_mean=None, inflation_budget=None, frontier_knee_rho=None, undercoverage_vulnerability=None, overconservatism_vulnerability=None, decision_packet_ref=None, cas_artifact_id=None, metadata={'strategy': 'search_loop', 'stop_on_first_vulnerability': True, 'objective_direction': 'minimize', 'source_objective_direction': 'minimize', 'evaluation_status': 'verified', 'invalid_evaluation_count': 0, 'valid_evaluation_count': 16, 'observed_vulnerability_count': 0, 'unique_vulnerability_count': 0, 'presented_vulnerability_count': 0}), stress_test_report_ref=None, adversary_bundle_ref=None).stress_test_report\n\ntests/unit/scientist/policy_design/test_phase_b_policy_workers.py:286: AssertionError"
+    },
+    "qualification": "Actual scientific vulnerabilities[] assertion remains FAIL, with no inherited P41 attribution, fixture weakening or product disposition inferred by this execution audit. This targeted47 wave is not the full250 B cohort.",
+    "observed_module_entries": 4891,
+    "observed_file_backends": 4688,
+    "captured_canonical_Git_byte_matches": 1705,
+    "canonical_mismatches": 0,
+    "observed_backend_scopes": {
+      "standard_library_file": 285,
+      "repository_untracked_or_ignored_file": 2698,
+      "repository_tracked_file": 1705
+    },
+    "module_boundary": "Fixture/data/resource/backend/service reads are unmeasured, never an empty set. Hook-time loaded modules only, not all transient/child imports or complete resource/backend read sets."
+  },
+  "shared_cgroup_after_sample": {
+    "observed_at": "2026-10-06T23:04:46.344465+00:00",
+    "qualification": "One after-observation of the shared cgroup, no per-victim or temporal causal attribution.",
+    "memory.events": {
+      "path": "/sys/fs/cgroup/memory.events",
+      "text": "low 0\nhigh 0\nmax 221128\noom 7\noom_kill 5\noom_group_kill 0\n",
+      "bytes": 58,
+      "sha256": "395b32d143aed601348cd8666a4c04d71506b984d16e0ff13249116c07b4e4a2"
+    },
+    "memory.events.local": {
+      "path": "/sys/fs/cgroup/memory.events.local",
+      "text": "low 0\nhigh 0\nmax 221128\noom 7\noom_kill 0\noom_group_kill 0\n",
+      "bytes": 58,
+      "sha256": "1b7c0cf917e6a3a72fa1239c6681ec6d515e141e5af7a0a8bcece63cfa5b8d8b"
+    },
+    "memory.current": {
+      "path": "/sys/fs/cgroup/memory.current",
+      "text": "16614416384\n",
+      "bytes": 12,
+      "sha256": "2d0727c62b4ceee461294db34489460bc8d23404d549bce9741128d8139487e6"
+    },
+    "memory.max": {
+      "path": "/sys/fs/cgroup/memory.max",
+      "text": "17179869184\n",
+      "bytes": 12,
+      "sha256": "c42316e609a7bc837c19fd213e9c8bb81b92613a194f5dab1f8cbc0efabb8f9b"
+    },
+    "memory.peak": {
+      "path": "/sys/fs/cgroup/memory.peak",
+      "text": "17180602368\n",
+      "bytes": 12,
+      "sha256": "385416830ed82a04577a2473f3c42639e9e1ef8f6890ec20abc53d8491a1b793"
+    }
+  },
+  "root_output_delivery": "Exact original paths@SHA above; root will publish full original custody once. No future commit/path/SHA is assumed.",
+  "finding_closure_ids": [],
+  "metadata_audit_outcome": "PASS"
+}

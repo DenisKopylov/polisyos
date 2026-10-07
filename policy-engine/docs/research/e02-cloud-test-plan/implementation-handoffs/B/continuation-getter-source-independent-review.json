@@ -1,0 +1,540 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "continuation-getter-source-independent-review",
+  "closure_ids": [],
+  "bundle_ids": [
+    "JIT-01",
+    "RES-04"
+  ],
+  "slice_base_sha": "74be8fa50a7814ca7c3b6a8dce8f4ed2b318056f",
+  "implementation_commits": [
+    "8b072cd103ce59d4f8df838f0e7eab475ccd757d"
+  ],
+  "candidate_tree_sha": "f6c510d08ea3633358296de6a4ab449087a7d2f2",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/initial-source-audit.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/initial-source-audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/initial-source-audit-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/source-audit.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/source-audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/source-audit-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/peer-audit.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/peer-audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/peer-audit-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/author-audit.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/author-audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/author-audit-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/source-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/index.json"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "/tmp/e02-B-cas-getter-review-20261007/successor/source-audit.source.txt",
+        "/tmp/e02-B-cas-getter-review-20261007/successor/source-audit.json"
+      ],
+      "target_sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+      "environment": {
+        "reviewer": "B cas_probe foreign source/data reviewer",
+        "cwd": "/workspace/e02-B-current-cas-generation",
+        "actual_attached_checkout_head": "a058426e743e8ce8c88c0b4469451b3180458915",
+        "source_read_method": "Immutable Git-only source/hash/AST/JSON/XML; no candidate imports or native execution",
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES": "/tmp/e02-B-jit-data-getattr-20261007/git-objects:/tmp/e02-dur-getter-oracle-8aa69009572b/git-objects:/workspace/polisyos/.git/objects",
+        "reviewer_native": "UNRUN",
+        "numeric_caps_added": false
+      },
+      "input_closure": {
+        "literal_executed_driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/initial-source-audit.source.txt",
+          "bytes": 6269,
+          "sha256": "d3ead1ed03171f8c36414600fc7040ac41ca31c01dc97f74229dbc710a82df49",
+          "git_sha": "8b072cd103ce59d4f8df838f0e7eab475ccd757d"
+        },
+        "source_refs": [
+          {
+            "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+            "source_tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+            "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+            "git_blob": "5c974e0c1ff455802de497f3771d19868aeddbba",
+            "bytes": 20387,
+            "sha256": "ee5db9c9900ea31f14dd3c47b56c75a2d4a1c7f44cac8cede95476da21fe1830"
+          },
+          {
+            "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+            "source_tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+            "path": "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+            "git_blob": "bf0468d4b88cafc0e45d94412d645b385c299e26",
+            "bytes": 8353,
+            "sha256": "b5c125a65d619797fc94265a5dbdb54589796b7dca8c555b1c87f81f1bee4e75"
+          },
+          {
+            "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+            "source_tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+            "path": "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml",
+            "git_blob": "431951499591e10baec58007c15cff91ea176879",
+            "bytes": 1177,
+            "sha256": "92f9b37faf4d02425bf267cddfc7b7065907dce1421bf3877971bb8d60d269aa"
+          },
+          {
+            "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+            "source_tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+            "path": "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py",
+            "git_blob": "398532879ce64958a43707e14f9687e55feb6f0d",
+            "bytes": 18035,
+            "sha256": "2d0968aa5c4adb65c735e5b69e4b85d635587fc8ac214330f529d79379deb77c"
+          },
+          {
+            "source_sha": "5cd7d962f2bf87bc872e01365778858adf52ba9f",
+            "source_tree": "79444947f48872f7743002a796d8307dcc2cab81",
+            "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+            "git_blob": "7f109c5bd9c3d955c65d01a6a96f6ab116e9856b",
+            "bytes": 21409,
+            "sha256": "6bf154b7f28dee297ce463ba1df3d6d11c30eb280480da39ed93b5576601cd6a"
+          },
+          {
+            "source_sha": "5cd7d962f2bf87bc872e01365778858adf52ba9f",
+            "source_tree": "79444947f48872f7743002a796d8307dcc2cab81",
+            "path": "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+            "git_blob": "d59888bf2b64a4ad5cbaa0aaa957c93b091d6709",
+            "bytes": 8702,
+            "sha256": "58facee1a4a47a036a54d285c84972d2eebecaf0f17d585a57b702082d4f2b7e"
+          },
+          {
+            "source_sha": "5cd7d962f2bf87bc872e01365778858adf52ba9f",
+            "source_tree": "79444947f48872f7743002a796d8307dcc2cab81",
+            "path": "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml",
+            "git_blob": "4ea89db8be729608ed8b1a0e1c074f8cbe682e39",
+            "bytes": 1321,
+            "sha256": "2c231fb35e87b5da21e5d7cc61279239ac164f1db1414111b2723697a0b88f72"
+          },
+          {
+            "source_sha": "5cd7d962f2bf87bc872e01365778858adf52ba9f",
+            "source_tree": "79444947f48872f7743002a796d8307dcc2cab81",
+            "path": "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py",
+            "git_blob": "488100607e6d8e72019dd16306825f5e6a9d6358",
+            "bytes": 21147,
+            "sha256": "506e7184c9ac737de83e0c3dc027fef7d36e0ac20c53947b7f01ee6acf57ce5a"
+          },
+          {
+            "source_sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+            "source_tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+            "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+            "git_blob": "7f0d0323474ee2f8f1fe4adea316c5260159262e",
+            "bytes": 21815,
+            "sha256": "95ed058f5387bc1b9af7db9cdb3a835565cca608c6dba84901add538c9b079be"
+          },
+          {
+            "source_sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+            "source_tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+            "path": "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+            "git_blob": "6bf7f04f66eb0acc0fb90a175592da3cc3092c2f",
+            "bytes": 8893,
+            "sha256": "cd9c01124e879342e7098662091026e05e01ea161950feddc010936f125f9f51"
+          },
+          {
+            "source_sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+            "source_tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+            "path": "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml",
+            "git_blob": "4ea89db8be729608ed8b1a0e1c074f8cbe682e39",
+            "bytes": 1321,
+            "sha256": "2c231fb35e87b5da21e5d7cc61279239ac164f1db1414111b2723697a0b88f72"
+          },
+          {
+            "source_sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+            "source_tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+            "path": "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py",
+            "git_blob": "d54e5ddaeb0f8e2e50d8941ccf1adb639c4071ff",
+            "bytes": 21776,
+            "sha256": "b9a95dc7959eb3fb8094a3875a2419444867770ed8e29a9f73ced5d21c76767d"
+          }
+        ]
+      },
+      "outcome": "ERROR",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/initial-source-audit-stdout.txt",
+        "bytes": 13471,
+        "sha256": "e671ab9a077021c387603abb59423be788ec7c8f05d87155decb7e90aa01c6a7",
+        "git_sha": "8b072cd103ce59d4f8df838f0e7eab475ccd757d"
+      },
+      "data": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/initial-source-audit.json",
+        "bytes": 33117,
+        "sha256": "0c1dab234f71332012ef58ee4a077e2a3691a32caae705155f7536c620f7617f",
+        "git_sha": "8b072cd103ce59d4f8df838f0e7eab475ccd757d"
+      },
+      "qualification": "Metadata instrument initially asserted four complete ancestry paths despite intervening published research evidence and used the wrong local observed assertion name. This is no product/native failure; exact original script/output/data retained, corrected check separate."
+    },
+    {
+      "command": [
+        "python3",
+        "/tmp/e02-B-cas-getter-review-20261007/successor/source-audit.source.txt",
+        "/tmp/e02-B-cas-getter-review-20261007/successor/source-audit.json"
+      ],
+      "target_sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+      "environment": {
+        "reviewer": "B cas_probe foreign source/data reviewer",
+        "cwd": "/workspace/e02-B-current-cas-generation",
+        "actual_attached_checkout_head": "a058426e743e8ce8c88c0b4469451b3180458915",
+        "source_read_method": "Immutable Git-only source/hash/AST/JSON/XML; no candidate imports or native execution",
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES": "/tmp/e02-B-jit-data-getattr-20261007/git-objects:/tmp/e02-dur-getter-oracle-8aa69009572b/git-objects:/workspace/polisyos/.git/objects",
+        "reviewer_native": "UNRUN",
+        "numeric_caps_added": false
+      },
+      "input_closure": {
+        "literal_executed_driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/source-audit.source.txt",
+          "bytes": 6913,
+          "sha256": "6fa882ed650343a1032786bc7e51be7a8c348a79a62be12b0bb4c43f7f343beb",
+          "git_sha": "8b072cd103ce59d4f8df838f0e7eab475ccd757d"
+        },
+        "source_refs": [
+          {
+            "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+            "source_tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+            "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+            "git_blob": "5c974e0c1ff455802de497f3771d19868aeddbba",
+            "bytes": 20387,
+            "sha256": "ee5db9c9900ea31f14dd3c47b56c75a2d4a1c7f44cac8cede95476da21fe1830"
+          },
+          {
+            "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+            "source_tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+            "path": "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+            "git_blob": "bf0468d4b88cafc0e45d94412d645b385c299e26",
+            "bytes": 8353,
+            "sha256": "b5c125a65d619797fc94265a5dbdb54589796b7dca8c555b1c87f81f1bee4e75"
+          },
+          {
+            "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+            "source_tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+            "path": "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml",
+            "git_blob": "431951499591e10baec58007c15cff91ea176879",
+            "bytes": 1177,
+            "sha256": "92f9b37faf4d02425bf267cddfc7b7065907dce1421bf3877971bb8d60d269aa"
+          },
+          {
+            "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+            "source_tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+            "path": "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py",
+            "git_blob": "398532879ce64958a43707e14f9687e55feb6f0d",
+            "bytes": 18035,
+            "sha256": "2d0968aa5c4adb65c735e5b69e4b85d635587fc8ac214330f529d79379deb77c"
+          },
+          {
+            "source_sha": "5cd7d962f2bf87bc872e01365778858adf52ba9f",
+            "source_tree": "79444947f48872f7743002a796d8307dcc2cab81",
+            "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+            "git_blob": "7f109c5bd9c3d955c65d01a6a96f6ab116e9856b",
+            "bytes": 21409,
+            "sha256": "6bf154b7f28dee297ce463ba1df3d6d11c30eb280480da39ed93b5576601cd6a"
+          },
+          {
+            "source_sha": "5cd7d962f2bf87bc872e01365778858adf52ba9f",
+            "source_tree": "79444947f48872f7743002a796d8307dcc2cab81",
+            "path": "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+            "git_blob": "d59888bf2b64a4ad5cbaa0aaa957c93b091d6709",
+            "bytes": 8702,
+            "sha256": "58facee1a4a47a036a54d285c84972d2eebecaf0f17d585a57b702082d4f2b7e"
+          },
+          {
+            "source_sha": "5cd7d962f2bf87bc872e01365778858adf52ba9f",
+            "source_tree": "79444947f48872f7743002a796d8307dcc2cab81",
+            "path": "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml",
+            "git_blob": "4ea89db8be729608ed8b1a0e1c074f8cbe682e39",
+            "bytes": 1321,
+            "sha256": "2c231fb35e87b5da21e5d7cc61279239ac164f1db1414111b2723697a0b88f72"
+          },
+          {
+            "source_sha": "5cd7d962f2bf87bc872e01365778858adf52ba9f",
+            "source_tree": "79444947f48872f7743002a796d8307dcc2cab81",
+            "path": "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py",
+            "git_blob": "488100607e6d8e72019dd16306825f5e6a9d6358",
+            "bytes": 21147,
+            "sha256": "506e7184c9ac737de83e0c3dc027fef7d36e0ac20c53947b7f01ee6acf57ce5a"
+          },
+          {
+            "source_sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+            "source_tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+            "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+            "git_blob": "7f0d0323474ee2f8f1fe4adea316c5260159262e",
+            "bytes": 21815,
+            "sha256": "95ed058f5387bc1b9af7db9cdb3a835565cca608c6dba84901add538c9b079be"
+          },
+          {
+            "source_sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+            "source_tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+            "path": "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+            "git_blob": "6bf7f04f66eb0acc0fb90a175592da3cc3092c2f",
+            "bytes": 8893,
+            "sha256": "cd9c01124e879342e7098662091026e05e01ea161950feddc010936f125f9f51"
+          },
+          {
+            "source_sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+            "source_tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+            "path": "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml",
+            "git_blob": "4ea89db8be729608ed8b1a0e1c074f8cbe682e39",
+            "bytes": 1321,
+            "sha256": "2c231fb35e87b5da21e5d7cc61279239ac164f1db1414111b2723697a0b88f72"
+          },
+          {
+            "source_sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+            "source_tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+            "path": "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py",
+            "git_blob": "d54e5ddaeb0f8e2e50d8941ccf1adb639c4071ff",
+            "bytes": 21776,
+            "sha256": "b9a95dc7959eb3fb8094a3875a2419444867770ed8e29a9f73ced5d21c76767d"
+          }
+        ],
+        "source_projection": "Four owned mechanism/test/companion paths only; intervening published evidence docs are counted separately, not asserted absent."
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/source-audit-stdout.txt",
+        "bytes": 803,
+        "sha256": "8d2a510d21b0b2968b51ffd10525d650f24c963207abe78d213346f059124a47",
+        "git_sha": "8b072cd103ce59d4f8df838f0e7eab475ccd757d"
+      },
+      "data": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/source-audit.json",
+        "bytes": 8486,
+        "sha256": "a5feb5ecc9c7c7bb4bada8908be876e2b246024117fe72ba4987fd29f323064b",
+        "git_sha": "8b072cd103ce59d4f8df838f0e7eab475ccd757d"
+      },
+      "qualification": "Actual final source/tree/12 four-family blobrefs, narrow3path delta and8 unchanged guard ASTs independently reconciled. Four owned mechanism/test/companion inputs do not imply no intervening evidence docs."
+    },
+    {
+      "command": [
+        "python3",
+        "/tmp/e02-B-cas-getter-review-20261007/successor/peer-audit.source.txt",
+        "/tmp/e02-B-cas-getter-review-20261007/successor/peer-audit.json"
+      ],
+      "target_sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+      "environment": {
+        "reviewer": "B cas_probe foreign source/data reviewer",
+        "cwd": "/workspace/e02-B-current-cas-generation",
+        "actual_attached_checkout_head": "a058426e743e8ce8c88c0b4469451b3180458915",
+        "source_read_method": "Immutable Git-only source/hash/AST/JSON/XML; no candidate imports or native execution",
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES": "/tmp/e02-B-jit-data-getattr-20261007/git-objects:/tmp/e02-dur-getter-oracle-8aa69009572b/git-objects:/workspace/polisyos/.git/objects",
+        "reviewer_native": "UNRUN",
+        "numeric_caps_added": false
+      },
+      "input_closure": {
+        "literal_executed_driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/peer-audit.source.txt",
+          "bytes": 6904,
+          "sha256": "7837ceaa7a84a42d6d3ad2beb81c9a580ea998c0900b8153fb01be39838bd3ef",
+          "git_sha": "8b072cd103ce59d4f8df838f0e7eab475ccd757d"
+        },
+        "canonical_foreign_receipt": {
+          "git_sha": "0bf268e7860831241e3fd193b3da46086d5893cc",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-lexical-final.json",
+          "bytes": 11396,
+          "sha256": "99815bffc0311d3fe0f68cbb82ec64c89cc05b661ec39fdc17178e20fa031846",
+          "tree": "e039e83bd594e2c9d40347d0bc63937a2ceee363"
+        },
+        "distinct_declared_artifacts": [
+          {
+            "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/test_independent_getter_consumer.source.txt",
+            "git_blob": "f71509b17b0321f86fab69fe33413d70cb3d7d11",
+            "bytes": 5272,
+            "sha256": "c60de7f76a3671961b44c830e6e1632f4be3c787ccc13eec49947e8e495b5559"
+          },
+          {
+            "git_sha": "5f4148559a62b1491b9d80dc207163b61828763c",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-final-evidence/run-native.source.txt",
+            "git_blob": "7c76103d7685c71e1bec272b95cb2ed6e60e7793",
+            "bytes": 4634,
+            "sha256": "a2f31be166bca3eac46ab2c43c1073e707641ebbb72580dc1ba64cc23c56663f"
+          },
+          {
+            "git_sha": "5f4148559a62b1491b9d80dc207163b61828763c",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-final-evidence/profile.json",
+            "git_blob": "e76e244ba09b6690ce6a1ceecdc1441e93fc1883",
+            "bytes": 38615,
+            "sha256": "0ebe4aab023f8ad3e568dd213cdfa474399b09ec8fc8c96e9ed7318ebdd498b2"
+          },
+          {
+            "git_sha": "5f4148559a62b1491b9d80dc207163b61828763c",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-final-evidence/native.txt",
+            "git_blob": "650a12273facf51e005ce40642602f08adeef7bd",
+            "bytes": 3034,
+            "sha256": "721eb5eefa9d245905f008a3f8eba21ff70cb3bcf74dcf967867eb0886d2b6cb"
+          },
+          {
+            "git_sha": "5f4148559a62b1491b9d80dc207163b61828763c",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-final-evidence/native.xml",
+            "git_blob": "8c790fdb6a22b2396d5c8173dabb46c803faeb8b",
+            "bytes": 605,
+            "sha256": "405043ccd0980d2a82aad0c1d6cdca0e0cfa1e700560c97d2010a40856c00628"
+          },
+          {
+            "git_sha": "5f4148559a62b1491b9d80dc207163b61828763c",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-final-evidence/wrapper.json",
+            "git_blob": "ee89b97c55cd4b4ee50e24a7ab20d40b0f587b1d",
+            "bytes": 1175,
+            "sha256": "584b64e114c2158caacea28148b2e2447b93b871c540ec24d216dd52ea7c948c"
+          },
+          {
+            "git_sha": "637b821971f8d9a6413c5f8e93a7d416a30dbc65",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent.json",
+            "git_blob": "448ff9c63fbb124fdbd5adb08725c5a9b5aeb118",
+            "bytes": 18270,
+            "sha256": "f5fc67f6fd6a76939ef23caab28eecd2e53e1e75a02ba85f1f37e3fbefc83f06"
+          },
+          {
+            "git_sha": "66863a0d89e7acffde8deef79f47ab0b96061ccf",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-successor.json",
+            "git_blob": "2ea9f4f2f539eae36943c390389c846ee5f44133",
+            "bytes": 9415,
+            "sha256": "830fc61f4852e9605279a887c92bee331f69795f2f9d07b7a24c6012dd3c7fe1"
+          },
+          {
+            "git_sha": "f6a3e0c8a6e6b4393dc81bb8f15b19815b48638b",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-final.json",
+            "git_blob": "8c24c6d0a7c7f4d2c8e575baee55d6a5f6f59afb",
+            "bytes": 10081,
+            "sha256": "8c37c0f7a93ef789652d90a3b5323a2f099b568d4e7e43a83fe80128b5faa1f6"
+          },
+          {
+            "git_sha": "e3e8cab05a24ee00341a43b5f99588e48bd5bc52",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-lexical.json",
+            "git_blob": "28f7999bd1df1e1188faa712da0ca48fbe75accf",
+            "bytes": 10765,
+            "sha256": "917b2f1f9a1217f7ce15e019a44cbe46c56165a0e0a9e02a1ba0ff1bf67ad9ee"
+          },
+          {
+            "git_sha": "5f4148559a62b1491b9d80dc207163b61828763c",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-final-evidence/index.json",
+            "git_blob": "e2072bdf91149a4e0de077a87902bbcf951c0701",
+            "bytes": 1780,
+            "sha256": "dba1e2dc7a0ab9f54a95bcb15e0ddb870d7da9c42dc7a544f231dc624b211632"
+          },
+          {
+            "git_sha": "5f4148559a62b1491b9d80dc207163b61828763c",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-final-evidence/review.json",
+            "git_blob": "89f37f7c7fef22fefae9496c44ceaa08b7cac688",
+            "bytes": 3230,
+            "sha256": "502cd079072ae0535b7df3590e3451ebe8178feeead1d80e4921faebbd89ea49"
+          }
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/peer-audit-stdout.txt",
+        "bytes": 3610,
+        "sha256": "30d631dc73f573daa5694f8d94abaa4074eff4b2612941e6587f085572d7e288",
+        "git_sha": "8b072cd103ce59d4f8df838f0e7eab475ccd757d"
+      },
+      "data": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/peer-audit.json",
+        "bytes": 9497,
+        "sha256": "4b5b016d944276bceda51c587823a3fbb4a49b9905d21bd51478100fec73d137",
+        "git_sha": "8b072cd103ce59d4f8df838f0e7eab475ccd757d"
+      },
+      "qualification": "Actual DUR7c source3PASS/152 loaded local origins,12 nested immutable artifacts and8 measured vector results reconciled from original Git bytes. Reviewer did not repeat native; body absence/kernel identity are exact peer consumer assertions."
+    },
+    {
+      "command": [
+        "python3",
+        "/tmp/e02-B-cas-getter-review-20261007/successor/author-audit.source.txt",
+        "/tmp/e02-B-cas-getter-review-20261007/successor/author-audit.json"
+      ],
+      "target_sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+      "environment": {
+        "reviewer": "B cas_probe foreign source/data reviewer",
+        "cwd": "/workspace/e02-B-current-cas-generation",
+        "actual_attached_checkout_head": "a058426e743e8ce8c88c0b4469451b3180458915",
+        "source_read_method": "Immutable Git-only source/hash/AST/JSON/XML; no candidate imports or native execution",
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES": "/tmp/e02-B-jit-data-getattr-20261007/git-objects:/tmp/e02-dur-getter-oracle-8aa69009572b/git-objects:/workspace/polisyos/.git/objects",
+        "reviewer_native": "UNRUN",
+        "numeric_caps_added": false
+      },
+      "input_closure": {
+        "literal_executed_driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/author-audit.source.txt",
+          "bytes": 8385,
+          "sha256": "b62f37cf0dc95b68925aa0c9bd8f5cf260a84c40a68ba4c39c25e4e334a16d9f",
+          "git_sha": "8b072cd103ce59d4f8df838f0e7eab475ccd757d"
+        },
+        "immutable_author_evidence": {
+          "git_sha": "db1e001c095e48370a34901555ec991b47c3e0ca",
+          "tree": "b80c92da03068875ed3a6a5913a5630e39b5d70c",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-jit-data-field-identity-evidence/root-binding-index.json",
+          "bytes": 18542,
+          "sha256": "4e6679bfbea306a58f8d29400927b9349a23d1a3239ca85fae41ee01c0bf8000"
+        }
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/author-audit-stdout.txt",
+        "bytes": 8343,
+        "sha256": "6a2c7df71e009df2dca991df5e49f48d8c9a2fa54d4318a86f1146396ae04ccd",
+        "git_sha": "8b072cd103ce59d4f8df838f0e7eab475ccd757d"
+      },
+      "data": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/author-audit.json",
+        "bytes": 13087,
+        "sha256": "1ed04f252d1d75e5c2495e1a54fa728101d79d800b5c73980d25bd20911580ae",
+        "git_sha": "8b072cd103ce59d4f8df838f0e7eab475ccd757d"
+      },
+      "qualification": "Immutable db1 exact94payload760092B/lossless/source-origin/test-input/nativeXML/status join. Final128=127PASS1knownframeFAIL, canonicalJIT9PASS, positive-admission removal1FAIL; originalred3+1 actualbody effects retained and final4 typedrefusal/emptyeffects inspected. No native rerun or output duplication."
+    }
+  ],
+  "property": {
+    "statement": "Within the ordinary-function finite getter family, actual root alias/selector/iterator admission cannot be replaced by same-name recursive globals. The generic lexical predicate and getter-family entry gate require genuine root global/free values, not parameter/local/rebound evidence, with conservative typed refusal on mismatch.",
+    "runtime_path": [
+      "implementation_identity_projection → _project actual-root plus recursive getter family",
+      "_root_function_captures actual builtins<globals<nonlocals → _data_field_getattr FUNCTION/lexical/object-equality admission",
+      "canonical checkpoint identity → CheckpointIdentityError before actual method filesystem body",
+      "real MethodCompiler eager/JAX cold/warm/dynamic override/old handle plus captured-ModuleType refusal"
+    ],
+    "proxy_divergence": "Immutable field/module/version markers could remain while a flattened nested global replaces actual parameter/nonlocal/getter binding. Earlier genuine owner controls wrote body before later TypeError. Actual root predicate/family entry now refuses that class; opaque frame namespace still admits replacement107 and remains B74 LIMITED.",
+    "negative_controls": [
+      "Original source0903 lexical scalar/iterator/nonlocal three body-effect FAILs and source5cd actual-getter alias body-effect FAIL preserved by owner, not interpreted as healthy marker proof.",
+      "Final four genuine root-collision inputs assert canonical CheckpointIdentityError and actual_effects[]; no arbitrary canonical JIT assertion weakening.",
+      "Independent DUR actual7c captured ModuleType refuses CompilationError before physical body; eager/JAX vectors and old-handle values separately recomputed.",
+      "Initial own metadata instrument ERROR retained; corrected exact owned source projection PASS separately. Actual frame counterexample remains FAIL/LIMITED."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "per_premise_basis": {
+    "source_git_AST_XML_origin_hashes_arithmetic": "independently_reconciled",
+    "peer_physical_effect_absence_kernel_identity": "consumer_asserted by independently authored actual fixture",
+    "author94_payloads_hashes_XML_origins_tests_style_type": "independently_reconciled immutable db1 evidence; physical effects remain actual author consumer assertions"
+  },
+  "capability_state_or_finding_state": "NONBLOCKING source-only finite getter family at7c; B74 LIMITED and closure_ids[]; prior74be0903 is historical finite review with later lexical questions resolved by this widening.",
+  "limitations_and_next_owner": [
+    "No reviewer native/gates/candidate imports, source/test writes, cleanup, provision, new checkout or numeric quota.",
+    "The whole recursive graph capture is not accepted as universal lexical closure. Runtime target type/descriptor/returned-context and opaque mutable numerical internals remain unproved.",
+    "Actual frame107FAIL and all6fa broad native/gate FAIL/ERROR/UNRUN preserved; no inherited/P41 exemption or wholeB/sourcequality finding closure.",
+    "Exact author db1 source-bound94payload760092B and complete lossless/raw/XML/profile/status data independently reconciled. Actual positive-admission removal differs from a removed rejection guard: it refuses a genuinely supported consumer; old3+1 body effects and final4 empty effects decide lexical rejection.",
+    "CMP owns source; ROOT/G owns merge/current native/gates/formal adjudication. Historical74be/outputs unchanged; this is forward metadata correction.",
+    "Append-only external Git objects/index keep original74be parent. Existing admitted attached checkout/source/local refs remain a058; no history rewrite/main push."
+  ],
+  "evidence_index": {
+    "git_sha": "8b072cd103ce59d4f8df838f0e7eab475ccd757d",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/index.json",
+    "bytes": 3899,
+    "sha256": "680632b0c822d9907d42965bdd1cc0edfeac062ddf95cdbaf2e36b4ea947ede1"
+  },
+  "source_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/source-review.json",
+    "bytes": 6157,
+    "sha256": "dc7a9c0f685f945fc6eadd8b8d95c88489073095906c8200b8cd1e8269903a3c",
+    "git_sha": "8b072cd103ce59d4f8df838f0e7eab475ccd757d"
+  },
+  "reviewed_foreign_source_sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+  "reviewed_foreign_source_tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+  "previous_canonical_receipt": {
+    "git_sha": "74be8fa50a7814ca7c3b6a8dce8f4ed2b318056f",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-source-independent-review.json",
+    "sha256": "81a1ebc51a687fa3cd329c6abe97507b870e8f624174b4958497c41dd4ca3083",
+    "bytes": 32619
+  }
+}

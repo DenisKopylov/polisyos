@@ -1,0 +1,43 @@
+{
+  "started_at": "2026-10-07T10:04:48.784300+00:00",
+  "finished_at": "2026-10-07T10:04:51.637891+00:00",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/tmp/e02-B-jit-data-getattr-20261007/pytest-child.py",
+    "/workspace/e02-B-current-composition",
+    "515669fd11f0a96f866cb5c0dc5306c6aa39c962",
+    "/tmp/e02-B-jit-data-getattr-20261007/getter-entry-red/module-origins.json",
+    "tests/unit/foundry/methods/backends/test_module_source_identity.py::test_recursive_global_capture_cannot_authorize_other_root_bindings[GetterCollisionSource]",
+    "-vv",
+    "--tb=short",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/tmp/e02-B-module-getter-entry-red-778617",
+    "--junitxml",
+    "/tmp/e02-B-jit-data-getattr-20261007/getter-entry-red/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_before": {
+    "sha": "515669fd11f0a96f866cb5c0dc5306c6aa39c962",
+    "tree": "c76c9177078fd3035764cc6432a968ffbf51ef1a",
+    "status": ""
+  },
+  "source_after": {
+    "sha": "515669fd11f0a96f866cb5c0dc5306c6aa39c962",
+    "tree": "c76c9177078fd3035764cc6432a968ffbf51ef1a",
+    "status": ""
+  },
+  "exit_code": 1,
+  "wait4_status": 256,
+  "signal": null,
+  "wall_seconds": 2.8535893239895813,
+  "max_rss_kib": 176740,
+  "user_cpu_seconds": 2.820839,
+  "system_cpu_seconds": 0.40695,
+  "stdout": {
+    "bytes": 3767,
+    "sha256": "5ab08b284ccb82991e6bd553a38b66ce9c5e00aa3f680d9c51ab028caf5bd436"
+  }
+}

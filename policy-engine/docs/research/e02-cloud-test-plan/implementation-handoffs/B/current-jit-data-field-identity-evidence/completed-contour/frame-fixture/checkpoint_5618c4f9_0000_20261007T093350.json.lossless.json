@@ -1,0 +1,6 @@
+{
+  "encoding": "utf-8",
+  "raw_bytes": 258,
+  "raw_sha256": "8a2a789a0c55499d34ba429e9f31475987efb1e9211835bf9303bc8b6c785743",
+  "text": "{\n  \"checkpoint_format\": \"generation-v1\",\n  \"snapshot_ref\": \".checkpoint_5618c4f9_0000_20261007T093350.json.generations/55303550417b4c76b19397aee26cca38/snapshot.json\",\n  \"snapshot_sha256\": \"ac90c8990fe5d97ab5c28d912e1e90c7b93c1b71cffaf102acfb2a90209f38b7\"\n}"
+}

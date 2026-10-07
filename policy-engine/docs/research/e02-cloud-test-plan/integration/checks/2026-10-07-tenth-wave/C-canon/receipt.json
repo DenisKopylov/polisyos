@@ -1,0 +1,199 @@
+{
+  "task": "G local exact-candidate C canonical IR consumer/probe check",
+  "candidate": {
+    "sha": "55b45d9a5c95c3b773fc3b4d8679786b3993eb1e",
+    "tree": "70ed14e004063536ff3a12d30d14d9bdd79a4916",
+    "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "identity_source": "R/incoming-20261007-1008/identity.md"
+  },
+  "integration_checkout": {
+    "head_before_and_after": "76746fececd1a183a516c48f07ce2835baa8a2d1",
+    "tree": "51929dd44a3650c7842bf77aedcdeba6ecd1a755",
+    "branch": "codex/e02-integration",
+    "status": "clean"
+  },
+  "isolated_candidate_root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/candidate",
+  "source_closure": {
+    "tracked_files": 2915,
+    "bytes": 54835974,
+    "path_mode_blob_manifest_sha256": "1c6d3aa3152c7afea4cbf8df8e8b0b72199ec0495993e87d102585378f4f62d4",
+    "preflight_file": "preflight-attempt2.json",
+    "postflight_file": "postflight-attempt2.json",
+    "exact_before_and_after": true,
+    "included_extra_test_import_asset": "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+    "extra_asset_candidate_blob": "caf4fa98a0669f6d81bd8b5db0014cb015b9492f"
+  },
+  "environment": {
+    "interpreter": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "python": "3.14.3",
+    "packages": {
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5",
+      "numpy": "2.3.5",
+      "pandas": "2.3.3",
+      "scipy": "1.16.3",
+      "httpx": "0.28.1",
+      "pytest-asyncio": "1.3.0"
+    },
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/candidate/policy-engine/src",
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "candidate_only_import_guard": true,
+    "install_or_resolution": "none"
+  },
+  "pytest": {
+    "command": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/probe_runner.py"
+    ],
+    "internal_argv": [
+      "--noconftest",
+      "-o",
+      "addopts=",
+      "-p",
+      "no:cacheprovider",
+      "-q",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/results/attempt2/pytest.junit.xml",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/results/attempt2/pytest-temp",
+      "tests/unit/core/artifacts/test_ir_adapter.py",
+      "tests/unit/ir/analytics/test_ncm.py",
+      "tests/unit/fabric/test_entity_resolution.py::test_probabilistic_entity_resolution_is_explainable_and_reversible"
+    ],
+    "selectors": [
+      "tests/unit/core/artifacts/test_ir_adapter.py",
+      "tests/unit/ir/analytics/test_ncm.py",
+      "tests/unit/fabric/test_entity_resolution.py::test_probabilistic_entity_resolution_is_explainable_and_reversible"
+    ],
+    "exit_code": 0,
+    "tests": 35,
+    "passed": 35,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "pytest_wall_seconds": 10.596341457974631,
+    "supervisor_wall_seconds": 12.762061583052855,
+    "timeout_seconds": 180,
+    "maxrss_platform_units": 884162560,
+    "warnings": [
+      "Unknown asyncio_mode and cache_dir config options because pytest plugin autoload/conftests were disabled for isolation."
+    ]
+  },
+  "public_runtime_probe": {
+    "typed_FileSystemCAS_manifest_roundtrip": "PASS",
+    "mapping_profile_roundtrip": "FAIL",
+    "manifest_artifact_id": "sha256:3d119a70170d7d2786ad81bbfd6567f5907fe1f8b7eba4711174d0f6b5eb03d0",
+    "typed_manifest_type": "polisyos.core.artifacts.manifest.ArtifactManifest",
+    "canon_json_separators": [
+      ",",
+      ":"
+    ],
+    "canon_json_separators_type": "list",
+    "mapping_failure_type": "polisyos.ir.model_layer.canon.CanonViolation",
+    "mapping_failure": "unsupported_ir_canon_profile",
+    "actual_persisted_bytes": "{\"profile_probe\":\"canonical-ir-json-mapping\",\"value\":17}",
+    "interpretation": "JSON Mapping is explicitly handled by the reader, but strict CanonInfo model_validate rejects the valid JSON-mode separators list (tuple in Python model). The typed FileSystemCAS path passes; the JSON-shaped Mapping acceptance path does not."
+  },
+  "import_provenance": {
+    "loaded_polisyos_modules": 1460,
+    "candidate_blob_exact_count": 1460,
+    "mismatch_count": 0,
+    "origins_file": "results/attempt2/module-origins.json"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "path": "results/attempt2/stdout.txt",
+      "sha256": "cbe0f327fd9059a6b2b01927f03d1ffdebcd1bda37738ffca2fbcfc9d9a27878"
+    },
+    "stderr.txt": {
+      "path": "results/attempt2/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "pytest.junit.xml": {
+      "path": "results/attempt2/pytest.junit.xml",
+      "sha256": "04801beafecc940e122653c9ae36178fd9b1c3c465a1b4ec5bc76a3f19376dec"
+    },
+    "runner-result.json": {
+      "path": "results/attempt2/runner-result.json",
+      "sha256": "6c0d8f67d8287148f0e0df79b7716396733d4b3cebc48ba1003ad07671d1cc4b"
+    },
+    "module-origins.json": {
+      "path": "results/attempt2/module-origins.json",
+      "sha256": "7d56930f0fa6a0ab220c007fed996207506b66441c57db0ae78016c5648ce011"
+    },
+    "supervisor-receipt.json": {
+      "path": "results/attempt2/supervisor-receipt.json",
+      "sha256": "0917ba39bebb05e02d18c822cba945a7abc27826ed70f13131cd00adc323a720"
+    }
+  },
+  "first_attempt": {
+    "outcome": "HARNESS_ERROR_COLLECTION",
+    "reason": "selected test_ncm import needed the tracked production_quality/method_catalog_dependency_digest_domains.toml omitted from the first selected archive; the original blob-binding parser also parsed ls-tree fields incorrectly. Not treated as a product result. The exact tracked config was added and blob/mode manifest checked for the single retry.",
+    "pytest_outcome": "UNRUN due collection interruption; pytest exited 2 before tests executed",
+    "public_probe_observation": "The probe was reached after collection and observed typed PASS / Mapping FAIL, but the attempt is not the final deciding receipt because source-origin binding had a parser defect.",
+    "historical_outputs": {
+      "stdout.txt": {
+        "path": "results/stdout.txt",
+        "sha256": "e933910a450300079a828f550968a8abd8b31e19eafc8a724ce3abcafed40dbd"
+      },
+      "stderr.txt": {
+        "path": "results/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "pytest.junit.xml": {
+        "path": "results/pytest.junit.xml",
+        "sha256": "b25006ce6447e75254d2abaa80658e8b66b7905321cf08824b44956528caf698"
+      },
+      "runner-result.json": {
+        "path": "results/runner-result.json",
+        "sha256": "7678ba2e2b2a5e8a8420d041d0117774e9a60bfd0c0518e30455279e441fa2fe"
+      },
+      "module-origins.json": {
+        "path": "results/module-origins.json",
+        "sha256": "daccdefd05759acc519129a64e4a235ce6ca5ae5021cce875adbb9844974241a"
+      },
+      "supervisor-receipt.json": {
+        "path": "results/supervisor-receipt.json",
+        "sha256": "c5cfc4d539d9e96b50125449b7e8c58e77e79f7dffef2cd3d48a9dfade3dac15"
+      }
+    },
+    "historical_supervisor": {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/probe_runner.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/candidate/policy-engine",
+      "timeout_seconds": 180,
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/candidate/policy-engine/src",
+        "PYTHONNOUSERSITE": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "C_CANON_GROOT": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos"
+      },
+      "started_utc": "2026-10-07T11:15:03.823902+00:00",
+      "disk_free_bytes_before": 25586458624,
+      "source_preflight_sha256": "e711822163472bd3794cc304a254e67a1cea89f9332327dc64a6f20138ab2183",
+      "exit_code": 2,
+      "stdout_bytes": 236183,
+      "stderr_bytes": 0,
+      "stdout_sha256": "e933910a450300079a828f550968a8abd8b31e19eafc8a724ce3abcafed40dbd",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "wall_seconds": 10.385208416031674,
+      "ended_utc": "2026-10-07T11:15:14.209126+00:00",
+      "disk_free_bytes_after": 25585410048,
+      "child_maxrss_platform_units": 489701376,
+      "runner_result_sha256": "7678ba2e2b2a5e8a8420d041d0117774e9a60bfd0c0518e30455279e441fa2fe"
+    }
+  },
+  "limitations": [
+    "This targeted check does not close LA-021 or any broader finding.",
+    "Pytest collection was isolated with --noconftest and plugin autoload disabled; two config-option warnings were emitted.",
+    "No production data, installs, lockfile/source/test modifications, refs, or integration branch changes."
+  ],
+  "checks_recorded_utc": "2026-10-07T11:18:12.849287+00:00"
+}

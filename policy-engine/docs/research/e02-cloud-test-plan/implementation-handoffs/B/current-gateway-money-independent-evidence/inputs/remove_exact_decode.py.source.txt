@@ -1,0 +1,31 @@
+"""Remove only exact numeric decode, retaining real HTTP, ledger and D consumers."""
+import ast
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import pytest
+from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMClient
+root=Path(os.environ['E02_MONEY_SOURCE_ROOT'])
+sha=os.environ['E02_MONEY_SOURCE_SHA']
+module=sys.modules[GatewayLLMClient.__module__]
+path=Path(module.__file__).resolve()
+data=path.read_bytes()
+assert data==subprocess.check_output(['git','-C',str(root),'show',sha+':'+str(path.relative_to(root))])
+tree=ast.parse(data,filename=str(path))
+cls=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='GatewayLLMClient')
+function=next(n for n in cls.body if isinstance(n,ast.AsyncFunctionDef) and n.name=='_post_json')
+removed=[]
+for node in ast.walk(function):
+ if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute) and isinstance(node.func.value,ast.Name) and node.func.value.id=='json' and node.func.attr=='loads':
+  for kw in tuple(node.keywords):
+   if kw.arg=='parse_float':
+    removed.append(ast.unparse(kw.value));node.keywords.remove(kw)
+assert removed==['Decimal']
+namespace=dict(vars(module))
+exec(compile(ast.fix_missing_locations(ast.Module(body=[function],type_ignores=[])),str(path)+':exact_decode_removed','exec'),namespace)
+GatewayLLMClient._post_json=namespace['_post_json']
+print('EXACT_DECODE_REMOVAL '+json.dumps({'target':sha,'path':str(path),'original_sha256':hashlib.sha256(data).hexdigest(),'removed':removed,'overlaid_function':ast.unparse(function)}))
+raise SystemExit(pytest.main(sys.argv[1:]))

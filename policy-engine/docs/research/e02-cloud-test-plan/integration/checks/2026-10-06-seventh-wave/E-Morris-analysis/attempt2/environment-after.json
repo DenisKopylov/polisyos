@@ -1,0 +1,59 @@
+{
+  "active_matching_processes": [],
+  "attempt1_status": "UNRUN_RESOURCE_CEILING",
+  "captured_at": "2026-10-06T19:06:36.008481+00:00",
+  "command_process_exit_code": 0,
+  "files": [
+    {
+      "bytes": 9654,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/attempt2/probe.py",
+      "sha256": "0c4373c98eaf11ccd842891d468ab23e33c0382e6f6547d5e429e009355d70d9"
+    },
+    {
+      "bytes": 328,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/attempt2/inputs.json",
+      "sha256": "02e3b25797ce6f468efe1da748b5da73ef8e4f6d24846e75b1c49d459d571f8c"
+    },
+    {
+      "bytes": 2267,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/attempt2/command.json",
+      "sha256": "a5aeb7a09637faf20273187b5377996cc802df5318f0f39a6b4f2706b0e4f618"
+    },
+    {
+      "bytes": 2079,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/attempt2/environment-before.json",
+      "sha256": "f9605f4f3d0badf6c80a9beadf65dc4d15b569fa9eac17c6a953fa70197a2918"
+    },
+    {
+      "bytes": 10283,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/attempt2/result.json",
+      "sha256": "359389dd9a1da8f564eca6ac6b856f70ef800a0d69900e8eeaa5068ef01e4369"
+    },
+    {
+      "bytes": 2430,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/attempt2/module-hashes.json",
+      "sha256": "f94b358ba6d96e8e7f294ad69b2b7bbc131d3bcfa0572907dc5b9e332b4720b3"
+    },
+    {
+      "bytes": 8409,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/attempt2/stdout.txt",
+      "sha256": "fc3356ef087b930dc048047d356e2c414fe0e1b0adf4f8a8898b03f871380946"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/attempt2/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2994,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/attempt2/report.md",
+      "sha256": "c31b6baeb999d7854d8cc9fc05569ec6c496735b5cab7e45d576797f6361a72f"
+    }
+  ],
+  "git": {
+    "branch": "codex/e02-integration",
+    "head": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+    "porcelain": ""
+  },
+  "probe_result_status": "completed"
+}

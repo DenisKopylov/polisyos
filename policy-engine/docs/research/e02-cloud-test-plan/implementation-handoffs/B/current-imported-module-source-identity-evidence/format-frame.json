@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "ruff",
+    "format",
+    "--check",
+    "tests/unit/foundry/methods/backends/test_module_source_identity.py"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_sha": "815c6ad22e02e1fd987ec6390f733c988d864134",
+  "actual_exit_code": 0,
+  "wall_seconds": 0.04221982500166632,
+  "output": {
+    "bytes": 25,
+    "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+  },
+  "test_source_sha256": "535e5e825bf1df6c154bea4970bade973d05b9901f9969b89a0ffc5e7cf83e50",
+  "qualification": "Exact mirrored source at815; only untracked output metadata added after native. No runtime/gate repeat."
+}

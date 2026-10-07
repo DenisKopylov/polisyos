@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="2" time="1.950" timestamp="2026-10-06T10:56:42.311310+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.fabric.data_plane.test_pool_stream_budget_oracle" name="test_restored_frontier_above_new_cap_refuses_before_consumer_effects" time="0.592"><failure message="AssertionError: ['acquire', 'release', 'acquire', 'poll', 'poll', 'poll', ...]&#10;assert not {'commit', 'flush', 'poll'}&#10; +  where {'commit', 'flush', 'poll'} = &lt;built-in method intersection of set object at 0x7f4095c8af80&gt;(['acquire', 'release', 'acquire', 'poll', 'poll', 'poll', ...])&#10; +    where &lt;built-in method intersection of set object at 0x7f4095c8af80&gt; = {'commit', 'flush', 'poll'}.intersection">tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pool-stream-first-pytest/test_restored_frontier_above_n0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f4095d90c30&gt;
+
+    @pytest.mark.asyncio
+    async def test_restored_frontier_above_new_cap_refuses_before_consumer_effects(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -&gt; None:
+        registry, store, checkpoint = await _pending_checkpoint(tmp_path, monkeypatch)
+        events: list[str] = []
+        acquire = ConnectionPool.acquire_with_connector
+        release = ConnectionPool.release
+        poll = streaming.StreamingSourceSession.poll
+        flush = streaming.StreamWindowAccumulator.flush_with_refs
+        commit = streaming._commit_stream_frontier
+    
+        async def observed_acquire(pool):
+            result = await acquire(pool)
+            events.append("acquire")
+            return result
+    
+        async def observed_release(pool, handle):
+            events.append("release")
+            return await release(pool, handle)
+    
+        async def observed_poll(session):
+            events.append("poll")
+            return await poll(session)
+    
+        def observed_flush(accumulator):
+            events.append("flush")
+            return flush(accumulator)
+    
+        async def observed_commit(**kwargs):
+            events.append("commit")
+            return await commit(**kwargs)
+    
+        monkeypatch.setattr(ConnectionPool, "acquire_with_connector", observed_acquire)
+        monkeypatch.setattr(ConnectionPool, "release", observed_release)
+        monkeypatch.setattr(streaming.StreamingSourceSession, "poll", observed_poll)
+        monkeypatch.setattr(streaming.StreamWindowAccumulator, "flush_with_refs", observed_flush)
+        monkeypatch.setattr(streaming, "_commit_stream_frontier", observed_commit)
+        reopened = FileSystemCAS(store.root)
+        failure = None
+        try:
+            await streaming.process_stream_dataset(
+                connector_id="stream.jsonl",
+                dataset_id="budget-oracle",
+                store=reopened,
+                cursor_store=CursorStore(reopened),
+                sanitize_rows=_rows,
+                runtime_options=_options(1),
+                registry=registry,
+            )
+        except (RuntimeError, ValueError) as exc:
+            failure = exc
+&gt;       assert not {"poll", "flush", "commit"}.intersection(events), events
+E       AssertionError: ['acquire', 'release', 'acquire', 'poll', 'poll', 'poll', ...]
+E       assert not {'commit', 'flush', 'poll'}
+E        +  where {'commit', 'flush', 'poll'} = &lt;built-in method intersection of set object at 0x7f4095c8af80&gt;(['acquire', 'release', 'acquire', 'poll', 'poll', 'poll', ...])
+E        +    where &lt;built-in method intersection of set object at 0x7f4095c8af80&gt; = {'commit', 'flush', 'poll'}.intersection
+
+tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py:151: AssertionError</failure></testcase><testcase classname="tests.unit.fabric.data_plane.test_pool_stream_budget_oracle" name="test_admitted_recovery_emits_two_sessions_once_with_original_lineage" time="0.620" /></testsuite></testsuites>

@@ -1,0 +1,435 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "reviewer": "/root/dur_probe independent of CMP author",
+  "finding_ids": [
+    "B42",
+    "B43",
+    "B45",
+    "B46",
+    "B47",
+    "B48"
+  ],
+  "bundle_ids": [
+    "CMP-01",
+    "CMP-02",
+    "CMP-03"
+  ],
+  "reviewed_owner_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+  "reviewed_owner_tree_sha": "02eebccaf5fee51f2c19de3d6ab7e1c26697a354",
+  "execution_target_sha": "3ad3a455fa6884e2ae71c85e49b2329781c3c9fe",
+  "execution_target_tree_sha": "a87b2d82222abb3368a705a146213c8f53106a68",
+  "execution_binding": "Append-only normal merge of immutable054 source into same originalroot-admittedDURlane; exactwholeexecution tree3ad. No helper or newcheckout; own3DURproduction and canonicala2receipt byteidentical. CMPauthorcheckout was not executed as this proof.",
+  "previous_negative_packet": {
+    "commit": "755155f9fe20b80614a397ed8be00823f0f16660",
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/receipt.json",
+      "sha256": "dfe296c15c6506851d294c419cbdb07fbcda1cd1b82a7150bc1c982bb9301969",
+      "bytes": 35994
+    },
+    "result": "Initial04914cases12PASS2FAIL and final6a6215cases13PASS2sameFAIL preserved byteexact; no repeated historical-baseline attribution."
+  },
+  "oracle_change": {
+    "commit": "b785a577128d6e483d2324096616308ecbcea393",
+    "record": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/successor-oracle-change.json",
+      "sha256": "0aabf7bae155db3993691f60d3b9978b58b129768e1f1329d339c29e2e3dd3d2",
+      "bytes": 2527
+    },
+    "driver": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/successor_test_acceptance.py",
+      "sha256": "e4a70b6ee91cdee86f2269eef3f37f92ef47f24f31304eee1c8637914775f53a",
+      "bytes": 13913
+    },
+    "original_driver": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/test_acceptance.py",
+      "sha256": "6a62bd58d2b4c84f4297ec54d8c394b135b9ecd5925be3a128cd71de2140b7c5",
+      "bytes": 13846
+    },
+    "child_worker": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/import_worker.py",
+      "sha256": "fd69640b7fbd1e70cfc9b4c174eb212af983f241c380b59dc2f29a34641779d2",
+      "bytes": 1995
+    },
+    "meaning": "Rootapproved partial negative moves completeness observation from connect alone to actualconnect+build inside same refusaltry, per canonicalCMP03@697 line90. Actualfulltwo-source arithmetic, required occurrence, unit/shape/semantic/cycle and import cases unchanged. Childworker uses original6a62 fixture module only for unchanged scalar method helper/import identity guards; changed partialtest body is not invoked by worker."
+  },
+  "source_identity": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+      "owner_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+      "execution_target_sha": "3ad3a455fa6884e2ae71c85e49b2329781c3c9fe",
+      "sha256": "402489fc3a89a9ce7567d6ae299576efb155aab1a37977b032cf532eb2833b4c",
+      "bytes": 34720
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/linker.py",
+      "owner_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+      "execution_target_sha": "3ad3a455fa6884e2ae71c85e49b2329781c3c9fe",
+      "sha256": "ac5b4c2b41b64e63e30d23fbfcb130ea7c223edbcb6f42ef33e0264b08c0c373",
+      "bytes": 21949
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/semantic_validator.py",
+      "owner_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+      "execution_target_sha": "3ad3a455fa6884e2ae71c85e49b2329781c3c9fe",
+      "sha256": "24805f7dabb45c402a5915b968701e267904b90afabab9a2112cf09bafea540c",
+      "bytes": 15325
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/slot_schema.py",
+      "owner_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+      "execution_target_sha": "3ad3a455fa6884e2ae71c85e49b2329781c3c9fe",
+      "sha256": "93ae378d72ce59f927fe5ce51daa25e2ab9201962fbadadeaf213333c429b461",
+      "bytes": 16619
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/registry.py",
+      "owner_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+      "execution_target_sha": "3ad3a455fa6884e2ae71c85e49b2329781c3c9fe",
+      "sha256": "3250f70d07a658c9beb9b9210254d425715129a1b9eb29cdbbcdc4a208c977b9",
+      "bytes": 35936
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/base.py",
+      "owner_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+      "execution_target_sha": "3ad3a455fa6884e2ae71c85e49b2329781c3c9fe",
+      "sha256": "ae6ab49021c3adbab8a72f39b2a7cc126d082a54d748f737e0092c64bd6720e8",
+      "bytes": 74245
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/io.py",
+      "owner_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+      "execution_target_sha": "3ad3a455fa6884e2ae71c85e49b2329781c3c9fe",
+      "sha256": "11fd5a3c49d0beb745d3007cb123671c9a53981f1856c1c1591ad909fcb6a621",
+      "bytes": 7890
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+      "owner_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+      "execution_target_sha": "3ad3a455fa6884e2ae71c85e49b2329781c3c9fe",
+      "sha256": "4ded29c3bb1ef77202b4a57d9595e8b4665552293e9b92321e675a52dcbee559",
+      "bytes": 42439
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+      "owner_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+      "execution_target_sha": "3ad3a455fa6884e2ae71c85e49b2329781c3c9fe",
+      "sha256": "769060f639d99f2a04f413cfcb7b7aa3fbd0812b38cf961b2a00f31a62da95e1",
+      "bytes": 13846
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "owner_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+      "execution_target_sha": "3ad3a455fa6884e2ae71c85e49b2329781c3c9fe",
+      "sha256": "59b97d8eef871ce2ed5d02e846d782e9edf4a14af297751db736b8891eebc59d",
+      "bytes": 37425
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py",
+      "owner_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+      "execution_target_sha": "3ad3a455fa6884e2ae71c85e49b2329781c3c9fe",
+      "sha256": "a36c55d2996b178e2671fbd433e56f9e5d5cde327989907ad49f6fc59297c505",
+      "bytes": 5225
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/protocol.py",
+      "owner_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+      "execution_target_sha": "3ad3a455fa6884e2ae71c85e49b2329781c3c9fe",
+      "sha256": "e3e321c42a649e914fc6a24aec4dd1969fa293fc8eb926c610839331eb274555",
+      "bytes": 7869
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/types/checker.py",
+      "owner_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+      "execution_target_sha": "3ad3a455fa6884e2ae71c85e49b2329781c3c9fe",
+      "sha256": "2fe865d1bd41954ad0be686e7ecd7c53a7dad04f08993f9b761a9ff6b2d8bce7",
+      "bytes": 26393
+    }
+  ],
+  "admission": {
+    "profile": "existing rootadmitted lane only, normalmerge; no newtree",
+    "pre_merge_checkpoint": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/pre-merge.json",
+      "sha256": "ee15b431100129fcf4e4e83a9e1b1c291cd5f1878312f17fa816dc8a872a9411",
+      "bytes": 938
+    },
+    "create": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/admission-create.json",
+    "resume": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/admission-resume.json"
+  },
+  "pre_successor_merge": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/pre-successor-merge.json",
+    "sha256": "a85327029460415464d4cbe4657911bd6b28a7ff1156e71a34ae261b600af223",
+    "bytes": 459
+  },
+  "source_review": {
+    "scope": "Entire054^→054 three productionmodule delta (composer/linker/exceptions), componentsREADME, release law and full actual14native file; additive061→054 chain_executor collector/context seams. Prior composer/linker semanticvalidator/NumPyrealconsumer baseline full read recorded755.",
+    "verdict": "No blocking finding for declared finite occurrence/incoming-DAG profile.",
+    "contracts": [
+      "Standalone strictpair full-input law preserved; composer onlydefers completeness until incomingunion validated atbuild, mandatoryevenWARN/OFF. Root/dependencyonlycontext premise documented.",
+      "Same pair structural/unit/shape/namedsemantic predicate manual+automatic. Explicit duplicate is visible and STRICTrefused, automaticassemblyfillsresidualtargetslots; ambiguity diagnostics grant no meaning or policy authority.",
+      "Requiredoccurrence selects uniqueactualdirectpredecessor then uniqueactualancestor then nearearlierinsertion, elseuniquefuture; ambiguousspecified/future typedMissingRequirementError. Effectiveorder/levels/freeze use samegraph. Cycles remain refused."
+    ],
+    "not_claimed": "New compiler/JIT implementation not reviewed or executed as this oracle. Actual public sequential/async NumPy chain consumers and CompiledMethodChain build/freeze only; no served/Aroute/allbackend claim. Author139native not borrowed."
+  },
+  "checks": [
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "/workspace/e02-B-current-durability/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/successor_test_acceptance.py",
+        "-o",
+        "addopts=",
+        "-q",
+        "-s",
+        "--tb=short",
+        "--basetemp=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/composition-acceptance-review/tmp-successor-054",
+        "--junitxml=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/composition-acceptance-review/native-successor-054.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-durability/policy-engine",
+      "target_sha": "3ad3a455fa6884e2ae71c85e49b2329781c3c9fe",
+      "target_tree_sha": "a87b2d82222abb3368a705a146213c8f53106a68",
+      "environment": {
+        "record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/environment-successor-054.json",
+          "sha256": "f34b25be75d10fc28dbd74c585e59adb7859afb57b64e793b032fc7b5859dbe3",
+          "bytes": 6541
+        },
+        "PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src:/workspace/e02-B-current-durability/policy-engine",
+        "E02_REVIEW_TARGET_SHA": "3ad3a455fa6884e2ae71c85e49b2329781c3c9fe",
+        "E02_REVIEW_OWNER_SHA": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+        "POLISYOS_METRICS_PORT": "0",
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "packages": {
+          "numpy": "2.3.5",
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5"
+        },
+        "actualorigin_qualification": "Separate immediate post-run source-origin check in same immutable clean checkout/environment; not a complete per-test imported-module census. Actual B42 subprocess value/edge records are retained in deciding runtime stdout; they do not separately record module origins."
+      },
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/successor_test_acceptance.py",
+          "sha256": "e4a70b6ee91cdee86f2269eef3f37f92ef47f24f31304eee1c8637914775f53a",
+          "bytes": 13913
+        },
+        "child_worker": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/import_worker.py",
+          "sha256": "fd69640b7fbd1e70cfc9b4c174eb212af983f241c380b59dc2f29a34641779d2",
+          "bytes": 1995
+        },
+        "child_fixture_module": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/test_acceptance.py",
+          "sha256": "6a62bd58d2b4c84f4297ec54d8c394b135b9ecd5925be3a128cd71de2140b7c5",
+          "bytes": 13846
+        },
+        "producer_inputs": "13finiteactualregistry/typedslots/IO/NumPyconsumer modulebytes equal054; main8module staticGit guards in unchangeddriver; separate14module immediatepostrun actualimportorigins recorded. No per-test complete module census claim. Real registered arithmetic methods, actualsequential/asynclevelThreadBarrier, freshsubprocess imports; controlledmeta-path missingmodule disclosed; no productiondataset required.",
+        "source_controls": "Whole3ad HEAD cleanbefore/after. Actual targetSHA and ownerSHA environment override only, no testbody/probeoverlay."
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "collected": 15,
+      "passed": 15,
+      "failed": 0,
+      "elapsed_s": 7.0681420610053465,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/native-successor-054.txt",
+        "sha256": "3e48da79cf66309adcd3881259e6c4a806d8c38a0d7d0c86150a9392021151b7",
+        "bytes": 33331
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/native-successor-054.xml",
+        "sha256": "cd295b006351c6ad3c16788542f44a0d3342a1ed959421f356390b4309f4e505",
+        "bytes": 4068
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/wrapper-successor-054.json",
+        "sha256": "c4f88f196e987f8c202e63ba651a3d503cefa21f5f1dd026ae423b862ff56357",
+        "bytes": 1713
+      },
+      "case_outcomes": [
+        {
+          "name": "test_two_fresh_import_orders_execute_real_bound_values[chain-first]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_two_fresh_import_orders_execute_real_bound_values[async-first]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_required_only_edge_keeps_actual_parallel_level_and_value",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_matching_consumes_actual_fixed_and_flexible_values[False]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_matching_consumes_actual_fixed_and_flexible_values[True]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_strict_complete_dag_accepts_two_partial_edges_as_one_complete_input_set",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_repeated_occurrence_tag_validator_positive_negative",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_explicit_earlier_required_occurrence_does_not_depend_on_future_occurrence",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_duplicate_producer_strict_refusal_warn_visible_actual_merge",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_same_semantic_gate_and_actual_positive_for_manual_auto",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_both_typed_structural_paths_refuse_before_execution[unit]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_both_typed_structural_paths_refuse_before_execution[shape]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_both_typed_structural_paths_refuse_before_execution[partial]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_requires_cycle_rejected_before_any_method_run",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_missing_required_async_module_is_addressed_error_not_permanent_unavailable",
+          "outcome": "PASS"
+        }
+      ]
+    }
+  ],
+  "deciding_observations": {
+    "fullmulti_source_dag": "Actualproducer10+20→target30; strictwholeincomingcomplete accepted despite eachsourceedgepartial.",
+    "required_earlier_occurrence": "Actualestimate1→sensitivity→estimate2 produces31; sensitivityrequirededge onlyearlierestimate, nofuturecycle.",
+    "preserved_negatives": "Unit/shape bothroutes exact typedUnitMismatchError/ShapeMismatchError; partialbothroutes SlotConnectionError beforeanysource/targetcalls; semanticforbiddenbothSemanticCompatibilityError; duplicateSTRICTValueError/WARNnotexecuted; actualrequirescycleCyclicDependencyError; missingrequiredasyncmodule exactModuleNotFoundError.",
+    "other_consumers": "Freshchildimportorders2cases7→21, actualrequiresonlysequential/async21+neighbor5 with2partybarrier, matchingfixed11/flexible7→1107 underinvertedneutralnames, repeated family valid31/invalidstrictordering and unexecutedWARN.",
+    "counts": "15cases one actualsuccessor execution; old14/15epochs separate, not summed or independent repeated proof."
+  },
+  "finding_dispositions": [
+    {
+      "finding_id": "B42",
+      "state": "mechanism_verified_bounded",
+      "status": "partial",
+      "scope": "ActualfiniteNumPyregistry/CompiledMethodChain/publicsequential+asyncconsumer profile. Two755reportedclasses corrected on054; finite semantic/structural/occurrence negatives retained.",
+      "candidate_source_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+      "deciding_check_indices": [
+        0
+      ],
+      "closure_authority": "Root/G combinedcohort and criterion-owned final disposition; this reviewer assigns no finding closure."
+    },
+    {
+      "finding_id": "B43",
+      "state": "mechanism_verified_bounded",
+      "status": "partial",
+      "scope": "ActualfiniteNumPyregistry/CompiledMethodChain/publicsequential+asyncconsumer profile. Two755reportedclasses corrected on054; finite semantic/structural/occurrence negatives retained.",
+      "candidate_source_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+      "deciding_check_indices": [
+        0
+      ],
+      "closure_authority": "Root/G combinedcohort and criterion-owned final disposition; this reviewer assigns no finding closure."
+    },
+    {
+      "finding_id": "B45",
+      "state": "mechanism_verified_bounded",
+      "status": "partial",
+      "scope": "ActualfiniteNumPyregistry/CompiledMethodChain/publicsequential+asyncconsumer profile. Two755reportedclasses corrected on054; finite semantic/structural/occurrence negatives retained.",
+      "candidate_source_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+      "deciding_check_indices": [
+        0
+      ],
+      "closure_authority": "Root/G combinedcohort and criterion-owned final disposition; this reviewer assigns no finding closure."
+    },
+    {
+      "finding_id": "B46",
+      "state": "mechanism_verified_bounded",
+      "status": "partial",
+      "scope": "ActualfiniteNumPyregistry/CompiledMethodChain/publicsequential+asyncconsumer profile. Two755reportedclasses corrected on054; finite semantic/structural/occurrence negatives retained.",
+      "candidate_source_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+      "deciding_check_indices": [
+        0
+      ],
+      "closure_authority": "Root/G combinedcohort and criterion-owned final disposition; this reviewer assigns no finding closure."
+    },
+    {
+      "finding_id": "B47",
+      "state": "mechanism_verified_bounded",
+      "status": "partial",
+      "scope": "ActualfiniteNumPyregistry/CompiledMethodChain/publicsequential+asyncconsumer profile. Two755reportedclasses corrected on054; finite semantic/structural/occurrence negatives retained.",
+      "candidate_source_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+      "deciding_check_indices": [
+        0
+      ],
+      "closure_authority": "Root/G combinedcohort and criterion-owned final disposition; this reviewer assigns no finding closure."
+    },
+    {
+      "finding_id": "B48",
+      "state": "mechanism_verified_bounded",
+      "status": "partial",
+      "scope": "ActualfiniteNumPyregistry/CompiledMethodChain/publicsequential+asyncconsumer profile. Two755reportedclasses corrected on054; finite semantic/structural/occurrence negatives retained.",
+      "candidate_source_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+      "deciding_check_indices": [
+        0
+      ],
+      "closure_authority": "Root/G combinedcohort and criterion-owned final disposition; this reviewer assigns no finding closure."
+    }
+  ],
+  "baseline_navigation": {
+    "commit": "755155f9fe20b80614a397ed8be00823f0f16660",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/receipt.json",
+    "pointer": "/baseline_navigation",
+    "denominator": 12,
+    "role": "Navigation-only exactimmutablecells/sourceSHA/ref/env/inputcontext, notnewsourceevidence"
+  },
+  "limitations": [
+    "FiniteJSON/NumPy/source-capture/compiler facade boundaries remain distinct from scientificmeaning, policyauthority or served productionroutes.",
+    "WARNduplicate/ordering/ambiguousauto diagnostics were not used as authoritative acceptance or execution.",
+    "No fullproductiondata needed for these generic actual-DAG predicates; dataset-specific or nativebackend obligations remain their owner.",
+    "No completeJIT/CompiledChainExecutor/newcompiler profile proof from this NumPyconsumer oracle.",
+    "Immediatepostrun origininstrument firstdraft usedincorrecthelper import path andfailedbeforeoriginrecord; corrected source-onlyinstrument14originsPASS, not a product failure or rerun of15semantic cases."
+  ],
+  "evidence_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/native-successor-054.txt",
+      "sha256": "3e48da79cf66309adcd3881259e6c4a806d8c38a0d7d0c86150a9392021151b7",
+      "bytes": 33331
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/native-successor-054.xml",
+      "sha256": "cd295b006351c6ad3c16788542f44a0d3342a1ed959421f356390b4309f4e505",
+      "bytes": 4068
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/wrapper-successor-054.json",
+      "sha256": "c4f88f196e987f8c202e63ba651a3d503cefa21f5f1dd026ae423b862ff56357",
+      "bytes": 1713
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/environment-successor-054.json",
+      "sha256": "f34b25be75d10fc28dbd74c585e59adb7859afb57b64e793b032fc7b5859dbe3",
+      "bytes": 6541
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/pre-successor-merge.json",
+      "sha256": "a85327029460415464d4cbe4657911bd6b28a7ff1156e71a34ae261b600af223",
+      "bytes": 459
+    }
+  ],
+  "closure_ids": [],
+  "created_at": "2026-10-06T12:29:14.346137+00:00"
+}

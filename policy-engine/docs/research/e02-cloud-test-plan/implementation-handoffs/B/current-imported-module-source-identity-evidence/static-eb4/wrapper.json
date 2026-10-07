@@ -1,0 +1,43 @@
+{
+  "started_at": "2026-10-07T07:53:41.009456+00:00",
+  "finished_at": "2026-10-07T07:54:04.423792+00:00",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "polisyos.runtime.quality.production_invocation",
+    "--repo-root",
+    "/workspace/e02-B-current-composition",
+    "--base",
+    "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+    "--receipt",
+    "/dev/shm/e02-B-module-static-eb4-707038/production-invocation-full.json"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_before": {
+    "sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+    "tree": "0b7134be3ac0fa5c7cbe07d4783f6d31a65c3e3e",
+    "status": ""
+  },
+  "source_after": {
+    "sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+    "tree": "0b7134be3ac0fa5c7cbe07d4783f6d31a65c3e3e",
+    "status": ""
+  },
+  "exit_code": 0,
+  "wait4_status": 0,
+  "signal": null,
+  "wall_seconds": 23.41434225899866,
+  "max_rss_kib": 716584,
+  "user_cpu_seconds": 22.617839,
+  "system_cpu_seconds": 1.094875,
+  "stdout": {
+    "bytes": 1348,
+    "sha256": "6f9d72d48d49c7966cd0c91291aef40f8dbcd3fcdaeade14aeeed160d5431984"
+  },
+  "full_receipt": {
+    "path": "/dev/shm/e02-B-module-static-eb4-707038/production-invocation-full.json",
+    "exists": true,
+    "bytes": 2138,
+    "sha256": "4213945dd7bcd97d9d355e8f6d83c131e7efabc3a3183e0704f7adf3dca8a991"
+  }
+}

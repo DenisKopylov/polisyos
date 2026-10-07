@@ -1,0 +1,176 @@
+"""Read immutable source and complete existing peer outputs; execute no product.
+
+Only Python's standard library and Git object reads are used. Peer commands are
+observations, never replayed. This instrument establishes input identity and
+case/phase metadata; the human source verdict is a separate review document.
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import platform
+import re
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+from datetime import UTC, datetime
+from pathlib import Path
+
+BASE = "c0f31b203c44bed9390913a53ceb5aa5dccacf8b"
+TARGET = "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d"
+LOWER = "9f2a31c8869525ecf55fa55d0f5b08027c09a988"
+TEST = "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py"
+
+
+def identity(raw: bytes) -> dict:
+    return {"bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest()}
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repo", type=Path, required=True)
+    parser.add_argument("--peer-output", type=Path, action="append", required=True)
+    parser.add_argument("--out", type=Path, required=True)
+    args = parser.parse_args()
+
+    def git(*argv: str) -> bytes:
+        return subprocess.check_output(["git", "-C", str(args.repo), *argv])
+
+    def source(sha: str, path: str) -> dict:
+        return {
+            "source_sha": sha,
+            "path": path,
+            "git_blob": git("rev-parse", f"{sha}:{path}").decode().strip(),
+            **identity(git("show", f"{sha}:{path}")),
+        }
+
+    before = git("rev-parse", "HEAD").decode().strip()
+    paths = git("diff", "--name-only", BASE, TARGET).decode().splitlines()
+    lower_paths = [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+    ]
+    lower_equal = {
+        p: git("show", f"{LOWER}:{p}") == git("show", f"{TARGET}:{p}")
+        for p in lower_paths
+    }
+    assert all(lower_equal.values())
+    peers = []
+    for directory in args.peer_output:
+        raw = {p.name: p.read_bytes() for p in sorted(directory.iterdir()) if p.is_file()}
+        wrapper = json.loads(raw["wrapper.json"])
+        context = json.loads(raw["source-context.json"])
+        assert wrapper["runtime_source_sha"] == TARGET
+        assert wrapper["source_and_test_unchanged"]
+        assert wrapper["pre"] == wrapper["post"]
+        assert identity(raw["native.txt"]) == {
+            "bytes": wrapper["stdout_bytes"],
+            "sha256": wrapper["stdout_sha256"],
+        }
+        assert identity(git("show", f'{wrapper["own_test_implementation_sha"]}:{TEST}'))[
+            "sha256"
+        ] == wrapper["pre"]["test_sha256"]
+        assert context["source_sha"] == TARGET
+        origins = context["all_loaded_polisyos_origins"]
+        assert len(origins) == context["complete_loaded_polisyos_module_denominator"]
+        for row in origins + context["explicit_source_origins"]:
+            actual = source(TARGET, row["path"])
+            assert all(actual[k] == row[k] for k in ("bytes", "sha256", "git_blob"))
+            assert Path(row["actual_origin"]).is_relative_to(
+                Path("/workspace/e02-B-current-adapters/policy-engine/src")
+            )
+        root = ET.fromstring(raw["native.xml"])
+        cases = []
+        for case in root.iter("testcase"):
+            failure = case.find("failure")
+            cases.append({
+                "name": case.attrib["name"],
+                "time": case.attrib.get("time"),
+                "result": "FAIL" if failure is not None else "ERROR" if case.find("error") is not None else "SKIP" if case.find("skipped") is not None else "PASS",
+                "failure_message": failure.attrib.get("message") if failure is not None else None,
+                "complete_failure_text": failure.text if failure is not None else None,
+            })
+        text = raw["native.txt"].decode()
+        observations = []
+        for match in re.finditer(r"^[.F ]*B65_([A-Z_]+) (\{.*\})$", text, re.MULTILINE):
+            observations.append({"tag": match.group(1), "value": json.loads(match.group(2))})
+        if "observations.json" in raw:
+            assert observations == json.loads(raw["observations.json"])["observations"]
+        peer = {
+            "directory": str(directory),
+            "raw_files": {n: identity(b) for n, b in raw.items()},
+            "wrapper": wrapper,
+            "context": {
+                "explicit_origins": len(context["explicit_source_origins"]),
+                "all_loaded_origins": len(origins),
+                "all_git_byte_identities_verified": True,
+                "python_executable": context["python_executable"],
+                "python_version": context["python_version"],
+                "observed_versions": context["observed_versions"],
+                "pytest_args": context["pytest_args"],
+                "pytest_result": context["pytest_result"],
+            },
+            "suites": [s.attrib for s in root.iter("testsuite")],
+            "case_counts": {r: sum(c["result"] == r for c in cases) for r in ("PASS", "FAIL", "ERROR", "SKIP")},
+            "cases": [{k: v for k, v in c.items() if k != "complete_failure_text"} for c in cases],
+            "unique_failure_lines": list(dict.fromkeys(line for c in cases for line in (c["complete_failure_text"] or "").splitlines())),
+            "failure_text_identities": [identity((c["complete_failure_text"] or "").encode()) for c in cases],
+            "observation_count": len(observations),
+            "observation_payload_identity": identity(json.dumps(observations, sort_keys=True).encode()),
+            "observations": [],
+            "native_summary": [line for line in text.splitlines() if line.startswith("FAILED ") or ("failed in" in line and line.startswith("="))],
+        }
+        for observation in observations:
+            value = observation["value"]
+            projected = {k: v for k, v in value.items() if k not in ("fresh_reopened_snapshot", "fresh_ledger", "before", "after", "audit_entries")}
+            for k in ("fresh_reopened_snapshot", "fresh_ledger", "before", "after"):
+                if k in value:
+                    snapshot = value[k]
+                    projected[k] = {
+                        "state": snapshot["state"],
+                        "spend_receipts": snapshot["spend_receipts"],
+                        "completion_obligations": snapshot["completion_obligations"],
+                        "mutation_operations": [m["operation"] for m in snapshot["recent_mutations"]],
+                    }
+            if "audit_entries" in value:
+                projected["audit_entries"] = value["audit_entries"]
+            peer["observations"].append({"tag": observation["tag"], "value": projected})
+        peers.append(peer)
+    after = git("rev-parse", "HEAD").decode().strip()
+    assert before == after
+    report = {
+        "schema": "policyos.e02.independent_source_and_output_capture.v1",
+        "captured_at": datetime.now(UTC).isoformat(),
+        "argv": sys.argv,
+        "python_executable": sys.executable,
+        "python_version": sys.version,
+        "platform": platform.platform(),
+        "reviewer_head_before": before,
+        "reviewer_head_after": after,
+        "base_sha": BASE,
+        "target_sha": TARGET,
+        "target_tree": git("rev-parse", f"{TARGET}^{{tree}}").decode().strip(),
+        "full_delta_paths": paths,
+        "source_refs": [source(TARGET, p) for p in paths],
+        "complete_delta_identity": identity(git("diff", BASE, TARGET)),
+        "lower_byte_equal_to": LOWER,
+        "lower_byte_equality": lower_equal,
+        "test_input_correction_diff": git("diff", peers[0]["wrapper"]["own_test_implementation_sha"], peers[1]["wrapper"]["own_test_implementation_sha"], "--", TEST).decode(),
+        "peers": peers,
+        "reviewer_product_imports": "UNRUN",
+        "reviewer_native": "UNRUN",
+        "reviewer_gates": "UNRUN",
+        "predicate_basis": "recomputed",
+        "predicate_scope": "immutable source/input identities and complete existing output metadata only; source verdict and causal qualification separate",
+    }
+    with args.out.open("x", encoding="utf-8") as stream:
+        json.dump(report, stream, indent=2, ensure_ascii=False)
+        stream.write("\n")
+    print(json.dumps({"capture": "PASS", "paths": len(paths), "peer_case_counts": [p["case_counts"] for p in peers], "reviewer_native": "UNRUN", "out": str(args.out)}))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

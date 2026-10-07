@@ -1,0 +1,256 @@
+{
+  "schema": "policyos.e02.independent_handoff_review.v1",
+  "reviewer": "B CAS leaf; foreign ROOT handoff and exact data/identity audit only",
+  "reviewed_handoff": {
+    "sha": "c2b9564d9e758727567c5e7bdc9c977826c06da0",
+    "tree": "262ae768b526cb7c243c1f4c018b3e8e92c782ef",
+    "parents": [
+      "0bf788ac2e57533b08be9172d64c19705a3af30d",
+      "87fa1099ce560f334847f8bc0c30535c33c629f0"
+    ],
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-model-reconciliation.json",
+    "bytes": 57042,
+    "sha256": "a1c1affe67fc14498e4cc9c1f7105e69864ab476f279e176d2d268519b4c1877",
+    "blob": "58469425d7116505f61249091a85d9aa6ef22139"
+  },
+  "source_implementation": {
+    "sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+    "tree": "2e069f18e02175dd0d6f7acd6573a4c0b071c766",
+    "firstparent": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+    "source_grade": "Foreign source finite NONBLOCKING from587; runtime/code acceptance HELD"
+  },
+  "root_five_payloads": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-model-reconciliation.json",
+      "bytes": 57042,
+      "sha256": "a1c1affe67fc14498e4cc9c1f7105e69864ab476f279e176d2d268519b4c1877",
+      "blob": "58469425d7116505f61249091a85d9aa6ef22139"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/full-footprint.json",
+      "blob": "66bc727c9cf95d6c9248f11e62fcfe1c3f58b2b2",
+      "bytes": 81348,
+      "sha256": "555d954e19e21740ae863dfc3dbd2af3826d2cf8f95d915fa8f5183ec4e83d07",
+      "keys": [
+        "schema",
+        "slice_base_sha",
+        "slice_base_tree_sha",
+        "candidate_sha",
+        "candidate_tree_sha",
+        "matching_local_assembly_sha",
+        "tree_identity",
+        "source_test_companions",
+        "complete_first_parent_delivery_footprint",
+        "changed_paths_count",
+        "product_paths_count",
+        "other_paths_role",
+        "source_rule",
+        "source_readback",
+        "protected_writers",
+        "hooks",
+        "runtime",
+        "actual_compare"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/instrumentation-status.json",
+      "blob": "1fe823eea51cd6e3890acdddc7b7c0f3e0ab6090",
+      "bytes": 6324,
+      "sha256": "8803a002a267bd8e6cbf19b27a9e8401fe040bdd531f97a464101449c1c3ca1a",
+      "keys": [
+        "schema",
+        "source_candidate_sha",
+        "source_candidate_tree_sha",
+        "actual_instrument_attempts",
+        "resource_observation",
+        "reclaim_attempt",
+        "cloud_status_history",
+        "product_validation",
+        "cleanup"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-wave-all60-overlay.json",
+      "blob": "861cbb2cb503fafa1a010bb0f9871e278294131c",
+      "bytes": 39625,
+      "sha256": "6b27528772116e604e47db53fef0bfc844b16e645d14ae718c2ead4e71781533",
+      "keys": [
+        "schema",
+        "unit",
+        "mode",
+        "source_candidate_sha",
+        "source_candidate_tree_sha",
+        "closure_ids",
+        "formal_closure",
+        "finding_count",
+        "bundle_count",
+        "original_index",
+        "changed_decision_ids",
+        "unchanged_59_role",
+        "technical_counts",
+        "technical_status_groups",
+        "decisions_by_id",
+        "cross_owner_residuals",
+        "verification",
+        "production_data",
+        "absent_distributions"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/native-plan.json",
+      "blob": "15758a7540c8dee86e8c317e72c1a6b0c9f144d0",
+      "bytes": 6264,
+      "sha256": "1cff1ca9efcc91d63e3ab5a27752b1033c43cd79993d960114df65237d3a796f",
+      "keys": [
+        "schema",
+        "status",
+        "source_candidate_sha",
+        "source_candidate_tree_sha",
+        "prepared_local_tree_carrier",
+        "carrier_rule",
+        "native_child_argv",
+        "removal_child_argv",
+        "selector",
+        "cwd",
+        "environment",
+        "prepared_driver",
+        "removal_adapter",
+        "profile_omissions",
+        "required_author_normal_contour",
+        "canonical_default_contracts",
+        "future_receiver",
+        "evidence_rule"
+      ]
+    }
+  ],
+  "schema_reconciliation": {
+    "required_fields": 17,
+    "checks": 6,
+    "check_outcomes": [
+      "PASS",
+      "PASS",
+      "PASS",
+      "PASS",
+      "UNRUN",
+      "UNRUN"
+    ],
+    "primary_predicate": "not_established",
+    "closure_ids": [],
+    "formal_closure": false,
+    "errors": []
+  },
+  "full_footprint_reconciliation": {
+    "complete_git_compare_files": 220,
+    "declared_footprint_rows": 220,
+    "all_220_blob_sha_matches": true,
+    "missing": [],
+    "receipt_missing": [],
+    "receipt_extra": [],
+    "product_five_paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-07-e02-producer-model-scope.toml",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_model_scope_oracle.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py"
+    ],
+    "c2_metadata_compare": {
+      "files": 10,
+      "all_research": true,
+      "source_changes": 0
+    }
+  },
+  "overlay_reconciliation": {
+    "original_ref": {
+      "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+      "sha256": "9aaddf14128afba95a4a5993f9effa141a302047420a0660b9280d4a05b25e70",
+      "bytes": 78194
+    },
+    "original_hash_matches": true,
+    "unique_findings": 60,
+    "unique_group_ids": 60,
+    "technical_counts": {
+      "closed": 47,
+      "limited": 7,
+      "held": 4,
+      "open": 2
+    },
+    "only_status_delta": [
+      {
+        "id": "B59",
+        "field": "technical_decision",
+        "old": "closed",
+        "new": "open"
+      }
+    ],
+    "all_other_59_pointers_match": true,
+    "all_60_formal_closure_false": true,
+    "decision_authority": "Bounded technical navigation only; no new wholeB/native or G acceptance"
+  },
+  "grade_transfer_reconciliation": {
+    "old_imported_four": {
+      "target": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "literal_outcome": "4PASS; matched material removal1FAIL",
+      "qualified": "B74LIMITED; no current producer-source restamp"
+    },
+    "old_gateway_fifteen": {
+      "target": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "literal_outcome": "15PASS",
+      "qualified": "Current source874 loaded origins; no D default-controller bridge, no new producer runtime"
+    },
+    "new_native": "UNRUN",
+    "G_new_broad": "UNRUN",
+    "physical_fulltracked19038_and_archive": "not_established/UNRUN",
+    "old_global_gates": "RED/incomplete at actual6fa; P41not_established/no inherited waiver"
+  },
+  "native_plan_review": {
+    "status": "UNRUN; this is a literal planned child contour, NOT an executable-ready outer runner or observed denominator",
+    "prepared20_and59": "Declared source/planned inputs only; not actual collected cases",
+    "profile_omission": "Explicit --noconftest independent contour; cannot replace normal author or13affected gates",
+    "outer_driver_ready": false,
+    "driver_and_receiver_raw": "Original VM paths/hash navigation; no reconstructed raw bytes or receiver runtime readiness",
+    "required_admission": "Actual fulltracked blob+mode/missing/extra/archive streaming custody before any native"
+  },
+  "concrete_corrections": [
+    {
+      "id": "R1",
+      "kind": "metadata_wording",
+      "path": "source_delivery.history",
+      "observed": "actual G855 and seven published peer parents",
+      "exact_quantity": "Seven additional parents total: G855 + six B lane/peer parents; eight total including firstparentd030.",
+      "required_correction": "Use G855 + six B additional parents, total eight; actual additional_parent_shas list is already correct.",
+      "scope": "No source/tree/runtime effect"
+    },
+    {
+      "id": "R2",
+      "kind": "quantity_scope",
+      "path": "checks[3].environment",
+      "observed": "source875 closure",
+      "exact_quantity": "Current590 native15: 871 distinct B paths +3 externalD =874 loaded paths; 14369 observations. Historical equivalence check:875 equal of876 distinct paths+configs.",
+      "required_correction": "Label current874 loaded origins; retain historical875/876 as separate metadata equivalence denominator; hook-time observations do not claim universal read/call closure.",
+      "scope": "Neither actual15 PASS nor source target changes"
+    },
+    {
+      "id": "R3",
+      "kind": "lifetime_scope",
+      "path": "property.runtime_path[2]",
+      "observed": "producer completion closes live bindings -> canonical full snapshot",
+      "exact_quantity": "_completed_producer_state returns separate neutral completed copy; original producer-held view retains its original guard.",
+      "required_correction": "Explicitly describe the neutral completed copy and still-guarded original view, as accepted source587 does.",
+      "scope": "Clarifies supported runtime contract; no new execution"
+    }
+  ],
+  "root_reported_followup": {
+    "parent_wording": "ROOT already plans forward correction; no corrected futureSHA claimed.",
+    "helper_ready": "ROOT reported wait_for_environment ready then pwd actual409 environment_offline. Helper readiness is not physical command readiness; original c2 lacks later note and should append it as historical instrumentation."
+  },
+  "scope_exclusions": [
+    "No new producer/model source review beyond the already accepted finite587/87fa bounds; no imports/native/gates/helpers/source/test changes.",
+    "No repeated all60 criterion verdicts; original59 decisions remain immutable referenced recommendations.",
+    "No causal attribution from aggregate OOM counters, no cleanup/VM restore/ref repair or quotas.",
+    "No local archive/raw metadata recovery claim from remote Git data."
+  ],
+  "verdict": "Source/data/schema grade NONBLOCKING with three concrete forward metadata corrections required before final current root handoff; native/code acceptance HELD",
+  "predicate_basis": "independently_reconciled",
+  "closure_ids": []
+}

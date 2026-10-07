@@ -1,0 +1,18 @@
+{
+  "JUnit_counts": {
+    "PASS": 1326,
+    "FAIL": 10,
+    "ERROR": 2650
+  },
+  "observer_counts": {
+    "session_items": 3986,
+    "collect_reports": 418,
+    "collection_failed": 0,
+    "collection_skipped": 0,
+    "deselected": 0,
+    "runtime_phase_reports": 9308
+  },
+  "collected": 3986,
+  "exitstatus": 1,
+  "case_notes": "JUnit testcase records; observer logicalnodeids reconciledindependentlylater; no XFAIL inferred fromstdout"
+}

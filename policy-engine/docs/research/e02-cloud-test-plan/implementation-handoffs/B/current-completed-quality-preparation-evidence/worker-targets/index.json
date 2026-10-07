@@ -1,0 +1,32 @@
+{
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/worker-targets/capture-worker-targets-preparation.source.txt",
+      "bytes": 5278,
+      "sha256": "c444fe85d8db049399594cd68cef00f74edd096d5fbc94bf9bbdde8310eb52b9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/worker-targets/format.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/worker-targets/help.txt",
+      "bytes": 896,
+      "sha256": "91170a41aa63ab933b334dde5488bcf02b621bafddeb6792954830b04a7bf4a8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/worker-targets/ruff.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/worker-targets/wrapper.json",
+      "bytes": 4225,
+      "sha256": "892e3c9bcf8d0b889934cb751e5e16d6e61737bcc89a3d58a56abf02a3e4084d"
+    }
+  ],
+  "count": 5,
+  "bytes": 10443,
+  "scope": "Whole source-only worker-targets preparation, no gate/native/build"
+}

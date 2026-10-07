@@ -1,0 +1,122 @@
+{
+  "schema": "policyos.e02.readonly_gate_audit_instrument.v1",
+  "start_utc": "2026-10-06T20:00:58.927912+00:00",
+  "target_source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "target_tree_sha": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+  "reader": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-gate-audit-preparation/audit.py",
+    "source_sha": "a4640e6812123877ce40685a3ca9c7974c856fc7",
+    "sha256": "4140d5996c7563eb3cd40d58eeed0e122d2d011b19808f1f0c1eddfe7968e7ed",
+    "target_byte_equal": true,
+    "executed_copy": "/tmp/e02-B-successor-gate-audit-exe/audit-a464.source.txt"
+  },
+  "launcher": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+    "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+    "sha256": "b92a3a98bb0ba5a0019b0f1e7812ec43767b64d4216339b3da1480e251625deb"
+  },
+  "capture": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+    "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+    "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4"
+  },
+  "configurations": [
+    "LAUNCHER constant selects run_successor.py",
+    "gate_audit raw / filename resolves the two actual output roots"
+  ],
+  "predicate_source_changes": [],
+  "input_routes": {
+    "successor-final-B-cohort-profile.json": "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort-profile.json",
+    "successor-final-B-cohort.xml": "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort.xml",
+    "successor-final-B-cohort.json": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort.json",
+    "successor-final-B-cohort.txt": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort.txt",
+    "successor-final-all-changed-format-profile.json": "/tmp/e02-B-successor-final/raw/review/successor-final-all-changed-format-profile.json",
+    "successor-final-all-changed-format.xml": "/tmp/e02-B-successor-final/raw/review/successor-final-all-changed-format.xml",
+    "successor-final-all-changed-format.json": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-all-changed-format.json",
+    "successor-final-all-changed-format.txt": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-all-changed-format.txt",
+    "successor-final-all-changed-ruff-profile.json": "/tmp/e02-B-successor-final/raw/review/successor-final-all-changed-ruff-profile.json",
+    "successor-final-all-changed-ruff.xml": "/tmp/e02-B-successor-final/raw/review/successor-final-all-changed-ruff.xml",
+    "successor-final-all-changed-ruff.json": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-all-changed-ruff.json",
+    "successor-final-all-changed-ruff.txt": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-all-changed-ruff.txt",
+    "successor-final-architecture-profile.json": "/tmp/e02-B-successor-final/raw/review/successor-final-architecture-profile.json",
+    "successor-final-architecture.xml": "/tmp/e02-B-successor-final/raw/review/successor-final-architecture.xml",
+    "successor-final-architecture.json": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-architecture.json",
+    "successor-final-architecture.txt": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-architecture.txt",
+    "successor-final-parity-uncapped-profile.json": "/tmp/e02-B-successor-final/raw/review/successor-final-parity-uncapped-profile.json",
+    "successor-final-parity-uncapped.xml": "/tmp/e02-B-successor-final/raw/review/successor-final-parity-uncapped.xml",
+    "successor-final-parity-uncapped.json": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-parity-uncapped.json",
+    "successor-final-parity-uncapped.txt": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-parity-uncapped.txt",
+    "successor-final-production-invocation-profile.json": "/tmp/e02-B-successor-final/raw/review/successor-final-production-invocation-profile.json",
+    "successor-final-production-invocation.xml": "/tmp/e02-B-successor-final/raw/review/successor-final-production-invocation.xml",
+    "successor-final-production-invocation.json": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-production-invocation.json",
+    "successor-final-production-invocation.txt": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-production-invocation.txt",
+    "successor-final-runtime-api-profile.json": "/tmp/e02-B-successor-final/raw/review/successor-final-runtime-api-profile.json",
+    "successor-final-runtime-api.xml": "/tmp/e02-B-successor-final/raw/review/successor-final-runtime-api.xml",
+    "successor-final-runtime-api.json": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-runtime-api.json",
+    "successor-final-runtime-api.txt": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-runtime-api.txt",
+    "successor-final-verify-uncapped-profile.json": "/tmp/e02-B-successor-final/raw/review/successor-final-verify-uncapped-profile.json",
+    "successor-final-verify-uncapped.xml": "/tmp/e02-B-successor-final/raw/review/successor-final-verify-uncapped.xml",
+    "successor-final-verify-uncapped.json": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-verify-uncapped.json",
+    "successor-final-verify-uncapped.txt": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-verify-uncapped.txt"
+  },
+  "dispatch_tags": [
+    "successor-final-B-cohort",
+    "successor-final-all-changed-format",
+    "successor-final-all-changed-ruff",
+    "successor-final-architecture",
+    "successor-final-parity-uncapped",
+    "successor-final-production-invocation",
+    "successor-final-runtime-api",
+    "successor-final-verify-uncapped"
+  ],
+  "dispatch_denominator": {
+    "outer_native_cohort": 1,
+    "quality_gates": 7
+  },
+  "profile_root_and_capture_root_samefile": false,
+  "reader_argv": [
+    "/tmp/e02-B-successor-gate-audit-exe/audit-a464.source.txt",
+    "--root",
+    "/workspace/e02-B-current-coordination",
+    "--raw",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review",
+    "--target-sha",
+    "dd9584728bd96f204983615216efdbc58117e713",
+    "--prefix",
+    "successor-final",
+    "--out",
+    "/tmp/e02-B-successor-gate-audit-exe/audit.json"
+  ],
+  "instrument_command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/tmp/e02-B-successor-gate-audit-exe/instrument.source.txt",
+    "--root",
+    "/workspace/e02-B-current-coordination",
+    "--raw",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review",
+    "--profile-raw",
+    "/tmp/e02-B-successor-final/raw/review",
+    "--target-sha",
+    "dd9584728bd96f204983615216efdbc58117e713",
+    "--prefix",
+    "successor-final",
+    "--out",
+    "/tmp/e02-B-successor-gate-audit-exe/audit.json",
+    "--instrument-out",
+    "/tmp/e02-B-successor-gate-audit-exe/execution.json"
+  ],
+  "instrument_sha256": "04f96a156c86ab5b8ab6eb18d2ad29f46e74c68d2b7c074243bd01c2efce572e",
+  "reader_environment": {
+    "executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+  },
+  "qualification": "No copied outputs, invented aliases, gate dispatch, pytest/product import, source edits, or inherited P41 waiver.",
+  "closure_ids": [],
+  "state": "EXECUTED_READ_ONLY_ACCOUNTING",
+  "audit_output": {
+    "path": "/tmp/e02-B-successor-gate-audit-exe/audit.json",
+    "bytes": 505515,
+    "sha256": "cba643548cb5facd8e1fe6f03624fba3c73013a276ac6a8a5c44fcbb37e46493"
+  },
+  "end_utc": "2026-10-06T20:00:59.775773+00:00"
+}

@@ -1,0 +1,31 @@
+"""Check only source-bound continuation production/test files, without native imports."""
+from pathlib import Path
+import ast,hashlib,json,os,subprocess,time
+ROOT=Path('/workspace/e02-B-current-coordination');OWN=Path('/workspace/e02-B-current-execution-state');OUT=Path('/tmp/e02-B-gateway-import-style-20261007');SHA='6fa9b7142ba590c3173f1cd3be097286db5acc4d';BASE='f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1'
+PYTHON=ROOT/'.polisyos/e02-B-current/environment/bin/python'
+def git(*args):return subprocess.check_output(['git','-C',str(ROOT),*args],text=True).strip()
+def blob(data):return {'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+assert git('rev-parse','HEAD')==SHA
+changed=git('diff','--name-only',BASE,SHA,'--','*.py','*.pyi').splitlines()
+paths=[p for p in changed if p.startswith(('policy-engine/src/','policy-engine/tests/'))]
+assert len(paths)==8 and sum(p.startswith('policy-engine/src/') for p in paths)==2 and sum(p.startswith('policy-engine/tests/') for p in paths)==6
+sources=[]
+for p in paths:
+ data=(ROOT/p).read_bytes();assert data==subprocess.check_output(['git','-C',str(ROOT),'show',SHA+':'+p]);sources.append({'path':p,**blob(data)})
+env=dict(os.environ);env['RUFF_CACHE_DIR']=str(OUT/'ruff-cache');env['PYTHONPATH']=str(ROOT/'policy-engine/src')+':'+str(ROOT/'policy-engine')
+commands=[[str(PYTHON),'-m','ruff','check','--no-cache',*[p.removeprefix('policy-engine/') for p in paths]],[str(PYTHON),'-m','ruff','format','--check',*[p.removeprefix('policy-engine/') for p in paths]]]
+checks=[]
+for name,command in zip(['continuation-eight-ruff','continuation-eight-format'],commands,strict=True):
+ begin=time.monotonic();completed=subprocess.run(command,cwd=ROOT/'policy-engine',env=env,capture_output=True,check=False)
+ for ext,data in [('stdout.txt',completed.stdout),('stderr.txt',completed.stderr)]:
+  with (OUT/(name+'.'+ext)).open('xb') as stream:stream.write(data)
+ checks.append({'command':command,'cwd':str(ROOT/'policy-engine'),'target_sha':SHA,'target_tree':git('rev-parse',SHA+'^{tree}'),'exit_code':completed.returncode,'wall_s':time.monotonic()-begin,'stdout':{'path':str(OUT/(name+'.stdout.txt')),**blob(completed.stdout)},'stderr':{'path':str(OUT/(name+'.stderr.txt')),**blob(completed.stderr)},'outcome':'PASS' if completed.returncode==0 else 'FAIL'})
+for p in paths:assert (ROOT/p).read_bytes()==subprocess.check_output(['git','-C',str(ROOT),'show',SHA+':'+p])
+assert git('rev-parse','HEAD')==SHA
+own_path='policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py';own_before=subprocess.check_output(['git','-C',str(OWN),'show','c383c91007d8ae4438304392cc133f6fffbda5ac:'+own_path]);own_actual=(OWN/own_path).read_bytes()
+result={'root_source_sha':SHA,'root_source_tree':git('rev-parse',SHA+'^{tree}'),'root_head_before_after_unchanged':True,'delta_base':BASE,'delta_python_paths':changed,'static_checked_paths':paths,'sources':sources,'config_inputs':[{'path':p,**blob((ROOT/p).read_bytes())} for p in ['policy-engine/ruff.toml','policy-engine/architecture/tooling/ruff/generated.toml']],
+ 'environment':{'python':str(PYTHON),'ruff_version':subprocess.check_output([str(PYTHON),'-m','ruff','--version'],text=True).strip(),'PYTHONPATH':env['PYTHONPATH'],'RUFF_CACHE_DIR':env['RUFF_CACHE_DIR'],'no_source_mutation':True,'no_native_or_dependency_setup':True},
+ 'checks':checks,'own_exact_money_file':{'path':own_path,**blob(own_actual),'bytes_equal_to_c383':own_actual==own_before,'whole_AST_equal_to_c383':ast.dump(ast.parse(own_actual),include_attributes=False)==ast.dump(ast.parse(own_before),include_attributes=False),'source_import_edits':False},
+ 'root_test_bytes_unchanged_after':True,'limitations':['Only the exact2production+6test continuationdelta statically checked; fullglobalRuff remains actualFAIL4444.','This does not run native code or assign inherited P41 status; no edits/deps/services/cleanup or broadfix.']}
+with (OUT/'delta-checks.json').open('x') as stream:json.dump(result,stream,indent=2);stream.write('\n')
+print(json.dumps({'source':SHA,'production':2,'tests':6,'checks':[{'outcome':c['outcome'],'exit':c['exit_code'],'wall_s':c['wall_s']} for c in checks],'own_source_edits':False,'root_source_unchanged':True}))

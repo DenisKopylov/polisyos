@@ -1,0 +1,20 @@
+{"target_sha": "0f7bdc9233af49c63874ac72e463aedeba7b2fb7", "driver_sha256": "2dcfe0ccdd35666832deab851b65d2faf1f4bfa32c935425358e5e446de45f45", "module_file": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py", "module_sha256": "dd05419162834ba7c7f74a6a71b85b32fdbc1f26fe520094414d1e5c06763d8b"}
+2026-10-06 10:52:31.666 | DEBUG    | polisyos.common.logger:_call:120 - Rate limiter initialized
+{"accepted_nonfinite_config": [["rate_limit_rps", "nan"], ["rate_limit_rps", "inf"], ["burst_size", "nan"], ["burst_size", "inf"], ["min_rate_rps", "nan"], ["max_rate_rps", "nan"], ["max_rate_rps", "inf"]], "provider_outcome": "returned", "physical_provider_calls": ["non-finite", "non-finite", "non-finite"]}
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/rate-finite-probe.py", line 33, in <module>
+    asyncio.run(main())
+    ~~~~~~~~~~~^^^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/rate-finite-probe.py", line 31, in main
+    assert not accepted and provider_calls==[], "nonfinite service quantity must refuse before real provider admission"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: nonfinite service quantity must refuse before real provider admission

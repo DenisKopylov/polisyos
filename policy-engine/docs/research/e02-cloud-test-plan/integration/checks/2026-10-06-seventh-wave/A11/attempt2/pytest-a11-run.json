@@ -1,0 +1,180 @@
+{
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-vv",
+    "-p",
+    "e02_a11_observer",
+    "-o",
+    "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/outputs/attempt2/pytest-cache",
+    "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/outputs/attempt2/benchmark-store",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/outputs/attempt2/basetemp",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/outputs/attempt2/a11.xml",
+    "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/checkout-retry/policy-engine",
+  "ended_at_utc": "2026-10-06T19:17:12.731641+00:00",
+  "exit_code": 0,
+  "generated_cap_stopped": false,
+  "generated_unique_bytes_at_end": 3777934,
+  "label": "pytest-a11",
+  "max_observed_process_tree_rss_kib": 1421296,
+  "resource_samples": [
+    {
+      "elapsed_s": 0.0,
+      "generated_unique_bytes": 2824873,
+      "tree_rss_kib": 304
+    },
+    {
+      "elapsed_s": 1.03,
+      "generated_unique_bytes": 2826236,
+      "tree_rss_kib": 162000
+    },
+    {
+      "elapsed_s": 2.05,
+      "generated_unique_bytes": 2826236,
+      "tree_rss_kib": 304816
+    },
+    {
+      "elapsed_s": 3.07,
+      "generated_unique_bytes": 2826236,
+      "tree_rss_kib": 411744
+    },
+    {
+      "elapsed_s": 4.09,
+      "generated_unique_bytes": 2826236,
+      "tree_rss_kib": 526016
+    },
+    {
+      "elapsed_s": 5.11,
+      "generated_unique_bytes": 2826236,
+      "tree_rss_kib": 588720
+    },
+    {
+      "elapsed_s": 6.14,
+      "generated_unique_bytes": 2826236,
+      "tree_rss_kib": 677184
+    },
+    {
+      "elapsed_s": 7.16,
+      "generated_unique_bytes": 2826236,
+      "tree_rss_kib": 772160
+    },
+    {
+      "elapsed_s": 8.18,
+      "generated_unique_bytes": 2826236,
+      "tree_rss_kib": 843712
+    },
+    {
+      "elapsed_s": 9.2,
+      "generated_unique_bytes": 2843457,
+      "tree_rss_kib": 919040
+    },
+    {
+      "elapsed_s": 10.23,
+      "generated_unique_bytes": 2843457,
+      "tree_rss_kib": 919184
+    },
+    {
+      "elapsed_s": 11.25,
+      "generated_unique_bytes": 2843457,
+      "tree_rss_kib": 919184
+    },
+    {
+      "elapsed_s": 12.28,
+      "generated_unique_bytes": 2856510,
+      "tree_rss_kib": 919472
+    },
+    {
+      "elapsed_s": 13.3,
+      "generated_unique_bytes": 2856510,
+      "tree_rss_kib": 951520
+    },
+    {
+      "elapsed_s": 14.33,
+      "generated_unique_bytes": 2856510,
+      "tree_rss_kib": 1081296
+    },
+    {
+      "elapsed_s": 15.35,
+      "generated_unique_bytes": 2856510,
+      "tree_rss_kib": 1202096
+    },
+    {
+      "elapsed_s": 16.38,
+      "generated_unique_bytes": 2856510,
+      "tree_rss_kib": 1313696
+    },
+    {
+      "elapsed_s": 17.41,
+      "generated_unique_bytes": 2856510,
+      "tree_rss_kib": 1407280
+    },
+    {
+      "elapsed_s": 18.44,
+      "generated_unique_bytes": 2856510,
+      "tree_rss_kib": 1421296
+    },
+    {
+      "elapsed_s": 19.47,
+      "generated_unique_bytes": 2856510,
+      "tree_rss_kib": 1362176
+    },
+    {
+      "elapsed_s": 20.49,
+      "generated_unique_bytes": 2856510,
+      "tree_rss_kib": 1303584
+    },
+    {
+      "elapsed_s": 21.51,
+      "generated_unique_bytes": 2856510,
+      "tree_rss_kib": 1299760
+    },
+    {
+      "elapsed_s": 22.54,
+      "generated_unique_bytes": 2856510,
+      "tree_rss_kib": 1321936
+    },
+    {
+      "elapsed_s": 23.57,
+      "generated_unique_bytes": 2897370,
+      "tree_rss_kib": 535920
+    },
+    {
+      "elapsed_s": 24.59,
+      "generated_unique_bytes": 2903827,
+      "tree_rss_kib": 537968
+    },
+    {
+      "elapsed_s": 25.62,
+      "generated_unique_bytes": 2916728,
+      "tree_rss_kib": 541344
+    },
+    {
+      "elapsed_s": 26.65,
+      "generated_unique_bytes": 3775729,
+      "tree_rss_kib": 755184
+    },
+    {
+      "elapsed_s": 27.68,
+      "generated_unique_bytes": 3775729,
+      "tree_rss_kib": 755216
+    },
+    {
+      "elapsed_s": 28.71,
+      "generated_unique_bytes": 3777934,
+      "tree_rss_kib": 755840
+    }
+  ],
+  "started_at_utc": "2026-10-06T19:16:42.990231+00:00",
+  "stderr_bytes": 0,
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/outputs/attempt2/pytest.stderr.txt",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_bytes": 5271,
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/outputs/attempt2/pytest.stdout.txt",
+  "stdout_sha256": "e83b5ac62c16073e94abc1bd0d4c16d1d814f9f875183d7736055f2d83834b1b",
+  "timed_out": false,
+  "timeout_seconds": 240,
+  "wall_seconds": 29.741
+}

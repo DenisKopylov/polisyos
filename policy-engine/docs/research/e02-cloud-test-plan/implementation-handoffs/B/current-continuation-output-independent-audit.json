@@ -1,0 +1,564 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-continuation-output-independent-audit",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "a058426e743e8ce8c88c0b4469451b3180458915",
+  "implementation_commits": [
+    "06577ffac3d451b668fe9d4eb2b2ca133f6b1815"
+  ],
+  "candidate_tree_sha": "207b9b0e4f0cca1b454f06316c4c482eafc154bb",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/audit.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/external-audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/external-audit.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/external-gates.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/external-helper-source-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/external-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/native-audit-final.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/native-audit-final.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/native-audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/native-audit.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/native-final-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/native-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/stdout.txt"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "/tmp/e02-B-cas-output-audit-20261007/audit.py.txt",
+        "/tmp/e02-B-cas-output-audit-20261007/audit.json"
+      ],
+      "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation",
+        "profile": "Stdlib-only read-only metadata audit, no candidate imports/tests/gates",
+        "interpreter": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "shell_stdout_redirect": "/tmp/e02-B-cas-output-audit-20261007/stdout.txt"
+      },
+      "input_closure": {
+        "source_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+        "instrument": {
+          "git_sha": "06577ffac3d451b668fe9d4eb2b2ca133f6b1815",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/audit.py.txt",
+          "bytes": 8217,
+          "sha256": "9a630e9b7fe737dc8c897f8ea773cd3911471866dbba3803a4962967fd0f75ba"
+        },
+        "retained_root_raw_refs": [
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-ruff.json",
+            "bytes": 28807,
+            "sha256": "999f98dba01a9ee832d24b58b0847e50537c4c250ad69d7eb7d2a100cd8422ea",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/ruff/profile.json",
+            "bytes": 124591,
+            "sha256": "526dee0fa7fdba5761959218336e9c0ab0c3ae2c5357d7ab79d278840b3b9d2e",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/ruff/resource-after.json",
+            "bytes": 1871,
+            "sha256": "2bed57d31773404db95750eba8533e9325a94750bba04d3759c6480e5bb54f04",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-ruff.txt",
+            "bytes": 2915042,
+            "sha256": "ee7a72ea4f57a21f3b7cd5ac2c8b1fd34c5a2a08aaf5cd0b97a8c9384c2cf8ac",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-format.json",
+            "bytes": 28808,
+            "sha256": "6bacc498b026d6427792da18efe7a60c0dcd89e2445ed9ccc2b33c4f58187a7b",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/format/profile.json",
+            "bytes": 124591,
+            "sha256": "f7e7c62063aef2682874d3cc811ed9ea44c1febf35c5daafa1199dc8e109493f",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/format/resource-after.json",
+            "bytes": 1871,
+            "sha256": "081ae447034777c752f40027fb89363d9270050abf5783bdf6263f0b7500a811",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-format.txt",
+            "bytes": 13457,
+            "sha256": "9d0355f38487e3549a8ce015ed036beb90329edd328a02b20647dae519313b99",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-mypy.json",
+            "bytes": 5664,
+            "sha256": "e7df706514ab628c92a08cafaa8d24cb670d07aa67d3a249fd894ee770fed969",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/mypy/profile.json",
+            "bytes": 74652,
+            "sha256": "f53abbb3f6a644b447a9b1f763c8c08ccd417d2163d625ef84c71d814859ccc7",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/mypy/resource-after.json",
+            "bytes": 1859,
+            "sha256": "9774f02dd191637074030bfef0e6e9051a4596e62c999740b7740cd6a058ff56",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-mypy.txt",
+            "bytes": 6584,
+            "sha256": "7061fc1eb406b182ba5bcea18902ae2b1485f299141349a40ee756295a60ea10",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-runtime-api.json",
+            "bytes": 2521,
+            "sha256": "d0f6d472f748cd64a81d12bfed55f213527c01c0648e61114e5d44166dbe9a30",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/runtime-api/profile.json",
+            "bytes": 4145,
+            "sha256": "04ea38a3ccd7df6777783d378c168ccc8315e9d30274a2b9f6bbbd2d816794b2",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/runtime-api/resource-after.json",
+            "bytes": 1853,
+            "sha256": "c8bc15cd9ac24bfd573e799dcaea7c77698de44d2ebcea578eeeb9b2c24a0b78",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-runtime-api.txt",
+            "bytes": 6755,
+            "sha256": "87db5f736256073906ba6c308d5f6d89a9b8192d096800935c4c9e6a29794013",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-production-invocation.json",
+            "bytes": 2750,
+            "sha256": "cc2dbc4a5e237483f1256392e990d9393e49594ce45c688012fa029e7ec7e572",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/production-invocation/profile.json",
+            "bytes": 4438,
+            "sha256": "da60ca94240c5f728a890c9df36a540ae7e4fc3ace8a1e10fe93132a081fe707",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/production-invocation/resource-after.json",
+            "bytes": 1863,
+            "sha256": "a6e50ae1ca545bfc2939773b38ddc0c248104cc2ff7312ffa8dadbb34d880d33",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-production-invocation.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-architecture.json",
+            "bytes": 2643,
+            "sha256": "c1a5ccc88e0e754a3238dcee47977e58940fbded68f2bd7f6f2c1ae83e612f71",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/architecture/profile.json",
+            "bytes": 5883,
+            "sha256": "dd918a1b050225fce97ba69aed524e0979637c4c0fb49ba697636e7275492e11",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/architecture/resource-after.json",
+            "bytes": 1864,
+            "sha256": "ab0542f63db7d46bb69371bd25a4c3954c9de4b8d7cff07c2e7d04f44056ea03",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-architecture.txt",
+            "bytes": 136179,
+            "sha256": "a2b68b4ec11e89d3b6146b9e7c7194a2157625a097836ad33141a0ea42169b49",
+            "receiver_git_availability": "not_established"
+          }
+        ],
+        "actual_output_input_custody": "Full original root logs/profiles read/hash-bound in the audit result. Root original large-byte Git/receiver availability is not established by this leaf."
+      },
+      "outcome": "PASS",
+      "output": {
+        "full_stdout": {
+          "git_sha": "06577ffac3d451b668fe9d4eb2b2ca133f6b1815",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/stdout.txt",
+          "bytes": 3024,
+          "sha256": "b48cbe6c5a1b01705b580b2ee97dba357fa23a9d669d9bea3b4b1ccc3d3d606c"
+        },
+        "complete_audit_result": {
+          "git_sha": "06577ffac3d451b668fe9d4eb2b2ca133f6b1815",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/audit.json",
+          "bytes": 136332,
+          "sha256": "27e4a8e01835a85886ac1fabb547b93f6c4098bec9f12e7341b5f6c3aeac1075"
+        }
+      },
+      "qualification": "Internal binding/count audit PASS only. Provider Ruff/format FAIL, mypy/runtime/scanner ERROR and architecture canonical UNRUN all retained; no gate/source acceptance."
+    },
+    {
+      "command": [
+        "python3",
+        "/tmp/e02-B-cas-output-audit-20261007/native-audit.py.txt",
+        "/tmp/e02-B-cas-output-audit-20261007/native-audit.json"
+      ],
+      "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation",
+        "profile": "Stdlib-only read-only metadata audit, no candidate imports/tests/gates",
+        "interpreter": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "shell_stdout_redirect": "/tmp/e02-B-cas-output-audit-20261007/native-stdout.txt"
+      },
+      "input_closure": {
+        "source_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+        "instrument": {
+          "git_sha": "06577ffac3d451b668fe9d4eb2b2ca133f6b1815",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/native-audit.py.txt",
+          "bytes": 7120,
+          "sha256": "f1f41d39e63c32e65d3eb9c36fb35d63ce884f54148e27f9857e1fa9f61a3b47"
+        },
+        "retained_root_raw_refs": [
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/inventory.json",
+            "bytes": 20392426,
+            "sha256": "97f2314c77ce5611d32037f060adb569152ea502dad597de77df90a66448bc01",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/profile.json",
+            "bytes": 2383355,
+            "sha256": "75f3276dd7a45ac8980ded64debc1eca57bef5f6ff51c8b133af387b7fb45dec",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-admitted-native.json",
+            "bytes": 3186,
+            "sha256": "1b79fb2293003aa418f66959656d6e4caf0c6ed86b25577ac70b2487b5c47a69",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-admitted-native.txt",
+            "bytes": 4551084,
+            "sha256": "ffe9b73469ce61c647b3ce5a0992e4dfa6038eeb3efd2e2906b5545586106231",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/native.xml",
+            "bytes": 4697237,
+            "sha256": "beb9c1aab3508e78d07445b223aa6f4116ae37500f23f5fb107ba32ad4cd2108",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/runtime-reports.jsonl",
+            "bytes": 7372479,
+            "sha256": "4f9132679ad3c7d539e940c2b60de1dc320a1b159e19620a0b4bff8cc7626806",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/whole-files.args",
+            "bytes": 15279,
+            "sha256": "52272ab63030e91325875de023291ec9dc44ec47c99125d66e4f4e995ea166ad",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/resource-after.json",
+            "bytes": 1864,
+            "sha256": "4ab65d73a23f17244f7320db47754d9a1bd95b1899ac747bee10375a2a8a204a",
+            "receiver_git_availability": "not_established"
+          }
+        ],
+        "actual_output_input_custody": "Full original root logs/profiles read/hash-bound in the audit result. Root original large-byte Git/receiver availability is not established by this leaf."
+      },
+      "outcome": "ERROR",
+      "output": {
+        "full_stdout": {
+          "git_sha": "06577ffac3d451b668fe9d4eb2b2ca133f6b1815",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/native-stdout.txt",
+          "bytes": 2178,
+          "sha256": "1d78e91638bdc41b3a879158f6dd21058d4d4b34db0e310844d590b6a7a4ba46"
+        },
+        "complete_audit_result": {
+          "git_sha": "06577ffac3d451b668fe9d4eb2b2ca133f6b1815",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/native-audit.json",
+          "bytes": 111679,
+          "sha256": "564229dcd14978a6e10543c6af4b966a24b036d287a203ad05b77eaa723c3a97"
+        }
+      },
+      "qualification": "Initial literal identity projection failed:3 external :: IDs have empty XML class and4 parameter strings contain ::. Original partial counter output3979 remains an instrument ERROR, not native/product denominator or failure."
+    },
+    {
+      "command": [
+        "python3",
+        "/tmp/e02-B-cas-output-audit-20261007/native-audit-final.py.txt",
+        "/tmp/e02-B-cas-output-audit-20261007/native-audit-final.json"
+      ],
+      "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation",
+        "profile": "Stdlib-only read-only metadata audit, no candidate imports/tests/gates",
+        "interpreter": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "shell_stdout_redirect": "/tmp/e02-B-cas-output-audit-20261007/native-final-stdout.txt"
+      },
+      "input_closure": {
+        "source_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+        "instrument": {
+          "git_sha": "06577ffac3d451b668fe9d4eb2b2ca133f6b1815",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/native-audit-final.py.txt",
+          "bytes": 7224,
+          "sha256": "cdb4addc757c98de30235b07cd309d298c19f0bd431d33e596f213332896b791"
+        },
+        "retained_root_raw_refs": [
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/inventory.json",
+            "bytes": 20392426,
+            "sha256": "97f2314c77ce5611d32037f060adb569152ea502dad597de77df90a66448bc01",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/profile.json",
+            "bytes": 2383355,
+            "sha256": "75f3276dd7a45ac8980ded64debc1eca57bef5f6ff51c8b133af387b7fb45dec",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-admitted-native.json",
+            "bytes": 3186,
+            "sha256": "1b79fb2293003aa418f66959656d6e4caf0c6ed86b25577ac70b2487b5c47a69",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-admitted-native.txt",
+            "bytes": 4551084,
+            "sha256": "ffe9b73469ce61c647b3ce5a0992e4dfa6038eeb3efd2e2906b5545586106231",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/native.xml",
+            "bytes": 4697237,
+            "sha256": "beb9c1aab3508e78d07445b223aa6f4116ae37500f23f5fb107ba32ad4cd2108",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/runtime-reports.jsonl",
+            "bytes": 7372479,
+            "sha256": "4f9132679ad3c7d539e940c2b60de1dc320a1b159e19620a0b4bff8cc7626806",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/whole-files.args",
+            "bytes": 15279,
+            "sha256": "52272ab63030e91325875de023291ec9dc44ec47c99125d66e4f4e995ea166ad",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/resource-after.json",
+            "bytes": 1864,
+            "sha256": "4ab65d73a23f17244f7320db47754d9a1bd95b1899ac747bee10375a2a8a204a",
+            "receiver_git_availability": "not_established"
+          }
+        ],
+        "actual_output_input_custody": "Full original root logs/profiles read/hash-bound in the audit result. Root original large-byte Git/receiver availability is not established by this leaf."
+      },
+      "outcome": "PASS",
+      "output": {
+        "full_stdout": {
+          "git_sha": "06577ffac3d451b668fe9d4eb2b2ca133f6b1815",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/native-final-stdout.txt",
+          "bytes": 717,
+          "sha256": "6704c428c38dbe71e19846d20e51bcaf9ae1c6e64e5e5fad15cfba1db7857d07"
+        },
+        "complete_audit_result": {
+          "git_sha": "06577ffac3d451b668fe9d4eb2b2ca133f6b1815",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/native-audit-final.json",
+          "bytes": 110351,
+          "sha256": "8ee6a25c212823f70607766cbb3f3a5a6f775e1d2ecfac457943f3d72239fe30"
+        }
+      },
+      "qualification": "Full3986 actual identities and9308 complete journal rows reconcile with all JUnit cases. Root native exit1 /1326PASS10FAIL2650ERROR retained; no finding closure."
+    },
+    {
+      "command": [
+        "python3",
+        "/tmp/e02-B-cas-output-audit-20261007/external-audit.py.txt",
+        "/tmp/e02-B-cas-output-audit-20261007/external-audit.json"
+      ],
+      "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation",
+        "profile": "Stdlib-only read-only metadata audit, no candidate imports/tests/gates",
+        "interpreter": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "shell_stdout_redirect": "/tmp/e02-B-cas-output-audit-20261007/external-stdout.txt"
+      },
+      "input_closure": {
+        "source_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+        "instrument": {
+          "git_sha": "06577ffac3d451b668fe9d4eb2b2ca133f6b1815",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/external-audit.py.txt",
+          "bytes": 4665,
+          "sha256": "ba75af2928b3137fcf1ccc74198620f0f552fa1cb92b7a8803632f32483f786b"
+        },
+        "retained_root_raw_refs": [
+          {
+            "path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/verify/receipt.json",
+            "bytes": 6328,
+            "sha256": "0daf9eec0aab8f80c596f41727c67a096be4cea02ed31457c0b40363ae8e6714",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/verify/profile-before-exec.json",
+            "bytes": 5343,
+            "sha256": "5f7a4d2bd3aab8f90391fe472d19bef600c4117ea7d9cfdbe08d1bd87426172d",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/verify/stdout.txt",
+            "bytes": 11929,
+            "sha256": "aaef65cff6a336618cbf333c3dcb047379b0cd224600366bc7eb92d0b1c511cd",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/parity/receipt.json",
+            "bytes": 6330,
+            "sha256": "03e826c3df0b9f65e6b4d7a3f1a3415cab82fb0a6eb3862d60e456c1bca5b3f1",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/parity/profile-before-exec.json",
+            "bytes": 5346,
+            "sha256": "29c414a06521b5adf4cce87c83d544fabb7382d8e5f8f6c683040f3ba73f4f3f",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/parity/stdout.txt",
+            "bytes": 29681,
+            "sha256": "9782911a518ee99db0b11364cdff543e61145976fd13e4f3921c8b31f9ce1593",
+            "receiver_git_availability": "not_established"
+          }
+        ],
+        "actual_output_input_custody": "Full original root logs/profiles read/hash-bound in the audit result. Root original large-byte Git/receiver availability is not established by this leaf."
+      },
+      "outcome": "PASS",
+      "output": {
+        "full_stdout": {
+          "git_sha": "06577ffac3d451b668fe9d4eb2b2ca133f6b1815",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/external-stdout.txt",
+          "bytes": 3026,
+          "sha256": "67ef35087edf75d96b63e11763941479c2d649daa3c6379d3bb2ba443e29b84a"
+        },
+        "complete_audit_result": {
+          "git_sha": "06577ffac3d451b668fe9d4eb2b2ca133f6b1815",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/external-audit.json",
+          "bytes": 25444,
+          "sha256": "f97597daf8bbb403172eb6341d4b81b3728da9e2b7d3e9f46bba3f3f45e4be0e"
+        }
+      },
+      "qualification": "Exact actual projected plans15/35 reconcile with doctor1FAIL each; later14/34 UNRUN. All literal parity doctor issue types retained separately."
+    },
+    {
+      "command": [
+        "python3",
+        "-"
+      ],
+      "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation",
+        "profile": "Independent source-only inspection of untracked external capture helper; never invoked by reviewer"
+      },
+      "input_closure": {
+        "source_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+        "actual_helper_literal": {
+          "git_sha": "06577ffac3d451b668fe9d4eb2b2ca133f6b1815",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/external-gates.py.txt",
+          "bytes": 5441,
+          "sha256": "3fe86143a9b124b78d89fdafe42757d7f521680aea99de731e20ab2c5a6f82d9"
+        },
+        "canonical_admission_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py@6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+        "canonical_constituent_runner": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py@6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+        "actual_stdin_literal": "from pathlib import Path\nimport hashlib\np=Path('/tmp/e02-B-continuation-external-6fa9b7142ba5/external-gates.py');b=p.read_bytes();print(len(b),hashlib.sha256(b).hexdigest());print(b.decode())\n"
+      },
+      "outcome": "PASS",
+      "output": {
+        "source_review": {
+          "git_sha": "06577ffac3d451b668fe9d4eb2b2ca133f6b1815",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/external-helper-source-review.json",
+          "bytes": 1977,
+          "sha256": "b66600bf10fec8d852b3fc94d364c6f2af276961d11511097e496f788e73b7a1"
+        }
+      },
+      "qualification": "Exact Python stdin source-read tool command, not invented native/review CLI. Narrow capture/source NONBLOCKING only; complete helper input bytes archived, no reviewer gate/backend execution."
+    }
+  ],
+  "property": {
+    "statement": "Actual frozen gate/cohort inputs, process completions, full phase/case denominators and retained failed or unavailable outputs must remain distinct from source/finding acceptance. Empty/interrupted output and static selection markers cannot become a green verdict.",
+    "runtime_path": [
+      "Root6fa immutable source/capture/input profiles and literal gate argv",
+      "Six completed captured quality/runtime/architecture streams and resource observations",
+      "Terminal native inventory3986 plus all9308 journal rows plus full JUnit3986",
+      "External canonical uncapped15/35 actual projected plans and doctor execution/failure tails",
+      "Read-only source/input/output hash reconciliation by this leaf"
+    ],
+    "proxy_divergence": "A source/selector/empty-stdout marker can survive scannerSIGKILL with no verdict, architecture can publish two clean client families while required OpenAPI measurement is UNRUN, and static261-file selection can finish with2650 unentered setup ERRORs. Treating those markers/counts as full green would contradict exact retained outputs.",
+    "negative_controls": [
+      "Initial own seven XML/nodeid identity projection misses retained as instrument ERROR, corrected generic parameter delimiter/empty-class handling independently yields full zero-mismatch join; no root output was changed.",
+      "Direct mypy/scanner returncode-9 with incomplete/zero output remains ERROR; runtime CLI137 cause is not inferred from counters.",
+      "Architecture explicitlyUNRUN OpenAPI137 despite3+1 clean generator-observed client outputs; structural diagnoses retained without complete verdict.",
+      "Verify/parity doctor1FAIL each stops remaining14/34 constituentsUNRUN; parity schema drift and runtimeOpenAPI137 are distinct from pnpm explicitENOSPC.",
+      "All2650 native ERROR XML diagnostics are numbered-tempdir refusal without literal errno28; all have failed setup/no call report. Ten genuine callFAIL texts retained, no inherited/flaky waiver."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "per_premise_basis": {
+    "metadata_source_input_hash_case_count_join": "independently_reconciled",
+    "root_runtime_assertions": "consumer_asserted actual parent-native full outputs; not a new reviewer execution",
+    "narrow_external_capture_source": "independently_reconciled exact captured helper3fe source-only",
+    "source_mechanism_finding_acceptance": "not_established by this output audit",
+    "resource_sender_causality": "not_established"
+  },
+  "capability_state_or_finding_state": "Independent captured-data reconciliation PASS within this exact snapshot. Actual eight root gate outcomes4FAIL3ERROR1UNRUN; native1326PASS10FAIL2650ERROR. Global/source/finding closure not established and closure_ids=[]; no inherited waiver.",
+  "limitations_and_next_owner": [
+    "No candidate source/test edits, candidate imports, gate/native replay, helpers/checkout, resource cleanup/restoration/moves/deletion or numeric quotas by reviewer. Own docs/scripts only, immutable Git objects/index preserved in /tmp because overlay user_available0.",
+    "Original20MB inventory7MB journal and original full root logs/profiles are cloud@exactSHA/hash references. This leaf does not claim receiver/Git transport of those bytes; ROOT/G must publish exact bytes or replay with adequate preserved inputs.",
+    "Ruff4444=4442 research-witness/metadata Python plus2testI001 diagnostics;102 format files allresearch. These are actual current literal scope debt, never invented exclusions or inherited waivers. Mypy21 observed production diagnostics before interruption are real but incomplete.",
+    "Non-quality gates have no changed-Python selector: selected_python0 is a selector metric, not an empty whole input denominator. Runtime/imported/native/filesystem/toolchain input closure remains explicitly finite/universal completeness not established.",
+    "Only six declared numeric cap names are recorded absent. No aggregate resource/RSS, killed-PID/sender/OOM-cause, universal environment or fsync/powerloss custody assertion follows.",
+    "Native fullsessionfinished is a complete observation, not broad acceptance:2650 setup ERRORs never enter test bodies,10 call FAILs remain; static selector and case denominator are not defining finding controls.",
+    "Qualified uncapped verify/parity projection is distinct from native capped CLI; their planned coverage/browser/nested backend constituents are UNRUN afterdoctor. One parity doctor frontend subtestPASS is not wholeparity PASS.",
+    "P41NOT_ESTABLISHED for every gate: current full inputs materially intersect candidate; no complete same-input baseline replay or zero-intersection proof. ROOT owns canonical source repairs and final source-specific admission/status; source6fa evidence cannot be restamped to a successor."
+  ],
+  "evidence_index": {
+    "git_sha": "06577ffac3d451b668fe9d4eb2b2ca133f6b1815",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit-evidence/index.json",
+    "sha256": "3e3d6510248aba6afcaa48b5f7956a4e71951302283ac65f0b86666a5bf7ff2f",
+    "objects": 14,
+    "payload_bytes": 427395
+  },
+  "captured_root_source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+  "captured_root_source_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+  "metadata_only_publication": {
+    "own_attached_head": "a058426e743e8ce8c88c0b4469451b3180458915",
+    "external_objects": "/tmp/e02-B-cas-output-audit-20261007/gitobjects",
+    "external_index": "/tmp/e02-B-cas-output-audit-20261007/git-index",
+    "preservation": "No source checkout/reset/rebase/worktree/ref rewrite; append-only remote parent chain and original SHA objects created in /tmp, branch ref will update normally.",
+    "forward_custody_correction": "Prior unpushed c7dc handoff object retained; append exact stdin source-read command and24+6 actual raw refs to the same checks. No audit/run/source/output change."
+  }
+}

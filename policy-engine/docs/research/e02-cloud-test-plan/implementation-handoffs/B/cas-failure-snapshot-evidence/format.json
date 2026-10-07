@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "ruff",
+    "format",
+    "--check",
+    "src/polisyos/core/artifacts/_integrity_ops.py",
+    "src/polisyos/core/artifacts/store.py",
+    "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py"
+  ],
+  "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+  "target_sha": "643c0e06a4121d29836d7bda4626c7c60cb61797",
+  "target_tree": "61131b3ad72f643407b80b5e07c8350c741360a3",
+  "exit_code": 0,
+  "wall_s": 0.04258698099874891,
+  "maxrss_kib": 23264,
+  "stdout": {
+    "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/format.txt",
+    "bytes": 26,
+    "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+  }
+}

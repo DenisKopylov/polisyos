@@ -1,0 +1,641 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "reviewer": "/root/dur_probe independent of CMP author",
+  "finding_ids": [
+    "B47"
+  ],
+  "related_finding_ids": [
+    "B42",
+    "B43",
+    "B45",
+    "B46",
+    "B47",
+    "B48"
+  ],
+  "bundle_ids": [
+    "CMP-03"
+  ],
+  "reviewed_owner_sha": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+  "reviewed_owner_tree_sha": "8f1f9e1f489ddedfd336aecdc953f41369214b68",
+  "execution_target_sha": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+  "execution_target_tree_sha": "f4d4945ecfc501645809bc4c98223f76027298ca",
+  "reviewed_previous_owner_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+  "reviewer_pre_merge_sha": "cff9f2b684be4a7a938389caae8febd5525335a3",
+  "execution_binding": "Root-approved normal append-only merge of immutable54ef into same originalrootadmittedDURlane; ownDUR3production/canonicala2byteidentical, no newcheckout/helper/source edit. Wholecheckedsource8fba, laterreceiptcommit separate.",
+  "admission": {
+    "profile": "existing rootadmitted lane only, normalmerge; no newtree",
+    "pre_merge_checkpoint": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/pre-merge.json",
+      "sha256": "ee15b431100129fcf4e4e83a9e1b1c291cd5f1878312f17fa816dc8a872a9411",
+      "bytes": 938
+    },
+    "create": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/admission-create.json",
+    "resume": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/admission-resume.json"
+  },
+  "pre_merge": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/pre-solver-merge.json",
+    "sha256": "ad62f25d762481d4b59764a9bd05590a22d3146c5831f1e7be69bad317020366",
+    "bytes": 407
+  },
+  "source_identity": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+      "owner_sha": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+      "execution_target_sha": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+      "sha256": "402489fc3a89a9ce7567d6ae299576efb155aab1a37977b032cf532eb2833b4c",
+      "bytes": 34720
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/linker.py",
+      "owner_sha": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+      "execution_target_sha": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+      "sha256": "10d3d0439376525a2a270068d9024bb467468e6150dae3ec64ce250f1132d670",
+      "bytes": 25992
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/semantic_validator.py",
+      "owner_sha": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+      "execution_target_sha": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+      "sha256": "24805f7dabb45c402a5915b968701e267904b90afabab9a2112cf09bafea540c",
+      "bytes": 15325
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/slot_schema.py",
+      "owner_sha": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+      "execution_target_sha": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+      "sha256": "93ae378d72ce59f927fe5ce51daa25e2ab9201962fbadadeaf213333c429b461",
+      "bytes": 16619
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/registry.py",
+      "owner_sha": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+      "execution_target_sha": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+      "sha256": "3250f70d07a658c9beb9b9210254d425715129a1b9eb29cdbbcdc4a208c977b9",
+      "bytes": 35936
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/base.py",
+      "owner_sha": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+      "execution_target_sha": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+      "sha256": "ae6ab49021c3adbab8a72f39b2a7cc126d082a54d748f737e0092c64bd6720e8",
+      "bytes": 74245
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/io.py",
+      "owner_sha": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+      "execution_target_sha": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+      "sha256": "11fd5a3c49d0beb745d3007cb123671c9a53981f1856c1c1591ad909fcb6a621",
+      "bytes": 7890
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+      "owner_sha": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+      "execution_target_sha": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+      "sha256": "4ded29c3bb1ef77202b4a57d9595e8b4665552293e9b92321e675a52dcbee559",
+      "bytes": 42439
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+      "owner_sha": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+      "execution_target_sha": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+      "sha256": "769060f639d99f2a04f413cfcb7b7aa3fbd0812b38cf961b2a00f31a62da95e1",
+      "bytes": 13846
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "owner_sha": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+      "execution_target_sha": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+      "sha256": "59b97d8eef871ce2ed5d02e846d782e9edf4a14af297751db736b8891eebc59d",
+      "bytes": 37425
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py",
+      "owner_sha": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+      "execution_target_sha": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+      "sha256": "a36c55d2996b178e2671fbd433e56f9e5d5cde327989907ad49f6fc59297c505",
+      "bytes": 5225
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/protocol.py",
+      "owner_sha": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+      "execution_target_sha": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+      "sha256": "e3e321c42a649e914fc6a24aec4dd1969fa293fc8eb926c610839331eb274555",
+      "bytes": 7869
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/types/checker.py",
+      "owner_sha": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+      "execution_target_sha": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+      "sha256": "2fe865d1bd41954ad0be686e7ecd7c53a7dad04f08993f9b761a9ff6b2d8bce7",
+      "bytes": 26393
+    }
+  ],
+  "source_review": {
+    "read_scope": "Complete054→54ef productionlinker solverdelta and fullmatchinghelper/scorecontract; componentsREADME/release/nativecompositiontests plus oldtie nativeLinkertest (fivepaths vs054; fourpaths solvercommit54ef vs615). CanonicalCMP03/B47 source fullyread at697, accepts maximumcardinality beforepreferences and refuses meaning-affecting ambiguousneutrallexicalchoice.",
+    "verdict": "No blocking source finding for stated finite integer weighted assignment and actual typed NumPyconsumer profile.",
+    "argument": "Unit residual capacities implement injective assignment; each shortest residual augmentation increases cardinality, optimizes integer utility at that cardinality, and cannot stop merely for nonpositive preference. Radix ranges bound aggregate lower preference columns so samecardinality utility ordering equals aggregatelexicographic scores. Any distinct equally optimal matching omits at least one selected edge, so selectededge-exclusion optimum equality detects it. Independent exhaustive oracle verifies these predicates on all3×3presencegraphs, not a proof of all graph sizes.",
+    "preserved_controls": "All pair structural/unit/shape/namedsemantic checks remain before matching. No lexicalname utility dimension; equaloptimal alternative typedrefused beforeLinkResult publication, including partialmatches. Explicitmapping and uniquelyranked exact-name operationalpreferences retain actual numeric controls.",
+    "not_claimed": "No JIT/newCompiledChainExecutor/served/Aroute/fullscientificmeaning/allbackend claim from this finite NumPy/abstractinteger oracle; previousB74sourcecaptureboundaries remain separate."
+  },
+  "checks": [
+    {
+      "kind": "exhaustive_reference",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/composition-acceptance-review/solver_bruteforce.py"
+      ],
+      "cwd": "/workspace/e02-B-current-durability/policy-engine",
+      "target_sha": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+      "target_tree_sha": "f4d4945ecfc501645809bc4c98223f76027298ca",
+      "environment": {
+        "record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/environment-solver-54ef.json",
+          "sha256": "f6f52260ccbc0a04cc930801543495dd1a685240047964faddd1192af1d50f0d",
+          "bytes": 6412
+        },
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "packages": {
+          "numpy": "2.3.5",
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5"
+        },
+        "PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src:/workspace/e02-B-current-durability/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "E02_REVIEW_TARGET_SHA": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+        "E02_REVIEW_OWNER_SHA": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+        "origin_qualification": "Separate immediate post-run source-origin check in same immutable clean checkout/environment; not complete per-test imported-module census. Mathematical oracle independently asserts actual linker module path/content at execution; unchanged main8staticGitguards and actual publicconsumer environment bind their finite input profile."
+      },
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver_bruteforce.py",
+          "sha256": "64e49537bafd5d96fed1f666047d43be66a8482cd3345149089d3a719c749698",
+          "bytes": 5069
+        },
+        "actual_inputs": "Canonical linker imported from currentownedactualwhole8fba/owner54ef bytes, actualmodule __file__ guard. itertools.product fourchoices(None/s0/s1/s2)^3=64 independent enumeration tuples; each512edge-presence graph andfive deterministicintegerutility/scorevector profiles constructed by this driver. No registryfixture, worker, scientificdataset, externalprovider or copiedownerflow algorithm is used.",
+        "predicate": "Direct tuple feasibility/injectiveassignment and max(cardinality,utility) or max(cardinality,aggregatelexscores); everyselectededge exclusion optimum and countofdistinctequaloptimalassignments independently compared.",
+        "environment": "Actual sharedPython with explicitownPYTHONPATH; sourceorigin sameepoch postrun record separatelyqualified; no per-testcomplete modulecensus claim."
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "elapsed_s": 1.4775216890120646,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver-bruteforce-54ef.txt",
+        "sha256": "37b88ece4ccbdcccf33830039997a244061c264e8e50e173961b7f62add7cba3",
+        "bytes": 1334
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver-bruteforce-54ef-wrapper.json",
+        "sha256": "43cbf9c5da06a874ed8179c167fc1805b59416634e92844cfc26b9de31c523e3",
+        "bytes": 994
+      }
+    },
+    {
+      "kind": "actual_public_linker_consumer",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/composition-acceptance-review/solver_consumer.py"
+      ],
+      "cwd": "/workspace/e02-B-current-durability/policy-engine",
+      "target_sha": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+      "target_tree_sha": "f4d4945ecfc501645809bc4c98223f76027298ca",
+      "environment": {
+        "record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/environment-solver-54ef.json",
+          "sha256": "f6f52260ccbc0a04cc930801543495dd1a685240047964faddd1192af1d50f0d",
+          "bytes": 6412
+        },
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "packages": {
+          "numpy": "2.3.5",
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5"
+        },
+        "PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src:/workspace/e02-B-current-durability/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "E02_REVIEW_TARGET_SHA": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+        "E02_REVIEW_OWNER_SHA": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+        "origin_qualification": "Separate immediate post-run source-origin check in same immutable clean checkout/environment; not complete per-test imported-module census. Mathematical oracle independently asserts actual linker module path/content at execution; unchanged main8staticGitguards and actual publicconsumer environment bind their finite input profile."
+      },
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver_consumer.py",
+          "sha256": "c5cf931b4a3bd91022d0bf984afc66c34337e171e1ba46013b6824958b8151dc",
+          "bytes": 3961
+        },
+        "actual_fixture_module": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/successor_test_acceptance.py",
+          "sha256": "e4a70b6ee91cdee86f2269eef3f37f92ef47f24f31304eee1c8637914775f53a",
+          "bytes": 13913
+        },
+        "actual_inputs": "Imports unchangedfixture method/typedslot/registry constructors and realpublicNumPyexecute helper; doesnotinvoke fixture pytestcases or childworker. Real two-node producer7/11 and targetfirst*100+second, explicittwoorders711/1107 and exact-nameauto711; directSlotLinker andMethodComposer ambiguousautoboth typedrefuse beforeanysource/targetbody. No mockcompatibility, provider, externaldata or schema-marker-only control.",
+        "source_binding": "Fixture static8module byteguards owner54ef and actualwhole8fba HEAD; explicitownsrc environment, registeredrealMethodRegistry. Immediatepostrun14actualimportorigins separatelyrecorded; no completeper-test census."
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "elapsed_s": 1.6327367149933707,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver-consumer-54ef.txt",
+        "sha256": "c468b674e96458708cb49813d34e76c2ea6f8f875e8f63d06c3c76581a3c90fb",
+        "bytes": 11921
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver-consumer-54ef-wrapper.json",
+        "sha256": "53e45bed2deebd6b1de4060ae74d46bf67fd8fdef65b7832ebd299005ca29a2c",
+        "bytes": 993
+      }
+    },
+    {
+      "kind": "unchanged_fifteen_consumer_cases",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "/workspace/e02-B-current-durability/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/successor_test_acceptance.py",
+        "-o",
+        "addopts=",
+        "-q",
+        "-s",
+        "--tb=short",
+        "--basetemp=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/composition-acceptance-review/tmp-solver-54ef",
+        "--junitxml=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/composition-acceptance-review/native-solver-54ef.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-durability/policy-engine",
+      "target_sha": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+      "target_tree_sha": "f4d4945ecfc501645809bc4c98223f76027298ca",
+      "environment": {
+        "record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/environment-solver-54ef.json",
+          "sha256": "f6f52260ccbc0a04cc930801543495dd1a685240047964faddd1192af1d50f0d",
+          "bytes": 6412
+        },
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "packages": {
+          "numpy": "2.3.5",
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5"
+        },
+        "PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src:/workspace/e02-B-current-durability/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "E02_REVIEW_TARGET_SHA": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+        "E02_REVIEW_OWNER_SHA": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+        "origin_qualification": "Separate immediate post-run source-origin check in same immutable clean checkout/environment; not complete per-test imported-module census. Mathematical oracle independently asserts actual linker module path/content at execution; unchanged main8staticGitguards and actual publicconsumer environment bind their finite input profile."
+      },
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/successor_test_acceptance.py",
+          "sha256": "e4a70b6ee91cdee86f2269eef3f37f92ef47f24f31304eee1c8637914775f53a",
+          "bytes": 13913
+        },
+        "child_worker": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/import_worker.py",
+          "sha256": "fd69640b7fbd1e70cfc9b4c174eb212af983f241c380b59dc2f29a34641779d2",
+          "bytes": 1995
+        },
+        "child_fixture_module": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/test_acceptance.py",
+          "sha256": "6a62bd58d2b4c84f4297ec54d8c394b135b9ecd5925be3a128cd71de2140b7c5",
+          "bytes": 13846
+        },
+        "actual_inputs": "Unchangede4a fifteen tests, actualNumPyMethodRegistry/typedslots/IO/publicsequential+asyncThreadBarrier consumer andthree B42freshprocesses (twoimportorders+disclosedmeta-path missingmodule). Childworker imports original6a62fixture definitions/unchangedscalarhelpers, not its changedpartialtest. No sourceoverlay/newcheckout/productiondataset.",
+        "source_binding": "Whole8fba cleanbefore/after, E02_REVIEW_TARGET_SHA=8fba/E02_REVIEW_OWNER_SHA=54ef onlybindings changed. Main8source staticGitguards,13finite modulebytes equal54ef and immediatepostrun14actualmoduleorigins separatelyrecorded, notcompleteper-test census."
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "elapsed_s": 7.08301649200439,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/native-solver-54ef.txt",
+        "sha256": "1e849aedd8800701c623e0130c4cdd1a4f5ea5145630d2c380f6a20d3d2678fb",
+        "bytes": 33336
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/native-solver-54ef-wrapper.json",
+        "sha256": "17e98ded0782bc1d2befb6df5afff8467f3762cad5b3b6b9c37b3b88c931ee2e",
+        "bytes": 1625
+      },
+      "collected": 15,
+      "passed": 15,
+      "failed": 0,
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/native-solver-54ef.xml",
+        "sha256": "1304f538f9a21a78ec8958c451e9f60db7db89ec7c52a270ca7076f271474c8b",
+        "bytes": 4068
+      },
+      "driver_sha256": "e4a70b6ee91cdee86f2269eef3f37f92ef47f24f31304eee1c8637914775f53a"
+    }
+  ],
+  "mathematical_result": {
+    "outcome": "PASS",
+    "target_sha": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+    "owner_sha": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+    "actual_module": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/components/linker.py",
+    "source_sha256": "10d3d0439376525a2a270068d9024bb467468e6150dae3ec64ce250f1132d670",
+    "unique_edge_presence_graphs": 512,
+    "graphs_per_profile": 512,
+    "profiles": {
+      "zero_ties": {
+        "graphs": 512,
+        "ambiguous": 298,
+        "cardinalities": {
+          "0": 1,
+          "1": 33,
+          "2": 231,
+          "3": 247
+        }
+      },
+      "signed_mixed": {
+        "graphs": 512,
+        "ambiguous": 42,
+        "cardinalities": {
+          "0": 1,
+          "1": 33,
+          "2": 231,
+          "3": 247
+        }
+      },
+      "unique_bit_weights": {
+        "graphs": 512,
+        "ambiguous": 0,
+        "cardinalities": {
+          "0": 1,
+          "1": 33,
+          "2": 231,
+          "3": 247
+        }
+      },
+      "negative_cardinality": {
+        "graphs": 512,
+        "ambiguous": 298,
+        "cardinalities": {
+          "0": 1,
+          "1": 33,
+          "2": 231,
+          "3": 247
+        }
+      },
+      "lexicographic_preferences": {
+        "graphs": 512,
+        "ambiguous": 4,
+        "cardinalities": {
+          "0": 1,
+          "1": 33,
+          "2": 231,
+          "3": 247
+        }
+      }
+    },
+    "graph_profile_configurations": 2560,
+    "reference_assignments_per_graph": 64,
+    "oracle": "itertools target-source tuples + duplicate/absent-edge filter + direct lexicographic totals, independent of residual-flow implementation; every selected-edge exclusion compared to exhaustive optima; equal-optimal detection compared to count of distinct optimal assignments"
+  },
+  "public_consumer_result": {
+    "outcome": "PASS",
+    "ambiguous_cases": [
+      {
+        "source_names": [
+          "a",
+          "b"
+        ],
+        "target_names": [
+          "left",
+          "right"
+        ],
+        "explicit_actual_results": [
+          711,
+          1107
+        ],
+        "direct_and_composer_auto_refusals": [
+          {
+            "type": "SlotConnectionError",
+            "message": "Ambiguous automatic bindings from review.composition.arithmetic_pair_source@1.0.0 to review.composition.arithmetic_pair_target@1.0.0: equally preferred assignments [('left', 'a'), ('right', 'b')] and [('left', 'b'), ('right', 'a')]; supply an explicit mapping"
+          },
+          {
+            "type": "SlotConnectionError",
+            "message": "Ambiguous automatic bindings from review.composition.arithmetic_pair_source@1.0.0 to review.composition.arithmetic_pair_target@1.0.0: equally preferred assignments [('left', 'a'), ('right', 'b')] and [('left', 'b'), ('right', 'a')]; supply an explicit mapping"
+          }
+        ],
+        "producer_consumer_calls_before_refusal": []
+      },
+      {
+        "source_names": [
+          "z_source",
+          "a_source"
+        ],
+        "target_names": [
+          "z_target",
+          "a_target"
+        ],
+        "explicit_actual_results": [
+          711,
+          1107
+        ],
+        "direct_and_composer_auto_refusals": [
+          {
+            "type": "SlotConnectionError",
+            "message": "Ambiguous automatic bindings from review.composition.arithmetic_pair_source@1.0.0 to review.composition.arithmetic_pair_target@1.0.0: equally preferred assignments [('a_target', 'a_source'), ('z_target', 'z_source')] and [('a_target', 'z_source'), ('z_target', 'a_source')]; supply an explicit mapping"
+          },
+          {
+            "type": "SlotConnectionError",
+            "message": "Ambiguous automatic bindings from review.composition.arithmetic_pair_source@1.0.0 to review.composition.arithmetic_pair_target@1.0.0: equally preferred assignments [('a_target', 'a_source'), ('z_target', 'z_source')] and [('a_target', 'z_source'), ('z_target', 'a_source')]; supply an explicit mapping"
+          }
+        ],
+        "producer_consumer_calls_before_refusal": []
+      }
+    ],
+    "resolved_exact_name_actual_result": 711,
+    "resolved_calls": [
+      "source",
+      "target"
+    ],
+    "semantic_premise": "Finite named slot compatibility and exact-name operational preference; no scientific/policy authority inferred from unknown names or WARN."
+  },
+  "unchanged_consumer_cases": [
+    {
+      "name": "test_two_fresh_import_orders_execute_real_bound_values[chain-first]",
+      "outcome": "PASS"
+    },
+    {
+      "name": "test_two_fresh_import_orders_execute_real_bound_values[async-first]",
+      "outcome": "PASS"
+    },
+    {
+      "name": "test_required_only_edge_keeps_actual_parallel_level_and_value",
+      "outcome": "PASS"
+    },
+    {
+      "name": "test_matching_consumes_actual_fixed_and_flexible_values[False]",
+      "outcome": "PASS"
+    },
+    {
+      "name": "test_matching_consumes_actual_fixed_and_flexible_values[True]",
+      "outcome": "PASS"
+    },
+    {
+      "name": "test_strict_complete_dag_accepts_two_partial_edges_as_one_complete_input_set",
+      "outcome": "PASS"
+    },
+    {
+      "name": "test_actual_repeated_occurrence_tag_validator_positive_negative",
+      "outcome": "PASS"
+    },
+    {
+      "name": "test_explicit_earlier_required_occurrence_does_not_depend_on_future_occurrence",
+      "outcome": "PASS"
+    },
+    {
+      "name": "test_duplicate_producer_strict_refusal_warn_visible_actual_merge",
+      "outcome": "PASS"
+    },
+    {
+      "name": "test_same_semantic_gate_and_actual_positive_for_manual_auto",
+      "outcome": "PASS"
+    },
+    {
+      "name": "test_both_typed_structural_paths_refuse_before_execution[unit]",
+      "outcome": "PASS"
+    },
+    {
+      "name": "test_both_typed_structural_paths_refuse_before_execution[shape]",
+      "outcome": "PASS"
+    },
+    {
+      "name": "test_both_typed_structural_paths_refuse_before_execution[partial]",
+      "outcome": "PASS"
+    },
+    {
+      "name": "test_actual_requires_cycle_rejected_before_any_method_run",
+      "outcome": "PASS"
+    },
+    {
+      "name": "test_missing_required_async_module_is_addressed_error_not_permanent_unavailable",
+      "outcome": "PASS"
+    }
+  ],
+  "counts_rule": "Three distinct probes: 512unique3×3graphs across5weightprofiles=2560graph-profileconfigurations, one publictyped arithmetic/refusal driver, unchanged15nativecases oneexecution. Do not sum with previous755/cffepochs as independent repeats or packages.",
+  "prior_evidence": {
+    "accepted_fifteen_commit": "cff9f2b684be4a7a938389caae8febd5525335a3",
+    "accepted_fifteen_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/successor-054-review.json",
+      "sha256": "76e6e3be8fb0c511b5404bc4206c6b6e8bc34b727f37169b2fb705527a36324c",
+      "bytes": 24190
+    },
+    "old_actual_negative_commit": "755155f9fe20b80614a397ed8be00823f0f16660",
+    "old_negative_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/receipt.json",
+      "sha256": "dfe296c15c6506851d294c419cbdb07fbcda1cd1b82a7150bc1c982bb9301969",
+      "bytes": 35994
+    },
+    "unchanged_fifteen_limitation": "Earlier15PASSon054 did not coverall-equal multi-edge ambiguity and is not substituted for B47uniqueness proof. New probes attest the shared matching law.",
+    "external_root_prior_witness": {
+      "owner": "/root",
+      "driver": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/composition_ambiguous_consumer_probe.py",
+        "sha256": "0a8d58254126bddfae7dc3794386ed19a2af51276b55203800d34a4b4808f8ac",
+        "bytes": 3067
+      },
+      "complete_log": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current888-composition-ambiguity054.txt",
+        "sha256": "52fb8e4537c0b0321d8d38bcd274bd38f26344e6a56f13e2c0df209520e38bf0",
+        "bytes": 4500
+      },
+      "executed_linker_source": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+      "scope": "Root supplied runtimeoverlay/helperPYTHONPATH at rootHEAD8886…; actual2010/1020, source+target2calls each, notypedrefusal. This reviewer only verified preserveddriver/log SHA/bytes, didnotexecute, inherit or attest rootwholeenvironment/inputclosure. Rootowns captureJSON and futurecommit; no futureSHApointer invented."
+    }
+  },
+  "baseline_navigation": {
+    "commit": "755155f9fe20b80614a397ed8be00823f0f16660",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/receipt.json",
+    "pointer": "/baseline_navigation",
+    "role": "Exacthistoricalcells/sourceSHA/ref/environment/inputclosure navigation only; no newcandidate proof frombaseline summary."
+  },
+  "finding_dispositions": [
+    {
+      "finding_id": "B47",
+      "state": "mechanism_verified_bounded",
+      "status": "partial",
+      "scope": "Finite3×3 exhaustiveintegerweighted solver oracle plus realtyped2node arithmetic/refusal and preserveduniqueaugmentingmatching controls.",
+      "candidate_source_sha": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+      "deciding_check_indices": [
+        0,
+        1,
+        2
+      ],
+      "closure_authority": "Root/G combinedcohort and completecriterion-owned finding disposition; no reviewerclosure assigned."
+    }
+  ],
+  "limitations": [
+    "Exhaustiveoracle coversall5123×3presencegraphs withfivefixedweightprofiles, notallweights/dimensions or unlimited-size complexity/proof.",
+    "Integerutility ranking corresponds documentedexistingoperational exact-name/unit/type/shape/warning preferences; it doesnotground external semantics or scientific/policy authority.",
+    "Publictwo-neutralrename cases require explicitmeaning-affecting choice; uniqueexactname positive is scopeddeclaredoperationalpreference, notsemantic-equivalence certification.",
+    "WARN/unknownsemantic names are not used as authority. No dataset-specific/localproduction claim; genericmatching proof requires no fullproductiondataset.",
+    "Newcompiler/JIT/nativebackend and rootcombinedworkflow profiles remain separateowners/canonicalchecks."
+  ],
+  "evidence_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver_bruteforce.py",
+      "sha256": "64e49537bafd5d96fed1f666047d43be66a8482cd3345149089d3a719c749698",
+      "bytes": 5069
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver_consumer.py",
+      "sha256": "c5cf931b4a3bd91022d0bf984afc66c34337e171e1ba46013b6824958b8151dc",
+      "bytes": 3961
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver-bruteforce-54ef.txt",
+      "sha256": "37b88ece4ccbdcccf33830039997a244061c264e8e50e173961b7f62add7cba3",
+      "bytes": 1334
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver-bruteforce-54ef-wrapper.json",
+      "sha256": "43cbf9c5da06a874ed8179c167fc1805b59416634e92844cfc26b9de31c523e3",
+      "bytes": 994
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver-consumer-54ef.txt",
+      "sha256": "c468b674e96458708cb49813d34e76c2ea6f8f875e8f63d06c3c76581a3c90fb",
+      "bytes": 11921
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver-consumer-54ef-wrapper.json",
+      "sha256": "53e45bed2deebd6b1de4060ae74d46bf67fd8fdef65b7832ebd299005ca29a2c",
+      "bytes": 993
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/native-solver-54ef.txt",
+      "sha256": "1e849aedd8800701c623e0130c4cdd1a4f5ea5145630d2c380f6a20d3d2678fb",
+      "bytes": 33336
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/native-solver-54ef.xml",
+      "sha256": "1304f538f9a21a78ec8958c451e9f60db7db89ec7c52a270ca7076f271474c8b",
+      "bytes": 4068
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/native-solver-54ef-wrapper.json",
+      "sha256": "17e98ded0782bc1d2befb6df5afff8467f3762cad5b3b6b9c37b3b88c931ee2e",
+      "bytes": 1625
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/pre-solver-merge.json",
+      "sha256": "ad62f25d762481d4b59764a9bd05590a22d3146c5831f1e7be69bad317020366",
+      "bytes": 407
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/environment-solver-54ef.json",
+      "sha256": "f6f52260ccbc0a04cc930801543495dd1a685240047964faddd1192af1d50f0d",
+      "bytes": 6412
+    }
+  ],
+  "closure_ids": [],
+  "created_at": "2026-10-06T12:46:41.577199+00:00"
+}

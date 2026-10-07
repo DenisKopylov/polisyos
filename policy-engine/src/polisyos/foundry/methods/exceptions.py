@@ -447,7 +447,7 @@ class CyclicDependencyError(FoundryMethodError):
 
 class MissingRequirementError(FoundryMethodError):
     """
-    A required method is missing from the composition.
+    A required method occurrence cannot be resolved in the composition.
 
     Raised in STRICT validation mode when a method declares a requirement
     (via ``MethodSignature.requires``) that is not present in the DAG.
@@ -455,14 +455,17 @@ class MissingRequirementError(FoundryMethodError):
     Attributes:
         method_fqn: FQN of the method that has the requirement
         required_fqn: FQN of the missing required method
+        reason: Optional occurrence-resolution diagnostic
     """
 
     default_category = ErrorCategory.VALIDATION
 
-    def __init__(self, method_fqn: str, required_fqn: str) -> None:
+    def __init__(self, method_fqn: str, required_fqn: str, *, reason: str | None = None) -> None:
         self.method_fqn = method_fqn
         self.required_fqn = required_fqn
-        super().__init__(f"{method_fqn} requires {required_fqn}, which is not in composition")
+        self.reason = reason
+        explanation = reason or "which is not in composition"
+        super().__init__(f"{method_fqn} requires {required_fqn}, {explanation}")
 
 
 class CompilationError(FoundryMethodError):

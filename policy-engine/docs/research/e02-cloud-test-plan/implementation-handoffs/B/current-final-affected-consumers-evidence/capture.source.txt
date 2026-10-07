@@ -1,0 +1,149 @@
+"""Capture one uncapped, unchanged 35-wholefile affected consumer invocation."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+
+ROOT = Path('/workspace/e02-B-current-coordination')
+OUT = ROOT / '.polisyos/e02-B-current/raw/affected-10e-20261006'
+EXPECTED = '10e812a98d5f7f3997e7d0aa44de43dc90eb022c'
+EXPECTED_TREE = '071a52554be3c0eaa67ad0e870a0d9198ec0fa61'
+PYTHON = ROOT / '.polisyos/e02-B-current/environment/bin/python'
+CAP_NAMES = ('XLA_FLAGS', 'JAX_NUM_THREADS', 'TF_NUM_INTEROP_THREADS',
+             'TF_NUM_INTRAOP_THREADS', 'NUMBA_NUM_THREADS', 'LOKY_MAX_CPU_COUNT',
+             'PYTEST_XDIST_AUTO_NUM_WORKERS', 'OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS',
+             'MKL_NUM_THREADS', 'BLIS_NUM_THREADS', 'VECLIB_MAXIMUM_THREADS',
+             'NUMEXPR_NUM_THREADS', 'RAYON_NUM_THREADS')
+DECLARED_SOURCE_NAMES = ('async_executor.py', 'checkpoint.py', 'budget.py',
+                         'budget_ledger.py', 'budget_middleware.py', 'state.py',
+                         'state_branching.py', 'state_merge.py', 'retry.py',
+                         'runner/serialization.py', 'runner/_activity_worker.py',
+                         'runner/distributed_tier.py', 'runner/state_merge.py',
+                         'runner/fallback_runner.py', 'runner/local_runner.py')
+
+
+def git(*args):
+    return subprocess.check_output(['git', '-C', str(ROOT), *args])
+
+
+def file_record(relative):
+    data = (ROOT / relative).read_bytes()
+    canonical = git('show', EXPECTED + ':' + relative)
+    assert data == canonical, relative
+    return {'path': relative, 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest(),
+            'git_blob': git('rev-parse', EXPECTED + ':' + relative).decode().strip(),
+            'actual_disk_git_bytes_match': True}
+
+
+def snapshot():
+    head = git('rev-parse', 'HEAD').decode().strip()
+    tree = git('rev-parse', 'HEAD^{tree}').decode().strip()
+    status = git('status', '--porcelain=v1').decode()
+    branch = git('symbolic-ref', '-q', 'HEAD').decode().strip()
+    result = {'head': head, 'tree': tree, 'branch': branch, 'tracked_status': status,
+              'expected_clean_attached': head == EXPECTED and tree == EXPECTED_TREE and not status}
+    assert result['expected_clean_attached'], 'source checkpoint changed; no source restamp allowed'
+    return result
+
+
+def write(name, value):
+    with (OUT / name).open('x') as stream:
+        json.dump(value, stream, indent=2)
+        stream.write('\n')
+
+
+if __name__ == '__main__':
+    os.umask(0o077)
+    before = snapshot()
+    proposed = json.loads((OUT / 'selector-proposal.json').read_text())
+    tests = [row['path'] for row in proposed['whole_files']]
+    declared = tests + [
+        'policy-engine/src/polisyos/scientist/orchestration/engine/' + name
+        for name in DECLARED_SOURCE_NAMES
+    ] + [
+        'policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py',
+        'policy-engine/tests/conftest.py', 'policy-engine/tests/unit/scientist/conftest.py',
+        'policy-engine/tests/integration/conftest.py',
+        'policy-engine/pytest.ini', 'policy-engine/pyproject.toml',
+        'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py',
+    ]
+    # Preserve exact actual applicable paths, without inventing absent conftests.
+    declared = [path for path in declared if (ROOT / path).is_file()]
+    pins_before = [file_record(relative) for relative in sorted(set(declared))]
+    copied = OUT / 'tools/current_cohort_inventory.py'
+    assert copied.read_bytes() == (ROOT / declared[-1]).read_bytes()
+    env = dict(os.environ)
+    initial_caps = {name: env.get(name) for name in CAP_NAMES}
+    for name in CAP_NAMES:
+        env.pop(name, None)
+    env.update(PYTHONPATH=str(OUT / 'tools') + ':' + str(ROOT / 'policy-engine/src') + ':'
+               + str(ROOT / 'policy-engine'), PYTHONDONTWRITEBYTECODE='1',
+               E02_B_COHORT_INVENTORY_PATH=str(OUT / 'inventory.json'),
+               TIKTOKEN_CACHE_DIR=str(ROOT / '.polisyos/e02-B-current/tools/tokenizer-input/cache'))
+    tokenfile = Path(env['TIKTOKEN_CACHE_DIR']) / '9b5ad71b2ce5302211f9c61530b329a4922fc6a4'
+    token = tokenfile.read_bytes()
+    assert hashlib.sha256(token).hexdigest() == '223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7'
+    argv = [str(PYTHON), '-m', 'pytest', '@' + str(OUT / 'selectors.args'),
+            '-vv', '--tb=short', '--import-mode=importlib', '-p', 'no:cacheprovider',
+            '-p', 'current_cohort_inventory', '--basetemp', str(OUT / 'fixtures'),
+            '--junitxml', str(OUT / 'native.xml')]
+    write('source-before.json', {'identity': before, 'declared_disk_inputs': pins_before})
+    write('execution-profile.json', {
+        'actual_source_head': EXPECTED, 'actual_source_tree': EXPECTED_TREE,
+        'content_only_reference': '1862c021df74a5c5815bc5cd21a20e61b30132b6',
+        'cwd': str(ROOT / 'policy-engine'), 'python_executable': str(PYTHON),
+        'python_version': subprocess.check_output([str(PYTHON), '--version']).decode().strip(),
+        'argv': argv, 'PYTHONPATH': env['PYTHONPATH'],
+        'original_cap_environment': initial_caps,
+        'child_cap_environment': {name: env.get(name) for name in CAP_NAMES},
+        'no_cpu_worker_process_thread_cap_added': True,
+        'wholefile_inputs': tests, 'no_casefilters_or_skip_override': True,
+        'observer_source_sha256': hashlib.sha256(copied.read_bytes()).hexdigest(),
+        'tokenizer_input': {'path': str(tokenfile), 'bytes': len(token),
+                            'sha256': hashlib.sha256(token).hexdigest()},
+        'runtime_resource_snapshot': {
+            'meminfo': [line for line in Path('/proc/meminfo').read_text().splitlines()
+                        if line.startswith(('MemAvailable:', 'Shmem:', 'SwapFree:'))],
+            'file_backing': 'new root-ignored overlay fixtures; no filesystem/process quota',
+            'disk_available_bytes': os.statvfs(OUT).f_bavail * os.statvfs(OUT).f_frsize,
+        },
+        'PG_required_or_contacted': False,
+    })
+    start = time.monotonic()
+    pid = os.fork()
+    if pid == 0:
+        with (OUT / 'native.txt').open('xb', buffering=0) as stream:
+            os.dup2(stream.fileno(), 1)
+            os.dup2(stream.fileno(), 2)
+            os.chdir(ROOT / 'policy-engine')
+            os.execve(str(PYTHON), argv, env)
+    waited, status, usage = os.wait4(pid, 0)
+    wall = time.monotonic() - start
+    after = snapshot()
+    pins_after = [file_record(relative) for relative in sorted(set(declared))]
+    write('source-after.json', {'identity': after, 'declared_disk_inputs': pins_after,
+                              'declared_source_disk_bytes_unchanged': pins_before == pins_after})
+    data = (OUT / 'native.txt').read_bytes()
+    result = {'harness_state': 'EXECUTED', 'setup_failure': None,
+              'actual_pid': pid, 'waited_pid': waited, 'wait_status': status,
+              'actual_exit_code': os.waitstatus_to_exitcode(status),
+              'signal': os.WTERMSIG(status) if os.WIFSIGNALED(status) else None,
+              'wall_s': wall, 'max_rss_kib': usage.ru_maxrss,
+              'user_s': usage.ru_utime, 'system_s': usage.ru_stime,
+              'source_before': before, 'source_after': after,
+              'declared_disk_bytes_stable': pins_before == pins_after,
+              'whole_file_count': len(tests), 'argv': argv,
+              'stdout': {'path': str(OUT / 'native.txt'), 'bytes': len(data),
+                         'sha256': hashlib.sha256(data).hexdigest()},
+              'driver_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
+    write('wrapper.json', result)
+    print(json.dumps({key: result[key] for key in
+                      ('harness_state', 'actual_exit_code', 'signal', 'wall_s', 'max_rss_kib', 'stdout')}))
+    assert result['declared_disk_bytes_stable']
+    raise SystemExit(result['actual_exit_code'])

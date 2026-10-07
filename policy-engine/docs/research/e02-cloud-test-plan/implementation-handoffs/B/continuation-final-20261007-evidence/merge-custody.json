@@ -1,0 +1,127 @@
+{
+  "original_source": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+  "cursor": "b371fce793afddbe15e18ee2eadec3c7b9d51e52",
+  "merges": [
+    {
+      "source_parent": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "helper_parent": "4d523e51ccdc9d1a16d5ff81316f44898827ee78",
+      "merge_commit": "a65231d6d642938fb9bbf88c33339723bf9336a7",
+      "tree": "93f3b9fc9db542a84eafe120897067785b5ef12c",
+      "merge_command": [
+        "git",
+        "merge-tree",
+        "--write-tree",
+        "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+        "4d523e51ccdc9d1a16d5ff81316f44898827ee78"
+      ]
+    },
+    {
+      "source_parent": "a65231d6d642938fb9bbf88c33339723bf9336a7",
+      "helper_parent": "b61ed83242bb88fd2e1101751793f2a042545c1e",
+      "merge_commit": "aeb7a89672e2a9f78f49b28a4da22dbc260e35e4",
+      "tree": "62250d63faefce4be2d6152bff051270ba70ca69",
+      "merge_command": [
+        "git",
+        "merge-tree",
+        "--write-tree",
+        "a65231d6d642938fb9bbf88c33339723bf9336a7",
+        "b61ed83242bb88fd2e1101751793f2a042545c1e"
+      ]
+    },
+    {
+      "source_parent": "aeb7a89672e2a9f78f49b28a4da22dbc260e35e4",
+      "helper_parent": "a058426e743e8ce8c88c0b4469451b3180458915",
+      "merge_commit": "a37c1ccadcd60196d29c35a950afbe8403a14a9c",
+      "tree": "70b3b2ae237ba00358de3c3df324659ac5633426",
+      "merge_command": [
+        "git",
+        "merge-tree",
+        "--write-tree",
+        "aeb7a89672e2a9f78f49b28a4da22dbc260e35e4",
+        "a058426e743e8ce8c88c0b4469451b3180458915"
+      ]
+    },
+    {
+      "source_parent": "a37c1ccadcd60196d29c35a950afbe8403a14a9c",
+      "helper_parent": "9b57328d57cce174da8a2953e6db0e77c1ad1fee",
+      "merge_commit": "87d724c292265eb96ce362b326b743177e50d603",
+      "tree": "cba238846d7d209838195093bd788ab1852f782f",
+      "merge_command": [
+        "git",
+        "merge-tree",
+        "--write-tree",
+        "a37c1ccadcd60196d29c35a950afbe8403a14a9c",
+        "9b57328d57cce174da8a2953e6db0e77c1ad1fee"
+      ]
+    },
+    {
+      "source_parent": "87d724c292265eb96ce362b326b743177e50d603",
+      "helper_parent": "61070b6533387c05497b25295860194ca378b2cc",
+      "merge_commit": "e0a256e89b57ee5032509dd0896ab2cc0e968abf",
+      "tree": "824b4e0df7583a7724463f6595c3f65e60b61c97",
+      "merge_command": [
+        "git",
+        "merge-tree",
+        "--write-tree",
+        "87d724c292265eb96ce362b326b743177e50d603",
+        "61070b6533387c05497b25295860194ca378b2cc"
+      ]
+    },
+    {
+      "source_parent": "e0a256e89b57ee5032509dd0896ab2cc0e968abf",
+      "helper_parent": "91e343e0fa79ff77ff08fa0fae6fd3f035633190",
+      "merge_commit": "bee1d21055b71f45ed7297c0527b95b06f00bfb0",
+      "tree": "d1ddb73fbb95e9ceb7c911ee907ad7f6af6c8c4c",
+      "source_test_tool_delta": "ZERO_DIFF"
+    },
+    {
+      "source_parent": "bee1d21055b71f45ed7297c0527b95b06f00bfb0",
+      "helper_parent": "f6a3e0c8a6e6b4393dc81bb8f15b19815b48638b",
+      "merge_commit": "dbce5e1852ea1f55ba1e2653831f5a19a0e86f55",
+      "tree": "a64b6314e1f39625d4a031ad2183564009a54aa7",
+      "source_test_tool_delta": "ZERO_DIFF"
+    },
+    {
+      "source_parent": "dbce5e1852ea1f55ba1e2653831f5a19a0e86f55",
+      "helper_parent": "74be8fa50a7814ca7c3b6a8dce8f4ed2b318056f",
+      "merge_commit": "30e118e88020a0b9755e60e19a377b8c4316d822",
+      "tree": "465a4424608a4fc6f9c67bab2b24d38e5e378f74",
+      "source_test_tool_delta": "ZERO_DIFF"
+    },
+    {
+      "source_parent": "30e118e88020a0b9755e60e19a377b8c4316d822",
+      "helper_parent": "0bf268e7860831241e3fd193b3da46086d5893cc",
+      "merge_commit": "7eacaec1eb039a3402c1f9f8c851796d9b283d9f",
+      "tree": "74f8f5b864cbe06a26d50f904241b58ed3fb287d",
+      "source_test_tool_delta": "ZERO_DIFF"
+    },
+    {
+      "source_parent": "7eacaec1eb039a3402c1f9f8c851796d9b283d9f",
+      "helper_parent": "8c292c4904462a1ecd57d250f06fdfd7ff293c95",
+      "merge_commit": "680690192ece29f052034d4339a8996293dff323",
+      "tree": "9c0520ae9418ff980c097f05ffd96b4fb6149772",
+      "source_test_tool_delta": []
+    },
+    {
+      "source_parent": "680690192ece29f052034d4339a8996293dff323",
+      "helper_parent": "0c410d035250f943290c77a2b9e081a3c39263ee",
+      "merge_commit": "71560fe4597ce6696c68aee4ac917fcc822c4721",
+      "tree": "3548606eba1f42d522ab02d78af4271cd37ee68b",
+      "source_test_tool_delta": [
+        "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+        "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py"
+      ]
+    },
+    {
+      "source_parent": "71560fe4597ce6696c68aee4ac917fcc822c4721",
+      "helper_parent": "71afa5796b7a1b89cc94d9b6d4a0394d6117aab0",
+      "merge_commit": "b371fce793afddbe15e18ee2eadec3c7b9d51e52",
+      "tree": "f38d33e7006a75d2bdb145f0367afe82075cf4a5",
+      "source_test_tool_delta": "ZERO_DIFF"
+    }
+  ],
+  "source_test_tool_delta": "ZERO_DIFF",
+  "checkout": "unchanged existing root attached6fa; only normal merge objects in preserved/tmp because workspaceENOSPC",
+  "published": false
+}

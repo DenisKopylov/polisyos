@@ -1,0 +1,219 @@
+"""Read-only identity reconciliation; no native test or semantic auto-adjudication."""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import hashlib
+import io
+import json
+import subprocess
+import xml.etree.ElementTree as ET
+from collections import Counter
+from pathlib import Path
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--git-root", type=Path, required=True)
+    parser.add_argument("--review", type=Path, required=True)
+    args = parser.parse_args()
+    review_bytes = args.review.read_bytes()
+    review = json.loads(review_bytes)
+
+    def git(*argv: str) -> bytes:
+        # Literal Git executable, separate arguments; no shell or external command input.
+        return subprocess.check_output(["git", *argv], cwd=args.git_root)
+
+    def blob(sha: str, path: str) -> bytes:
+        return git("show", f"{sha}:{path}")
+
+    before = git("rev-parse", "HEAD").decode().strip()
+    source = review["source"]["sha"]
+    assert git("rev-parse", f"{source}^{{tree}}").decode().strip() == review["source"]["tree"]
+    assert not git(
+        "diff", "--name-only", source, before, "--", "policy-engine/src", "policy-engine/tests"
+    ), "Current root source/tests differ from the fixed runtime source"
+    refs = review["reference_index"]
+    identities = {}
+    blobs = {}
+    for name, ref in refs.items():
+        data = blob(ref["git_sha"], ref["path"])
+        actual = {"bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+        assert actual["bytes"] == ref["bytes"] and actual["sha256"] == ref["sha256"], name
+        identities[name] = {"git_sha": ref["git_sha"], "path": ref["path"], **actual}
+        blobs[name] = data
+
+    owner_rows = list(csv.DictReader(io.StringIO(blobs["finding_owners"].decode()), delimiter="\t"))
+    owned = {
+        row["finding_id"]: row
+        for row in owner_rows
+        if row["unit"] == "B" and row["source_closure_owner"] in review["scope_bundles"]
+    }
+    assert set(owned) == set(review["scope_finding_ids"])
+    rows = {row["finding_id"]: row for row in review["canonical_14_reviews"]}
+    assert set(rows) == set(owned) and len(rows) == len(review["canonical_14_reviews"])
+    proposal = json.loads(blobs["final_proposal"])
+    proposed = {row["finding_id"]: row for row in proposal["all60_manual_rows"]}
+    assert len(proposed) == len(proposal["all60_manual_rows"]) == 60
+    assert not review["closure_ids"]
+    assert proposal["root_source"]["sha"] == source
+    criterion_hashes = {}
+    for finding, row in rows.items():
+        bundle = owned[finding]["source_closure_owner"]
+        assert row["bundle_id"] == bundle
+        card = blobs["card_" + bundle].decode()
+        start = f"<!-- SOURCE_BEGIN B:{finding} -->"
+        end = f"<!-- SOURCE_END B:{finding} -->"
+        assert card.count(start) == card.count(end) == 1
+        interior = card.split(start)[1].split(end)[0]
+        digest = hashlib.sha256(interior.encode()).hexdigest()
+        assert digest == row["canonical_criterion"]["source_block_sha256"]
+        assert digest == proposed[finding]["canonical_criterion"]["source_block_sha256"]
+        assert row["proposed_status"] == proposed[finding]["proposed_status"]
+        assert row["formal_closure"] is proposed[finding]["formal_closure"] is False
+        criterion_hashes[finding] = digest
+
+    route_rows = list(csv.DictReader(io.StringIO(blobs["baseline_routes_tsv"].decode()), delimiter="\t"))
+    cell_rows = list(csv.DictReader(io.StringIO(blobs["baseline_cells_tsv"].decode()), delimiter="\t"))
+    cells = {row["id"]: row for row in cell_rows}
+    routed = [row for row in route_rows if row["finding_id"] in owned]
+    relevant_cells = sorted({row["cell_id"] for row in routed})
+    for job in review["baseline_jobs"]:
+        text = blob(source, "policy-engine/docs/research/e02-cloud-test-plan/results/received/" + job["job"] + ".txt")
+        assert len(text) == job["bytes"] and hashlib.sha256(text).hexdigest() == job["sha256"]
+        assert set(job["cell_ids"]) == {cell for cell in relevant_cells if cells[cell]["job"] == job["job"]}
+        lines = text.decode().splitlines()
+        for root in job["metadata_roots"]:
+            metadata, _end = json.JSONDecoder().raw_decode("\n".join(lines[root["line"] - 1 :]))
+            assert all(metadata.get(key) == value for key, value in root["source_reported"].items())
+    assert {cells[cell]["job"] for cell in relevant_cells} == {job["job"] for job in review["baseline_jobs"]}
+    baseline = {
+        finding: [
+            {
+                "cell_id": row["cell_id"],
+                "source_sha": cells[row["cell_id"]]["source_sha"],
+                "source_ref": row["source_ref"],
+                "path": cells[row["cell_id"]]["path"],
+                "source_status": row["source_status"],
+                "source_reported_state": cells[row["cell_id"]]["state"],
+                "source_locator": cells[row["cell_id"]]["source_file"] + ":" + cells[row["cell_id"]]["source_line"],
+                "semantic_adequacy": row["semantic_adequacy"],
+            }
+            for row in routed if row["finding_id"] == finding
+        ]
+        for finding in rows
+    }
+    projection = {}
+    for path, ref in review["net_runtime_source_projection"].items():
+        data = blob(source, path)
+        assert len(data) == ref["bytes"] and hashlib.sha256(data).hexdigest() == ref["sha256"]
+        projection[path] = ref
+
+    # Supplemental native35 ran on its own actual source tuple. Reconcile only
+    # the published native XML and the three relevant narrow selections here;
+    # do not rerun the cohort parser or restamp the native execution as1862.
+    affected = json.loads(blobs["affected35_canonical"])
+    native35 = [check for check in affected["checks"] if check["id"] == "whole-affected-native"]
+    assert len(native35) == 1
+    native35 = native35[0]
+    executed = native35["target_sha"]
+    assert executed == "10e812a98d5f7f3997e7d0aa44de43dc90eb022c"
+    source_entries = git("ls-tree", "-r", source, "--", "policy-engine/src", "policy-engine/tests", "policy-engine/product")
+    executed_entries = git("ls-tree", "-r", executed, "--", "policy-engine/src", "policy-engine/tests", "policy-engine/product")
+    assert source_entries == executed_entries
+    assert len(source_entries.splitlines()) == 6246
+    cases35 = list(ET.fromstring(blobs["affected35_xml"]).iter("testcase"))
+    assert len(cases35) == 712
+    assert all(case.find("failure") is case.find("error") is case.find("skipped") is None for case in cases35)
+    narrow35 = {}
+    for finding in ["B37", "B38", "B78"]:
+        selection = rows[finding]["actual_affected35_check"]
+        selected = []
+        for case in cases35:
+            for rule in selection["selectors"]:
+                starts = rule["name_starts_with_any"]
+                if rule["classname_contains"] in case.attrib["classname"] and (
+                    not starts or any(case.attrib["name"].startswith(prefix) for prefix in starts)
+                ):
+                    selected.append(case)
+                    break
+        assert len(selected) == selection["literal_case_counts"]["PASS"]
+        narrow35[finding] = [dict(case.attrib) for case in selected]
+    affected35_observation = {
+        "actual_execution_sha": executed,
+        "actual_execution_tree": git("rev-parse", f"{executed}^{{tree}}").decode().strip(),
+        "source_projection_entries": len(source_entries.splitlines()),
+        "source_projection_equal_1862": True,
+        "runtime_restamped_to_1862": False,
+        "native_xml_cases": len(cases35),
+        "narrow_selected_rows": narrow35,
+        "boundary": "Published native XML reconciliation only; no native, collection, gate or full cohort parser executed by reviewer",
+    }
+
+    # Newly completed, bounded peer oracle: reconcile every published payload,
+    # both actual source censuses and all physical rows before interpreting it.
+    b93 = json.loads(blobs["b93_final"])
+    b93_identities = {}
+    for ref in b93["all_deciding_artifact_refs"]:
+        data = blob(ref["commit"], ref["path"])
+        assert len(data) == ref["bytes"] and hashlib.sha256(data).hexdigest() == ref["sha256"]
+        b93_identities[ref["path"]] = {"bytes": len(data), "sha256": ref["sha256"]}
+    b93_observations = {}
+    for mode in ["native", "remove"]:
+        checks = [check for check in b93["checks"] if check["id"] == "qualified-" + mode]
+        assert len(checks) == 1
+        check = checks[0]
+        closure_ref = check["input_closure_ref"]
+        closure = json.loads(blob(closure_ref["commit"], closure_ref["path"]))
+        loaded = closure["after"]["refs"]
+        for ref in loaded:
+            data = blob(ref["source_commit"], ref["relative_path"])
+            assert ref["source_commit"] == source
+            assert len(data) == ref["bytes"] and hashlib.sha256(data).hexdigest() == ref["sha256"]
+        output_ref = check["output_ref"]
+        output = blob(output_ref["commit"], output_ref["path"]).decode()
+        packets = [json.loads(line.removeprefix("B93_ACTUAL ")) for line in output.splitlines()
+                   if line.startswith("B93_ACTUAL ")]
+        xml_ref = check["junit_ref"]
+        cases = list(ET.fromstring(blob(xml_ref["commit"], xml_ref["path"])).iter("testcase"))
+        assert len(packets) == len(cases) == check["quantity"]["literal_cases"]
+        for index, packet in enumerate(packets):
+            physical_path = output_ref["path"].rsplit("/", 1)[0] + f"/test_actual_half_open_provider{index}/physical-provider.jsonl.source.txt"
+            physical = [json.loads(line) for line in blob(output_ref["commit"], physical_path).splitlines()]
+            assert physical == packet["observations"][0]["recovery"]["physical_rows"]
+        b93_observations[mode] = {
+            "literal_cases": len(cases),
+            "failures": sum(case.find("failure") is not None for case in cases),
+            "loaded_source_files": len(loaded),
+            "packets": packets,
+            "scope": "Physical rows reconciled; assertions after the first failing assertion remain UNRUN",
+        }
+
+    after = git("rev-parse", "HEAD").decode().strip()
+    assert before == after
+    print(json.dumps({
+        "outcome": "PASS read-only identity reconciliation; semantic guard is manually reviewed",
+        "new_native_or_gates": "UNRUN",
+        "root_head_before": before,
+        "root_head_after": after,
+        "source": review["source"],
+        "review_bytes": len(review_bytes),
+        "review_sha256": hashlib.sha256(review_bytes).hexdigest(),
+        "reference_identities": identities,
+        "criterion_hashes": criterion_hashes,
+        "scope": {"bundles": len(review["scope_bundles"]), "findings": len(rows)},
+        "proposal_status_counts": dict(Counter(row["proposed_status"] for row in rows.values())),
+        "baseline": {"unique_cells": len(relevant_cells), "jobs": len(review["baseline_jobs"]), "findings": baseline,
+                     "grade": "source-reported navigation only; raw archives absent; no new proof"},
+        "current_source_projection": projection,
+        "affected35_observation": affected35_observation,
+        "b93_all_payload_identities": b93_identities,
+        "b93_qualified_observations": b93_observations,
+        "P41_inherited_red": "not_established",
+        "formal_closure_ids": [],
+    }, ensure_ascii=False, indent=2))
+
+
+if __name__ == "__main__":
+    main()

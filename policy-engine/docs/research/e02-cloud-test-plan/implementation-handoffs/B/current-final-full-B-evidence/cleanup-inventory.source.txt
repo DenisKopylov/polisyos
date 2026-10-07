@@ -1,0 +1,41 @@
+"""List exact preserved cleanup candidates; never delete or move anything."""
+import json
+import pathlib
+import shutil
+
+root = pathlib.Path('/workspace/e02-B-current-coordination')
+environments = [
+    root / '.polisyos/e02-B-current/environment',
+    pathlib.Path('/tmp/e02-B38-pg-profile'),
+    pathlib.Path('/tmp/e02-B-la057-final-1862c021df74-run/installed-env'),
+    pathlib.Path('/workspace/e02-B-completed-architecture-1862c021df74-runtime-ml-ready/policy-engine/.venv'),
+]
+fixtures = sorted(
+    p for p in (root / '.polisyos/e02-B-current/raw/review').iterdir()
+    if p.is_dir() and (p.name.endswith('-pytest') or p.name.endswith('-pytests'))
+)
+fixtures += [
+    pathlib.Path('/dev/shm/e02-B-completed-final-1862c021df74/pytest'),
+    pathlib.Path('/dev/shm/e02-B-completed-affected-1862c021df74-bound/pytest'),
+    root / '.polisyos/e02-B-current/raw/affected-10e-20261006/fixtures',
+]
+rows = []
+for kind, paths in [('used_environment', environments), ('repeatable_test_fixtures', fixtures)]:
+    for path in paths:
+        if path.exists():
+            rows.append({'path': str(path), 'kind': kind, 'action': 'PRESERVED; candidate only, no native Trash',
+                         'precondition': 'All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion.'})
+print(json.dumps({
+    'schema': 'policyos.e02.cleanup_candidates.v1',
+    'native_trash': {'gio': shutil.which('gio'), 'trash_put': shutil.which('trash-put'),
+                     'trash': shutil.which('trash'), 'desktop_trash_directory_exists': pathlib.Path('/home/agent/.local/share/Trash').exists()},
+    'performed_deletion_or_move': False,
+    'candidates': rows,
+    'explicit_preservation': [
+        'All registered worktrees/topic code and useful documentation; no worktree removal/prune/reset/rewrite.',
+        'All unique raw observations, deciding logs/inventories/lineage/module origins not fully retained in Git.',
+        '/tmp/e02-B38-pg-evidence including native-data-v2/secret DSN and the preserved OCI image. Task-owned postmaster already received guarded graceful SIGTERM only.',
+        'All production data, caches shared by other tasks, and data not proved repeatable.'
+    ],
+    'next_owner': 'G or human with native Trash may move only independently confirmed finished/repeatable candidates after evidence custody; do not empty Trash.'
+}, ensure_ascii=False, indent=2))

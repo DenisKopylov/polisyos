@@ -1,0 +1,77 @@
+{
+  "schema": "policyos.e02.foreign_llm_contract_review_qualification.v1",
+  "created_utc": "2026-10-06T20:17:38.038456+00:00",
+  "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "reviewer_runtime": "UNRUN; stdlib/Git/existing source/output reads only",
+  "predicate_basis": "independently_reconciled",
+  "source_acceptance": false,
+  "closure_ids": [],
+  "B65_existing_complete_original_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/native.txt",
+      "commit": "6432daa0c17d9085b87b2117f5f24cd5251ea4fc",
+      "bytes": 78759,
+      "sha256": "2b32c24941f6e798970d2aee67b9d7bc7c012d4ccb5622738edd1710c5143e86",
+      "original_read_path": "/tmp/e02-B65-protected-audit-qualified/native.txt",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/native.xml",
+      "commit": "6432daa0c17d9085b87b2117f5f24cd5251ea4fc",
+      "bytes": 11955,
+      "sha256": "81ff734fdb7d12d3eca87e2bcc8e5fc4fa3101ab0bd7030db0f6c30a4cd38dad",
+      "original_read_path": "/tmp/e02-B65-protected-audit-qualified/native.xml",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/wrapper.json",
+      "commit": "6432daa0c17d9085b87b2117f5f24cd5251ea4fc",
+      "bytes": 4721,
+      "sha256": "180a22f615d53adf66a398b72a1274880548d10e56bd6f54d17f8ce08a393a5f",
+      "original_read_path": "/tmp/e02-B65-protected-audit-qualified/wrapper.json",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/source-context.json",
+      "commit": "6432daa0c17d9085b87b2117f5f24cd5251ea4fc",
+      "bytes": 52196,
+      "sha256": "343fd56d1465d00c6aca20ae3b33bcb495ad7c316e1c4ee7e18eb7e580c8bf1b",
+      "original_read_path": "/tmp/e02-B65-protected-audit-qualified/source-context.json",
+      "byte_equal": true
+    }
+  ],
+  "B65_complete_actual_case_artifacts": "current-required-audit-settlement-independent-evidence/qualified/actual-files@6432daa0c17d9085b87b2117f5f24cd5251ea4fc; cited existing packet without duplicate copying",
+  "original_invalid_tokenizer_premise": "initial-not-established@6432daa0c17d9085b87b2117f5f24cd5251ea4fc retains original4FAIL beforeprovider/audit; not a protected-audit witness",
+  "forward_design_quantity": {
+    "bucket": "SAME producer accounting custody class (P40), not another per-instance patch",
+    "proposal_only": true,
+    "required_invariant": "Commit exact pre-provider intent and all-key reservation atomically before physical work; persist/retain observed completion knowledge separately from financial receipt and mandatory audit. A lost phase write must not reopen admission through an old in-flight snapshot.",
+    "owner_lifetime": "Constructor-bound live-owner epoch and shared uncertainty quantity across bound views; no request-selected epoch or boolean resolution. Fork/reopen must not inherit current-live admission without actual process custody.",
+    "same_live_owner_escape": "A post-completion transition failure leaves old durable provider_in_flight; subsequent distinct enforcer sharing the same live epoch must remain blocked by shared exact uncertainty rather than local enforcer-only pending maps.",
+    "unknown_transition": "Original in-flight intent must be able to transition into observed cost_unknown; existing unknown cannot be cleared without trusted missing cost evidence.",
+    "audit_truth": "Known monetary receipts remain valid while protected audit pending. Definite noappend same-entry recovery differs from ambiguous fsync; no blind fresh append or second provider/recharge.",
+    "required_controls": [
+      "First intent publication failure: zero physical provider calls.",
+      "Post-completion phase-publication failure: one actual call plus durable previous intent; both fresh/foreign and same live bound view refuse next intersection.",
+      "Atomic key intersection across reserve/admission; nonintersecting and controlled own in-flight positives.",
+      "Original task cancellation keeps completion/obligation; unknown usage cannot become zero ACK/cache publication.",
+      "Known reported0, valid priced knownusage/free controls retained.",
+      "Exact typed audit resolver event/run/action/log-owner/receipt binding and fresh chain; wrong binding no physical audit/provider/ledger mutation."
+    ]
+  },
+  "unfrozen_source_feedback_qualification": "Shared with canonical DUR/ADAPTER authors as source-inferred design discriminators only. No draft or future source accepted; actual frozen full ledger/adapter source review and new oracles still required.",
+  "per_premise_basis": {
+    "canonical_DD_source_and_criteria": "recomputed",
+    "original_input_output_source_bindings": "independently_reconciled",
+    "new_widened_implementation": "not_established",
+    "new_admission_and_recovery_behavior": "not_established",
+    "production_constructor_wiring": "not_established",
+    "external_vendor_invoice_truth": "not_established"
+  },
+  "next_owner": [
+    "DUR sole ledger/middleware writer",
+    "ADAPTER sole LLM producer/normalizer/tracer/enforcer/cache writer",
+    "RUN independent protected-audit oracle author",
+    "B root/G final combined adjudication"
+  ]
+}

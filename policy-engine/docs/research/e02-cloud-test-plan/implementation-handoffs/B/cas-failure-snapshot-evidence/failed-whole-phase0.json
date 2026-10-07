@@ -1,0 +1,41 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "pytest",
+    "-vv",
+    "tests/unit/core/phase0",
+    "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+    "tests/unit/core/artifacts/test_cas_integrity_report.py",
+    "tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+    "tests/unit/core/artifacts/test_signed_evidence.py",
+    "tests/unit/core/artifacts/test_batch_completion_admission.py",
+    "tests/unit/runtime/quality/test_chronology_proof.py",
+    "--basetemp=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/failed-whole-phase0-pytest",
+    "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/failed-whole-phase0.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+  "target_sha": "7949854dc26204c41286ef1b6919166bb53660a0",
+  "target_tree": "80c237125c05266ee4e992f3626ed42c04b48fde",
+  "exit_code": 0,
+  "wall_s": 44.625249040997005,
+  "maxrss_kib": 868336,
+  "environment": {
+    "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+    "POLISYOS_METRICS_PORT": "0",
+    "numerical_caps": "all6absent"
+  },
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/failed-whole-phase0.txt",
+      "bytes": 35075,
+      "sha256": "8d5a905ce9b5d0175e234d4861da7d996d1aefe2899b5550bbf0baead097e1cc"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/failed-whole-phase0.xml",
+      "bytes": 37215,
+      "sha256": "bedfc9a44cda1624f78f754d71171079c95b32ea8625f0daf569b587facec2ab"
+    }
+  ]
+}

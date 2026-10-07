@@ -1,0 +1,107 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "count": 20,
+  "bytes": 43535,
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/actual-output-overlay-and-client-custody.json",
+      "bytes": 2073,
+      "sha256": "ecfba66cebfd148f6a1b2bd90d930c8ce66b5675334df6bac95ce627a2aa3094"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/driver-profile.json",
+      "bytes": 3364,
+      "sha256": "43e5368b3df0c403e8392d59105d7830cb0e916029d5c91f7402441334c0bdc2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/driver-result.json",
+      "bytes": 3932,
+      "sha256": "b893d6a097ee13e8d9c8a4fcdda77feef16e94de6f8a93ca408c0dd4a4925c7a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/full-recursive-diff.json",
+      "bytes": 4515,
+      "sha256": "1bfa58ec82686c261ce7c7a67199b5026c58bda4301c0757a6cee77a9b682117"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step0.json",
+      "bytes": 2302,
+      "sha256": "3e3030e1b1b142d5f004523c500c48bb791b6680d89456087eb01eb9c7340bc8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step0.txt",
+      "bytes": 6814,
+      "sha256": "7d863b87367ac61d16b2e76d72ade0f70e7831e3a7d8cbc7c387b1db2c8be928"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step1.json",
+      "bytes": 2403,
+      "sha256": "fc5cd10ce1162611a0a4ac4af086fe712fc040c45859524c559baaf8d3101888"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step1.txt",
+      "bytes": 226,
+      "sha256": "9c3fa0c9159eab7bb840b84e197322dc0d424662fa36cc76f17f8517c7c83f32"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step2.json",
+      "bytes": 2240,
+      "sha256": "ba45951a63cee17d5a654528a6eca59924587aac62b938c86498264e3fce9f7a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step2.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step3.json",
+      "bytes": 2482,
+      "sha256": "9aa4872609c59fba65211d073fb48a3c730254d9550b6498fcd23b9b6dbca5bc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step3.txt",
+      "bytes": 136,
+      "sha256": "0817e6135832f06a03c52ee0c3171c626c319f01da7221c527a3e57b1ab26317"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step4.json",
+      "bytes": 2685,
+      "sha256": "e03013731910ed8c24e853b96684ce87a45a8a5ed2215d9b5ac7e35b560cf6e3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step4.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/public-sync-and-lifecycle-identity.json",
+      "bytes": 3809,
+      "sha256": "21cfdc9a054de3010ee57ac003f10cf460604180ce00f88ebe7672607df15c3b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/public-sync.json",
+      "bytes": 975,
+      "sha256": "34a627b07ecd6ca1c23f7b07c162469614453a2b2b1e849ba47cc0623fa27bfd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/public-sync.txt",
+      "bytes": 44,
+      "sha256": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/registered-generator-launch.source.txt",
+      "bytes": 2684,
+      "sha256": "7dd297750d40e9e8de5862bd82d6869911fbbc69d41038ef10ff9dbc13c5e32c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/stub-check.json",
+      "bytes": 2080,
+      "sha256": "6d03298e01a54b9784a06aa58a2aa2f031c387a67406c2f864bc7a798e652637"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/stub-check.txt",
+      "bytes": 771,
+      "sha256": "34c245eaa33c9fbbaad2f56c85de149ef57baa8c22a07711684e0dd78c18b900"
+    }
+  ]
+}

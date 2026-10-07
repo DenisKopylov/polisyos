@@ -1,0 +1,217 @@
+{
+  "input_sha": "682174fc76ec6911dd758c807551c8b9ff4013ec",
+  "runtime_source_sha": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
+  "xml_cases": [
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_protected_audit_reconciliation_precedes_next_provider[healthy-sync-invoke]",
+        "time": "0.103"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_protected_audit_reconciliation_precedes_next_provider[healthy-sync-invoke]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_protected_audit_reconciliation_precedes_next_provider[healthy-async-generate]",
+        "time": "0.085"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_protected_audit_reconciliation_precedes_next_provider[healthy-async-generate]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-sync-invoke]",
+        "time": "0.037"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-sync-invoke]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-async-generate]",
+        "time": "0.036"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-async-generate]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_real_budget_refusal_audit_restores_exact_act_without_provider_or_charge[healthy]",
+        "time": "0.007"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_real_budget_refusal_audit_restores_exact_act_without_provider_or_charge[healthy]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_real_budget_refusal_audit_restores_exact_act_without_provider_or_charge[protected-exceeded-fault]",
+        "time": "0.016"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_real_budget_refusal_audit_restores_exact_act_without_provider_or_charge[protected-exceeded-fault]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-sync-invoke]",
+        "time": "0.055"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-sync-invoke]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-async-generate]",
+        "time": "0.058"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-async-generate]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_CHECK-sync-invoke]",
+        "time": "0.064"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_CHECK-sync-invoke]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_CHECK-async-generate]",
+        "time": "0.066"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_CHECK-async-generate]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-sync-invoke]",
+        "time": "0.093"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-sync-invoke]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-async-generate]",
+        "time": "0.096"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-async-generate]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-sync-invoke]",
+        "time": "0.033"
+      },
+      "native_grade": "FAIL",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-sync-invoke]",
+      "diagnostic_message": "AssertionError: assert Decimal('0.00015000000000000001') == Decimal('0')\n +  where Decimal('0') = Decimal('0')",
+      "full_native_diagnostic": "tmp_path = PosixPath('/tmp/e02-B65-recovery-a2-native/pytest-tmp/test_same_protected_owner_repl6')\nroute = 'sync-invoke', action = 'BUDGET_COMMITTED'\n\n    @pytest.mark.parametrize(\"route\", [\"sync-invoke\", \"async-generate\"])\n    @pytest.mark.parametrize(\n        \"action\", [\"BUDGET_RESERVED\", \"BUDGET_CHECK\", \"BUDGET_RELEASED\", \"BUDGET_COMMITTED\"]\n    )\n    def test_same_protected_owner_replays_exact_missing_act_before_unblocking(\n        tmp_path: Path, route: str, action: str\n    ) -> None:\n        enforcer, sink, audit, resolver, provider, audit_path, ledger_path = _recovery_fixture(\n            tmp_path, action\n        )\n        try:\n            with pytest.raises(LLMAccountingError) as first:\n                _call(enforcer, route)\n            error = first.value\n            obligation = error.event[\"audit_obligation\"]\n            before = FileBudgetLedger(ledger_path).snapshot()\n            print(\n                \"B65_PENDING \"\n                + json.dumps(\n                    {\n                        \"route\": route,\n                        \"action\": action,\n                        \"act_id\": obligation.act_id,\n                        \"obligation_digest\": obligation.payload_digest,\n                        \"provider_calls\": len(provider.responses),\n                        \"original_cause\": type(error.cause).__name__,\n                        \"settlement_status\": error.event[\"settlement_status\"],\n                        \"captured_entry\": sink.failed_entry.model_dump(mode=\"json\"),\n                        \"fresh_ledger\": before.model_dump(mode=\"json\"),\n                    }\n                )\n            )\n            assert error.event[\"required_audit_status\"] == \"pending\"\n            assert obligation.action == action\n            assert error.cause is audit.failure and isinstance(error.cause, IsADirectoryError)\n            original_metadata = json.dumps(dict(obligation.metadata), sort_keys=True)\n            original_digest = obligation.payload_digest\n            detached_metadata = dict(obligation.metadata)\n            if \"budget_keys\" in detached_metadata:\n                detached_metadata[\"budget_keys\"].append(\"different-caller-key\")\n            else:\n                detached_metadata[\"payload_digest\"] = \"sha256:\" + \"0\" * 64\n            print(\n                \"B65_DETACHED_METADATA \"\n                + json.dumps(\n                    {\n                        \"route\": route,\n                        \"action\": action,\n                        \"original_metadata\": json.loads(original_metadata),\n                        \"mutated_caller_view\": detached_metadata,\n                        \"retained_metadata\": dict(obligation.metadata),\n                        \"original_digest\": original_digest,\n                        \"retained_digest\": obligation.payload_digest,\n                    }\n                )\n            )\n            assert json.dumps(dict(obligation.metadata), sort_keys=True) == original_metadata\n            assert obligation.payload_digest == original_digest\n            initial_calls = len(provider.responses)\n            assert initial_calls == (0 if action in {\"BUDGET_RESERVED\", \"BUDGET_CHECK\"} else 1)\n            if initial_calls:\n                assert error.response is provider.responses[0]\n                assert obligation.event is not None and obligation.event.amount == Decimal(\"0.02\")\n                assert obligation.charge_ack is not None and obligation.charge_ack.status == \"committed\"\n                assert error.event[\"settlement_status\"] == \"committed\"\n                assert before.state.spent[\"run\"] == Decimal(\"0.02\")\n            else:\n                assert error.response is None and obligation.event is None\n                assert obligation.charge_ack is None\n                assert not before.spend_receipts\n                assert before.state.reserved[\"run\"] > Decimal(\"0\")\n            assert before.completion_obligations\n            retained_audit = before.completion_obligations[obligation.act_id]\n            assert retained_audit.budget_keys == (\"run\",)\n            assert set(retained_audit.reserved_amounts) == {\"run\"}\n            if not initial_calls:\n                assert retained_audit.reserved_amounts[\"run\"] == before.state.reserved[\"run\"]\n            else:\n>               assert retained_audit.reserved_amounts[\"run\"] == Decimal(\"0\")\nE               AssertionError: assert Decimal('0.00015000000000000001') == Decimal('0')\nE                +  where Decimal('0') = Decimal('0')\n\n../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:542: AssertionError",
+      "qualification": "Native FAIL retained. New test assertion mistook immutable original COMMITTED admission identity vector for outstanding aggregate reserve. Canonical lower transition preserves reserved_amounts; actual BudgetState reserved is0. Correction only asserts exact earlier real RESERVED entry amount and actual aggregate0. No source repair or weakened current-money predicate."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-async-generate]",
+        "time": "0.033"
+      },
+      "native_grade": "FAIL",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-async-generate]",
+      "diagnostic_message": "AssertionError: assert Decimal('0.00015000000000000001') == Decimal('0')\n +  where Decimal('0') = Decimal('0')",
+      "full_native_diagnostic": "tmp_path = PosixPath('/tmp/e02-B65-recovery-a2-native/pytest-tmp/test_same_protected_owner_repl7')\nroute = 'async-generate', action = 'BUDGET_COMMITTED'\n\n    @pytest.mark.parametrize(\"route\", [\"sync-invoke\", \"async-generate\"])\n    @pytest.mark.parametrize(\n        \"action\", [\"BUDGET_RESERVED\", \"BUDGET_CHECK\", \"BUDGET_RELEASED\", \"BUDGET_COMMITTED\"]\n    )\n    def test_same_protected_owner_replays_exact_missing_act_before_unblocking(\n        tmp_path: Path, route: str, action: str\n    ) -> None:\n        enforcer, sink, audit, resolver, provider, audit_path, ledger_path = _recovery_fixture(\n            tmp_path, action\n        )\n        try:\n            with pytest.raises(LLMAccountingError) as first:\n                _call(enforcer, route)\n            error = first.value\n            obligation = error.event[\"audit_obligation\"]\n            before = FileBudgetLedger(ledger_path).snapshot()\n            print(\n                \"B65_PENDING \"\n                + json.dumps(\n                    {\n                        \"route\": route,\n                        \"action\": action,\n                        \"act_id\": obligation.act_id,\n                        \"obligation_digest\": obligation.payload_digest,\n                        \"provider_calls\": len(provider.responses),\n                        \"original_cause\": type(error.cause).__name__,\n                        \"settlement_status\": error.event[\"settlement_status\"],\n                        \"captured_entry\": sink.failed_entry.model_dump(mode=\"json\"),\n                        \"fresh_ledger\": before.model_dump(mode=\"json\"),\n                    }\n                )\n            )\n            assert error.event[\"required_audit_status\"] == \"pending\"\n            assert obligation.action == action\n            assert error.cause is audit.failure and isinstance(error.cause, IsADirectoryError)\n            original_metadata = json.dumps(dict(obligation.metadata), sort_keys=True)\n            original_digest = obligation.payload_digest\n            detached_metadata = dict(obligation.metadata)\n            if \"budget_keys\" in detached_metadata:\n                detached_metadata[\"budget_keys\"].append(\"different-caller-key\")\n            else:\n                detached_metadata[\"payload_digest\"] = \"sha256:\" + \"0\" * 64\n            print(\n                \"B65_DETACHED_METADATA \"\n                + json.dumps(\n                    {\n                        \"route\": route,\n                        \"action\": action,\n                        \"original_metadata\": json.loads(original_metadata),\n                        \"mutated_caller_view\": detached_metadata,\n                        \"retained_metadata\": dict(obligation.metadata),\n                        \"original_digest\": original_digest,\n                        \"retained_digest\": obligation.payload_digest,\n                    }\n                )\n            )\n            assert json.dumps(dict(obligation.metadata), sort_keys=True) == original_metadata\n            assert obligation.payload_digest == original_digest\n            initial_calls = len(provider.responses)\n            assert initial_calls == (0 if action in {\"BUDGET_RESERVED\", \"BUDGET_CHECK\"} else 1)\n            if initial_calls:\n                assert error.response is provider.responses[0]\n                assert obligation.event is not None and obligation.event.amount == Decimal(\"0.02\")\n                assert obligation.charge_ack is not None and obligation.charge_ack.status == \"committed\"\n                assert error.event[\"settlement_status\"] == \"committed\"\n                assert before.state.spent[\"run\"] == Decimal(\"0.02\")\n            else:\n                assert error.response is None and obligation.event is None\n                assert obligation.charge_ack is None\n                assert not before.spend_receipts\n                assert before.state.reserved[\"run\"] > Decimal(\"0\")\n            assert before.completion_obligations\n            retained_audit = before.completion_obligations[obligation.act_id]\n            assert retained_audit.budget_keys == (\"run\",)\n            assert set(retained_audit.reserved_amounts) == {\"run\"}\n            if not initial_calls:\n                assert retained_audit.reserved_amounts[\"run\"] == before.state.reserved[\"run\"]\n            else:\n>               assert retained_audit.reserved_amounts[\"run\"] == Decimal(\"0\")\nE               AssertionError: assert Decimal('0.00015000000000000001') == Decimal('0')\nE                +  where Decimal('0') = Decimal('0')\n\n../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:542: AssertionError",
+      "qualification": "Native FAIL retained. New test assertion mistook immutable original COMMITTED admission identity vector for outstanding aggregate reserve. Canonical lower transition preserves reserved_amounts; actual BudgetState reserved is0. Correction only asserts exact earlier real RESERVED entry amount and actual aggregate0. No source repair or weakened current-money predicate."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[event-id]",
+        "time": "0.035"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[event-id]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[payload]",
+        "time": "0.034"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[payload]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[log-owner]",
+        "time": "0.034"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[log-owner]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    }
+  ],
+  "actual_counts": {
+    "PASS": 15,
+    "FAIL": 2,
+    "ERROR": 0,
+    "SKIP": 0,
+    "cases": 17
+  }
+}

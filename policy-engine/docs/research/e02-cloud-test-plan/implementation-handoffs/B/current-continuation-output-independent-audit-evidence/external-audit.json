@@ -1,0 +1,577 @@
+{
+  "schema": "policyos.e02.external_gate_output_audit.v1",
+  "source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+  "source_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+  "gates": [
+    {
+      "gate": "verify",
+      "outcome": "FAIL",
+      "source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "source_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py",
+        "--product-root",
+        "/workspace/e02-B-current-coordination/policy-engine",
+        "--uv",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "--suite",
+        "verify",
+        "--execute",
+        "--expected-source",
+        "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+        "--",
+        "--backend-only"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "artifact_refs": [
+        {
+          "path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/verify/receipt.json",
+          "bytes": 6328,
+          "sha256": "0daf9eec0aab8f80c596f41727c67a096be4cea02ed31457c0b40363ae8e6714",
+          "receiver_git_availability": "not_established"
+        },
+        {
+          "path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/verify/profile-before-exec.json",
+          "bytes": 5343,
+          "sha256": "5f7a4d2bd3aab8f90391fe472d19bef600c4117ea7d9cfdbe08d1bd87426172d",
+          "receiver_git_availability": "not_established"
+        },
+        {
+          "path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/verify/stdout.txt",
+          "bytes": 11929,
+          "sha256": "aaef65cff6a336618cbf333c3dcb047379b0cd224600366bc7eb92d0b1c511cd",
+          "receiver_git_availability": "not_established"
+        }
+      ],
+      "exit_code": 1,
+      "harness_state": "EXECUTED",
+      "exec_setup_error": null,
+      "child_pid": 768004,
+      "wall_s": 1.3487424330087379,
+      "wait4_child_maxrss_kib": 105008,
+      "planned_expanded_commands": 15,
+      "executed_constituents": [
+        {
+          "index": 0,
+          "label": "doctor",
+          "outcome": "FAIL"
+        }
+      ],
+      "remaining_constituents_UNRUN": [
+        {
+          "index": 1,
+          "label": "lint imports"
+        },
+        {
+          "index": 2,
+          "label": "check package import gates (shell-package closure)"
+        },
+        {
+          "index": 3,
+          "label": "lint foundry"
+        },
+        {
+          "index": 4,
+          "label": "check state reads"
+        },
+        {
+          "index": 5,
+          "label": "check scholar imports"
+        },
+        {
+          "index": 6,
+          "label": "check connector contracts"
+        },
+        {
+          "index": 7,
+          "label": "check schema freshness"
+        },
+        {
+          "index": 8,
+          "label": "check runtime API contract"
+        },
+        {
+          "index": 9,
+          "label": "check last-mile inventory baseline"
+        },
+        {
+          "index": 10,
+          "label": "build honest diagnostics coverage dashboard"
+        },
+        {
+          "index": 11,
+          "label": "check honest diagnostics substrate drift"
+        },
+        {
+          "index": 12,
+          "label": "check extension example contract coverage"
+        },
+        {
+          "index": 13,
+          "label": "check schemas pure-data closure"
+        },
+        {
+          "index": 14,
+          "label": "pytest fast backend gate"
+        }
+      ],
+      "literal_doctor_status_lines": [
+        "[PASS] python: Python 3.14.2 via /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "[PASS] node: Node v22.22.0",
+        "[PASS] uv: uv 0.9.21 at /workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "[PASS] playwright: Chromium browser is launchable",
+        "[PASS] uv.lock: uv.lock is up to date",
+        "[FAIL] pnpm-lock: pnpm-lock.yaml is stale or inconsistent (Command '['corepack', 'pnpm', 'install', '--frozen-lockfile', '--lockfile-only', '--ignore-scripts']' returned non-zero exit status 228.)",
+        "[PASS] optional-surfaces: No optional surfaces selected",
+        "doctor failed with 1 issue(s)."
+      ],
+      "literal_schema_drift_lines": [],
+      "pnpm_ENOSPC_literal_present": true,
+      "runtime_openapi137_literal_present": false,
+      "actual_uncapped_profile": {
+        "config_source_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+        "factory_paths": [
+          "policy-engine/tools/devx/workspace/verify.py@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+          "policy-engine/tools/devx/workspace/ci_parity.py@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+          "policy-engine/tools/devx/workspace/_common.py@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022"
+        ],
+        "canonical_flags": [
+          "--backend-only"
+        ],
+        "environment_delta": {
+          "omit": [
+            "BLIS_NUM_THREADS",
+            "MKL_NUM_THREADS",
+            "NUMEXPR_NUM_THREADS",
+            "OMP_NUM_THREADS",
+            "OPENBLAS_NUM_THREADS",
+            "VECLIB_MAXIMUM_THREADS"
+          ],
+          "ambient_names_present": []
+        },
+        "additional_argv_projection": null,
+        "qualification": "Qualified uncapped constituent projection, not native capped CLI PASS. Coverage projection remains planned only because doctor stops both suites."
+      },
+      "selected_environment": {
+        "PYTHONPATH": "/tmp/e02-B38-pg-profile:/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/tmp/e02-B-opa-latest-preparation-1db95544/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_DUR_PROCESS_SOURCE_ROOT": "/workspace/e02-B-current-coordination",
+        "E02_DUR_PROCESS_SOURCE_SHA": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+        "E02_MONEY_SOURCE_ROOT": "/workspace/e02-B-current-coordination",
+        "E02_MONEY_SOURCE_SHA": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+        "E02_REMOVE_PROTECTION": "0"
+      },
+      "inputs": {
+        "installed_wheel_profile": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/cohort-input-environment.json",
+        "installed_wheel_profile_sha256": "fa6946d8d1e9a0a0bfe92e7f5d461e0d166cdf09bec6b18f9d6c020b0dfd2bda",
+        "installed_wheel_inputs": {
+          "E02_LA057_WHEEL_PATH": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/wheels/policy_engine-0.1.0-py3-none-any.whl",
+          "E02_LA057_INSTALLED_SITE": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/installed-env/lib/python3.14/site-packages",
+          "E02_LA057_SOURCE_ROOT": "/workspace/e02-B-current-coordination/policy-engine",
+          "E02_LA057_SOURCE_SHA": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+          "E02_LA057_INSTALLED_PYTHON": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/installed-env/bin/python",
+          "E02_LA057_CONSUMER_SHA256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+          "E02_LA057_OUTER_TEST_SHA256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702"
+        },
+        "wheel_sha256": "1e7a013683f0343d058f3a30c8d3ca91b4218cba5b7fbc2438586bfcb7f884e7",
+        "postgres_private_dsn_file": "/tmp/e02-B38-pg-evidence/postgres-dsn",
+        "postgres_driver_root": "/tmp/e02-B38-pg-profile",
+        "postgres_driver_distribution_profile": "Task-only psycopg and psycopg-binary 3.3.2; inherited 194-distribution environment unchanged",
+        "postgres_dsn_values": "Private credentials passed only to actual fixture consumers; omitted from public profiles",
+        "postgres_existing_optional_native_profile": "POLISYOS_TEST_PG_DSN supplied and POLISYOS_DS9_REQUIRE_PG=1; unavailable backend is a failure, not a silent skip"
+      },
+      "harness_environment_deltas": [
+        "omit former empty fresh tools PYTHONPATH suffix; no observer is loaded for these backend gates",
+        "explicit ordinary E02_REMOVE_PROTECTION=0 rather than ambient value"
+      ],
+      "resources_before": {
+        "storage": {
+          "/workspace": {
+            "total": 33770192896,
+            "used": 32064724992,
+            "free": 0
+          },
+          "/tmp": {
+            "total": 9441349632,
+            "used": 7158001664,
+            "free": 2283347968
+          },
+          "/dev/shm": {
+            "total": 9441349632,
+            "used": 7115980800,
+            "free": 2325368832
+          }
+        },
+        "memory.events": "low 0\nhigh 0\nmax 469626\noom 15\noom_kill 11\noom_group_kill 0\n",
+        "memory.current": "16779927552\n",
+        "attribution": "observed counters; signal sender/causality not established"
+      },
+      "resources_after": {
+        "storage": {
+          "/workspace": {
+            "total": 33770192896,
+            "used": 32064724992,
+            "free": 0
+          },
+          "/tmp": {
+            "total": 9441349632,
+            "used": 7158022144,
+            "free": 2283327488
+          },
+          "/dev/shm": {
+            "total": 9441349632,
+            "used": 7115980800,
+            "free": 2325368832
+          }
+        },
+        "memory.events": "low 0\nhigh 0\nmax 470067\noom 15\noom_kill 11\noom_group_kill 0\n",
+        "memory.current": "17092521984\n",
+        "attribution": "observed counters; signal sender/causality not established"
+      },
+      "P41": "NOT_ESTABLISHED: full selected/current input intersections; no exact matching baseline or inherited waiver.",
+      "qualification": "Actual doctor FAIL retained; all later suite constituents UNRUN. Parity also records schema snapshot drift and runtime OpenAPI137, not solely pnpm ENOSPC. Doctor frontend contract subcheck PASS is not a 35-command parity grade. Shared counters do not identify signal sender/cause."
+    },
+    {
+      "gate": "parity",
+      "outcome": "FAIL",
+      "source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "source_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py",
+        "--product-root",
+        "/workspace/e02-B-current-coordination/policy-engine",
+        "--uv",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "--suite",
+        "ci-parity",
+        "--execute",
+        "--expected-source",
+        "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+        "--",
+        "--skip-browser"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "artifact_refs": [
+        {
+          "path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/parity/receipt.json",
+          "bytes": 6330,
+          "sha256": "03e826c3df0b9f65e6b4d7a3f1a3415cab82fb0a6eb3862d60e456c1bca5b3f1",
+          "receiver_git_availability": "not_established"
+        },
+        {
+          "path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/parity/profile-before-exec.json",
+          "bytes": 5346,
+          "sha256": "29c414a06521b5adf4cce87c83d544fabb7382d8e5f8f6c683040f3ba73f4f3f",
+          "receiver_git_availability": "not_established"
+        },
+        {
+          "path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/parity/stdout.txt",
+          "bytes": 29681,
+          "sha256": "9782911a518ee99db0b11364cdff543e61145976fd13e4f3921c8b31f9ce1593",
+          "receiver_git_availability": "not_established"
+        }
+      ],
+      "exit_code": 1,
+      "harness_state": "EXECUTED",
+      "exec_setup_error": null,
+      "child_pid": 768301,
+      "wall_s": 67.3122507710068,
+      "wait4_child_maxrss_kib": 1112244,
+      "planned_expanded_commands": 35,
+      "executed_constituents": [
+        {
+          "index": 0,
+          "label": "doctor",
+          "outcome": "FAIL"
+        }
+      ],
+      "remaining_constituents_UNRUN": [
+        {
+          "index": 1,
+          "label": "lint imports"
+        },
+        {
+          "index": 2,
+          "label": "check package import gates (shell-package closure)"
+        },
+        {
+          "index": 3,
+          "label": "lint foundry"
+        },
+        {
+          "index": 4,
+          "label": "check state reads"
+        },
+        {
+          "index": 5,
+          "label": "check scholar imports"
+        },
+        {
+          "index": 6,
+          "label": "check connector contracts"
+        },
+        {
+          "index": 7,
+          "label": "check schema freshness"
+        },
+        {
+          "index": 8,
+          "label": "check runtime API contract"
+        },
+        {
+          "index": 9,
+          "label": "check last-mile inventory baseline"
+        },
+        {
+          "index": 10,
+          "label": "build honest diagnostics coverage dashboard"
+        },
+        {
+          "index": 11,
+          "label": "check honest diagnostics substrate drift"
+        },
+        {
+          "index": 12,
+          "label": "check extension example contract coverage"
+        },
+        {
+          "index": 13,
+          "label": "check schemas pure-data closure"
+        },
+        {
+          "index": 14,
+          "label": "pytest fast backend gate"
+        },
+        {
+          "index": 15,
+          "label": "pytest runtime/http"
+        },
+        {
+          "index": 16,
+          "label": "check directory health ratchet"
+        },
+        {
+          "index": 17,
+          "label": "check test ratchets and helper topology"
+        },
+        {
+          "index": 18,
+          "label": "check architecture phase6-1 report-only contracts"
+        },
+        {
+          "index": 19,
+          "label": "check validator module-size budget"
+        },
+        {
+          "index": 20,
+          "label": "report debt ledger reconciliation"
+        },
+        {
+          "index": 21,
+          "label": "check extension example installability"
+        },
+        {
+          "index": 22,
+          "label": "check ADR thematic index freshness"
+        },
+        {
+          "index": 23,
+          "label": "check docs accuracy"
+        },
+        {
+          "index": 24,
+          "label": "build docs in strict mode"
+        },
+        {
+          "index": 25,
+          "label": "check semantic docstring quality"
+        },
+        {
+          "index": 26,
+          "label": "npm typecheck"
+        },
+        {
+          "index": 27,
+          "label": "npm lint"
+        },
+        {
+          "index": 28,
+          "label": "npm format check"
+        },
+        {
+          "index": 29,
+          "label": "npm architecture check"
+        },
+        {
+          "index": 30,
+          "label": "npm contract fixtures"
+        },
+        {
+          "index": 31,
+          "label": "actual Vitest coverage without worker cap"
+        },
+        {
+          "index": 32,
+          "label": "unchanged successful-coverage ratchet"
+        },
+        {
+          "index": 33,
+          "label": "npm build"
+        },
+        {
+          "index": 34,
+          "label": "npm build-storybook"
+        }
+      ],
+      "literal_doctor_status_lines": [
+        "[PASS] python: Python 3.14.2 via /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "[PASS] node: Node v22.22.0",
+        "[PASS] uv: uv 0.9.21 at /workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "[PASS] playwright: Chromium browser is launchable",
+        "[PASS] uv.lock: uv.lock is up to date",
+        "[FAIL] pnpm-lock: pnpm-lock.yaml is stale or inconsistent (Command '['corepack', 'pnpm', 'install', '--frozen-lockfile', '--lockfile-only', '--ignore-scripts']' returned non-zero exit status 228.)",
+        "[FAIL] schemas: Generated contract check failed (Command '['/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv', 'run', '--extra', 'ml', 'python', 'tools/quality/diagnostics/gen_schema.py', '--check']' returned non-zero exit status 1.)",
+        "[FAIL] runtime-openapi: Generated contract check failed (Command '['/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv', 'run', '--extra', 'runtime', '--extra', 'ml', 'python', 'tools/ops_runners/runtime/check_runtime_api_contract.py']' returned non-zero exit status 137.)",
+        "[PASS] frontend-contracts: fresh",
+        "[PASS] optional-surfaces: No optional surfaces selected",
+        "doctor failed with 3 issue(s)."
+      ],
+      "literal_schema_drift_lines": [
+        "- snapshot out of date: /workspace/e02-B-current-coordination/policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json",
+        "- snapshot out of date: /workspace/e02-B-current-coordination/policy-engine/schemas/snapshots/ir/_manifest.json"
+      ],
+      "pnpm_ENOSPC_literal_present": true,
+      "runtime_openapi137_literal_present": true,
+      "actual_uncapped_profile": {
+        "config_source_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+        "factory_paths": [
+          "policy-engine/tools/devx/workspace/verify.py@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+          "policy-engine/tools/devx/workspace/ci_parity.py@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+          "policy-engine/tools/devx/workspace/_common.py@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022"
+        ],
+        "canonical_flags": [
+          "--skip-browser"
+        ],
+        "environment_delta": {
+          "omit": [
+            "BLIS_NUM_THREADS",
+            "MKL_NUM_THREADS",
+            "NUMEXPR_NUM_THREADS",
+            "OMP_NUM_THREADS",
+            "OPENBLAS_NUM_THREADS",
+            "VECLIB_MAXIMUM_THREADS"
+          ],
+          "ambient_names_present": []
+        },
+        "additional_argv_projection": {
+          "original_argv": [
+            "npm",
+            "run",
+            "test:coverage"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+          "source": "policy-engine/apps/runtime-dashboard/package.json@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+          "removed_vitest_argument": "--maxWorkers=1",
+          "expanded_indices": [
+            31,
+            32
+          ],
+          "success_condition": "second command runs only after first succeeds",
+          "environment_qualification": "direct leaf execution inherits the same top-level environment; npm-generated lifecycle metadata is not reproduced"
+        },
+        "qualification": "Qualified uncapped constituent projection, not native capped CLI PASS. Coverage projection remains planned only because doctor stops both suites."
+      },
+      "selected_environment": {
+        "PYTHONPATH": "/tmp/e02-B38-pg-profile:/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/tmp/e02-B-opa-latest-preparation-1db95544/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_DUR_PROCESS_SOURCE_ROOT": "/workspace/e02-B-current-coordination",
+        "E02_DUR_PROCESS_SOURCE_SHA": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+        "E02_MONEY_SOURCE_ROOT": "/workspace/e02-B-current-coordination",
+        "E02_MONEY_SOURCE_SHA": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+        "E02_REMOVE_PROTECTION": "0"
+      },
+      "inputs": {
+        "installed_wheel_profile": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/cohort-input-environment.json",
+        "installed_wheel_profile_sha256": "fa6946d8d1e9a0a0bfe92e7f5d461e0d166cdf09bec6b18f9d6c020b0dfd2bda",
+        "installed_wheel_inputs": {
+          "E02_LA057_WHEEL_PATH": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/wheels/policy_engine-0.1.0-py3-none-any.whl",
+          "E02_LA057_INSTALLED_SITE": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/installed-env/lib/python3.14/site-packages",
+          "E02_LA057_SOURCE_ROOT": "/workspace/e02-B-current-coordination/policy-engine",
+          "E02_LA057_SOURCE_SHA": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+          "E02_LA057_INSTALLED_PYTHON": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/installed-env/bin/python",
+          "E02_LA057_CONSUMER_SHA256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+          "E02_LA057_OUTER_TEST_SHA256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702"
+        },
+        "wheel_sha256": "1e7a013683f0343d058f3a30c8d3ca91b4218cba5b7fbc2438586bfcb7f884e7",
+        "postgres_private_dsn_file": "/tmp/e02-B38-pg-evidence/postgres-dsn",
+        "postgres_driver_root": "/tmp/e02-B38-pg-profile",
+        "postgres_driver_distribution_profile": "Task-only psycopg and psycopg-binary 3.3.2; inherited 194-distribution environment unchanged",
+        "postgres_dsn_values": "Private credentials passed only to actual fixture consumers; omitted from public profiles",
+        "postgres_existing_optional_native_profile": "POLISYOS_TEST_PG_DSN supplied and POLISYOS_DS9_REQUIRE_PG=1; unavailable backend is a failure, not a silent skip"
+      },
+      "harness_environment_deltas": [
+        "omit former empty fresh tools PYTHONPATH suffix; no observer is loaded for these backend gates",
+        "explicit ordinary E02_REMOVE_PROTECTION=0 rather than ambient value"
+      ],
+      "resources_before": {
+        "storage": {
+          "/workspace": {
+            "total": 33770192896,
+            "used": 32064724992,
+            "free": 0
+          },
+          "/tmp": {
+            "total": 9441349632,
+            "used": 7158337536,
+            "free": 2283012096
+          },
+          "/dev/shm": {
+            "total": 9441349632,
+            "used": 7115980800,
+            "free": 2325368832
+          }
+        },
+        "memory.events": "low 0\nhigh 0\nmax 470190\noom 15\noom_kill 11\noom_group_kill 0\n",
+        "memory.current": "17089081344\n",
+        "attribution": "observed counters; signal sender/causality not established"
+      },
+      "resources_after": {
+        "storage": {
+          "/workspace": {
+            "total": 33770192896,
+            "used": 32064724992,
+            "free": 0
+          },
+          "/tmp": {
+            "total": 9441349632,
+            "used": 7158558720,
+            "free": 2282790912
+          },
+          "/dev/shm": {
+            "total": 9441349632,
+            "used": 7115980800,
+            "free": 2325368832
+          }
+        },
+        "memory.events": "low 0\nhigh 0\nmax 691290\noom 16\noom_kill 12\noom_group_kill 0\n",
+        "memory.current": "16767676416\n",
+        "attribution": "observed counters; signal sender/causality not established"
+      },
+      "P41": "NOT_ESTABLISHED: full selected/current input intersections; no exact matching baseline or inherited waiver.",
+      "qualification": "Actual doctor FAIL retained; all later suite constituents UNRUN. Parity also records schema snapshot drift and runtime OpenAPI137, not solely pnpm ENOSPC. Doctor frontend contract subcheck PASS is not a 35-command parity grade. Shared counters do not identify signal sender/cause."
+    }
+  ],
+  "audit_errors": [],
+  "predicate_basis": "independently_reconciled",
+  "scope": "Read-only captured output/source/input audit. No gates, imports or native execution."
+}

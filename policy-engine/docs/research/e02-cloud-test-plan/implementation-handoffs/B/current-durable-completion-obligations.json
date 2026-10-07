@@ -1,0 +1,660 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-durable-completion-obligations",
+  "closure_ids": [],
+  "bundle_ids": [
+    "DUR-01",
+    "LLM-01"
+  ],
+  "finding_ids": [
+    "B37",
+    "B65",
+    "B66"
+  ],
+  "slice_base_sha": "3602e00ceba7dc7fd4b6ed014180a314fe063612",
+  "entry_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "published_dependency_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "implementation_commits": [
+    "9f2a31c8869525ecf55fa55d0f5b08027c09a988"
+  ],
+  "candidate_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+  "candidate_tree_sha": "038b0012692a7fc12ca58aea91724f3a85c83b6e",
+  "branch": "codex/e02-B-current-durability",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/43",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-durable-completion-obligations.toml",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py"
+  ],
+  "mechanism_paths": [
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F01-P139",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+      "source_file": "received/F01.txt",
+      "source_line": "256"
+    },
+    {
+      "id": "F01-P026",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "source_file": "received/F01.txt",
+      "source_line": "143"
+    },
+    {
+      "id": "F03-P066",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+      "source_file": "received/F03.txt",
+      "source_line": "196"
+    },
+    {
+      "id": "F03-P091",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "source_file": "received/F03.txt",
+      "source_line": "221"
+    },
+    {
+      "id": "F05-P047",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "source_file": "received/F05.txt",
+      "source_line": "457"
+    },
+    {
+      "id": "F07-P027",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "source_file": "received/F07.txt",
+      "source_line": "33"
+    },
+    {
+      "id": "F07-P084",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "source_file": "received/F07.txt",
+      "source_line": "90"
+    },
+    {
+      "id": "F10-P031",
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "source_file": "received/F10.txt",
+      "source_line": "151"
+    },
+    {
+      "id": "F13-P104",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "source_file": "received/F13.txt",
+      "source_line": "231"
+    },
+    {
+      "id": "F15-P032",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "source_file": "received/F15.txt",
+      "source_line": "187"
+    }
+  ],
+  "baseline_navigation": {
+    "source_cut": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+    "query": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --finding <B37|B65|B66> --details --job-context --limit 100 --block-limit 100",
+    "exact_environment_and_input_context": "policy-engine/docs/research/e02-cloud-test-plan/results/sources.json and received/Fxx.txt at source_cut; query locators are navigation-only, raw archives_received=0",
+    "grade": "source_reported_compact_text_only; candidate_unverified routes, semantic_adequacy not_established; not candidate proof",
+    "assigned_routes": {
+      "B37": [
+        {
+          "job": "F01",
+          "ref": "research_main",
+          "cell_ids": [
+            "F01-P139"
+          ]
+        }
+      ],
+      "B65": [
+        {
+          "job": "F01",
+          "ref": "research_main",
+          "cell_ids": [
+            "F01-P026"
+          ]
+        },
+        {
+          "job": "F03",
+          "ref": "research_main",
+          "cell_ids": [
+            "F03-P066",
+            "F03-P091"
+          ]
+        },
+        {
+          "job": "F05",
+          "ref": "e02_execution_base",
+          "cell_ids": [
+            "F05-P047"
+          ]
+        },
+        {
+          "job": "F07",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F07-P027",
+            "F07-P084"
+          ]
+        },
+        {
+          "job": "F10",
+          "ref": "main",
+          "cell_ids": [
+            "F10-P031"
+          ]
+        },
+        {
+          "job": "F13",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F13-P104"
+          ]
+        },
+        {
+          "job": "F15",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F15-P032"
+          ]
+        }
+      ],
+      "B66": [
+        {
+          "job": "F01",
+          "ref": "research_main",
+          "cell_ids": [
+            "F01-P026"
+          ]
+        },
+        {
+          "job": "F03",
+          "ref": "research_main",
+          "cell_ids": [
+            "F03-P066",
+            "F03-P091"
+          ]
+        },
+        {
+          "job": "F05",
+          "ref": "e02_execution_base",
+          "cell_ids": [
+            "F05-P047"
+          ]
+        },
+        {
+          "job": "F07",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F07-P027",
+            "F07-P084"
+          ]
+        },
+        {
+          "job": "F10",
+          "ref": "main",
+          "cell_ids": [
+            "F10-P031"
+          ]
+        },
+        {
+          "job": "F13",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F13-P104"
+          ]
+        },
+        {
+          "job": "F15",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F15-P032"
+          ]
+        }
+      ]
+    }
+  },
+  "canonical_criteria": {
+    "B37": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DUR-01.md",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_block_sha256": "c555fb1ccd7afd60ee4c21887f0da19bb1d95885fd7b3a736cd84872814db01e",
+      "digest_convention": "raw regex capture between SOURCE_BEGIN/SOURCE_END marker comments, including captured whitespace"
+    },
+    "B65": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-01.md",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_block_sha256": "90e562abc3c5f0f27d186df9b75f70a800407315b44b6bc92dd4a2d69469d4b9",
+      "digest_convention": "raw regex capture between SOURCE_BEGIN/SOURCE_END marker comments, including captured whitespace"
+    },
+    "B66": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-01.md",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_block_sha256": "ef9b4c4d8d959e699bfc06780c1d7e6e4abb4c44b1f6386a78bf6d08d193610e",
+      "digest_convention": "raw regex capture between SOURCE_BEGIN/SOURCE_END marker comments, including captured whitespace"
+    }
+  },
+  "checks": [
+    {
+      "id": "native",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02-B-dur-completion-frozen-run.source.txt",
+        "native",
+        "/tmp/e02-B-dur-completion-frozen-native-9f2a",
+        "--child"
+      ],
+      "target_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src:/workspace/e02-B-current-durability/policy-engine",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "removed_numeric_caps": {},
+        "cwd": "/workspace/e02-B-current-durability/policy-engine"
+      },
+      "input_closure": {
+        "source_cut": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+        "exact_source_and_test_hashes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/native/wrapper.json#source_sha256_before",
+        "actual_loaded_module_origins": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/native/native.txt#ACTUAL_MODULE_BINDINGS",
+        "fixture_root": "/tmp/e02-B-dur-completion-frozen-native-9f2a/fixtures",
+        "fixture_kind": "isolated real POSIX filesystem/process paths on tmpfs; no external DB/provider service or production dataset",
+        "execution_overlay": "none",
+        "reproduction_driver": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/run-checks.source.txt"
+      },
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "actual_case_quantities": {
+        "PASS": 172
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/native/native.txt",
+      "output_sha256": "7a019cfd68d40aed4dc601072a514b8a17437d10cb21e471b6b1d470a6fd2888",
+      "output_bytes": 39280,
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/native/native.xml",
+      "junit_sha256": "aa7d7b31dc77d74791c1f539bdab65961bae8828f4e09c6a63f521e0be2ab304",
+      "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/native/wrapper.json",
+      "wall_seconds": 53.7144684340019,
+      "max_rss_kib": 48172,
+      "predicate_basis": "recomputed",
+      "output_commit": "19d5feae86d6121c953082f00919d52766c3c24b"
+    },
+    {
+      "id": "admission-removal",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02-B-dur-completion-frozen-run.source.txt",
+        "admission-removal",
+        "/tmp/e02-B-dur-completion-frozen-admission-removal-9f2a",
+        "--child"
+      ],
+      "target_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src:/workspace/e02-B-current-durability/policy-engine",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "removed_numeric_caps": {},
+        "cwd": "/workspace/e02-B-current-durability/policy-engine"
+      },
+      "input_closure": {
+        "source_cut": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+        "exact_source_and_test_hashes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/admission-removal/wrapper.json#source_sha256_before",
+        "actual_loaded_module_origins": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/admission-removal/native.txt#ACTUAL_MODULE_BINDINGS",
+        "fixture_root": "/tmp/e02-B-dur-completion-frozen-admission-removal-9f2a/fixtures",
+        "fixture_kind": "isolated real POSIX filesystem/process paths on tmpfs; no external DB/provider service or production dataset",
+        "execution_overlay": "in-memory method replacements printed by child; no file/source edits",
+        "reproduction_driver": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/run-checks.source.txt"
+      },
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "actual_case_quantities": {
+        "FAIL": 6
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/admission-removal/native.txt",
+      "output_sha256": "733edb85fd70186f124309932576af3711527c2971a7ec5ad237cb980b7c6fef",
+      "output_bytes": 23284,
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/admission-removal/native.xml",
+      "junit_sha256": "ec2831085dd8fdfb8503588de7e819da0c6dc6d8056391fb7934a52eb8fa99a8",
+      "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/admission-removal/wrapper.json",
+      "wall_seconds": 1.372263028009911,
+      "max_rss_kib": 45460,
+      "predicate_basis": "recomputed",
+      "output_commit": "19d5feae86d6121c953082f00919d52766c3c24b"
+    },
+    {
+      "id": "ack-removal",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02-B-dur-completion-frozen-run.source.txt",
+        "ack-removal",
+        "/tmp/e02-B-dur-completion-frozen-ack-removal-9f2a",
+        "--child"
+      ],
+      "target_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src:/workspace/e02-B-current-durability/policy-engine",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "removed_numeric_caps": {},
+        "cwd": "/workspace/e02-B-current-durability/policy-engine"
+      },
+      "input_closure": {
+        "source_cut": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+        "exact_source_and_test_hashes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/ack-removal/wrapper.json#source_sha256_before",
+        "actual_loaded_module_origins": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/ack-removal/native.txt#ACTUAL_MODULE_BINDINGS",
+        "fixture_root": "/tmp/e02-B-dur-completion-frozen-ack-removal-9f2a/fixtures",
+        "fixture_kind": "isolated real POSIX filesystem/process paths on tmpfs; no external DB/provider service or production dataset",
+        "execution_overlay": "in-memory method replacements printed by child; no file/source edits",
+        "reproduction_driver": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/run-checks.source.txt"
+      },
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "actual_case_quantities": {
+        "FAIL": 2,
+        "PASS": 4
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/ack-removal/native.txt",
+      "output_sha256": "1a8b2c254eff9aebc969f996a74cbc0652b38f9ebe28c5c8c2674d0d90e4f6e1",
+      "output_bytes": 9609,
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/ack-removal/native.xml",
+      "junit_sha256": "89a26b0ffc6b7f703edf5664e18eb5b83461937e11ec4b89e3dc9f6c09e3f7a0",
+      "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/ack-removal/wrapper.json",
+      "wall_seconds": 1.3095328859926667,
+      "max_rss_kib": 44736,
+      "predicate_basis": "recomputed",
+      "output_commit": "19d5feae86d6121c953082f00919d52766c3c24b"
+    },
+    {
+      "id": "ruff",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py"
+      ],
+      "target_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src:/workspace/e02-B-current-durability/policy-engine",
+        "cwd": "/workspace/e02-B-current-durability/policy-engine",
+        "removed_numeric_caps": {}
+      },
+      "input_closure": {
+        "source_cut": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+        "actual_inputs": [
+          "src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+          "tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py"
+        ],
+        "source_byte_guards": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/quality/wrapper.json#source_sha256_before",
+        "mypy_profile": null
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/quality/check-0.txt",
+      "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "output_bytes": 19,
+      "wall_seconds": 0.045181579000200145,
+      "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/quality/wrapper.json",
+      "predicate_basis": "recomputed",
+      "output_commit": "19d5feae86d6121c953082f00919d52766c3c24b"
+    },
+    {
+      "id": "ruff-format",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py"
+      ],
+      "target_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src:/workspace/e02-B-current-durability/policy-engine",
+        "cwd": "/workspace/e02-B-current-durability/policy-engine",
+        "removed_numeric_caps": {}
+      },
+      "input_closure": {
+        "source_cut": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+        "actual_inputs": [
+          "src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+          "tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py"
+        ],
+        "source_byte_guards": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/quality/wrapper.json#source_sha256_before",
+        "mypy_profile": null
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/quality/check-1.txt",
+      "output_sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de",
+      "output_bytes": 26,
+      "wall_seconds": 0.039368810001178645,
+      "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/quality/wrapper.json",
+      "predicate_basis": "recomputed",
+      "output_commit": "19d5feae86d6121c953082f00919d52766c3c24b"
+    },
+    {
+      "id": "mypy-owned-follow-imports-silent",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "mypy",
+        "--follow-imports=silent",
+        "src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "src/polisyos/scientist/orchestration/engine/budget_middleware.py"
+      ],
+      "target_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src:/workspace/e02-B-current-durability/policy-engine",
+        "cwd": "/workspace/e02-B-current-durability/policy-engine",
+        "removed_numeric_caps": {}
+      },
+      "input_closure": {
+        "source_cut": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+        "actual_inputs": [
+          "src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "src/polisyos/scientist/orchestration/engine/budget_middleware.py"
+        ],
+        "source_byte_guards": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/quality/wrapper.json#source_sha256_before",
+        "mypy_profile": "repository strict plugins; --follow-imports=silent retains dependency types, suppresses diagnostics outside two owned targets"
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/quality/check-2.txt",
+      "output_sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8",
+      "output_bytes": 43,
+      "wall_seconds": 0.37985006099916063,
+      "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/quality/wrapper.json",
+      "predicate_basis": "recomputed",
+      "output_commit": "19d5feae86d6121c953082f00919d52766c3c24b"
+    }
+  ],
+  "property": {
+    "statement": "Persist an exact owned request intent and all-key reservations before physical admission; preserve observed unknown cost, charge-ACK uncertainty and protected audit obligations across actual filesystem faults/reopen. Both fresh and shared live owners refuse new intersecting admission until actual scoped resolution.",
+    "runtime_path": [
+      "BudgetMiddleware.admit_provider_intent_safe",
+      "FileBudgetLedger stable exclusive lock and atomic complete snapshot publication",
+      "actual filesystem producer fixture",
+      "transition/list_completion_obligations_safe",
+      "BudgetMiddleware.pre_check/reserve_safe and new child process",
+      "constructor-bound typed resolver plus exact actual snapshot receipts"
+    ],
+    "proxy_divergence": "Anonymous aggregate reservations or an old provider_in_flight disk record do not prove completion settled. A post-effect transition fault can leave that older disk phase; an ID-only acknowledgment erases newer observed uncertainty and permits a sibling. Exact record-digest acknowledgment and shared runtime custody preserve the gate.",
+    "negative_controls": [
+      "actual temp fsync/replace/directory-fsync faults before intent and after physical work",
+      "fresh child and actual inherited-fork owner cannot bypass retained intent",
+      "SIGKILL after delegated os.replace leaves complete intent and no physical producer admission",
+      "same-amount foreign receipt and boolean resolver cannot clear pending",
+      "all-key reservation failure leaves original file bytes unchanged",
+      "old disk intent replay after failed completion does not erase newer live uncertainty",
+      "remove persisted/runtime admission fence => six material call failures; remove digest binding => two material call failures"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_quantities": [
+    {
+      "quantity": "actual source/test identities, process outcomes, filesystem readback, reservation/spend/receipt/obligation content and refusal before subsequent physical admission",
+      "basis": "recomputed",
+      "scope": "executed native bodies on initialized local filesystem profile, source guards, actual child processes; not external billing authority"
+    },
+    {
+      "quantity": "fixture request IDs, test amounts and key scopes",
+      "basis": "consumer_asserted",
+      "scope": "declared bounded test inputs; no independent institutional cost/source law claimed"
+    },
+    {
+      "quantity": "full B65/B66 producer/factory deployment and external unknown-cost resolution",
+      "basis": "not_established",
+      "scope": "separate ADAPTER producer bridge and independent real consumer verification pending"
+    }
+  ],
+  "capability_state_or_finding_state": "lower artifact/admission mechanism implemented and exercised; upper bridge/consumer verification pending, no finding closure",
+  "finding_dispositions": [
+    {
+      "finding_id": "B37",
+      "status": "limited",
+      "technical_criterion": "maintained complete old/new or typed failure, strict required decode before defaults including wire1.2; explicit unlimited bootstrap and legal nullable omissions retained",
+      "deciding_check": "native",
+      "defining_case_prefixes": [
+        "test_cold_record_spend_requires_bootstrap_across_processes",
+        "test_explicit_unlimited_bootstrap_remains_valid_across_processes",
+        "test_process_publication_fault_reopens_complete_or_requires_recovery",
+        "test_concurrent_real_middleware_processes_preserve_spend_and_exhausted_cap",
+        "test_each_independently_named_wire_field_is_required_by_real_consumers",
+        "test_current_wire_missing_completion_fields_fails_real_child_unchanged"
+      ],
+      "closure_authority": "root/G final combined candidate acceptance; author proposes preserved bounded criterion, no broader closure",
+      "status_reason": "acceptance_pending, not an intrinsic additional criterion or production-data requirement"
+    },
+    {
+      "finding_id": "B65",
+      "status": "open",
+      "technical_criterion": "exact durable required-completion gate and scoped actual audit resolver API now available",
+      "remaining_consumer": "ADAPTER must wire protected RESERVED/CHECK/COMMITTED/RELEASED actual acts and resolve retained exact pending work without provider/recharge; RUN real recovery oracle13 UNRUN pending composed candidate",
+      "next_owner": "ADAPTER producer; RUN independent consumer; root/G adjudication"
+    },
+    {
+      "finding_id": "B66",
+      "status": "open",
+      "technical_criterion": "None unknown amount cannot become local charge ACK or be cleared; exact per-key known receipt binding distinct from cache reuse and provider intent",
+      "remaining_consumer": "ADAPTER SDK unknown usage/cost + miss/reuse/expiry + four caller cancellation actual initialized-ledger consumers must run on new composed candidate; CAS process/reopen/fault consumer oracle pending",
+      "next_owner": "ADAPTER producer; CAS independent consumer; root/G adjudication"
+    }
+  ],
+  "compatibility": {
+    "wire": "1.2 required completion_obligations index and nested non-nullable writer fields; legal nullable omissions remain legal",
+    "legacy": "Full valid1.0/1.1 snapshots explicitly migrate empty index; old version claiming new completion field/journal is refused. Migration preserves old monetary records and does not retroactively prove opaque legacy0 cost known.",
+    "owner": "One configured live owner object, private epoch and PID, shared across resolver views; public epoch string supplies coordinates without granting authority. Fresh owner discovers unresolved old intent; no expiry/zero assumption.",
+    "surface": "public_experimental typed ledger/middleware APIs; no core.llm imports in generic lower ledger"
+  },
+  "admission": {
+    "create_receipt": {
+      "path": "/workspace/e02-B-current-admission/durability-create.json",
+      "sha256": "bbb3151d41db5dd15348cf096ec60a7dd4ecdaccf92ba71ed52ca29952b59648",
+      "status": "admitted",
+      "started_at": "2026-10-06T09:27:25.041179+00:00",
+      "requested": {
+        "branch": "codex/e02-B-current-durability",
+        "mode": "create",
+        "path": "/workspace/e02-B-current-durability"
+      }
+    },
+    "resume_receipt": {
+      "path": "/workspace/e02-B-current-admission/durability-resume.json",
+      "sha256": "978e5f2932f960829dcd2ab67e649ab89d1de5f41a87151dcfbd89209d17f269",
+      "status": "admitted",
+      "started_at": "2026-10-06T09:27:29.688820+00:00",
+      "requested": {
+        "branch": "codex/e02-B-current-durability",
+        "mode": "resume",
+        "path": "/workspace/e02-B-current-durability"
+      }
+    },
+    "root_provided_existing_lane": true,
+    "new_checkouts_created": 0,
+    "repair_base_published_before_edits": "3602e00ceba7dc7fd4b6ed014180a314fe063612"
+  },
+  "review": {
+    "reviewer": "/root/exe_state_writer",
+    "target_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+    "source_only_verdict": "NONBLOCKING reported after full two canonical files +669L new tests +legacy fixture/release",
+    "runtime_by_reviewer": "UNRUN",
+    "immutable_review_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-source-independent-review.json",
+      "commit": "787be3666a582673d0f74654be382ff0a4421c0d",
+      "sha256": "8754722689e07ef33301b774627a75ff2e0559af375325a493a74bc7b8d399ee",
+      "bytes": 18466,
+      "qualification": "foreign source-only review, no reviewer runtime imported; upper c0 referenced separately from lower9f"
+    }
+  },
+  "evidence_index": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/evidence-index.json",
+  "evidence_index_sha256": "936e7641316de52d78ef3a0641d02f19b535c39efb2c36dcc9180873e0657a43",
+  "limitations_and_next_owner": [
+    "This lower slice does not attest deployment of the ADAPTER bridge, provider billing authority or an external status/cost resolver. Unknown entered work remains pending, and new intersecting admission refuses; no fabricated zero/idempotency/status.",
+    "Controlled filesystem/process probes use isolated tmpfs. SIGKILL proves process interruption; power-loss/multihost guarantees are outside this test profile.",
+    "Already admitted controlled work may complete; live same-owner inflight concurrency is allowed. An observed uncertainty phase or failed publication blocks even a sibling sharing that owner. Nonintersecting configured keys remain available.",
+    "Root owns engine/runner README and public-surface companion integration. Unique release fragment declares new experimental API and strict wire migration; public_surface_inventory_reviewed remains false until root actual surface synchronization.",
+    "Global final code acceptance and all60 adjudication remain separate, pending fresh composed-source consumers/gates; prior DD fullcohort statuses do not transfer."
+  ],
+  "exploratory_history": {
+    "draft_outputs": "/tmp/e02-B-dur-completion-{draft-native,widened-draft-native,process-draft-native}; exploratory20/29/36 PASS superseded by immutable172 native, not candidate proofs",
+    "initial_mypy_import_skip": "nondeciding exploratory --follow-imports=skip16 Any-dependent errors; not retained as deciding gate or inherited product finding. Exact final repository strict --follow-imports=silent two owned targets PASS retained above."
+  },
+  "evidence_commits": [
+    "19d5feae86d6121c953082f00919d52766c3c24b"
+  ],
+  "handoff_only_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/ack-removal/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/ack-removal/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/ack-removal/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/admission-removal/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/admission-removal/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/admission-removal/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/evidence-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/native/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/native/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/native/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/quality/check-0.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/quality/check-1.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/quality/check-2.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/quality/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/run-checks.source.txt"
+  ],
+  "artifact_reference_rule": "Check target_sha/candidate_tree bind source9f; deciding outputs are exact Git objects from evidence_commits19d. Receipt own commit is later docs-only and is not a checked executable source.",
+  "evidence_index_commit": "19d5feae86d6121c953082f00919d52766c3c24b"
+}

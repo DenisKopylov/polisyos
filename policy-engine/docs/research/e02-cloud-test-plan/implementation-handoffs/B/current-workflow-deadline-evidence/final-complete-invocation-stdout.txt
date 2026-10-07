@@ -1,0 +1,4 @@
+usage: python -m polisyos.runtime.quality.production_invocation
+       [-h] [--repo-root REPO_ROOT] --base BASE --receipt RECEIPT
+       [--deferrals DEFERRALS] [--check CHECK]
+python -m polisyos.runtime.quality.production_invocation: error: the following arguments are required: --receipt

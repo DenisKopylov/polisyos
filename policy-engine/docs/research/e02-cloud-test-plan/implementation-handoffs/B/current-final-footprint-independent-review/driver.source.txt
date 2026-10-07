@@ -1,0 +1,787 @@
+#!/usr/bin/env python3
+"""Read-only immutable Git footprint; no product imports, tests or generators."""
+
+import argparse
+import ast
+import hashlib
+import json
+import subprocess
+import sys
+import tomllib
+from collections import Counter
+from pathlib import PurePosixPath
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repo", required=True)
+    parser.add_argument("--base", required=True)
+    parser.add_argument("--target", required=True)
+    parser.add_argument("--heads-json")
+    parser.add_argument("--output", required=True)
+    args = parser.parse_args()
+
+    def git(*argv):
+        return subprocess.check_output(["git", "-C", args.repo, *argv])
+
+    def rev(value):
+        return git("rev-parse", value).decode().strip()
+
+    base, target = rev(args.base), rev(args.target)
+
+    def tree_map(sha):
+        result = {}
+        for row in git("ls-tree", "-r", "-l", "-z", sha).split(b"\0"):
+            if not row:
+                continue
+            metadata, path = row.split(b"\t", 1)
+            mode, kind, blob, size = metadata.split()
+            result[path.decode()] = {
+                "source_sha": sha,
+                "git_blob": blob.decode(),
+                "mode": mode.decode(),
+                "kind": kind.decode(),
+                "bytes": None if size == b"-" else int(size),
+            }
+        return result
+
+    maps = {base: tree_map(base), target: tree_map(target)}
+
+    def ref(sha, path, digest=False):
+        if sha not in maps:
+            maps[sha] = tree_map(sha)
+        if path not in maps[sha]:
+            return None
+        result = {"path": path, **maps[sha][path]}
+        if digest and result["kind"] == "blob":
+            result["sha256"] = hashlib.sha256(git("show", sha + ":" + path)).hexdigest()
+        return result
+
+    def paths(older, newer):
+        fields = git("diff", "--name-status", "-z", "--no-renames", older, newer).split(
+            b"\0"
+        )
+        return [
+            (fields[i].decode(), fields[i + 1].decode())
+            for i in range(0, len(fields) - 1, 2)
+        ]
+
+    def category(path):
+        if path.startswith("policy-engine/src/") and path.endswith(".py"):
+            return "production_python"
+        if path.startswith("policy-engine/tests/"):
+            return "tests"
+        if "/implementation-handoffs/" in path:
+            return "research_handoff_or_evidence"
+        if path.startswith("policy-engine/release-fragments/"):
+            return "release_fragment"
+        if path.endswith("README.md"):
+            return "readme"
+        if path.startswith("policy-engine/architecture/"):
+            return "architecture_contract_or_generated"
+        if "/docs/" in path:
+            return "other_docs"
+        if path.endswith(".py"):
+            return "other_python_instrument_or_tool"
+        return "other_tracked"
+
+    changed = paths(base, target)
+    changed_set = {p for _, p in changed}
+    rows = [
+        {
+            "status": status,
+            "path": path,
+            "category": category(path),
+            "base_ref": ref(base, path),
+            "target_ref": ref(target, path),
+        }
+        for status, path in changed
+    ]
+    protected = {
+        "A_generation_cycle": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "A_http_control_homonym_additional_zero_check": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+        "A_run_lifecycle": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "C_streaming": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+    }
+    protected_rows = []
+    for owner, path in protected.items():
+        old, new = ref(base, path, True), ref(target, path, True)
+        protected_rows.append(
+            {
+                "owner": owner,
+                "path": path,
+                "base_ref": old,
+                "target_ref": new,
+                "both_present": old is not None and new is not None,
+                "zero_diff": old is not None
+                and new is not None
+                and old["git_blob"] == new["git_blob"],
+            }
+        )
+    homonyms = [
+        p
+        for p in maps[target]
+        if PurePosixPath(p).name
+        in {"generation_cycle.py", "run_lifecycle.py", "streaming.py"}
+    ]
+    contract_path = "policy-engine/architecture/public_surface/contract.toml"
+    generator_path = "policy-engine/tools/devx/architecture/guardrails.py"
+    outputs = [
+        "policy-engine/architecture/public_surface/inventory.json",
+        "policy-engine/docs/reference/public-surface.md",
+    ]
+    contract = tomllib.loads(git("show", target + ":" + contract_path).decode())
+    facades = []
+    for package in contract["package"]:
+        for module in package.get("supported_entrypoints", [package["module"]]):
+            root = "policy-engine/src/" + module.replace(".", "/")
+            candidates = [
+                p for p in [root + ".py", root + "/__init__.py"] if p in maps[target]
+            ]
+            if len(candidates) != 1:
+                raise ValueError((module, candidates))
+            path = candidates[0]
+            source = git("show", target + ":" + path).decode()
+            syntax = ast.parse(source, filename=path)
+            facades.append(
+                {
+                    "package": package["module"],
+                    "module": module,
+                    "classification": package["classification"],
+                    "owner": package["owner"],
+                    "path": path,
+                    "base_ref": ref(base, path, True),
+                    "target_ref": ref(target, path, True),
+                    "changed": path in changed_set,
+                    "docstring_summary": (ast.get_docstring(syntax) or "").split("\n")[
+                        0
+                    ],
+                }
+            )
+    companion_paths = sorted(
+        {
+            "policy-engine/" + package[key]
+            for package in contract["package"]
+            for key in ("readme", "reference_doc")
+            if package.get(key)
+        }
+    )
+    dependencies = [contract_path, generator_path, *outputs]
+    manifest = "policy-engine/architecture/generated_artifacts.toml"
+    if manifest in maps[target]:
+        dependencies.append(manifest)
+    dependency_rows = [
+        {
+            "path": p,
+            "changed": p in changed_set,
+            "base_ref": ref(base, p, True),
+            "target_ref": ref(target, p, True),
+        }
+        for p in dependencies
+    ]
+    heads = json.loads(open(args.heads_json).read()) if args.heads_json else {}
+    head_rows = []
+    per_head_sources = {}
+    for name, value in heads.items():
+        sha = rev(value["sha"] if isinstance(value, dict) else value)
+        ancestor = (
+            subprocess.run(
+                ["git", "-C", args.repo, "merge-base", "--is-ancestor", sha, target],
+                check=False,
+            ).returncode
+            == 0
+        )
+        family_paths = paths(base, sha)
+        source_paths = [
+            p for _, p in family_paths if category(p) == "production_python"
+        ]
+        per_head_sources[name] = set(source_paths)
+        row = {
+            "name": name,
+            "sha": sha,
+            "tree": rev(sha + "^{tree}"),
+            "ancestor_of_target": ancestor,
+            "full_base_diff_paths": len(family_paths),
+            "full_base_diff_production_paths": source_paths,
+            "qualification": "Full ancestry footprint includes normal merged dependencies; not proof of writer authorship.",
+        }
+        if isinstance(value, dict) and "allowed_production_paths" in value:
+            row["explicit_lease_paths"] = value["allowed_production_paths"]
+            row["lease_ref"] = value.get("lease_ref")
+        head_rows.append(row)
+    overlaps = []
+    names = sorted(per_head_sources)
+    for i, left in enumerate(names):
+        for right in names[i + 1 :]:
+            overlap = sorted(per_head_sources[left] & per_head_sources[right])
+            if overlap:
+                overlaps.append(
+                    {
+                        "left": left,
+                        "right": right,
+                        "paths": overlap,
+                        "qualification": "Shared reachable history, not necessarily multiple writers.",
+                    }
+                )
+    result = {
+        "schema": "policyos.e02.immutable_footprint_review.v1",
+        "command_argv": sys.argv,
+        "repo": args.repo,
+        "base_sha": base,
+        "base_tree": rev(base + "^{tree}"),
+        "target_sha": target,
+        "target_tree": rev(target + "^{tree}"),
+        "tracked_denominator": {
+            "base_paths": len(maps[base]),
+            "target_paths": len(maps[target]),
+            "changed_paths": len(rows),
+            "categories": dict(Counter(r["category"] for r in rows)),
+            "statuses": dict(Counter(r["status"] for r in rows)),
+            "commits_reachable_since_base": int(
+                git("rev-list", "--count", base + ".." + target)
+            ),
+        },
+        "complete_changed_tracked_paths": rows,
+        "protected_paths": protected_rows,
+        "homonym_namespace_disambiguation": [
+            {
+                "path": p,
+                "changed": p in changed_set,
+                "is_exact_protected_path": p in protected.values(),
+            }
+            for p in homonyms
+        ],
+        "writer_heads": head_rows,
+        "shared_full_ancestry_production_footprints": overlaps,
+        "public_surface_dependencies": {
+            "package_count": len(contract["package"]),
+            "supported_entrypoint_count": len(facades),
+            "complete_facade_rows": facades,
+            "contract_generator_output_refs": dependency_rows,
+            "complete_readme_reference_pointers": [
+                {"path": p, "changed": p in changed_set, "target_ref": ref(target, p)}
+                for p in companion_paths
+            ],
+            "qualification": "Read-only dependency census. No generator/check gate executed; export inventory AST/doc summaries are not full method ABI/runtime behavior.",
+        },
+        "reviewer_product_or_test_writes": False,
+        "reviewer_runtime_or_gates": False,
+        "qualification": "Immutable Git tracked-denominator proof only. Foreign writer lease validation requires explicit authoritative lease refs; filename/ancestry cannot establish authorization.",
+    }
+    # Compact complete ledger: path identity and both Git modes/blobs/sizes.
+    result["complete_changed_tracked_paths_columns"] = [
+        "status",
+        "path",
+        "category",
+        "base_mode",
+        "base_blob",
+        "base_bytes",
+        "target_mode",
+        "target_blob",
+        "target_bytes",
+    ]
+    result["complete_changed_tracked_paths"] = [
+        [
+            r["status"],
+            r["path"],
+            r["category"],
+            *((r["base_ref"] or {}).get(k) for k in ("mode", "git_blob", "bytes")),
+            *((r["target_ref"] or {}).get(k) for k in ("mode", "git_blob", "bytes")),
+        ]
+        for r in rows
+    ]
+    result["tracked_denominator"]["base_python_paths"] = sum(
+        p.endswith(".py") for p in maps[base]
+    )
+    result["tracked_denominator"]["target_python_paths"] = sum(
+        p.endswith(".py") for p in maps[target]
+    )
+    result["complete_changed_python_anywhere"] = [
+        p for _, p in changed if p.endswith(".py")
+    ]
+    prefix = (
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/"
+    )
+    families = {
+        "codex/e02-B-current-" + suffix
+        for suffix in (
+            "runtime",
+            "cas-generation",
+            "execution-state",
+            "adapters",
+            "composition",
+            "durability",
+        )
+    }
+    top_json_paths = sorted(
+        p
+        for p in maps[target]
+        if p.startswith(prefix)
+        and p.count("/") == prefix.count("/")
+        and p.endswith(".json")
+    )
+    source_paths = [r["path"] for r in rows if r["category"] == "production_python"]
+    commits = (
+        git(
+            "log",
+            "--no-merges",
+            "--format=%H",
+            base + ".." + target,
+            "--",
+            *source_paths,
+        )
+        .decode()
+        .splitlines()
+    )
+    commit_set = set(commits)
+    claims = {}
+    primary_receipts = {}
+    for path in top_json_paths:
+        document = json.loads(git("show", target + ":" + path))
+        family = document.get("branch")
+        if family not in families:
+            continue
+        values = document.get("implementation_commits", [])
+        if not isinstance(values, list):
+            values = []
+        values = values + [
+            document[k]
+            for k in (
+                "implementation_commit",
+                "implementation_sha",
+                "production_source_sha",
+            )
+            if isinstance(document.get(k), str)
+        ]
+        actual_claims = sorted(set(values) & commit_set)
+        if not actual_claims:
+            continue
+        primary_receipts[path] = {
+            "binding": ref(target, path, True),
+            "branch": family,
+            "declared_actual_source_commits": actual_claims,
+            "declared_owner_fields": {
+                k: document[k]
+                for k in (
+                    "owner_paths",
+                    "production_changed_paths",
+                    "source_changed_paths",
+                    "production_edits",
+                )
+                if k in document
+            },
+            "qualification": "Primary owner declaration joined to actual nonmerge source diff; not retrospective proof of physical editor concurrency.",
+        }
+        for sha in actual_claims:
+            claims.setdefault(sha, []).append({"family": family, "receipt_path": path})
+    source_commits = []
+    path_families = {p: set() for p in source_paths}
+    path_commits = {p: [] for p in source_paths}
+    duplicate_cmp = "06231bcfb0370a592db4be0ebff5b26b763e4c9c"
+    duplicate_cas = "7207ceec89e72481c0de8c3e4e64f25d667dc299"
+    duplicate_paths = [
+        "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "policy-engine/src/polisyos/core/artifacts/manifest_profile.py",
+    ]
+    # The source paths are exact; discover the packet's actual release path from Git.
+    duplicate_paths = duplicate_paths + [
+        p
+        for p in git("diff-tree", "--no-commit-id", "--name-only", "-r", duplicate_cas)
+        .decode()
+        .splitlines()
+        if p.startswith("policy-engine/release-fragments/")
+    ]
+    duplicate_rows = [
+        {
+            "path": p,
+            "composition_binding": ref(duplicate_cmp, p, True),
+            "CAS_binding": ref(duplicate_cas, p, True),
+            "full_bytes_equal": git("show", duplicate_cmp + ":" + p)
+            == git("show", duplicate_cas + ":" + p),
+        }
+        for p in duplicate_paths
+    ]
+    if not all(r["full_bytes_equal"] for r in duplicate_rows):
+        raise ValueError(
+            "Canonical CAS duplicate source/export/release packet diverged"
+        )
+    for sha in commits:
+        actual_paths = [
+            p
+            for p in git(
+                "diff-tree",
+                "--no-commit-id",
+                "--name-only",
+                "-r",
+                sha,
+                "--",
+                *source_paths,
+            )
+            .decode()
+            .splitlines()
+            if p in path_families
+        ]
+        declared = claims.get(sha, [])
+        declared_families = sorted({x["family"] for x in declared})
+        canonical_families = (
+            ["codex/e02-B-current-cas-generation"]
+            if sha == duplicate_cmp
+            else declared_families
+        )
+        source_commits.append(
+            {
+                "sha": sha,
+                "tree": rev(sha + "^{tree}"),
+                "parents": git("show", "-s", "--format=%P", sha)
+                .decode()
+                .strip()
+                .split(),
+                "subject": git("show", "-s", "--format=%s", sha).decode().strip(),
+                "actual_production_paths": actual_paths,
+                "primary_receipt_claims": declared,
+                "canonical_families": canonical_families,
+                "duplicate_packet_normalized": sha == duplicate_cmp,
+            }
+        )
+        for path in actual_paths:
+            path_commits[path].append(sha)
+            path_families[path].update(canonical_families)
+    source_rows = [
+        {
+            "path": path,
+            "base_binding": ref(base, path, True),
+            "target_binding": ref(target, path, True),
+            "canonical_families": sorted(path_families[path]),
+            "complete_nonmerge_source_commits": path_commits[path],
+        }
+        for path in source_paths
+    ]
+    historic_map_path = prefix + "current-root-closeout-source-preparation.json"
+    historic_map = json.loads(git("show", target + ":" + historic_map_path))
+    expected = {
+        r["path"]: r["canonical_mechanism_family"]
+        for r in historic_map["canonical_writer_mapping"]["rows"]
+    }
+    allocation = "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/allocation.json"
+    finding_tsv = "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv"
+    bundle_tsv = "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv"
+    result["writer_source_custody"] = {
+        "top_level_receipt_json_denominator": len(top_json_paths),
+        "primary_receipts_claiming_actual_source_commits": len(primary_receipts),
+        "complete_primary_receipt_bindings": list(primary_receipts.values()),
+        "actual_nonmerge_source_commit_count": len(source_commits),
+        "complete_nonmerge_source_commit_rows": source_commits,
+        "complete_source_path_rows": source_rows,
+        "source_paths_by_family": dict(
+            Counter(
+                next(iter(path_families[p]))
+                for p in source_paths
+                if len(path_families[p]) == 1
+            )
+        ),
+        "unmapped_source_commits": [
+            r["sha"] for r in source_commits if not r["canonical_families"]
+        ],
+        "ambiguous_source_paths": [
+            p for p in source_paths if len(path_families[p]) != 1
+        ],
+        "foreign_or_unexpected_source_paths": [
+            p for p in source_paths if sorted(path_families[p]) != [expected.get(p)]
+        ],
+        "independently_recomputed_against_declared_expected_scope": ref(
+            target, historic_map_path, True
+        ),
+        "expected_scope_historical_source": historic_map["reviewed_source_sha"],
+        "expected_scope_role": "Historical declared family allocation only; all current60 commit/path/receipt joins recomputed independently above, not inherited evidence of current source.",
+        "allocation_and_TSV_refs": [
+            ref(target, p, True) for p in (allocation, finding_tsv, bundle_tsv)
+        ],
+        "canonical_CAS_packet_normalization": {
+            "composition_applied_source_commit": duplicate_cmp,
+            "canonical_CAS_commit": duplicate_cas,
+            "complete_byte_comparisons": duplicate_rows,
+            "qualification": "Exact source/export/release bytes equal. Full README bases and whole patch headers differ; serial shared README additions are not a second implementation algorithm.",
+        },
+        "explicit_session_lease_extensions": [
+            {
+                "family": "execution-state",
+                "paths": [
+                    "core/artifacts/async_store.py",
+                    "scientist/orchestration/engine/checkpoint.py",
+                    "scientist/orchestration/engine/runner/_activity_worker.py",
+                ],
+                "basis": "Root-authorized additive deadline/producer scope and current-checkpoint-publication-budget/current-all15 primary receipts; runner activity entry flag belongs EXE; serialization remains adapters.",
+            },
+            {
+                "family": "cas-generation",
+                "paths": [
+                    "core/artifacts/__init__.py",
+                    "core/artifacts/manifest_profile.py",
+                    "core/artifacts/_signature_ops.py",
+                    "core/artifacts/signing.py",
+                    "core/components/_cli_crypto.py",
+                ],
+                "basis": "Canonical CAS public profile/signature owner primary receipts and equal CMP-applied packet; no authority inferred solely from path name.",
+            },
+        ],
+        "limitations": "Static canonical mechanism and immutable Git/receipt correspondence does not retrospectively prove operational editor identity or lease concurrency. Full head ancestry includes normal merged dependencies, and root integration/review references are not additional source authors.",
+    }
+    # All tracked non-source companions remain visible, including every test/helper path.
+    relevant_categories = {
+        "tests",
+        "readme",
+        "release_fragment",
+        "architecture_contract_or_generated",
+        "other_tracked",
+        "other_docs",
+        "other_python_instrument_or_tool",
+    }
+    companion_paths = [r["path"] for r in rows if r["category"] in relevant_categories]
+    companion_commits = (
+        git(
+            "log",
+            "--no-merges",
+            "--format=%H",
+            base + ".." + target,
+            "--",
+            *companion_paths,
+        )
+        .decode()
+        .splitlines()
+    )
+    companion_history = []
+    for sha in companion_commits:
+        pths = (
+            git(
+                "diff-tree",
+                "--no-commit-id",
+                "--name-only",
+                "-r",
+                sha,
+                "--",
+                *companion_paths,
+            )
+            .decode()
+            .splitlines()
+        )
+        companion_history.append(
+            {
+                "sha": sha,
+                "subject": git("show", "-s", "--format=%s", sha).decode().strip(),
+                "actual_paths": pths,
+            }
+        )
+    result["complete_test_doc_release_generated_nonmerge_history"] = companion_history
+    result["root_reserved_shared_companions"] = [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/runner/README.md",
+        "policy-engine/schemas/runtime_api_v1.openapi.json",
+        "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-openapi-example-freshness.toml",
+    ]
+    manifest_data = tomllib.loads(git("show", target + ":" + manifest).decode())
+    selected_generated = [
+        f
+        for f in manifest_data["family"]
+        if f["id"]
+        in (
+            "runtime-openapi-snapshot",
+            "runtime-api-client",
+            "public-surface-inventory",
+        )
+    ]
+    generated_refs = sorted(
+        {
+            "policy-engine/" + path
+            for family in selected_generated
+            for path in family["outputs"]
+            if not path.endswith("/")
+        }
+    )
+    result["registered_generated_families"] = {
+        "manifest_ref": ref(target, manifest, True),
+        "full_declared_family_records": selected_generated,
+        "complete_registered_output_rows": [
+            {
+                "path": p,
+                "base_ref": ref(base, p, True),
+                "target_ref": ref(target, p, True),
+                "changed": p in changed_set,
+            }
+            for p in generated_refs
+        ],
+        "qualification": "Registration and full Git output identities, not a new freshness gate by reviewer.",
+    }
+    root_receipt_path = prefix + "successor-generated-companion.json"
+    root_receipt = json.loads(git("show", target + ":" + root_receipt_path))
+    index_ref = root_receipt["evidence_index"]
+    evidence_sha = rev(index_ref["commit"])
+    index = json.loads(git("show", evidence_sha + ":" + index_ref["path"]))
+    evidence_rows = []
+    for artifact in [index_ref, *index["artifacts"]]:
+        path = artifact["path"]
+        data = git("show", evidence_sha + ":" + path)
+        actual = ref(evidence_sha, path, True)
+        evidence_rows.append(
+            {
+                "binding": actual,
+                "declared_bytes": artifact["bytes"],
+                "declared_sha256": artifact["sha256"],
+                "match": len(data) == artifact["bytes"]
+                and actual["sha256"] == artifact["sha256"],
+                "target_blob_equal": ref(target, path)["git_blob"]
+                == actual["git_blob"],
+            }
+        )
+    if not all(r["match"] and r["target_blob_equal"] for r in evidence_rows):
+        raise ValueError("Root companion deciding evidence custody mismatch")
+    client_path = prefix + "successor-generated-companion-evidence/client-result.json"
+    client_result = json.loads(git("show", evidence_sha + ":" + client_path))
+    generated_source = "42172721bbe1fdb27f6e37fc8acccdd30464380d"
+    result["root_generated_companion_review"] = {
+        "primary_handoff_ref": ref(target, root_receipt_path, True),
+        "implementation_commits": root_receipt["implementation_commits"],
+        "reported_check_rows": [
+            {k: c[k] for k in ("command", "target_sha", "outcome", "output")}
+            for c in root_receipt["checks"]
+        ],
+        "complete_evidence_custody_rows": evidence_rows,
+        "full_client_result": client_result,
+        "complete_client_source_to_target_byte_comparisons": [
+            {
+                "path": p,
+                "source_ref": ref(generated_source, p, True),
+                "target_ref": ref(target, p, True),
+                "equal": git("show", generated_source + ":" + p)
+                == git("show", target + ":" + p),
+            }
+            for p in generated_refs
+            if "/packages/runtime-api-client/" in p
+        ],
+        "source_py_and_test_py_zero_diff_from_actual_generator_source_to_target": not git(
+            "diff",
+            "--name-only",
+            generated_source,
+            target,
+            "--",
+            "policy-engine/src/**/*.py",
+            "policy-engine/tests/**/*.py",
+        ).strip(),
+        "qualification": "Root actually executed producer commands in reported snapshots; reviewer reads full committed evidence and recomputes custody/whole-file identities only, no generator/client/native/gate execution or arbitrary route behavior acceptance.",
+    }
+    result["final_source_only_verdict"] = {
+        "protected_canonical_and_homonym_zero": all(
+            r["zero_diff"] for r in protected_rows
+        ),
+        "all_six_incorporated_heads_ancestors": len(head_rows) == 6
+        and all(r["ancestor_of_target"] for r in head_rows),
+        "all_current_source_commits_primary_mapped": not result[
+            "writer_source_custody"
+        ]["unmapped_source_commits"],
+        "canonical_families_unambiguous": not result["writer_source_custody"][
+            "ambiguous_source_paths"
+        ],
+        "no_unexpected_source_scope": not result["writer_source_custody"][
+            "foreign_or_unexpected_source_paths"
+        ],
+        "all_companion_evidence_bytes_match": all(r["match"] for r in evidence_rows),
+        "closure_ids": [],
+        "reviewer_runtime_or_gate_execution": "UNRUN",
+    }
+    observed_heads = []
+    for family in sorted(families):
+        local_sha = rev(
+            heads[family.removeprefix("codex/e02-B-current-")]["observed_local_sha"]
+        )
+        incorporated = next(
+            r for r in head_rows if "codex/e02-B-current-" + r["name"] == family
+        )
+        pending = (
+            git("diff", "--name-only", incorporated["sha"], local_sha)
+            .decode()
+            .splitlines()
+        )
+        observed_heads.append(
+            {
+                "branch": family,
+                "local_head_at_review": local_sha,
+                "local_tree_at_review": rev(local_sha + "^{tree}"),
+                "incorporated_head": incorporated["sha"],
+                "local_head_ancestor_of_target": subprocess.run(
+                    [
+                        "git",
+                        "-C",
+                        args.repo,
+                        "merge-base",
+                        "--is-ancestor",
+                        local_sha,
+                        target,
+                    ],
+                    check=False,
+                ).returncode
+                == 0,
+                "complete_pending_paths_from_incorporated": pending,
+                "pending_source_or_tests": [
+                    p
+                    for p in pending
+                    if p.startswith(("policy-engine/src/", "policy-engine/tests/"))
+                ],
+                "qualification": "Current local metadata successor availability is separate from the six incorporated source-family heads; no forced merge or claim all latest metadata is already frozen.",
+            }
+        )
+    result["observed_writer_heads_and_pending_metadata"] = observed_heads
+    tool_inputs = [
+        "policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py",
+        "policy-engine/tools/ops_runners/runtime/generate_runtime_client.py",
+        "policy-engine/packages/runtime-api-client/package.json",
+        "policy-engine/packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs",
+        "policy-engine/packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs",
+        "policy-engine/uv.lock",
+        "policy-engine/pyproject.toml",
+        "policy-engine/pnpm-lock.yaml",
+    ]
+    result["registered_generated_families"]["source_and_tool_input_refs"] = [
+        ref(target, p, True) for p in tool_inputs
+    ]
+    client_quantity_bindings = []
+    for declared in client_result["outputs"]:
+        actual = ref(target, declared["path"], True)
+        client_quantity_bindings.append(
+            {
+                "binding": actual,
+                "declared_output": declared,
+                "match": actual["bytes"] == declared["bytes"]
+                and actual["sha256"] == declared["sha256"],
+            }
+        )
+    result["root_generated_companion_review"][
+        "actual_full_client_declared_quantities_to_target"
+    ] = client_quantity_bindings
+    if not all(r["match"] for r in client_quantity_bindings):
+        raise ValueError("Generated client complete output quantity identity mismatch")
+    result["root_companion_source_reservation_basis"] = {
+        "owner": "codex/e02-B-current-coordination",
+        "basis": "Root session explicitly reserved shared engine/runner README and final canonical Runtime API schema/freshness/client companions. Primary immutable successor-generated-companion.json binds source421, evidencee328, separate84fe.",
+        "operational_qualification": "Session authorization is stated separately from Git immutable custody; no retrospective concurrent editor proof from filenames.",
+    }
+    with open(args.output, "w") as stream:
+        json.dump(result, stream, indent=2)
+        stream.write("\n")
+    print(
+        json.dumps(
+            {
+                "target": target,
+                "tree": result["target_tree"],
+                "tracked_denominator": result["tracked_denominator"],
+                "protected_zero_diff": all(r["zero_diff"] for r in protected_rows),
+                "head_count": len(head_rows),
+                "all_heads_ancestors": all(r["ancestor_of_target"] for r in head_rows),
+                "public_facade_count": len(facades),
+                "changed_public_facades": [r["path"] for r in facades if r["changed"]],
+                "output": args.output,
+            }
+        )
+    )
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,46 @@
+{
+  "started_at": "2026-10-07T07:52:07.195524+00:00",
+  "finished_at": "2026-10-07T07:52:22.400380+00:00",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/pytest-child.py",
+    "/workspace/e02-B-current-composition",
+    "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+    "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/candidate-eb4/module-origins.json",
+    "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+    "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+    "tests/unit/foundry/methods/test_compiler_e02.py",
+    "tests/unit/foundry/methods/test_compiler.py",
+    "-vv",
+    "--tb=short",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/dev/shm/e02-B-module-candidate-eb4-705633",
+    "--junitxml",
+    "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/candidate-eb4/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_before": {
+    "sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+    "tree": "0b7134be3ac0fa5c7cbe07d4783f6d31a65c3e3e",
+    "status": ""
+  },
+  "source_after": {
+    "sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+    "tree": "0b7134be3ac0fa5c7cbe07d4783f6d31a65c3e3e",
+    "status": ""
+  },
+  "exit_code": 0,
+  "wait4_status": 0,
+  "signal": null,
+  "wall_seconds": 15.204863550985465,
+  "max_rss_kib": 267096,
+  "user_cpu_seconds": 14.648603,
+  "system_cpu_seconds": 0.9479409999999999,
+  "stdout": {
+    "bytes": 16305,
+    "sha256": "cd085ef87dd70d09faaef96817d4c70e5594f3ca8ef565bc71522fb57a8ea051"
+  }
+}

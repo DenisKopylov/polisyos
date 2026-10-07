@@ -1,0 +1,96 @@
+{
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/baseline-DD/native.txt",
+      "bytes": 21137,
+      "sha256": "c572f5ed5bed18029c82e15b5a85685af6678a94d154ffea0c38040fddb7d253"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/baseline-DD/native.xml",
+      "bytes": 15139,
+      "sha256": "620b0b7ad174244a40f9536a0dc92c96cd820b49a0b7bb7f611554f3011b6adb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/baseline-DD/physical-inputs/test_normalization_cannot_esca0/physical-provider.jsonl",
+      "bytes": 91,
+      "sha256": "3e8e1ea54933805cc65a90d0caf23ca2655d800475d3bd7c4ddbc8ce25100ede"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/baseline-DD/physical-inputs/test_normalization_cannot_esca1/physical-provider.jsonl",
+      "bytes": 91,
+      "sha256": "3e8e1ea54933805cc65a90d0caf23ca2655d800475d3bd7c4ddbc8ce25100ede"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/baseline-DD/physical-inputs/test_unmanaged_critique_retarg0/unmanaged-provider.jsonl",
+      "bytes": 41,
+      "sha256": "20ad1bdbc36fa393006278595e65f27e7e81ed9ef26097514b72f2d679583f53"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/baseline-DD/wrapper.json",
+      "bytes": 2510,
+      "sha256": "58443b8e426be3a80981a9856db62d0a040729c01592f277b30010e01061519c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/candidate-a391/native.txt",
+      "bytes": 6115,
+      "sha256": "d0ff3c035eba097d30d663f837121e35426f6296a303808f107db82c014c3424"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/candidate-a391/native.xml",
+      "bytes": 603,
+      "sha256": "60cd1c8f2e8f59ff9b692ac4fa8ea5662562f939f09c0122a5dc70643b920bf5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/candidate-a391/physical-inputs/test_normalization_cannot_esca0/physical-provider.jsonl",
+      "bytes": 33,
+      "sha256": "e1bf7cb805726672cc37609d7b5219424f546742b05a65f2784c3c6dfc30ae20"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/candidate-a391/physical-inputs/test_normalization_cannot_esca1/physical-provider.jsonl",
+      "bytes": 33,
+      "sha256": "e1bf7cb805726672cc37609d7b5219424f546742b05a65f2784c3c6dfc30ae20"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/candidate-a391/physical-inputs/test_unmanaged_critique_retarg0/unmanaged-provider.jsonl",
+      "bytes": 41,
+      "sha256": "20ad1bdbc36fa393006278595e65f27e7e81ed9ef26097514b72f2d679583f53"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/candidate-a391/wrapper.json",
+      "bytes": 2505,
+      "sha256": "cee2f06783c51296f167566b6d16315d5d1c81de9072bc879901e1df50219afd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/census-DD.json",
+      "bytes": 37368,
+      "sha256": "9da093de71fdda4aad3254305e9f757616e80e784e1a7b1624749da381c156b1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/census-a391.json",
+      "bytes": 45367,
+      "sha256": "3392f710a6fb2293c877d52d8f42aded342c24fb15c48b85b2bac238acecaf1f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/census.source.txt",
+      "bytes": 3950,
+      "sha256": "3269c6d90f1e967d174ce5309f99d0ff63abb93ea93ee09fcf8c6f164912c7bc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/criterion-refs.json",
+      "bytes": 715,
+      "sha256": "fb0e050a250a07dbf9d148f2905cd8e335caa6c71afc1639627ce8fd641509b3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/review.json",
+      "bytes": 42616,
+      "sha256": "2ee1d1205a6755177dd27ad208ec3a16327c3d9410ae8a2d9788983f1439943b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/run-drafter-oracle.source.txt",
+      "bytes": 3001,
+      "sha256": "07b5a1be7414e74e4530ab085b8859b1107ffff0c790b5f5eef61d6275ea1f5a"
+    }
+  ],
+  "full_moderate_bytes": 181356,
+  "no_product_source_copies": true
+}

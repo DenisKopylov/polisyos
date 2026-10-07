@@ -1,0 +1,528 @@
+{
+  "schema": "policyos.e02.cohort_selector_readiness.v1",
+  "state": "PRE_FREEZE_READ_ONLY_ADVISORY_NO_NATIVE_COLLECTION_OR_EXECUTION",
+  "unit": "B",
+  "reviewer": "adapters_probe",
+  "root_snapshot_sha": "a394984f83191426601c39f58e2f66dcc2f099d9",
+  "root_snapshot_tree": "74dd4f9656ae3bb76418281d81c2feaae76b06a7",
+  "preserved_historical_proposal": {
+    "sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+    "whole_files": 98,
+    "absent_names": 15,
+    "state": "Historical proposed selector inputs, never final cases or PASS"
+  },
+  "canonical_denominator": {
+    "bundles": 25,
+    "findings": 60,
+    "bundle_ids": [
+      "CAS-01",
+      "CAS-02",
+      "CAS-03",
+      "CMP-01",
+      "CMP-02",
+      "CMP-03",
+      "DUR-01",
+      "DUR-02",
+      "EXE-01",
+      "EXE-02",
+      "JIT-01",
+      "LLM-01",
+      "LLM-02",
+      "NET-01",
+      "NET-02",
+      "RES-01",
+      "RES-02",
+      "RES-03",
+      "RES-04",
+      "RUN-01",
+      "RUN-02",
+      "RUN-03",
+      "STA-01",
+      "STA-02",
+      "WIRE-01"
+    ],
+    "finding_ids": [
+      "B13",
+      "B14",
+      "B148",
+      "B149",
+      "B150",
+      "B151",
+      "B152",
+      "B153",
+      "B154",
+      "B155",
+      "B24",
+      "B37",
+      "B38",
+      "B39",
+      "B40",
+      "B42",
+      "B43",
+      "B44",
+      "B45",
+      "B46",
+      "B47",
+      "B48",
+      "B49",
+      "B50",
+      "B51",
+      "B52",
+      "B53",
+      "B55",
+      "B57",
+      "B58",
+      "B59",
+      "B60",
+      "B61",
+      "B62",
+      "B63",
+      "B64",
+      "B65",
+      "B66",
+      "B67",
+      "B68",
+      "B69",
+      "B70",
+      "B71",
+      "B72",
+      "B73",
+      "B74",
+      "B75",
+      "B76",
+      "B77",
+      "B78",
+      "B87",
+      "B89",
+      "B90",
+      "B91",
+      "B92",
+      "B93",
+      "B94",
+      "B95",
+      "B96",
+      "LA-057"
+    ],
+    "route_rows": 561,
+    "deduplicated_route_cells": 189
+  },
+  "canonical_input_addition": {
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json",
+    "git_blob": "130ba865f6df9b1e7cd3bec5ce868df85e9b918c",
+    "sha256": "5abd40cc31570b26747c36ca2f782503e066c5df0195574452535943626b2b87",
+    "bytes": 602186
+  },
+  "manifest_cross_check": {
+    "B_bundle_entries": 25,
+    "B_findings_in_manifest": 59,
+    "additional_owner_route": {
+      "finding_id": "LA-057",
+      "unit": "B",
+      "docx_analytical_package": "P09",
+      "source_closure_owner": "RUN-01",
+      "source_bundle_ids": "RUN-01",
+      "source_status": "partial"
+    },
+    "planned_test_names_all_accounted_by_current_inputs_or_explicit_absence": true,
+    "meaning": "Bundle manifest is source plan; ownership/coverage preserves all60. Exclude its local process quotas from cloud execution per HANDOFF/user."
+  },
+  "static_snapshot_inputs": {
+    "whole_file_count": 104,
+    "whole_file_paths": [
+      "tests/integration/scientist/test_checkpoint_resume.py",
+      "tests/integration/scientist/test_res_03_real_simulation_route.py",
+      "tests/unit/common/test_async_tools.py",
+      "tests/unit/core/artifacts/backends/test_caching_store.py",
+      "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+      "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+      "tests/unit/core/artifacts/test_async_store.py",
+      "tests/unit/core/artifacts/test_batch_completion_admission.py",
+      "tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py",
+      "tests/unit/core/artifacts/test_cas_integrity_report.py",
+      "tests/unit/core/artifacts/test_import_admission_noop.py",
+      "tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py",
+      "tests/unit/core/artifacts/test_manifest_serialization_schema.py",
+      "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+      "tests/unit/core/artifacts/test_put_consumer_oracle.py",
+      "tests/unit/core/artifacts/test_put_integrity_retry.py",
+      "tests/unit/core/artifacts/test_signed_evidence.py",
+      "tests/unit/core/artifacts/test_transfer_generation_publication.py",
+      "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+      "tests/unit/core/phase0/test_artifact_store.py",
+      "tests/unit/core/phase0/test_cli_signing.py",
+      "tests/unit/core/phase0/test_signing.py",
+      "tests/unit/core/phase0/test_store_signing.py",
+      "tests/unit/core/test_llm_core.py",
+      "tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py",
+      "tests/unit/fabric/connectors/test_pool_e02.py",
+      "tests/unit/fabric/connectors/test_registry.py",
+      "tests/unit/fabric/connectors/test_resilience.py",
+      "tests/unit/fabric/connectors/test_resilience_e02.py",
+      "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+      "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py",
+      "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+      "tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+      "tests/unit/foundry/methods/components/test_composition_e02.py",
+      "tests/unit/foundry/methods/test_artifacts.py",
+      "tests/unit/foundry/methods/test_compiler.py",
+      "tests/unit/foundry/methods/test_compiler_e02.py",
+      "tests/unit/foundry/methods/test_composer.py",
+      "tests/unit/foundry/methods/test_linker.py",
+      "tests/unit/foundry/methods/test_semantic_validator.py",
+      "tests/unit/foundry/mirror_contracts/test_specialization.py",
+      "tests/unit/remediation/test_cas_01.py",
+      "tests/unit/remediation/test_cas_02.py",
+      "tests/unit/remediation/test_cas_03.py",
+      "tests/unit/remediation/test_cmp_01.py",
+      "tests/unit/remediation/test_cmp_02.py",
+      "tests/unit/remediation/test_cmp_03.py",
+      "tests/unit/remediation/test_dur_02.py",
+      "tests/unit/remediation/test_dur_02_process.py",
+      "tests/unit/remediation/test_exe_02.py",
+      "tests/unit/remediation/test_jit_01.py",
+      "tests/unit/remediation/test_llm_01.py",
+      "tests/unit/remediation/test_res_01.py",
+      "tests/unit/remediation/test_res_02.py",
+      "tests/unit/remediation/test_res_03.py",
+      "tests/unit/remediation/test_res_04.py",
+      "tests/unit/remediation/test_run_03.py",
+      "tests/unit/remediation/test_wire_01.py",
+      "tests/unit/runtime/http/test_acquisition_control_worker.py",
+      "tests/unit/runtime/http/test_control_plane_store.py",
+      "tests/unit/runtime/http/test_control_worker_custody.py",
+      "tests/unit/runtime/http/test_control_worker_maintenance.py",
+      "tests/unit/runtime/http/test_human_decision_guarded_timeout.py",
+      "tests/unit/runtime/http/test_normative_evidence_intake.py",
+      "tests/unit/runtime/http/test_normative_generation_bridge.py",
+      "tests/unit/runtime/http/test_resilience_guards.py",
+      "tests/unit/runtime/http/test_runtime_api_authz.py",
+      "tests/unit/runtime/http/test_runtime_authorization_access_audit.py",
+      "tests/unit/runtime/http/test_runtime_deployment_security.py",
+      "tests/unit/runtime/http/test_runtime_postgres_linearizability.py",
+      "tests/unit/runtime/http/test_runtime_step_up_authz.py",
+      "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+      "tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+      "tests/unit/scientist/mirror_contracts/test_local_runner.py",
+      "tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+      "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+      "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+      "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+      "tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+      "tests/unit/scientist/orchestration/engine/test_checkpoint_gc.py",
+      "tests/unit/scientist/orchestration/engine/test_circuit_breaker.py",
+      "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+      "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+      "tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py",
+      "tests/unit/scientist/orchestration/engine/test_retry.py",
+      "tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "tests/unit/scientist/orchestration/engine/test_state_merge.py",
+      "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+      "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+      "tests/unit/scientist/orchestration/llm/test_factory.py",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py"
+    ],
+    "new_vs_933": [
+      "tests/unit/core/artifacts/test_batch_completion_admission.py",
+      "tests/unit/core/phase0/test_cli_signing.py",
+      "tests/unit/core/phase0/test_signing.py",
+      "tests/unit/core/phase0/test_store_signing.py",
+      "tests/unit/foundry/methods/components/test_composition_e02.py",
+      "tests/unit/foundry/methods/test_compiler_e02.py"
+    ],
+    "absent_named_selectors": [
+      {
+        "path": "tests/integration/scientist/test_async_cache_recovery.py",
+        "bundle_ids": [
+          "EXE-01"
+        ],
+        "state": "UNRUN_named_selector_absent",
+        "bounded_equivalence_map_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json"
+      },
+      {
+        "path": "tests/integration/scientist/test_execution_state_replay.py",
+        "bundle_ids": [
+          "EXE-01",
+          "EXE-02",
+          "RES-02",
+          "STA-01"
+        ],
+        "state": "UNRUN_named_selector_absent",
+        "bounded_equivalence_map_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json"
+      },
+      {
+        "path": "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "bundle_ids": [
+          "CAS-01",
+          "CAS-02"
+        ],
+        "state": "UNRUN_named_selector_absent",
+        "bounded_equivalence_map_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json"
+      },
+      {
+        "path": "tests/unit/core/artifacts/test_transfer_output_paths.py",
+        "bundle_ids": [
+          "CAS-02"
+        ],
+        "state": "UNRUN_named_selector_absent",
+        "bounded_equivalence_map_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json"
+      },
+      {
+        "path": "tests/unit/core/artifacts/test_transfer_publication.py",
+        "bundle_ids": [
+          "CAS-02"
+        ],
+        "state": "UNRUN_named_selector_absent",
+        "bounded_equivalence_map_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json"
+      },
+      {
+        "path": "tests/unit/remediation/test_dur_01.py",
+        "bundle_ids": [
+          "DUR-01"
+        ],
+        "state": "UNRUN_named_selector_absent",
+        "bounded_equivalence_map_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json"
+      },
+      {
+        "path": "tests/unit/remediation/test_exe_01.py",
+        "bundle_ids": [
+          "EXE-01"
+        ],
+        "state": "UNRUN_named_selector_absent",
+        "bounded_equivalence_map_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json"
+      },
+      {
+        "path": "tests/unit/remediation/test_llm_02.py",
+        "bundle_ids": [
+          "LLM-02"
+        ],
+        "state": "UNRUN_named_selector_absent",
+        "bounded_equivalence_map_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json"
+      },
+      {
+        "path": "tests/unit/remediation/test_net_01.py",
+        "bundle_ids": [
+          "NET-01"
+        ],
+        "state": "UNRUN_named_selector_absent",
+        "bounded_equivalence_map_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json"
+      },
+      {
+        "path": "tests/unit/remediation/test_net_02.py",
+        "bundle_ids": [
+          "NET-02"
+        ],
+        "state": "UNRUN_named_selector_absent",
+        "bounded_equivalence_map_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json"
+      },
+      {
+        "path": "tests/unit/remediation/test_run_01.py",
+        "bundle_ids": [
+          "RUN-01"
+        ],
+        "state": "UNRUN_named_selector_absent",
+        "bounded_equivalence_map_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json"
+      },
+      {
+        "path": "tests/unit/remediation/test_run_02.py",
+        "bundle_ids": [
+          "RUN-02"
+        ],
+        "state": "UNRUN_named_selector_absent",
+        "bounded_equivalence_map_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json"
+      },
+      {
+        "path": "tests/unit/remediation/test_sta_01.py",
+        "bundle_ids": [
+          "STA-01"
+        ],
+        "state": "UNRUN_named_selector_absent",
+        "bounded_equivalence_map_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json"
+      },
+      {
+        "path": "tests/unit/remediation/test_sta_02.py",
+        "bundle_ids": [
+          "STA-02"
+        ],
+        "state": "UNRUN_named_selector_absent",
+        "bounded_equivalence_map_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json"
+      }
+    ],
+    "transition": {
+      "path": "tests/unit/foundry/methods/test_compiler_e02.py",
+      "from": "absent_planned",
+      "to": "actual_native_input_present",
+      "grade": "Not collection or PASS"
+    }
+  },
+  "pending_writer_inputs": [
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+      "source_state": "Author EXE confirms actual path; not yet final merged root input. Re-resolve Git bytes at final freeze; no case-count cap."
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+      "source_state": "Author EXE confirms actual path; not yet final merged root input. Re-resolve Git bytes at final freeze; no case-count cap."
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+      "source_state": "Author EXE confirms actual path; not yet final merged root input. Re-resolve Git bytes at final freeze; no case-count cap."
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+      "source_state": "Author EXE confirms actual path; not yet final merged root input. Re-resolve Git bytes at final freeze; no case-count cap."
+    }
+  ],
+  "cross_unit_required_inputs": {
+    "identity": {
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+      "git_blob": "7ddc6b5bbe7b09c8db0ccaecf75852d9cee252a7",
+      "sha256": "e1d4fca7abf7934f38bd789c5dcb6c4a461ba59a4e65a731bdff9104630e512d",
+      "bytes": 8699
+    },
+    "selectors": [
+      {
+        "selector": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_restored_frontier_above_new_cap_refuses_before_consumer_effects",
+        "line": 112,
+        "end_line": 175,
+        "body_sha256": "c19ae5e35a7e717d66550fec2d2564838bd4a4e368848545b410d7bf1c5a23d4"
+      },
+      {
+        "selector": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_admitted_recovery_emits_two_sessions_once_with_original_lineage",
+        "line": 179,
+        "end_line": 221,
+        "body_sha256": "77f7e171289fc215dff84b658ca95dffe291697e06c2a67b65079d7d5719e31b"
+      }
+    ],
+    "property": "Real JSONL→pooled connector→stream accumulator→FileSystemCAS/CursorStore restart: cap3 persisted2rows under cap1 refuses before poll/flush/commit and reconciles real leases; positive cap3 emits [1,2],[3] with exact content lineage and nextrestart empty. C owns streaming law; inclusion does not close B87/B89."
+  },
+  "builder_contract": [
+    "Require explicit immutable final root SHA/tree and clean tracked source before and after native wave. Re-read all inputs using git show at this SHA.",
+    "Join all25 B bundle-owner rows and all60 finding-owner/coverage rows, complete cards/B.md, bundle_manifest test_paths/source_test_refs and all561 routes/189 exact cells. Historical routes are navigation inputs, not source-property proof.",
+    "Recursively decode every source-pinned actual owner/independent receipt command and nested native_child/tool_run_record JSON; preserve full command lineage, not lastN. Follow referenced committed drivers as separate source inputs.",
+    "Separate whole-file pytest selectors from standalone oracle driver commands; oracle driver source SHA and actual target/env/input must be bound separately. Old owner-check outcomes or base/removal commands never become final PASS.",
+    "Include every genuinely changed test definition/helper and actual defining consumer paths plus both B→C native cases. Proposed absent names require bounded equivalence metadata or explicit UNRUN. A planned name that now exists ceases to be absent; retain transition instead of demanding obsolete mapping equality.",
+    "Use one deduplicated whole-file args list, no -k/-m/property-marker projection or historical74/1317 stopping rule. Native collected/session items establish actual nodeid denominator only at final invocation.",
+    "Do not execute a separate collection wave; instrument final ordinary pytest invocation to capture collection reports and full session.items before runtime. Preserve genuine plugin autoload and pytest.ini strict options.",
+    "Record collecting errors/skips, explicit deselection, fixture/setup/call/teardown outcomes, xfails/quarantine and exit status. Full stdout/JUnit retained. A successful collection establishes import/selector readiness only; runtime and finding semantics remain separate."
+  ],
+  "root_writer_lease": "Root alone authors canonical README/generator; this advisory edits no generator, canonical cards or runtime source.",
+  "native_recipe": {
+    "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+    "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "environment": {
+      "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+      "UV_NO_SYNC": "1",
+      "PATH_prefix": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin",
+      "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+      "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+    },
+    "argv": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-m",
+      "pytest",
+      "@/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/final-b-native/whole-files.args",
+      "--continue-on-collection-errors",
+      "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/final-b-native/cohort.xml",
+      "--basetemp=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/final-b-native/tmp",
+      "-o",
+      "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/final-b-native/pytest-cache",
+      "-vv"
+    ],
+    "argsfile_contract": "Root generator writes one relative whole-file selector per line from final frozen Git. This argsfile does not exist yet; recipe is runnable after root builds final inputs. Pytest9.0.2 supports @argsfile. No process/worker/numerical CPU quota flags or env added.",
+    "hook_contract": {
+      "instrumentation": "Root-owned wrapper may call pytest.main(argv_without_python_m_pytest, plugins=[ReadOnlyInventory]); hooks record only, do not mutate item/outcome/source. Genuine entry-point plugins remain active.",
+      "pytest_collectreport": "Append nodeid/outcome/longreprtext/count for every collector, including errors and module skips.",
+      "pytest_collection_finish": "Write every session.items nodeid, originalname, source path+line, markers, callspec repr/params identity, fixturenames. Also preserve raw JSON in ignored storage if large.",
+      "pytest_deselected": "Record exact nodeids/count even when no filters requested.",
+      "pytest_runtest_logreport": "Record nodeid/when/outcome/duration/wasxfail and full failure sections for setup/call/teardown.",
+      "pytest_sessionfinish": "Write session.testscollected/session.testsfailed/exitstatus and complete inventories; exception-safe wrapper preserves early import/config failures/stdout even when no session."
+    },
+    "source_path_note": "Both listed PYTHONPATH directories were verified to exist. Earlier src:product recipes included a nonexistent product path; this readiness recipe uses current actual src and package root."
+  },
+  "observed_tool_profile": {
+    "python": "3.14.2",
+    "pytest": "9.0.2",
+    "distribution_count": 194,
+    "pytest11_entry_points": [
+      "benchmark",
+      "hypothesispytest",
+      "anyio",
+      "langsmith_plugin",
+      "asyncio",
+      "xdist",
+      "xdist.looponfail",
+      "jaxtyping"
+    ],
+    "contributor_extras": [
+      "lint",
+      "test",
+      "runtime",
+      "ml",
+      "docs"
+    ],
+    "research_recursive_requirement_count": 25,
+    "research_missing_17": [
+      "arch>=8.0.0",
+      "arviz>=1.0.0",
+      "causal-learn>=0.1.3.8",
+      "cvxpy>=1.8.1",
+      "dagma>=1.1.1",
+      "hnswlib==0.8.0",
+      "lightgbm>=4.0",
+      "linearmodels>=5.0",
+      "numpyro>=0.20.0",
+      "ortools>=9.8",
+      "pulp>=2.8",
+      "ruptures>=1.1.10",
+      "SALib<2.0,>=1.5",
+      "statsmodels>=0.14.0",
+      "tigramite>=5.2",
+      "y0<0.3,>=0.2",
+      "zepid>=0.9"
+    ],
+    "installed_research_version_mismatches": [],
+    "meaning": "Missing metadata is actual tool-profile boundary; native import/skip/runtime effects must be measured, never inferred or hidden."
+  },
+  "read_only_diagnostic_provenance": {
+    "original_driver": "/workspace/e02-B-current-adapters/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/derive-cohort-selector-audit.py",
+    "original_driver_sha256": "3e8eb5abd9d5ed6dd03cb12fed2f44285ea7350544ba3c0a776ae16f797964a1",
+    "in_memory_adaptation": "Obsolete set(missing)==set(mapping) check replaced only with require(new_missing=set(missing)-set(mapping)) empty. Canonical driver was not edited. Actual failure of original driver and diagnostic104/14 output are preparation observations, not runtime checks.",
+    "ignored_draft_path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/cohort-selector-audit-a394-diagnostic.json",
+    "ignored_draft_sha256": "e0a28d8c897e687544fda02a1c5f0543420f3c38151bd9f967cef167940d4d2b",
+    "ignored_draft_bytes": 372577,
+    "source_grade": "All draft source inputs came from immutable Git@a394; output metadata only, no ignored historical research evidence input."
+  },
+  "browser_receipt_transfer": {
+    "root_committed_ref": "a394984f83191426601c39f58e2f66dcc2f099d9:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/chromium-readiness-receipt.json",
+    "browser_smoke": "Actual doctor and independent ChromiumDOM succeeded in earlier separate readiness task; no frontend suite run here.",
+    "large_raw_manifests": "Full npm installed/browser content manifests remain ignored and content-bound; do not track huge archive manifests."
+  },
+  "limitations": [
+    "Not final source union until EXE/CMP freezes merge;104/14 is draft source selection, never count of parameterized cases or PASS.",
+    "B13 remains A generation-route owner; B61 immutable/source-versioned SKG owner-input boundary remains explicit.",
+    "Standalone oracle driver wrappers can pin an old author source internally; unchanged descriptor is source evidence, not automatically final candidate replay.",
+    "No native pytest collection/runtime, browser/frontend suite or scientific production dataset consumed in this review."
+  ],
+  "later_root_checkpoint": {
+    "sha": "9682d4aa78b8a52b5570de87569fd306cb308bd0",
+    "tree": "47ac49718300840fcd3f9bc0e37e9d9be08a062a",
+    "tracked_dirty_at_observation": [
+      "policy-engine/src/polisyos/core/artifacts/README.md",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/README.md"
+    ],
+    "meaning": "Root is continuing authorized docs/merge work; this packet source104/14 is explicitly immutable a394 draft, not a final968 source union or a clean final gate."
+  }
+}

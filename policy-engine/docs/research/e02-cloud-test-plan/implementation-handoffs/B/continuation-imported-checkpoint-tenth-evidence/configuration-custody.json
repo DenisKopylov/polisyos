@@ -1,0 +1,84 @@
+{
+  "source_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+  "source_tree": "e6ec2e4bb34f84f946341004f1e5c8374fb29010",
+  "test_and_configuration_inputs": [
+    {
+      "path": "policy-engine/pyproject.toml",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "matches_actual_projection_after_both_runs": true
+    },
+    {
+      "path": "policy-engine/pytest.ini",
+      "bytes": 1021,
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "matches_actual_projection_after_both_runs": true
+    },
+    {
+      "path": "policy-engine/ruff.toml",
+      "bytes": 247,
+      "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd",
+      "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "matches_actual_projection_after_both_runs": true
+    },
+    {
+      "path": "policy-engine/tests/_helpers/artifacts.py",
+      "bytes": 9046,
+      "sha256": "0c50d082c6861b08aa8d8d0c9f0753bac567204b6bb7fd69457be6700ec7fecf",
+      "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "matches_actual_projection_after_both_runs": true
+    },
+    {
+      "path": "policy-engine/tests/_helpers/observability.py",
+      "bytes": 2392,
+      "sha256": "612a617513e52f310e81fc48dc930c0c6bb95ca091ab66c81779075618a48ff8",
+      "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "matches_actual_projection_after_both_runs": true
+    },
+    {
+      "path": "policy-engine/tests/conftest.py",
+      "bytes": 9664,
+      "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "matches_actual_projection_after_both_runs": true
+    },
+    {
+      "path": "policy-engine/tests/quarantine.toml",
+      "bytes": 492,
+      "sha256": "3cd9b583ef697b890efbb764933eaa4125bd0ce328426c83777492b1a7d5b5e1",
+      "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "matches_actual_projection_after_both_runs": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/conftest.py",
+      "bytes": 969,
+      "sha256": "53c808c34be3ea5d31db2c8e5172c0c75235a0ea1f11846416dacc2501b5ec40",
+      "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "matches_actual_projection_after_both_runs": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+      "bytes": 11096,
+      "sha256": "1c22fd256f2038def925ed5467c5bc842d680bfa0669cee202a75ea881cc71f8",
+      "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "matches_actual_projection_after_both_runs": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/conftest.py",
+      "bytes": 11773,
+      "sha256": "d4cc421ea080fd04e04c93345f066c9f2993020a1e95219e325319d0fb987d11",
+      "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "matches_actual_projection_after_both_runs": true
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "bytes": 779204,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "matches_actual_projection_after_both_runs": true
+    }
+  ],
+  "role": "Post-execution byte reconciliation of normal pytest configuration, active ancestor conftests, explicitly declared root plugins and exact test. Full input archive source/tree and hash recorded separately; no standard quality-gate acceptance."
+}

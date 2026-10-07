@@ -1,0 +1,48 @@
+"""Independent actual ambiguous matching consumer; no source edits."""
+import hashlib
+import json
+import subprocess
+from pathlib import Path
+from typing import ClassVar
+from polisyos.foundry.methods.base import ComplexityClass,ComputeBackend,FidelityLevel,MethodMetadata,MethodSignature,SlotSpec,SlotType,Unit
+from polisyos.foundry.methods.components.composer import MethodComposer,SemanticValidationLevel
+from polisyos.foundry.methods.components.linker import SlotLinker,LinkerConfig
+from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.foundry.methods.backends.chain_executor import execute_heterogeneous_chain
+from polisyos.foundry.methods.exceptions import SlotConnectionError
+OWNER='054db3c913b0daf29cf503672a5ecfee7903fb7c'
+ROOT=Path('/workspace/e02-B-current-composition')
+paths=['components/composer.py','components/linker.py','backends/chain_executor.py']
+for rel in paths:
+ p='policy-engine/src/polisyos/foundry/methods/'+rel
+ assert (ROOT/p).read_bytes()==subprocess.check_output(['git','show',OWNER+':'+p],cwd=ROOT)
+UNIT=Unit('review','unit')
+def slot(name):return SlotSpec(name=name,slot_type=SlotType.SCALAR,unit=UNIT)
+def method(name,inputs,outputs,step):
+ sig=MethodSignature(name=name,namespace='review.ambiguous',version='1.0.0',input_slots=frozenset(map(slot,inputs)),output_slots=frozenset(map(slot,outputs)),parameters=(),fidelity=FidelityLevel.LOW,complexity=ComplexityClass.O_1,backend=ComputeBackend.NUMPY,supports_jit=False,supports_vmap=False,supports_grad=False)
+ class ActualMethod:
+  signature:ClassVar=sig
+  metadata:ClassVar=MethodMetadata(description='independent real arithmetic',tags=frozenset({'review'}))
+  @staticmethod
+  def materialize_input(bound_inputs,fallback_state):
+   value=dict(fallback_state);value.update(bound_inputs);return value
+  @staticmethod
+  def pure_step(state,params):return step(state,params)
+ return ActualMethod
+records=[]
+for values in [{'a':10,'b':20},{'a':20,'b':10}]:
+ calls=[]
+ a=method('source',(),('a','b'),lambda s,p:(calls.append('source') or dict(values)))
+ b=method('target',('x','y'),('result',),lambda s,p:(calls.append('target') or {'result':s['x']*100+s['y']}))
+ MethodRegistry.reset_instance();r=MethodRegistry.get_instance();r.register(a,override=True);r.register(b,override=True)
+ c=MethodComposer(registry=r,linker=SlotLinker(LinkerConfig.strict()));na=c.add(a.signature.fqn);nb=c.add(b.signature.fqn)
+ try:
+  link=c.connect(na,nb);chain=c.build(validate_semantics=SemanticValidationLevel.STRICT)
+ except SlotConnectionError as exc:
+  record={'refused':True,'error':str(exc),'body_calls':calls}
+ else:
+  result=execute_heterogeneous_chain(chain,state={},registry=r)
+  record={'refused':False,'values':values,'binding':[(x.source_slot,x.target_slot) for x in link.bindings],'warnings':chain.warnings,'actual_result':result.final_state['result'],'body_calls':calls}
+ records.append(record)
+ print(json.dumps(record),flush=True)
+assert all(x['refused'] for x in records),'equivalent full assignments require explicit semantic choice before actual consumer execution'

@@ -1,0 +1,174 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "slice": "current-sta-ownership-negative",
+  "reviewer": "run_writer",
+  "author": "exe_state_writer",
+  "reviewed_source_sha": "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+  "reviewed_tree_sha": "e9979738e8d9fa6ebce06592f2970b00d8c69625",
+  "read_only_source_tests": true,
+  "closure_ids": [],
+  "related_finding_ids": [
+    "B57",
+    "B58"
+  ],
+  "bundle_ids": [
+    "STA-01"
+  ],
+  "classification": "BLOCKING_JSON_OWNERSHIP_LIFETIME_COUNTEREXAMPLES",
+  "capability_state_or_finding_state": "OPEN same ownership/replay class P40; earlier3b four-case PASS remains measured historicalprofile, not broad closure.",
+  "property": {
+    "statement": "Same JSON graph object retains current live identity through removal/reinsertion/alias/reparenting; declaredbranch ownership rejects neighbor writes before any original/branch bytes change; merged public result supports legitimate subsequent writes. Actual journal artifacts/replay must preserve producer semantics.",
+    "runtime_path": [
+      "exactGit3b81 branch_state",
+      "native Python producer aliases/list/dict mutations",
+      "actual NodeOutcome/NodeResultCache.put",
+      "typedproof verified real FileSystemCAS artifact",
+      "warm get / reopenedload_entry/get",
+      "actual merge_parallel_outcomes",
+      "persisted physical mergedresult and original native wire bytes",
+      "public mergedresult editing and CAS readback"
+    ],
+    "proxy_divergence": "Three earlier3b operation controls and new numeric/scalar controls pass while reinserted and cross-parent/shared alias lifetimes still diverge from ordinary Python values. Producer-issued proof/CAS integrity remains valid; realphysical results wrong. Undeclared mutation changes original wire; stale privatejournal ownership leaks into publicresult editing.",
+    "negative_controls": [
+      "Four literal Python alias/lifetime expectations compared at actual producer plus both physicalwarm/reopened result payloads.",
+      "Realnumericdictkey and explicitsamevalue scalar positive controls.",
+      "Actualprotected evidence deletion retains native wire/artifact/reserved13.",
+      "Undeclaredneighbor rejected-before-write expected, originalbranch/base wire retained and actualprestateCASartifact verified.",
+      "Actualmergedpublicresult params.post nestedlist legitimate mutation expected."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "canonical_criteria": {
+    "B57": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "line": 1543,
+      "excerpt_sha256": "311733b6c5a5bb6907ebc0142a728a0381d0d1e80e9e0c9d9dffbca33a9676f2",
+      "full_criterion_read": true
+    },
+    "B58": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "line": 1559,
+      "excerpt_sha256": "a4b3f09edf7d6a97bcac413cddd8335f3f83f654d823c5561b4c06b826b9838e",
+      "full_criterion_read": true
+    }
+  },
+  "baseline_navigation": {
+    "at_commit": "41b6b7ce1237e921a68d4322b27a1e9b3100569f",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/baseline-navigation.json",
+    "sha256": "bc28269508d00f90e467bbf2a576d34e725c12695c2d2d930261f5813e2c9d80",
+    "bytes": 118475
+  },
+  "baseline_qualification": "All48 unique cells/15 source SHA/tree/ref/environment/input contexts are source-reported compact transfer navigation. Routes candidate_unverified and semantic_adequacy not_established remain. Original raw archives unavailable; baseline-green totals are not candidate evidence.",
+  "checks": [
+    {
+      "target_sha": "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+      "target_tree": "e9979738e8d9fa6ebce06592f2970b00d8c69625",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-review.py",
+        "--target",
+        "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+        "--out",
+        "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/ownership-graph-3b81"
+      ],
+      "actual_execution_driver": "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/ownership-graph-review.py",
+      "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "python": "3.14.2",
+        "source_scope": "All118 imported canonical Python modules compiled from exactGit3b81, hashes captured in fulloutput; existing admitted EXE lane supplies resource paths, third-party runtime shared venv. No mutable canonical Python input or source edits.",
+        "qualified_snapshot_environment_ref": {
+          "at_commit": "ee8c7a8a228593e4009e5a2f1e54df3226fa82af",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/environment.json",
+          "qualification": "Final packaging/config custody, not substituted for executed Git source."
+        }
+      },
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-review.py",
+          "sha256": "83a9f72ed63672d402d2cc2aea023025f3d5686da1f3ba17cca3fb7e1a07c4df",
+          "bytes": 14954
+        },
+        "input": "Actual real native ExperimentState/RunContext/FileSystemCAS; plainPython independent expected semantics; six aliases/list/scalar cases, protecteddelete, undeclaredneighbor and publicmergedresult editing; freshisolated CAS fixtures in driverout. No fullproduction dataset or old ignored output input.",
+        "legacy_packet": null,
+        "replay_precondition": "Git target available; output directory fresh. Driver pins target modules via loader; no checkout required."
+      },
+      "outcome": "FAIL",
+      "exit_code": 0,
+      "deciding_output": "9 named units:3PASS/6FAIL. Four aliasproducer/physicalwarm+reopened cache results mismatch plainPython expected; undeclared neighbor mutates both branch/base wire without rejection; public merged-result legit write denied. Numericdict/scalar/protecteddelete controls PASS.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/baseline-3b81.json",
+        "sha256": "72d1a80f6c6a89925119439443344ff7ce996f22d381f46d810ab6e079e30746",
+        "bytes": 74712
+      },
+      "full_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/baseline-3b81.log",
+        "sha256": "72d1a80f6c6a89925119439443344ff7ce996f22d381f46d810ab6e079e30746",
+        "bytes": 74712
+      }
+    }
+  ],
+  "finding_dispositions": [
+    {
+      "finding_id": "B57",
+      "state": "OPEN",
+      "reason": "Same ownership/replay class exposed by actual alias/currentresult consumers. EXE solecanonicalowner implementing wider graph/lifetime invariant and algorithm1.2; no reviewer source/test edits.",
+      "next_owner": "exe_state_writer then root/G independent finalacceptance",
+      "replay_commands": [
+        [
+          "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-review.py",
+          "--target",
+          "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+          "--out",
+          "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/ownership-graph-3b81"
+        ]
+      ],
+      "limitations": "Generic bounded JSON/list/dictfixture semantics; no full productionhistory/frequency claim."
+    },
+    {
+      "finding_id": "B58",
+      "state": "OPEN",
+      "reason": "Same ownership/replay class exposed by actual alias/currentresult consumers. EXE solecanonicalowner implementing wider graph/lifetime invariant and algorithm1.2; no reviewer source/test edits.",
+      "next_owner": "exe_state_writer then root/G independent finalacceptance",
+      "replay_commands": [
+        [
+          "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-review.py",
+          "--target",
+          "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+          "--out",
+          "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/ownership-graph-3b81"
+        ]
+      ],
+      "limitations": "Generic bounded JSON/list/dictfixture semantics; no full productionhistory/frequency claim."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Existing41b original2FAIL/2PASS, ee8 intermediate3b4PASS and safelegacy/live/presence/resume fullbytes remain unchanged. This newindependent classinput is separate, not a rewrite of oldevidence.",
+    "The newdriver imports118 canonicalmodules, not priorpresence/resume1141; completeactualmodulehashes are captured.",
+    "Root paused finalcohort; EXE repairscanonicalwholeownership invariant. Reviewer will repeat unchanged driver on immutable successor and use committedactualbadoldartifacts for admission tests.",
+    "No newworktree/helper/source/test edits or wholeRUNsuite rerun. Fullclosure authority remains root/G."
+  ],
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-review.py",
+      "sha256": "83a9f72ed63672d402d2cc2aea023025f3d5686da1f3ba17cca3fb7e1a07c4df",
+      "bytes": 14954
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/baseline-3b81.json",
+      "sha256": "72d1a80f6c6a89925119439443344ff7ce996f22d381f46d810ab6e079e30746",
+      "bytes": 74712
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/baseline-3b81.log",
+      "sha256": "72d1a80f6c6a89925119439443344ff7ce996f22d381f46d810ab6e079e30746",
+      "bytes": 74712
+    }
+  ]
+}

@@ -1,0 +1,381 @@
+{
+  "schema": "policyos.e02.canonical_criterion_adjudication.v1",
+  "unit": "B",
+  "findings": [
+    "B149",
+    "B155"
+  ],
+  "closure_ids": [],
+  "review_role": "Read-only canonical acceptance-scope adjudication by the CAS source author. This is not an independent acceptance review of own implementation, product run, or root/G closure decision.",
+  "read_snapshot_sha": "54cd278df222b2e9f68e3d24d268678e3306da39",
+  "read_snapshot_tree": "30a714c14e17b673711daf004aea8f78dc54e915",
+  "latest_accepted_cas_implementation_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+  "latest_accepted_cas_implementation_tree": "ff36af874a0a08d3571a1703ce1574b8273c9cbf",
+  "canonical": {
+    "B149": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "line_begin": 3929,
+      "line_end": 3940,
+      "block_sha256": "0a20f6bddc5a5a48832357739f2997192c3e6894f30237e4b712a69fa590eef4",
+      "whole_source": {
+        "ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+        "bytes": 1336380
+      },
+      "unchanged_at_read_snapshot": "54cd278df222b2e9f68e3d24d268678e3306da39"
+    },
+    "B155": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "line_begin": 4001,
+      "line_end": 4014,
+      "block_sha256": "4c6e9e6b5d66ee69682f2266fa94145097348568b018a95e61ebe45ea6399cd3",
+      "whole_source": {
+        "ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+        "bytes": 1336380
+      },
+      "unchanged_at_read_snapshot": "54cd278df222b2e9f68e3d24d268678e3306da39"
+    }
+  },
+  "source_points": {
+    "policy-engine/src/polisyos/core/artifacts/store.py": {
+      "ref": "policy-engine/src/polisyos/core/artifacts/store.py@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "sha256": "627676dcb74c442b7e3f30a64bf7b4023e4ef5f1a8f2dac1d37fdf3e69654a4f",
+      "bytes": 190227
+    },
+    "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": {
+      "ref": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "sha256": "27709becae4680c5a16445a4bfea2270dc1de8a2cea93b06c30205104c9e00b7",
+      "bytes": 46449
+    },
+    "policy-engine/src/polisyos/core/artifacts/_signature_ops.py": {
+      "ref": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "sha256": "0627738427829a9f7489082297635c1b604d987182aca1e5559b2bafc510cb85",
+      "bytes": 18059
+    },
+    "policy-engine/src/polisyos/core/artifacts/README.md": {
+      "ref": "policy-engine/src/polisyos/core/artifacts/README.md@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "sha256": "83795e353c185c7e512407d926c749f0652242212323c4f148d352d307244892",
+      "bytes": 10282
+    },
+    "policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py": {
+      "ref": "policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "sha256": "8996cc5b02bf74aeda4d1ec36adb30cdf14bd9030c242f3425baad678b23d861",
+      "bytes": 23917
+    },
+    "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py": {
+      "ref": "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "sha256": "2ba68f1c9b0524ea648aef179ae63bdb20d6633571064d533282eadb51599503",
+      "bytes": 14133
+    },
+    "policy-engine/tests/unit/core/artifacts/batch_duplicate_worker.py": {
+      "ref": "policy-engine/tests/unit/core/artifacts/batch_duplicate_worker.py@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "sha256": "085beef4feea22f7cc96fcb4fb5bff07d7ab29132008c03c37a7647f88224130",
+      "bytes": 1385
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md": {
+      "ref": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "sha256": "ce79be8c2a247a6dfe3bd543bc1898ca969d60d2b1012f8f8d735e521a1798db",
+      "bytes": 33768
+    }
+  },
+  "source_functions": {
+    "_iter_batch_input_items": {
+      "ref": "policy-engine/src/polisyos/core/artifacts/store.py@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "line_begin": 215,
+      "line_end": 232,
+      "body_source_sha256": "1b9069f4dd03d4d8d840011310b410176ce76d6b3e3e0c2631aa74255df002e0"
+    },
+    "_iter_canonical_artifact_ids": {
+      "ref": "policy-engine/src/polisyos/core/artifacts/store.py@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "line_begin": 235,
+      "line_end": 250,
+      "body_source_sha256": "9f8ae315f7f77d0394c38fae2144b5efb2443ebbbae3412b937c28789219459d"
+    },
+    "_iter_canonical_artifact_references": {
+      "ref": "policy-engine/src/polisyos/core/artifacts/store.py@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "line_begin": 253,
+      "line_end": 266,
+      "body_source_sha256": "f13c0a17709c5ac69ea02378482d351ed97178645a872943b9a52239c47bc44a"
+    },
+    "sign_all_artifacts": {
+      "ref": "policy-engine/src/polisyos/core/artifacts/store.py@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "line_begin": 1903,
+      "line_end": 1937,
+      "body_source_sha256": "e3540d229fa9787041c94ee26b2318c3cde932326167806351b5b2ab956b3819"
+    },
+    "verify_all_signatures": {
+      "ref": "policy-engine/src/polisyos/core/artifacts/store.py@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "line_begin": 1939,
+      "line_end": 1971,
+      "body_source_sha256": "76288d0743a54e502cbf6fb52eeb729976c0f0a356d897adf0cf28400900016e"
+    },
+    "_capture_inventory_member_paths": {
+      "ref": "policy-engine/src/polisyos/core/artifacts/store.py@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "line_begin": 3777,
+      "line_end": 3850,
+      "body_source_sha256": "b777f7e8d05204f242533329fb342209de48e51c4945cbabd86f13adc8f6a750"
+    },
+    "_capture_default_inventory_state": {
+      "ref": "policy-engine/src/polisyos/core/artifacts/store.py@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "line_begin": 3852,
+      "line_end": 3894,
+      "body_source_sha256": "f4a775606cd7a782531858ec9b2328f986ac09bdbed299caa2506ae9151ede82"
+    },
+    "_authenticated_default_inventory_cursor": {
+      "ref": "policy-engine/src/polisyos/core/artifacts/store.py@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "line_begin": 3896,
+      "line_end": 3954,
+      "body_source_sha256": "d8d5afc90ef136bf574141583047b2a2b4d236d708b0a60d9ccb8a93fe6858dc"
+    },
+    "check_batch_admission": {
+      "ref": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "line_begin": 69,
+      "line_end": 77,
+      "body_source_sha256": "4d657b977d1c2da21f4553bff418dec0a331b06f1298a3a4446a5cc6009e5821"
+    },
+    "_run_bounded": {
+      "ref": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "line_begin": 80,
+      "line_end": 172,
+      "body_source_sha256": "20b900507afe0bab628f72fa8f8541afb610901c899b44a990af656200a3be54"
+    },
+    "_publish_archive_generation": {
+      "ref": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "line_begin": 208,
+      "line_end": 234,
+      "body_source_sha256": "09df4dbad1f6dce53dde77e2eb01c195a676146289d73551573c37cfdca15292"
+    },
+    "_exchange_directory_generation": {
+      "ref": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "line_begin": 237,
+      "line_end": 264,
+      "body_source_sha256": "58076e0bead7e98fca6a5fb4a5d83debd1527c340e6392d95fb86edc9f621cee"
+    },
+    "_inventory_payload": {
+      "ref": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "line_begin": 341,
+      "line_end": 368,
+      "body_source_sha256": "2469342abe6444658d2886c5495f3357376295de3f30b4b2af43037ad802cc7c"
+    },
+    "_publish_directory_generation": {
+      "ref": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "line_begin": 488,
+      "line_end": 504,
+      "body_source_sha256": "43fd27441d49cfb4fe23d43b272e02eab91c8da045d1dab0936525d59c742ebd"
+    },
+    "export_subgraph": {
+      "ref": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "line_begin": 682,
+      "line_end": 866,
+      "body_source_sha256": "177dff95ab8383c2c4c1fa190e9f0497f5b415cd4e4d6f975b2fda673da143b3"
+    },
+    "import_subgraph": {
+      "ref": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "line_begin": 869,
+      "line_end": 1106,
+      "body_source_sha256": "9774349ec0282e5b4decd88646f04be2cffc63eedeccc63774b20dc130d7a8bb"
+    }
+  },
+  "receipt_points": {
+    "transfer": {
+      "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer.json@9092080c0bd78165b0a94e6c613a1b94e0bf2d0a",
+      "sha256": "deae0501bea3f6e35ebb4466652d41ce78dd461a3c5c74f49399640e174dba6a",
+      "bytes": 28471
+    },
+    "batch": {
+      "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-completion.json@ce70b52f940a4e94d6e86276afe7d08a334fdd3a",
+      "sha256": "c15324e3b59db1e7f2dd8c6c15e951245f80d02a1bedc72d33f82962effb59ac",
+      "bytes": 58343
+    },
+    "typed": {
+      "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports.json@d021a262a54eae8558fb81b6ae89d02049277d2e",
+      "sha256": "4a69d450136ff08f606fb7d2648c04a62ad591c26b4c0d9a2e323d80c2eabb9d",
+      "bytes": 39293
+    },
+    "predecessor_audit": {
+      "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-terminal-predecessor-consumer-audit.json@0bd0f9d201d513538eb802640be47939dbad16c7",
+      "sha256": "023037a2fa4f1aeeedbeed90d46ec8498a1b2feca73e9c116fcb37aae1c380b9",
+      "bytes": 18030
+    },
+    "prior_independent_all60": {
+      "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-adjudication.json@54cd278df222b2e9f68e3d24d268678e3306da39",
+      "sha256": "a336a23c1f237c6b97d8406f8099ff66840d55a6b191d7b5b0ab4c44d31c7288",
+      "bytes": 108589
+    }
+  },
+  "historical_controls": [
+    {
+      "receipt_key": "transfer",
+      "check_index": 0,
+      "target_sha": "df2fd08f2550c2e3ff78b5656058484f928a7323",
+      "outcome": "FAIL",
+      "command_and_complete_input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer.json@9092080c0bd78165b0a94e6c613a1b94e0bf2d0a#checks[0]",
+      "junit": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer-evidence/transfer-final.xml@9092080c0bd78165b0a94e6c613a1b94e0bf2d0a",
+        "sha256": "8ad0babc496d67d573fe8b6fce0770252ef888a9d3ffb5c7bcfb3d982649cece",
+        "bytes": 14286
+      }
+    },
+    {
+      "receipt_key": "transfer",
+      "check_index": 1,
+      "target_sha": "df2fd08f2550c2e3ff78b5656058484f928a7323",
+      "outcome": "FAIL",
+      "command_and_complete_input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer.json@9092080c0bd78165b0a94e6c613a1b94e0bf2d0a#checks[1]",
+      "junit": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer-evidence/remove-archive-final.xml@9092080c0bd78165b0a94e6c613a1b94e0bf2d0a",
+        "sha256": "79a376a363266052a76f6c42b3da7ec9b762aaec2776a19f951151f40dd952db",
+        "bytes": 2603
+      }
+    },
+    {
+      "receipt_key": "transfer",
+      "check_index": 2,
+      "target_sha": "df2fd08f2550c2e3ff78b5656058484f928a7323",
+      "outcome": "FAIL",
+      "command_and_complete_input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer.json@9092080c0bd78165b0a94e6c613a1b94e0bf2d0a#checks[2]",
+      "junit": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer-evidence/remove-dir-final.xml@9092080c0bd78165b0a94e6c613a1b94e0bf2d0a",
+        "sha256": "1362c3c0be6df2f04e2c788e63a489b4a7d6faba137027dfa332838f235ccd89",
+        "bytes": 1110
+      }
+    },
+    {
+      "receipt_key": "batch",
+      "check_index": 0,
+      "target_sha": "441f79f173df5e0d2a08c161120e634bb0e4f5aa",
+      "outcome": "PASS",
+      "command_and_complete_input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-completion.json@ce70b52f940a4e94d6e86276afe7d08a334fdd3a#checks[0]",
+      "junit": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-delta-frozen.xml@ce70b52f940a4e94d6e86276afe7d08a334fdd3a",
+        "sha256": "c9a994ddf47955924df97d5cdcfbadab2835421ddbaa2e3f293248e22335c974",
+        "bytes": 3522
+      }
+    },
+    {
+      "receipt_key": "batch",
+      "check_index": 4,
+      "target_sha": "98cd038b56d08ab33567bce6e7211d77986df326",
+      "outcome": "FAIL",
+      "command_and_complete_input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-completion.json@ce70b52f940a4e94d6e86276afe7d08a334fdd3a#checks[4]",
+      "junit": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-release-remove-stop.xml@ce70b52f940a4e94d6e86276afe7d08a334fdd3a",
+        "sha256": "6e76f3d8f8e0cdcd79ed78f05d8e26ea9cf5f2a53a171ac3a0a9eaed36ac2b79",
+        "bytes": 4949
+      }
+    },
+    {
+      "receipt_key": "batch",
+      "check_index": 5,
+      "target_sha": "98cd038b56d08ab33567bce6e7211d77986df326",
+      "outcome": "FAIL",
+      "command_and_complete_input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-completion.json@ce70b52f940a4e94d6e86276afe7d08a334fdd3a#checks[5]",
+      "junit": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-release-remove-window.xml@ce70b52f940a4e94d6e86276afe7d08a334fdd3a",
+        "sha256": "2d75dfd154a0e24ccfd0628f7b8d618e1ebfe026128dd868fe5e75fdbf6d3ab3",
+        "bytes": 1032
+      }
+    },
+    {
+      "receipt_key": "batch",
+      "check_index": 7,
+      "target_sha": "714d602bce509a21e8aa4aabbcca684d505562a4",
+      "outcome": "FAIL",
+      "command_and_complete_input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-completion.json@ce70b52f940a4e94d6e86276afe7d08a334fdd3a#checks[7]",
+      "junit": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-duplicate-release-base-replay.xml@ce70b52f940a4e94d6e86276afe7d08a334fdd3a",
+        "sha256": "0c0bfefcd4ddfbcc1c6b3c56c882f37b76e03b890e81f51f0db4239a622c082d",
+        "bytes": 6978
+      }
+    }
+  ],
+  "source_qualification": "Every historical execution retains its original target SHA and input closure. The typed102, older109, all209, and root3578 totals are not evidence of an unexecuted successor. No target case count is proposed.",
+  "B149": {
+    "acceptance": "One logical A→B output publishes exactly B without A (or an explicitly different append contract); changing include_manifests and a failed second write must not produce a falsely complete package; old generation remains accessible by its own reference.",
+    "not_required_by_canonical_criterion": [
+      "power-loss durability proof",
+      "every operating system or filesystem",
+      "hostile parent/inode mutation control",
+      "multihost durability"
+    ],
+    "call_graph": "FileSystemCAS.export_subgraph → _transfer_ops.export_subgraph → private streamed members + exact member_bindings inventory + prepublication sync → directory native exchange or private archive replace → ExportReport.previous_generation. import_subgraph pins directory descriptor/archive inode and verifies accepted member bytes before CAS publication.",
+    "prior_limited_basis": "cas-batch-completion and current-all60-independent-adjudication retained LIMITED principally because native Darwin renamex_np was UNRUN. That is a genuine target-profile UNRUN, not a universal veto on supported Linux criterion satisfaction.",
+    "defining_consumer_cases": [
+      "test_same_destination_retains_complete_history_and_exact_new_inventory",
+      "test_streamed_write_failure_preserves_old_generation_and_no_false_inventory",
+      "test_publication_syscall_failure_leaves_complete_previous_generation",
+      "test_prepublication_directory_sync_refusal_keeps_the_old_package",
+      "test_post_publication_directory_sync_failure_retains_old_and_new_readable_generations",
+      "test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation",
+      "test_import_reader_remains_on_the_generation_pinned_before_concurrent_replacement"
+    ],
+    "defining_quantities": "Actual package member set/bindings equal the requested new payload; option switch removes old sidecars from new inventory; independent reopened importer obtains only new bytes and separately reads the retained old package. Failure either preserves old public bytes or raises typed replaced=True uncertainty while both complete generations remain readable. Marker/count-only assertions do not decide.",
+    "conditional_verdict": "Conditionally CLOSED for an explicitly admitted native-Linux/local-filesystem profile if the final frozen candidate executes those defining bodies successfully and exact independent source/property-removal custody remains applicable. No intrinsic remaining gap identified in that declared profile by this criterion adjudication; root/G decides final closure.",
+    "remaining_profile": "Darwin replacement remains UNRUN until exact admitted native Darwin consumer execution; unsupported native exchange fails closed. History reclamation belongs caller. Power loss/ACL/hostile mutation/distributed publication remain outside the proved contract, not hidden criterion conditions."
+  },
+  "B155": {
+    "acceptance": "Bound producer admission and pending futures consistently with cancellation/absolute deadline; no continued admission of infinite inventory after stop; retain exact identity and complete results for admitted items.",
+    "not_required_by_canonical_criterion": [
+      "hard physical preemption of already-entered arbitrary iterator/callback/syscall",
+      "O(1) memory for an explicitly complete O(N) detail report",
+      "constant total memory for every blob size",
+      "invented global process quota"
+    ],
+    "explicit_call_graph": "FileSystemCAS.sign_all_artifacts/verify_all_signatures → _iter_canonical_artifact_ids/references → _iter_batch_input_items (before iter; before and after every supplied next, duplicates and exhaustion included) → _signature_ops._run_bounded (bounded pending; check before submit/refill; exact admitted results; running callbacks drain).",
+    "default_call_graph": "artifact_ids=None → _authenticated_default_inventory_cursor → _capture_default_inventory_state → _capture_inventory_member_paths under root lease. Full canonical names/member map and visible default IDs are prepared before first yield; the active-scope projection is rechecked at successful exhaustion.",
+    "deadline_scope": "Default census has checks before walking, after each os.walk directory yield, per filename, per collected name, per visible ID, and before yielded item admission/recheck. It therefore is not an unqualified list with no deadline. Explicit producers have per-supplied-item checks, including dedup/exhaustion; the prior actual64/64 escape was repaired structurally.",
+    "declared_census_exception": "B.md line73 explicitly allows stating the filesystem census boundary. Original B155 says remove OR justify early list materialization and explicitly allows O(N) complete result detail. Here the full census supports complete canonical membership/active-scope before/after reconciliation; it is documented O(N), not bounded total-memory streaming.",
+    "precision_qualification": "Do not promote the README phrase one syscall to a measured bound on all preparation. os.walk next() can enumerate a whole directory internally before yielding; following map validation and sorting are synchronous whole-map preparation, with some passes having no per-entry checkpoint. This is within the declared preparatory filesystem-census boundary; no observed successor violation is inferred without an actual defining control.",
+    "defining_consumer_cases": [
+      "test_real_forty_item_source_waits_for_a_bounded_pending_window",
+      "test_cancel_preserves_actual_finished_item_and_explicit_abort",
+      "test_deadline_stops_lazy_inventory_before_more_real_verification",
+      "test_duplicate_intake_obeys_each_supplied_item_budget",
+      "test_infinite_duplicate_intake_returns_from_real_child",
+      "test_cancel_interrupts_actual_default_name_census",
+      "test_selected_and_default_same_blob_remain_two_exact_confirmations",
+      "test_late_real_signer_cannot_start_signature_publication"
+    ],
+    "defining_quantities": "Before held callbacks finish the actual source cannot advance past accepted pending window; after cancel/deadline no new supplied duplicates or distinct artifact items are admitted; infinite child producer returns aborted without false inventory_exhausted; finished/admitted identities and actual per-item statuses remain preserved; late signer cannot begin signature publication.",
+    "prior_actual_discriminator": {
+      "original012_source_hash": "8aaa4936dc6581cee57b279dbe538ec94a303d29a1ba2e95bd691067e38ce1d3",
+      "original012": "Actual64/64 source consumed,0.639940s against0.04 absolute budget; late aborted/deadline but inventory_exhausted=True; source predicate failed.",
+      "roota4": "Same physical64-item duplicate driver consumed5,0.043019s; aborted/deadline, admitted=finished=1, inventory_exhausted=False.",
+      "qualification": "Historical exact roota4, not final-candidate proof. Source/window/stop removal outputs in pinned prior receipt preserve deciding negative assertions."
+    },
+    "conditional_verdict": "Conditionally CLOSED for explicit cooperative producer intake/pending/absolute-deadline property, including the declared default-census preparatory boundary, if exact final frozen defining bodies pass and root/G accepts the precise documented profile. Arbitrary physical preemption alone is not an intrinsic residual of canonical B155.",
+    "expanded_profile_residual": "If promotion claims bounded-memory or strictly interruptible filesystem census as well, that stronger profile stays LIMITED: full name/member/visible-ID state and seen/result sets remain O(N), with uncheckpointed internal directory enumeration/map processing. Smallest falsifier: a very wide directory, cancellation during its internal scandir entry enumeration before os.walk yields, compare entries consumed and zero new artifact admissions. Smallest missing capability: owned segmented census/per-entry cooperative advancement with explicit completion basis. No new run or source edit performed for that expanded profile."
+  },
+  "retained_predecessor_observations": {
+    "execution_source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+    "execution_source_tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+    "xml_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.xml",
+    "xml_sha256": "f1ddd4788163d030277242ac7233312da78a68f6aaee27a511b0b3cb7f2cef5b",
+    "xml_bytes": 3583926,
+    "availability": "Session root raw; G full raw availability not_established unless transferred/rerun. Existing source-qualified0bd audit and7c partition are separate custody records.",
+    "modules": [
+      {
+        "whole_native_module": "test_transfer_generation_publication",
+        "all_observed_case_bodies": "PASS",
+        "proof_grade": "predecessor456_only_not_new_candidate",
+        "complete_per_case_source": "Existing immutable XML; no duplicate derived case list; evaluate defining assertions from pinned native source, not aggregate suite count."
+      },
+      {
+        "whole_native_module": "test_batch_completion_admission",
+        "all_observed_case_bodies": "PASS",
+        "proof_grade": "predecessor456_only_not_new_candidate",
+        "complete_per_case_source": "Existing immutable XML; no duplicate derived case list; evaluate defining assertions from pinned native source, not aggregate suite count."
+      }
+    ],
+    "qualification": "Read-only parsing of retained completed predecessor XML, no pytest/collection/runtime/gate. All global FAIL/ERROR and ENOSPC remain original; no aggregate green claim."
+  },
+  "held_unaffected": [
+    "B148 public cross-tenant law HELD",
+    "B154 real A all-signature-confirmations publisher consumer_missing"
+  ],
+  "future_acceptance": "Bind final exact candidate SHA/tree/module origins/input closure before using its actual complete native outputs. Read defining call-phase results and real bytes/iteration/admission assertions, not total counts, marker presence, collection, setupERROR, or old source-equivalent inference. No gate inheritance waiver/P41 attribution here.",
+  "execution": "Read-only Git/AST/JSON/XML metadata examination only. No production/test source edits, new worktrees, runtime/gates, process quotas, raw copies, fixture cleanup or deletion."
+}

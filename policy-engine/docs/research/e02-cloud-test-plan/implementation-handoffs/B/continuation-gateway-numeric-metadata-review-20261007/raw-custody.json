@@ -1,0 +1,156 @@
+{
+  "files": [
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/capture-original.source.txt",
+      "bytes": 4609,
+      "sha256": "019528af29cbfa4f5959e394a1b79b3736c8a741289edf8cef399ba947ba96b0"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/capture.py",
+      "bytes": 5873,
+      "sha256": "720e981ec657d17b1d26b022bf2ad64f7f1b6dabc89441313e30a07e00e8a596"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/source-context.json",
+      "bytes": 185506,
+      "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/status-partition.json",
+      "bytes": 399350,
+      "sha256": "7a0063732bb721b298c3da00ea548dfa70dfca51aea5ee0fb051522c19d46155"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/runtime-closure.json",
+      "bytes": 14473,
+      "sha256": "e5edd9174777e863c0adfb07281eb124b7dea9843cfdbdfbfb0a8c20fec04dec"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/quality-checks.json",
+      "bytes": 3309,
+      "sha256": "9d8dc8c88383dc9a0d9f138db6e9f78a3f5d971e15389b89824fc151d08e70a6"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/ruff.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/format.txt",
+      "bytes": 26,
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/mypy.txt",
+      "bytes": 19221,
+      "sha256": "c1a393601cf982df87bdb774038c57c41dadb759b9e81d62caad328e44c81e79"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/production-invocation.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/before/native.txt",
+      "bytes": 17236,
+      "sha256": "6f8bec7a177520e1c1d48b0586afa88064385ad7a3a425147da2111c6d66179b"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/before/native.xml",
+      "bytes": 20647,
+      "sha256": "04d41f16460d83d53aade1c98295ae6c8ca78ff1d45c2d3a508b95d018686cf4"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/before/wrapper.json",
+      "bytes": 2769,
+      "sha256": "3e410d93f8a7fb5e6bade775a94bc5d84e3b320a2cb0b926cebbb8f719099c18"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/before/profile.json",
+      "bytes": 57196,
+      "sha256": "7082178cf401efcaad1fe0813569371f7d92a9386323545dd0766f7ed6d35e87"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/candidate/native.txt",
+      "bytes": 3325,
+      "sha256": "f1357c51c26490e5c26d170c2ec30f0f24d1d5298f2c8a7e21ec08844c8f5513"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/candidate/native.xml",
+      "bytes": 5806,
+      "sha256": "dc93eb3c9362550391b5c02b57299c8f742aaf0bd5b8330b47d60ad8fbc53834"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/candidate/wrapper.json",
+      "bytes": 2787,
+      "sha256": "898da0968630d33b5372c1f1dd2fa3252684ea0fbd83cc4300fcd7f4ab0f21ec"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/candidate/profile.json",
+      "bytes": 57196,
+      "sha256": "db0b4d1371247c9b01c4d72e4f71ecd692ba3719652033fe111a985a9896b96b"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/removal/native.txt",
+      "bytes": 17238,
+      "sha256": "026b79b70ee853d8f6b75d053ed1b999eda90a109f5ca6845b67ee6e5dcfc71a"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/removal/native.xml",
+      "bytes": 20647,
+      "sha256": "6018a037c1349a5600f4f3aebdbea1d5f3619b4c5a5e28d994690e3557cca00f"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/removal/wrapper.json",
+      "bytes": 2776,
+      "sha256": "dc5bc1de2d792ab53fd783cd13aef9c33310d705e4a34688b0429b2fa22cfa42"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/removal/profile.json",
+      "bytes": 57474,
+      "sha256": "0cdac3f2d5dc4092dbaf89602e33b205892366231b4ea50acdfb55399f9dc57d"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected/native.txt",
+      "bytes": 1149,
+      "sha256": "b0be868bb7280022ac40a3e4812664100d7302a68094c043456a27bab77c24a5"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected/native.xml",
+      "bytes": 238,
+      "sha256": "11af758ce4641e98ebda48b78cdc0c5b663ed648a2dd6f28236f1aebf21ed309"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected/wrapper.json",
+      "bytes": 4161,
+      "sha256": "ac6b684a7104d22c1f49b97981ae511083595788b50e80146b4926c6cd3d8048"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected/profile.json",
+      "bytes": 23812,
+      "sha256": "35d691603a811adaeab78af0bd802ef207e042bf163478ecafa2732a5f69d73a"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected-qualified/native.txt",
+      "bytes": 1245115,
+      "sha256": "f7444dc63494086458b852f2a2aebcdc544df126530e8cb7d606c5ab677e98cb"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected-qualified/native.xml",
+      "bytes": 111086,
+      "sha256": "4d9d7358108bbaddea4c5aa6590b67dfcaa884454b4fa0d81099eb721a0069de"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected-qualified/wrapper.json",
+      "bytes": 4186,
+      "sha256": "6150e6302e91fb073b01144d52e16ac2ac34f236ec47cf260e4d11037d0aa070"
+    },
+    {
+      "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected-qualified/profile.json",
+      "bytes": 1086014,
+      "sha256": "4bf8a15fd8352806f7bd5b913a850fa5b1970ec3a5ed935aa1100cbdeec2d9c8"
+    }
+  ],
+  "mismatches": [],
+  "grade": "Actual current raw input/output bytes equal indexed originals. This does not establish every runtime read-set."
+}

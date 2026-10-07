@@ -1,0 +1,218 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "cleanup-inventory-20261007-readonly",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "finding_ids": [],
+  "slice_base_sha": "050136941152ef975c7e4c393197b1575419c0af",
+  "implementation_commits": [
+    "c8e8e939930ad37298eae00401d0ed70a6f46f6f"
+  ],
+  "candidate_sha": "c8e8e939930ad37298eae00401d0ed70a6f46f6f",
+  "candidate_tree_sha": "3c874d882f20af41c8e21eb76ae2b013748b8a93",
+  "branch": "codex/e02-B-current-execution-state",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/54",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/inventory.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/inventory.py.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/legacy-inventory.py.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/package.py.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/symlink-sharing.json"
+  ],
+  "source_changed_paths": [],
+  "test_changed_paths": [],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "id": "readonly_metadata_inventory",
+      "command": [
+        "python3",
+        "/tmp/e02-B-cleanup-inventory-20261007/inventory.py"
+      ],
+      "target_sha": "050136941152ef975c7e4c393197b1575419c0af",
+      "target_tree_sha": "3303ea59f74e191acfcace7614ee7982172924ad",
+      "environment": {
+        "python": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "python_version": "3.12.14",
+        "cwd": "/workspace/e02-B-current-execution-state",
+        "purpose": "stdlib lstat/scandir/readlink metadata only; no canonical package imports/tests/gates/services/setup",
+        "caps": "No additional process/thread/CPU limits imposed or changed; no numerical execution."
+      },
+      "input_closure": {
+        "literal_instrument": {
+          "commit": "c8e8e939930ad37298eae00401d0ed70a6f46f6f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/inventory.py.source.txt",
+          "bytes": 11315,
+          "sha256": "8bc0e98f2d16905b854596942d6014c235c3b0e022c68507d1efece70ec6dc01"
+        },
+        "scope": {
+          "root_raw": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw",
+          "tmp_named_prefix": "/tmp/e02-B-* directories/symlinks plus explicitB38 target/data",
+          "shm_named_prefix": "/dev/shm/e02-B-* directories/symlinks",
+          "legacy_script": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/final_cleanup_inventory.py",
+          "legacy_script_sha256": "fedfc22a9ba590e8534c797b8d8d9a9fdac603b5e7c66fec5c0a3eaeb1f4da92",
+          "legacy_text_is_navigation_not_current_service_state": true
+        },
+        "registered_worktree_metadata": [
+          "/workspace/polisyos",
+          "/workspace/e02-B-acceptance",
+          "/workspace/e02-B-adapters",
+          "/workspace/e02-B-b52-oracle",
+          "/workspace/e02-B-b52-review515",
+          "/workspace/e02-B-cas",
+          "/workspace/e02-B-cas-alias-base",
+          "/workspace/e02-B-cas-alias-fix",
+          "/workspace/e02-B-cmp-res",
+          "/workspace/e02-B-coordination",
+          "/workspace/e02-B-current-adapters",
+          "/workspace/e02-B-current-cas-generation",
+          "/workspace/e02-B-current-composition",
+          "/workspace/e02-B-current-coordination",
+          "/workspace/e02-B-current-durability",
+          "/workspace/e02-B-current-execution-state",
+          "/workspace/e02-B-current-runtime",
+          "/workspace/e02-B-dur-ledger",
+          "/workspace/e02-B-exe-state",
+          "/workspace/e02-B-run",
+          "/workspace/e02-B-run-review-base",
+          "/workspace/e02-B-run-review-candidate",
+          "/workspace/e02-cas-contract-base36"
+        ],
+        "nonfollowed_symlink_boundary": true,
+        "protected_production_code_subtree_policy": "Do not recurse registered roots or namesproduction/.git; sharedUVcache directory inode only; no file/secret contents read.",
+        "live_consumer_release": "not_established",
+        "actual_paths_and_sizes": {
+          "commit": "c8e8e939930ad37298eae00401d0ed70a6f46f6f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/inventory.json",
+          "bytes": 907386,
+          "sha256": "c39a54bcbf1b0c3b82ad265541a6bd341dbd8aa64920804a5dc711fd0e5834fa"
+        },
+        "symlink_sharing": {
+          "commit": "c8e8e939930ad37298eae00401d0ed70a6f46f6f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/symlink-sharing.json",
+          "bytes": 3557630,
+          "sha256": "1d9bfed6ebbf6dcb23ebcff692a768e72ff3298150a6435e16912c81521b0b7a"
+        }
+      },
+      "outcome": "PASS",
+      "qualification": "Metadata command completed exit0; does not grant cleanup or runtime criterion acceptance. Absent legacyvenv and protected/unfinished size scopes are explicit per-path limitations.",
+      "wall_s": 119.20639397998457,
+      "output": {
+        "commit": "c8e8e939930ad37298eae00401d0ed70a6f46f6f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/stdout.txt",
+        "bytes": 16692,
+        "sha256": "7c1b5f4e375778b4911d24e02eeafd05c9f2566568a90fe08bf23af339ec1b67"
+      },
+      "stderr": {
+        "commit": "c8e8e939930ad37298eae00401d0ed70a6f46f6f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "reconciliation": {
+        "commit": "c8e8e939930ad37298eae00401d0ed70a6f46f6f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/inventory.json",
+        "bytes": 907386,
+        "sha256": "c39a54bcbf1b0c3b82ad265541a6bd341dbd8aa64920804a5dc711fd0e5834fa"
+      }
+    },
+    {
+      "id": "committed_output_custody",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "stdin": "import json,subprocess,hashlib\nref='c8e8e939930ad37298eae00401d0ed70a6f46f6f';prefix='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/'\ndef read(name):return subprocess.check_output(['git','show',ref+':'+prefix+name])\nx=json.loads(read('index.json'));bad=[]\nfor a in x['artifacts']:\n data=subprocess.check_output(['git','show',ref+':'+a['path']]);assert len(data)==a['bytes'] and hashlib.sha256(data).hexdigest()==a['sha256']\nr=json.loads(read('inventory.json'));s=json.loads(read('symlink-sharing.json'))\nassert len(r['rows'])==602==r['row_count'] and len({a['path'] for a in r['rows']})==602\nassert len(r['named_fixture_candidate_paths'])==25 and not any(a['cleanup_eligible'] for a in r['rows'])\nassert len(s['links'])==5898 and len(s['same_declared_target_groups'])==27\nassert not r['performed_move_delete_trash_service_change'] and r['own_source_sha']==r['own_head_after']=='050136941152ef975c7e4c393197b1575419c0af'\nassert hashlib.sha256(read('legacy-inventory.py.source.txt')).hexdigest()==r['scope']['legacy_script_sha256']\nassert not subprocess.check_output(['git','diff','--name-only','050136941152ef975c7e4c393197b1575419c0af',ref,'--','policy-engine/src','policy-engine/tests'])\nprint(json.dumps({'target':ref,'payloads_checked':8,'payload_hash_mismatches':0,'row_count':602,'unique_row_paths':602,'named_fixture_candidates':25,'cleanup_eligible':0,'symlink_edges':5898,'equal_declared_target_groups':27,'protected_skipped_subtrees':98,'read_errors':0,'source_tests_delta':[],'performed_move_delete_trash':False,'legacy_script_hash_match':True}))\n",
+      "target_sha": "c8e8e939930ad37298eae00401d0ed70a6f46f6f",
+      "environment": {
+        "python_version": "3.12.14",
+        "cwd": "/workspace/e02-B-current-execution-state",
+        "purpose": "stdlib/Git byte and count reconciliation only"
+      },
+      "input_closure": {
+        "index": {
+          "commit": "c8e8e939930ad37298eae00401d0ed70a6f46f6f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/index.json",
+          "bytes": 2271,
+          "sha256": "fcfe4f1283eadf9d2ca03e77f8e48356468e7b9089891e4e88966e6987495220"
+        },
+        "payload_objects": 8,
+        "payload_bytes": 4502989,
+        "inventory": {
+          "commit": "c8e8e939930ad37298eae00401d0ed70a6f46f6f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/inventory.json",
+          "bytes": 907386,
+          "sha256": "c39a54bcbf1b0c3b82ad265541a6bd341dbd8aa64920804a5dc711fd0e5834fa"
+        },
+        "symlinks": {
+          "commit": "c8e8e939930ad37298eae00401d0ed70a6f46f6f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/symlink-sharing.json",
+          "bytes": 3557630,
+          "sha256": "1d9bfed6ebbf6dcb23ebcff692a768e72ff3298150a6435e16912c81521b0b7a"
+        }
+      },
+      "outcome": "PASS",
+      "output": "{\"target\": \"c8e8e939930ad37298eae00401d0ed70a6f46f6f\", \"payloads_checked\": 8, \"payload_hash_mismatches\": 0, \"row_count\": 602, \"unique_row_paths\": 602, \"named_fixture_candidates\": 25, \"cleanup_eligible\": 0, \"symlink_edges\": 5898, \"equal_declared_target_groups\": 27, \"protected_skipped_subtrees\": 98, \"read_errors\": 0, \"source_tests_delta\": [], \"performed_move_delete_trash\": false, \"legacy_script_hash_match\": true}"
+    }
+  ],
+  "property": {
+    "statement": "Report exact preserved paths, individual metadata sizes, purpose and sharing without treating mixed raw roots or unproved-repeatable fixtures as cleanup-eligible.",
+    "runtime_path": [
+      "exact selected existing namespace",
+      "single non-following scandir/lstat/readlink traversal",
+      "individual path size/purpose/alias observations",
+      "Git portable inventory for G/human read-only review"
+    ],
+    "proxy_divergence": "Summing parent/child directories or hardlinked environment namespace bytes could report fictitious globally freeable space, while mixed raw roots retain unique outputs and declared future194/PG/wheel inputs. No such sum or deletion eligibility is asserted.",
+    "negative_controls": [
+      "All602 exactrows cleanup_eligibleFalse;25 named fixtures remain unreviewed candidates only. No move/delete/Trash calls or services/tests/setup executed.",
+      "5898 symlink links never traversed;27 equal declared targets recorded separately. Hardlink namespace values are not globally deduplicated or summed.",
+      "98 protected/current-output subtrees omitted from descendant walks and incomplete values labeled; sharedUVcache recursive size not_established; legacyarchitecturevenv absence recorded.",
+      "Registered worktrees/source/tests preserved and implementation only9 handoff paths; actual unique ledger/CAS/backend/observation custody and live-release remain not_established, so those paths stay retained.",
+      "Every8 portable payload hash/size checked directly from exact implementationGit;25.5MB detailed per-inode raw view stays ignored with exacthash/no inferred portability."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_labels": {
+    "measured_namespace_sizes_and_sharing": "recomputed",
+    "Git_payload_byte_reconciliation": "independently_reconciled",
+    "global_unique_physical_or_freeable_total": "not_established",
+    "cleanup_repeatability_unique_custody_and_live_release": "not_established",
+    "cleanup_authority": "institutionally_supplied"
+  },
+  "capability_state_or_finding_state": "PRESERVED read-only metadata inventory; zero paths authorized/established eligible for cleanup; no B technical/formal criterion change",
+  "source_and_evidence": {
+    "index": {
+      "commit": "c8e8e939930ad37298eae00401d0ed70a6f46f6f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/index.json",
+      "bytes": 2271,
+      "sha256": "fcfe4f1283eadf9d2ca03e77f8e48356468e7b9089891e4e88966e6987495220"
+    },
+    "artifact_payload_bytes": 4502989,
+    "full_source_execution": "050136941152ef975c7e4c393197b1575419c0af",
+    "source_head_before_after_unchanged": true,
+    "own_checkout_admission": "ExistingadmittedEXElane continuation at050; no newtree or helperagent.",
+    "large_raw_inode_view": {
+      "path": "/tmp/e02-B-cleanup-inventory-20261007/inventory.json",
+      "bytes": 25496009,
+      "sha256": "092950c0361af0b730c41f6e76f86df0d1dca4795ebb0264d03d1c9e2bc28bdf",
+      "transfer_state": "ignored large derived per-inode view; not committed. Raw detailed hardlink-group portability not established; no cleanup eligibility depends on it."
+    },
+    "method": "One non-following os.scandir/lstat traversal per disjoint root; regular file st_size sum and all-entry st_blocks*512. Hardlinks counted as namespace entries, not globally deduplicated. Parent/child rows overlap and must never be summed as a global physical total.",
+    "UTC_started": "2026-10-07T08:24:51.476207+00:00",
+    "UTC_finished": "2026-10-07T08:26:50.682590+00:00"
+  },
+  "limitations_and_next_owner": [
+    "Current user/root instruction prohibits move/delete/Trash. This inventory grants no cleanup authority, including through the archived legacy script.",
+    "G/human receives exact per-path rows; no path may be treated as deletion-eligible without later separately authorized owner/custody/liveness/repeatability work. Unique outputs, ledgers/CAS/data/production/code/worktrees and active194/PG/wheel/cache inputs remain preserved.",
+    "All measurements span stated119.206s interval, not an atomic global filesystem snapshot. Selected directory metadata did not change; file-level concurrent mutations were not continuously monitored.",
+    "Parent/child paths overlap. Allocated block sums count namespace entries, including hardlinks; symlink target metadata is not traversed. No global dedup or freeable-volume total exists.",
+    "Detailed ignoredraw inode-group view is path@SHA, not portabledeciding cleanup permission. Portable602rows/fullsymlink sharing/fullstdout sufficient for preserve-only scope.",
+    "No native/collection/gates/services/network/dependency setup/secret content reads/source/test edits or helperagents in this task. Formalclosure[] and previous evidence unchanged."
+  ]
+}

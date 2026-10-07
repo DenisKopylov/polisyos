@@ -1,0 +1,21 @@
+{
+  "name": "venv",
+  "argv": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+    "venv",
+    "--python",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/environment"
+  ],
+  "cwd": "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/source",
+  "exit_code": 0,
+  "wall_seconds": 0.05809462499746587,
+  "head_before": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "head_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "clean_after": true,
+  "stdout": {
+    "path": "/tmp/e02-B-architecture-cache-warm-record-1862c021df74/venv.txt",
+    "bytes": 318,
+    "sha256": "c3263e2c297352eae2198f03caa5b051021f0ab4375694af4d1c797611c39a0f"
+  }
+}

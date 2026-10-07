@@ -1,0 +1,58 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/initial-ancestry-audit.source.txt",
+      "bytes": 12532,
+      "sha256": "2674d708ee801e9e5b0c9f3692594aaf894e4726c6ab4f3cbf644a6f6fd67671"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/initial-ancestry-audit-stdout.txt",
+      "bytes": 388,
+      "sha256": "41760cc357f08741ede77886d9585136e2e56786a0d1bfd56f319c9230baf5b2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/ancestry-audit.source.txt",
+      "bytes": 12539,
+      "sha256": "bc6e630bc18a41a81d42330d51e062a916dd95068dcf741b886bcd9c1b1e033f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/ancestry-audit.json",
+      "bytes": 196851,
+      "sha256": "f0c1afed972bec61be5607d35a25c832efc67daba3905eb7f31d408534874b3f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/ancestry-audit-stdout.txt",
+      "bytes": 7143,
+      "sha256": "ba6d0f9e58bdaad7b979236f494fc80e26a6c56384671d5bf0151de676b44c51"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/source-refs.json",
+      "bytes": 1639,
+      "sha256": "f63482171aa84466bc3b59e80c0a3813e6cd29960ea0c3e13473d0109b8ae931"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/source-review.json",
+      "bytes": 8300,
+      "sha256": "d18d6b2cb5b69755c7d9aebab57b6332c5b2a2d18fe3ba80ae0be5cba4ed1153"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/test-source-ref.json",
+      "bytes": 744,
+      "sha256": "44dcd4aca7c7c71f6e605de2b9bcc817f8161b4c4ee759ab13e9cb3091ee2d3c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/test-source-review.json",
+      "bytes": 4085,
+      "sha256": "b02a83d1f18642b82496a83a456b2a1a3b3645a7017cec845f110b00f8fb2fdb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/input-context.json",
+      "bytes": 2551,
+      "sha256": "afa7456d4e27fa2500fd4337900297d584246ca06190cdc349b7627462316a4a"
+    }
+  ],
+  "denominator": 10,
+  "qualification": "Complete Git metadata/source review only; no reviewer native/production writes. Original large foot­print is referenced at exact Git SHA, not copied.",
+  "bytes": 246772
+}

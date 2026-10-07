@@ -1,0 +1,304 @@
+{
+  "schema": "policyos.e02.independent_selector_lineage_fix_review.v1",
+  "base_sha": "c1d031ed48134a2c084b937f0275884aeb40971c",
+  "target_sha": "ff54ac55b1f3e4a0186319e8f18aadb56856d0ad",
+  "target_tree": "a03b766a9662abee10750103477c73746fac6934",
+  "command": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/review_fix.py",
+    "--repo",
+    "/workspace/e02-B-current-coordination",
+    "--base",
+    "c1d031ed48134a2c084b937f0275884aeb40971c",
+    "--target",
+    "ff54ac55b1f3e4a0186319e8f18aadb56856d0ad"
+  ],
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_frozen.py"
+  ],
+  "source_identities": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+      "sha256": "c8eed06f75fb395c3b064d251d5d8854988eaefc9c7f71b244403f4f5f5e7a4d",
+      "bytes": 35758
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_frozen.py",
+      "sha256": "3b00f475fd49a2229b54573696a96d8e0fce3dbb4852545f4cb5ed3ead6086c6",
+      "bytes": 9337
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/pytest-cli-option-profile.json",
+      "sha256": "39ebc5b60795ac764ec36dadb0fb997dbec9f4a809526044affba7a997a2bb7d",
+      "bytes": 29521
+    }
+  ],
+  "actual_admission_ast_sha256": "4a933b214da546bd8737784fd11163e32ed7bf421501cef9715697d01cd528bf",
+  "controls": [
+    {
+      "map_subset": [],
+      "outcome": "PASS",
+      "missing": [
+        {
+          "named_selector": "tests/arbitrary/test_canonical_absent.py",
+          "bundle_ids": [
+            "EXE-01"
+          ],
+          "source_refs": [
+            {
+              "kind": "canonical_card_plan",
+              "locator": "tests/arbitrary/test_canonical_absent.py"
+            }
+          ],
+          "state": "UNRUN_named_selector_absent",
+          "equivalent_candidate_selectors": [],
+          "required_by_canonical_plan": true,
+          "has_reviewed_equivalence_map": false,
+          "admission_grade": "Absent named reference, never a collected case or satisfied criterion",
+          "equivalence_grade": "UNRUN: no reviewed equivalence; no implicit satisfaction",
+          "residuals": [
+            "Unmapped absent path reference retained with complete origins; source mentions do not establish an executable native test input."
+          ]
+        },
+        {
+          "named_selector": "tests/arbitrary/test_incidental_absent.py",
+          "bundle_ids": [],
+          "source_refs": [
+            {
+              "kind": "metadata_reference",
+              "locator": "tests/arbitrary/test_incidental_absent.py"
+            }
+          ],
+          "state": "UNRUN_named_selector_absent",
+          "equivalent_candidate_selectors": [],
+          "required_by_canonical_plan": false,
+          "has_reviewed_equivalence_map": false,
+          "admission_grade": "Absent named reference, never a collected case or satisfied criterion",
+          "equivalence_grade": "UNRUN: no reviewed equivalence; no implicit satisfaction",
+          "residuals": [
+            "Unmapped absent path reference retained with complete origins; source mentions do not establish an executable native test input."
+          ]
+        }
+      ]
+    },
+    {
+      "map_subset": [
+        "tests/arbitrary/test_canonical_absent.py"
+      ],
+      "outcome": "PASS",
+      "missing": [
+        {
+          "named_selector": "tests/arbitrary/test_canonical_absent.py",
+          "bundle_ids": [
+            "EXE-01"
+          ],
+          "source_refs": [
+            {
+              "kind": "canonical_card_plan",
+              "locator": "tests/arbitrary/test_canonical_absent.py"
+            }
+          ],
+          "state": "UNRUN_named_selector_absent",
+          "equivalent_candidate_selectors": [
+            {
+              "selector": "tests/arbitrary/test_present.py::test_real_discriminator",
+              "definition": {
+                "name": "test_real_discriminator",
+                "selector": "tests/arbitrary/test_present.py::test_real_discriminator",
+                "line": 1,
+                "end_line": 2,
+                "source_sha256": "9d2e10fc1ff3c03eb47c0b9af2227421a2451351815897853fc1f95c682b589d"
+              },
+              "module_identity": {
+                "path": "policy-engine/tests/arbitrary/test_present.py",
+                "source": "controlled immutable AST input"
+              },
+              "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+            }
+          ],
+          "required_by_canonical_plan": true,
+          "has_reviewed_equivalence_map": true,
+          "admission_grade": "Absent named reference, never a collected case or satisfied criterion",
+          "residuals": [
+            "bounded controlled metadata equivalence, no execution"
+          ],
+          "equivalence_grade": "source-reviewed bounded discriminators; absent planned name is not silently satisfied"
+        },
+        {
+          "named_selector": "tests/arbitrary/test_incidental_absent.py",
+          "bundle_ids": [],
+          "source_refs": [
+            {
+              "kind": "metadata_reference",
+              "locator": "tests/arbitrary/test_incidental_absent.py"
+            }
+          ],
+          "state": "UNRUN_named_selector_absent",
+          "equivalent_candidate_selectors": [],
+          "required_by_canonical_plan": false,
+          "has_reviewed_equivalence_map": false,
+          "admission_grade": "Absent named reference, never a collected case or satisfied criterion",
+          "equivalence_grade": "UNRUN: no reviewed equivalence; no implicit satisfaction",
+          "residuals": [
+            "Unmapped absent path reference retained with complete origins; source mentions do not establish an executable native test input."
+          ]
+        }
+      ]
+    },
+    {
+      "map_subset": [
+        "tests/arbitrary/test_incidental_absent.py"
+      ],
+      "outcome": "PASS",
+      "missing": [
+        {
+          "named_selector": "tests/arbitrary/test_canonical_absent.py",
+          "bundle_ids": [
+            "EXE-01"
+          ],
+          "source_refs": [
+            {
+              "kind": "canonical_card_plan",
+              "locator": "tests/arbitrary/test_canonical_absent.py"
+            }
+          ],
+          "state": "UNRUN_named_selector_absent",
+          "equivalent_candidate_selectors": [],
+          "required_by_canonical_plan": true,
+          "has_reviewed_equivalence_map": false,
+          "admission_grade": "Absent named reference, never a collected case or satisfied criterion",
+          "equivalence_grade": "UNRUN: no reviewed equivalence; no implicit satisfaction",
+          "residuals": [
+            "Unmapped absent path reference retained with complete origins; source mentions do not establish an executable native test input."
+          ]
+        },
+        {
+          "named_selector": "tests/arbitrary/test_incidental_absent.py",
+          "bundle_ids": [],
+          "source_refs": [
+            {
+              "kind": "metadata_reference",
+              "locator": "tests/arbitrary/test_incidental_absent.py"
+            }
+          ],
+          "state": "UNRUN_named_selector_absent",
+          "equivalent_candidate_selectors": [
+            {
+              "selector": "tests/arbitrary/test_present.py::test_real_discriminator",
+              "definition": {
+                "name": "test_real_discriminator",
+                "selector": "tests/arbitrary/test_present.py::test_real_discriminator",
+                "line": 1,
+                "end_line": 2,
+                "source_sha256": "9d2e10fc1ff3c03eb47c0b9af2227421a2451351815897853fc1f95c682b589d"
+              },
+              "module_identity": {
+                "path": "policy-engine/tests/arbitrary/test_present.py",
+                "source": "controlled immutable AST input"
+              },
+              "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+            }
+          ],
+          "required_by_canonical_plan": false,
+          "has_reviewed_equivalence_map": true,
+          "admission_grade": "Absent named reference, never a collected case or satisfied criterion",
+          "residuals": [
+            "bounded controlled metadata equivalence, no execution"
+          ],
+          "equivalence_grade": "source-reviewed bounded discriminators; absent planned name is not silently satisfied"
+        }
+      ]
+    },
+    {
+      "map_subset": [
+        "tests/arbitrary/test_canonical_absent.py",
+        "tests/arbitrary/test_incidental_absent.py"
+      ],
+      "outcome": "PASS",
+      "missing": [
+        {
+          "named_selector": "tests/arbitrary/test_canonical_absent.py",
+          "bundle_ids": [
+            "EXE-01"
+          ],
+          "source_refs": [
+            {
+              "kind": "canonical_card_plan",
+              "locator": "tests/arbitrary/test_canonical_absent.py"
+            }
+          ],
+          "state": "UNRUN_named_selector_absent",
+          "equivalent_candidate_selectors": [
+            {
+              "selector": "tests/arbitrary/test_present.py::test_real_discriminator",
+              "definition": {
+                "name": "test_real_discriminator",
+                "selector": "tests/arbitrary/test_present.py::test_real_discriminator",
+                "line": 1,
+                "end_line": 2,
+                "source_sha256": "9d2e10fc1ff3c03eb47c0b9af2227421a2451351815897853fc1f95c682b589d"
+              },
+              "module_identity": {
+                "path": "policy-engine/tests/arbitrary/test_present.py",
+                "source": "controlled immutable AST input"
+              },
+              "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+            }
+          ],
+          "required_by_canonical_plan": true,
+          "has_reviewed_equivalence_map": true,
+          "admission_grade": "Absent named reference, never a collected case or satisfied criterion",
+          "residuals": [
+            "bounded controlled metadata equivalence, no execution"
+          ],
+          "equivalence_grade": "source-reviewed bounded discriminators; absent planned name is not silently satisfied"
+        },
+        {
+          "named_selector": "tests/arbitrary/test_incidental_absent.py",
+          "bundle_ids": [],
+          "source_refs": [
+            {
+              "kind": "metadata_reference",
+              "locator": "tests/arbitrary/test_incidental_absent.py"
+            }
+          ],
+          "state": "UNRUN_named_selector_absent",
+          "equivalent_candidate_selectors": [
+            {
+              "selector": "tests/arbitrary/test_present.py::test_real_discriminator",
+              "definition": {
+                "name": "test_real_discriminator",
+                "selector": "tests/arbitrary/test_present.py::test_real_discriminator",
+                "line": 1,
+                "end_line": 2,
+                "source_sha256": "9d2e10fc1ff3c03eb47c0b9af2227421a2451351815897853fc1f95c682b589d"
+              },
+              "module_identity": {
+                "path": "policy-engine/tests/arbitrary/test_present.py",
+                "source": "controlled immutable AST input"
+              },
+              "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+            }
+          ],
+          "required_by_canonical_plan": false,
+          "has_reviewed_equivalence_map": true,
+          "admission_grade": "Absent named reference, never a collected case or satisfied criterion",
+          "residuals": [
+            "bounded controlled metadata equivalence, no execution"
+          ],
+          "equivalence_grade": "source-reviewed bounded discriminators; absent planned name is not silently satisfied"
+        }
+      ]
+    }
+  ],
+  "invalid_exact_body_control": {
+    "outcome": "PASS",
+    "typed_refusal": "Selected exact test body not found once: tests/arbitrary/test_present.py::test_absent_body"
+  },
+  "option_helper_ast_unchanged": true,
+  "pinned_option_profile_unchanged": true,
+  "namespace_only_launcher_bytes": true,
+  "namespace_normalized_launcher_ast_unchanged": true,
+  "outcome": "PASS",
+  "qualification": "Four mapping-subset controls execute the actual root classification/resolution AST; one invalid body retains exact-source refusal. Namespace normalization matches both complete launcher bytes and AST. No pytest, collection, live registry, gate, product code, or root edit. Historical 19 grammar controls remain bound to d3; unchanged helper/profile is a delta comparison, not a new 19-case runtime claim."
+}

@@ -1,0 +1,141 @@
+{
+  "schema": "policyos.e02.b66-unknown-cost-native.v1",
+  "harness_state": "EXECUTED",
+  "target_source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "test_sha": "882b543ed7e9127abd777753811ff7a3a9c0857c",
+  "test_path": "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+  "test_sha256": "8f4c01c0ad0e21dc93aee2ba88472a80e0d50486ae07ff1adb28286b6cb740e2",
+  "argv": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "pytest",
+    "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+    "--noconftest",
+    "-c",
+    "/dev/null",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "--tb=short",
+    "--basetemp",
+    "/tmp/e02-b66-unknown-dd-7jdlujt1/fixtures",
+    "--junitxml",
+    "/tmp/e02-b66-unknown-dd-7jdlujt1/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "explicit_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "E02_B66_TARGET_ROOT": "/workspace/e02-B-current-coordination",
+    "E02_B66_TARGET_SHA": "dd9584728bd96f204983615216efdbc58117e713",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+  },
+  "fixture_profile": "Unique actual /tmp filesystem/provider/ledger; no live TCP/API/external financial authority. No numerical/process/thread/CPU quota added.",
+  "actual_exit": 1,
+  "wall_seconds": 1.0995693879958708,
+  "max_rss_kib": 64216,
+  "source_head_before_after": "dd9584728bd96f204983615216efdbc58117e713",
+  "test_head_before_after": "882b543ed7e9127abd777753811ff7a3a9c0857c",
+  "actual_cases": [
+    {
+      "classname": "",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-sdk-missing-usage]",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-sdk-invalid-usage]",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-raw-none-default-usage]",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-none-response]",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-sdk-missing-usage]",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-sdk-invalid-usage]",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-raw-none-default-usage]",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-none-response]",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "",
+      "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[False-reported-positive]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[False-reported-zero]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[False-priced-known-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[False-priced-free-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[True-reported-positive]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[True-reported-zero]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[True-priced-known-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[True-priced-free-usage]",
+      "outcome": "PASS"
+    }
+  ],
+  "outcomes": {
+    "PASS": 8,
+    "FAIL": 8,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "outputs": [
+    {
+      "path": "/tmp/e02-b66-unknown-dd-7jdlujt1/native.txt",
+      "bytes": 99500,
+      "sha256": "21fad5970ce6ec686940cd991b3af355ac3dba93464d33ee83cd759af2fe06cf"
+    },
+    {
+      "path": "/tmp/e02-b66-unknown-dd-7jdlujt1/native.xml",
+      "bytes": 12769,
+      "sha256": "efc7904e572dde884ecee7d6c3b49711d9c1efaa8a936710127e79fc24a41ae6"
+    }
+  ],
+  "closure_ids": []
+}

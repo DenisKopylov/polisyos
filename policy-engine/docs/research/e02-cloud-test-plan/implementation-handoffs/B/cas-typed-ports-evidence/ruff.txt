@@ -1,0 +1,12 @@
+E501 Line too long (103 > 100)
+    --> src/polisyos/core/artifacts/store.py:3534:101
+     |
+3532 |                 }
+3533 |                 prior = self._ownership_index._read_transaction_intent(artifact_id)
+3534 |                 if prior is not None and self._ownership_index._committed_intent_matches_current_state(
+     |                                                                                                     ^^^
+3535 |                     prior
+3536 |                 ):
+     |
+
+Found 1 error.

@@ -1,0 +1,2 @@
+{"key": "owned", "action": "trip", "pending": 1}
+{"key": "owned", "action": "probe", "pending": 1}

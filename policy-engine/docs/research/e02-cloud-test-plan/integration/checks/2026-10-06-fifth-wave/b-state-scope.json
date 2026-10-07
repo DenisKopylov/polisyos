@@ -1,0 +1,106 @@
+{
+  "schema": "policyos.e02.g_verification_receipt.v1",
+  "unit": "G",
+  "subject_owner": "B",
+  "candidate_commit": "3eb2e887e07452a316aab95b7dbe3b4f2874951d",
+  "candidate_tree": "1fa3889f9fa5d216ab54357de6a680d03c4621d4",
+  "selected_source_tree": "a8c166732fa49c4070096ced374ce2cf805a5ce7",
+  "source_scope": "All policy-engine/src tracked blobs only; isolated selected-source closure, not a full checkout, executor/CAS replay or all15 cohort. Existing G interpreter; all loaded Polisyos source came from candidate closure.",
+  "closure_before_after": {
+    "after": {
+      "all_blob_hashes_and_modes_match": "yes",
+      "content_bytes": 54803779,
+      "content_mib": 52.265,
+      "materialized_file_count": 2910,
+      "tracked_blob_count": 2910
+    },
+    "before": {
+      "all_blob_hashes_and_modes_match": "yes",
+      "content_bytes": 54803779,
+      "content_mib": 52.265,
+      "materialized_file_count": 2910,
+      "tracked_blob_count": 2910
+    }
+  },
+  "integration_head_at_measurement": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+  "source_and_branch_unchanged": true,
+  "parent_authored_draft_docs_unchanged": true,
+  "source_input_blobs": {
+    "policy-engine/src/polisyos/core/artifacts/manifest.py": "3c76237c88f4a667ab71e9e70037eb91a1d83f10",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/state.py": "3724db92babaa2e2da1d1e35f8467159d3afe980",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py": "6f5bd398af2b70cae72754a782e224b990638541"
+  },
+  "supporting_test_input_blob": "0d90d0c94ec7ccc58e1e9f916df8f4c2beb7ce0f",
+  "environment": {
+    "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+    "executable": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "pydantic_version": "2.12.5",
+    "max_rss_platform_units": 74940416
+  },
+  "wall_seconds": 0.634648,
+  "timeout_seconds": 60,
+  "timed_out": false,
+  "imported_module_entries": 86,
+  "imported_distinct_file_paths": 86,
+  "all_loaded_module_origins_and_blobs_independently_reconciled": true,
+  "property": "An enforced params.owned-only branch cannot change undeclared nested ArtifactRef fields or base state outside its journal.",
+  "property_outcome": "FAIL",
+  "controls": {
+    "declared_dict_write": "PASS: base stays 1, branch becomes 2, journal records params.owned.value set",
+    "undeclared_dict_write": "PASS: ValueError before base/branch effects; empty journal",
+    "typed_reference_write": "FAIL: normal mutable ArtifactRef is shared; kind assignment is accepted, changes base and branch, empty journal"
+  },
+  "harness": {
+    "first_admission_attempt": "Rejected parent-authored draft docs before extraction/property execution; no product finding. Full stderr retained.",
+    "raw_child_returncode": 2,
+    "qualification": "PROBE_COMPLETE_WITH_WRAPPER_EXIT_ANOMALY",
+    "explanation": "First child stdout JSON is the complete source-verified measurement. Child then catches its own normal SystemExit(0) under BaseException, emits a second HARNESS_FAIL record and exits 2. Last-record parsing is not a product verdict. No property rerun; both records and exact executed scripts retained.",
+    "outcome": "ERROR in wrapper status handling, separately from observed property FAIL"
+  },
+  "complete_outputs_and_scripts": {
+    "b-state-scope-child.stdout": {
+      "path": "b-state-scope-child.stdout",
+      "bytes": 41033,
+      "sha256": "1a1b5a5a2adeb1650ae0ff363ca72415c23e2ecbb12f9cdda05807c7202740bb"
+    },
+    "b-state-scope-child.stderr": {
+      "path": "b-state-scope-child.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "b-state-scope-main.stdout": {
+      "path": "b-state-scope-main.stdout",
+      "bytes": 4004,
+      "sha256": "67bb8a736a0c5f2fc7e8a58204f312b108a14d13fe37bd2ee414789f4af054d4"
+    },
+    "b-state-scope-main.stderr": {
+      "path": "b-state-scope-main.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "b-state-scope-admission-attempt1.stderr": {
+      "path": "b-state-scope-admission-attempt1.stderr",
+      "bytes": 997,
+      "sha256": "69877de26f1d0e7926060e731ddf88c7b733d71bac8537a0321a0c6d16e37c02"
+    },
+    "b-state-scope-probe.py.txt": {
+      "path": "b-state-scope-probe.py.txt",
+      "bytes": 12937,
+      "sha256": "506bb00d42ff5fe39f272a14a0495517930771a5ea80f08abe809e397f7b8e8d"
+    },
+    "b-state-scope-child.py.txt": {
+      "path": "b-state-scope-child.py.txt",
+      "bytes": 10269,
+      "sha256": "4b83a874642adb7d240d5433a694fa51704c438d5643b41586011a5b4c7f9643"
+    }
+  },
+  "code_acceptance": "HOLD general write-scope claim; canonical B structural fix required",
+  "finding_closures_applied": [],
+  "predicate_basis": "independently_reconciled",
+  "limitations": [
+    "Native Python/Pydantic state-branch primitive only; actual executor, merge/remote worker and CAS consumer must be checked on the repaired owner slice.",
+    "No production inputs or full all15/global wave.",
+    "Source extraction is reproducible; full deciding stdout/scripts are preserved."
+  ]
+}

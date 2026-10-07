@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="19.380" timestamp="2026-10-07T07:42:24.132066+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[tiny-positive]" time="9.579"><failure message="AssertionError: {'child_command': ['/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python', '/workspace...origin_available': False, 'receipt_revision_available': False, 'source': 'caller_state'}, 'cost': 0.0, ...}, ...}, ...}&#10;assert None == 'LLMAccountingError'">tmp_path = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/removal-595/test_http_money_does_not_becom0')
+lexeme = '1e-1000', expected = None
+
+    @pytest.mark.parametrize(("profile", "lexeme", "expected"), _CASES, ids=[row[0] for row in _CASES])
+    def test_http_money_does_not_become_zero_in_durable_reader(
+        tmp_path: Path, profile: str, lexeme: str | None, expected: Decimal | None
+    ) -&gt; None:
+        del profile
+        observed = asyncio.run(_exercise(tmp_path, lexeme))
+        state = observed["snapshot"]["state"]
+        receipts = observed["snapshot"]["spend_receipts"]
+        fresh = observed["fresh"]
+        if expected is None:
+&gt;           assert observed["result_error"] == "LLMAccountingError", observed
+E           AssertionError: {'child_command': ['/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python', '/workspace...origin_available': False, 'receipt_revision_available': False, 'source': 'caller_state'}, 'cost': 0.0, ...}, ...}, ...}
+E           assert None == 'LLMAccountingError'
+
+../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py:290: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[tiny-negative]" time="9.674"><failure message="AssertionError: {'child_command': ['/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python', '/workspace...origin_available': False, 'receipt_revision_available': False, 'source': 'caller_state'}, 'cost': 0.0, ...}, ...}, ...}&#10;assert None == 'LLMAccountingError'">tmp_path = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/removal-595/test_http_money_does_not_becom1')
+lexeme = '-1e-1000', expected = None
+
+    @pytest.mark.parametrize(("profile", "lexeme", "expected"), _CASES, ids=[row[0] for row in _CASES])
+    def test_http_money_does_not_become_zero_in_durable_reader(
+        tmp_path: Path, profile: str, lexeme: str | None, expected: Decimal | None
+    ) -&gt; None:
+        del profile
+        observed = asyncio.run(_exercise(tmp_path, lexeme))
+        state = observed["snapshot"]["state"]
+        receipts = observed["snapshot"]["spend_receipts"]
+        fresh = observed["fresh"]
+        if expected is None:
+&gt;           assert observed["result_error"] == "LLMAccountingError", observed
+E           AssertionError: {'child_command': ['/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python', '/workspace...origin_available': False, 'receipt_revision_available': False, 'source': 'caller_state'}, 'cost': 0.0, ...}, ...}, ...}
+E           assert None == 'LLMAccountingError'
+
+../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py:290: AssertionError</failure></testcase></testsuite></testsuites>

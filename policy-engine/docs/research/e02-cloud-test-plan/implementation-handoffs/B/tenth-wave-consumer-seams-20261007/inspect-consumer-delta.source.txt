@@ -1,0 +1,235 @@
+"""Read committed consumer inputs only; execute no product/test code."""
+
+import argparse
+import ast
+import collections
+import hashlib
+import json
+import pathlib
+import subprocess
+import sys
+
+PREFIX = "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/"
+OLD = "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1"
+A_EVIDENCE = "00e12b9a20c6c74dda9051bd016b501e4e7a8de8"
+C_EVIDENCE = "85f0f0afd7abd62114074311ec90e7387ac27a38"
+CONTRACTS = "7275dc9d0e8a2d1c36513925331fe3c2076156d8"
+DECISIONS = "d030d82baed3b1c9d83c63a0ea26011a8247f47e"
+G = "855cb26a7a2c9fea60356663cf81e7d01e20c738"
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--repo", type=pathlib.Path, required=True)
+    parser.add_argument("--candidate", required=True)
+    parser.add_argument("--output", type=pathlib.Path, required=True)
+    args = parser.parse_args()
+
+    def git(*argv):
+        return subprocess.check_output(["git", *argv], cwd=args.repo)
+
+    def data(sha, path):
+        return git("show", f"{sha}:{path}")
+
+    def ref(sha, path):
+        raw = data(sha, path)
+        return {
+            "git_sha": sha,
+            "path": path,
+            "git_blob": git("rev-parse", f"{sha}:{path}").decode().strip(),
+            "bytes": len(raw),
+            "sha256": hashlib.sha256(raw).hexdigest(),
+        }
+
+    def obj(sha, path):
+        return json.loads(data(sha, path))
+
+    target = git("rev-parse", f"{args.candidate}^{{commit}}").decode().strip()
+    tree = git("rev-parse", f"{target}^{{tree}}").decode().strip()
+    source_changes = (
+        git(
+            "diff",
+            "--name-only",
+            DECISIONS,
+            target,
+            "--",
+            "policy-engine/src",
+            "policy-engine/tests",
+            "policy-engine/pyproject.toml",
+            "policy-engine/uv.lock",
+            "policy-engine/pytest.ini",
+            "policy-engine/conftest.py",
+        )
+        .decode()
+        .splitlines()
+    )
+    assert not source_changes, source_changes
+    a_path = PREFIX + "continuation-b-a-cost-consumer-20261007/source-context.json"
+    c_path = (
+        PREFIX + "continuation-consumer-owner-contracts-20261007/c-input-equality.json"
+    )
+    contracts_path = (
+        PREFIX + "continuation-consumer-owner-contracts-20261007/owner-packets.json"
+    )
+    a = obj(A_EVIDENCE, a_path)
+    c = obj(CONTRACTS, c_path)
+    contracts = obj(CONTRACTS, contracts_path)
+
+    def compare_rows(rows, path_key, source_sha, expected_key):
+        changed = []
+        paths = set()
+        for row in rows:
+            path = row[path_key]
+            original = data(source_sha, path)
+            assert hashlib.sha256(original).hexdigest() == row[expected_key], path
+            if "bytes" in row:
+                assert len(original) == row["bytes"], path
+            candidate = data(target, path)
+            if candidate != original:
+                changed.append(
+                    {"original": ref(source_sha, path), "candidate": ref(target, path)}
+                )
+            paths.add(path)
+        return {
+            "record_count": len(rows),
+            "distinct_paths": len(paths),
+            "changed": changed,
+            "full_original_bytes_verified": True,
+            "full_candidate_bytes_compared": True,
+        }
+
+    a_result = compare_rows(
+        a["after"]["actual_loaded_origins"], "relative_path", OLD, "sha256"
+    )
+    a_input = "policy-engine/tests/unit/runtime/http/services/test_b_llm_cost_projection_consumer_e02.py"
+    a_test = data("2c7a6398efc773a18bf04abd7d119b6462a8809b", a_input)
+    assert a_test == data(target, a_input)
+    assert hashlib.sha256(a_test).hexdigest() == a["input"]["sha256"]
+    c_result = compare_rows(c["tracked_input_equalities"], "path", OLD, "sha256")
+    inventory_ref = c["fixture_retention"]["source_ref"]
+    inventory = obj(inventory_ref["git_sha"], inventory_ref["path"])
+    fixtures = compare_rows(
+        inventory["regular_files"], "committed_path", C_EVIDENCE, "sha256"
+    )
+    contract_result = {}
+    for item in contracts["contracts"]:
+        contract_result[item["id"]] = compare_rows(
+            item["source_refs"], "path", OLD, "sha256"
+        )
+
+    gateway = "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py"
+    projection = (
+        "policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py"
+    )
+
+    def function_ast(sha, path, name):
+        matches = [
+            node
+            for node in ast.walk(ast.parse(data(sha, path)))
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and node.name == name
+        ]
+        assert len(matches) == 1, (path, name, len(matches))
+        return ast.dump(matches[0], include_attributes=False)
+
+    assert function_ast(OLD, gateway, "_parse_completion_payload") == function_ast(
+        target, gateway, "_parse_completion_payload"
+    )
+    assert data(OLD, projection) == data(target, projection)
+    audit_asts = {
+        "GatewayLLMClient._parse_completion_payload": "exact AST equal old and candidate; this is the actual old four-case provider boundary",
+        "response_shapes._sum_call_events": "full module bytes equal old and candidate; unknown remains converted by `or 0.0`",
+        "unexercised_gateway_delta": "Only _post_json raw HTTP number parse changes to parse_float=Decimal; old provider directly invokes _parse_completion_payload, no HTTP request",
+    }
+    decision_path = PREFIX + "continuation-all60-decisions-20261007.json"
+    decisions = obj(DECISIONS, decision_path)
+    rows = decisions["decisions_by_id"]
+    own_path = "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv"
+    ownership = data(target, own_path).decode().splitlines()
+    own_ids = {
+        line.split("\t")[0] for line in ownership[1:] if line.split("\t")[1] == "B"
+    }
+    assert set(rows) == own_ids and len(rows) == 60
+    assert not decisions["formal_closure"] and decisions["closure_ids"] == []
+    assert all(row["formal_closure"] is False for row in rows.values())
+    counts = dict(
+        collections.Counter(row["technical_decision"] for row in rows.values())
+    )
+    assert counts == {"closed": 48, "limited": 7, "held": 4, "open": 1}, counts
+
+    checks = {
+        "candidate_is_exact_d030_production_test_config": not source_changes,
+        "A_old_four_case_input_equal": True,
+        "A_full_loaded_source_equality": not a_result["changed"],
+        "A_actual_exercised_parse_and_projection_equal": True,
+        "C_complete_243_tracked_inputs_equal": not c_result["changed"],
+        "C_retained_249_fixtures_equal": not fixtures["changed"],
+        "all_owner_packet_declared_inputs_equal": all(
+            not value["changed"] for value in contract_result.values()
+        ),
+        "all60_unchanged_technical_proposal_formal_false": True,
+    }
+    result = {
+        "schema": "policyos.e02.tenth_wave_consumer_input_reconciliation.v1",
+        "candidate": {"git_sha": target, "tree": tree},
+        "G_review_checkpoint": {
+            "git_sha": G,
+            "tree": git("rev-parse", f"{G}^{{tree}}").decode().strip(),
+        },
+        "old_execution_source": {
+            "git_sha": OLD,
+            "tree": git("rev-parse", f"{OLD}^{{tree}}").decode().strip(),
+        },
+        "closure_ids": [],
+        "formal_closure": False,
+        "new_runtime": "UNRUN_BY_THIS_REVIEWER",
+        "checks": checks,
+        "A_full_loaded_input_audit": {
+            "source": ref(A_EVIDENCE, a_path),
+            **a_result,
+            "native_input": ref(target, a_input),
+            "actual_exercised_boundary": audit_asts,
+        },
+        "C_full_input_audit": {"source": ref(CONTRACTS, c_path), **c_result},
+        "C_full_fixture_audit": {"source": inventory_ref, **fixtures},
+        "owner_packet_full_declared_input_audit": {
+            "source": ref(CONTRACTS, contracts_path),
+            "contracts": contract_result,
+        },
+        "all60": {
+            "source": ref(DECISIONS, decision_path),
+            "count": len(rows),
+            "bundles": len({row["bundle_id"] for row in rows.values()}),
+            "technical_counts": counts,
+            "role": "preserved B technical recommendations; no source/code acceptance or formal closure",
+        },
+        "result_grade": "bounded source/input custody reconciliation; original native observations retain original execution SHA",
+        "limitations": [
+            "A full imported source table has changed modules; do not claim complete execution-environment equivalence.",
+            "No current served A admission, C production repair, external permission law or D controller bridge was executed.",
+            "A body-boundary AST equality is a source transfer discriminator, not new candidate native PASS.",
+            "Any later changed producer/test/config requires a new delta review; 590 target is not a promised future freeze.",
+        ],
+        "interpreter": {"executable": sys.executable, "version": sys.version},
+    }
+    with args.output.open("x", encoding="utf-8") as stream:
+        json.dump(result, stream, indent=2, ensure_ascii=False)
+        stream.write("\n")
+    print(
+        json.dumps(
+            {
+                "candidate": result["candidate"],
+                "checks": checks,
+                "A_changed_paths": [
+                    r["candidate"]["path"] for r in a_result["changed"]
+                ],
+                "technical_counts": counts,
+                "new_runtime": result["new_runtime"],
+            },
+            indent=2,
+        )
+    )
+
+
+if __name__ == "__main__":
+    main()

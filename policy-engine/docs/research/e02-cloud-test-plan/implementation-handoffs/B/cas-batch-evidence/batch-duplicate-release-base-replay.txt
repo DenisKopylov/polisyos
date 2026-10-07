@@ -1,0 +1,66 @@
+FFFFFF                                                                   [100%]
+=================================== FAILURES ===================================
+_____ test_duplicate_intake_obeys_each_supplied_item_budget[cancel-verify] _____
+tests/unit/core/artifacts/test_batch_completion_admission.py:353: in test_duplicate_intake_obeys_each_supplied_item_budget
+    assert report.state == "aborted" and report.abort_reason == expected_reason
+E   AssertionError: assert ('complete' == 'aborted'
+E     
+E     - aborted
+E     + complete)
+______ test_duplicate_intake_obeys_each_supplied_item_budget[cancel-sign] ______
+tests/unit/core/artifacts/test_batch_completion_admission.py:353: in test_duplicate_intake_obeys_each_supplied_item_budget
+    assert report.state == "aborted" and report.abort_reason == expected_reason
+E   AssertionError: assert ('complete' == 'aborted'
+E     
+E     - aborted
+E     + complete)
+____ test_duplicate_intake_obeys_each_supplied_item_budget[deadline-verify] ____
+tests/unit/core/artifacts/test_batch_completion_admission.py:353: in test_duplicate_intake_obeys_each_supplied_item_budget
+    assert report.state == "aborted" and report.abort_reason == expected_reason
+E   AssertionError: assert ('complete' == 'aborted'
+E     
+E     - aborted
+E     + complete)
+_____ test_duplicate_intake_obeys_each_supplied_item_budget[deadline-sign] _____
+tests/unit/core/artifacts/test_batch_completion_admission.py:353: in test_duplicate_intake_obeys_each_supplied_item_budget
+    assert report.state == "aborted" and report.abort_reason == expected_reason
+E   AssertionError: assert ('complete' == 'aborted'
+E     
+E     - aborted
+E     + complete)
+________ test_infinite_duplicate_intake_returns_from_real_child[verify] ________
+tests/unit/core/artifacts/test_batch_completion_admission.py:361: in test_infinite_duplicate_intake_returns_from_real_child
+    child = subprocess.run(
+/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/subprocess.py:556: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/subprocess.py:1220: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/subprocess.py:2153: in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/subprocess.py:1267: in _check_timeout
+    raise TimeoutExpired(
+E   subprocess.TimeoutExpired: Command '['/workspace/polisyos/policy-engine/.venv/bin/python', '/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/batch-duplicate-release-base-input/policy-engine/tests/unit/core/artifacts/batch_duplicate_worker.py', '/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/batch-duplicate-release-base-replay-tmp/test_infinite_duplicate_intake0/child-cas', 'verify']' timed out after 3 seconds
+_________ test_infinite_duplicate_intake_returns_from_real_child[sign] _________
+tests/unit/core/artifacts/test_batch_completion_admission.py:361: in test_infinite_duplicate_intake_returns_from_real_child
+    child = subprocess.run(
+/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/subprocess.py:556: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/subprocess.py:1220: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/subprocess.py:2153: in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/subprocess.py:1267: in _check_timeout
+    raise TimeoutExpired(
+E   subprocess.TimeoutExpired: Command '['/workspace/polisyos/policy-engine/.venv/bin/python', '/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/batch-duplicate-release-base-input/policy-engine/tests/unit/core/artifacts/batch_duplicate_worker.py', '/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/batch-duplicate-release-base-replay-tmp/test_infinite_duplicate_intake1/child-cas', 'sign']' timed out after 3 seconds
+=========================== short test summary info ============================
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_duplicate_intake_obeys_each_supplied_item_budget[cancel-verify]
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_duplicate_intake_obeys_each_supplied_item_budget[cancel-sign]
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_duplicate_intake_obeys_each_supplied_item_budget[deadline-verify]
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_duplicate_intake_obeys_each_supplied_item_budget[deadline-sign]
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_infinite_duplicate_intake_returns_from_real_child[verify]
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_infinite_duplicate_intake_returns_from_real_child[sign]
+6 failed, 14 deselected in 7.94s

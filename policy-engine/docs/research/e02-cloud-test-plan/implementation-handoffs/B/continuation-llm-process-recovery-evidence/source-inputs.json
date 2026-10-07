@@ -1,0 +1,72 @@
+{
+  "target_sha": "f4e8422232ce3b61ef28c5c1928a65df5038a3fe",
+  "target_tree": "d2eef1f673e9a1422999f5dc64a9dd4a89d54704",
+  "seven_child_guarded_production_inputs": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "bytes": 59381,
+      "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe",
+      "equal_1862_f4e_disk": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "bytes": 10751,
+      "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8",
+      "equal_1862_f4e_disk": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "bytes": 58032,
+      "sha256": "66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a",
+      "equal_1862_f4e_disk": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "bytes": 27826,
+      "sha256": "df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c",
+      "equal_1862_f4e_disk": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+      "bytes": 21507,
+      "sha256": "6d680b37b3107322ec79e56d6e7959b6605c5af22be641d6305f65bc495f78a7",
+      "equal_1862_f4e_disk": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+      "bytes": 37572,
+      "sha256": "f982028c7533dacac0df93475177bd840857768744ebf0bfd8c2181af912b81a",
+      "equal_1862_f4e_disk": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "bytes": 43152,
+      "sha256": "e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5",
+      "equal_1862_f4e_disk": true
+    }
+  ],
+  "test_input": {
+    "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_llm_process_recovery.py",
+    "bytes": 13157,
+    "sha256": "cfd4fcc24702ab87c8411f91dd83c5a5d520f279888559024b5325af67d912b7"
+  },
+  "historical_lower_input_reconciliation": {
+    "output_commit": "19d5feae86d6121c953082f00919d52766c3c24b",
+    "wrapper_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/native/wrapper.json",
+    "declared_source_and_test_inputs": 9,
+    "all_declared_inputs_match": true,
+    "paths": [
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py"
+    ],
+    "qualification": "Historical172 native retains original9f target/environment/fixture. Nine explicitly recorded source/test inputs match; not a proof of upper consumer or all transitive imports."
+  },
+  "source_scope": "Only seven child-guarded production files are declared byte-identical to1862. Entire checkout does not claim1862 identity. Audit/budget imports remain Git-bound by f4e source cut, not independently instrumented seven-module guard."
+}

@@ -1,0 +1,1825 @@
+{
+  "schema": "policyos.e02.frozen_observation_packet.v1",
+  "unit": "B",
+  "source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+  "source_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+  "formal_closure": false,
+  "closure_ids": [],
+  "native": {
+    "outcome": "FAIL",
+    "collected": 3986,
+    "PASS": 1326,
+    "FAIL": 10,
+    "ERROR": 2650,
+    "SKIP": 0,
+    "XFAIL": 0,
+    "deselected": 0,
+    "runtime_phase_reports": 9308,
+    "JUnit_cases": 3986,
+    "terminal": "session_finished",
+    "exit": 1,
+    "literal_failures": {
+      "JIT_01": 9,
+      "RES03_served_catalog": 1
+    },
+    "literal_setup_error": "numbered_tmpdir_refusal",
+    "ERROR_cause_limit": "No direct errno28 in every diagnostic. Workspace available=0 separately observed; no per-case direct ENOSPC causality claim.",
+    "unentered_test_bodies": 2650
+  },
+  "wheel": {
+    "outcome": "PASS",
+    "outer_case_PASS": 1,
+    "separate_installed_child_PASS": 8,
+    "all_nine_stage_exits": 0,
+    "backend": "fresh real build/install; no old wheel reused"
+  },
+  "checks": [
+    {
+      "name": "admitted-native",
+      "outcome": "FAIL",
+      "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "target_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "-p",
+        "current_cohort_inventory",
+        "@/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/whole-files.args",
+        "--continue-on-collection-errors",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/cache",
+        "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/native.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/tmp/e02-B38-pg-profile:/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/tools",
+        "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/tmp/e02-B-opa-latest-preparation-1db95544/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/inventory.json"
+      },
+      "exit": 1,
+      "wall_s": 270.92755358299473,
+      "child_maxrss_kib": 1056260,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/admitted-native/stdout.lossless.json",
+        "bytes": 4615744,
+        "sha256": "eedfbe5d7a0aa2f6d9e02488e8515797cfb62c2496a23104e2e189e492815634",
+        "native_bytes": {
+          "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-admitted-native.txt",
+          "bytes": 4551084,
+          "sha256": "ffe9b73469ce61c647b3ce5a0992e4dfa6038eeb3efd2e2906b5545586106231"
+        }
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/admitted-native/wrapper.json",
+        "bytes": 3186,
+        "sha256": "1b79fb2293003aa418f66959656d6e4caf0c6ed86b25577ac70b2487b5c47a69",
+        "native_bytes": {
+          "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-admitted-native.json",
+          "bytes": 3186,
+          "sha256": "1b79fb2293003aa418f66959656d6e4caf0c6ed86b25577ac70b2487b5c47a69"
+        }
+      },
+      "P41_inherited": "not_established",
+      "signal_sender_and_cause": "not_applicable"
+    },
+    {
+      "name": "wheel",
+      "outcome": "PASS",
+      "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "target_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+        "--source-root",
+        "/workspace/e02-B-current-coordination/policy-engine",
+        "--source-sha",
+        "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+        "--test-path",
+        "/workspace/e02-B-current-coordination/policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+        "--test-sha256",
+        "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702",
+        "--consumer-sha256",
+        "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+        "--task-root",
+        "/tmp/e02-B-continuation-wheel-6fa9b7142ba5",
+        "--python",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "--uv",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "environment": {
+        "PYTHONPATH": null,
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": null,
+        "TIKTOKEN_CACHE_DIR": null,
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": null,
+        "UV_NO_SYNC": null,
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "exit": 0,
+      "wall_s": 10.798878486006288,
+      "child_maxrss_kib": 50032,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/stdout.lossless.json",
+        "bytes": 13383,
+        "sha256": "11edf08ed74ec1a21809dc3e5484c4a07a76296509fdb17c839e724d553ac51d",
+        "native_bytes": {
+          "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-wheel.txt",
+          "bytes": 12120,
+          "sha256": "308ad1ec828eab96cad894d8b9e3c450fc3b4caed9de19ab1d0dce919e02e604"
+        }
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/wrapper.json",
+        "bytes": 2633,
+        "sha256": "3610fc4721aa65bce95a04a8df6792d90242dc1577a90509d1b6fe40f9742c72",
+        "native_bytes": {
+          "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-wheel.json",
+          "bytes": 2633,
+          "sha256": "3610fc4721aa65bce95a04a8df6792d90242dc1577a90509d1b6fe40f9742c72"
+        }
+      },
+      "P41_inherited": "not_established",
+      "signal_sender_and_cause": "not_applicable"
+    },
+    {
+      "name": "ruff",
+      "outcome": "FAIL",
+      "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "target_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "docs/research/e02-cloud-test-plan/closure-decisions/validate_coverage.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch_delta.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch_delta_first.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch_release.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/replay_base.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer-evidence/run_check.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-profile-seam-evidence/probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/replay_base.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-frozen-wave.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-journal-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cache-type-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/derive-cohort-selector-audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/environment-capture.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/late-flight-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/property-removal-final.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/rate-finite-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/run-affected.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/run-final-llm-126.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/unbound-owner-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-evidence/adjudicate.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-evidence/audit_evidence.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-evidence/denominator.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-batch-consumer-evidence/cas_duplicate_inventory_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/baseline_navigation.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/derive_input_closure.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/read_b73_current.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/run_check.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/run_native.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/run_native_original.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-fixture-independent-review/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/census.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal_driver.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-partition-independent-review/source-regex-discriminator.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition_environment.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/ruff_delta.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/run_checks.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/run_command.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/test_jit_late_arrival_oracle.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity_environment.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/run_checks.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/run_command.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/source_replacement_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit_environment.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/read_only_jit_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/run_checks.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/run_command.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/local_res03_replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/res03_artifact_custody.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/inspect-retained.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/census.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/draft-import-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/import_worker.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/initial-import-worker.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/initial-test-acceptance.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver_bruteforce.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver_consumer.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/successor_test_acceptance.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/test_acceptance.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/dur02_property_removal.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/probe_bound_upsert.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/run_frozen.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/store_mutation_census.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/artifact-readback.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/candidate-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/controls.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/negative-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gate-execution-independent-audit/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/capture.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-receiver-consumer-evidence/retain_llm_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/replay-previous-production.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/run_native.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/read_b73_e56.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/run_native.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/probe-extended.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/probe-settled.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe_fbc.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe_unrun.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/independent-setup-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-setup-checks/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/context-consumer.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/spend-replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/typevar-census.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/journal-candidate.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/journal-negative.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/legacy-ownership.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/presence-resume-candidate.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/presence-resume-original.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/additive-current-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-invalid-proof.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-owner-attenuation-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-owner-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-owned-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-resume-owned-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/audit-portable.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-fixture-independent-review/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure_legacy.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_complete.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_final.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_check.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_native.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_native_legacy.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-gate-audit-preparation/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/observe_pytest_options.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_cohort.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_frozen.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/normalize_origins.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/review_fix.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/trace.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/environment.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/ruff_selector_audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/snapshot.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py",
+        "docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-first-wave/b37-oracle.py",
+        "src/polisyos/common/async_tools.py",
+        "src/polisyos/core/artifacts/__init__.py",
+        "src/polisyos/core/artifacts/_integrity_ops.py",
+        "src/polisyos/core/artifacts/_signature_ops.py",
+        "src/polisyos/core/artifacts/_transfer_ops.py",
+        "src/polisyos/core/artifacts/async_store.py",
+        "src/polisyos/core/artifacts/backends/caching_store.py",
+        "src/polisyos/core/artifacts/cas_integrity_report.py",
+        "src/polisyos/core/artifacts/ir_adapter.py",
+        "src/polisyos/core/artifacts/manifest_profile.py",
+        "src/polisyos/core/artifacts/protocol.py",
+        "src/polisyos/core/artifacts/signing.py",
+        "src/polisyos/core/artifacts/store.py",
+        "src/polisyos/core/components/_cli_crypto.py",
+        "src/polisyos/core/llm/response.py",
+        "src/polisyos/core/llm/settlement.py",
+        "src/polisyos/core/llm/traced_client.py",
+        "src/polisyos/fabric/connectors/pool.py",
+        "src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+        "src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+        "src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+        "src/polisyos/foundry/methods/artifacts/__init__.py",
+        "src/polisyos/foundry/methods/artifacts/_chain.py",
+        "src/polisyos/foundry/methods/artifacts/_fingerprint.py",
+        "src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+        "src/polisyos/foundry/methods/artifacts/parts.py",
+        "src/polisyos/foundry/methods/backends/__init__.py",
+        "src/polisyos/foundry/methods/backends/async_chain_executor.py",
+        "src/polisyos/foundry/methods/backends/chain_executor.py",
+        "src/polisyos/foundry/methods/backends/checkpointing.py",
+        "src/polisyos/foundry/methods/compiler/__init__.py",
+        "src/polisyos/foundry/methods/compiler/specialization.py",
+        "src/polisyos/foundry/methods/components/composer.py",
+        "src/polisyos/foundry/methods/components/linker.py",
+        "src/polisyos/foundry/methods/exceptions.py",
+        "src/polisyos/lex/legal_evaluation/impact_diff.py",
+        "src/polisyos/runtime/http/services/control_plane_store.py",
+        "src/polisyos/scientist/agent/_drafter_llm.py",
+        "src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "src/polisyos/scientist/orchestration/engine/executor.py",
+        "src/polisyos/scientist/orchestration/engine/idempotency.py",
+        "src/polisyos/scientist/orchestration/engine/retry.py",
+        "src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+        "src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+        "src/polisyos/scientist/orchestration/engine/state_branching.py",
+        "src/polisyos/scientist/orchestration/engine/state_merge.py",
+        "src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "src/polisyos/scientist/orchestration/llm/factory.py",
+        "src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "src/polisyos/scientist/policy_design/_llm_accounting.py",
+        "src/polisyos/scientist/policy_design/adversary.py",
+        "src/polisyos/scientist/policy_design/translator.py",
+        "tests/integration/scientist/test_checkpoint_resume.py",
+        "tests/integration/scientist/test_parallel_tier_compensation_oracle.py",
+        "tests/unit/common/installed_wheel_bridge_consumer.py",
+        "tests/unit/common/test_async_tools.py",
+        "tests/unit/common/test_async_tools_installed_wheel.py",
+        "tests/unit/core/artifacts/batch_duplicate_worker.py",
+        "tests/unit/core/artifacts/snapshot_special_path_worker.py",
+        "tests/unit/core/artifacts/test_batch_completion_admission.py",
+        "tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py",
+        "tests/unit/core/artifacts/test_import_admission_noop.py",
+        "tests/unit/core/artifacts/test_ir_adapter.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_put_consumer_oracle.py",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+        "tests/unit/core/artifacts/test_transfer_generation_publication.py",
+        "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+        "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+        "tests/unit/fabric/connectors/test_pool_e02.py",
+        "tests/unit/fabric/connectors/test_resilience_e02.py",
+        "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+        "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+        "tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+        "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+        "tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+        "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+        "tests/unit/foundry/methods/components/test_composition_e02.py",
+        "tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py",
+        "tests/unit/foundry/methods/test_compiler_e02.py",
+        "tests/unit/foundry/methods/test_compiler_leader_termination_e02.py",
+        "tests/unit/foundry/methods/test_linker.py",
+        "tests/unit/lex/legal_evaluation/test_impact_diff.py",
+        "tests/unit/remediation/test_cas_02.py",
+        "tests/unit/remediation/test_cas_03.py",
+        "tests/unit/remediation/test_dur_02_process.py",
+        "tests/unit/remediation/test_jit_01.py",
+        "tests/unit/remediation/test_llm_01.py",
+        "tests/unit/remediation/test_req_01_installed.py",
+        "tests/unit/remediation/test_res_01.py",
+        "tests/unit/remediation/test_res_04.py",
+        "tests/unit/remediation/test_wire_01.py",
+        "tests/unit/runtime/http/services/test_b_llm_cost_projection_consumer_e02.py",
+        "tests/unit/runtime/http/test_control_plane_store.py",
+        "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+        "tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py",
+        "tests/unit/scientist/agent/test_optional_spend_projection_boundary.py",
+        "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+        "tests/unit/scientist/orchestration/engine/_retry_setup_probe.py",
+        "tests/unit/scientist/orchestration/engine/fixtures/remote_scope_worker.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+        "tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_llm_process_recovery.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+        "tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+        "tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+        "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+        "tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py",
+        "tests/unit/scientist/orchestration/engine/test_retry.py",
+        "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+        "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+        "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+        "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+        "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+        "tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py",
+        "tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+        "tests/unit/scientist/orchestration/llm/test_shared_flight_completion_independent_e02.py",
+        "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+        "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+        "tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py",
+        "tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py",
+        "tools/devx/foundry/generate_stubs.py"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/ruff/tools",
+        "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/tmp/e02-B-opa-latest-preparation-1db95544/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "exit": 1,
+      "wall_s": 0.7550254079978913,
+      "child_maxrss_kib": 60748,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/ruff/stdout.lossless.json",
+        "bytes": 2972796,
+        "sha256": "829e533f14775e3ffc100e4bf9059a4d153ebc76a9a4d667d3abe8c5aca938e7",
+        "native_bytes": {
+          "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-ruff.txt",
+          "bytes": 2915042,
+          "sha256": "ee7a72ea4f57a21f3b7cd5ac2c8b1fd34c5a2a08aaf5cd0b97a8c9384c2cf8ac"
+        }
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/ruff/wrapper.json",
+        "bytes": 28807,
+        "sha256": "999f98dba01a9ee832d24b58b0847e50537c4c250ad69d7eb7d2a100cd8422ea",
+        "native_bytes": {
+          "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-ruff.json",
+          "bytes": 28807,
+          "sha256": "999f98dba01a9ee832d24b58b0847e50537c4c250ad69d7eb7d2a100cd8422ea"
+        }
+      },
+      "P41_inherited": "not_established",
+      "signal_sender_and_cause": "not_applicable"
+    },
+    {
+      "name": "format",
+      "outcome": "FAIL",
+      "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "target_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "docs/research/e02-cloud-test-plan/closure-decisions/validate_coverage.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch_delta.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch_delta_first.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch_release.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/replay_base.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer-evidence/run_check.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-profile-seam-evidence/probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/replay_base.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-frozen-wave.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-journal-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cache-type-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/derive-cohort-selector-audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/environment-capture.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/late-flight-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/property-removal-final.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/rate-finite-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/run-affected.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/run-final-llm-126.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/unbound-owner-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-evidence/adjudicate.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-evidence/audit_evidence.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-evidence/denominator.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-batch-consumer-evidence/cas_duplicate_inventory_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/baseline_navigation.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/derive_input_closure.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/read_b73_current.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/run_check.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/run_native.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/run_native_original.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-fixture-independent-review/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/census.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal_driver.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-partition-independent-review/source-regex-discriminator.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition_environment.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/ruff_delta.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/run_checks.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/run_command.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/test_jit_late_arrival_oracle.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity_environment.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/run_checks.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/run_command.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/source_replacement_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit_environment.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/read_only_jit_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/run_checks.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/run_command.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/local_res03_replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/res03_artifact_custody.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/inspect-retained.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/census.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/draft-import-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/import_worker.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/initial-import-worker.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/initial-test-acceptance.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver_bruteforce.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver_consumer.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/successor_test_acceptance.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/test_acceptance.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/dur02_property_removal.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/probe_bound_upsert.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/run_frozen.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/store_mutation_census.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/artifact-readback.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/candidate-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/controls.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/negative-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gate-execution-independent-audit/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/capture.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-receiver-consumer-evidence/retain_llm_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/replay-previous-production.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/run_native.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/read_b73_e56.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/run_native.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/probe-extended.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/probe-settled.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe_fbc.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe_unrun.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/independent-setup-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-setup-checks/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/context-consumer.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/spend-replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/typevar-census.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/journal-candidate.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/journal-negative.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/legacy-ownership.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/presence-resume-candidate.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/presence-resume-original.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/additive-current-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-invalid-proof.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-owner-attenuation-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-owner-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-owned-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-resume-owned-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/audit-portable.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-fixture-independent-review/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure_legacy.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_complete.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_final.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_check.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_native.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_native_legacy.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-gate-audit-preparation/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/observe_pytest_options.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_cohort.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_frozen.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/normalize_origins.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/review_fix.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/trace.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/environment.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/ruff_selector_audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/snapshot.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py",
+        "docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-first-wave/b37-oracle.py",
+        "src/polisyos/common/async_tools.py",
+        "src/polisyos/core/artifacts/__init__.py",
+        "src/polisyos/core/artifacts/_integrity_ops.py",
+        "src/polisyos/core/artifacts/_signature_ops.py",
+        "src/polisyos/core/artifacts/_transfer_ops.py",
+        "src/polisyos/core/artifacts/async_store.py",
+        "src/polisyos/core/artifacts/backends/caching_store.py",
+        "src/polisyos/core/artifacts/cas_integrity_report.py",
+        "src/polisyos/core/artifacts/ir_adapter.py",
+        "src/polisyos/core/artifacts/manifest_profile.py",
+        "src/polisyos/core/artifacts/protocol.py",
+        "src/polisyos/core/artifacts/signing.py",
+        "src/polisyos/core/artifacts/store.py",
+        "src/polisyos/core/components/_cli_crypto.py",
+        "src/polisyos/core/llm/response.py",
+        "src/polisyos/core/llm/settlement.py",
+        "src/polisyos/core/llm/traced_client.py",
+        "src/polisyos/fabric/connectors/pool.py",
+        "src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+        "src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+        "src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+        "src/polisyos/foundry/methods/artifacts/__init__.py",
+        "src/polisyos/foundry/methods/artifacts/_chain.py",
+        "src/polisyos/foundry/methods/artifacts/_fingerprint.py",
+        "src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+        "src/polisyos/foundry/methods/artifacts/parts.py",
+        "src/polisyos/foundry/methods/backends/__init__.py",
+        "src/polisyos/foundry/methods/backends/async_chain_executor.py",
+        "src/polisyos/foundry/methods/backends/chain_executor.py",
+        "src/polisyos/foundry/methods/backends/checkpointing.py",
+        "src/polisyos/foundry/methods/compiler/__init__.py",
+        "src/polisyos/foundry/methods/compiler/specialization.py",
+        "src/polisyos/foundry/methods/components/composer.py",
+        "src/polisyos/foundry/methods/components/linker.py",
+        "src/polisyos/foundry/methods/exceptions.py",
+        "src/polisyos/lex/legal_evaluation/impact_diff.py",
+        "src/polisyos/runtime/http/services/control_plane_store.py",
+        "src/polisyos/scientist/agent/_drafter_llm.py",
+        "src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "src/polisyos/scientist/orchestration/engine/executor.py",
+        "src/polisyos/scientist/orchestration/engine/idempotency.py",
+        "src/polisyos/scientist/orchestration/engine/retry.py",
+        "src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+        "src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+        "src/polisyos/scientist/orchestration/engine/state_branching.py",
+        "src/polisyos/scientist/orchestration/engine/state_merge.py",
+        "src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "src/polisyos/scientist/orchestration/llm/factory.py",
+        "src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "src/polisyos/scientist/policy_design/_llm_accounting.py",
+        "src/polisyos/scientist/policy_design/adversary.py",
+        "src/polisyos/scientist/policy_design/translator.py",
+        "tests/integration/scientist/test_checkpoint_resume.py",
+        "tests/integration/scientist/test_parallel_tier_compensation_oracle.py",
+        "tests/unit/common/installed_wheel_bridge_consumer.py",
+        "tests/unit/common/test_async_tools.py",
+        "tests/unit/common/test_async_tools_installed_wheel.py",
+        "tests/unit/core/artifacts/batch_duplicate_worker.py",
+        "tests/unit/core/artifacts/snapshot_special_path_worker.py",
+        "tests/unit/core/artifacts/test_batch_completion_admission.py",
+        "tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py",
+        "tests/unit/core/artifacts/test_import_admission_noop.py",
+        "tests/unit/core/artifacts/test_ir_adapter.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_put_consumer_oracle.py",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+        "tests/unit/core/artifacts/test_transfer_generation_publication.py",
+        "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+        "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+        "tests/unit/fabric/connectors/test_pool_e02.py",
+        "tests/unit/fabric/connectors/test_resilience_e02.py",
+        "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+        "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+        "tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+        "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+        "tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+        "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+        "tests/unit/foundry/methods/components/test_composition_e02.py",
+        "tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py",
+        "tests/unit/foundry/methods/test_compiler_e02.py",
+        "tests/unit/foundry/methods/test_compiler_leader_termination_e02.py",
+        "tests/unit/foundry/methods/test_linker.py",
+        "tests/unit/lex/legal_evaluation/test_impact_diff.py",
+        "tests/unit/remediation/test_cas_02.py",
+        "tests/unit/remediation/test_cas_03.py",
+        "tests/unit/remediation/test_dur_02_process.py",
+        "tests/unit/remediation/test_jit_01.py",
+        "tests/unit/remediation/test_llm_01.py",
+        "tests/unit/remediation/test_req_01_installed.py",
+        "tests/unit/remediation/test_res_01.py",
+        "tests/unit/remediation/test_res_04.py",
+        "tests/unit/remediation/test_wire_01.py",
+        "tests/unit/runtime/http/services/test_b_llm_cost_projection_consumer_e02.py",
+        "tests/unit/runtime/http/test_control_plane_store.py",
+        "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+        "tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py",
+        "tests/unit/scientist/agent/test_optional_spend_projection_boundary.py",
+        "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+        "tests/unit/scientist/orchestration/engine/_retry_setup_probe.py",
+        "tests/unit/scientist/orchestration/engine/fixtures/remote_scope_worker.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+        "tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_llm_process_recovery.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+        "tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+        "tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+        "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+        "tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py",
+        "tests/unit/scientist/orchestration/engine/test_retry.py",
+        "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+        "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+        "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+        "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+        "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+        "tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py",
+        "tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+        "tests/unit/scientist/orchestration/llm/test_shared_flight_completion_independent_e02.py",
+        "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+        "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+        "tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py",
+        "tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py",
+        "tools/devx/foundry/generate_stubs.py"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/format/tools",
+        "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/tmp/e02-B-opa-latest-preparation-1db95544/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "exit": 1,
+      "wall_s": 0.281762776983669,
+      "child_maxrss_kib": 34348,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/format/stdout.lossless.json",
+        "bytes": 13896,
+        "sha256": "140deeb7ce7f62dba67e1abfce9f9eb4aa0c7feadf7a85f8c2c48d59941d72bc",
+        "native_bytes": {
+          "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-format.txt",
+          "bytes": 13457,
+          "sha256": "9d0355f38487e3549a8ce015ed036beb90329edd328a02b20647dae519313b99"
+        }
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/format/wrapper.json",
+        "bytes": 28808,
+        "sha256": "6bacc498b026d6427792da18efe7a60c0dcd89e2445ed9ccc2b33c4f58187a7b",
+        "native_bytes": {
+          "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-format.json",
+          "bytes": 28808,
+          "sha256": "6bacc498b026d6427792da18efe7a60c0dcd89e2445ed9ccc2b33c4f58187a7b"
+        }
+      },
+      "P41_inherited": "not_established",
+      "signal_sender_and_cause": "not_applicable"
+    },
+    {
+      "name": "mypy",
+      "outcome": "ERROR",
+      "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "target_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "mypy",
+        "src/polisyos/common/async_tools.py",
+        "src/polisyos/core/artifacts/__init__.py",
+        "src/polisyos/core/artifacts/_integrity_ops.py",
+        "src/polisyos/core/artifacts/_signature_ops.py",
+        "src/polisyos/core/artifacts/_transfer_ops.py",
+        "src/polisyos/core/artifacts/async_store.py",
+        "src/polisyos/core/artifacts/backends/caching_store.py",
+        "src/polisyos/core/artifacts/cas_integrity_report.py",
+        "src/polisyos/core/artifacts/ir_adapter.py",
+        "src/polisyos/core/artifacts/manifest_profile.py",
+        "src/polisyos/core/artifacts/protocol.py",
+        "src/polisyos/core/artifacts/signing.py",
+        "src/polisyos/core/artifacts/store.py",
+        "src/polisyos/core/components/_cli_crypto.py",
+        "src/polisyos/core/llm/response.py",
+        "src/polisyos/core/llm/settlement.py",
+        "src/polisyos/core/llm/traced_client.py",
+        "src/polisyos/fabric/connectors/pool.py",
+        "src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+        "src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+        "src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+        "src/polisyos/foundry/methods/artifacts/__init__.py",
+        "src/polisyos/foundry/methods/artifacts/_chain.py",
+        "src/polisyos/foundry/methods/artifacts/_fingerprint.py",
+        "src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+        "src/polisyos/foundry/methods/artifacts/parts.py",
+        "src/polisyos/foundry/methods/backends/__init__.py",
+        "src/polisyos/foundry/methods/backends/async_chain_executor.py",
+        "src/polisyos/foundry/methods/backends/chain_executor.py",
+        "src/polisyos/foundry/methods/backends/checkpointing.py",
+        "src/polisyos/foundry/methods/compiler/__init__.py",
+        "src/polisyos/foundry/methods/compiler/specialization.py",
+        "src/polisyos/foundry/methods/components/composer.py",
+        "src/polisyos/foundry/methods/components/linker.py",
+        "src/polisyos/foundry/methods/exceptions.py",
+        "src/polisyos/lex/legal_evaluation/impact_diff.py",
+        "src/polisyos/runtime/http/services/control_plane_store.py",
+        "src/polisyos/scientist/agent/_drafter_llm.py",
+        "src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "src/polisyos/scientist/orchestration/engine/executor.py",
+        "src/polisyos/scientist/orchestration/engine/idempotency.py",
+        "src/polisyos/scientist/orchestration/engine/retry.py",
+        "src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+        "src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+        "src/polisyos/scientist/orchestration/engine/state_branching.py",
+        "src/polisyos/scientist/orchestration/engine/state_merge.py",
+        "src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "src/polisyos/scientist/orchestration/llm/factory.py",
+        "src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "src/polisyos/scientist/policy_design/_llm_accounting.py",
+        "src/polisyos/scientist/policy_design/adversary.py",
+        "src/polisyos/scientist/policy_design/translator.py"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/mypy/tools",
+        "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/tmp/e02-B-opa-latest-preparation-1db95544/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "exit": -9,
+      "wall_s": 67.64215740800137,
+      "child_maxrss_kib": 1055776,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/mypy/stdout.lossless.json",
+        "bytes": 7054,
+        "sha256": "f504f133f6291f5f838813acbfc83dcca02abc5136a7da5ca7d86d0e26d52bd4",
+        "native_bytes": {
+          "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-mypy.txt",
+          "bytes": 6584,
+          "sha256": "7061fc1eb406b182ba5bcea18902ae2b1485f299141349a40ee756295a60ea10"
+        }
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/mypy/wrapper.json",
+        "bytes": 5664,
+        "sha256": "e7df706514ab628c92a08cafaa8d24cb670d07aa67d3a249fd894ee770fed969",
+        "native_bytes": {
+          "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-mypy.json",
+          "bytes": 5664,
+          "sha256": "e7df706514ab628c92a08cafaa8d24cb670d07aa67d3a249fd894ee770fed969"
+        }
+      },
+      "P41_inherited": "not_established",
+      "signal_sender_and_cause": "not_established"
+    },
+    {
+      "name": "runtime-api",
+      "outcome": "ERROR",
+      "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "target_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml",
+        "polisyos-tools",
+        "runtime",
+        "check-runtime-api-contract"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/runtime-api/tools",
+        "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/tmp/e02-B-opa-latest-preparation-1db95544/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "exit": 137,
+      "wall_s": 38.70083786698524,
+      "child_maxrss_kib": 994120,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/runtime-api/stdout.lossless.json",
+        "bytes": 7156,
+        "sha256": "150a3d362d77cf49fdf5c740172050d7fc44ce07769f3b4e199c47cddfc53736",
+        "native_bytes": {
+          "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-runtime-api.txt",
+          "bytes": 6755,
+          "sha256": "87db5f736256073906ba6c308d5f6d89a9b8192d096800935c4c9e6a29794013"
+        }
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/runtime-api/wrapper.json",
+        "bytes": 2521,
+        "sha256": "d0f6d472f748cd64a81d12bfed55f213527c01c0648e61114e5d44166dbe9a30",
+        "native_bytes": {
+          "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-runtime-api.json",
+          "bytes": 2521,
+          "sha256": "d0f6d472f748cd64a81d12bfed55f213527c01c0648e61114e5d44166dbe9a30"
+        }
+      },
+      "P41_inherited": "not_established",
+      "signal_sender_and_cause": "not_established"
+    },
+    {
+      "name": "production-invocation",
+      "outcome": "ERROR",
+      "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "target_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "polisyos.runtime.quality.production_invocation",
+        "--repo-root",
+        "/workspace/e02-B-current-coordination/policy-engine",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/production-invocation/static-receipt.json"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/production-invocation/tools",
+        "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/tmp/e02-B-opa-latest-preparation-1db95544/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "exit": -9,
+      "wall_s": 48.270138670981396,
+      "child_maxrss_kib": 1414016,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/production-invocation/stdout.lossless.json",
+        "bytes": 347,
+        "sha256": "08c226edd48b214e0c7e1a9f17a60d296014fbfa40d7935aa0064cbfdd4c5eb4",
+        "native_bytes": {
+          "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-production-invocation.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/production-invocation/wrapper.json",
+        "bytes": 2750,
+        "sha256": "cc2dbc4a5e237483f1256392e990d9393e49594ce45c688012fa029e7ec7e572",
+        "native_bytes": {
+          "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-production-invocation.json",
+          "bytes": 2750,
+          "sha256": "cc2dbc4a5e237483f1256392e990d9393e49594ce45c688012fa029e7ec7e572"
+        }
+      },
+      "P41_inherited": "not_established",
+      "signal_sender_and_cause": "not_established"
+    },
+    {
+      "name": "architecture",
+      "outcome": "UNRUN",
+      "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "target_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check",
+        "--generated-freshness-workspace-root",
+        "/dev/shm/e02-B-completed-architecture-6fa9b7142ba5",
+        "--generated-freshness-uv-cache-dir",
+        "/home/agent/.cache/uv"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/architecture/tools",
+        "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/tmp/e02-B-opa-latest-preparation-1db95544/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "exit": 2,
+      "wall_s": 236.71937689499464,
+      "child_maxrss_kib": 1151812,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/architecture/stdout.lossless.json",
+        "bytes": 144397,
+        "sha256": "3c8d998172fc2db71d239148ae3a789c5f7bc931a82c8f3156257c5821fcf855",
+        "native_bytes": {
+          "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-architecture.txt",
+          "bytes": 136179,
+          "sha256": "a2b68b4ec11e89d3b6146b9e7c7194a2157625a097836ad33141a0ea42169b49"
+        }
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/architecture/wrapper.json",
+        "bytes": 2643,
+        "sha256": "c1a5ccc88e0e754a3238dcee47977e58940fbded68f2bd7f6f2c1ae83e612f71",
+        "native_bytes": {
+          "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-architecture.json",
+          "bytes": 2643,
+          "sha256": "c1a5ccc88e0e754a3238dcee47977e58940fbded68f2bd7f6f2c1ae83e612f71"
+        }
+      },
+      "P41_inherited": "not_established",
+      "signal_sender_and_cause": "not_applicable"
+    },
+    {
+      "name": "verify",
+      "outcome": "FAIL",
+      "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "target_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/verify/receipt.json",
+        "bytes": 6328,
+        "sha256": "0daf9eec0aab8f80c596f41727c67a096be4cea02ed31457c0b40363ae8e6714",
+        "native_bytes": {
+          "cloud_path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/verify/receipt.json",
+          "bytes": 6328,
+          "sha256": "0daf9eec0aab8f80c596f41727c67a096be4cea02ed31457c0b40363ae8e6714"
+        }
+      },
+      "profile": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/verify/profile-before-exec.json",
+        "bytes": 5343,
+        "sha256": "5f7a4d2bd3aab8f90391fe472d19bef600c4117ea7d9cfdbe08d1bd87426172d",
+        "native_bytes": {
+          "cloud_path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/verify/profile-before-exec.json",
+          "bytes": 5343,
+          "sha256": "5f7a4d2bd3aab8f90391fe472d19bef600c4117ea7d9cfdbe08d1bd87426172d"
+        }
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/verify/stdout.lossless.json",
+        "bytes": 13119,
+        "sha256": "da069fd1d721818f036ad4f2141832ef68737e7463f5b4d0317340580b1e128f",
+        "native_bytes": {
+          "cloud_path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/verify/stdout.txt",
+          "bytes": 11929,
+          "sha256": "aaef65cff6a336618cbf333c3dcb047379b0cd224600366bc7eb92d0b1c511cd"
+        }
+      },
+      "planned_expanded_constituents": 15,
+      "doctor": "FAIL",
+      "remaining_constituents": "UNRUN",
+      "remaining_count": 14,
+      "P41_inherited": "not_established",
+      "profile_delta": [
+        "output capture in /tmp after workspace ENOSPC",
+        "omit empty observer-tools path; no native observer needed",
+        "explicit E02_REMOVE_PROTECTION=0"
+      ],
+      "no_assertion_or_backend_weakening": true
+    },
+    {
+      "name": "parity",
+      "outcome": "FAIL",
+      "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "target_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/parity/receipt.json",
+        "bytes": 6330,
+        "sha256": "03e826c3df0b9f65e6b4d7a3f1a3415cab82fb0a6eb3862d60e456c1bca5b3f1",
+        "native_bytes": {
+          "cloud_path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/parity/receipt.json",
+          "bytes": 6330,
+          "sha256": "03e826c3df0b9f65e6b4d7a3f1a3415cab82fb0a6eb3862d60e456c1bca5b3f1"
+        }
+      },
+      "profile": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/parity/profile-before-exec.json",
+        "bytes": 5346,
+        "sha256": "29c414a06521b5adf4cce87c83d544fabb7382d8e5f8f6c683040f3ba73f4f3f",
+        "native_bytes": {
+          "cloud_path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/parity/profile-before-exec.json",
+          "bytes": 5346,
+          "sha256": "29c414a06521b5adf4cce87c83d544fabb7382d8e5f8f6c683040f3ba73f4f3f"
+        }
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/parity/stdout.lossless.json",
+        "bytes": 31841,
+        "sha256": "9f28a1af3aa1f104cd8f5c8f62dafd2254b513963ed85633d8f1993483df8e8b",
+        "native_bytes": {
+          "cloud_path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/parity/stdout.txt",
+          "bytes": 29681,
+          "sha256": "9782911a518ee99db0b11364cdff543e61145976fd13e4f3921c8b31f9ce1593"
+        }
+      },
+      "planned_expanded_constituents": 35,
+      "doctor": "FAIL",
+      "remaining_constituents": "UNRUN",
+      "remaining_count": 34,
+      "P41_inherited": "not_established",
+      "profile_delta": [
+        "output capture in /tmp after workspace ENOSPC",
+        "omit empty observer-tools path; no native observer needed",
+        "explicit E02_REMOVE_PROTECTION=0"
+      ],
+      "no_assertion_or_backend_weakening": true
+    }
+  ],
+  "outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/admitted-native/stdout.lossless.json",
+      "bytes": 4615744,
+      "sha256": "eedfbe5d7a0aa2f6d9e02488e8515797cfb62c2496a23104e2e189e492815634",
+      "native_bytes": {
+        "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-admitted-native.txt",
+        "bytes": 4551084,
+        "sha256": "ffe9b73469ce61c647b3ce5a0992e4dfa6038eeb3efd2e2906b5545586106231"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/admitted-native/wrapper.json",
+      "bytes": 3186,
+      "sha256": "1b79fb2293003aa418f66959656d6e4caf0c6ed86b25577ac70b2487b5c47a69",
+      "native_bytes": {
+        "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-admitted-native.json",
+        "bytes": 3186,
+        "sha256": "1b79fb2293003aa418f66959656d6e4caf0c6ed86b25577ac70b2487b5c47a69"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/stdout.lossless.json",
+      "bytes": 13383,
+      "sha256": "11edf08ed74ec1a21809dc3e5484c4a07a76296509fdb17c839e724d553ac51d",
+      "native_bytes": {
+        "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-wheel.txt",
+        "bytes": 12120,
+        "sha256": "308ad1ec828eab96cad894d8b9e3c450fc3b4caed9de19ab1d0dce919e02e604"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/wrapper.json",
+      "bytes": 2633,
+      "sha256": "3610fc4721aa65bce95a04a8df6792d90242dc1577a90509d1b6fe40f9742c72",
+      "native_bytes": {
+        "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-wheel.json",
+        "bytes": 2633,
+        "sha256": "3610fc4721aa65bce95a04a8df6792d90242dc1577a90509d1b6fe40f9742c72"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/ruff/stdout.lossless.json",
+      "bytes": 2972796,
+      "sha256": "829e533f14775e3ffc100e4bf9059a4d153ebc76a9a4d667d3abe8c5aca938e7",
+      "native_bytes": {
+        "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-ruff.txt",
+        "bytes": 2915042,
+        "sha256": "ee7a72ea4f57a21f3b7cd5ac2c8b1fd34c5a2a08aaf5cd0b97a8c9384c2cf8ac"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/ruff/wrapper.json",
+      "bytes": 28807,
+      "sha256": "999f98dba01a9ee832d24b58b0847e50537c4c250ad69d7eb7d2a100cd8422ea",
+      "native_bytes": {
+        "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-ruff.json",
+        "bytes": 28807,
+        "sha256": "999f98dba01a9ee832d24b58b0847e50537c4c250ad69d7eb7d2a100cd8422ea"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/format/stdout.lossless.json",
+      "bytes": 13896,
+      "sha256": "140deeb7ce7f62dba67e1abfce9f9eb4aa0c7feadf7a85f8c2c48d59941d72bc",
+      "native_bytes": {
+        "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-format.txt",
+        "bytes": 13457,
+        "sha256": "9d0355f38487e3549a8ce015ed036beb90329edd328a02b20647dae519313b99"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/format/wrapper.json",
+      "bytes": 28808,
+      "sha256": "6bacc498b026d6427792da18efe7a60c0dcd89e2445ed9ccc2b33c4f58187a7b",
+      "native_bytes": {
+        "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-format.json",
+        "bytes": 28808,
+        "sha256": "6bacc498b026d6427792da18efe7a60c0dcd89e2445ed9ccc2b33c4f58187a7b"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/mypy/stdout.lossless.json",
+      "bytes": 7054,
+      "sha256": "f504f133f6291f5f838813acbfc83dcca02abc5136a7da5ca7d86d0e26d52bd4",
+      "native_bytes": {
+        "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-mypy.txt",
+        "bytes": 6584,
+        "sha256": "7061fc1eb406b182ba5bcea18902ae2b1485f299141349a40ee756295a60ea10"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/mypy/wrapper.json",
+      "bytes": 5664,
+      "sha256": "e7df706514ab628c92a08cafaa8d24cb670d07aa67d3a249fd894ee770fed969",
+      "native_bytes": {
+        "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-mypy.json",
+        "bytes": 5664,
+        "sha256": "e7df706514ab628c92a08cafaa8d24cb670d07aa67d3a249fd894ee770fed969"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/runtime-api/stdout.lossless.json",
+      "bytes": 7156,
+      "sha256": "150a3d362d77cf49fdf5c740172050d7fc44ce07769f3b4e199c47cddfc53736",
+      "native_bytes": {
+        "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-runtime-api.txt",
+        "bytes": 6755,
+        "sha256": "87db5f736256073906ba6c308d5f6d89a9b8192d096800935c4c9e6a29794013"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/runtime-api/wrapper.json",
+      "bytes": 2521,
+      "sha256": "d0f6d472f748cd64a81d12bfed55f213527c01c0648e61114e5d44166dbe9a30",
+      "native_bytes": {
+        "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-runtime-api.json",
+        "bytes": 2521,
+        "sha256": "d0f6d472f748cd64a81d12bfed55f213527c01c0648e61114e5d44166dbe9a30"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/production-invocation/stdout.lossless.json",
+      "bytes": 347,
+      "sha256": "08c226edd48b214e0c7e1a9f17a60d296014fbfa40d7935aa0064cbfdd4c5eb4",
+      "native_bytes": {
+        "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-production-invocation.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/production-invocation/wrapper.json",
+      "bytes": 2750,
+      "sha256": "cc2dbc4a5e237483f1256392e990d9393e49594ce45c688012fa029e7ec7e572",
+      "native_bytes": {
+        "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-production-invocation.json",
+        "bytes": 2750,
+        "sha256": "cc2dbc4a5e237483f1256392e990d9393e49594ce45c688012fa029e7ec7e572"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/architecture/stdout.lossless.json",
+      "bytes": 144397,
+      "sha256": "3c8d998172fc2db71d239148ae3a789c5f7bc931a82c8f3156257c5821fcf855",
+      "native_bytes": {
+        "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-architecture.txt",
+        "bytes": 136179,
+        "sha256": "a2b68b4ec11e89d3b6146b9e7c7194a2157625a097836ad33141a0ea42169b49"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/architecture/wrapper.json",
+      "bytes": 2643,
+      "sha256": "c1a5ccc88e0e754a3238dcee47977e58940fbded68f2bd7f6f2c1ae83e612f71",
+      "native_bytes": {
+        "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-architecture.json",
+        "bytes": 2643,
+        "sha256": "c1a5ccc88e0e754a3238dcee47977e58940fbded68f2bd7f6f2c1ae83e612f71"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/verify/receipt.json",
+      "bytes": 6328,
+      "sha256": "0daf9eec0aab8f80c596f41727c67a096be4cea02ed31457c0b40363ae8e6714",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/verify/receipt.json",
+        "bytes": 6328,
+        "sha256": "0daf9eec0aab8f80c596f41727c67a096be4cea02ed31457c0b40363ae8e6714"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/verify/profile-before-exec.json",
+      "bytes": 5343,
+      "sha256": "5f7a4d2bd3aab8f90391fe472d19bef600c4117ea7d9cfdbe08d1bd87426172d",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/verify/profile-before-exec.json",
+        "bytes": 5343,
+        "sha256": "5f7a4d2bd3aab8f90391fe472d19bef600c4117ea7d9cfdbe08d1bd87426172d"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/verify/stdout.lossless.json",
+      "bytes": 13119,
+      "sha256": "da069fd1d721818f036ad4f2141832ef68737e7463f5b4d0317340580b1e128f",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/verify/stdout.txt",
+        "bytes": 11929,
+        "sha256": "aaef65cff6a336618cbf333c3dcb047379b0cd224600366bc7eb92d0b1c511cd"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/parity/receipt.json",
+      "bytes": 6330,
+      "sha256": "03e826c3df0b9f65e6b4d7a3f1a3415cab82fb0a6eb3862d60e456c1bca5b3f1",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/parity/receipt.json",
+        "bytes": 6330,
+        "sha256": "03e826c3df0b9f65e6b4d7a3f1a3415cab82fb0a6eb3862d60e456c1bca5b3f1"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/parity/profile-before-exec.json",
+      "bytes": 5346,
+      "sha256": "29c414a06521b5adf4cce87c83d544fabb7382d8e5f8f6c683040f3ba73f4f3f",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/parity/profile-before-exec.json",
+        "bytes": 5346,
+        "sha256": "29c414a06521b5adf4cce87c83d544fabb7382d8e5f8f6c683040f3ba73f4f3f"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/parity/stdout.lossless.json",
+      "bytes": 31841,
+      "sha256": "9f28a1af3aa1f104cd8f5c8f62dafd2254b513963ed85633d8f1993483df8e8b",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/parity/stdout.txt",
+        "bytes": 29681,
+        "sha256": "9782911a518ee99db0b11364cdff543e61145976fd13e4f3921c8b31f9ce1593"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/native/junit.lossless.json",
+      "bytes": 4776035,
+      "sha256": "2306f78a127f2fbc923658de47997c170d20191140386b0f5dd65ac17baef96b",
+      "native_bytes": {
+        "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/native.xml",
+        "bytes": 4697237,
+        "sha256": "beb9c1aab3508e78d07445b223aa6f4116ae37500f23f5fb107ba32ad4cd2108"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/native/whole-files.args",
+      "bytes": 15279,
+      "sha256": "52272ab63030e91325875de023291ec9dc44ec47c99125d66e4f4e995ea166ad",
+      "native_bytes": {
+        "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/whole-files.args",
+        "bytes": 15279,
+        "sha256": "52272ab63030e91325875de023291ec9dc44ec47c99125d66e4f4e995ea166ad"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/native/profile.json",
+      "bytes": 2383355,
+      "sha256": "75f3276dd7a45ac8980ded64debc1eca57bef5f6ff51c8b133af387b7fb45dec",
+      "native_bytes": {
+        "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/profile.json",
+        "bytes": 2383355,
+        "sha256": "75f3276dd7a45ac8980ded64debc1eca57bef5f6ff51c8b133af387b7fb45dec"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/native/resource-after.json",
+      "bytes": 1864,
+      "sha256": "4ab65d73a23f17244f7320db47754d9a1bd95b1899ac747bee10375a2a8a204a",
+      "native_bytes": {
+        "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/resource-after.json",
+        "bytes": 1864,
+        "sha256": "4ab65d73a23f17244f7320db47754d9a1bd95b1899ac747bee10375a2a8a204a"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/native/cases.json",
+      "bytes": 1195580,
+      "sha256": "a7f8f2783774e5bb704223b8bf0fb55d0168582756f92de6bb7971e0cab76bcd",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/native-partition/cases.json",
+        "bytes": 1195580,
+        "sha256": "a7f8f2783774e5bb704223b8bf0fb55d0168582756f92de6bb7971e0cab76bcd"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/native/summary.json",
+      "bytes": 441,
+      "sha256": "0183ca3735ca29fb2ba7c87e831de79f05a3f9da024a6cbaab5dcaa1ea5b5c9b",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/native-partition/summary.json",
+        "bytes": 441,
+        "sha256": "0183ca3735ca29fb2ba7c87e831de79f05a3f9da024a6cbaab5dcaa1ea5b5c9b"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/selector/final.json",
+      "bytes": 2159848,
+      "sha256": "246f5fadefe0e78e66da4fd49820d4007c3869a376f5c4e5e8cbec93925261bf",
+      "native_bytes": {
+        "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/selector-6fa9b7142ba5-final.json",
+        "bytes": 2159848,
+        "sha256": "246f5fadefe0e78e66da4fd49820d4007c3869a376f5c4e5e8cbec93925261bf"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/selector/first-admission-error.json",
+      "bytes": 1932,
+      "sha256": "6bdf790b4b945cf847c2278854cb049f31d3f79b46588fae1b9e46629b81ba91",
+      "native_bytes": {
+        "cloud_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/selector-first-admission-error.json",
+        "bytes": 1932,
+        "sha256": "6bdf790b4b945cf847c2278854cb049f31d3f79b46588fae1b9e46629b81ba91"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/runtime-environment.json",
+      "bytes": 847,
+      "sha256": "91827d8ac32734bede2c79bd67d5b80377779fe30b703b0edd888ffd319e2859",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/runtime-environment.json",
+        "bytes": 847,
+        "sha256": "91827d8ac32734bede2c79bd67d5b80377779fe30b703b0edd888ffd319e2859"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/native/changed-consumer-partitions.json",
+      "bytes": 18509,
+      "sha256": "80e8072ba3fcaffa140b2fad6b7be25603380428626c90e30ddb43b2d32bb6a1",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/native-changed-consumer-partitions.json",
+        "bytes": 18509,
+        "sha256": "80e8072ba3fcaffa140b2fad6b7be25603380428626c90e30ddb43b2d32bb6a1"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/cloud-cleanup/receipt.json",
+      "bytes": 6341,
+      "sha256": "84455c05bd4aad0dcd4640accdf6ad8934306800554ba63ef3e23edd894bceae",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/cloud-cleanup-receipt.json",
+        "bytes": 6341,
+        "sha256": "84455c05bd4aad0dcd4640accdf6ad8934306800554ba63ef3e23edd894bceae"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/cloud-cleanup/independent-admission.json",
+      "bytes": 8587,
+      "sha256": "8d3c9ededf068ab8bebca9f2b69762e28deead2d4cf377948e11c898038c020e",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-cleanup-candidate-delta-20261007/verified-tmp-environment.json",
+        "bytes": 8587,
+        "sha256": "8d3c9ededf068ab8bebca9f2b69762e28deead2d4cf377948e11c898038c020e"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/cloud-cleanup/cleanup.py.source.txt",
+      "bytes": 3935,
+      "sha256": "428cf3a87f1e53435ef8a41bcd9d04f6deee88df7fe1e0d26d8e83cd2b6aa692",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/cleanup_unused_cloud_environment.py",
+        "bytes": 3935,
+        "sha256": "428cf3a87f1e53435ef8a41bcd9d04f6deee88df7fe1e0d26d8e83cd2b6aa692"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/cloud-cleanup/overlay-cache-receipt.json",
+      "bytes": 934,
+      "sha256": "139022586392fae71a1d23811397c7368560ffc591d901d0364ecbe814ed0ff8",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/cloud-overlay-cache-cleanup-receipt.json",
+        "bytes": 934,
+        "sha256": "139022586392fae71a1d23811397c7368560ffc591d901d0364ecbe814ed0ff8"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/workspace/final-coordination-resume.json",
+      "bytes": 135777,
+      "sha256": "0b5cba4c4ca68a5358a54f98505001ab8a36afad4dc9bb412bec6a70d23678df",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/final-coordination-resume.json",
+        "bytes": 135777,
+        "sha256": "0b5cba4c4ca68a5358a54f98505001ab8a36afad4dc9bb412bec6a70d23678df"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/external-gates.py.source.txt",
+      "bytes": 5441,
+      "sha256": "3fe86143a9b124b78d89fdafe42757d7f521680aea99de731e20ab2c5a6f82d9",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/external-gates.py",
+        "bytes": 5441,
+        "sha256": "3fe86143a9b124b78d89fdafe42757d7f521680aea99de731e20ab2c5a6f82d9"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/fresh/build-dependencies.json",
+      "bytes": 879,
+      "sha256": "e045cb07133ea2bc1e83f999aa824f63f751f337c9945069be244bea7a707273",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/build-dependencies.json",
+        "bytes": 879,
+        "sha256": "e045cb07133ea2bc1e83f999aa824f63f751f337c9945069be244bea7a707273"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/fresh/build-dependencies.txt.lossless.json",
+      "bytes": 542,
+      "sha256": "2f78feb0042810e2c7e49bb65f310beb4a3b19b4842f8f0dafcbd95ff30c5cff",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/build-dependencies.txt",
+        "bytes": 243,
+        "sha256": "339f26e7a23d9815c47965081bd8a02863b3e7ef17978b3ffff285bc385e175d"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/fresh/build-environment.json",
+      "bytes": 966,
+      "sha256": "440f84034dcc8214ea17db8872735ee82f6cb82c6d327bc4982076794276513b",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/build-environment.json",
+        "bytes": 966,
+        "sha256": "440f84034dcc8214ea17db8872735ee82f6cb82c6d327bc4982076794276513b"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/fresh/build-environment.txt.lossless.json",
+      "bytes": 605,
+      "sha256": "4809a73e8e84252b7249c1a259810555c18bf02f7ad39ee935f1bf819ba92a97",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/build-environment.txt",
+        "bytes": 285,
+        "sha256": "b3125d834f85031d48349b4065d04fe160d4b85f332a646295070ba5d3aaff7d"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/fresh/build-venv.json",
+      "bytes": 946,
+      "sha256": "27107c671768afa1ed3b28a189668fce271aa8e0c85d98fa0b3f9a949a519c48",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/build-venv.json",
+        "bytes": 946,
+        "sha256": "27107c671768afa1ed3b28a189668fce271aa8e0c85d98fa0b3f9a949a519c48"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/fresh/build-venv.txt.lossless.json",
+      "bytes": 497,
+      "sha256": "f819db4b4df3bd4be5489b4b9b1fac215b5cfa750b4d53ed75e9452e1dc47da8",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/build-venv.txt",
+        "bytes": 212,
+        "sha256": "5205c6c365e647dd5d51df8e3bc218655c50c612beced86680157bfe98f6b61c"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/fresh/cohort-input-environment.json",
+      "bytes": 693,
+      "sha256": "fa6946d8d1e9a0a0bfe92e7f5d461e0d166cdf09bec6b18f9d6c020b0dfd2bda",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/cohort-input-environment.json",
+        "bytes": 693,
+        "sha256": "fa6946d8d1e9a0a0bfe92e7f5d461e0d166cdf09bec6b18f9d6c020b0dfd2bda"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/fresh/consumer-dependencies.json",
+      "bytes": 992,
+      "sha256": "a03008528c30d163f04c4d0445620903e8c3dcfab3ff562c162234399e74e7a0",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/consumer-dependencies.json",
+        "bytes": 992,
+        "sha256": "a03008528c30d163f04c4d0445620903e8c3dcfab3ff562c162234399e74e7a0"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/fresh/consumer-dependencies.txt.lossless.json",
+      "bytes": 584,
+      "sha256": "05d35976dc30141f0b607faf4712eb62464eae60023d66111dc1a0aee12bb674",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/consumer-dependencies.txt",
+        "bytes": 280,
+        "sha256": "78b16a2b0aba2c1425d9f4329b6d914d9f5caee72a38ec2cc2969a93cfc20c13"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/fresh/consumer-environment.json",
+      "bytes": 973,
+      "sha256": "282f7026f7a1d83e57acf8677a4438decbf47277f007737abc3406ef64cc3797",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/consumer-environment.json",
+        "bytes": 973,
+        "sha256": "282f7026f7a1d83e57acf8677a4438decbf47277f007737abc3406ef64cc3797"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/fresh/consumer-environment.txt.lossless.json",
+      "bytes": 624,
+      "sha256": "3daa4d51af2ce04d1217d0d4a577a473b94d36135e2760f15ac0c2903747c3f5",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/consumer-environment.txt",
+        "bytes": 297,
+        "sha256": "561e1aa983bff8fbfe67459b5e8fe4e247b17a4f860bae09661402274e5709a1"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/fresh/installed-venv.json",
+      "bytes": 954,
+      "sha256": "b28a4b6b1a185a2f9797835681b083ba2426573832946b1915629abba20a2bf9",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/installed-venv.json",
+        "bytes": 954,
+        "sha256": "b28a4b6b1a185a2f9797835681b083ba2426573832946b1915629abba20a2bf9"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/fresh/installed-venv.txt.lossless.json",
+      "bytes": 509,
+      "sha256": "80c4a3e926206abe4bad0bc0b57a4dec9942af4e7baba94592dc9dbaa44041b9",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/installed-venv.txt",
+        "bytes": 220,
+        "sha256": "88031c3313150199540d7e5f695abbb2896d91c384410f8741c1be1053bf7620"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/fresh/native.json",
+      "bytes": 1269,
+      "sha256": "8e6ed1e2c97d70823faefe2f052d5b80f853d724e590407f701d40fbe436a138",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/native.json",
+        "bytes": 1269,
+        "sha256": "8e6ed1e2c97d70823faefe2f052d5b80f853d724e590407f701d40fbe436a138"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/fresh/native.txt.lossless.json",
+      "bytes": 5163,
+      "sha256": "85ec8217844f34cb28d1da7291926ce476016e0372b60538ab8fcedd9d0101f3",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/native.txt",
+        "bytes": 4580,
+        "sha256": "be199de36da1a2ea8cdd94a556277cd0e9eb48f9461771a8b1ab679c72cffed8"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/fresh/native.xml.lossless.json",
+      "bytes": 648,
+      "sha256": "01e4e018b8e316f0ff0669adfbc67718b3e426a45431a1c3365567a19bd2d053",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/native.xml",
+        "bytes": 342,
+        "sha256": "2560a26b6b871855a24c5011021fe17fcc2e37e069cb8000908b6f5231318fec"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/fresh/profile.json",
+      "bytes": 1885,
+      "sha256": "438e093d1ca1816b66db9446a9996c7bdbd88deab8dd1548f2fa0958e090732d",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/profile.json",
+        "bytes": 1885,
+        "sha256": "438e093d1ca1816b66db9446a9996c7bdbd88deab8dd1548f2fa0958e090732d"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/fresh/wheel-build.json",
+      "bytes": 1068,
+      "sha256": "a8ad40837bb1979a8baf37977915d1ec144f413e2bcdd123fffd5298ed343759",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/wheel-build.json",
+        "bytes": 1068,
+        "sha256": "a8ad40837bb1979a8baf37977915d1ec144f413e2bcdd123fffd5298ed343759"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/fresh/wheel-build.txt.lossless.json",
+      "bytes": 365,
+      "sha256": "10890bc0a728721d9c341e9a7688061dd9ea715b24f4709fcff728fa3d52dc23",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/wheel-build.txt",
+        "bytes": 81,
+        "sha256": "430982fdee80715cdcd8cfe97c600955d040a0744c6f540e92297d3d36287def"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/fresh/wheel-install.json",
+      "bytes": 966,
+      "sha256": "6b4a82ee09c5dd9f41fd32dea2fdb1f5b83fe26d1d6af4d5f29a37eafe36b39b",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/wheel-install.json",
+        "bytes": 966,
+        "sha256": "6b4a82ee09c5dd9f41fd32dea2fdb1f5b83fe26d1d6af4d5f29a37eafe36b39b"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/wheel/fresh/wheel-install.txt.lossless.json",
+      "bytes": 546,
+      "sha256": "77acfc0844c903f6589384a0d154af62e670606bb786a3cb71a2cf7d0c1430d1",
+      "native_bytes": {
+        "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/wheel-install.txt",
+        "bytes": 256,
+        "sha256": "fbb7a5f5983691a7b0f2f899b682fc1a90c4a80faaefae5322b5bd318c27325b"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/native/protection-mode-provenance.json",
+      "bytes": 786,
+      "sha256": "b4dc25c98dd5992e4180ccbe41c1934ba449bfeda636427ecd7e83686d460f11"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/large-raw-custody.json",
+      "bytes": 2605,
+      "sha256": "c25601e865de10e8a37b871733ff4ff3059c90cd407f6e9e5d0cb6c9194ce670"
+    }
+  ],
+  "selector": {
+    "whole_files": 261,
+    "tracked_files": 260,
+    "external_source_inputs": 1,
+    "static_current_derive_files": 258,
+    "absent_named_navigation_refs": 21,
+    "case_denominator": "actual native 3986, not static files/nodeid collection alone",
+    "first_attempt": "selector admission error and pre-pytest FileNotFoundError: UNRUN"
+  },
+  "independent_audit": {
+    "git_sha": "91e343e0fa79ff77ff08fa0fae6fd3f035633190",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit.json",
+    "reviewer": "CAS, distinct from root launcher/packet author",
+    "native_join_errors": 0
+  },
+  "postfreeze_JIT_repair": "Separately published exact successor and bounded affected consumers only; this full wave never restamped as successor.",
+  "changed_consumer_native_partition": {
+    "changed_files": 6,
+    "JUnit_cases": 69,
+    "PASS": 30,
+    "ERROR": 39,
+    "body_entry_limit": "39 setup ERROR bodies unentered; defining/independent targeted receipts retain their actual earlier or successor source identities."
+  },
+  "P37_basis": "recomputed and independently reconciled actual terminal outputs; code/finding acceptance still G-owned",
+  "P38_divergence": "Collection/progress or cached prior PASS cannot establish runtime completion; installed wheel outer and child cases are separate; setup ERROR means body unentered.",
+  "P41": "not_established for all red/incomplete global gates; no inherited waiver",
+  "power_loss_or_multi_host": "not_established",
+  "cleanup": "Cloud deletion newly authorized by human; deciding raw, code and active fixtures excluded.",
+  "no_process_or_CPU_quota": true
+}

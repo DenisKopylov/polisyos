@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "pytest",
+    "-vv",
+    "-s",
+    "-p",
+    "e02_b74_input_custody",
+    "tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+    "--basetemp",
+    "/tmp/e02-B-cas-b74-20261007/base-f4/pytest",
+    "--junitxml",
+    "/tmp/e02-B-cas-b74-20261007/base-f4/native.xml",
+    "-o",
+    "cache_dir=/tmp/e02-B-cas-b74-20261007/base-f4/cache"
+  ],
+  "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+  "actual_source_sha": "f4c11a7506ae6e2c80161dc67c2458aa248164d5",
+  "actual_tree": "1962a642c33b7350c1af641e74e720b8de9ac6ca",
+  "source_status_before": "",
+  "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+  "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/tmp/e02-B-cas-b74-20261007/base-f4",
+  "removed_thread_cap_env": {},
+  "instrument_path": "/workspace/e02-B-current-cas-generation/.polisyos/b74-imported-module/native.py.txt",
+  "instrument_sha256": "e411f7554ed691f73061da58e2fcb06195b201d2c92b6764df02e36f0b680f03",
+  "plugin_path": "/tmp/e02-B-cas-b74-20261007/base-f4/e02_b74_input_custody.py",
+  "plugin_sha256": "1db7017a60bd8c786dc9a5e53f595806d92cc5f6e15a14b3e4e42050a50466e1",
+  "inputs_before_path": "/tmp/e02-B-cas-b74-20261007/base-f4/inputs-before.json",
+  "inputs_before_sha256": "b7e0b516d9280005f5aefe6f70e4af45c1a9d326ef64c2131b0cd2f59bfe90e1",
+  "started_utc": "2026-10-07T07:32:12Z",
+  "mutations": "none"
+}

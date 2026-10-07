@@ -1,0 +1,390 @@
+...F.F.....................................                              [100%]
+=================================== FAILURES ===================================
+_ test_unavailable_required_ref_refuses_resume_before_dependent_cas_effect[foreign_selected_profile] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-b71-artifact-admission/tmp/test_unavailable_required_ref_2')
+fault = 'foreign_selected_profile'
+
+    @pytest.mark.parametrize("fault", ["missing", "corrupt", "foreign_selected_profile"])
+    def test_unavailable_required_ref_refuses_resume_before_dependent_cas_effect(tmp_path, fault):
+        store, run_id, bundle, required = _native_checkpoint(tmp_path)
+        if fault == "missing":
+            store._paths(required.artifact_id)[0].unlink()
+        elif fault == "corrupt":
+            store._paths(required.artifact_id)[0].write_bytes(b"corrupt required blob")
+        else:
+            alternate = store.put_bytes(
+                b"B71 required producer bytes",
+                PutOptions(
+                    kind=required.kind,
+                    media_type=required.media_type,
+                    producer=ProducerInfo(component="foreign.producer", version="1.0.0"),
+                ),
+            )
+            assert alternate.artifact_id == required.artifact_id
+            assert alternate.manifest_profile_sha256 != required.manifest_profile_sha256
+            assert store.verify(alternate).ok
+            # The other view remains valid. Replacing the selected view with its
+            # bytes cannot authorize the producer's original complete reference.
+            original_path = store._manifest_path_for_ref(
+                required.artifact_id, required.manifest_profile_sha256
+            )
+            alternate_path = store._manifest_path_for_ref(
+                alternate.artifact_id, alternate.manifest_profile_sha256
+            )
+            original_path.write_bytes(alternate_path.read_bytes())
+        reopened = FileSystemCAS(store.root)
+>       assert not reopened.verify(required).ok
+E       AssertionError: assert not True
+E        +  where True = VerificationReport(ok=True, artifact_id='sha256:d30eb287212e7b27396c4c6cad3f75b657a386afbe7b21d50d00bdfbcf46d106', exp...6d106', actual_sha256_hex='d30eb287212e7b27396c4c6cad3f75b657a386afbe7b21d50d00bdfbcf46d106', byte_size=27, error=None).ok
+E        +    where VerificationReport(ok=True, artifact_id='sha256:d30eb287212e7b27396c4c6cad3f75b657a386afbe7b21d50d00bdfbcf46d106', exp...6d106', actual_sha256_hex='d30eb287212e7b27396c4c6cad3f75b657a386afbe7b21d50d00bdfbcf46d106', byte_size=27, error=None) = verify(ArtifactRef(artifact_id=ArtifactID(root='sha256:d30eb287212e7b27396c4c6cad3f75b657a386afbe7b21d50d00bdfbcf46d106'), kind='b71.required_input', media_type='application/octet-stream', manifest_profile_sha256=None))
+E        +      where verify = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f5983553130>.verify
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py:223: AssertionError
+______ test_allow_replay_repairs_required_blob_before_real_consumer_read _______
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-b71-artifact-admission/tmp/test_allow_replay_repairs_requ0')
+
+    def test_allow_replay_repairs_required_blob_before_real_consumer_read(tmp_path):
+        store, run_id, bundle, required = _native_checkpoint(tmp_path)
+        store._paths(required.artifact_id)[0].unlink()
+        reopened = FileSystemCAS(store.root)
+        assert not reopened.verify(required).ok
+        registry, producer, reader = _registry()
+        result = resume_from_checkpoint(
+            reopened,
+            run_id,
+            workflow=_workflow(),
+            registry=registry,
+            registry_bundle_ref=bundle,
+            resume_strategy="allow_replay",
+        )
+>       assert result.report.status == "ok"
+E       AssertionError: assert 'fail' == 'ok'
+E         
+E         - ok
+E         + fail
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py:265: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 11:22:01.983 | ERROR    | polisyos.common.logger:_call:120 - Node reader failed
+Traceback (most recent call last):
+
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__main__.py", line 9, in <module>
+    raise SystemExit(pytest.console_main())
+                     │      └ <function console_main at 0x7f59e07e24b0>
+                     └ <module 'pytest' from '/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py'>
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py", line 223, in console_main
+    code = main()
+           └ <function main at 0x7f59e07e2350>
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py", line 199, in main
+    ret: ExitCode | int = config.hook.pytest_cmdline_main(config=config)
+         │                │      │    │                          └ <_pytest.config.Config object at 0x7f59e03bc440>
+         │                │      │    └ <HookCaller 'pytest_cmdline_main'>
+         │                │      └ <_pytest.config.compat.PathAwareHookProxy object at 0x7f59e03bd010>
+         │                └ <_pytest.config.Config object at 0x7f59e03bc440>
+         └ <enum 'ExitCode'>
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           │    │         │    │     │    │                  │       └ True
+           │    │         │    │     │    │                  └ {'config': <_pytest.config.Config object at 0x7f59e03bc440>}
+           │    │         │    │     │    └ <member '_hookimpls' of 'HookCaller' objects>
+           │    │         │    │     └ <HookCaller 'pytest_cmdline_main'>
+           │    │         │    └ <member 'name' of 'HookCaller' objects>
+           │    │         └ <HookCaller 'pytest_cmdline_main'>
+           │    └ <member '_hookexec' of 'HookCaller' objects>
+           └ <HookCaller 'pytest_cmdline_main'>
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           │    │               │          │        │       └ True
+           │    │               │          │        └ {'config': <_pytest.config.Config object at 0x7f59e03bc440>}
+           │    │               │          └ [<HookImpl plugin_name='main', plugin=<module '_pytest.main' from '/workspace/polisyos/policy-engine/.venv/lib/python3.14/sit...
+           │    │               └ 'pytest_cmdline_main'
+           │    └ <function _multicall at 0x7f59e0c8d0c0>
+           └ <_pytest.config.PytestPluginManager object at 0x7f59e0626900>
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+          │         │         └ [<_pytest.config.Config object at 0x7f59e03bc440>]
+          │         └ <member 'function' of 'HookImpl' objects>
+          └ <HookImpl plugin_name='main', plugin=<module '_pytest.main' from '/workspace/polisyos/policy-engine/.venv/lib/python3.14/site...
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 365, in pytest_cmdline_main
+    return wrap_session(config, _main)
+           │            │       └ <function _main at 0x7f59e06f2770>
+           │            └ <_pytest.config.Config object at 0x7f59e03bc440>
+           └ <function wrap_session at 0x7f59e06f24b0>
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 318, in wrap_session
+    session.exitstatus = doit(config, session) or 0
+    │       │            │    │       └ <Session  exitstatus=<ExitCode.OK: 0> testsfailed=1 testscollected=43>
+    │       │            │    └ <_pytest.config.Config object at 0x7f59e03bc440>
+    │       │            └ <function _main at 0x7f59e06f2770>
+    │       └ <ExitCode.OK: 0>
+    └ <Session  exitstatus=<ExitCode.OK: 0> testsfailed=1 testscollected=43>
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 372, in _main
+    config.hook.pytest_runtestloop(session=session)
+    │      │    │                          └ <Session  exitstatus=<ExitCode.OK: 0> testsfailed=1 testscollected=43>
+    │      │    └ <HookCaller 'pytest_runtestloop'>
+    │      └ <_pytest.config.compat.PathAwareHookProxy object at 0x7f59e03bd010>
+    └ <_pytest.config.Config object at 0x7f59e03bc440>
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           │    │         │    │     │    │                  │       └ True
+           │    │         │    │     │    │                  └ {'session': <Session  exitstatus=<ExitCode.OK: 0> testsfailed=1 testscollected=43>}
+           │    │         │    │     │    └ <member '_hookimpls' of 'HookCaller' objects>
+           │    │         │    │     └ <HookCaller 'pytest_runtestloop'>
+           │    │         │    └ <member 'name' of 'HookCaller' objects>
+           │    │         └ <HookCaller 'pytest_runtestloop'>
+           │    └ <member '_hookexec' of 'HookCaller' objects>
+           └ <HookCaller 'pytest_runtestloop'>
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           │    │               │          │        │       └ True
+           │    │               │          │        └ {'session': <Session  exitstatus=<ExitCode.OK: 0> testsfailed=1 testscollected=43>}
+           │    │               │          └ [<HookImpl plugin_name='main', plugin=<module '_pytest.main' from '/workspace/polisyos/policy-engine/.venv/lib/python3.14/sit...
+           │    │               └ 'pytest_runtestloop'
+           │    └ <function _multicall at 0x7f59e0c8d0c0>
+           └ <_pytest.config.PytestPluginManager object at 0x7f59e0626900>
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+          │         │         └ [<Session  exitstatus=<ExitCode.OK: 0> testsfailed=1 testscollected=43>]
+          │         └ <member 'function' of 'HookImpl' objects>
+          └ <HookImpl plugin_name='main', plugin=<module '_pytest.main' from '/workspace/polisyos/policy-engine/.venv/lib/python3.14/site...
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 396, in pytest_runtestloop
+    item.config.hook.pytest_runtest_protocol(item=item, nextitem=nextitem)
+    │    │                                        │              └ <Function test_cache_seed_deduplicates_exact_refs_and_does_not_mark_failed_load>
+    │    │                                        └ <Function test_allow_replay_repairs_required_blob_before_real_consumer_read>
+    │    └ <member 'config' of 'Node' objects>
+    └ <Function test_allow_replay_repairs_required_blob_before_real_consumer_read>
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           │    │         │    │     │    │                  │       └ True
+           │    │         │    │     │    │                  └ {'item': <Function test_allow_replay_repairs_required_blob_before_real_consumer_read>, 'nextitem': <Function test_cache_seed_...
+           │    │         │    │     │    └ <member '_hookimpls' of 'HookCaller' objects>
+           │    │         │    │     └ <HookCaller 'pytest_runtest_protocol'>
+           │    │         │    └ <member 'name' of 'HookCaller' objects>
+           │    │         └ <HookCaller 'pytest_runtest_protocol'>
+           │    └ <member '_hookexec' of 'HookCaller' objects>
+           └ <HookCaller 'pytest_runtest_protocol'>
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           │    │               │          │        │       └ True
+           │    │               │          │        └ {'item': <Function test_allow_replay_repairs_required_blob_before_real_consumer_read>, 'nextitem': <Function test_cache_seed_...
+           │    │               │          └ [<HookImpl plugin_name='runner', plugin=<module '_pytest.runner' from '/workspace/polisyos/policy-engine/.venv/lib/python3.14...
+           │    │               └ 'pytest_runtest_protocol'
+           │    └ <function _multicall at 0x7f59e0c8d0c0>
+           └ <_pytest.config.PytestPluginManager object at 0x7f59e0626900>
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+          │         │         └ [<Function test_allow_replay_repairs_required_blob_before_real_consumer_read>, <Function test_cache_seed_deduplicates_exact_r...
+          │         └ <member 'function' of 'HookImpl' objects>
+          └ <HookImpl plugin_name='runner', plugin=<module '_pytest.runner' from '/workspace/polisyos/policy-engine/.venv/lib/python3.14/...
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 118, in pytest_runtest_protocol
+    runtestprotocol(item, nextitem=nextitem)
+    │               │              └ <Function test_cache_seed_deduplicates_exact_refs_and_does_not_mark_failed_load>
+    │               └ <Function test_allow_replay_repairs_required_blob_before_real_consumer_read>
+    └ <function runtestprotocol at 0x7f59e06f05c0>
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 137, in runtestprotocol
+    reports.append(call_and_report(item, "call", log))
+    │       │      │               │             └ True
+    │       │      │               └ <Function test_allow_replay_repairs_required_blob_before_real_consumer_read>
+    │       │      └ <function call_and_report at 0x7f59e06f0f60>
+    │       └ <method 'append' of 'list' objects>
+    └ [<TestReport 'tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py::test_allow_replay_repairs_requi...
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 244, in call_and_report
+    call = CallInfo.from_call(
+           │        └ <classmethod(<function CallInfo.from_call at 0x7f59e06f16f0>)>
+           └ <class '_pytest.runner.CallInfo'>
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 353, in from_call
+    result: TResult | None = func()
+            │                └ <function call_and_report.<locals>.<lambda> at 0x7f5983446f00>
+            └ +TResult
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 245, in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+            │                 │       └ {}
+            │                 └ <Function test_allow_replay_repairs_required_blob_before_real_consumer_read>
+            └ <HookCaller 'pytest_runtest_call'>
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           │    │         │    │     │    │                  │       └ False
+           │    │         │    │     │    │                  └ {'item': <Function test_allow_replay_repairs_required_blob_before_real_consumer_read>}
+           │    │         │    │     │    └ <member '_hookimpls' of 'HookCaller' objects>
+           │    │         │    │     └ <HookCaller 'pytest_runtest_call'>
+           │    │         │    └ <member 'name' of 'HookCaller' objects>
+           │    │         └ <HookCaller 'pytest_runtest_call'>
+           │    └ <member '_hookexec' of 'HookCaller' objects>
+           └ <HookCaller 'pytest_runtest_call'>
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           │    │               │          │        │       └ False
+           │    │               │          │        └ {'item': <Function test_allow_replay_repairs_required_blob_before_real_consumer_read>}
+           │    │               │          └ [<HookImpl plugin_name='threadexception', plugin=<module '_pytest.threadexception' from '/workspace/polisyos/policy-engine/.v...
+           │    │               └ 'pytest_runtest_call'
+           │    └ <function _multicall at 0x7f59e0c8d0c0>
+           └ <_pytest.config.PytestPluginManager object at 0x7f59e0626900>
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+          │         │         └ [<Function test_allow_replay_repairs_required_blob_before_real_consumer_read>]
+          │         └ <member 'function' of 'HookImpl' objects>
+          └ <HookImpl plugin_name='runner', plugin=<module '_pytest.runner' from '/workspace/polisyos/policy-engine/.venv/lib/python3.14/...
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 179, in pytest_runtest_call
+    item.runtest()
+    │    └ <function Function.runtest at 0x7f59e062bab0>
+    └ <Function test_allow_replay_repairs_required_blob_before_real_consumer_read>
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 1720, in runtest
+    self.ihook.pytest_pyfunc_call(pyfuncitem=self)
+    │    │                                   └ <Function test_allow_replay_repairs_required_blob_before_real_consumer_read>
+    │    └ <property object at 0x7f59e07d30b0>
+    └ <Function test_allow_replay_repairs_required_blob_before_real_consumer_read>
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           │    │         │    │     │    │                  │       └ True
+           │    │         │    │     │    │                  └ {'pyfuncitem': <Function test_allow_replay_repairs_required_blob_before_real_consumer_read>}
+           │    │         │    │     │    └ <member '_hookimpls' of 'HookCaller' objects>
+           │    │         │    │     └ <HookCaller 'pytest_pyfunc_call'>
+           │    │         │    └ <member 'name' of 'HookCaller' objects>
+           │    │         └ <HookCaller 'pytest_pyfunc_call'>
+           │    └ <member '_hookexec' of 'HookCaller' objects>
+           └ <HookCaller 'pytest_pyfunc_call'>
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           │    │               │          │        │       └ True
+           │    │               │          │        └ {'pyfuncitem': <Function test_allow_replay_repairs_required_blob_before_real_consumer_read>}
+           │    │               │          └ [<HookImpl plugin_name='python', plugin=<module '_pytest.python' from '/workspace/polisyos/policy-engine/.venv/lib/python3.14...
+           │    │               └ 'pytest_pyfunc_call'
+           │    └ <function _multicall at 0x7f59e0c8d0c0>
+           └ <_pytest.config.PytestPluginManager object at 0x7f59e0626900>
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+          │         │         └ [<Function test_allow_replay_repairs_required_blob_before_real_consumer_read>]
+          │         └ <member 'function' of 'HookImpl' objects>
+          └ <HookImpl plugin_name='python', plugin=<module '_pytest.python' from '/workspace/polisyos/policy-engine/.venv/lib/python3.14/...
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 166, in pytest_pyfunc_call
+    result = testfunction(**testargs)
+             │              └ {'tmp_path': PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-b71-artifact-admission...
+             └ <function test_allow_replay_repairs_required_blob_before_real_consumer_read at 0x7f59840397a0>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py", line 257, in test_allow_replay_repairs_required_blob_before_real_consumer_read
+    result = resume_from_checkpoint(
+             └ <function resume_from_checkpoint at 0x7f59cc07c510>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py", line 2313, in resume_from_checkpoint
+    return asyncio.run(execution_coro)
+           │       │   └ <coroutine object LocalWorkflowRunner.execute_workflow at 0x7f59b71770d0>
+           │       └ <function run at 0x7f59dff41640>
+           └ <module 'asyncio' from '/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/__init...
+
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           │      │   └ <coroutine object LocalWorkflowRunner.execute_workflow at 0x7f59b71770d0>
+           │      └ <function Runner.run at 0x7f59dff41bc0>
+           └ <asyncio.runners.Runner object at 0x7f598338a350>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           │    │     │                  └ <Task pending name='Task-9' coro=<LocalWorkflowRunner.execute_workflow() running at /workspace/e02-B-current-execution-state/...
+           │    │     └ <function BaseEventLoop.run_until_complete at 0x7f59dff3de80>
+           │    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+           └ <asyncio.runners.Runner object at 0x7f598338a350>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py", line 706, in run_until_complete
+    self.run_forever()
+    │    └ <function BaseEventLoop.run_forever at 0x7f59dff3ddd0>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py", line 677, in run_forever
+    self._run_once()
+    │    └ <function BaseEventLoop._run_once at 0x7f59dff3fed0>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py", line 2046, in _run_once
+    handle._run()
+    │      └ <function Handle._run at 0x7f59e003f7f0>
+    └ <Handle Task.task_wakeup()>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/events.py", line 94, in _run
+    self._context.run(self._callback, *self._args)
+    │    │            │    │           │    └ <member '_args' of 'Handle' objects>
+    │    │            │    │           └ <Handle Task.task_wakeup()>
+    │    │            │    └ <member '_callback' of 'Handle' objects>
+    │    │            └ <Handle Task.task_wakeup()>
+    │    └ <member '_context' of 'Handle' objects>
+    └ <Handle Task.task_wakeup()>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_runner.py", line 77, in execute_workflow
+    return await executor.execute(workflow, state)
+                 │        │       │         └ ExperimentState(schema_version='1.3', run_id='R_b71_required_artifact', inputs={'registry_bundle_ref': ArtifactRef(artifact_i...
+                 │        │       └ WorkflowSpec(schema_version='1.0', workflow_id='b71_required_artifact', nodes=[NodeInvocation(alias='producer', node_id=Compo...
+                 │        └ <function AsyncWorkflowExecutor.execute at 0x7f59834ae090>
+                 └ <polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor object at 0x7f598338aad0>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 698, in execute
+    await execution_body()
+          └ <function AsyncWorkflowExecutor.execute.<locals>._execute_tiers at 0x7f5982aa05c0>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 359, in _execute_tiers
+    record, state, node_failed = await self._run_single_node(
+    │       │                          │    └ <function AsyncWorkflowExecutor._run_single_node at 0x7f59834af530>
+    │       │                          └ <polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor object at 0x7f598338aad0>
+    │       └ _JournaledExperimentState(schema_version='1.3', run_id='R_b71_required_artifact', inputs={'registry_bundle_ref': ArtifactRef(...
+    └ NodeRunRecord(alias='producer', node_id='scientist.b71_producer@1.0.0', status='ok', duration_ms=3, artifacts=[ArtifactRef(ar...
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 1179, in _run_single_node
+    outcome, duration_ms, _cache_hit, cache_entry_ref = await self._execute_node(
+                                                              │    └ <function AsyncWorkflowExecutor._execute_node at 0x7f59834d8250>
+                                                              └ <polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor object at 0x7f598338aad0>
+
+> File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 1779, in _execute_node
+    raw_outcome = await execute_with_retry_async(
+                        └ <function execute_with_retry_async at 0x7f5983ff1220>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py", line 1495, in execute_with_retry_async
+    return await _invoke(state)
+                 │       └ _JournaledExperimentState(schema_version='1.3', run_id='R_b71_required_artifact', inputs={'registry_bundle_ref': ArtifactRef(...
+                 └ <function execute_with_retry_async.<locals>._invoke at 0x7f5982aa1d20>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py", line 1489, in _invoke
+    return await run_blocking_async(node.execute, ctx, attempt_state)
+                 │                  │    │        │    └ _JournaledExperimentState(schema_version='1.3', run_id='R_b71_required_artifact', inputs={'registry_bundle_ref': ArtifactRef(...
+                 │                  │    │        └ ClaimCapableExecutionContext(store=<polisyos.core.artifacts.store.FileSystemCAS object at 0x7f5982a90950>, run=RunContext(sto...
+                 │                  │    └ <function _Reader.execute at 0x7f5984039170>
+                 │                  └ <engine.test_resume_artifact_requirements._Reader object at 0x7f5982a7e5d0>
+                 └ <function run_blocking_async at 0x7f59ccb0f270>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/common/async_tools.py", line 293, in run_blocking_async
+    return await asyncio.wait_for(future, timeout=timeout)
+                 │       │        │               └ 30.0
+                 │       │        └ <Future finished exception=FileNotFoundError('Artifact not found: d30eb287212e7b27396c4c6cad3f75b657a386afbe7b21d50d00bdfbcf4...
+                 │       └ <function wait_for at 0x7f59dff314e0>
+                 └ <module 'asyncio' from '/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/__init...
+
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+                 └ <Future finished exception=FileNotFoundError('Artifact not found: d30eb287212e7b27396c4c6cad3f75b657a386afbe7b21d50d00bdfbcf4...
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/common/async_tools.py", line 137, in invoke
+    result = fn(*args, **kwargs)
+             │   │       └ {}
+             │   └ (functools.partial(<bound method _Reader.execute of <engine.test_resume_artifact_requirements._Reader object at 0x7f5982a7e5d...
+             └ <built-in method run of _contextvars.Context object at 0x7f5983380cc0>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py", line 118, in execute
+    assert ctx.store.get_bytes(ref) == b"B71 required producer bytes"
+           │   │     │         └ ArtifactRef(artifact_id=ArtifactID(root='sha256:d30eb287212e7b27396c4c6cad3f75b657a386afbe7b21d50d00bdfbcf46d106'), kind='b71...
+           │   │     └ <function FileSystemCAS.get_bytes at 0x7f59cc7981a0>
+           │   └ <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f5982a90950>
+           └ ClaimCapableExecutionContext(store=<polisyos.core.artifacts.store.FileSystemCAS object at 0x7f5982a90950>, run=RunContext(sto...
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/core/artifacts/store.py", line 392, in wrapped
+    result = method(self, artifact_id, *args, **kwargs)
+             │      │     │             │       └ {}
+             │      │     │             └ ()
+             │      │     └ ArtifactRef(artifact_id=ArtifactID(root='sha256:d30eb287212e7b27396c4c6cad3f75b657a386afbe7b21d50d00bdfbcf46d106'), kind='b71...
+             │      └ <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f5982a90950>
+             └ <function FileSystemCAS.get_bytes at 0x7f59cc798040>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/core/artifacts/store.py", line 1284, in get_bytes
+    raise FileNotFoundError(f"Artifact not found: {aid.hex}")
+                                                   │   └ <property object at 0x7f59cd6b9530>
+                                                   └ ArtifactID(root='sha256:d30eb287212e7b27396c4c6cad3f75b657a386afbe7b21d50d00bdfbcf46d106')
+
+FileNotFoundError: Artifact not found: d30eb287212e7b27396c4c6cad3f75b657a386afbe7b21d50d00bdfbcf46d106
+
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py::test_unavailable_required_ref_refuses_resume_before_dependent_cas_effect[foreign_selected_profile]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py::test_allow_replay_repairs_required_blob_before_real_consumer_read

@@ -1,0 +1,67 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/dev/shm/e02-B-cmp-b43-freeze/generate_selected_stub.py"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_METRICS_PORT": "0",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "caps_absent": true,
+  "start": "2026-10-06T21:18:35.360551+00:00",
+  "end": "2026-10-06T21:18:36.269352+00:00",
+  "wall_seconds": 0.9088230133056641,
+  "exit_code": 0,
+  "raw_wait_status": 0,
+  "rusage": {
+    "maxrss_kib": 41992,
+    "user_seconds": 0.24775,
+    "system_seconds": 0.063635
+  },
+  "source_before": {
+    "head": "97d0684c1f2765fc67d40331a8a2602a08c1f2e0",
+    "tree": "3fd5593ed90c4b17ccd81f13ff8199533b75d111",
+    "status": " M policy-engine/src/polisyos/foundry/methods/artifacts/README.md\n M policy-engine/src/polisyos/foundry/methods/artifacts/_chain.py\n M policy-engine/src/polisyos/foundry/methods/artifacts/parts.py\n M policy-engine/src/polisyos/foundry/methods/components/README.md\n M policy-engine/src/polisyos/foundry/methods/components/composer.py\n M policy-engine/tools/devx/foundry/README.md\n M policy-engine/tools/devx/foundry/generate_stubs.py\n?? policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-compiled-chain-plan.toml\n?? policy-engine/tests/unit/foundry/methods/artifacts/\n",
+    "files": {
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_method.py": "89d11c480c8ccb563251d5c9e1bfa2919aeb8f52a91344f8086c73d5f01ab6f0",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_records.py": "00581f80f2fed76e28262dc7a44f42961630986687614adb39a11fe7f3ca12b3",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/parts.py": "300ebd5f83fc1ca646ea1b31543d5806e139095994e3e83e2698b81d8d195a5f",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/__init__.py": "79a2f5203ae44074bc81e1fe6074adf23b1942960bbe62527b16772c1d827670",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_evidence.py": "8e2f98d7ec77e9c44d5b150857e775750727a31dee69ca10694adf9518a466f7",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_chain.py": "71e1791678e00001f718d664f89c08b8583a7c004c67e5ac4dd1d2ef6195ae09",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_fingerprint.py": "69718adeb434cb860fdefd6f59e244f9fc0f7d7e0b1fabbeb78ff065e737f0c1",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py": "5687fea7a29fb35a6093d2baa3f0a0c12674552dd4c29ee7867e096e19cee35d",
+      "policy-engine/src/polisyos/foundry/methods/components/composer.py": "0e3baea23e3c4804668d4e1116409c1c1522f1a15e507c317389b947b31c3c68",
+      "policy-engine/src/polisyos/foundry/methods/components/composer.pyi": "b519bbdf56ad9492a0ded988d5c3e5b06cabb0738bb22b42f1c8fcd14c207195",
+      "policy-engine/tools/devx/foundry/generate_stubs.py": "1bb4427a4d1bf21ed727a6e0c1c2433c36dcf0b2fdbb802efa11cc519ebd113b",
+      "policy-engine/tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py": "29eef2437b2a74bcf0584a368a56c24d204b615df43de400f11738085841d4d8"
+    }
+  },
+  "source_after": {
+    "head": "97d0684c1f2765fc67d40331a8a2602a08c1f2e0",
+    "tree": "3fd5593ed90c4b17ccd81f13ff8199533b75d111",
+    "status": " M policy-engine/src/polisyos/foundry/methods/artifacts/README.md\n M policy-engine/src/polisyos/foundry/methods/artifacts/_chain.py\n M policy-engine/src/polisyos/foundry/methods/artifacts/parts.py\n M policy-engine/src/polisyos/foundry/methods/components/README.md\n M policy-engine/src/polisyos/foundry/methods/components/composer.py\n M policy-engine/src/polisyos/foundry/methods/components/composer.pyi\n M policy-engine/tools/devx/foundry/README.md\n M policy-engine/tools/devx/foundry/generate_stubs.py\n?? policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-compiled-chain-plan.toml\n?? policy-engine/tests/unit/foundry/methods/artifacts/\n",
+    "files": {
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_method.py": "89d11c480c8ccb563251d5c9e1bfa2919aeb8f52a91344f8086c73d5f01ab6f0",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_records.py": "00581f80f2fed76e28262dc7a44f42961630986687614adb39a11fe7f3ca12b3",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/parts.py": "300ebd5f83fc1ca646ea1b31543d5806e139095994e3e83e2698b81d8d195a5f",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/__init__.py": "79a2f5203ae44074bc81e1fe6074adf23b1942960bbe62527b16772c1d827670",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_evidence.py": "8e2f98d7ec77e9c44d5b150857e775750727a31dee69ca10694adf9518a466f7",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_chain.py": "71e1791678e00001f718d664f89c08b8583a7c004c67e5ac4dd1d2ef6195ae09",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_fingerprint.py": "69718adeb434cb860fdefd6f59e244f9fc0f7d7e0b1fabbeb78ff065e737f0c1",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py": "5687fea7a29fb35a6093d2baa3f0a0c12674552dd4c29ee7867e096e19cee35d",
+      "policy-engine/src/polisyos/foundry/methods/components/composer.py": "0e3baea23e3c4804668d4e1116409c1c1522f1a15e507c317389b947b31c3c68",
+      "policy-engine/src/polisyos/foundry/methods/components/composer.pyi": "5ceb9b260e366f62d49978c5d42cf058d96dadc2f3427d23ed9a51dc3344eb48",
+      "policy-engine/tools/devx/foundry/generate_stubs.py": "1bb4427a4d1bf21ed727a6e0c1c2433c36dcf0b2fdbb802efa11cc519ebd113b",
+      "policy-engine/tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py": "29eef2437b2a74bcf0584a368a56c24d204b615df43de400f11738085841d4d8"
+    }
+  },
+  "stdout": {
+    "path": "/dev/shm/e02-B-cmp-b43-freeze/stub.txt",
+    "bytes": 480,
+    "sha256": "9afeba35bb6d6938ae373a6ecc223644891dc08fc6b80b9307939500dd091b67"
+  }
+}

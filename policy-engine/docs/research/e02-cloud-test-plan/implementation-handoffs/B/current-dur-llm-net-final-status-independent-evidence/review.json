@@ -1,0 +1,1858 @@
+{
+  "schema": "policyos.e02.foreign_final_status_review.v1",
+  "reviewer": "B CMP/RES compiler author; independent of DUR/LLM/NET mechanism authors",
+  "mode": "source and completed-output data review only; new native/gates/collection UNRUN",
+  "closure_ids": [],
+  "review_base_sha": "d6339c7bfd87963b3d6e57bcaf1dc19c0e826149",
+  "source": {
+    "sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+    "source_role": "All checked production remains1862; later author/root commits are metadata unless explicitly qualified."
+  },
+  "scope_bundles": [
+    "DUR-01",
+    "DUR-02",
+    "LLM-01",
+    "LLM-02",
+    "NET-01",
+    "NET-02"
+  ],
+  "scope_finding_ids": [
+    "B37",
+    "B38",
+    "B64",
+    "B65",
+    "B66",
+    "B67",
+    "B68",
+    "B78",
+    "B87",
+    "B89",
+    "B90",
+    "B91",
+    "B92",
+    "B93"
+  ],
+  "proposal_input": {
+    "state": "immutable Git input; independent foreign14 status guard only, no own-mechanism adjudication",
+    "implementation_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+    "implementation_tree": "098dabce914551eab464c15c229bbeb018dcfb2b",
+    "proposal_ref": {
+      "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+      "bytes": 199636,
+      "sha256": "30b689d59c28e5173d6957a70ca1403a87ecc2406383f36060e8fc9ebe2c28c1"
+    },
+    "separate_handoff_ref": {
+      "git_sha": "b6c4d27a23d78feb8c081be9e9024051805a647b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-handoff.json",
+      "bytes": 14720,
+      "sha256": "fd035385e40413458c15203dc8066e3d6102791bd108942faeb50ca270dc118d"
+    },
+    "handoff_tree": "0681860f9735abc06a3b73cbce17e294763c935e",
+    "formal_closure_ids": []
+  },
+  "reference_index": {
+    "dd_xml": {
+      "git_sha": "c58112d64bd6684120dc7dba5df07b1906402152",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/native.junit.xml",
+      "bytes": 3168754,
+      "sha256": "c61a02426c844ea6e3de05d0853fa939e1ce6cad9b5d31e1b8c5e8a65fa78cf7"
+    },
+    "dd_stdout": {
+      "git_sha": "c58112d64bd6684120dc7dba5df07b1906402152",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/native.stdout.txt",
+      "bytes": 3267622,
+      "sha256": "3d3ac32f7a36c9af45e2fcb0605641977794dbad4b9146143baf4fcb0c52b30e"
+    },
+    "dd_profile": {
+      "git_sha": "c58112d64bd6684120dc7dba5df07b1906402152",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/native.profile.json",
+      "bytes": 20483,
+      "sha256": "4efb2a6adb5f2d4c51c3598f831f1b8edc71fc4d9f10211b0d5b75a3f3bede83"
+    },
+    "b65_red": {
+      "git_sha": "6432daa0c17d9085b87b2117f5f24cd5251ea4fc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent.json",
+      "bytes": 68096,
+      "sha256": "1a422a6480ac2de47cc5a5513d84836263110b5e7ed11107f8533bfd72033bad"
+    },
+    "b66_red": {
+      "git_sha": "28b581626fb1567699e55fe3fc983732fb768c07",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red.json",
+      "bytes": 12083,
+      "sha256": "904b3a02724411b2f8898d44a30e979d287b69061bed80889f185b21e57888e0"
+    },
+    "b66_semantic": {
+      "git_sha": "23e6fa3ead0f740a5549ec1d1e97e330d39c3a0c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b66-dd-semantic-followup.json",
+      "bytes": 12057,
+      "sha256": "7de8c7a1db35f64fa724e2b4716dc779d5e94945de352ab498286234fc7a148f"
+    },
+    "lower_candidate": {
+      "git_sha": "fcd9fe50e504582736f9a012a145587d69b1dadf",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-obligations.json",
+      "bytes": 35016,
+      "sha256": "f7e1e64f9144dd5a331214c28a36698f35aa537ff0e6a28dd90f69be6a720788"
+    },
+    "lower_foreign_source_review": {
+      "git_sha": "787be3666a582673d0f74654be382ff0a4421c0d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-source-independent-review.json",
+      "bytes": 18466,
+      "sha256": "8754722689e07ef33301b774627a75ff2e0559af375325a493a74bc7b8d399ee"
+    },
+    "pg_native": {
+      "git_sha": "9dcf877a037a9814f18ac7ddc75b992049c737b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing.json",
+      "bytes": 57308,
+      "sha256": "5747f53e143080c10e065cc10f4ab40227917decbea85f9b035f0727dd0e5ae3"
+    },
+    "pg_foreign_review": {
+      "git_sha": "bbdbecfaec8349a9c26af6baae4b18833be2328d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review.json",
+      "bytes": 22380,
+      "sha256": "d1d7d3c16a6bd5fd391689639e92a42d5c91e6db86a64b40cb1d1259e1e35e87"
+    },
+    "b65_recovery13_red": {
+      "git_sha": "9b4167a1d481aa06b49794f01896df954917a4a8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red.json",
+      "bytes": 116624,
+      "sha256": "c6160ecdf365199d0d0af7bbfd19d2d96b0f7f1f56f816c1e6ea1582be756004"
+    },
+    "historical_manual_basis": {
+      "git_sha": "348252b6f9057a4dad2cd12c0a3d3fc8dbdd1d1a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json",
+      "bytes": 163774,
+      "sha256": "fd5c3edf97829c25e4635d41fde724a5b20fe4afb1fde3383fe5fe8f4487ab23"
+    },
+    "worker_independent": {
+      "git_sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-independent.json",
+      "bytes": 32317,
+      "sha256": "e9b62d7c792ad5925d39c90800efe49d47edf43fa81b6768e54e3899777b6ccd"
+    },
+    "worker_owner": {
+      "git_sha": "b51d5469e20b39d0b9250bfced692f360eb93a57",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting.json",
+      "bytes": 150417,
+      "sha256": "a0f821c3c9dd2864c36e07973c222742dcddd3df606e821ceb5eb2ba4a03406b"
+    },
+    "optional_spend_projection": {
+      "git_sha": "97d0684c1f2765fc67d40331a8a2602a08c1f2e0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-boundary.json",
+      "bytes": 17779,
+      "sha256": "06fe970bfb85b274a62741ce57b001a52d0971751cfac61fd32c652033635804"
+    },
+    "llm_repair": {
+      "git_sha": "90d2e869ae1e78b06932f8b2349848d41588def8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair.json",
+      "bytes": 238204,
+      "sha256": "0f090915c51977633043f19086ebaa0ab0dc402484efb3167ac665513e419268"
+    },
+    "root_affected_stdout": {
+      "git_sha": "120a9f11a0fb4f800c71da370176b6fc22d4aa87",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-affected-consumers.txt",
+      "bytes": 1673745,
+      "sha256": "05ca33cf103234b77d78b37ce4f5731d5e14d14895bf2223a6b77e8df41e3b49"
+    },
+    "root_affected_xml": {
+      "git_sha": "120a9f11a0fb4f800c71da370176b6fc22d4aa87",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/native-affected.xml",
+      "bytes": 151979,
+      "sha256": "e7952cf7c945b460e4511a526b0e38c4d9bc7bce54fe57c1e2c0ce1ad4d8c872"
+    },
+    "root_affected_wrapper": {
+      "git_sha": "120a9f11a0fb4f800c71da370176b6fc22d4aa87",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-affected-consumers.json",
+      "bytes": 2929,
+      "sha256": "d4ba231338db6d83de3829de20cd9592ec791596ea0f26651ba0e38d67b3cd43"
+    },
+    "root_affected_profile": {
+      "git_sha": "120a9f11a0fb4f800c71da370176b6fc22d4aa87",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-affected-consumers-profile.json",
+      "bytes": 16353,
+      "sha256": "9f1559932776fcf0f215a15399b9f4329fc54a6bcd68aa2711a57523724fe9f1"
+    },
+    "root_full_stdout": {
+      "git_sha": "120a9f11a0fb4f800c71da370176b6fc22d4aa87",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-B-cohort.txt",
+      "bytes": 172778,
+      "sha256": "2f1ccd3ec853f830617b714cd7041ac18f7ce6b22ed7c70cfe4ac90a4dbbc84b"
+    },
+    "root_full_wrapper": {
+      "git_sha": "120a9f11a0fb4f800c71da370176b6fc22d4aa87",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-B-cohort.json",
+      "bytes": 2858,
+      "sha256": "128df0057719f39a62fc303c4c267fc04a1db4d34a1e67d2b49523bdef889d97"
+    },
+    "root_full_profile": {
+      "git_sha": "120a9f11a0fb4f800c71da370176b6fc22d4aa87",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-B-cohort-profile.json",
+      "bytes": 21086,
+      "sha256": "306f134d1c709a33b1e195f62775ce226fee61f9addeda95fbc3dd1151158f58"
+    },
+    "p118_triage": {
+      "git_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json",
+      "bytes": 227121,
+      "sha256": "d5fcd61afc22951ad25324b0bc0a2ec9b5f768a689d4dabffc748985dc7e19ad",
+      "rows": {
+        "B78": "/rows/74",
+        "B93": "/rows/99"
+      },
+      "role": "Canonical interpretation only; not runtime/closure evidence"
+    },
+    "pg_final": {
+      "git_sha": "d539717f2720ef4f202e6cb265e23b99cb4a5018",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent.json",
+      "bytes": 67444,
+      "sha256": "29031b893cbff6e0ec726ee0c7286b2d7774b948e08d52206553e622d655ed78",
+      "metadata_successor_of": "c9581e3699856b9a6997dfd2988fa0b72a298f5c"
+    },
+    "C_final": {
+      "git_sha": "d6339c7bfd87963b3d6e57bcaf1dc19c0e826149",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-contracts.json",
+      "bytes": 134838,
+      "sha256": "230e52aabbec887b7b7f82a49ea6ab5f9d083a7d141110e166f3378923f879a9"
+    },
+    "root_custody": {
+      "git_sha": "67473d324ee573d9a9673198d2b011130fbd799a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-output-custody.json",
+      "bytes": 22778,
+      "sha256": "c3f9c0c209195be0d3bc54d2fcde44ec1f48013d4c76d2b3b2577c948fde45eb"
+    },
+    "root_native_independent": {
+      "git_sha": "322fc9ea598b5ebf82c915e2fffdccc9b4641965",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-incomplete-review.json",
+      "bytes": 32243,
+      "sha256": "3e7a281cea720bed1a7dd711dda668993f23fc63c01202c1e5e78394de73518c"
+    },
+    "adapters_historical": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters.json",
+      "bytes": 249667,
+      "sha256": "3b84f19ffd5c52d1dc5567420d0ba0c2de07f45f81b8b557872a6a6f5e929234"
+    },
+    "finding_owners": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "bytes": 9504,
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722"
+    },
+    "bundle_owners": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "bytes": 12413,
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75"
+    },
+    "baseline_routes_tsv": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv",
+      "bytes": 280085,
+      "sha256": "30755ddca05267c4aeec56154c1c9282ee985c3414b76991aecb99d0ecf59da2"
+    },
+    "baseline_cells_tsv": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv",
+      "bytes": 451094,
+      "sha256": "afbf14fc428d89e20e409cd7f18db0a52bf17e2c0ecde1a2a5e33626c8b49152"
+    },
+    "baseline_sources_json": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/sources.json",
+      "bytes": 4860,
+      "sha256": "a08b728541bf0c424e985969760131e553873c3be91aa9b4d6e96a50e9556edb"
+    },
+    "baseline_query_py": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "bytes": 6843,
+      "sha256": "fb8d1b841d24e9069f7618ab08bee23b5f20fb1027f32a4ce8ed3d7e662a1f83"
+    },
+    "card_DUR-01": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DUR-01.md",
+      "bytes": 9457,
+      "sha256": "4d2c05567d77dbe20306b5b6dddfb7c680befdc4063d177110c78573454746bf"
+    },
+    "card_DUR-02": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DUR-02.md",
+      "bytes": 14763,
+      "sha256": "7fa202cb245c67f765b9fbbc10f4c29e78f5e5b3872591f98ee964ee3f222652"
+    },
+    "card_LLM-01": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-01.md",
+      "bytes": 18658,
+      "sha256": "56e5cceefa8382986c7c5662a093b3adb7bf5d4afa50c6b77093797bd19cff1f"
+    },
+    "card_LLM-02": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-02.md",
+      "bytes": 13613,
+      "sha256": "b4e1df5e681a96a0bbf26f0116b73cefd8737a6d84287d12427c9edd80b070bd"
+    },
+    "card_NET-01": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-01.md",
+      "bytes": 17369,
+      "sha256": "3317b0e88f1b3517d0e5d6ea2fef5ad20bfa19d5a39eac4a15fe146a6d698683"
+    },
+    "card_NET-02": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-02.md",
+      "bytes": 16805,
+      "sha256": "cacfe59ec5056d76596aeb36ea2dfa9e43925042b5bc1e77c7cbeedcbd2b240b"
+    },
+    "b93_final": {
+      "git_sha": "0b0a524c7e51cf714102374d8d2a715a9bedc5e9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-independent.json",
+      "bytes": 56679,
+      "sha256": "b0399aa93d51d5fecd30205c0cfdf2e78ee5bebb36a6a62c36b1acdd98bc44ee"
+    },
+    "source_core_llm_cost_py": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/core/llm/cost.py",
+      "bytes": 1573,
+      "sha256": "502d16e322fcbadff094eb0cd3ade4c289ca604ecfeb4ff514e62c11b49f93b0"
+    },
+    "source_core_llm_response_py": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/core/llm/response.py",
+      "bytes": 8621,
+      "sha256": "9964c5183108f47143cec32b0beb8b65aa4de6df706757b3a1f02be1c77b0581"
+    },
+    "source_core_llm_settlement_py": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+      "bytes": 21507,
+      "sha256": "6d680b37b3107322ec79e56d6e7959b6605c5af22be641d6305f65bc495f78a7"
+    },
+    "source_core_llm_traced_client_py": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+      "bytes": 37572,
+      "sha256": "f982028c7533dacac0df93475177bd840857768744ebf0bfd8c2181af912b81a"
+    },
+    "source_fabric_data_plane_streaming_py": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "bytes": 108192,
+      "sha256": "aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3"
+    },
+    "source_runtime_http_services_control_nl_pipeline_py": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "bytes": 427462,
+      "sha256": "e73f044870901509f76f73a20e7ea34919029d1d60e3557cf3b507981256b6bd"
+    },
+    "source_runtime_http_services_control_response_shapes_py": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py",
+      "bytes": 34752,
+      "sha256": "b129c35c13a7bb021497f667979a0c8604f6c49a8b13a2e3dd44f668034f678b"
+    },
+    "source_runtime_http_services_control_run_lifecycle_py": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "bytes": 347497,
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9"
+    },
+    "source_runtime_http_services_control_plane_store_py": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "bytes": 209996,
+      "sha256": "af813a2b87c0500bc2c0499813c9170a6a8033d92f860fe5556b72088e6721f6"
+    },
+    "source_runtime_http_services_control_worker_py": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+      "bytes": 13613,
+      "sha256": "4b319c7b70d0664c2039676dc7424f71468faa9df2b45f95c605cc38831f9b5c"
+    },
+    "source_runtime_quality_generation_cycle_py": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "bytes": 578822,
+      "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+    },
+    "source_scientist_orchestration_engine_budget_ledger_py": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "bytes": 59381,
+      "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe"
+    },
+    "source_scientist_orchestration_engine_budget_middleware_py": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "bytes": 10751,
+      "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8"
+    },
+    "source_scientist_orchestration_llm_budget_enforcer_py": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "bytes": 58032,
+      "sha256": "66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a"
+    },
+    "source_scientist_orchestration_llm_factory_py": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+      "bytes": 9508,
+      "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68"
+    },
+    "source_scientist_orchestration_llm_prompt_cache_py": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "bytes": 43152,
+      "sha256": "e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5"
+    },
+    "source_scientist_orchestration_llm_traced_client_py": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/traced_client.py",
+      "bytes": 206,
+      "sha256": "d82821dc5d3f09f46988bbeb6825c4ab8c62ed46ee2c4108e2f2f7c2a72bb202"
+    },
+    "final_proposal": {
+      "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+      "bytes": 199636,
+      "sha256": "30b689d59c28e5173d6957a70ca1403a87ecc2406383f36060e8fc9ebe2c28c1"
+    },
+    "final_proposal_handoff": {
+      "git_sha": "b6c4d27a23d78feb8c081be9e9024051805a647b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-handoff.json",
+      "bytes": 14720,
+      "sha256": "fd035385e40413458c15203dc8066e3d6102791bd108942faeb50ca270dc118d"
+    },
+    "affected35_canonical": {
+      "git_sha": "7af0b486f8434185204abf98863e54cac16fe431",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers.json",
+      "bytes": 79994,
+      "sha256": "f8383f43df7bd60014727ceae70012b45eb3c0040e2b8a7115800adada760b0e"
+    },
+    "affected35_index": {
+      "git_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/index.json",
+      "bytes": 6673,
+      "sha256": "86ceebf8b3a51066d8c21bf95a8f99248e4529a3ea727fea3e67d262d5386701"
+    },
+    "affected35_xml": {
+      "git_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/native.xml",
+      "bytes": 123142,
+      "sha256": "e6726d596686c0fc52fcafd9e1648802d39fd13409fdc0603dbb974af4a4bfe6"
+    },
+    "affected35_stdout_wrapper": {
+      "git_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/native.txt.json",
+      "bytes": 107875,
+      "sha256": "a850cdf230e6c39f77d3176ba090ac51b71d4703245a453053fe454a7790633a"
+    },
+    "affected35_wrapper": {
+      "git_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/wrapper.json",
+      "bytes": 1808,
+      "sha256": "6b3a6e7909f2c9651cd164798b62ec7fe6b17801f8cc47484e019fbf93e11f73"
+    },
+    "affected35_profile": {
+      "git_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/execution-profile.json",
+      "bytes": 6034,
+      "sha256": "0c99f68549bc32f9bbfa1d3a992d13ddfc6330b87c00e93307d7cc749552bdb8"
+    },
+    "affected35_projection": {
+      "git_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/source-content-projection-summary.json",
+      "bytes": 1134,
+      "sha256": "4ed25c7cf728bc57cd0bc7917ceab601c35b1f3e58f75482e7f9380ded5049b3"
+    },
+    "affected35_before": {
+      "git_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/source-before.json",
+      "bytes": 17892,
+      "sha256": "aa43bf2776386c7e57a29ccfd0cb007f2bc2bdf2eaf79206135fa00501ef767b"
+    },
+    "affected35_after": {
+      "git_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/source-after.json",
+      "bytes": 17940,
+      "sha256": "ea7408c104dbfcce2d33e8e43aa0d58c5fbadd8fd27189f2ef27adc4e99f0581"
+    },
+    "affected35_partition": {
+      "git_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/case-partition-summary.json",
+      "bytes": 21271,
+      "sha256": "6b74170bb93f6bb6e9048dfc0abdebf6ca2367a367b317d116990afa3263d3c4"
+    },
+    "affected35_phases": {
+      "git_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/all-runtime-phases.json",
+      "bytes": 616455,
+      "sha256": "af4c083c552d6682bb14760ed8db10e0bfee32c84463e3403452370f15d5763a"
+    },
+    "affected35_selectors": {
+      "git_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/selector-proposal.json",
+      "bytes": 18136,
+      "sha256": "a2da65aae5ca75d42ea0f1c8804db5f776aca0b8c68dba86a474e3d67178c39f"
+    }
+  },
+  "baseline_jobs": [
+    {
+      "job": "F01",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt@1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "bytes": 71251,
+      "sha256": "5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9",
+      "cell_ids": [
+        "F01-P026",
+        "F01-P057",
+        "F01-P139"
+      ],
+      "metadata_roots": [
+        {
+          "line": 4,
+          "source_reported": {
+            "source": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "tree": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+            "role": "research_main",
+            "manifest_sha256": "a6ad0dad1bbad671dbf5a9efb3892d4a55c5445573e0060c0eac27c85f097527",
+            "manifest_note": "P008 separator normalized from space to TAB; supplied bytes retained separately",
+            "selected_extras": [
+              "lint",
+              "test",
+              "runtime",
+              "ml",
+              "analytics",
+              "bayesian",
+              "optimization-advanced",
+              "sensitivity",
+              "causal-discovery",
+              "agent-sim",
+              "causal-discovery-scale",
+              "search_bo",
+              "solvers",
+              "vector-search"
+            ],
+            "environment": {
+              "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+              "arch": "x86_64",
+              "python": "3.14.2",
+              "uv": "0.9.21",
+              "node": "22.23.3",
+              "corepack": "0.36.0",
+              "pnpm": "10.33.2",
+              "cpu_max": "400000 100000",
+              "cpuset": "0-4",
+              "memory_limit_bytes": 17179869184,
+              "disk_initial_free_bytes": 32026370048,
+              "disk_after_profile_free_bytes": 23258984448,
+              "installed_distributions": 253,
+              "post_series_distributions_match": true,
+              "lock_version_mismatches": 0,
+              "threads": 1,
+              "JAX_PLATFORMS": "cpu",
+              "profile_changes_after_native_start": 0,
+              "gnu_time_version": "time (GNU Time) UNKNOWN",
+              "gnu_time_binary_sha256": "efc0d1112e36ec76c14bf7508e287935cf1631d9d0d91fb532802d07aef51cea",
+              "gnu_time_probe": "child exit=7 and wall/user/sys/RSS verified",
+              "base_frozen_sync_exit": 0,
+              "node_frozen_install_exit": 0,
+              "union_frozen_sync_exit": 0
+            },
+            "config_sha256": {
+              "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+              "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+              "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+              "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+              "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+            }
+          }
+        }
+      ],
+      "grade": "source_reported_compact_text_only; raw archive unavailable"
+    },
+    {
+      "job": "F02",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt@1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "bytes": 61014,
+      "sha256": "69b55ba8ab1cd438d9cd3da1093e8c9e08f18653123ebc27acb310f6c8015447",
+      "cell_ids": [
+        "F02-P004",
+        "F02-P012"
+      ],
+      "metadata_roots": [
+        {
+          "line": 5,
+          "source_reported": {
+            "role": "research_main",
+            "source": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "tree": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+            "manifest_sha256": "1487b06837c99c3f00b02acb38ddf301917ee5f2d34aa32c05e80529860ef52b",
+            "manifest_note": "Original supplied P052 SPACE separator preserved in assigned.tsv; only this separator normalized to TAB in manifest.tsv.",
+            "environment": {
+              "os": "Linux Debian 13",
+              "arch": "x86_64",
+              "python": "3.14.2",
+              "uv": "0.9.21",
+              "node": "22.23.3",
+              "corepack": "0.36.0",
+              "pnpm": "10.33.2",
+              "cpu_max": "400000 100000",
+              "cpu_quota_cores": 4,
+              "cpuset": "0-4",
+              "memory_limit_bytes": 17179869184,
+              "installed_distributions": 241,
+              "distribution_profile_unchanged_after_series": true,
+              "numerical_threads": 1,
+              "JAX_PLATFORMS": "cpu",
+              "free_disk_before_every_install_build_ge_20_GiB": true,
+              "profile": [
+                "lint",
+                "test",
+                "runtime",
+                "ml",
+                "analytics",
+                "bayesian",
+                "optimization-advanced",
+                "sensitivity",
+                "causal-discovery",
+                "causal-discovery-scale",
+                "search_bo",
+                "solvers",
+                "vector-search"
+              ],
+              "frozen_base_sync": {
+                "exit": 0,
+                "wall_s": 37.203
+              },
+              "frozen_union_sync": {
+                "exit": 0,
+                "wall_s": 49.124
+              },
+              "frozen_pnpm_install": {
+                "exit": 0,
+                "wall_s": 2.062
+              },
+              "property_controls_absent_in_all_140_primary_children": true,
+              "effective_hypothesis_database": "/workspace/polisyos/policy-engine/_cache/hypothesis",
+              "hypothesis_boundary": "Native conftest overrides nominal per-attempt storage; shared effective database preserved and recorded."
+            },
+            "config_sha256": {
+              "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+              "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+              "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+              "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+              "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+            }
+          }
+        }
+      ],
+      "grade": "source_reported_compact_text_only; raw archive unavailable"
+    },
+    {
+      "job": "F03",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt@1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "bytes": 75761,
+      "sha256": "1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318",
+      "cell_ids": [
+        "F03-P066",
+        "F03-P091",
+        "F03-P109",
+        "F03-P111"
+      ],
+      "metadata_roots": [
+        {
+          "line": 6,
+          "source_reported": {
+            "role": "research_main",
+            "tree": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+            "manifest_sha256": "b5a8936a67d7e05869331c2ec7ad0c9b36148ec7b9fa7ea00e8f210d4d9a87b0",
+            "config_sha256": {
+              "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+              "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+              "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+              "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+              "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+            }
+          }
+        }
+      ],
+      "grade": "source_reported_compact_text_only; raw archive unavailable"
+    },
+    {
+      "job": "F04",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt@1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "bytes": 79431,
+      "sha256": "17756ae979ae73e233cad8bf43a09a3118b1efbbc88acd9dd37e3db4125a8f86",
+      "cell_ids": [
+        "F04-P009",
+        "F04-P021"
+      ],
+      "metadata_roots": [
+        {
+          "line": 4,
+          "source_reported": {
+            "source": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "tree": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+            "manifest_sha256": "eba2a5ce95a6c327bb6e102c7f52e91f645fb5ba54f7f0b3e92b597358fa1d2e",
+            "config_sha256": {
+              "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+              "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+              "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+              "pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+              "tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+            }
+          }
+        }
+      ],
+      "grade": "source_reported_compact_text_only; raw archive unavailable"
+    },
+    {
+      "job": "F05",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt@1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "bytes": 97032,
+      "sha256": "2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0",
+      "cell_ids": [
+        "F05-P047",
+        "F05-P070",
+        "F05-P081"
+      ],
+      "metadata_roots": [
+        {
+          "line": 7,
+          "source_reported": {
+            "source": "78187878ee188ff6d27442ba1498bd094da9785b",
+            "tree": "595f1df8f85c0a096aa2b61cac01b7d35a81ed7e",
+            "manifest_sha256": "9f736f1d425b5eba2a5eafd45d759488f178ac3236a61a8e24b45384cd64f312",
+            "config_sha256": {
+              "policy-engine/pyproject.toml": "d19b37b3ab80ad9c71e329a3f347d54033f88ea7df11d60ddadcefba6d36880f",
+              "policy-engine/uv.lock": "b87e993a35ef7d39ef046ed5f068e2ce264017a7368e848b223f9a0347470039",
+              "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+              "policy-engine/pnpm-lock.yaml": "da12dfb5ee90b8fb99eaf918d93bb8e24d056e378798d13ae88a542c1a65e217",
+              "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+            }
+          }
+        }
+      ],
+      "grade": "source_reported_compact_text_only; raw archive unavailable"
+    },
+    {
+      "job": "F06",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt@1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "bytes": 99912,
+      "sha256": "b2e2bac4bbb9f2c89d0fe2ef5ad462fb2238833a9f64486383e07d135f4c4a3f",
+      "cell_ids": [
+        "F06-P010",
+        "F06-P020",
+        "F06-P025",
+        "F06-P037"
+      ],
+      "metadata_roots": [
+        {
+          "line": 3,
+          "source_reported": {
+            "source": "78187878ee188ff6d27442ba1498bd094da9785b",
+            "tree": "595f1df8f85c0a096aa2b61cac01b7d35a81ed7e",
+            "manifest_sha256": "d7df889ef4e489f4695a6c9241f78b379db15168974a2940bf43be969292840e",
+            "environment": {
+              "python": "3.14.2",
+              "uv": "0.9.21",
+              "node": "22.20.0",
+              "pnpm": "10.33.2",
+              "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+              "machine": "x86_64",
+              "cpu.max": "400000 100000",
+              "cpuset.cpus.effective": "0-4",
+              "memory.max_bytes": 17179869184,
+              "numerical_threads": 1,
+              "JAX_PLATFORMS": "cpu",
+              "CUDA_VISIBLE_DEVICES": "",
+              "installed_distributions_before": 250,
+              "installed_distributions_after": 250,
+              "metadata_RECORD_direct_url_locations_unchanged": true,
+              "node_links_unchanged": true,
+              "disk_free_closeout_inventory_bytes": 17770393600,
+              "resource_adapter_missing": false,
+              "observer_sha256": "72111e340c3fabdd3a90176ddfac6cc44a0af8226a31dadd0b869d03740d4cb4"
+            }
+          }
+        }
+      ],
+      "grade": "source_reported_compact_text_only; raw archive unavailable"
+    },
+    {
+      "job": "F07",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt@1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "bytes": 74977,
+      "sha256": "eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866",
+      "cell_ids": [
+        "F07-P008",
+        "F07-P011",
+        "F07-P027",
+        "F07-P084"
+      ],
+      "metadata_roots": [
+        {
+          "line": 5,
+          "source_reported": {
+            "source": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "tree": "dde3150361bb45ae3347e585a38dc297015da7ef",
+            "manifest_sha256": "d7fb66fc3665474c59f11b0463c741b1b05c1b7c8646897c9b4b7d455a68c40f",
+            "environment": {
+              "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+              "arch": "x86_64",
+              "cpu_max": "400000 100000",
+              "cpuset": "0-4",
+              "memory_limit_bytes": 17179869184,
+              "versions": [
+                {
+                  "argv": [
+                    ".venv/bin/python",
+                    "--version"
+                  ],
+                  "version": "Python 3.14.2",
+                  "exit": 0
+                },
+                {
+                  "argv": [
+                    "/workspace/polisyos-e02-full-F07-20261005T074300Z/policy-engine/_build/e02-full/F07/20261005T074300Z/setup/uv-tool/bin/uv",
+                    "--version"
+                  ],
+                  "version": "uv 0.9.21",
+                  "exit": 0
+                },
+                {
+                  "argv": [
+                    "node",
+                    "--version"
+                  ],
+                  "version": "v22.23.3",
+                  "exit": 0
+                },
+                {
+                  "argv": [
+                    "corepack",
+                    "--version"
+                  ],
+                  "version": "0.36.0",
+                  "exit": 0
+                },
+                {
+                  "argv": [
+                    "corepack",
+                    "pnpm",
+                    "--version"
+                  ],
+                  "version": "10.33.2",
+                  "exit": 0
+                },
+                {
+                  "argv": [
+                    "/workspace/polisyos-e02-full-F07-20261005T074300Z/policy-engine/_build/e02-full/F07/20261005T074300Z/setup/gnu-time/usr/bin/time",
+                    "--version"
+                  ],
+                  "version": "time (GNU Time) UNKNOWN\nCopyright (C) 2018 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by David Keppel, David MacKenzie, and Assaf Gordon.",
+                  "exit": 0
+                }
+              ],
+              "python_executable": "/workspace/polisyos-e02-full-F07-20261005T074300Z/policy-engine/.venv/bin/python",
+              "installed_distributions": 238,
+              "distributions_unchanged_after_series": true,
+              "node_workspace_links_ref": "setup/node-workspace-links.json",
+              "GNU_time_package": {
+                "package_metadata": "Package: time\nVersion: 1.9-0.2\nArchitecture: amd64\n",
+                "exit": 0,
+                "deb_sha256": "10257c6fe888e6578550b1f20705d282dd630b76f8df0c006aec3031fefe5e23",
+                "extracted_binary_sha256": "efc0d1112e36ec76c14bf7508e287935cf1631d9d0d91fb532802d07aef51cea"
+              },
+              "disk_before_sync_final_bytes": 28581031936,
+              "disk_floor_bytes": 21474836480
+            },
+            "config_sha256": {
+              "policy-engine/pyproject.toml": "d19b37b3ab80ad9c71e329a3f347d54033f88ea7df11d60ddadcefba6d36880f",
+              "policy-engine/uv.lock": "b87e993a35ef7d39ef046ed5f068e2ce264017a7368e848b223f9a0347470039",
+              "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+              "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+              "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+            }
+          }
+        }
+      ],
+      "grade": "source_reported_compact_text_only; raw archive unavailable"
+    },
+    {
+      "job": "F08",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt@1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "bytes": 95586,
+      "sha256": "d4ccc20c4f1c70e35c9e07c049552e5a8a2a1eca750c350f23f13040468d7f18",
+      "cell_ids": [
+        "F08-P010",
+        "F08-P028",
+        "F08-P029",
+        "F08-P062",
+        "F08-P078"
+      ],
+      "metadata_roots": [
+        {
+          "line": 5,
+          "source_reported": {
+            "source": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "tree": "dde3150361bb45ae3347e585a38dc297015da7ef",
+            "manifest_sha256": "9f127589aca86d743c482b2e68a3d330e148248109b5f84e69d4497b8aafbc9f",
+            "environment": {
+              "os": "Debian 13",
+              "architecture": "x86_64",
+              "cpu_max": "400000 100000",
+              "effective_cpu_quota": 4,
+              "memory_max_bytes": 17179869184,
+              "python": "3.14.2",
+              "uv": "0.9.21",
+              "node": "22.23.3",
+              "corepack": "0.36.0",
+              "pnpm": "10.33.2",
+              "distribution_count": 253,
+              "distribution_metadata_drift": [],
+              "numerical_threads": 1,
+              "jax_platforms": "cpu"
+            },
+            "selected_extras": [
+              "lint",
+              "test",
+              "runtime",
+              "ml",
+              "analytics",
+              "bayesian",
+              "optimization-advanced",
+              "sensitivity",
+              "causal-discovery",
+              "vector-search",
+              "solvers",
+              "search_bo",
+              "agent-sim",
+              "causal-discovery-scale"
+            ]
+          }
+        }
+      ],
+      "grade": "source_reported_compact_text_only; raw archive unavailable"
+    },
+    {
+      "job": "F10",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt@1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "bytes": 71852,
+      "sha256": "c45428c7e6574666b0a5ef98ba0427e3137c7008046fad65d4ed4dc55620fe36",
+      "cell_ids": [
+        "F10-P024",
+        "F10-P031"
+      ],
+      "metadata_roots": [
+        {
+          "line": 5,
+          "source_reported": {
+            "source": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "tree": "eb96aa6d6ebc05c23e9eb740895dd0b009ac7e65",
+            "manifest_sha256": "98c71606177a82542b2993e057988b7cb332a0f90716084a713e5c76cb07f6bd"
+          }
+        }
+      ],
+      "grade": "source_reported_compact_text_only; raw archive unavailable"
+    },
+    {
+      "job": "F11",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt@1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "bytes": 62579,
+      "sha256": "5d24641c10ed0943503e5c14c2965a849d5389a4ba35ece518418fe12a03f471",
+      "cell_ids": [
+        "F11-P015",
+        "F11-P018",
+        "F11-P069"
+      ],
+      "metadata_roots": [
+        {
+          "line": 5,
+          "source_reported": {
+            "role": "main",
+            "source": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "tree": "eb96aa6d6ebc05c23e9eb740895dd0b009ac7e65",
+            "manifest_sha256": "70c193180f8034353f89544f8b27bdbb8afbb5d87b0087e5d4a86d89d5f9681b",
+            "environment": {
+              "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+              "arch": "x86_64",
+              "cgroup": {
+                "cpu.max": "400000 100000",
+                "cpuset.cpus.effective": "0-4",
+                "memory.max": "17179869184"
+              },
+              "versions": {
+                "python": "Python 3.14.0",
+                "uv": "uv 0.9.21",
+                "node": "v22.14.0",
+                "pnpm": "10.33.2",
+                "gnu_time": "time (GNU Time) UNKNOWN"
+              },
+              "gnu_time_sha256": "efc0d1112e36ec76c14bf7508e287935cf1631d9d0d91fb532802d07aef51cea",
+              "gnu_time_package_sha256": "10257c6fe888e6578550b1f20705d282dd630b76f8df0c006aec3031fefe5e23"
+            }
+          }
+        }
+      ],
+      "grade": "source_reported_compact_text_only; raw archive unavailable"
+    },
+    {
+      "job": "F12",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F12.txt@1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "bytes": 110036,
+      "sha256": "03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2",
+      "cell_ids": [
+        "F12-P008",
+        "F12-P064"
+      ],
+      "metadata_roots": [
+        {
+          "line": 5,
+          "source_reported": {
+            "source": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "tree": "eb96aa6d6ebc05c23e9eb740895dd0b009ac7e65",
+            "manifest_sha256": "d4eb4eca6f827297fc217c5104fd3176da7f63e622951fa801df0f787e233a28",
+            "config_sha256": {
+              "policy-engine/pyproject.toml": "5e98214495a461efb3aa60877a3f8cf9cae109e934da1e39dafc4c1346f631be",
+              "policy-engine/uv.lock": "ca41190281680015fd7e5e1a42e55bfcddfb3e76b171417df3110553f4b01266",
+              "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+              "policy-engine/pnpm-lock.yaml": "da12dfb5ee90b8fb99eaf918d93bb8e24d056e378798d13ae88a542c1a65e217",
+              "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+            }
+          }
+        },
+        {
+          "line": 346,
+          "source_reported": {
+            "source": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "tree": "eb96aa6d6ebc05c23e9eb740895dd0b009ac7e65",
+            "role": "main",
+            "manifest_sha256": "d4eb4eca6f827297fc217c5104fd3176da7f63e622951fa801df0f787e233a28",
+            "config_sha256": {
+              "policy-engine/pyproject.toml": "5e98214495a461efb3aa60877a3f8cf9cae109e934da1e39dafc4c1346f631be",
+              "policy-engine/uv.lock": "ca41190281680015fd7e5e1a42e55bfcddfb3e76b171417df3110553f4b01266",
+              "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+              "policy-engine/pnpm-lock.yaml": "da12dfb5ee90b8fb99eaf918d93bb8e24d056e378798d13ae88a542c1a65e217",
+              "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+            }
+          }
+        }
+      ],
+      "grade": "source_reported_compact_text_only; raw archive unavailable"
+    },
+    {
+      "job": "F13",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt@1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "bytes": 87536,
+      "sha256": "7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b",
+      "cell_ids": [
+        "F13-P010",
+        "F13-P024",
+        "F13-P104"
+      ],
+      "metadata_roots": [
+        {
+          "line": 5,
+          "source_reported": {
+            "source": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+            "manifest_sha256": "2747a065030762fc81609e59e81db0029ac11cc6064f29e3d81a5cf3e289fe31"
+          }
+        }
+      ],
+      "grade": "source_reported_compact_text_only; raw archive unavailable"
+    },
+    {
+      "job": "F14",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt@1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "bytes": 122592,
+      "sha256": "6746baa7b42a4fad583e640a8ba845806612b34c13a9688c86fbe7ff667fb50e",
+      "cell_ids": [
+        "F14-P130"
+      ],
+      "metadata_roots": [
+        {
+          "line": 4,
+          "source_reported": {
+            "tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+            "manifest_sha256": "6d22c80796c9d830c55b3b68393f43cd90593f7cb4bfa57643bc32a2da53debf",
+            "environment": {
+              "python": "3.14.2",
+              "uv": "0.9.21",
+              "node": "22.16.0",
+              "corepack_pnpm": "10.33.2",
+              "cpu_max": "400000 100000",
+              "cpu_quota": 4,
+              "cpuset_effective": "0-4",
+              "memory_max_bytes": 17179869184,
+              "numerical_threads": 1,
+              "JAX_PLATFORMS": "cpu",
+              "profile_segment": "frozen-union-1",
+              "selected_extras": [
+                "lint",
+                "test",
+                "runtime",
+                "ml",
+                "analytics",
+                "bayesian",
+                "optimization-advanced",
+                "sensitivity",
+                "causal-discovery",
+                "vector-search",
+                "solvers",
+                "search_bo",
+                "agent-sim",
+                "causal-discovery-scale"
+              ],
+              "native_property_controls": "all three removal controls absent in actual children",
+              "distribution_origins_ref": "environment.json",
+              "raw_transfer_missing": true
+            }
+          }
+        },
+        {
+          "line": 220,
+          "source_reported": {
+            "tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+            "manifest_sha256": "6d22c80796c9d830c55b3b68393f43cd90593f7cb4bfa57643bc32a2da53debf",
+            "environment": {
+              "python": "3.14.2",
+              "uv": "0.9.21",
+              "node": "22.16.0",
+              "corepack_pnpm": "10.33.2",
+              "cpu_max": "400000 100000",
+              "cpu_quota": 4,
+              "cpuset_effective": "0-4",
+              "memory_max_bytes": 17179869184,
+              "OMP_NUM_THREADS": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1",
+              "JAX_PLATFORMS": "cpu",
+              "UV_NO_BUILD_PACKAGE": "pillow",
+              "profile_segment": "frozen-union-1",
+              "native_property_removal_controls": "absent in actual child processes"
+            },
+            "selected_extras": [
+              "lint",
+              "test",
+              "runtime",
+              "ml",
+              "analytics",
+              "bayesian",
+              "optimization-advanced",
+              "sensitivity",
+              "causal-discovery",
+              "vector-search",
+              "solvers",
+              "search_bo",
+              "agent-sim",
+              "causal-discovery-scale"
+            ]
+          }
+        }
+      ],
+      "grade": "source_reported_compact_text_only; raw archive unavailable"
+    },
+    {
+      "job": "F15",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt@1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "bytes": 85661,
+      "sha256": "efe346d9094f0906bb23b1061cb51b9252afd299f85062591e13449616879169",
+      "cell_ids": [
+        "F15-P004",
+        "F15-P014",
+        "F15-P032",
+        "F15-P070",
+        "F15-P128"
+      ],
+      "metadata_roots": [
+        {
+          "line": 5,
+          "source_reported": {
+            "source": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+            "manifest_sha256": "303fa24cde39780a16e39ee738d073c9e172b5286bb724e44859ea6f72198bec",
+            "selected_extras": [
+              "lint",
+              "test",
+              "runtime",
+              "ml",
+              "analytics",
+              "bayesian",
+              "optimization-advanced",
+              "sensitivity",
+              "causal-discovery",
+              "agent-sim",
+              "search_bo",
+              "solvers",
+              "vector-search"
+            ],
+            "environment": {
+              "python": "3.14.2",
+              "uv": "0.9.21",
+              "node": "22.16.0",
+              "pnpm": "10.33.2",
+              "platform": "Linux Debian 13 x86_64",
+              "cpu_quota_cores": 4.0,
+              "cpuset": "0-4",
+              "memory_limit_bytes": 17179869184,
+              "numerical_threads": 1,
+              "jax_platforms": "cpu",
+              "precision": "repository default unchanged",
+              "gnu_time_package": "time 1.9-0.2 amd64; --version reports GNU Time UNKNOWN",
+              "native_property_controls": "all three absent in every observed primary child",
+              "python_profile": "single frozen selected-extras union installed before native series",
+              "node_install": "one CI=true corepack pnpm install --frozen-lockfile before native series",
+              "setup_interruption": "initial uv sync lost VM connection; exit=null, cause not_established; same frozen profile resumed before native tests",
+              "toolchain_bootstrap_initial_wall_s": null
+            }
+          }
+        }
+      ],
+      "grade": "source_reported_compact_text_only; raw archive unavailable"
+    }
+  ],
+  "canonical_14_reviews": [
+    {
+      "finding_id": "B37",
+      "bundle_id": "DUR-01",
+      "canonical_criterion": {
+        "line_begin": 49,
+        "line_end": 68,
+        "source_block_sha256": "c555fb1ccd7afd60ee4c21887f0da19bb1d95885fd7b3a736cd84872814db01e",
+        "statement": "Concurrent ledger reads and interrupted publication yield complete old/new or typed recovery, never implicit unlimited; sparse wire is refused before defaults."
+      },
+      "proposed_status": "closed",
+      "review_guard": "NONBLOCKING finite recommendation; ROOT/G formal adjudication only",
+      "formal_closure": false,
+      "review_statement": "Closed local filesystem/process clause recommended",
+      "accepted_clause": "Actual FileBudgetLedger publication and real fresh middleware distinguish missing bootstrap from existing corrupt/empty/sparse wire; complete old/new or typed refusal. Actual concurrent process/fault/readback and all mandatory wire-field removals are admitted evidence.",
+      "remaining_clause": "No physical power-loss, multi-host, or cryptographic ledger attestation claim.",
+      "smallest_real_falsifier": "Cold missing file spend refuses BootstrapRequired; existing empty/corrupt/sparse wire refuses unchanged rather than default-unlimited; explicit unlimited bootstrap is a healthy control.",
+      "deciding_reference_ids": [
+        "lower_candidate",
+        "lower_foreign_source_review",
+        "worker_owner",
+        "root_affected_xml",
+        "root_affected_stdout",
+        "root_affected_profile",
+        "affected35_xml",
+        "affected35_profile",
+        "affected35_wrapper",
+        "affected35_canonical"
+      ],
+      "current_check": {
+        "check": "root_affected807",
+        "classname_substrings": [
+          "test_budget_ledger_process",
+          "test_budget_wire_consumer_oracle",
+          "test_budget_completion_obligations",
+          "test_completion_admission_consumer_oracle"
+        ],
+        "literal_case_counts": {
+          "PASS": 103
+        }
+      },
+      "predicate_basis": "independently_reconciled",
+      "authority_predicate_basis": "not_established",
+      "authority_boundary": "No institutional grant, verified invoice, vendor source law or external exactly-once authority created by this review; exact operational premises remain declared.",
+      "actual_affected35_check": {
+        "check": "engine_affected35",
+        "selectors": [
+          {
+            "classname_contains": "test_budget_middleware.TestFileBudgetLedger",
+            "name_starts_with_any": []
+          }
+        ],
+        "literal_case_counts": {
+          "PASS": 9
+        },
+        "selection_role": "Defining predicate or affected consumer supplemental verification; full manual clause and adversarial/source controls remain in this row. The total is not automatic finding closure.",
+        "actual_execution_sha": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+        "actual_execution_tree": "071a52554be3c0eaa67ad0e870a0d9198ec0fa61",
+        "source_projection_qualification": "All6246 committed src/tests/product entries equal1862; content projection does not restamp actual10e execution as1862."
+      }
+    },
+    {
+      "finding_id": "B38",
+      "bundle_id": "DUR-02",
+      "canonical_criterion": {
+        "line_begin": 54,
+        "line_end": 73,
+        "source_block_sha256": "d37d987dae1f7e9c87bb88d46bbbdb91c30f0a7208e28c12bdcd21ab46b73258",
+        "statement": "Actual bound stale worker cannot publish terminal/progress/event/history/outbox after owner/attempt/expiry takeover; current owner completes coherently."
+      },
+      "proposed_status": "closed",
+      "review_guard": "NONBLOCKING finite recommendation; ROOT/G formal adjudication only",
+      "formal_closure": false,
+      "review_statement": "Closed bound source-job store/worker fence clause recommended",
+      "accepted_clause": "Final actual PostgreSQL eight profiles cover all18 ordinary protected mutators, all11 tables, stale running/completed takeover, current terminal and event/outbox trigger rollback with fresh-process worker; historical SQLite13 controls remain separate.",
+      "remaining_clause": "No external exactly-once or unbound administrative authority is established.",
+      "smallest_real_falsifier": "Stale A mutator after persisted expiry and fresh B takeover must leave all11 tables unchanged; trigger failure between terminal and event/outbox must rollback the whole transaction.",
+      "deciding_reference_ids": [
+        "pg_native",
+        "pg_foreign_review",
+        "pg_final",
+        "affected35_xml",
+        "affected35_profile",
+        "affected35_wrapper",
+        "affected35_canonical"
+      ],
+      "current_check": {
+        "check": "pg_final",
+        "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "PASS": 8,
+        "actual_mutator_denominator": 18,
+        "tables": 11,
+        "whole_native_file": "test_control_worker_postgres_fencing_oracle.py"
+      },
+      "predicate_basis": "independently_reconciled",
+      "authority_predicate_basis": "not_established",
+      "authority_boundary": "No institutional grant, verified invoice, vendor source law or external exactly-once authority created by this review; exact operational premises remain declared.",
+      "actual_affected35_check": {
+        "check": "engine_affected35",
+        "selectors": [
+          {
+            "classname_contains": "test_dur_02_process",
+            "name_starts_with_any": [
+              "test_actual_handler",
+              "test_actual_stale_bound",
+              "test_current_bound_terminal",
+              "test_bound_terminal",
+              "test_actual_lease",
+              "test_current_source",
+              "test_same_transaction",
+              "test_bound_handler_cannot_forge"
+            ]
+          },
+          {
+            "classname_contains": "test_dur_02",
+            "name_starts_with_any": [
+              "test_stale_worker",
+              "test_terminal_status"
+            ]
+          }
+        ],
+        "literal_case_counts": {
+          "PASS": 15
+        },
+        "selection_role": "Defining predicate or affected consumer supplemental verification; full manual clause and adversarial/source controls remain in this row. The total is not automatic finding closure.",
+        "actual_execution_sha": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+        "actual_execution_tree": "071a52554be3c0eaa67ad0e870a0d9198ec0fa61",
+        "source_projection_qualification": "All6246 committed src/tests/product entries equal1862; content projection does not restamp actual10e execution as1862."
+      }
+    },
+    {
+      "finding_id": "B64",
+      "bundle_id": "LLM-01",
+      "canonical_criterion": {
+        "line_begin": 53,
+        "line_end": 74,
+        "source_block_sha256": "8b937eee0a8702760af6f5bc4cccec275c9d06f350456ba6c124cbdc55953487",
+        "statement": "Supported named prompt reaches provider once; user/system/messages preserve meaning and incompatible forms refuse before external action."
+      },
+      "proposed_status": "closed",
+      "review_guard": "NONBLOCKING finite recommendation; ROOT/G formal adjudication only",
+      "formal_closure": false,
+      "review_statement": "Closed supported provider prompt adapter clause recommended",
+      "accepted_clause": "Named prompt/user/system/messages reach actual provider argument exactly once; supported conflict controls refuse before external work. Final root whole defining eight cases are terminal PASS.",
+      "remaining_clause": "Only supported forms are admitted; incompatible meanings cannot be guessed from removal of duplicate kwargs.",
+      "smallest_real_falsifier": "Passing both incompatible prompt forms must refuse before provider entry; merely removing a duplicate key may silently change the received prompt.",
+      "deciding_reference_ids": [],
+      "current_check": {
+        "check": "root_affected807",
+        "classname_substrings": [
+          "test_llm_01"
+        ],
+        "literal_case_counts": {
+          "PASS": 8
+        }
+      },
+      "predicate_basis": "independently_reconciled",
+      "authority_predicate_basis": "not_established",
+      "authority_boundary": "No institutional grant, verified invoice, vendor source law or external exactly-once authority created by this review; exact operational premises remain declared."
+    },
+    {
+      "finding_id": "B65",
+      "bundle_id": "LLM-01",
+      "canonical_criterion": {
+        "line_begin": 80,
+        "line_end": 101,
+        "source_block_sha256": "90e562abc3c5f0f27d186df9b75f70a800407315b44b6bc92dd4a2d69469d4b9",
+        "statement": "Optional metrics/tracing failure preserves obtained provider response; mandatory accounting failure retains unknown event and blocks uncontrolled new spend."
+      },
+      "proposed_status": "closed",
+      "review_guard": "NONBLOCKING finite recommendation; ROOT/G formal adjudication only",
+      "formal_closure": false,
+      "review_statement": "Closed initialized durable-owner accounting clause recommended",
+      "accepted_clause": "Final root real audit/admission/flight/ledger/worker controls retain provider response under optional hooks and distinguish actual charge ACK from unresolved mandatory act; durable intent precedes provider and unsettled intersecting obligations block new spend/recovery duplication.",
+      "remaining_clause": "Constructor-bound physical resolver/ledger owner is an operational premise; verified invoice/institutional audit truth is not created by receipt DTO or caller flag. Unbudgeted profile remains explicitly non-durable.",
+      "smallest_real_falsifier": "Required COMMITTED append failure after known .02 charge keeps actual ledger ACK and pending exact audit obligation; same/fresh/sibling attempt cannot cause provider2 until trusted exact resolution; optional hook failure preserves obtained response.",
+      "deciding_reference_ids": [
+        "b65_red",
+        "b65_recovery13_red",
+        "lower_foreign_source_review",
+        "llm_repair",
+        "worker_independent",
+        "worker_owner",
+        "root_affected_xml",
+        "root_affected_stdout",
+        "root_affected_profile"
+      ],
+      "current_check": {
+        "check": "root_affected807",
+        "classname_substrings": [
+          "test_llm_01",
+          "test_required_audit_settlement_e02",
+          "test_shared_flight_completion_independent_e02",
+          "test_protected_audit_admission_e02",
+          "test_completion_admission_consumer_oracle",
+          "test_worker_accounting_boundary_e02"
+        ],
+        "literal_case_counts": {
+          "PASS": 65
+        }
+      },
+      "predicate_basis": "independently_reconciled",
+      "authority_predicate_basis": "not_established",
+      "authority_boundary": "No institutional grant, verified invoice, vendor source law or external exactly-once authority created by this review; exact operational premises remain declared."
+    },
+    {
+      "finding_id": "B66",
+      "bundle_id": "LLM-01",
+      "canonical_criterion": {
+        "line_begin": 107,
+        "line_end": 128,
+        "source_block_sha256": "ef9b4c4d8d959e699bfc06780c1d7e6e4abb4c44b1f6386a78bf6d08d193610e",
+        "statement": "Miss/hits/followers keep one actual provider cost event, separate reuse identity and durable idempotent producer settlement surviving caller cancellation."
+      },
+      "proposed_status": "limited",
+      "review_guard": "NONBLOCKING finite recommendation; ROOT/G formal adjudication only",
+      "formal_closure": false,
+      "review_statement": "LIMITED whole finding; library clause accepted",
+      "accepted_clause": "Real SDK/Traced/cache/enforcer/ledger/worker known .02, reported0, valid observed usage with configured pricing, and unknown input cases preserve disclosed amount origin. One provider settles before publication; reuse/followers have separate roles.",
+      "remaining_clause": "Actual A response_shapes._sum_call_events changes unknown None to0.0 (historical real1FAIL2PASS). Full served NL route/later admission UNRUN; A/G own the consumer correction. Legitimate disclosed operational estimate is not invoice authority.",
+      "smallest_real_falsifier": "Keep real provider work/Traced unknown event and compare unknown None, reported .02 and reported0 through actual A helper; unknown aggregate must stay unknown rather than measured0.",
+      "deciding_reference_ids": [
+        "b66_red",
+        "b66_semantic",
+        "llm_repair",
+        "worker_independent",
+        "worker_owner",
+        "optional_spend_projection",
+        "root_affected_xml",
+        "root_affected_stdout",
+        "root_affected_profile"
+      ],
+      "current_check": {
+        "check": "root_affected807",
+        "classname_substrings": [
+          "test_prompt_cache_e02",
+          "test_unknown_cost_settlement_e02",
+          "test_shared_flight_completion_independent_e02",
+          "test_worker_accounting_boundary_e02"
+        ],
+        "literal_case_counts": {
+          "PASS": 169
+        }
+      },
+      "predicate_basis": "independently_reconciled",
+      "authority_predicate_basis": "not_established",
+      "authority_boundary": "No institutional grant, verified invoice, vendor source law or external exactly-once authority created by this review; exact operational premises remain declared."
+    },
+    {
+      "finding_id": "B67",
+      "bundle_id": "LLM-02",
+      "canonical_criterion": {
+        "line_begin": 50,
+        "line_end": 71,
+        "source_block_sha256": "b05c118cdc26e84579548072dcb2c766cfd5e75946b3cabe13ae3d021c62fdd4",
+        "statement": "Reuse authorization binds actual principal/scope/purpose/epoch and exact verified evidence/model/request at every read/publication."
+      },
+      "proposed_status": "held",
+      "review_guard": "NONBLOCKING finite recommendation; ROOT/G formal adjudication only",
+      "formal_closure": false,
+      "review_statement": "HELD permission/epoch owner law",
+      "accepted_clause": "Operational exact-ref/readability, scoped principal/purpose/model/params and revoked-epoch controls are technically useful but do not establish production permission.",
+      "remaining_clause": "Institutional current-use permission/epoch atomicity and evidence-reuse law remains not_established; source/evidence owner plus G must ratify.",
+      "smallest_real_falsifier": "Leave CAS bytes/ref readable while revoking the supplied principal/purpose/epoch; readability/hash/cacheable flag alone must not grant reuse.",
+      "deciding_reference_ids": [],
+      "current_check": "UNRUN full terminal join; named leaf/historical actual evidence remains qualified",
+      "predicate_basis": "independently_reconciled",
+      "authority_predicate_basis": "not_established",
+      "authority_boundary": "No institutional grant, verified invoice, vendor source law or external exactly-once authority created by this review; exact operational premises remain declared."
+    },
+    {
+      "finding_id": "B68",
+      "bundle_id": "LLM-02",
+      "canonical_criterion": {
+        "line_begin": 77,
+        "line_end": 98,
+        "source_block_sha256": "e4ed51ed64211794192a8f19d6cceeeff1f29df468bf3b40109650658a7b2675",
+        "statement": "Permitted exact scoped identical misses have one producer event; follower cancellation, error, deadline and distinct intentional repetitions preserve ownership."
+      },
+      "proposed_status": "held",
+      "review_guard": "NONBLOCKING finite recommendation; ROOT/G formal adjudication only",
+      "formal_closure": false,
+      "review_statement": "HELD production coalescing admission",
+      "accepted_clause": "Preauthorized same-scope physical producer/follower cancellation/deadline and changed seed/version/scope controls preserve operational ownership.",
+      "remaining_clause": "B67 permission law must authorize coalescing and intentional repetitions before production admission; identical bytes or temperature0 is insufficient.",
+      "smallest_real_falsifier": "Two scientifically intentional independent repetitions or different principal/seed/scope must not become one shared provider solely because request bytes match.",
+      "deciding_reference_ids": [],
+      "current_check": "UNRUN full terminal join; named leaf/historical actual evidence remains qualified",
+      "predicate_basis": "independently_reconciled",
+      "authority_predicate_basis": "not_established",
+      "authority_boundary": "No institutional grant, verified invoice, vendor source law or external exactly-once authority created by this review; exact operational premises remain declared."
+    },
+    {
+      "finding_id": "B78",
+      "bundle_id": "DUR-02",
+      "canonical_criterion": {
+        "line_begin": 79,
+        "line_end": 96,
+        "source_block_sha256": "5b3639630d2e7af82b90281906e6ed658c5f45687c3d3904dc2f177c07258dd0",
+        "statement": "Pre-dispatch fallback is authorized separately; post-dispatch lost response reconciles actual external status/idempotency instead of duplicating effect."
+      },
+      "proposed_status": "closed",
+      "review_guard": "NONBLOCKING finite recommendation; ROOT/G formal adjudication only",
+      "formal_closure": false,
+      "review_statement": "Closed local safe typed-unknown clause recommended",
+      "accepted_clause": "Canonical P118 rows74 permits reconciliation OR typed unknown. Actual lost response after persisted primary effect preserves original cause in PrimaryExecutionOutcomeUnknownError and local effect0; authorized pre-dispatch healthy/unhealthy/probe controls are distinct.",
+      "remaining_clause": "Authoritative operated Ray/Temporal/external status/idempotency reconciliation is a HELD extension. Do not fabricate external operation ID/status or claim whole handover/exactly-once from local fixture. Full250whole terminal join remains incomplete; actual current affected35 defining subset10PASS on10e, with exact1862 content projection, is recorded separately.",
+      "smallest_real_falsifier": "Primary writes one real local witness then raises lost-confirmation error: fallback must not perform a second effect. A preparation network error cannot grant arbitrary tenant/configuration fallback.",
+      "deciding_reference_ids": [
+        "dd_xml",
+        "dd_stdout",
+        "dd_profile",
+        "p118_triage",
+        "affected35_xml",
+        "affected35_profile",
+        "affected35_wrapper",
+        "affected35_canonical"
+      ],
+      "current_check": "Historical defining evidence plus actual affected35 ten current defining cases; full250whole terminal join UNRUN/incomplete, no count-based fullfinding acceptance.",
+      "predicate_basis": "independently_reconciled",
+      "authority_predicate_basis": "not_established",
+      "authority_boundary": "No institutional grant, verified invoice, vendor source law or external exactly-once authority created by this review; exact operational premises remain declared.",
+      "actual_affected35_check": {
+        "check": "engine_affected35",
+        "selectors": [
+          {
+            "classname_contains": "test_dur_02_process",
+            "name_starts_with_any": [
+              "test_persisted_primary_effect",
+              "test_typed_predispatch",
+              "test_access_failure"
+            ]
+          },
+          {
+            "classname_contains": "test_dur_02",
+            "name_starts_with_any": [
+              "test_post_dispatch",
+              "test_transient_pre_dispatch",
+              "test_access_or_contract"
+            ]
+          }
+        ],
+        "literal_case_counts": {
+          "PASS": 10
+        },
+        "selection_role": "Defining predicate or affected consumer supplemental verification; full manual clause and adversarial/source controls remain in this row. The total is not automatic finding closure.",
+        "actual_execution_sha": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+        "actual_execution_tree": "071a52554be3c0eaa67ad0e870a0d9198ec0fa61",
+        "source_projection_qualification": "All6246 committed src/tests/product entries equal1862; content projection does not restamp actual10e execution as1862."
+      }
+    },
+    {
+      "finding_id": "B87",
+      "bundle_id": "NET-01",
+      "canonical_criterion": {
+        "line_begin": 49,
+        "line_end": 62,
+        "source_block_sha256": "9c6e17b748643693b07a5fefefd6943e2ada4415b4b29c7a3e3aaa70d3846781",
+        "statement": "Stream subscribe/checkpoint/rewind/close/cancel transfers pending physical cleanup ownership and leaves no permanently occupied pool slot."
+      },
+      "proposed_status": "open",
+      "review_guard": "NONBLOCKING finite recommendation; ROOT/G formal adjudication only",
+      "formal_closure": false,
+      "review_statement": "OPEN actual C process-final consumer",
+      "accepted_clause": "Final exact1862 real EventStreamConnector/C process cleanup whole eight cases has7PASS1FAIL; available permit1 coexists with pending physical owner1, registry retry owner0 and next production second unconfirmed handle.",
+      "remaining_clause": "C alone owns streaming/session/process cleanup transfer. Late observer rescue is not production recovery; physical handle/owner failure is not an occupied-permit or /proc-FD claim. Separate cap3->restartcap1 failure belongs C budget criteria.",
+      "smallest_real_falsifier": "Fail real process-final disconnect once, exit and registry shutdown: retained old physical owner must have a production retry owner before another unconfirmed production handle is created.",
+      "deciding_reference_ids": [
+        "stream_portable",
+        "stream_foreign_review",
+        "C_final"
+      ],
+      "current_check": {
+        "check": "C_final",
+        "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "whole_file": "test_stream_pool_cleanup_oracle.py",
+        "PASS": 7,
+        "FAIL": 1,
+        "failed_case": "test_process_file_stream_cleanup_ownership[process-disconnect-failure]"
+      },
+      "predicate_basis": "independently_reconciled",
+      "authority_predicate_basis": "not_established",
+      "authority_boundary": "No institutional grant, verified invoice, vendor source law or external exactly-once authority created by this review; exact operational premises remain declared."
+    },
+    {
+      "finding_id": "B89",
+      "bundle_id": "NET-01",
+      "canonical_criterion": {
+        "line_begin": 68,
+        "line_end": 83,
+        "source_block_sha256": "5c543b225505ffd632e3ffb90bee0ac51d0473a19a0dfe2a93c0be2aaf6380c4",
+        "statement": "Permit/handle is transferred or retired exactly once under lock/connect/health/disconnect cancellation and closed-pool release."
+      },
+      "proposed_status": "limited",
+      "review_guard": "NONBLOCKING finite recommendation; ROOT/G formal adjudication only",
+      "formal_closure": false,
+      "review_statement": "LIMITED full physical lifecycle clause",
+      "accepted_clause": "Direct B pool permit/handle transfer, cancellation and repeated-release controls support exactly-once local ownership; final actual C consumer retains the same unresolved physical owner after registry exit while permit is free.",
+      "remaining_clause": "Single-pool accounting does not establish whole process/registry physical capacity. Same C cleanup-transfer countercase as B87 remains; C/G must close the orchestration bridge.",
+      "smallest_real_falsifier": "Preserve pending_permitFalse/free1 while disconnect is unknown and open a genuine second production session; per-pool free capacity cannot stand in for completed cleanup ownership.",
+      "deciding_reference_ids": [
+        "dd_xml",
+        "dd_stdout",
+        "stream_portable",
+        "stream_foreign_review",
+        "C_final"
+      ],
+      "current_check": {
+        "check": "C_final",
+        "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "whole_file": "test_stream_pool_cleanup_oracle.py",
+        "PASS": 7,
+        "FAIL": 1,
+        "failed_case": "test_process_file_stream_cleanup_ownership[process-disconnect-failure]"
+      },
+      "predicate_basis": "independently_reconciled",
+      "authority_predicate_basis": "not_established",
+      "authority_boundary": "No institutional grant, verified invoice, vendor source law or external exactly-once authority created by this review; exact operational premises remain declared."
+    },
+    {
+      "finding_id": "B90",
+      "bundle_id": "NET-01",
+      "canonical_criterion": {
+        "line_begin": 89,
+        "line_end": 106,
+        "source_block_sha256": "8b1e63a16da14bf95ef0104b412bbd1da0b8ce0b4bb093026d80d50253bc94ab",
+        "statement": "Network work is outside metadata lock; independent release proceeds and one absolute acquisition deadline/epoch gates atomic late publication."
+      },
+      "proposed_status": "closed",
+      "review_guard": "NONBLOCKING finite recommendation; ROOT/G formal adjudication only",
+      "formal_closure": false,
+      "review_statement": "Closed finite single-pool admission/deadline clause recommended",
+      "accepted_clause": "Current source shares original absolute deadline/cancellation generation through lock/network/final atomic admission, and retires successful registration inside the final lock without post-publication await. Complete historical actual metadata-lock/connect/health/publication controls and unchanged final source/input projection are the evidence.",
+      "remaining_clause": "Final-root807 lacks the NET native files and full3882 run is interrupted: no current terminal NET rejoin claimed. Uncooperative physical cleanup is retained ownership, not universal cancellation or latency. B87/B89 remain separate actual residuals.",
+      "smallest_real_falsifier": "Connector suppresses timeout or cancellation, or genuine later metadata-lock waiter holds the lock: no stale/late handle may be published; independent release progresses while network work waits.",
+      "deciding_reference_ids": [],
+      "current_check": "UNRUN full terminal join; named leaf/historical actual evidence remains qualified",
+      "predicate_basis": "independently_reconciled",
+      "authority_predicate_basis": "not_established",
+      "authority_boundary": "No institutional grant, verified invoice, vendor source law or external exactly-once authority created by this review; exact operational premises remain declared."
+    },
+    {
+      "finding_id": "B91",
+      "bundle_id": "NET-02",
+      "canonical_criterion": {
+        "line_begin": 49,
+        "line_end": 64,
+        "source_block_sha256": "0f2ed6f8615e478a4110ac1658fba923e87255d0810a6ace9c78144b8fd7e541",
+        "statement": "Unit capacity remains separate from fractional rate; impossible/nonfinite weights refuse before wait/provider and cooldown/cancel preserve law."
+      },
+      "proposed_status": "closed",
+      "review_guard": "NONBLOCKING finite recommendation; ROOT/G formal adjudication only",
+      "formal_closure": false,
+      "review_statement": "Closed supported fractional-rate mechanism clause recommended",
+      "accepted_clause": "Default capacity=max(1,rate) retains fractional refill and supports .1/.2/1/>1, cold start, weighted refusal, cooldown/cancel, finite validation. Complete historical native/removal controls plus exact final source/input projection are admitted technical evidence.",
+      "remaining_clause": "Source-specific external initial burst/rate permission is supplied, not inferred from fake clock or absence of exception. No final-root terminal NET rejoin claimed.",
+      "smallest_real_falsifier": "Original default capacity=rate_rps gives .2 bucket for legal unit request: refusing forever is divergent from five-second pacing. Rounding rate to1 or dropping impossible-weight rejection must fail the physical pacing/refusal controls.",
+      "deciding_reference_ids": [],
+      "current_check": "UNRUN full terminal join; named leaf/historical actual evidence remains qualified",
+      "predicate_basis": "independently_reconciled",
+      "authority_predicate_basis": "not_established",
+      "authority_boundary": "No institutional grant, verified invoice, vendor source law or external exactly-once authority created by this review; exact operational premises remain declared."
+    },
+    {
+      "finding_id": "B92",
+      "bundle_id": "NET-02",
+      "canonical_criterion": {
+        "line_begin": 70,
+        "line_end": 85,
+        "source_block_sha256": "eb9d5ebf88004fea69fff0eef6961700a7fa3fddf27ba044b317b4dcad90b5d4",
+        "statement": "Finalization belongs to admitted circuit generation; old success/failure preserves provider outcome without voting on new half-open generation."
+      },
+      "proposed_status": "closed",
+      "review_guard": "NONBLOCKING finite recommendation; ROOT/G formal adjudication only",
+      "formal_closure": false,
+      "review_statement": "Closed supported circuit-generation finalization clause recommended",
+      "accepted_clause": "Actual old CLOSED success/error and stale HALF_OPEN lease preserve provider outcome without voting on new generation; current probe/cancel/duplicate controls use exact admitted lease identity. Complete historical event/clock controls and exact final source/input projection are admitted technical evidence.",
+      "remaining_clause": "Controlled clock/state-transition carrier is a declared fixture; no actual external HTTP authority or final-root terminal NET rejoin claimed.",
+      "smallest_real_falsifier": "Complete a genuine old attempt after CLOSED->OPEN->HALF_OPEN: its answer/error must survive while current generation remains unchanged; foreign/duplicate token must still diagnose ownership.",
+      "deciding_reference_ids": [],
+      "current_check": "UNRUN full terminal join; named leaf/historical actual evidence remains qualified",
+      "predicate_basis": "independently_reconciled",
+      "authority_predicate_basis": "not_established",
+      "authority_boundary": "No institutional grant, verified invoice, vendor source law or external exactly-once authority created by this review; exact operational premises remain declared."
+    },
+    {
+      "finding_id": "B93",
+      "bundle_id": "NET-02",
+      "canonical_criterion": {
+        "line_begin": 91,
+        "line_end": 106,
+        "source_block_sha256": "87741d3b2986ece596a60a5ae476e33558b94b6dceb92afd4b85598bfedc750d",
+        "statement": "TTL/pressure never evicts active/cooldown/balance history into a second independent regulator; safe quiescent eviction remains bounded."
+      },
+      "proposed_status": "closed",
+      "review_guard": "NONBLOCKING finite recommendation; ROOT/G formal adjudication only",
+      "formal_closure": false,
+      "review_statement": "Closed finite exact-key regulator lifetime clause recommended",
+      "accepted_clause": "Full new RUN0b0a/ff5f canonical decorator producer establishes actual HALF_OPEN generation/token/provider Event before TTL/pressure: qualified3PASS preserves same regulator and blocks illegal same-key work/new-key at cap1; cap2 spare work is admitted and completion restores capacity. Matched protection removal AFTER HALF_OPEN entry produces a different same-key regulator and actual extra physical provider while old token remains pending (1FAIL). Full provider JSONL/229loaded-source census per qualified child is independently reconciled.",
+      "remaining_clause": "Controlled monotonic clock and ordinary local provider body are declared fixtures, as canonical NET02 accepts. No real HTTP/vendor source SLA, 257-source load or institutional permission grant. Initial premature removal remains nondeciding; technical mapping correction does not grant whole B/global acceptance.",
+      "smallest_real_falsifier": "Remove protection only after genuine HALF_OPEN issued token/provider Event while preserving dictionary/decorator/lease bookkeeping: actual extra same-key/new-key provider must violate the oracle before old probe settles; observed peak pending2 proves the divergent boundary.",
+      "deciding_reference_ids": [
+        "b93_final",
+        "dd_xml",
+        "dd_stdout",
+        "p118_triage"
+      ],
+      "current_check": {
+        "check": "b93_final qualified only",
+        "semantic_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "observed_root_head": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+        "PASS": 3,
+        "matched_removal_FAIL": 1,
+        "loaded_source_files_each": 229,
+        "initial_removal": "HALF_OPEN premise not_established; preserved historical FAIL"
+      },
+      "predicate_basis": "independently_reconciled",
+      "authority_predicate_basis": "not_established",
+      "authority_boundary": "No institutional grant, verified invoice, vendor source law or external exactly-once authority created by this review; exact operational premises remain declared."
+    }
+  ],
+  "net_runtime_source_projection": {
+    "policy-engine/src/polisyos/fabric/connectors/pool.py": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/fabric/connectors/pool.py",
+      "bytes": 43461,
+      "sha256": "0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35"
+    },
+    "policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+      "bytes": 5871,
+      "sha256": "9003558130bcc2f378f22658a8ff685c4ab93766d8bc7f20de1d7bf5d5323429"
+    },
+    "policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+      "bytes": 25310,
+      "sha256": "f02ff7db20a47e16f4129e38c4ba2a6f445cf98551ad935e27b178fa8cc0d6f3"
+    },
+    "policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+      "bytes": 18511,
+      "sha256": "2f4bd7b8f46cedacd3c26134ecc9a7b9d03dd868953b34cf306dd1702a0ec035"
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/fallback_runner.py": {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/fallback_runner.py",
+      "bytes": 13307,
+      "sha256": "08a6a33767eb69c875f8ba4391c7ab8e53858f830f9e1467c073148319683668"
+    }
+  },
+  "P37": [
+    {
+      "predicate": "Full raw criterion, completed outputs, actual producer/consumer source and residual status",
+      "basis": "independently_reconciled",
+      "boundary": "Manual finite recommendation, not formal closure or a native run by this reviewer."
+    },
+    {
+      "predicate": "Exact Git bytes/hashes, owner scope, marker-interior hashes, baseline join and published B93 actual-source/physical-row identity",
+      "basis": "recomputed",
+      "boundary": "Literal read-only custody audit; identities and counts do not auto-adjudicate semantics."
+    },
+    {
+      "predicate": "Baseline reported PASS semantic adequacy/new-fix proof",
+      "basis": "not_established",
+      "boundary": "Source-reported compact text; raw baseline archives absent."
+    },
+    {
+      "predicate": "External permission/epoch law, invoice truth, vendor quota/SLA and operated external status authority",
+      "basis": "not_established",
+      "boundary": "No authority promotion; B67/B68 held, B78 external extension held; declared operational fixtures remain finite."
+    },
+    {
+      "predicate": "Future native/gate success or interrupted whole-cohort terminal case grade",
+      "basis": "not_established",
+      "boundary": "No future PASS; full3882 SIGKILL lacks terminal XML."
+    }
+  ],
+  "P38": "Native exits, source equality, capacity1 and receipt metadata are distinct from real effect, cleanup ownership, billing knowledge and institutional permission. Each finding states an actual divergent input or precise remaining falsifier.",
+  "P41": "not_established for inherited-red attribution; no exact slice-base replay and zero full-input-intersection claim",
+  "full_native_boundary": {
+    "actual_source": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "collected": 3882,
+    "exit": -9,
+    "terminal_xml": "absent",
+    "native_cases_terminal_grade": "not_established",
+    "separate_affected807": "806PASS1scientificFAIL; no NET or DUR02 fallback files in47",
+    "separate_final_pg8": "8PASS exact1862;18mutator inlets/11tables; no external exactly-once",
+    "separate_final_C10": "8PASS2FAIL exact1862; cleanup-owner and restored-budget failures retained independently",
+    "separate_affected35": {
+      "actual_execution_sha": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+      "actual_execution_tree": "071a52554be3c0eaa67ad0e870a0d9198ec0fa61",
+      "wholefiles": 35,
+      "cases": 712,
+      "phases": 2136,
+      "PASS": 712,
+      "FAIL": 0,
+      "ERROR": 0,
+      "deselected": 0,
+      "wait4_exit": 0,
+      "source_projection": "all6246 src/tests/product Git entries equal1862, not a runtime restamp",
+      "foreign14_narrow_supplemental_counts": {
+        "B37": 9,
+        "B38": 15,
+        "B78": 10
+      },
+      "interpretation": "Actual fresh affected consumer execution, not all60 closure or full250whole completion. Existing unrelated scientific FAIL, C2FAIL, Aprojection1FAIL, incomplete3882 and globalqualityRED remain."
+    }
+  },
+  "metadata_corrections_reviewed": [
+    {
+      "input_sha256": "07afc99781d1aac8f8790c8a922869f5a7311a37ccc187c2d8c04b2fe2ac627f",
+      "field": "B66 criterion_quantity",
+      "before": "Missing/invalid/estimated SDK amount remains unknown",
+      "corrected_property": "Unknown without valid observed usage/pricing basis stays unknown; valid disclosed operational estimate remains admitted, not verified invoice."
+    },
+    {
+      "field": "B38 criterion_quantity",
+      "corrected_property": "Final PostgreSQL18/all11tables separate historical SQLite13."
+    },
+    {
+      "field": "B91 P38",
+      "corrected_property": "Original default capacity=rate_rps, no invented min(rate,1) formula."
+    },
+    {
+      "field": "B93 proposed_status",
+      "historical": "LIMITED missing true HALF_OPEN independent discriminator; former HELD duck-predicate/provider law was a misbound criterion",
+      "current": "CLOSED finite technical recommendation only after full qualified RUN0b0a/ff5f3PASS and matched1FAIL; source1862, no runtime executed by reviewer."
+    },
+    {
+      "final_proposal": "d1efd64136815a04a96a534e1be8003783f444fe",
+      "qualification": "Exact frozen14 rows preserve all corrections. Added affected35 native10e/28b9 narrow B37/B38/B78 controls; no former UNRUN restamped or global upgrade."
+    }
+  ],
+  "next_owner": "ROOT/G formally accept the finite recommendations; A/C/institutional evidence owners retain explicit residuals. Reviewer does not close findings or change product/test code.",
+  "named_source_input_boundary": "Whole named owner/facade/consumer byte identities are anchors, not a universal dynamic loader/resource/network/child readset. Actual command-specific input closures remain the complete peer profiles/censuses; native semantics comes from real source-path assertions and physical effects, never source hash alone."
+}

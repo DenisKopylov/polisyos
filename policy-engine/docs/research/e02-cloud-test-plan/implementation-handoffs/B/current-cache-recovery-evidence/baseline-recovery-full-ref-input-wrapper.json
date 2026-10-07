@@ -1,0 +1,58 @@
+{
+  "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "source_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "source_binding": "tracked HEAD plus exact input-closure bytes; draft status is recorded separately",
+  "driver_sha256": "542652180bb08a5f31e150aa4176704943ed1a49307760baf12fb1e41637ce9e",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+    "--junitxml=/workspace/e02-B-current-execution-state/_build/current-execution-state/baseline-recovery-full-ref-input/cohort.xml",
+    "--basetemp=/workspace/e02-B-current-execution-state/_build/current-execution-state/baseline-recovery-full-ref-input/tmp"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "details": "/workspace/e02-B-current-execution-state/_build/current-execution-state/baseline-recovery-full-ref-input/environment.json",
+    "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+  },
+  "input_closure": {
+    "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/baseline-recovery-full-ref-input/input-closure.json",
+    "sha256": "64350865b59db928991ccdc2da14aa5462301a1848f3a963e4b5f5e1cdb0c731",
+    "paths": 2733,
+    "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+  },
+  "start_utc": "2026-10-06T09:58:36.383713+00:00",
+  "end_utc": "2026-10-06T09:59:02.648585+00:00",
+  "wall_s": 26.134619125994504,
+  "max_rss_kib": 586940,
+  "exit": 1,
+  "source_unchanged": true,
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/baseline-recovery-full-ref-input/cohort.xml",
+      "sha256": "66ad40ed2a5a6175549111a67e9e59206cdc4efdd1adc0112b3da7622aed6204",
+      "bytes": 30387
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/baseline-recovery-full-ref-input/environment.json",
+      "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+      "bytes": 9887
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/baseline-recovery-full-ref-input/input-closure.json",
+      "sha256": "64350865b59db928991ccdc2da14aa5462301a1848f3a963e4b5f5e1cdb0c731",
+      "bytes": 519254
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/baseline-recovery-full-ref-input/native.txt",
+      "sha256": "917dc3188894fe432ae00d5468832607bf1a0a3c3a0aed532c55eb1408ffe77b",
+      "bytes": 32246
+    }
+  ]
+}

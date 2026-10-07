@@ -1,0 +1,122 @@
+from __future__ import annotations
+
+import collections
+import hashlib
+import json
+import subprocess
+from functools import cache
+from pathlib import Path
+from xml.etree import ElementTree as ET
+
+ROOT = Path('/workspace/e02-B-current-adapters')
+RAW = Path('/tmp/e02-B-tenth-wave-20261007/adapters-numeric')
+TARGET = '590e5d18e7f56c7c4d2e42070dcc687c79acc58c'
+D = '8f58d7349edefebbac7e7f21e6859f8daa075c1d'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence'
+OUT = ROOT / PREFIX
+
+
+@cache
+def git_bytes(sha: str, path: str) -> bytes:
+    return subprocess.check_output(['git', '-C', str(ROOT), 'show', f'{sha}:{path}'])
+
+
+def digest(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def save(relative: str, data: bytes) -> None:
+    path = OUT / relative
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(data)
+
+
+def save_json(relative: str, value: object) -> None:
+    save(relative, (json.dumps(value, ensure_ascii=False, indent=2) + '\n').encode())
+
+
+profile = json.loads((RAW / 'candidate-590/profile.json').read_bytes())
+wrapper = json.loads((RAW / 'candidate-590/wrapper.json').read_bytes())
+assert wrapper['state'] == 'EXECUTED' and wrapper['setup_failure'] is None
+assert wrapper['target_sha'] == wrapper['head_after'] == TARGET
+assert wrapper['target_tree'] == wrapper['tree_after'] == 'e6ec2e4bb34f84f946341004f1e5c8374fb29010'
+assert wrapper['status_before'] == wrapper['status_after'] == ''
+assert wrapper['actual_exit'] == 0
+xml = ET.parse(RAW / 'candidate-590/native.xml').getroot()
+assert len(list(xml.iter('testcase'))) == 15
+assert not list(xml.iter('failure')) + list(xml.iter('error')) + list(xml.iter('skipped'))
+items = profile['items']
+assert len(items) == len(set(items)) == 15
+assert len(profile['reports']) == 45
+assert not profile['collection_nonpass']
+assert all(row['outcome'] == 'passed' and row['wasxfail'] is None for row in profile['reports'])
+assert all(row['git_byte_match'] for row in profile['origins'])
+source_rows = {}
+for row in profile['origins']:
+    path = row['relative_path']
+    assert digest(git_bytes(TARGET, path)) == row['sha256']
+    source_rows[(TARGET, path)] = row['sha256']
+text = (RAW / 'candidate-590/native.txt').read_text()
+marker = 'EXACT_MONEY_ACTUAL '
+records = []
+cursor = 0
+while (at := text.find(marker, cursor)) != -1:
+    record, consumed = json.JSONDecoder().raw_decode(text[at + len(marker):])
+    cursor = at + len(marker) + consumed
+    records.append(record)
+assert len(records) == 15
+origin_observations = 0
+cases = []
+fixtures = RAW / 'candidate-590/fixtures'
+physical_dirs = sorted(path.parent for path in fixtures.rglob('response.bin'))
+assert len(physical_dirs) == 15
+for directory in physical_dirs:
+    assert not directory.is_symlink()
+    for name in ['budget.json', 'response.bin', 'http-work.jsonl', 'fresh-reader.stdout.txt', 'fresh-reader.stderr.txt']:
+        save('physical-inputs/' + directory.name + '/' + name, (directory / name).read_bytes())
+for item, record in zip(items, records, strict=True):
+    for row in record['source_origins_before'] + record['source_origins_after'] + record['fresh']['b_source']:
+        path = 'policy-engine/' + row['path'].split('/policy-engine/')[1]
+        assert digest(git_bytes(TARGET, path)) == row['sha256'], row
+        source_rows[(TARGET, path)] = row['sha256']
+        origin_observations += 1
+    for row in record['fresh']['d_source']:
+        assert row['source_sha'] == D
+        assert digest(git_bytes(D, row['path'])) == row['sha256']
+        source_rows[(D, row['path'])] = row['sha256']
+    matched = [p for p in physical_dirs if json.loads((p / 'observations.json').read_text())['lexeme'] == record['lexeme']]
+    assert len(matched) == 1
+    directory = matched[0]
+    assert (directory / 'response.bin').read_bytes().decode() == record['raw']
+    assert digest((directory / 'budget.json').read_bytes()) == record['fresh']['ledger_bytes_sha256']
+    # Snapshot DTO and persisted wire are different representations. The real
+    # fresh reader validated the same bytes through FileBudgetLedger.snapshot.
+    assert record['fresh']['snapshot'] == record['snapshot']
+    assert len((directory / 'http-work.jsonl').read_text().splitlines()) == len(record['http_requests']) == 1
+    compact = {key: value for key, value in record.items() if key not in ['source_origins_before', 'source_origins_after', 'fresh', 'child_command']}
+    compact['fresh'] = {key: value for key, value in record['fresh'].items() if key not in ['b_source', 'd_source']}
+    compact.update({'nodeid': item, 'outcome': 'PASS', 'physical_prefix': PREFIX + '/physical-inputs/' + directory.name})
+    cases.append(compact)
+partition = {'schema': 'policyos.e02.exact-case-partition.v1', 'target_sha': TARGET,
+             'counts': {'PASS': 15, 'FAIL': 0, 'ERROR': 0, 'SKIP': 0, 'XFAIL': 0, 'UNRUN': 0},
+             'cases': cases, 'actual_phase_rows': profile['reports'],
+             'phase_counts': {str(key): value for key, value in collections.Counter((r['when'], r['outcome']) for r in profile['reports']).items()},
+             'collection_nonpass': profile['collection_nonpass'],
+             'source_census': {'parent_hook_origins': len(profile['origins']), 'per_case_parent_child_origin_observations': origin_observations,
+                              'distinct_B_paths': sum(sha == TARGET for sha, path in source_rows), 'distinct_external_D_paths': sum(sha == D for sha, path in source_rows),
+                              'mismatches': 0, 'boundary': 'captured file-backed loaded origins only; not universal reads/calls or post-finalization imports'},
+             'source_rows': [{'source_sha': sha, 'path': path, 'sha256': value} for (sha, path), value in sorted(source_rows.items())],
+             'limits': ['Reported synthetic HTTP cost; no external invoice permission law.', 'Guarded B pre_check followed by external D8f stopping reader, not actual D controller/evaluator/cache-ledger bridge.']}
+save_json('actual-case-partition.json', partition)
+save('package.source.txt', Path(__file__).read_bytes())
+files = []
+for path in sorted(OUT.rglob('*')):
+    if path.is_file() and path.name != 'index.json':
+        data = path.read_bytes()
+        files.append({'path': str(path.relative_to(ROOT)), 'bytes': len(data), 'sha256': digest(data)})
+save_json('index.json', {'schema': 'policyos.e02.evidence-index.v1', 'target_sha': TARGET,
+                        'files': files, 'payload_count': len(files), 'payload_bytes': sum(row['bytes'] for row in files),
+                        'deciding_bytes': 'Complete moderate stdout, XML, wrapper, phase/source partition and actual filesystem backings; stdout/XML use lossless JSON.text.',
+                        'retained_old_receipts': 'Source-custody.json binds old E7 HTTP30/removal20F10P and independent15/base/removal pins without restamping.'})
+print(json.dumps({'payloads': len(files), 'payload_bytes': sum(row['bytes'] for row in files), 'counts': partition['counts'],
+                  'phase_rows':len(profile['reports']), 'source_census':partition['source_census']}))

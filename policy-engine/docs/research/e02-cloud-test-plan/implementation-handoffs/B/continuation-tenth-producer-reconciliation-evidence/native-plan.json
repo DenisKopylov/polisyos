@@ -1,0 +1,242 @@
+{
+  "schema": "policyos.e02.native_plan.v1",
+  "status": "UNRUN; this is a literal planned child contour, NOT an executable-ready outer runner or observed denominator",
+  "source_candidate_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+  "source_candidate_tree_sha": "2e069f18e02175dd0d6f7acd6573a4c0b071c766",
+  "prepared_local_tree_carrier": "6b87fcd2471191acf2c879356e7fd0129fc9a2ee",
+  "carrier_rule": "Prepared local child argv remains6b87 because its exact Git object already existed locally; root published0bf is exactly same tree. A fresh G run must bind its real fetched/admitted SHA and new immutable retained output prefix; do not claim executing6b87 if unavailable.",
+  "native_child_argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/tmp/e02-B-tenth-wave-20261007/model-oracle-native-full-6b87-ed065/pytest-child.py",
+    "/tmp/e02-B-tenth-wave-20261007/fulltracked-source-6b87fcd24711",
+    "6b87fcd2471191acf2c879356e7fd0129fc9a2ee",
+    "/tmp/e02-B-tenth-wave-20261007/model-oracle-native-full-6b87-ed065/module-origins.json",
+    "/tmp/e02-B-tenth-wave-20261007/fulltracked-source-6b87fcd24711/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_model_scope_oracle.py",
+    "--noconftest",
+    "-c",
+    "/tmp/e02-B-tenth-wave-20261007/fulltracked-source-6b87fcd24711/policy-engine/pytest.ini",
+    "-vv",
+    "--tb=short",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/tmp/e02-B-tenth-wave-20261007/model-oracle-native-full-6b87-ed065/pytest-tmp",
+    "--junitxml",
+    "/tmp/e02-B-tenth-wave-20261007/model-oracle-native-full-6b87-ed065/native.xml",
+    "--benchmark-storage=file:///tmp/e02-B-tenth-wave-20261007/model-oracle-native-full-6b87-ed065/benchmark-storage"
+  ],
+  "removal_child_argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/tmp/e02-B-tenth-wave-20261007/model-oracle-removal-full-6b87-ed065/model-tracking-removal-child.py",
+    "/tmp/e02-B-tenth-wave-20261007/model-oracle-removal-full-6b87-ed065/pytest-child.py",
+    "/tmp/e02-B-tenth-wave-20261007/fulltracked-source-6b87fcd24711",
+    "6b87fcd2471191acf2c879356e7fd0129fc9a2ee",
+    "/tmp/e02-B-tenth-wave-20261007/model-oracle-removal-full-6b87-ed065/module-origins.json",
+    "/tmp/e02-B-tenth-wave-20261007/fulltracked-source-6b87fcd24711/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_model_scope_oracle.py::test_ordinary_model_fields_refuse_or_journal_before_real_completion[False-count-sync]",
+    "--noconftest",
+    "-c",
+    "/tmp/e02-B-tenth-wave-20261007/fulltracked-source-6b87fcd24711/policy-engine/pytest.ini",
+    "-vv",
+    "--tb=short",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/tmp/e02-B-tenth-wave-20261007/model-oracle-removal-full-6b87-ed065/pytest-tmp",
+    "--junitxml",
+    "/tmp/e02-B-tenth-wave-20261007/model-oracle-removal-full-6b87-ed065/native.xml",
+    "--benchmark-storage=file:///tmp/e02-B-tenth-wave-20261007/model-oracle-removal-full-6b87-ed065/benchmark-storage"
+  ],
+  "selector": "Whole20-prepared-case file; actual collection count/nodeids must come from complete native/JUnit. Matched source-derived removal nodeid is provisional until actual mainXML confirms collection.",
+  "cwd": "/tmp/e02-B-tenth-wave-20261007/fulltracked-source-6b87fcd24711/policy-engine",
+  "environment": {
+    "PYTHONPATH": "/tmp/e02-B-tenth-wave-20261007/fulltracked-source-6b87fcd24711/policy-engine/src:/tmp/e02-B-tenth-wave-20261007/fulltracked-source-6b87fcd24711/policy-engine/product",
+    "POLISYOS_METRICS_PORT": "0",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "GIT_DIR": "/tmp/e02-B-tenth-wave-20261007/transport.git",
+    "strip_inherited_git_object_index_worktree_bindings": true,
+    "previous_interpreter": "Python3.14.2/pytest9.0.2; current full-profile not established"
+  },
+  "prepared_driver": {
+    "path": "/tmp/e02-B-tenth-wave-20261007/model-oracle-preparation/run_model_oracle_fullarchive_ed065.py",
+    "bytes": 11565,
+    "sha256": "9765102b19a903d0aa0b13d6ab652ebee79bf2268dbaa092df7f58418ece9419",
+    "ready": false,
+    "missing_inputs": "Full physical archive pathname+complete source admission+SHA not supplied; driver per-file/archive read_bytes must be forward-only corrected to streaming and recorded before619MB input. Original driver retained."
+  },
+  "removal_adapter": {
+    "bytes": 2769,
+    "sha256": "2a632e26442f3300ee97ea1f4aea50615881cbc2757d4347f7705a916c4f4789",
+    "behavior": "Only in-memory final BaseModel branch of _wrap_mutable_value→returnvalue; unchanged disk source/preflight/grant/container/cache/callback admission predicates."
+  },
+  "profile_omissions": "Bounded independent contour --noconftest omits repository conftest fixture lifecycle; it cannot replace normal author defining/13affected consumers or completeB/native/gates. Source/test behavior still calls actual production CAS/cache/executors, not marker/mocked replacement.",
+  "required_author_normal_contour": {
+    "prepared_cases": 59,
+    "actual_collected": "UNRUN",
+    "affected_modules": 13,
+    "wholefile_inputs": 14,
+    "source_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+    "source_tree_sha": "2e069f18e02175dd0d6f7acd6573a4c0b071c766",
+    "argv": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "--basetemp=/tmp/e02-B-tenth-wave-20261007/producer-native-final-0bf788ac2e57/pytest",
+      "--junitxml=/tmp/e02-B-tenth-wave-20261007/producer-native-final-0bf788ac2e57/native.xml",
+      "tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+      "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "tests/unit/scientist/orchestration/engine/test_state_merge.py",
+      "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+      "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+      "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+      "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+      "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+      "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_state_merge.py"
+    ],
+    "cwd": null,
+    "environment": {
+      "PYTHONPATH": null,
+      "POLISYOS_METRICS_PORT": "0",
+      "compute_limits": "No new caps or process/thread/CPU quotas; enumerate and remove inherited artificial cap variables before launch; record original values and exact removed keys.",
+      "source_verification": "Full tracked repository Git blob/tree matches including architecture, product lock/python-version/config, tests/tools/apps. Root full archive untouched.",
+      "PYTHONPATH_requirement": "Exact root-supplied full projection policy-engine/src:policy-engine. Actual backing Git blob checks and module origins required before/after."
+    },
+    "complete_input_manifest": [
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+        "git_blob": "476026dd34b5da75689b88de1a43958c73ddbdfd",
+        "bytes": 25676,
+        "sha256": "d820210e832ab97404d3a7eecd62dec9b21f0bc172607beb3b71b7c0f3eab4db",
+        "read_method": "immutable remote Git fetch_file",
+        "status": "MATCH"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+        "git_blob": "e0d4c98e6f3d33eddc70a4affe7c1a0f89908357",
+        "bytes": 8098,
+        "sha256": "4b2cffae6377f20558002a5895d91a6a3812c427f8c348284c6c5cf753a1fa65",
+        "read_method": "immutable remote Git fetch_file",
+        "status": "MATCH"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+        "git_blob": "645e30fa190a9f66b77b468adb6ceb5826213ce7",
+        "bytes": 15169,
+        "sha256": "44597a58ee34d703db68f189d03b6e7a99a5d7bbe7a9352ac8876241537e1648",
+        "read_method": "immutable remote Git fetch_file",
+        "status": "MATCH"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+        "git_blob": "9da3011fd50602ec0e97c57519dd0323a6fc892b",
+        "bytes": 5301,
+        "sha256": "fba2beb39298c54788516a69fa8a5ba8bdabc47fdf6f51a772825f866110366e",
+        "read_method": "immutable remote Git fetch_file",
+        "status": "MATCH"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+        "git_blob": "ac99313f5b20011f3e0987d4f04ff2cdaef09b16",
+        "bytes": 30145,
+        "sha256": "7089614efb8797b91f9d093a6839bc8f26522e732c871e7d83e4009d78c0ec51",
+        "read_method": "immutable remote Git fetch_file",
+        "status": "MATCH"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+        "git_blob": "cb9e0c436c7ed4761600ecb09eef50cabdb9acdd",
+        "bytes": 15391,
+        "sha256": "0201cdaa224e24adc298c14efabf9dc1c441dd73eb291830026c4668a8fde7f6",
+        "read_method": "immutable remote Git fetch_file",
+        "status": "MATCH"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+        "git_blob": "93e6a0c49e34e9d5f756df8ecd69248fb7c0f3a1",
+        "bytes": 20275,
+        "sha256": "e798e0546ac1b461e603ea43e7d9feb9de5526c45e90362a96a17faf1c4cb972",
+        "read_method": "immutable remote Git fetch_file",
+        "status": "MATCH"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+        "git_blob": "7e0d8869b551adb42abf099c22a0e53c3a3dd867",
+        "bytes": 6681,
+        "sha256": "08f7d895f640625f74090ec1bf5c959b539e98974c7f92b41f793a630cceae9a",
+        "read_method": "immutable remote Git fetch_file",
+        "status": "MATCH"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "git_blob": "5fe7458c29f4c2ec00a1bd21f941e87cb7977680",
+        "bytes": 30571,
+        "sha256": "68a3e35f641ef68333e8c7b2c604d7d154447e705a0430081ddf348f9b7f8f2b",
+        "read_method": "immutable remote Git fetch_file",
+        "status": "MATCH"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "git_blob": "5371ea84d9b40d7f09587285f4594c675c9b7160",
+        "bytes": 18097,
+        "sha256": "deceae4388fea387d81d3aa9e0ada4d5c797d545a2dcc998bd9e4ce0fbed8e9c",
+        "read_method": "immutable remote Git fetch_file",
+        "status": "MATCH"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+        "git_blob": "597dd54a11ee8b2212537fd51a5f73d5cc20ae8b",
+        "bytes": 23634,
+        "sha256": "2c5c3308b9a8a6f28091a834d13d7286f1db3316c906f7e1ac65c3b91123f9e2",
+        "read_method": "immutable remote Git fetch_file",
+        "status": "MATCH"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "git_blob": "14b5c2a343d24fab107952a7873653ca06137253",
+        "bytes": 16009,
+        "sha256": "d46a9978d496042c2372bc5ec99bc93fa6cedc0ee61e2db70a66a0cbb71f081f",
+        "read_method": "immutable remote Git fetch_file",
+        "status": "MATCH"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+        "git_blob": "0c066894d2e7a35e4078725203cbc2752eb6060b",
+        "bytes": 10251,
+        "sha256": "a0a2bb4190a150b76c09239056e7f97ec9ff8506d133fb3333d8e741770f7e03",
+        "read_method": "immutable remote Git fetch_file",
+        "status": "MATCH"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_state_merge.py",
+        "git_blob": "eea97f4ac8db8bbd3c0a58a6c54aa2166520b149",
+        "bytes": 4600,
+        "sha256": "29b8517fd912dc7b80c05685f2a8b4420f5ff47a6a55f90e021d913a805415bb",
+        "read_method": "immutable remote Git fetch_file",
+        "status": "MATCH"
+      }
+    ],
+    "profile": "Current runtime/version/accessibility and full physical archive closure not_established; prior root194 profile only.",
+    "normal_fixture_lifecycle": "Uses normal pytest configs/conftests; no --noconftest",
+    "packet": {
+      "git_sha": "082c28efd1afcd4e0d7718d3ffdfd49045174861",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-native-preparation.json"
+    },
+    "output_status": "No complete stdout/XML/origins/exit/case partition exists; planned prefix not a newdeciding artifact."
+  },
+  "canonical_default_contracts": {
+    "NodeInvocation": "timeout_s=None;retry=None;params={};depends_on=[]",
+    "WorkflowSpec": "error_policy=fail_fast;schema1.0",
+    "AsyncWorkflowExecutor": "workflow_timeout_s=None;semaphore_timeout_s=None;budget_middleware=None;deadlineNone;storeunbounded=True;existing constructor parallelism default unchanged, no new process/thread/CPU quota",
+    "FileSystemCAS": "tenant/cell/ownership_enforced defaultNone in this fixture; no B148 authority",
+    "PutOptions": "test.model_scope_effect/test.model_scope_completion mediaapplication/json; fresh typed full ArtifactRefs retained"
+  },
+  "future_receiver": "B EXE author native, B CMP independent oracle/removal, G acceptance/fullbroad after source freeze",
+  "evidence_rule": "Fullstdout/XML/actualcase partitions/input hash/origins/exit/resource receipt and actual complete artifact bytes are required. No nativePASS from preparedcasecounts, command plan or Git tree equality."
+}

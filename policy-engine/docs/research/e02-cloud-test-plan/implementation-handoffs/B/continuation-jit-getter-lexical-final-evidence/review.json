@@ -1,0 +1,46 @@
+{
+  "schema": "policyos.e02.independent_consumer_review.v1",
+  "predicate_basis": "recomputed",
+  "closure_ids": [],
+  "source_sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+  "source_tree_sha": "1c705c31775935039c2823b0c70f9f1f090f1411",
+  "actual_cases": {
+    "PASS": 3,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "literal_test": {
+    "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/test_independent_getter_consumer.source.txt",
+    "bytes": 5272,
+    "sha256": "c60de7f76a3671961b44c830e6e1632f4be3c787ccc13eec49947e8e495b5559"
+  },
+  "input_qualification": "The same c60de7 test bytes were newly executed once. Runner changes only source/tree/task namespace. Previous source-cut results remain historical.",
+  "runtime_observations": {
+    "case_names": [
+      "test_real_two_output_getter_compiled_handles_preserve_dynamic_values[False]",
+      "test_real_two_output_getter_compiled_handles_preserve_dynamic_values[True]",
+      "test_real_compiler_refuses_captured_module_getter_before_physical_body"
+    ],
+    "positive": "Eager and JIT real compiled handles produce independent vector score/spread arithmetic for cold, warm, explicit override and cold-handle replay; warm/cold share the actual kernel.",
+    "negative": "Captured math ModuleType getter raises CompilationError before the real method body creates its filesystem effect.",
+    "loaded_filebacked_polisyos_origins": 152,
+    "source_origin_mismatches": [],
+    "source_head_tree_and_clean_status_before_after": {
+      "sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+      "tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+      "status": ""
+    },
+    "wall_s": 2.5138346839812584,
+    "max_rss_kib": 200348
+  },
+  "predicate_basis_qualification": {
+    "recomputed": "Actual test execution, numeric vectors, kernel object identity, typed refusal, physical file absence, timings/RSS, and exact loaded-file Git equality.",
+    "consumer_asserted": "The fixture declares immutable public field names and a NamedTuple operand; these are finite test premises, not an institutional source or permission rule.",
+    "not_established": "Whole B/JIT closure, arbitrary reflection/descriptor/runtime target internals, generic frame namespaces, scientific validity and external authority."
+  },
+  "changed_dependency": "The source owner changed capture reconciliation to typed-equivalent dictionary spreads and made the getter-family entry census inspect actual root captures so a hidden nonlocal getter cannot bypass the classifier. This replay checks the unchanged independent consumer; separate owner/CAS controls cover the new lexical negatives.",
+  "finite_boundary": "Ordinary immutable public data-field selectors over a runtime parameter. Runtime target type/descriptors/internals remain outside this finite source identity projection. Author and CAS own separate lexical binder negatives; no result is borrowed here.",
+  "next_owner": "CMP owns the classifier and its lexical class controls. ROOT/G owns integration, final source-bound cohort/gates and formal closure. No own budget acceptance."
+}

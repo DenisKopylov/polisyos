@@ -1,0 +1,25 @@
+{
+  "target_sha": "4f71e8bbd95225c8d857b2123f7f2fe9fcc5071d",
+  "target_tree": "d418a555e7883599a3c8c482f5b43a6c7b6f7a50",
+  "modules": {
+    "polisyos.runtime.http.services.control_plane_store": {
+      "path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "sha256": "af813a2b87c0500bc2c0499813c9170a6a8033d92f860fe5556b72088e6721f6"
+    },
+    "polisyos.scientist.orchestration.engine.budget_ledger": {
+      "path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f"
+    },
+    "polisyos.scientist.orchestration.engine.budget_middleware": {
+      "path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0"
+    },
+    "polisyos.scientist.orchestration.engine.runner.fallback_runner": {
+      "path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/scientist/orchestration/engine/runner/fallback_runner.py",
+      "sha256": "08a6a33767eb69c875f8ba4391c7ab8e53858f830f9e1467c073148319683668"
+    }
+  },
+  "python": "3.14.2",
+  "test_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+}

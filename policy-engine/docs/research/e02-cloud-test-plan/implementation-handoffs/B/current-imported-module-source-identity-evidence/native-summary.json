@@ -1,0 +1,226 @@
+{
+  "baseline-2a": {
+    "denominator": 2,
+    "groups": {
+      "tests.unit.foundry.methods.backends.test_module_source_identity": {
+        "FAIL": 1,
+        "PASS": 1
+      }
+    },
+    "wrapper": {
+      "started_at": "2026-10-07T07:32:18.448818+00:00",
+      "finished_at": "2026-10-07T07:32:22.023027+00:00",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/pytest-child.py",
+        "/workspace/e02-B-current-composition",
+        "2a2e97e1a68f7b566f8be7bab0a16f10e7bf6bfe",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/baseline-2a/module-origins.json",
+        "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+        "-vv",
+        "--tb=short",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/dev/shm/e02-B-module-baseline-2a-653371",
+        "--junitxml",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/baseline-2a/native.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "source_before": {
+        "sha": "2a2e97e1a68f7b566f8be7bab0a16f10e7bf6bfe",
+        "tree": "34f5301b7b772fbab140477b419bb979a56a7268",
+        "status": ""
+      },
+      "source_after": {
+        "sha": "2a2e97e1a68f7b566f8be7bab0a16f10e7bf6bfe",
+        "tree": "34f5301b7b772fbab140477b419bb979a56a7268",
+        "status": ""
+      },
+      "exit_code": 1,
+      "wait4_status": 256,
+      "signal": null,
+      "wall_seconds": 3.574214481981471,
+      "max_rss_kib": 176096,
+      "user_cpu_seconds": 3.404814,
+      "system_cpu_seconds": 0.490689,
+      "stdout": {
+        "bytes": 6051,
+        "sha256": "9ffcb61d5af4a4eb03d050d492254310dcc9d6f95607f5390801fe2b5f7a2d5a"
+      }
+    },
+    "origin_module_count": 166
+  },
+  "candidate-5de": {
+    "denominator": 109,
+    "groups": {
+      "tests.unit.foundry.methods.backends.test_module_source_identity": {
+        "PASS": 12
+      },
+      "tests.unit.foundry.methods.backends.test_checkpoint_identity": {
+        "PASS": 39
+      },
+      "tests.unit.foundry.methods.test_compiler_e02": {
+        "PASS": 9,
+        "FAIL": 2
+      },
+      "tests.unit.foundry.methods.test_compiler.TestShapeSpec": {
+        "PASS": 7
+      },
+      "tests.unit.foundry.methods.test_compiler.TestBackendSpec": {
+        "PASS": 5
+      },
+      "tests.unit.foundry.methods.test_compiler.TestStaticParamsHash": {
+        "PASS": 8
+      },
+      "tests.unit.foundry.methods.test_compiler.TestSpecialization": {
+        "PASS": 8
+      },
+      "tests.unit.foundry.methods.test_compiler.TestCompilationCache": {
+        "PASS": 8
+      },
+      "tests.unit.foundry.methods.test_compiler.TestMethodCompiler": {
+        "PASS": 9
+      },
+      "tests.unit.foundry.methods.test_compiler.TestSingleFlight": {
+        "PASS": 1
+      },
+      "tests.unit.foundry.methods.test_compiler.TestCompiledChainExecutor": {
+        "FAIL": 1
+      }
+    },
+    "wrapper": {
+      "started_at": "2026-10-07T07:47:39.988712+00:00",
+      "finished_at": "2026-10-07T07:47:55.259902+00:00",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/pytest-child.py",
+        "/workspace/e02-B-current-composition",
+        "5deffd11efd0bba0db6e78d47259601149d3ae0b",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/candidate-5de/module-origins.json",
+        "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+        "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+        "tests/unit/foundry/methods/test_compiler_e02.py",
+        "tests/unit/foundry/methods/test_compiler.py",
+        "-vv",
+        "--tb=short",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/dev/shm/e02-B-module-candidate-5de-703059",
+        "--junitxml",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/candidate-5de/native.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "source_before": {
+        "sha": "5deffd11efd0bba0db6e78d47259601149d3ae0b",
+        "tree": "2ab20eed4d4d3ceeb59332f9bcaa5512518f6f0e",
+        "status": ""
+      },
+      "source_after": {
+        "sha": "5deffd11efd0bba0db6e78d47259601149d3ae0b",
+        "tree": "2ab20eed4d4d3ceeb59332f9bcaa5512518f6f0e",
+        "status": ""
+      },
+      "exit_code": 1,
+      "wait4_status": 256,
+      "signal": null,
+      "wall_seconds": 15.271197673981078,
+      "max_rss_kib": 268756,
+      "user_cpu_seconds": 14.65142,
+      "system_cpu_seconds": 0.9453119999999999,
+      "stdout": {
+        "bytes": 28268,
+        "sha256": "912ab1dbab34c31a4c1ec05f0b2b0abe7067b8b09f8c1baa524d8167c9bb1a58"
+      }
+    },
+    "origin_module_count": 168
+  },
+  "candidate-eb4": {
+    "denominator": 109,
+    "groups": {
+      "tests.unit.foundry.methods.backends.test_module_source_identity": {
+        "PASS": 12
+      },
+      "tests.unit.foundry.methods.backends.test_checkpoint_identity": {
+        "PASS": 39
+      },
+      "tests.unit.foundry.methods.test_compiler_e02": {
+        "PASS": 11
+      },
+      "tests.unit.foundry.methods.test_compiler.TestShapeSpec": {
+        "PASS": 7
+      },
+      "tests.unit.foundry.methods.test_compiler.TestBackendSpec": {
+        "PASS": 5
+      },
+      "tests.unit.foundry.methods.test_compiler.TestStaticParamsHash": {
+        "PASS": 8
+      },
+      "tests.unit.foundry.methods.test_compiler.TestSpecialization": {
+        "PASS": 8
+      },
+      "tests.unit.foundry.methods.test_compiler.TestCompilationCache": {
+        "PASS": 8
+      },
+      "tests.unit.foundry.methods.test_compiler.TestMethodCompiler": {
+        "PASS": 9
+      },
+      "tests.unit.foundry.methods.test_compiler.TestSingleFlight": {
+        "PASS": 1
+      },
+      "tests.unit.foundry.methods.test_compiler.TestCompiledChainExecutor": {
+        "PASS": 1
+      }
+    },
+    "wrapper": {
+      "started_at": "2026-10-07T07:52:07.195524+00:00",
+      "finished_at": "2026-10-07T07:52:22.400380+00:00",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/pytest-child.py",
+        "/workspace/e02-B-current-composition",
+        "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/candidate-eb4/module-origins.json",
+        "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+        "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+        "tests/unit/foundry/methods/test_compiler_e02.py",
+        "tests/unit/foundry/methods/test_compiler.py",
+        "-vv",
+        "--tb=short",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/dev/shm/e02-B-module-candidate-eb4-705633",
+        "--junitxml",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/candidate-eb4/native.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "source_before": {
+        "sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+        "tree": "0b7134be3ac0fa5c7cbe07d4783f6d31a65c3e3e",
+        "status": ""
+      },
+      "source_after": {
+        "sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+        "tree": "0b7134be3ac0fa5c7cbe07d4783f6d31a65c3e3e",
+        "status": ""
+      },
+      "exit_code": 0,
+      "wait4_status": 0,
+      "signal": null,
+      "wall_seconds": 15.204863550985465,
+      "max_rss_kib": 267096,
+      "user_cpu_seconds": 14.648603,
+      "system_cpu_seconds": 0.9479409999999999,
+      "stdout": {
+        "bytes": 16305,
+        "sha256": "cd085ef87dd70d09faaef96817d4c70e5594f3ca8ef565bc71522fb57a8ea051"
+      }
+    },
+    "origin_module_count": 168
+  }
+}

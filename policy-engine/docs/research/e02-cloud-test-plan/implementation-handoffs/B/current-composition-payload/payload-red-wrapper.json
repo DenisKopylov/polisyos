@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/payload-red-corrected-cache",
+    "-q",
+    "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+    "--basetemp=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/payload-red-corrected-tmp",
+    "--junitxml=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/payload-red-corrected.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "source_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "test_source_sha256": "000ef923bf13439e01e5eb2f428726d8374b661af9dd21ac307b77c6be5e52df",
+  "env": {
+    "PYTHONPATH": "src",
+    "POLISYOS_METRICS_PORT": "0",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "start_utc": "2026-10-06T09:39:47.312636+00:00",
+  "exit_code": 1,
+  "wall_seconds": 2.901418494002428,
+  "max_rss_kib": 180104,
+  "resource_method": "direct wait4 child rusage; Linux KiB",
+  "end_utc": "2026-10-06T09:39:50.214077+00:00"
+}

@@ -1,0 +1,32 @@
+{
+  "target_sha": "f4e8422232ce3b61ef28c5c1928a65df5038a3fe",
+  "checks": [
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "tests/unit/scientist/orchestration/engine/test_budget_llm_process_recovery.py"
+      ],
+      "cwd": "/workspace/e02-B-current-durability/policy-engine",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "ruff-check.txt"
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "tests/unit/scientist/orchestration/engine/test_budget_llm_process_recovery.py"
+      ],
+      "cwd": "/workspace/e02-B-current-durability/policy-engine",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "ruff-format.txt"
+    }
+  ]
+}

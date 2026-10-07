@@ -1,0 +1,87 @@
+{
+  "id": "complete-final-root-case-interpretation",
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+    "--inventory",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-inventory.json",
+    "--junit",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.xml",
+    "--wrapper",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.json",
+    "--profile",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-profile.json",
+    "--selectors",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/final-selector.json",
+    "--stdout",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.txt",
+    "--source-sha",
+    "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+    "--repo",
+    "/workspace/e02-B-current-adapters",
+    "--output",
+    "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/final-root-case-partition-3cd-recorded.json"
+  ],
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "target_sha": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+  "runtime_source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+  "environment": {
+    "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "python_version": "Python 3.14.2",
+    "parser_source_sha256": "a0de853bfe4d895381ccfcc06c1ece8893bd5755db56bb3de2667e4d0601fdaf",
+    "parser_source_bytes": 27053,
+    "process_worker_numerical_quota": "none imposed",
+    "execution": "Read completed root native artifacts only; no pytest import, native test, collection or gate invocation"
+  },
+  "input_closure": {
+    "raw_input_identities": {
+      "inventory": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-inventory.json",
+        "bytes": 15412075,
+        "sha256": "48b98aad10a0ea46954f6aa0f9f166114f699672b6d332aaf78df8b7e3fe04c8"
+      },
+      "wrapper": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.json",
+        "bytes": 2338,
+        "sha256": "b3acbd3c58ce152af8d05314e063c477e640fc1ff5bda7f842186f9bdd31a61f"
+      },
+      "profile": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-profile.json",
+        "bytes": 10440,
+        "sha256": "778214f30623054317e3cb51ea7233339adc13cc5020e1e6d3c49cf0554ee44c"
+      },
+      "selectors": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/final-selector.json",
+        "bytes": 519067,
+        "sha256": "19207856a245f157f0fd8a478fbf1f69767de17cc62adda1ebdc22bd974d5a05"
+      },
+      "junit": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.xml",
+        "bytes": 1333443,
+        "sha256": "f7fa098c6b921b7b9c0188f03997bc6962db1f3849826fd3e9fa61e9b6c6800b"
+      },
+      "stdout": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.txt",
+        "bytes": 1431050,
+        "sha256": "2156c46a4fb2273fb52ed9fca25e73b8fe32581886eb190875443523b152bda7"
+      }
+    },
+    "parser_source_sha": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+    "parser_source_sha256": "a0de853bfe4d895381ccfcc06c1ece8893bd5755db56bb3de2667e4d0601fdaf",
+    "observer_source_sha256": "2766137b6322946a1e4a6f05717708636148391622e37106e66e6d9634e0f802",
+    "native_junit_source_sha256": "d71198950cf33bd1c7dc782167986ee130427fc57e221046e6455dc7a5b63d5a",
+    "execution_overlay": "none; completed root artifacts only; no product process invocation"
+  },
+  "returncode": 0,
+  "wall_seconds": 0.39162321800540667,
+  "outcome": "PASS",
+  "outcome_scope": "Parser read/write invocation only; native cohort has actualexit1 and failures/errors, never relabeled PASS.",
+  "output": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/actual-parser.txt",
+    "bytes": 2165,
+    "sha256": "8dc1b8974c830537945c58f3dbe47aaeacfc748088b10d4f058fc809f85b22e2"
+  },
+  "repeat_qualification": "First 3cd actual decode produced identical ignored fullpartition; this second cheap data-only decode captures complete deciding stdout durably. No native wave was repeated.",
+  "same_bytes_as_first_decode": true,
+  "original_raw_duplicate_cleanup_candidate": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/final-root-case-partition-3cd.json"
+}

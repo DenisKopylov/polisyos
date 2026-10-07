@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/tmp/e02-B-tenth-wave-20261007/inspect-consumer-delta.source.txt",
+    "--repo",
+    "/workspace/e02-B-current-runtime",
+    "--candidate",
+    "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+    "--output",
+    "/tmp/e02-B-tenth-wave-20261007/runtime-consumer-delta-590e5d18-formatted/review.json"
+  ],
+  "cwd": "/workspace/e02-B-current-runtime",
+  "driver": {
+    "path": "/tmp/e02-B-tenth-wave-20261007/inspect-consumer-delta.source.txt",
+    "bytes": 9709,
+    "sha256": "b65d4405eeadf290d31f0beb948104bb301426379836be082b6dfbac6ce23029"
+  },
+  "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "new_runtime": "NONE; Git/JSON/AST only",
+  "product_imports": [],
+  "exit_code": 0,
+  "wall_seconds": 10.899669311009347,
+  "output": {
+    "path": "/tmp/e02-B-tenth-wave-20261007/runtime-consumer-delta-590e5d18-formatted/check.txt",
+    "bytes": 898,
+    "sha256": "803deb8640e3eecf98c591a48784d7ba8f83d920ec4d37c697e4a165c9bc25e1"
+  }
+}

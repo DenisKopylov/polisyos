@@ -1,0 +1,14 @@
+{
+  "schema": "e02.existing_writer_slice_base.v1",
+  "observed_utc": "2026-10-06T14:58:43.679640+00:00",
+  "worktree": "/workspace/e02-B-current-adapters",
+  "branch": "codex/e02-B-current-adapters",
+  "head": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+  "tree": "022a92aacb708e0aa4e54c71f089212f6e16f4c5",
+  "status_porcelain": "",
+  "new_worktree_created": false,
+  "admission": "existing root-provided adapters lane; original tracked create/resume receipts retained",
+  "authorized_test_only_path": "policy-engine/tests/unit/remediation/test_wire_01.py",
+  "root_frozen_source": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+  "scope": "v2-envelope consumer premise correction plus explicit legacy-tag reader controls; no production edits"
+}

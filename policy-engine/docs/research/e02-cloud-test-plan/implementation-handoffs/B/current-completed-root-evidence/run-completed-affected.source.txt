@@ -1,0 +1,22 @@
+from pathlib import Path
+import json,shlex,os,hashlib,subprocess,importlib.util
+R=Path('/workspace/e02-B-current-coordination');P=R/'policy-engine';B=P/'docs/research/e02-cloud-test-plan/implementation-handoffs/B';H=R/'.polisyos/e02-B-current';SHA='1862c021df74a5c5815bc5cd21a20e61b30132b6'
+assert subprocess.check_output(['git','-C',str(R),'rev-parse','HEAD'],text=True).strip()==SHA
+assert not subprocess.check_output(['git','-C',str(R),'status','--porcelain'],text=True).strip()
+llm=json.loads((B/'current-llm-completion-repair.json').read_text());c=next(c for c in llm['checks'] if c.get('id')=='full34-31d613');paths={i['selector'] for i in c['input_closure']['actual_input_and_overlay']['actual_selected_inputs']};assert len(paths)==34
+for c in json.loads((B/'current-compiled-chain-plan.json').read_text())['checks']:
+ if c['outcome']=='PASS' and isinstance(c['command'],str) and '-m pytest' in c['command']:
+  paths.update(x for x in shlex.split(c['command']) if x.startswith('tests/') and x.endswith('.py'))
+paths.update(['tests/unit/scientist/policy_design/test_phase_b_policy_workers.py','tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py','tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py','tests/unit/scientist/orchestration/llm/test_shared_flight_completion_independent_e02.py','tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py','tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py','tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py']);paths=sorted(paths)
+for p in paths:assert (P/p).is_file(),p
+scratch=Path('/dev/shm/e02-B-completed-affected-1862c021df74-bound');assert not scratch.exists()
+env=dict(os.environ);spec=importlib.util.spec_from_file_location('e02_input',B/'final-root-evidence/run_successor.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);m.SHA=SHA
+for key in m.CAPS:env.pop(key,None)
+py=H/'environment/bin/python';env.update(PYTHONPATH=f'{P}/src:{P}:{H}/tools',UV_PROJECT_ENVIRONMENT=str(H/'environment'),UV_NO_SYNC='1',POLISYOS_METRICS_PORT='0',E02_ORACLE_PRODUCT_ROOT=str(P),TIKTOKEN_CACHE_DIR=str(H/'tools/tokenizer-input/cache'));env['PATH']=f'/tmp/e02-B-opa-latest-preparation-1db95544/bin:{py.parent}:{H}/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:'+env['PATH']
+os.environ['E02_LA057_COHORT_INPUT_FILE']='/tmp/e02-B-la057-final-1862c021df74-run/cohort-input-environment.json';os.environ['E02_B38_POSTGRES_DSN_FILE']='/tmp/e02-B38-pg-evidence/postgres-dsn';os.environ['E02_B38_POSTGRES_DRIVER_ROOT']='/tmp/e02-B38-pg-profile';verification=m.bind_verification_inputs(env)
+scratch.mkdir(mode=0o700);argsfile=scratch/'whole-files.args';argsfile.write_text('\n'.join(paths)+'\n');raw=H/'raw/review';tag='completed-final-affected-consumers';inventory=raw/(tag+'-inventory.json');assert not inventory.exists();env['E02_B_COHORT_INVENTORY_PATH']=str(inventory)
+argv=[str(py),'-m','pytest','-vv','-s','-p','current_cohort_inventory','@'+str(argsfile),'--continue-on-collection-errors','--basetemp',str(scratch/'pytest'),'-o','cache_dir='+str(scratch/'cache'),'--junitxml',str(scratch/'native.xml')]
+profile={'source_sha':SHA,'source_tree':subprocess.check_output(['git','-C',str(R),'rev-parse','HEAD^{tree}'],text=True).strip(),'argv':argv,'whole_file_count':len(paths),'test_paths':paths,'whole_file_identities':[{'path':'policy-engine/'+p,'sha256':hashlib.sha256((P/p).read_bytes()).hexdigest()} for p in paths],'selection_basis':'whole34 predecessor affected consumers + every PASS compiled plan runtime wholefile + seven new worker/flight/audit/admission/cache files; targeted wave, NOT fullB cohort','verification_inputs':verification,'inventory':str(inventory),'scratch':str(scratch),'environment':{k:env[k] for k in ['PYTHONPATH','PATH','UV_PROJECT_ENVIRONMENT','UV_NO_SYNC','POLISYOS_METRICS_PORT','TIKTOKEN_CACHE_DIR']},'CPU_worker_process_thread_quotas_added':False,'driver_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
+with (raw/(tag+'-profile.json')).open('x') as out:json.dump(profile,out,indent=2);out.write('\n')
+print('ACTUAL_AFFECTED_WHOLE_FILES',len(paths),flush=True)
+raise SystemExit(subprocess.run([str(py),str(B/'final-root-evidence/capture_frozen.py'),'--repo',str(R),'--tag',tag,'--',*argv],env=env,cwd=R).returncode)

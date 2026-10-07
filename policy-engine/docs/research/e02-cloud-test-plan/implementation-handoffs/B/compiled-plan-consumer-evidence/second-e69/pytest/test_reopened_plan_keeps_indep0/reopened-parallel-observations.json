@@ -1,0 +1,45 @@
+{
+  "mode": "async",
+  "ref": {
+    "artifact_id": "sha256:8a7f2866716c9f67027bb53f277859d4e43f2180e52c7562eed36310437810a6",
+    "kind": "foundry.compiled_chain_plan",
+    "media_type": "application/json",
+    "manifest_profile_sha256": "sha256:f64cc97da8844f6fe00326da93b730801cd15e4bf87d3aa77e72f807aa3adf25"
+  },
+  "events": [
+    [
+      "required",
+      "entered",
+      20
+    ],
+    [
+      "sibling",
+      "entered"
+    ],
+    [
+      "sibling",
+      "computed",
+      3.0
+    ],
+    [
+      "required",
+      "computed",
+      29.0
+    ],
+    [
+      "dependent",
+      "computed",
+      36.0
+    ]
+  ],
+  "node_results": [
+    "1f442791-c6c8-434f-a757-617212dedf90",
+    "ef3b1781-2411-4a6f-b881-3359e339c873",
+    "9df42a39-f8f8-4674-b30c-d21803d3457f"
+  ],
+  "numeric_results": {
+    "required": 29.0,
+    "sibling": 3.0,
+    "dependent": 36.0
+  }
+}

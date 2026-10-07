@@ -1,0 +1,64 @@
+{
+  "command_argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/tmp/e02-run-final-footprint-driver.py",
+    "--repo",
+    "/workspace/e02-B-current-runtime",
+    "--base",
+    "198076863e143dea9f89f02734b13d50dae3eed5",
+    "--target",
+    "dd9584728bd96f204983615216efdbc58117e713",
+    "--heads-json",
+    "/tmp/e02-run-final-footprint-heads.json",
+    "--output",
+    "/tmp/e02-run-final-footprint-dd.json"
+  ],
+  "cwd": "/workspace/e02-B-current-runtime",
+  "exit_code": 0,
+  "wall_seconds": 3.765123687000596,
+  "maxrss_kib": 78572,
+  "environment": {
+    "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "git_version": "git version 2.52.0",
+    "PYTHONPATH": null,
+    "qualification": "Standard-library Git/AST/TOML metadata only; no product import, tests, selector, collection, generator, wheel or gate execution."
+  },
+  "root_snapshot_before": {
+    "head": "dd9584728bd96f204983615216efdbc58117e713",
+    "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+    "status": ""
+  },
+  "root_snapshot_after": {
+    "head": "dd9584728bd96f204983615216efdbc58117e713",
+    "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+    "status": ""
+  },
+  "root_stable": true,
+  "inputs": [
+    {
+      "path": "/tmp/e02-run-final-footprint-driver.py",
+      "bytes": 32007,
+      "sha256": "00a57d80252d32889ff0ed3e823430d4e924c17a12a0090ab0521ba31f26263f"
+    },
+    {
+      "path": "/tmp/e02-run-final-footprint-heads.json",
+      "bytes": 890,
+      "sha256": "5683d7f9f907b2c2ad8cb330b108c3a78511b34ffeee87cccfaab3ed4bc26fd2"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "/tmp/e02-run-final-footprint-dd.json",
+      "bytes": 938552,
+      "sha256": "7b1a3245f3a807807242eacf0163a924d334428db8ecfe1347b12532ce3c43ed"
+    },
+    {
+      "path": "/tmp/e02-run-final-footprint-source-check.txt",
+      "bytes": 658,
+      "sha256": "a628c9e0f5cf5eec0a58dd0d8e322236870b8d88e4d1971b4091ee23d4bded69"
+    }
+  ],
+  "runtime_or_gate_execution": "UNRUN"
+}

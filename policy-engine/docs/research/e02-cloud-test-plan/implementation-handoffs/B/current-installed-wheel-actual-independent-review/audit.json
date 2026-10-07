@@ -1,0 +1,628 @@
+{
+  "review": "Foreign DUR actual installed-wheel output/custody reconciliation; no reviewer build/native/gates",
+  "source": "dd9584728bd96f204983615216efdbc58117e713",
+  "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+  "author_handoff": "63713129022dc6c4b0103c1e77ee533b4d38a3e6",
+  "all_declared_artifact_rows": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-dependencies.json",
+      "bytes": 859,
+      "sha256": "95f720f565c78a436b59420af9489c4c35f0b6faf1f70b8ae42848a0b86d0049",
+      "git_blob": "13d15e63149305c7799734940ef2312540b24ee6",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-dependencies.txt",
+      "bytes": 244,
+      "sha256": "70f451a6a006d2e94828c32455ae42ada4f0a81635cb134af8320aecca486519",
+      "git_blob": "7a2bdfc3a8c67547840745983a78ddb2f315c325",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-environment.json",
+      "bytes": 945,
+      "sha256": "25b7734f8a70f9c658818b22f5d420dfc3836729cb4a7f7136f3394ade4f0cf9",
+      "git_blob": "49b5f3de78d33ca7dc408dd87a7cdb23741c93bb",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-environment.txt",
+      "bytes": 278,
+      "sha256": "5aa9b250d67028f69f81103e568d164b8ddb4e9a31344a3bfb36bda52846de01",
+      "git_blob": "7dac68db7595862db35e47acd86eb36c0bdee6d7",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-venv.json",
+      "bytes": 924,
+      "sha256": "71dd623cbaf99f44aa097151fea9cf45ef5d2db7498bc2ec58c6e8519f39b611",
+      "git_blob": "06f287cab53cfe638adc961c94ff20b8f831e23f",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-venv.txt",
+      "bytes": 212,
+      "sha256": "5205c6c365e647dd5d51df8e3bc218655c50c612beced86680157bfe98f6b61c",
+      "git_blob": "21c9d6c192124e6e9dc2716583ea1bd5572c0844",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/cohort-input-environment.json",
+      "bytes": 672,
+      "sha256": "08a8d5d09ec80be66a7cbc961a993b3d426bdcf3b2c00eeeb0b3c110f83c0b4a",
+      "git_blob": "84ef9a2782ffa05207e324e433e318aad688187c",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-dependencies.json",
+      "bytes": 971,
+      "sha256": "96cc80d9b994dcda6bb53cc1edd41756f48771887e10bf7eb3a64849ebcaebb4",
+      "git_blob": "c3ae1cd347b96a61c81147a7c85b28102cd95ad4",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-dependencies.txt",
+      "bytes": 281,
+      "sha256": "5cb2da1bc97d99c31a5cba3c68ca43228b107650b685e5198e217487ef0eb777",
+      "git_blob": "8c776a30a1ab2627ad988f139c97fe20b243f71c",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-environment.json",
+      "bytes": 952,
+      "sha256": "114b09c3f23f8f4025357ca21a4f4fcf127c46fd71813948e8abf629187da6c0",
+      "git_blob": "47130c18051c9d49de218b37e7e79d0a926495c1",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-environment.txt",
+      "bytes": 290,
+      "sha256": "405967b66929faa3715dadc1694319919f1ca6741818e496e57fcda3c953a06d",
+      "git_blob": "660b6bb4df265b7a2d5e9ba62be3d7b4eba23e2b",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-venv.json",
+      "bytes": 933,
+      "sha256": "ee71389f4c5f6606b425c92b1010e4e701304f2b6735ced7cbb401f26d5e5909",
+      "git_blob": "bc469b08eb24d068e0d20e0200b5c320a94f10a1",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-venv.txt",
+      "bytes": 220,
+      "sha256": "88031c3313150199540d7e5f695abbb2896d91c384410f8741c1be1053bf7620",
+      "git_blob": "abf87ea629d75ecbb74217c7657c0f69bea110f0",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/native.json",
+      "bytes": 1226,
+      "sha256": "998b33c71b84660589f0e5e9f9971eb77e1e914c6ffbac582644c48528e71797",
+      "git_blob": "2d4cae63d21fc9dbff7e4d4d1e3625640eaf1ccb",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/native.txt",
+      "bytes": 4473,
+      "sha256": "881def1d8c6d59339961b79db47b7a445075e8d755b497313e5310f500c598f4",
+      "git_blob": "ee2a779a199ad3ddb8ab3de76745d6480a2b6d3e",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/profile.json",
+      "bytes": 1850,
+      "sha256": "da36b9572907d95137643cfbd75e41b06a4977e9090d589dfddf287786636360",
+      "git_blob": "5cb0b9aa413d855f4643ac71fc6870c33c188068",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-build.json",
+      "bytes": 1039,
+      "sha256": "203ff7dd8b9492fad13c15857ef5249798e46299f61ecab81a7727c4275bc00e",
+      "git_blob": "38b01c5a7bb4b916a176bf7e2b8d8ee137fe4312",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-build.txt",
+      "bytes": 81,
+      "sha256": "430982fdee80715cdcd8cfe97c600955d040a0744c6f540e92297d3d36287def",
+      "git_blob": "0f88f481e81b8c9c034c6625b8737836f1102bae",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-install.json",
+      "bytes": 937,
+      "sha256": "f4477f220f19c58bf81b6d6d2222ded091167722ab040828e3c8e0f4553d7fe0",
+      "git_blob": "8165b8e7c4b48983c83ae4201a2e96882c8703c2",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-install.txt",
+      "bytes": 251,
+      "sha256": "dea7129a7dc6b8d740971823e53e0945ee364a825de11025f9bae0b9ed20bb90",
+      "git_blob": "b2a956f5987e9a17f2b43efdf452446f4fd7c560",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/execute.source.txt",
+      "bytes": 3602,
+      "sha256": "159e1abdc60da5899d5fb427d8c87e3e4de51548afd3ad65f80f4af1d0eb3867",
+      "git_blob": "2ca86d4dd567b7e1c19c39a33d3a4803ef6c2c75",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/launcher-input-profile.json",
+      "bytes": 4074,
+      "sha256": "44421fc0c2f5b591505c10de6f52425e6a7473bcdcc7ddb1ca557e75b8e78cc7",
+      "git_blob": "1874ea8724322b9761e627e08fc850f70ec342f0",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/launcher.txt",
+      "bytes": 11795,
+      "sha256": "466f2bfb6e20db959d371b14b27d2e8a71143da5b96613ead6c794f5d333dacb",
+      "git_blob": "0c2d49534781a5e00e87eedf3372be34ff42d161",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/launcher-wrapper.json",
+      "bytes": 2011,
+      "sha256": "bf0ac9b04846a7267e3dc86261b0920b475994dc23c51a25cea2abb53bfe9536",
+      "git_blob": "5f1435e53b2d7295f6395ab8087b6ea8b061bdc6",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-child.txt",
+      "bytes": 1790,
+      "sha256": "534904b2e39dfb5df65129846e8c250686d0aea7bde64ebfaa2f7d385290d8fb",
+      "git_blob": "ec39c96886a59603e6f817b1e4825de9f23f8c68",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-child.xml",
+      "bytes": 989,
+      "sha256": "bf1678e9b1ff5ff6d11c463fba79d42ab8b68a7296f2a5aaeabeed7e72e92156",
+      "git_blob": "9f75bb9c2efc2380a74f8586e5a4ae6c17eb38f9",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-child-wrapper.json",
+      "bytes": 2976,
+      "sha256": "f6d360d7ab50c6f1585176fe98392c5aca65e860bd1efbbc8de493b4fd97c784",
+      "git_blob": "231d9a2d8a5cef0a5f2ac33f204fa14fc9ace4ca",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/native.xml",
+      "bytes": 342,
+      "sha256": "ffa54554447bff39e966093d4ad90ece04a67be868c7fc4c36bc0b2a79cd3d08",
+      "git_blob": "e092b17b4c5d82d5a184367a09e7ab527a53773e",
+      "match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-METADATA.txt",
+      "bytes": 16142,
+      "sha256": "def04ba75a48b35f2c049077c738b4f6d3881b07f98145e32257356c2e7308a6",
+      "git_blob": "34874cf9c935b76c14e8309250b60819eb13d89d",
+      "match": true
+    }
+  ],
+  "complete_artifact_count": 29,
+  "complete_artifact_bytes": 61359,
+  "actual_separate_case_rows": {
+    "native.xml": [
+      {
+        "name": "test_installed_wheel_consumers_in_isolated_child",
+        "classname": "",
+        "outcome": "PASS"
+      }
+    ],
+    "installed-child.xml": [
+      {
+        "name": "test_installed_generic_identities[direct]",
+        "classname": "",
+        "outcome": "PASS"
+      },
+      {
+        "name": "test_installed_generic_identities[alias]",
+        "classname": "",
+        "outcome": "PASS"
+      },
+      {
+        "name": "test_installed_generic_identities[facade]",
+        "classname": "",
+        "outcome": "PASS"
+      },
+      {
+        "name": "test_installed_generic_identities[star_reflection]",
+        "classname": "",
+        "outcome": "PASS"
+      },
+      {
+        "name": "test_installed_direct_and_running_loop_context",
+        "classname": "",
+        "outcome": "PASS"
+      },
+      {
+        "name": "test_installed_timeout_cleans_real_pending_tasks",
+        "classname": "",
+        "outcome": "PASS"
+      },
+      {
+        "name": "test_installed_cancel_reaches_awaitable_finally[False]",
+        "classname": "",
+        "outcome": "PASS"
+      },
+      {
+        "name": "test_installed_cancel_reaches_awaitable_finally[True]",
+        "classname": "",
+        "outcome": "PASS"
+      }
+    ]
+  },
+  "actual_terminal_phase_rows": [
+    {
+      "check": "build-venv",
+      "phase": "terminal",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "venv",
+        "--python",
+        "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+        "--no-python-downloads",
+        "/tmp/e02-B-la057-final-dd9584728bd9/build-env"
+      ],
+      "cwd": "/tmp/e02-B-la057-final-dd9584728bd9",
+      "start_utc": "2026-10-06T19:08:57.397522+00:00",
+      "end_utc": "2026-10-06T19:08:57.722709+00:00",
+      "wall_s": 0.3251769999915268,
+      "child_maxrss_platform_units": 32400,
+      "maxrss_unit": "KiB on Linux; bytes on macOS",
+      "exit": 0,
+      "output": "/tmp/e02-B-la057-final-dd9584728bd9/build-venv.txt",
+      "output_bytes": 212,
+      "output_sha256": "5205c6c365e647dd5d51df8e3bc218655c50c612beced86680157bfe98f6b61c",
+      "source": {
+        "head": "dd9584728bd96f204983615216efdbc58117e713",
+        "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "status": ""
+      }
+    },
+    {
+      "check": "installed-venv",
+      "phase": "terminal",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "venv",
+        "--python",
+        "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+        "--no-python-downloads",
+        "/tmp/e02-B-la057-final-dd9584728bd9/installed-env"
+      ],
+      "cwd": "/tmp/e02-B-la057-final-dd9584728bd9",
+      "start_utc": "2026-10-06T19:08:57.723028+00:00",
+      "end_utc": "2026-10-06T19:08:57.973048+00:00",
+      "wall_s": 0.25002719199983403,
+      "child_maxrss_platform_units": 31704,
+      "maxrss_unit": "KiB on Linux; bytes on macOS",
+      "exit": 0,
+      "output": "/tmp/e02-B-la057-final-dd9584728bd9/installed-venv.txt",
+      "output_bytes": 220,
+      "output_sha256": "88031c3313150199540d7e5f695abbb2896d91c384410f8741c1be1053bf7620",
+      "source": {
+        "head": "dd9584728bd96f204983615216efdbc58117e713",
+        "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "status": ""
+      }
+    },
+    {
+      "check": "build-dependencies",
+      "phase": "terminal",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "pip",
+        "install",
+        "--python",
+        "/tmp/e02-B-la057-final-dd9584728bd9/build-env/bin/python",
+        "hatchling==1.27.0"
+      ],
+      "cwd": "/tmp/e02-B-la057-final-dd9584728bd9",
+      "start_utc": "2026-10-06T19:08:57.973292+00:00",
+      "end_utc": "2026-10-06T19:09:01.492121+00:00",
+      "wall_s": 3.5188378739985637,
+      "child_maxrss_platform_units": 42220,
+      "maxrss_unit": "KiB on Linux; bytes on macOS",
+      "exit": 0,
+      "output": "/tmp/e02-B-la057-final-dd9584728bd9/build-dependencies.txt",
+      "output_bytes": 244,
+      "output_sha256": "70f451a6a006d2e94828c32455ae42ada4f0a81635cb134af8320aecca486519",
+      "source": {
+        "head": "dd9584728bd96f204983615216efdbc58117e713",
+        "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "status": ""
+      }
+    },
+    {
+      "check": "wheel-build",
+      "phase": "terminal",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "build",
+        "--wheel",
+        "--no-build-isolation",
+        "--python",
+        "/tmp/e02-B-la057-final-dd9584728bd9/build-env/bin/python",
+        "--no-python-downloads",
+        "--no-create-gitignore",
+        "--out-dir",
+        "/tmp/e02-B-la057-final-dd9584728bd9/wheels",
+        "/workspace/e02-B-current-coordination/policy-engine"
+      ],
+      "cwd": "/tmp/e02-B-la057-final-dd9584728bd9",
+      "start_utc": "2026-10-06T19:09:01.492372+00:00",
+      "end_utc": "2026-10-06T19:09:05.129211+00:00",
+      "wall_s": 3.636847576999571,
+      "child_maxrss_platform_units": 37020,
+      "maxrss_unit": "KiB on Linux; bytes on macOS",
+      "exit": 0,
+      "output": "/tmp/e02-B-la057-final-dd9584728bd9/wheel-build.txt",
+      "output_bytes": 81,
+      "output_sha256": "430982fdee80715cdcd8cfe97c600955d040a0744c6f540e92297d3d36287def",
+      "source": {
+        "head": "dd9584728bd96f204983615216efdbc58117e713",
+        "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "status": ""
+      }
+    },
+    {
+      "check": "wheel-install",
+      "phase": "terminal",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "pip",
+        "install",
+        "--python",
+        "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/bin/python",
+        "--no-deps",
+        "/tmp/e02-B-la057-final-dd9584728bd9/wheels/policy_engine-0.1.0-py3-none-any.whl"
+      ],
+      "cwd": "/tmp/e02-B-la057-final-dd9584728bd9",
+      "start_utc": "2026-10-06T19:09:05.129605+00:00",
+      "end_utc": "2026-10-06T19:09:05.661690+00:00",
+      "wall_s": 0.5320935729978373,
+      "child_maxrss_platform_units": 47700,
+      "maxrss_unit": "KiB on Linux; bytes on macOS",
+      "exit": 0,
+      "output": "/tmp/e02-B-la057-final-dd9584728bd9/wheel-install.txt",
+      "output_bytes": 251,
+      "output_sha256": "dea7129a7dc6b8d740971823e53e0945ee364a825de11025f9bae0b9ed20bb90",
+      "source": {
+        "head": "dd9584728bd96f204983615216efdbc58117e713",
+        "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "status": ""
+      }
+    },
+    {
+      "check": "consumer-dependencies",
+      "phase": "terminal",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "pip",
+        "install",
+        "--python",
+        "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/bin/python",
+        "--no-deps",
+        "pytest==9.0.2",
+        "iniconfig==2.3.0",
+        "packaging==25.0",
+        "pluggy==1.6.0",
+        "pygments==2.19.2"
+      ],
+      "cwd": "/tmp/e02-B-la057-final-dd9584728bd9",
+      "start_utc": "2026-10-06T19:09:05.661921+00:00",
+      "end_utc": "2026-10-06T19:09:07.885082+00:00",
+      "wall_s": 2.2231699140102137,
+      "child_maxrss_platform_units": 43472,
+      "maxrss_unit": "KiB on Linux; bytes on macOS",
+      "exit": 0,
+      "output": "/tmp/e02-B-la057-final-dd9584728bd9/consumer-dependencies.txt",
+      "output_bytes": 281,
+      "output_sha256": "5cb2da1bc97d99c31a5cba3c68ca43228b107650b685e5198e217487ef0eb777",
+      "source": {
+        "head": "dd9584728bd96f204983615216efdbc58117e713",
+        "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "status": ""
+      }
+    },
+    {
+      "check": "build-environment",
+      "phase": "terminal",
+      "command": [
+        "/tmp/e02-B-la057-final-dd9584728bd9/build-env/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import importlib.metadata,json,sys;print(json.dumps({'python':sys.executable,'version':sys.version,'distributions':{d.metadata['Name']:d.version for d in importlib.metadata.distributions()}},sort_keys=True))"
+      ],
+      "cwd": "/tmp/e02-B-la057-final-dd9584728bd9",
+      "start_utc": "2026-10-06T19:09:07.885334+00:00",
+      "end_utc": "2026-10-06T19:09:08.163890+00:00",
+      "wall_s": 0.27856587900896557,
+      "child_maxrss_platform_units": 14460,
+      "maxrss_unit": "KiB on Linux; bytes on macOS",
+      "exit": 0,
+      "output": "/tmp/e02-B-la057-final-dd9584728bd9/build-environment.txt",
+      "output_bytes": 278,
+      "output_sha256": "5aa9b250d67028f69f81103e568d164b8ddb4e9a31344a3bfb36bda52846de01",
+      "source": {
+        "head": "dd9584728bd96f204983615216efdbc58117e713",
+        "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "status": ""
+      }
+    },
+    {
+      "check": "consumer-environment",
+      "phase": "terminal",
+      "command": [
+        "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import importlib.metadata,json,sys;print(json.dumps({'python':sys.executable,'version':sys.version,'distributions':{d.metadata['Name']:d.version for d in importlib.metadata.distributions()}},sort_keys=True))"
+      ],
+      "cwd": "/tmp/e02-B-la057-final-dd9584728bd9",
+      "start_utc": "2026-10-06T19:09:08.164065+00:00",
+      "end_utc": "2026-10-06T19:09:08.415349+00:00",
+      "wall_s": 0.25129286698938813,
+      "child_maxrss_platform_units": 14568,
+      "maxrss_unit": "KiB on Linux; bytes on macOS",
+      "exit": 0,
+      "output": "/tmp/e02-B-la057-final-dd9584728bd9/consumer-environment.txt",
+      "output_bytes": 290,
+      "output_sha256": "405967b66929faa3715dadc1694319919f1ca6741818e496e57fcda3c953a06d",
+      "source": {
+        "head": "dd9584728bd96f204983615216efdbc58117e713",
+        "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "status": ""
+      }
+    },
+    {
+      "check": "native",
+      "phase": "terminal",
+      "command": [
+        "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "--noconftest",
+        "--import-mode=importlib",
+        "-c",
+        "/dev/null",
+        "-o",
+        "addopts=",
+        "-o",
+        "pythonpath=",
+        "-o",
+        "cache_dir=/tmp/e02-B-la057-final-dd9584728bd9/pytest-cache",
+        "--basetemp",
+        "/tmp/e02-B-la057-final-dd9584728bd9/pytest-scratch",
+        "--junitxml",
+        "/tmp/e02-B-la057-final-dd9584728bd9/native.xml",
+        "/workspace/e02-B-current-coordination/policy-engine/tests/unit/common/test_async_tools_installed_wheel.py"
+      ],
+      "cwd": "/tmp/e02-B-la057-final-dd9584728bd9",
+      "start_utc": "2026-10-06T19:09:08.415646+00:00",
+      "end_utc": "2026-10-06T19:09:10.681397+00:00",
+      "wall_s": 2.265760770998895,
+      "child_maxrss_platform_units": 50012,
+      "maxrss_unit": "KiB on Linux; bytes on macOS",
+      "exit": 0,
+      "output": "/tmp/e02-B-la057-final-dd9584728bd9/native.txt",
+      "output_bytes": 4473,
+      "output_sha256": "881def1d8c6d59339961b79db47b7a445075e8d755b497313e5310f500c598f4",
+      "source": {
+        "head": "dd9584728bd96f204983615216efdbc58117e713",
+        "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "status": ""
+      }
+    }
+  ],
+  "complete_literal_profile": {
+    "E02_LA057_WHEEL_PATH": "/tmp/e02-B-la057-final-dd9584728bd9/wheels/policy_engine-0.1.0-py3-none-any.whl",
+    "E02_LA057_INSTALLED_SITE": "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/lib/python3.14/site-packages",
+    "E02_LA057_SOURCE_ROOT": "/workspace/e02-B-current-coordination/policy-engine",
+    "E02_LA057_SOURCE_SHA": "dd9584728bd96f204983615216efdbc58117e713",
+    "E02_LA057_INSTALLED_PYTHON": "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/bin/python",
+    "E02_LA057_CONSUMER_SHA256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+    "E02_LA057_OUTER_TEST_SHA256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702"
+  },
+  "child_command": [
+    "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/bin/python",
+    "-I",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-s",
+    "--noconftest",
+    "--import-mode=importlib",
+    "-c",
+    "/dev/null",
+    "-o",
+    "addopts=",
+    "-o",
+    "pythonpath=",
+    "-o",
+    "cache_dir=/tmp/e02-B-la057-final-dd9584728bd9/pytest-scratch/test_installed_wheel_consumers0/cache",
+    "--basetemp",
+    "/tmp/e02-B-la057-final-dd9584728bd9/pytest-scratch/test_installed_wheel_consumers0/child-scratch",
+    "--junitxml",
+    "/tmp/e02-B-la057-final-dd9584728bd9/pytest-scratch/test_installed_wheel_consumers0/installed-child.xml",
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py"
+  ],
+  "actual_module_wheel_site_root_comparisons": [
+    {
+      "module": "polisyos",
+      "origin": "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/lib/python3.14/site-packages/polisyos/__init__.py",
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c",
+      "wheel_member": "polisyos/__init__.py",
+      "root_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/src/polisyos/__init__.py",
+      "root_git_blob": "a1b746537b78f1e2e6c5e8f288df8174fb936906",
+      "wheel_installed_root_bytes_equal": true
+    },
+    {
+      "module": "polisyos.common",
+      "origin": "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/lib/python3.14/site-packages/polisyos/common/__init__.py",
+      "sha256": "80cb9fa767bae18ffe0514ca9b1fb09f45263c754a921b77671d3deada89e080",
+      "wheel_member": "polisyos/common/__init__.py",
+      "root_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/src/polisyos/common/__init__.py",
+      "root_git_blob": "696045bd775c9a9fe4023217628e686bf76b78f3",
+      "wheel_installed_root_bytes_equal": true
+    },
+    {
+      "module": "polisyos.common.async_tools",
+      "origin": "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/lib/python3.14/site-packages/polisyos/common/async_tools.py",
+      "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+      "wheel_member": "polisyos/common/async_tools.py",
+      "root_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/src/polisyos/common/async_tools.py",
+      "root_git_blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+      "wheel_installed_root_bytes_equal": true
+    }
+  ],
+  "immutable02b_source_input_comparisons": [
+    {
+      "path": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+      "bytes": 4870,
+      "sha256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702",
+      "git_blob": "7c8835f08c9d837e10af0274b3cf306b58acde94",
+      "root02b_byte_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+      "bytes": 9973,
+      "sha256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+      "git_blob": "a6c8303367b5caeca25629df9ba1eca714e31cd9",
+      "root02b_byte_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+      "bytes": 10704,
+      "sha256": "cba1f7aa1e664bd81118928db08aeca59b2067bd3eced377ceed85f775bfdedb",
+      "git_blob": "8a4007a95666c01058f8f4d17c39921c617e18df",
+      "root02b_byte_equal": true
+    }
+  ],
+  "local_wheel": {
+    "path": "/tmp/e02-B-la057-final-dd9584728bd9/wheels/policy_engine-0.1.0-py3-none-any.whl",
+    "bytes": 15085967,
+    "sha256": "78c9affc9b58f64166e2de6bc8360e30318fa30f7c66a44b863cb06447386454",
+    "availability": "Read locally at audit; rawwheel not in Git, G availability not established; exactsource/pinnedbuild profile retained."
+  },
+  "native_root_ordinary_cohort": "UNRUN_BY_THIS_REVIEW",
+  "formal_closure_ids": [],
+  "verdict": "PASS bounded custody and finite installed consumer result, not all package imports/typing/optionaldeps/fullcohort/financial criteria."
+}

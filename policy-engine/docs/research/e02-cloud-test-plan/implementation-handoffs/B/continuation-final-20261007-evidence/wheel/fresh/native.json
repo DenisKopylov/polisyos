@@ -1,0 +1,41 @@
+{
+  "command": [
+    "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/installed-env/bin/python",
+    "-I",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-s",
+    "--noconftest",
+    "--import-mode=importlib",
+    "-c",
+    "/dev/null",
+    "-o",
+    "addopts=",
+    "-o",
+    "pythonpath=",
+    "-o",
+    "cache_dir=/tmp/e02-B-continuation-wheel-6fa9b7142ba5/pytest-cache",
+    "--basetemp",
+    "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/pytest-scratch",
+    "--junitxml",
+    "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/native.xml",
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/common/test_async_tools_installed_wheel.py"
+  ],
+  "cwd": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5",
+  "start_utc": "2026-10-07T08:37:45.731490+00:00",
+  "end_utc": "2026-10-07T08:37:47.138331+00:00",
+  "wall_s": 1.4068555959966034,
+  "child_maxrss_platform_units": 50032,
+  "maxrss_unit": "KiB on Linux; bytes on macOS",
+  "exit": 0,
+  "output": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/native.txt",
+  "output_bytes": 4580,
+  "output_sha256": "be199de36da1a2ea8cdd94a556277cd0e9eb48f9461771a8b1ab679c72cffed8",
+  "source": {
+    "head": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+    "tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+    "status": ""
+  }
+}

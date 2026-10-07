@@ -1,0 +1,26 @@
+"""Run the finite checkpoint oracle with source, input, output and rusage custody."""
+import argparse, hashlib, importlib.metadata, json, os, pathlib, subprocess, time
+ROOT=pathlib.Path('/workspace/e02-B-current-cas-generation')
+PY=pathlib.Path('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python')
+parser=argparse.ArgumentParser();parser.add_argument('--tag',required=True);parser.add_argument('selectors',nargs='+');args=parser.parse_args()
+out=pathlib.Path('/tmp/e02-B-cas-b74-20261007')/args.tag;out.mkdir(parents=True,exist_ok=False)
+def git(*a): return subprocess.check_output(['git','-C',str(ROOT),*a])
+def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
+head=git('rev-parse','HEAD').decode().strip();tree=git('rev-parse','HEAD^{tree}').decode().strip()
+tracked=git('ls-files','policy-engine/src','policy-engine/tests','policy-engine/product','policy-engine/pytest.ini','policy-engine/pyproject.toml','policy-engine/uv.lock').decode().splitlines()
+before={p:sha(ROOT/p) for p in tracked};(out/'inputs-before.json').write_text(json.dumps(before,indent=2)+'\n')
+plugin=out/'e02_b74_input_custody.py'
+plugin.write_text("import hashlib,json,pathlib,sys\ndef pytest_sessionfinish(session,exitstatus):\n root=pathlib.Path("+repr(str(ROOT))+ "); rows=[]\n for n,m in sorted(sys.modules.items()):\n  f=getattr(m,'__file__',None)\n  if not isinstance(f,str): continue\n  p=pathlib.Path(f).absolute()\n  if p.is_file() and (p.is_relative_to(root/'policy-engine/src') or p.is_relative_to(root/'policy-engine/tests')):\n   rows.append({'module':n,'path':str(p),'sha256':hashlib.sha256(p.read_bytes()).hexdigest()})\n pathlib.Path("+repr(str(out/'module-origins.json'))+").write_text(json.dumps(rows,indent=2)+'\\n')\n")
+env=dict(os.environ);env['PYTHONPATH']=str(ROOT/'policy-engine/src')+os.pathsep+str(out)
+removed={k:env.pop(k) for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS'] if k in env}
+cmd=[str(PY),'-m','pytest','-vv','-s','-p','e02_b74_input_custody',*args.selectors,'--basetemp',str(out/'pytest'),'--junitxml',str(out/'native.xml'),'-o','cache_dir='+str(out/'cache')]
+profile={'argv':cmd,'cwd':str(ROOT/'policy-engine'),'actual_source_sha':head,'actual_tree':tree,'source_status_before':git('status','--porcelain').decode(),'python_executable':str(PY),'PYTHONPATH':env['PYTHONPATH'],'removed_thread_cap_env':removed,'instrument_path':str(pathlib.Path(__file__).absolute()),'instrument_sha256':sha(pathlib.Path(__file__)),'plugin_path':str(plugin),'plugin_sha256':sha(plugin),'inputs_before_path':str(out/'inputs-before.json'),'inputs_before_sha256':sha(out/'inputs-before.json'),'started_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'mutations':'none'}
+(out/'profile.json').write_text(json.dumps(profile,indent=2)+'\n')
+t=time.monotonic()
+with (out/'native.txt').open('wb') as log:
+ child=subprocess.Popen(cmd,cwd=ROOT/'policy-engine',env=env,stdout=log,stderr=subprocess.STDOUT)
+ pid,status,usage=os.wait4(child.pid,0);code=os.waitstatus_to_exitcode(status);child.returncode=code
+elapsed=time.monotonic()-t
+after={p:sha(ROOT/p) for p in tracked};(out/'inputs-after.json').write_text(json.dumps(after,indent=2)+'\n')
+report={'exit_code':code,'wall_s':elapsed,'rss_kib':usage.ru_maxrss,'child_pid':pid,'user_cpu_s':usage.ru_utime,'system_cpu_s':usage.ru_stime,'head_before':head,'head_after':git('rev-parse','HEAD').decode().strip(),'tree':tree,'source_status_after':git('status','--porcelain').decode(),'input_paths':len(tracked),'input_drift':[p for p in tracked if before[p]!=after[p]],'profile':str(out/'profile.json'),'stdout':str(out/'native.txt'),'stdout_bytes':(out/'native.txt').stat().st_size,'stdout_sha256':sha(out/'native.txt')}
+(out/'result.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report,indent=2));raise SystemExit(code)

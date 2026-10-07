@@ -1,0 +1,91 @@
+2026-10-06 10:22:30.878 | DEBUG    | polisyos.common.logger:_call:120 - Control worker old-owner-A picked job actual-upsert-job
+{
+  "before": {
+    "attempt": 2,
+    "owner": "new-owner-B",
+    "progress": {
+      "evidence_spine_handoff_count": 3,
+      "evidence_spine_handoffs": [
+        {
+          "batch_id": null,
+          "bridge_authority_ref": null,
+          "carrier_redaction_status": "pass",
+          "carrier_ref": "control-job:actual-upsert-job:carrier",
+          "concept_spine_ref": null,
+          "consumer_ref": "runtime.control_plane_store",
+          "handoff_id": "handoff:d9f150b00ec5b47a1cd592f2",
+          "handoff_kind": "nl_request_creation",
+          "input_refs": [
+            "control.request"
+          ],
+          "integrity_status": "pass",
+          "message_count": 1,
+          "output_refs": [
+            "control-job:actual-upsert-job"
+          ],
+          "parent_spine_ref": "control-job:actual-upsert-job:carrier",
+          "producer_handshake_refs": [],
+          "producer_ref": "runtime.api.nl_request",
+          "schema_version": "policyos.evidence_spine_handoff.v1"
+        },
+        {
+          "batch_id": null,
+          "bridge_authority_ref": null,
+          "carrier_redaction_status": "pass",
+          "carrier_ref": "control-job:actual-upsert-job:carrier",
+          "concept_spine_ref": null,
+          "consumer_ref": "runtime.control_worker:old-owner-A",
+          "handoff_id": "handoff:a569195115f07f0ecb66d507",
+          "handoff_kind": "control_plane_job_lease",
+          "input_refs": [
+            "control-job:actual-upsert-job"
+          ],
+          "integrity_status": "pass",
+          "message_count": 1,
+          "output_refs": [
+            "control-job:actual-upsert-job:lease:1"
+          ],
+          "parent_spine_ref": "control-job:actual-upsert-job:carrier",
+          "producer_handshake_refs": [],
+          "producer_ref": "runtime.control_plane_store",
+          "schema_version": "policyos.evidence_spine_handoff.v1"
+        },
+        {
+          "batch_id": null,
+          "bridge_authority_ref": null,
+          "carrier_redaction_status": "pass",
+          "carrier_ref": "control-job:actual-upsert-job:carrier",
+          "concept_spine_ref": null,
+          "consumer_ref": "runtime.control_worker:new-owner-B",
+          "handoff_id": "handoff:3399a6e0332a6e18b08c12e2",
+          "handoff_kind": "control_plane_job_lease",
+          "input_refs": [
+            "control-job:actual-upsert-job"
+          ],
+          "integrity_status": "pass",
+          "message_count": 1,
+          "output_refs": [
+            "control-job:actual-upsert-job:lease:2"
+          ],
+          "parent_spine_ref": "control-job:actual-upsert-job:carrier",
+          "producer_handshake_refs": [],
+          "producer_ref": "runtime.control_plane_store",
+          "schema_version": "policyos.evidence_spine_handoff.v1"
+        }
+      ]
+    }
+  },
+  "after": {
+    "attempt": 2,
+    "owner": "new-owner-B",
+    "progress": {
+      "phase": "stale-handler-overwrite"
+    }
+  },
+  "protected_progress_preserved": false
+}
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/probe_bound_upsert.py", line 24, in <module>
+    assert observed['protected_progress_preserved'],'bound stale handler rewrote current attempt progress through public upsert_progress'
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: bound stale handler rewrote current attempt progress through public upsert_progress

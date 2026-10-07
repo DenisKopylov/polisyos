@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="3" time="6.091" timestamp="2026-10-06T20:40:04.286320+00:00" hostname="b878f4efbdfc"><testcase classname="" name="test_normalization_cannot_escape_original_pending_accounting[gpt-4o]" time="0.037"><failure message="AssertionError: ordinary normalization lost the original mandatory completion fence&#10;assert 2 == 1&#10; +  where 2 = len([namespace(content='{&quot;value&quot;:7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02)), namespace(content='{&quot;value&quot;:7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02))])&#10; +    where [namespace(content='{&quot;value&quot;:7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02)), namespace(content='{&quot;value&quot;:7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02))] = &lt;agent.test_drafter_accounting_owner_oracle._PhysicalProvider object at 0x7f24c754cc20&gt;.responses">tmp_path = PosixPath('/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/gateway-settlement-review/baseline-DD/tmp/test_normalization_cannot_esca0')
+critique_model = 'gpt-4o'
+
+    @pytest.mark.parametrize("critique_model", ["gpt-4o", "different-critique-model"])
+    def test_normalization_cannot_escape_original_pending_accounting(
+        tmp_path: Path, critique_model: str
+    ) -&gt; None:
+        origins = _source_custody()
+        provider = _PhysicalProvider(tmp_path / "physical-provider.jsonl")
+        callback_events: list[dict[str, Any]] = []
+        cause = OSError("mandatory local accounting effect remains unresolved")
+    
+        def required_accounting(event: dict[str, Any]) -&gt; None:
+            callback_events.append(event)
+            raise cause
+    
+        original = TracedLLMClient(
+            provider,
+            model_name="gpt-4o",
+            required_accounting=required_accounting,
+            tracer=SimpleNamespace(start_as_current_span=lambda *_a, **_k: _Span()),
+            metrics=SimpleNamespace(record_llm_call=lambda **_k: None),
+        )
+    
+        async def exercise() -&gt; None:
+            with pytest.raises(LLMAccountingError) as first:
+                await original.generate(user="first actual request")
+            assert first.value.response is provider.responses[0]
+            assert first.value.cause is cause
+            with pytest.raises(LLMAccountingError) as ordinary_guard:
+                await original.generate(user="blocked original request")
+            assert ordinary_guard.value is first.value
+            received_error = None
+            try:
+                normalized = _normalize(original, critique_model)
+                await normalized.generate(user="request after ordinary critique normalization")
+            except LLMAccountingError as exc:
+                received_error = exc
+            work = [json.loads(line) for line in provider.path.read_text().splitlines()]
+            print(
+                "DRAFTER_ACCOUNTING_ACTUAL "
+                + json.dumps(
+                    {
+                        "critique_model": critique_model,
+                        "source_origins": origins,
+                        "physical_provider_requests": work,
+                        "required_callback_calls": len(callback_events),
+                        "same_original_error": received_error is first.value,
+                        "original_response_content": first.value.response.content,
+                    },
+                    sort_keys=True,
+                )
+            )
+            assert len(work) == len(provider.responses) == 1, (
+                "ordinary normalization lost the original mandatory completion fence"
+            )
+            assert len(callback_events) == 1
+            assert received_error is first.value
+    
+&gt;       asyncio.run(exercise())
+
+../../e02-B-current-composition/policy-engine/tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py:164: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:204: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:127: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py:719: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def exercise() -&gt; None:
+        with pytest.raises(LLMAccountingError) as first:
+            await original.generate(user="first actual request")
+        assert first.value.response is provider.responses[0]
+        assert first.value.cause is cause
+        with pytest.raises(LLMAccountingError) as ordinary_guard:
+            await original.generate(user="blocked original request")
+        assert ordinary_guard.value is first.value
+        received_error = None
+        try:
+            normalized = _normalize(original, critique_model)
+            await normalized.generate(user="request after ordinary critique normalization")
+        except LLMAccountingError as exc:
+            received_error = exc
+        work = [json.loads(line) for line in provider.path.read_text().splitlines()]
+        print(
+            "DRAFTER_ACCOUNTING_ACTUAL "
+            + json.dumps(
+                {
+                    "critique_model": critique_model,
+                    "source_origins": origins,
+                    "physical_provider_requests": work,
+                    "required_callback_calls": len(callback_events),
+                    "same_original_error": received_error is first.value,
+                    "original_response_content": first.value.response.content,
+                },
+                sort_keys=True,
+            )
+        )
+&gt;       assert len(work) == len(provider.responses) == 1, (
+            "ordinary normalization lost the original mandatory completion fence"
+        )
+E       AssertionError: ordinary normalization lost the original mandatory completion fence
+E       assert 2 == 1
+E        +  where 2 = len([namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02)), namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02))])
+E        +    where [namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02)), namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02))] = &lt;agent.test_drafter_accounting_owner_oracle._PhysicalProvider object at 0x7f24c754cc20&gt;.responses
+
+../../e02-B-current-composition/policy-engine/tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py:158: AssertionError</failure></testcase><testcase classname="" name="test_normalization_cannot_escape_original_pending_accounting[different-critique-model]" time="0.020"><failure message="AssertionError: ordinary normalization lost the original mandatory completion fence&#10;assert 2 == 1&#10; +  where 2 = len([namespace(content='{&quot;value&quot;:7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02)), namespace(content='{&quot;value&quot;:7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02))])&#10; +    where [namespace(content='{&quot;value&quot;:7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02)), namespace(content='{&quot;value&quot;:7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02))] = &lt;agent.test_drafter_accounting_owner_oracle._PhysicalProvider object at 0x7f24c6c7efd0&gt;.responses">tmp_path = PosixPath('/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/gateway-settlement-review/baseline-DD/tmp/test_normalization_cannot_esca1')
+critique_model = 'different-critique-model'
+
+    @pytest.mark.parametrize("critique_model", ["gpt-4o", "different-critique-model"])
+    def test_normalization_cannot_escape_original_pending_accounting(
+        tmp_path: Path, critique_model: str
+    ) -&gt; None:
+        origins = _source_custody()
+        provider = _PhysicalProvider(tmp_path / "physical-provider.jsonl")
+        callback_events: list[dict[str, Any]] = []
+        cause = OSError("mandatory local accounting effect remains unresolved")
+    
+        def required_accounting(event: dict[str, Any]) -&gt; None:
+            callback_events.append(event)
+            raise cause
+    
+        original = TracedLLMClient(
+            provider,
+            model_name="gpt-4o",
+            required_accounting=required_accounting,
+            tracer=SimpleNamespace(start_as_current_span=lambda *_a, **_k: _Span()),
+            metrics=SimpleNamespace(record_llm_call=lambda **_k: None),
+        )
+    
+        async def exercise() -&gt; None:
+            with pytest.raises(LLMAccountingError) as first:
+                await original.generate(user="first actual request")
+            assert first.value.response is provider.responses[0]
+            assert first.value.cause is cause
+            with pytest.raises(LLMAccountingError) as ordinary_guard:
+                await original.generate(user="blocked original request")
+            assert ordinary_guard.value is first.value
+            received_error = None
+            try:
+                normalized = _normalize(original, critique_model)
+                await normalized.generate(user="request after ordinary critique normalization")
+            except LLMAccountingError as exc:
+                received_error = exc
+            work = [json.loads(line) for line in provider.path.read_text().splitlines()]
+            print(
+                "DRAFTER_ACCOUNTING_ACTUAL "
+                + json.dumps(
+                    {
+                        "critique_model": critique_model,
+                        "source_origins": origins,
+                        "physical_provider_requests": work,
+                        "required_callback_calls": len(callback_events),
+                        "same_original_error": received_error is first.value,
+                        "original_response_content": first.value.response.content,
+                    },
+                    sort_keys=True,
+                )
+            )
+            assert len(work) == len(provider.responses) == 1, (
+                "ordinary normalization lost the original mandatory completion fence"
+            )
+            assert len(callback_events) == 1
+            assert received_error is first.value
+    
+&gt;       asyncio.run(exercise())
+
+../../e02-B-current-composition/policy-engine/tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py:164: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:204: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:127: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py:719: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def exercise() -&gt; None:
+        with pytest.raises(LLMAccountingError) as first:
+            await original.generate(user="first actual request")
+        assert first.value.response is provider.responses[0]
+        assert first.value.cause is cause
+        with pytest.raises(LLMAccountingError) as ordinary_guard:
+            await original.generate(user="blocked original request")
+        assert ordinary_guard.value is first.value
+        received_error = None
+        try:
+            normalized = _normalize(original, critique_model)
+            await normalized.generate(user="request after ordinary critique normalization")
+        except LLMAccountingError as exc:
+            received_error = exc
+        work = [json.loads(line) for line in provider.path.read_text().splitlines()]
+        print(
+            "DRAFTER_ACCOUNTING_ACTUAL "
+            + json.dumps(
+                {
+                    "critique_model": critique_model,
+                    "source_origins": origins,
+                    "physical_provider_requests": work,
+                    "required_callback_calls": len(callback_events),
+                    "same_original_error": received_error is first.value,
+                    "original_response_content": first.value.response.content,
+                },
+                sort_keys=True,
+            )
+        )
+&gt;       assert len(work) == len(provider.responses) == 1, (
+            "ordinary normalization lost the original mandatory completion fence"
+        )
+E       AssertionError: ordinary normalization lost the original mandatory completion fence
+E       assert 2 == 1
+E        +  where 2 = len([namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02)), namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02))])
+E        +    where [namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02)), namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02))] = &lt;agent.test_drafter_accounting_owner_oracle._PhysicalProvider object at 0x7f24c6c7efd0&gt;.responses
+
+../../e02-B-current-composition/policy-engine/tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py:158: AssertionError</failure></testcase><testcase classname="" name="test_unmanaged_critique_retarget_preserves_real_provider_result" time="0.034" /></testsuite></testsuites>

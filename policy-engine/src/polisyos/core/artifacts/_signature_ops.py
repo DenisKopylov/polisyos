@@ -2,12 +2,18 @@
 
 from __future__ import annotations
 
+import math
 import threading
+import time
+from collections.abc import Sized
 from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 from contextvars import copy_context
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Protocol
 
+from .manifest import ArtifactRef
 from .signing import (
+    ArtifactBatchAbortError,
     ArtifactSigningResult,
     BulkSigningReport,
     BulkVerificationReport,
@@ -35,8 +41,11 @@ class IntegrityVerificationReport(Protocol):
 class VerifiedArtifactSnapshot(Protocol):
     """Minimal immutable bytes/manifest view consumed by signing helpers."""
 
-    data: bytes
-    manifest_bytes: bytes
+    @property
+    def data(self) -> bytes: ...
+
+    @property
+    def manifest_bytes(self) -> bytes: ...
 
 
 def _pending_window(max_workers: int, requested: int | None) -> int:
@@ -44,77 +53,123 @@ def _pending_window(max_workers: int, requested: int | None) -> int:
     return max(1, int(requested)) if requested is not None else workers
 
 
-def _source_length_hint(source: Iterable[ArtifactID]) -> int | None:
-    try:
-        return len(source)  # type: ignore[arg-type]
-    except TypeError:
-        return None
+def _source_length_hint(source: Iterable[object]) -> int | None:
+    return len(source) if isinstance(source, Sized) else None
 
 
-def _run_bounded(
-    artifact_ids: Iterable[ArtifactID],
-    process: Callable[[ArtifactID], object],
+@dataclass(frozen=True)
+class _BoundedRun[Result]:
+    indexed: list[tuple[int, Result]]
+    length_hint: int | None
+    admitted: int
+    exhausted: bool
+    abort_reason: str | None
+
+
+def check_batch_admission(
+    cancel_event: threading.Event | None,
+    deadline: float | None,
+) -> None:
+    """Check a logical stop boundary without claiming to preempt physical callbacks."""
+    if cancel_event is not None and cancel_event.is_set():
+        raise ArtifactBatchAbortError("cancelled")
+    if deadline is not None and time.monotonic() >= deadline:
+        raise ArtifactBatchAbortError("deadline")
+
+
+def _run_bounded[Item, Result](
+    artifact_ids: Iterable[Item],
+    process: Callable[[Item], Result],
     *,
     max_workers: int,
     pending_window: int | None,
     cancel_event: threading.Event | None,
-) -> tuple[list[tuple[int, object]], int | None, bool, bool]:
-    """Run item callbacks with bounded inventory consumption and cancellation.
+    deadline: float | None,
+    cancelled_result: Callable[[Item], Result],
+) -> _BoundedRun[Result]:
+    """Bound iterator admission and futures; drain physical work after a logical abort.
 
-    Only ordinary per-item exceptions are converted by the callback supplied
-    by each caller.  Future ``result()`` calls deliberately let
-    ``BaseException`` escape so operator interrupts and executor-level aborts
-    cannot become successful-looking rows.
+    No new items are admitted after cancellation/deadline/global failure. Running
+    callbacks retain ownership until completion; uncooperative I/O can outlive the
+    logical deadline. BaseException is never converted to successful-looking rows.
     """
+    if deadline is not None and not math.isfinite(deadline):
+        raise ValueError("batch deadline must be a finite absolute monotonic time")
     iterator = iter(artifact_ids)
-    pending: dict[Future[object], tuple[int, ArtifactID]] = {}
-    results: list[tuple[int, object]] = []
+    pending: dict[Future[Result], tuple[int, Item]] = {}
+    results: list[tuple[int, Result]] = []
     next_index = 0
     exhausted = False
-    cancelled = False
-    source_failed = False
+    abort_reason: str | None = None
     window = _pending_window(max_workers, pending_window)
     length_hint = _source_length_hint(artifact_ids)
 
+    def checkpoint() -> bool:
+        nonlocal abort_reason
+        if abort_reason is not None:
+            return False
+        try:
+            check_batch_admission(cancel_event, deadline)
+        except ArtifactBatchAbortError as exc:
+            abort_reason = exc.reason
+            return False
+        return True
+
     def fill_window(executor: ThreadPoolExecutor) -> None:
-        nonlocal cancelled, exhausted, next_index, source_failed
-        while not exhausted and not cancelled and len(pending) < window:
-            if cancel_event is not None and cancel_event.is_set():
-                cancelled = True
-                return
+        nonlocal exhausted, next_index, abort_reason
+        while not exhausted and len(pending) < window and checkpoint():
             try:
                 artifact_id = next(iterator)
             except StopIteration:
                 exhausted = True
                 return
+            except ArtifactBatchAbortError as exc:
+                abort_reason = exc.reason
+                return
             except Exception:
-                # Preserve already-completed item rows, but never report a
-                # complete batch when its inventory source failed mid-stream.
-                exhausted = True
-                source_failed = True
+                abort_reason = "inventory_failed"
                 return
-            if cancel_event is not None and cancel_event.is_set():
-                cancelled = True
+            if not checkpoint():
                 return
-            task_context = copy_context()
-            future = executor.submit(task_context.run, process, artifact_id)
+            try:
+                future = executor.submit(copy_context().run, process, artifact_id)
+            except Exception:
+                abort_reason = "executor_failed"
+                return
             pending[future] = (next_index, artifact_id)
             next_index += 1
 
     with ThreadPoolExecutor(max_workers=max(1, int(max_workers))) as executor:
         fill_window(executor)
         while pending:
-            done, _ = wait(pending, return_when=FIRST_COMPLETED)
+            checkpoint()
+            if abort_reason is not None:
+                for future, (index, item) in tuple(pending.items()):
+                    if future.cancel():
+                        pending.pop(future)
+                        results.append((index, cancelled_result(item)))
+                if not pending:
+                    break
+            timeout = 0.05
+            if abort_reason is None and deadline is not None:
+                timeout = min(timeout, max(0.0, deadline - time.monotonic()))
+            done, _ = wait(pending, timeout=timeout, return_when=FIRST_COMPLETED)
             for future in done:
-                index, _artifact_id = pending.pop(future)
-                # Do not catch BaseException here.  Cancellation and operator
-                # interruption must retain their control-flow semantics.
-                results.append((index, future.result()))
-                if cancel_event is not None and cancel_event.is_set():
-                    cancelled = True
+                index, item = pending.pop(future)
+                try:
+                    result = future.result()
+                except ArtifactBatchAbortError as exc:
+                    abort_reason = exc.reason
+                    result = cancelled_result(item)
+                # BaseException deliberately escapes. Executor failure preserves
+                # all completed rows while declaring the common basis aborted.
+                except Exception:
+                    abort_reason = "executor_failed"
+                    result = cancelled_result(item)
+                results.append((index, result))
+            checkpoint()
             fill_window(executor)
-
-    return results, length_hint, cancelled, source_failed
+    return _BoundedRun(results, length_hint, next_index, exhausted, abort_reason)
 
 
 def get_signature(
@@ -182,6 +237,8 @@ def verify_signature(
     if load_snapshot is not None:
         try:
             snapshot = load_snapshot(artifact_id)
+        except ArtifactBatchAbortError:
+            raise
         except Exception as exc:
             return SignatureVerificationResult(
                 status=SignatureVerificationStatus.ERROR,
@@ -193,6 +250,8 @@ def verify_signature(
             raise TypeError("verify_integrity is required without load_snapshot")
         try:
             integrity = verify_integrity(artifact_id)
+        except ArtifactBatchAbortError:
+            raise
         except Exception as exc:
             return SignatureVerificationResult(
                 status=SignatureVerificationStatus.ERROR,
@@ -207,6 +266,8 @@ def verify_signature(
             )
     try:
         signature = load_signature(artifact_id)
+    except ArtifactBatchAbortError:
+        raise
     except Exception as exc:
         return SignatureVerificationResult(
             status=SignatureVerificationStatus.ERROR,
@@ -226,6 +287,8 @@ def verify_signature(
         try:
             blob_data = read_blob(artifact_id)
             manifest_data = read_manifest_bytes(artifact_id)
+        except ArtifactBatchAbortError:
+            raise
         except Exception as exc:
             return SignatureVerificationResult(
                 status=SignatureVerificationStatus.ERROR,
@@ -256,6 +319,7 @@ def sign_all_artifacts(
     write_signature: Callable[[ArtifactID, DetachedSignature], None],
     pending_window: int | None = None,
     cancel_event: threading.Event | None = None,
+    deadline: float | None = None,
     load_snapshot: Callable[[ArtifactID], VerifiedArtifactSnapshot] | None = None,
 ) -> BulkSigningReport:
     """Sign many artifacts concurrently and summarize the result set."""
@@ -263,6 +327,7 @@ def sign_all_artifacts(
 
     def _sign_one(aid: ArtifactID) -> ArtifactSigningResult:
         try:
+            check_batch_admission(cancel_event, deadline)
             if only_unsigned and has_signature_for_artifact(aid):
                 return ArtifactSigningResult(
                     artifact_id=str(aid),
@@ -283,12 +348,15 @@ def sign_all_artifacts(
                     manifest_data,
                     signer_identity=signer_identity,
                 )
+            check_batch_admission(cancel_event, deadline)
             write_signature(aid, signature)
             return ArtifactSigningResult(
                 artifact_id=str(aid),
                 status="signed",
                 key_id=signature.key_id,
             )
+        except ArtifactBatchAbortError:
+            raise
         except Exception as exc:
             return ArtifactSigningResult(
                 artifact_id=str(aid),
@@ -296,31 +364,28 @@ def sign_all_artifacts(
                 message=str(exc),
             )
 
-    indexed, length_hint, cancelled, source_failed = _run_bounded(
+    run = _run_bounded(
         artifact_ids,
         _sign_one,
         max_workers=max_workers,
         pending_window=pending_window,
         cancel_event=cancel_event,
+        deadline=deadline,
+        cancelled_result=lambda aid: ArtifactSigningResult(
+            artifact_id=str(aid), status="error", message="Batch stopped before item completion"
+        ),
     )
-    details = [
-        result
-        for _index, result in sorted(indexed, key=lambda item: item[0])
-    ]
-    if cancelled:
+    details = [result for _index, result in sorted(run.indexed, key=lambda item: item[0])]
+    if run.abort_reason is not None:
         details.append(
             ArtifactSigningResult(
                 artifact_id="<batch>",
                 status="error",
-                message="Batch cancelled; no new artifacts were submitted",
-            )
-        )
-    if source_failed:
-        details.append(
-            ArtifactSigningResult(
-                artifact_id="<batch>",
-                status="error",
-                message="Batch inventory source failed; results are incomplete",
+                message=(
+                    "Batch inventory source failed; results are incomplete"
+                    if run.abort_reason == "inventory_failed"
+                    else f"Batch {run.abort_reason}; results are incomplete"
+                ),
             )
         )
 
@@ -329,64 +394,75 @@ def sign_all_artifacts(
     errors = sum(1 for item in details if item.status == "error")
     return BulkSigningReport(
         total=(
-            length_hint
-            if length_hint is not None and not source_failed
+            run.length_hint
+            if run.length_hint is not None and run.abort_reason != "inventory_failed"
             else len(details)
         ),
         signed=signed,
         skipped=skipped,
         errors=errors,
         details=details,
+        state="aborted" if run.abort_reason is not None else "complete",
+        abort_reason=run.abort_reason,
+        admitted=run.admitted,
+        finished=len(run.indexed),
+        inventory_exhausted=run.exhausted,
     )
 
 
 def verify_all_signatures(
     *,
     verifier: Ed25519Verifier,
-    artifact_ids: Iterable[ArtifactID],
+    artifact_ids: Iterable[ArtifactID | ArtifactRef],
     max_workers: int,
     strict_identity: bool | None,
-    verify_one: Callable[[ArtifactID, Ed25519Verifier, bool | None], SignatureVerificationResult],
+    verify_one: Callable[
+        [ArtifactID | ArtifactRef, Ed25519Verifier, bool | None], SignatureVerificationResult
+    ],
     pending_window: int | None = None,
     cancel_event: threading.Event | None = None,
+    deadline: float | None = None,
 ) -> BulkVerificationReport:
     """Verify many detached signatures concurrently and summarize statuses."""
 
-    def _verify_one(aid: ArtifactID) -> SignatureVerificationResult:
+    def _verify_one(aid: ArtifactID | ArtifactRef) -> SignatureVerificationResult:
         try:
             return verify_one(aid, verifier, strict_identity)
+        except ArtifactBatchAbortError:
+            raise
         except Exception as exc:
             return SignatureVerificationResult(
                 status=SignatureVerificationStatus.ERROR,
-                artifact_id=str(aid),
+                artifact_id=str(aid.artifact_id) if isinstance(aid, ArtifactRef) else str(aid),
+                artifact_ref=aid if isinstance(aid, ArtifactRef) else None,
                 message=str(exc),
             )
 
-    indexed, length_hint, cancelled, source_failed = _run_bounded(
+    run = _run_bounded(
         artifact_ids,
         _verify_one,
         max_workers=max_workers,
         pending_window=pending_window,
         cancel_event=cancel_event,
+        deadline=deadline,
+        cancelled_result=lambda aid: SignatureVerificationResult(
+            status=SignatureVerificationStatus.ERROR,
+            artifact_id=str(aid.artifact_id) if isinstance(aid, ArtifactRef) else str(aid),
+            artifact_ref=aid if isinstance(aid, ArtifactRef) else None,
+            message="Batch stopped before item completion",
+        ),
     )
-    details = [
-        result
-        for _index, result in sorted(indexed, key=lambda item: item[0])
-    ]
-    if cancelled:
+    details = [result for _index, result in sorted(run.indexed, key=lambda item: item[0])]
+    if run.abort_reason is not None:
         details.append(
             SignatureVerificationResult(
-                status=SignatureVerificationStatus.ERROR,
                 artifact_id="<batch>",
-                message="Batch cancelled; no new artifacts were submitted",
-            )
-        )
-    if source_failed:
-        details.append(
-            SignatureVerificationResult(
                 status=SignatureVerificationStatus.ERROR,
-                artifact_id="<batch>",
-                message="Batch inventory source failed; results are incomplete",
+                message=(
+                    "Batch inventory source failed; results are incomplete"
+                    if run.abort_reason == "inventory_failed"
+                    else f"Batch {run.abort_reason}; results are incomplete"
+                ),
             )
         )
 
@@ -398,8 +474,8 @@ def verify_all_signatures(
     errors = sum(1 for item in details if item.status == SignatureVerificationStatus.ERROR)
     return BulkVerificationReport(
         total=(
-            length_hint
-            if length_hint is not None and not source_failed
+            run.length_hint
+            if run.length_hint is not None and run.abort_reason != "inventory_failed"
             else len(details)
         ),
         valid=valid,
@@ -409,4 +485,9 @@ def verify_all_signatures(
         revoked=revoked,
         errors=errors,
         details=details,
+        state="aborted" if run.abort_reason is not None else "complete",
+        abort_reason=run.abort_reason,
+        admitted=run.admitted,
+        finished=len(run.indexed),
+        inventory_exhausted=run.exhausted,
     )

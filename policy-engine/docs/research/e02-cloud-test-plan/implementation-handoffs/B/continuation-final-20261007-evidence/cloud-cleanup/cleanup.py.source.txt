@@ -1,0 +1,81 @@
+"""Delete one explicitly authorized, reproducible unused cloud environment."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import shutil
+import time
+
+task = Path('/tmp/e02-B-continuation-external-6fa9b7142ba5')
+identity = Path('/tmp/e02-B-cleanup-candidate-delta-20261007/verified-tmp-environment.json')
+data = identity.read_bytes()
+assert hashlib.sha256(data).hexdigest() == '8d3c9ededf068ab8bebca9f2b69762e28deead2d4cf377948e11c898038c020e'
+checks = json.loads(data)
+target = Path('/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/environment')
+assert checks['candidate_path'] == str(target)
+assert target.is_dir() and not target.is_symlink()
+for row in checks['full_retained_raw_git_checks']:
+    raw = Path(row['live_path']).read_bytes()
+    assert row['full_byte_equal'] is True
+    assert len(raw) == row['bytes'] and hashlib.sha256(raw).hexdigest() == row['sha256']
+
+def state():
+    d = os.statvfs(target.parent)
+    return {'tmp_available_bytes': d.f_bavail * d.f_frsize,
+            'memory_current_bytes': int(Path('/sys/fs/cgroup/memory.current').read_text()),
+            'overlay_available_bytes': os.statvfs('/workspace').f_bavail * os.statvfs('/workspace').f_frsize}
+
+matches = []
+inspected = 0
+for proc in Path('/proc').iterdir():
+    if not proc.name.isdecimal():
+        continue
+    for entry in [proc / 'cwd', proc / 'exe']:
+        try:
+            value = os.readlink(entry)
+            inspected += 1
+            if value == str(target) or value.startswith(str(target) + '/'):
+                matches.append({'pid': proc.name, 'kind': entry.name})
+        except OSError:
+            pass
+    try:
+        for entry in (proc / 'fd').iterdir():
+            try:
+                value = os.readlink(entry)
+                inspected += 1
+                if value == str(target) or value.startswith(str(target) + '/'):
+                    matches.append({'pid': proc.name, 'kind': 'fd'})
+            except OSError:
+                pass
+    except OSError:
+        pass
+    try:
+        maps = (proc / 'maps').read_text()
+        inspected += 1
+        if str(target) + '/' in maps:
+            matches.append({'pid': proc.name, 'kind': 'maps'})
+    except OSError:
+        pass
+assert not matches, matches
+stat = target.lstat()
+assert stat.st_dev == target.parent.lstat().st_dev
+before = state()
+start = time.time()
+shutil.rmtree(target)  # Exact environment only; symlinks inside are unlinked, not followed.
+assert not target.exists()
+for row in checks['full_retained_raw_git_checks']:
+    assert hashlib.sha256(Path(row['live_path']).read_bytes()).hexdigest() == row['sha256']
+receipt = {'schema': 'policyos.e02.cloud_cleanup_execution.v1',
+           'human_authorization': '2026-10-07 user: cloud may delete already unneeded test results/created environments; Trash directive local-only',
+           'deleted_path': str(target), 'deleted_kind': 'reproducible unused historical cloud environment',
+           'independent_admission_identity': {'path': str(identity), 'sha256': hashlib.sha256(data).hexdigest()},
+           'active_guard_matches': matches, 'proc_entries_inspected': inspected,
+           'before': before, 'after': state(), 'wall_s': time.time() - start,
+           'retained_parent': checks['retained_parent'],
+           'retained_full_evidence': checks['full_retained_raw_git_checks'],
+           'reproduction': checks['reproduction'], 'lock': checks['lock'],
+           'qualification': 'tmpfs release only; overlay free space not inferred; no cleanup of deciding outputs/code/active environments/PG/data',
+           'root_checkout_source_sha': '6fa9b7142ba590c3173f1cd3be097286db5acc4d'}
+(task / 'cloud-cleanup-receipt.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + '\n')
+print(json.dumps({'deleted_path': str(target), 'before': before, 'after': receipt['after'],
+                  'receipt': str(task / 'cloud-cleanup-receipt.json')}))

@@ -1,0 +1,35 @@
+{
+  "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "argv": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+    "run",
+    "--no-sync",
+    "polisyos-tools",
+    "architecture",
+    "guardrails",
+    "check",
+    "--generated-freshness-workspace-root",
+    "/workspace/e02-B-completed-architecture-1862c021df74-runtime-ml-ready",
+    "--generated-freshness-uv-cache-dir",
+    "/home/agent/.cache/uv"
+  ],
+  "actual_retained_workspace": "/workspace/e02-B-completed-architecture-1862c021df74-runtime-ml-ready",
+  "same_canonical_gate_argv_except_fresh_retained_workspace": true,
+  "cache": "/home/agent/.cache/uv",
+  "cache_prerequisite_record": "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74",
+  "cache_prerequisite_profile_sha256": "2160e9a862d6d2f0e56ca8f9d063219d17741834dd7468be5dbe800e70fb24ce",
+  "retry_basis": "Second actual offline run measured client/dashboard but OpenAPI recipe UNRUN missing lifelines0.30.3; canonical registered runtime+ml frozen preparation completed. Same full offline command and cache; fresh file-backed workspace avoids copying another retained environment into RAM-backed filesystem. No source skips/quotas.",
+  "prior_attempt": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-architecture-cache-ready-1862c021df74.json",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+    "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/tmp/e02-B-opa-latest-preparation-1db95544/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+    "UV_NO_SYNC": "1",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+  },
+  "ambient_numeric_thread_caps_absent": true,
+  "cache_prerequisite_git_receipt": "f70eeaaff3a6ff43e0d5a88b61fcd9b9c32d99d2:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite.json",
+  "fresh_workspace_backing": "overlay; UV cache and environment can use canonical same-filesystem linking; original RAM-backed workspaces preserved"
+}

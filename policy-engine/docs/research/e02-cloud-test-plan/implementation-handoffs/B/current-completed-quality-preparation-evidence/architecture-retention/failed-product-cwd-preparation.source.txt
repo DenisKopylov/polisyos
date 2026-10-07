@@ -1,0 +1,55 @@
+import ast
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import time
+repo=Path('/workspace/e02-B-current-runtime')
+root=Path('/workspace/e02-B-current-coordination')
+sha='73ad9cfaf882660e742d41ebca41376d53e8c369'
+old='36957513b0b2d58c3010cf3db9b268ba13881898'
+folder=Path('policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B')
+rel=folder/'final-root-evidence/run_completed_quality.py'
+out=repo/folder/'current-completed-quality-preparation-evidence/architecture-retention'
+out.mkdir()
+python='/workspace/polisyos/policy-engine/.venv/bin/python'
+checks=[]
+for name,argv in [('ruff',[python,'-m','ruff','check','--no-cache',str(rel.relative_to('policy-engine'))]),('format',[python,'-m','ruff','format','--check',str(rel.relative_to('policy-engine'))])]:
+    start=time.monotonic();proc=subprocess.run(argv,cwd=repo/'policy-engine',stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+    (out/(name+'.txt')).write_bytes(proc.stdout)
+    checks.append({'id':name,'argv':argv,'cwd':str(repo/'policy-engine'),'target_sha':sha,'exit_code':proc.returncode,'wall_seconds':time.monotonic()-start,'output_sha256':hashlib.sha256(proc.stdout).hexdigest(),'bytes':len(proc.stdout),'grade':'New-source style only, no final gate'})
+    assert proc.returncode==0
+source=subprocess.check_output(['/usr/bin/git','-C',str(repo),'show',sha+':'+str(rel)])
+before=subprocess.check_output(['/usr/bin/git','-C',str(repo),'show',old+':'+str(rel)])
+newtree=ast.parse(source);oldtree=ast.parse(before)
+def functions(tree):return {node.name:node for node in tree.body if isinstance(node,ast.FunctionDef)}
+newf=functions(newtree);oldf=functions(oldtree)
+unmodified_functions=['git','require_source','tracked_read','tool_read','changed_python']
+for name in unmodified_functions:assert ast.dump(newf[name],include_attributes=False)==ast.dump(oldf[name],include_attributes=False)
+def other_gate_statements(node):
+    result=[]
+    for statement in node.body:
+        if isinstance(statement,ast.If) and ast.dump(statement.test,include_attributes=False)==ast.dump(ast.Compare(left=ast.Name(id='gate',ctx=ast.Load()),ops=[ast.Eq()],comparators=[ast.Constant(value='architecture')]),include_attributes=False):continue
+        result.append(ast.dump(statement,include_attributes=False))
+    return result
+assert other_gate_statements(newf['make_command'])==other_gate_statements(oldf['make_command'])
+uv=root/'.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv'
+query=[str(uv),'cache','dir'];proc=subprocess.run(query,cwd=root/'policy-engine',stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+(out/'actual-uv-cache-query.txt').write_bytes(proc.stdout)
+assert proc.returncode==0
+cache=Path(proc.stdout.decode().strip())
+assert cache.is_absolute() and cache.is_dir()
+stat=cache.stat();marker=cache/'CACHEDIR.TAG';markerbytes=marker.read_bytes()
+(out/'cache-CACHEDIR.TAG.source.txt').write_bytes(markerbytes)
+rootsha=subprocess.check_output(['/usr/bin/git','-C',str(root),'rev-parse','HEAD'],text=True).strip()
+canonrel='policy-engine/tools/devx/architecture/guardrails.py';canon=(root/canonrel).read_bytes()
+assert canon==subprocess.check_output(['/usr/bin/git','-C',str(root),'show',rootsha+':'+canonrel])
+record={'schema':'policyos.e02.architecture_retention_preparation.v1','source_sha':sha,'source_tree':subprocess.check_output(['/usr/bin/git','-C',str(repo),'rev-parse',sha+'^{tree}'],text=True).strip(),'prior_source_sha':old,'source_sha256':hashlib.sha256(source).hexdigest(),'source_bytes':len(source),'checks':checks,'other_seven_gate_branches_ast_identical':True,'unmodified_function_ast_identities':unmodified_functions,'cache_query':{'argv':query,'cwd':str(root/'policy-engine'),'exit_code':proc.returncode,'stdout_bytes':len(proc.stdout),'stdout_sha256':hashlib.sha256(proc.stdout).hexdigest(),'UV_CACHE_DIR':os.environ.get('UV_CACHE_DIR')},'cache_input':{'lexical_path':str(cache),'resolved_path':str(cache.resolve()),'directory_exists':True,'is_symlink':cache.is_symlink(),'device':stat.st_dev,'inode':stat.st_ino,'mode':oct(stat.st_mode&0o777),'marker_bytes':len(markerbytes),'marker_sha256':hashlib.sha256(markerbytes).hexdigest(),'immediate_entries':sorted(path.name for path in cache.iterdir()),'grade':'Actual shared readonly input only, not task-exclusive ownership/offline sufficiency/cache-content census'},'canonical_cli_source':{'source_ref':rootsha+':'+canonrel,'git_blob':subprocess.check_output(['/usr/bin/git','-C',str(root),'rev-parse',rootsha+':'+canonrel],text=True).strip(),'bytes':len(canon),'sha256':hashlib.sha256(canon).hexdigest(),'complete_bytes_read':True,'interpreted_ranges':[[310,330],[1578,1624],[2150,2244],[2590,2620]],'interpretation_limit':'Only paired retention/cache admission/creation/dispatch, not whole-file semantic certification'},'source_root_status_at_metadata_read':subprocess.check_output(['/usr/bin/git','-C',str(root),'status','--porcelain'],text=True),'future_root_runtime':'UNRUN; root is still preparing source companions','all_eight_gates':'UNRUN','wheel_build':'UNRUN','property_removal':'UNRUN; canonical actual gate is deciding on future immutable root','limitations':['Cache metadata was read with current ambient env, not final child env; runtime helper separately queries identical actual gate env','No generation/private environment/native/build/gate executed','S108 suppression documents prescribed retained SHA path plus canonical exclusive mkdir; no skip option or gate waiver']}
+(out/'wrapper.json').write_text(json.dumps(record,indent=2)+'\n')
+(out/'capture-retention-preparation.source.txt').write_bytes(Path(__file__).read_bytes())
+items=[]
+for path in sorted(out.iterdir()):
+    data=path.read_bytes();items.append({'path':path.relative_to(repo).as_posix(),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
+(out/'index.json').write_text(json.dumps({'files':items,'count':len(items),'bytes':sum(item['bytes'] for item in items),'scope':'Complete narrow preparation; future gatesUNRUN'},indent=2)+'\n')
+print(json.dumps(record,indent=2))

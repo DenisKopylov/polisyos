@@ -1,0 +1,656 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="16" skipped="0" tests="78" time="248.531" timestamp="2026-10-06T10:35:26.663071+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.core.artifacts.test_put_integrity_retry" name="test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry[same_size_bytes]" time="0.065" /><testcase classname="tests.unit.core.artifacts.test_put_integrity_retry" name="test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry[short_bytes]" time="0.059" /><testcase classname="tests.unit.core.artifacts.test_put_integrity_retry" name="test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry[selected_manifest_size]" time="0.058" /><testcase classname="tests.unit.core.artifacts.test_put_integrity_retry" name="test_duplicate_put_restores_a_missing_sidecar_and_reopens_its_exact_view[default]" time="0.051" /><testcase classname="tests.unit.core.artifacts.test_put_integrity_retry" name="test_duplicate_put_restores_a_missing_sidecar_and_reopens_its_exact_view[selected]" time="0.053" /><testcase classname="tests.unit.core.artifacts.test_put_consumer_oracle" name="test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer[same_size]" time="0.389" /><testcase classname="tests.unit.core.artifacts.test_put_consumer_oracle" name="test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer[short]" time="0.467" /><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_same_destination_retains_complete_history_and_exact_new_inventory[False]" time="0.143" /><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_same_destination_retains_complete_history_and_exact_new_inventory[True]" time="0.118" /><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_streamed_write_failure_preserves_old_generation_and_no_false_inventory[False]" time="0.083" /><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_streamed_write_failure_preserves_old_generation_and_no_false_inventory[True]" time="0.092" /><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_archive_refuses_nonregular_final_path_before_staging[regular_symlink]" time="20.069"><failure message="AssertionError: path probe did not start&#10;assert False&#10; +  where False = poll(20)&#10; +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea62f63e00&gt;.poll">tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_archive_refuses_nonregula0')
+kind = 'regular_symlink'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fea52871d50&gt;
+
+    @pytest.mark.parametrize(
+        "kind", ["regular_symlink", "dangling_symlink", "fifo", "socket", "directory"]
+    )
+    def test_archive_refuses_nonregular_final_path_before_staging(
+        tmp_path: Path, kind: str, monkeypatch: pytest.MonkeyPatch
+    ) -&gt; None:
+        source = FileSystemCAS(tmp_path / "cas")
+        old = _put(source, OLD)
+        _put(source, NEW)
+        referent = tmp_path / "old-package.tar.gz"
+        source.export_subgraph([old], referent)
+        old_bytes = referent.read_bytes()
+        target = tmp_path / "alias.tar.gz"
+        sock = None
+        if kind == "regular_symlink":
+            target.symlink_to(referent)
+        elif kind == "dangling_symlink":
+            target.symlink_to(tmp_path / "absent")
+        elif kind == "fifo":
+            os.mkfifo(target)
+        elif kind == "socket":
+            sock = socket.socket(socket.AF_UNIX)
+            original_cwd = Path.cwd()
+            monkeypatch.chdir(tmp_path)
+            sock.bind(target.name)
+            monkeypatch.chdir(original_cwd)
+        else:
+            target.mkdir()
+        before = target.lstat()
+        try:
+            context = multiprocessing.get_context("spawn")
+            parent, child = context.Pipe()
+            process = context.Process(
+                target=_archive_path_probe, args=(str(source.root), str(target), child)
+            )
+            process.start()
+            try:
+&gt;               assert parent.poll(20), "path probe did not start"
+E               AssertionError: path probe did not start
+E               assert False
+E                +  where False = poll(20)
+E                +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea62f63e00&gt;.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:188: AssertionError</failure></testcase><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_archive_refuses_nonregular_final_path_before_staging[dangling_symlink]" time="20.069"><failure message="AssertionError: path probe did not start&#10;assert False&#10; +  where False = poll(20)&#10; +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea52879bd0&gt;.poll">tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_archive_refuses_nonregula1')
+kind = 'dangling_symlink'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fea52bfec60&gt;
+
+    @pytest.mark.parametrize(
+        "kind", ["regular_symlink", "dangling_symlink", "fifo", "socket", "directory"]
+    )
+    def test_archive_refuses_nonregular_final_path_before_staging(
+        tmp_path: Path, kind: str, monkeypatch: pytest.MonkeyPatch
+    ) -&gt; None:
+        source = FileSystemCAS(tmp_path / "cas")
+        old = _put(source, OLD)
+        _put(source, NEW)
+        referent = tmp_path / "old-package.tar.gz"
+        source.export_subgraph([old], referent)
+        old_bytes = referent.read_bytes()
+        target = tmp_path / "alias.tar.gz"
+        sock = None
+        if kind == "regular_symlink":
+            target.symlink_to(referent)
+        elif kind == "dangling_symlink":
+            target.symlink_to(tmp_path / "absent")
+        elif kind == "fifo":
+            os.mkfifo(target)
+        elif kind == "socket":
+            sock = socket.socket(socket.AF_UNIX)
+            original_cwd = Path.cwd()
+            monkeypatch.chdir(tmp_path)
+            sock.bind(target.name)
+            monkeypatch.chdir(original_cwd)
+        else:
+            target.mkdir()
+        before = target.lstat()
+        try:
+            context = multiprocessing.get_context("spawn")
+            parent, child = context.Pipe()
+            process = context.Process(
+                target=_archive_path_probe, args=(str(source.root), str(target), child)
+            )
+            process.start()
+            try:
+&gt;               assert parent.poll(20), "path probe did not start"
+E               AssertionError: path probe did not start
+E               assert False
+E                +  where False = poll(20)
+E                +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea52879bd0&gt;.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:188: AssertionError</failure></testcase><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_archive_refuses_nonregular_final_path_before_staging[fifo]" time="20.071"><failure message="AssertionError: path probe did not start&#10;assert False&#10; +  where False = poll(20)&#10; +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea52869480&gt;.poll">tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_archive_refuses_nonregula2')
+kind = 'fifo'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fea52bffc50&gt;
+
+    @pytest.mark.parametrize(
+        "kind", ["regular_symlink", "dangling_symlink", "fifo", "socket", "directory"]
+    )
+    def test_archive_refuses_nonregular_final_path_before_staging(
+        tmp_path: Path, kind: str, monkeypatch: pytest.MonkeyPatch
+    ) -&gt; None:
+        source = FileSystemCAS(tmp_path / "cas")
+        old = _put(source, OLD)
+        _put(source, NEW)
+        referent = tmp_path / "old-package.tar.gz"
+        source.export_subgraph([old], referent)
+        old_bytes = referent.read_bytes()
+        target = tmp_path / "alias.tar.gz"
+        sock = None
+        if kind == "regular_symlink":
+            target.symlink_to(referent)
+        elif kind == "dangling_symlink":
+            target.symlink_to(tmp_path / "absent")
+        elif kind == "fifo":
+            os.mkfifo(target)
+        elif kind == "socket":
+            sock = socket.socket(socket.AF_UNIX)
+            original_cwd = Path.cwd()
+            monkeypatch.chdir(tmp_path)
+            sock.bind(target.name)
+            monkeypatch.chdir(original_cwd)
+        else:
+            target.mkdir()
+        before = target.lstat()
+        try:
+            context = multiprocessing.get_context("spawn")
+            parent, child = context.Pipe()
+            process = context.Process(
+                target=_archive_path_probe, args=(str(source.root), str(target), child)
+            )
+            process.start()
+            try:
+&gt;               assert parent.poll(20), "path probe did not start"
+E               AssertionError: path probe did not start
+E               assert False
+E                +  where False = poll(20)
+E                +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea52869480&gt;.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:188: AssertionError</failure></testcase><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_archive_refuses_nonregular_final_path_before_staging[socket]" time="20.069"><failure message="AssertionError: path probe did not start&#10;assert False&#10; +  where False = poll(20)&#10; +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea52866e00&gt;.poll">tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_archive_refuses_nonregula3')
+kind = 'socket'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fea52a5d2b0&gt;
+
+    @pytest.mark.parametrize(
+        "kind", ["regular_symlink", "dangling_symlink", "fifo", "socket", "directory"]
+    )
+    def test_archive_refuses_nonregular_final_path_before_staging(
+        tmp_path: Path, kind: str, monkeypatch: pytest.MonkeyPatch
+    ) -&gt; None:
+        source = FileSystemCAS(tmp_path / "cas")
+        old = _put(source, OLD)
+        _put(source, NEW)
+        referent = tmp_path / "old-package.tar.gz"
+        source.export_subgraph([old], referent)
+        old_bytes = referent.read_bytes()
+        target = tmp_path / "alias.tar.gz"
+        sock = None
+        if kind == "regular_symlink":
+            target.symlink_to(referent)
+        elif kind == "dangling_symlink":
+            target.symlink_to(tmp_path / "absent")
+        elif kind == "fifo":
+            os.mkfifo(target)
+        elif kind == "socket":
+            sock = socket.socket(socket.AF_UNIX)
+            original_cwd = Path.cwd()
+            monkeypatch.chdir(tmp_path)
+            sock.bind(target.name)
+            monkeypatch.chdir(original_cwd)
+        else:
+            target.mkdir()
+        before = target.lstat()
+        try:
+            context = multiprocessing.get_context("spawn")
+            parent, child = context.Pipe()
+            process = context.Process(
+                target=_archive_path_probe, args=(str(source.root), str(target), child)
+            )
+            process.start()
+            try:
+&gt;               assert parent.poll(20), "path probe did not start"
+E               AssertionError: path probe did not start
+E               assert False
+E                +  where False = poll(20)
+E                +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea52866e00&gt;.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:188: AssertionError</failure></testcase><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_archive_refuses_nonregular_final_path_before_staging[directory]" time="20.068"><failure message="AssertionError: path probe did not start&#10;assert False&#10; +  where False = poll(20)&#10; +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea528dcb50&gt;.poll">tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_archive_refuses_nonregula4')
+kind = 'directory'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fea52a5de10&gt;
+
+    @pytest.mark.parametrize(
+        "kind", ["regular_symlink", "dangling_symlink", "fifo", "socket", "directory"]
+    )
+    def test_archive_refuses_nonregular_final_path_before_staging(
+        tmp_path: Path, kind: str, monkeypatch: pytest.MonkeyPatch
+    ) -&gt; None:
+        source = FileSystemCAS(tmp_path / "cas")
+        old = _put(source, OLD)
+        _put(source, NEW)
+        referent = tmp_path / "old-package.tar.gz"
+        source.export_subgraph([old], referent)
+        old_bytes = referent.read_bytes()
+        target = tmp_path / "alias.tar.gz"
+        sock = None
+        if kind == "regular_symlink":
+            target.symlink_to(referent)
+        elif kind == "dangling_symlink":
+            target.symlink_to(tmp_path / "absent")
+        elif kind == "fifo":
+            os.mkfifo(target)
+        elif kind == "socket":
+            sock = socket.socket(socket.AF_UNIX)
+            original_cwd = Path.cwd()
+            monkeypatch.chdir(tmp_path)
+            sock.bind(target.name)
+            monkeypatch.chdir(original_cwd)
+        else:
+            target.mkdir()
+        before = target.lstat()
+        try:
+            context = multiprocessing.get_context("spawn")
+            parent, child = context.Pipe()
+            process = context.Process(
+                target=_archive_path_probe, args=(str(source.root), str(target), child)
+            )
+            process.start()
+            try:
+&gt;               assert parent.poll(20), "path probe did not start"
+E               AssertionError: path probe did not start
+E               assert False
+E                +  where False = poll(20)
+E                +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea528dcb50&gt;.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:188: AssertionError</failure></testcase><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation[False]" time="20.090"><failure message="AssertionError: producer did not reach its real publication syscall&#10;assert False&#10; +  where False = poll(20)&#10; +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea528daf30&gt;.poll">tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_process_interruption_afte0')
+compress = False
+
+    @pytest.mark.parametrize("compress", [False, True])
+    def test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation(
+        tmp_path: Path,
+        compress: bool,
+    ) -&gt; None:
+        store = FileSystemCAS(tmp_path / "cas")
+        old = _put(store, OLD)
+        _put(store, NEW)
+        target = tmp_path / ("export.tar.gz" if compress else "export")
+        store.export_subgraph([old], target, compress=compress)
+        context = multiprocessing.get_context("spawn")
+        parent, child = context.Pipe()
+        process = context.Process(
+            target=_pause_after_publication_syscall,
+            args=(str(store.root), str(target), compress, child),
+        )
+        process.start()
+        try:
+&gt;           assert parent.poll(20), "producer did not reach its real publication syscall"
+E           AssertionError: producer did not reach its real publication syscall
+E           assert False
+E            +  where False = poll(20)
+E            +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea528daf30&gt;.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:287: AssertionError</failure></testcase><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation[True]" time="20.072"><failure message="AssertionError: producer did not reach its real publication syscall&#10;assert False&#10; +  where False = poll(20)&#10; +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea52a5fcb0&gt;.poll">tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_process_interruption_afte1')
+compress = True
+
+    @pytest.mark.parametrize("compress", [False, True])
+    def test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation(
+        tmp_path: Path,
+        compress: bool,
+    ) -&gt; None:
+        store = FileSystemCAS(tmp_path / "cas")
+        old = _put(store, OLD)
+        _put(store, NEW)
+        target = tmp_path / ("export.tar.gz" if compress else "export")
+        store.export_subgraph([old], target, compress=compress)
+        context = multiprocessing.get_context("spawn")
+        parent, child = context.Pipe()
+        process = context.Process(
+            target=_pause_after_publication_syscall,
+            args=(str(store.root), str(target), compress, child),
+        )
+        process.start()
+        try:
+&gt;           assert parent.poll(20), "producer did not reach its real publication syscall"
+E           AssertionError: producer did not reach its real publication syscall
+E           assert False
+E            +  where False = poll(20)
+E            +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea52a5fcb0&gt;.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:287: AssertionError</failure></testcase><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_import_reader_remains_on_the_generation_pinned_before_concurrent_replacement[False]" time="0.103" /><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_import_reader_remains_on_the_generation_pinned_before_concurrent_replacement[True]" time="0.093" /><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_publication_syscall_failure_leaves_complete_previous_generation[False]" time="0.104" /><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_publication_syscall_failure_leaves_complete_previous_generation[True]" time="0.090" /><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_post_publication_directory_sync_failure_retains_old_and_new_readable_generations[False]" time="0.131" /><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_post_publication_directory_sync_failure_retains_old_and_new_readable_generations[True]" time="0.120" /><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_prepublication_directory_sync_refusal_keeps_the_old_package[False]" time="0.091" /><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_prepublication_directory_sync_refusal_keeps_the_old_package[True]" time="0.088" /><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_unavailable_native_exchange_refuses_before_removing_the_current_directory" time="0.093" /><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_import_archive_binds_the_supplied_regular_path_before_streaming[regular_symlink]" time="20.077"><failure message="AssertionError: import path probe did not start&#10;assert False&#10; +  where False = poll(20)&#10; +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea5294e9c0&gt;.poll">tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_import_archive_binds_the_0')
+kind = 'regular_symlink'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fea52ac0750&gt;
+
+    @pytest.mark.parametrize(
+        "kind", ["regular_symlink", "dangling_symlink", "fifo", "socket", "fifo_at_open"]
+    )
+    def test_import_archive_binds_the_supplied_regular_path_before_streaming(
+        tmp_path: Path, kind: str, monkeypatch: pytest.MonkeyPatch
+    ) -&gt; None:
+        source = FileSystemCAS(tmp_path / "source")
+        incoming = _put(source, NEW)
+        legitimate = source.export_subgraph([incoming], tmp_path / "legitimate.tar.gz").output_path
+        legitimate_bytes = legitimate.read_bytes()
+        alias = tmp_path / "input.tar.gz"
+        sock = None
+        if kind == "regular_symlink":
+            alias.symlink_to(legitimate)
+        elif kind == "dangling_symlink":
+            alias.symlink_to(tmp_path / "absent")
+        elif kind == "fifo":
+            os.mkfifo(alias)
+        elif kind == "socket":
+            sock = socket.socket(socket.AF_UNIX)
+            previous_cwd = Path.cwd()
+            monkeypatch.chdir(tmp_path)
+            sock.bind(alias.name)
+            monkeypatch.chdir(previous_cwd)
+        else:
+            alias.write_bytes(legitimate_bytes)
+        receiver = FileSystemCAS(tmp_path / "receiver")
+        prior = _put(receiver, OLD)
+        owner_bytes = {
+            p.relative_to(receiver.root).as_posix(): p.read_bytes()
+            for p in receiver.root.rglob("*")
+            if p.is_file()
+        }
+        before = alias.lstat()
+        context = multiprocessing.get_context("spawn")
+        parent, child = context.Pipe()
+        process = context.Process(
+            target=_import_path_probe,
+            args=(str(receiver.root), str(alias), kind == "fifo_at_open", child),
+        )
+        process.start()
+        try:
+&gt;           assert parent.poll(20), "import path probe did not start"
+E           AssertionError: import path probe did not start
+E           assert False
+E            +  where False = poll(20)
+E            +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea5294e9c0&gt;.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:506: AssertionError</failure></testcase><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_import_archive_binds_the_supplied_regular_path_before_streaming[dangling_symlink]" time="20.080"><failure message="AssertionError: import path probe did not start&#10;assert False&#10; +  where False = poll(20)&#10; +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea528ca750&gt;.poll">tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_import_archive_binds_the_1')
+kind = 'dangling_symlink'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fea52ac0520&gt;
+
+    @pytest.mark.parametrize(
+        "kind", ["regular_symlink", "dangling_symlink", "fifo", "socket", "fifo_at_open"]
+    )
+    def test_import_archive_binds_the_supplied_regular_path_before_streaming(
+        tmp_path: Path, kind: str, monkeypatch: pytest.MonkeyPatch
+    ) -&gt; None:
+        source = FileSystemCAS(tmp_path / "source")
+        incoming = _put(source, NEW)
+        legitimate = source.export_subgraph([incoming], tmp_path / "legitimate.tar.gz").output_path
+        legitimate_bytes = legitimate.read_bytes()
+        alias = tmp_path / "input.tar.gz"
+        sock = None
+        if kind == "regular_symlink":
+            alias.symlink_to(legitimate)
+        elif kind == "dangling_symlink":
+            alias.symlink_to(tmp_path / "absent")
+        elif kind == "fifo":
+            os.mkfifo(alias)
+        elif kind == "socket":
+            sock = socket.socket(socket.AF_UNIX)
+            previous_cwd = Path.cwd()
+            monkeypatch.chdir(tmp_path)
+            sock.bind(alias.name)
+            monkeypatch.chdir(previous_cwd)
+        else:
+            alias.write_bytes(legitimate_bytes)
+        receiver = FileSystemCAS(tmp_path / "receiver")
+        prior = _put(receiver, OLD)
+        owner_bytes = {
+            p.relative_to(receiver.root).as_posix(): p.read_bytes()
+            for p in receiver.root.rglob("*")
+            if p.is_file()
+        }
+        before = alias.lstat()
+        context = multiprocessing.get_context("spawn")
+        parent, child = context.Pipe()
+        process = context.Process(
+            target=_import_path_probe,
+            args=(str(receiver.root), str(alias), kind == "fifo_at_open", child),
+        )
+        process.start()
+        try:
+&gt;           assert parent.poll(20), "import path probe did not start"
+E           AssertionError: import path probe did not start
+E           assert False
+E            +  where False = poll(20)
+E            +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea528ca750&gt;.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:506: AssertionError</failure></testcase><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_import_archive_binds_the_supplied_regular_path_before_streaming[fifo]" time="20.095"><failure message="AssertionError: import path probe did not start&#10;assert False&#10; +  where False = poll(20)&#10; +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea528c7a10&gt;.poll">tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_import_archive_binds_the_2')
+kind = 'fifo'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fea52ac1f60&gt;
+
+    @pytest.mark.parametrize(
+        "kind", ["regular_symlink", "dangling_symlink", "fifo", "socket", "fifo_at_open"]
+    )
+    def test_import_archive_binds_the_supplied_regular_path_before_streaming(
+        tmp_path: Path, kind: str, monkeypatch: pytest.MonkeyPatch
+    ) -&gt; None:
+        source = FileSystemCAS(tmp_path / "source")
+        incoming = _put(source, NEW)
+        legitimate = source.export_subgraph([incoming], tmp_path / "legitimate.tar.gz").output_path
+        legitimate_bytes = legitimate.read_bytes()
+        alias = tmp_path / "input.tar.gz"
+        sock = None
+        if kind == "regular_symlink":
+            alias.symlink_to(legitimate)
+        elif kind == "dangling_symlink":
+            alias.symlink_to(tmp_path / "absent")
+        elif kind == "fifo":
+            os.mkfifo(alias)
+        elif kind == "socket":
+            sock = socket.socket(socket.AF_UNIX)
+            previous_cwd = Path.cwd()
+            monkeypatch.chdir(tmp_path)
+            sock.bind(alias.name)
+            monkeypatch.chdir(previous_cwd)
+        else:
+            alias.write_bytes(legitimate_bytes)
+        receiver = FileSystemCAS(tmp_path / "receiver")
+        prior = _put(receiver, OLD)
+        owner_bytes = {
+            p.relative_to(receiver.root).as_posix(): p.read_bytes()
+            for p in receiver.root.rglob("*")
+            if p.is_file()
+        }
+        before = alias.lstat()
+        context = multiprocessing.get_context("spawn")
+        parent, child = context.Pipe()
+        process = context.Process(
+            target=_import_path_probe,
+            args=(str(receiver.root), str(alias), kind == "fifo_at_open", child),
+        )
+        process.start()
+        try:
+&gt;           assert parent.poll(20), "import path probe did not start"
+E           AssertionError: import path probe did not start
+E           assert False
+E            +  where False = poll(20)
+E            +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea528c7a10&gt;.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:506: AssertionError</failure></testcase><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_import_archive_binds_the_supplied_regular_path_before_streaming[socket]" time="20.083"><failure message="AssertionError: import path probe did not start&#10;assert False&#10; +  where False = poll(20)&#10; +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea52a6fa70&gt;.poll">tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_import_archive_binds_the_3')
+kind = 'socket'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fea52ac2270&gt;
+
+    @pytest.mark.parametrize(
+        "kind", ["regular_symlink", "dangling_symlink", "fifo", "socket", "fifo_at_open"]
+    )
+    def test_import_archive_binds_the_supplied_regular_path_before_streaming(
+        tmp_path: Path, kind: str, monkeypatch: pytest.MonkeyPatch
+    ) -&gt; None:
+        source = FileSystemCAS(tmp_path / "source")
+        incoming = _put(source, NEW)
+        legitimate = source.export_subgraph([incoming], tmp_path / "legitimate.tar.gz").output_path
+        legitimate_bytes = legitimate.read_bytes()
+        alias = tmp_path / "input.tar.gz"
+        sock = None
+        if kind == "regular_symlink":
+            alias.symlink_to(legitimate)
+        elif kind == "dangling_symlink":
+            alias.symlink_to(tmp_path / "absent")
+        elif kind == "fifo":
+            os.mkfifo(alias)
+        elif kind == "socket":
+            sock = socket.socket(socket.AF_UNIX)
+            previous_cwd = Path.cwd()
+            monkeypatch.chdir(tmp_path)
+            sock.bind(alias.name)
+            monkeypatch.chdir(previous_cwd)
+        else:
+            alias.write_bytes(legitimate_bytes)
+        receiver = FileSystemCAS(tmp_path / "receiver")
+        prior = _put(receiver, OLD)
+        owner_bytes = {
+            p.relative_to(receiver.root).as_posix(): p.read_bytes()
+            for p in receiver.root.rglob("*")
+            if p.is_file()
+        }
+        before = alias.lstat()
+        context = multiprocessing.get_context("spawn")
+        parent, child = context.Pipe()
+        process = context.Process(
+            target=_import_path_probe,
+            args=(str(receiver.root), str(alias), kind == "fifo_at_open", child),
+        )
+        process.start()
+        try:
+&gt;           assert parent.poll(20), "import path probe did not start"
+E           AssertionError: import path probe did not start
+E           assert False
+E            +  where False = poll(20)
+E            +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea52a6fa70&gt;.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:506: AssertionError</failure></testcase><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_import_archive_binds_the_supplied_regular_path_before_streaming[fifo_at_open]" time="20.081"><failure message="AssertionError: import path probe did not start&#10;assert False&#10; +  where False = poll(20)&#10; +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea52abc0d0&gt;.poll">tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_import_archive_binds_the_4')
+kind = 'fifo_at_open'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fea52a71b00&gt;
+
+    @pytest.mark.parametrize(
+        "kind", ["regular_symlink", "dangling_symlink", "fifo", "socket", "fifo_at_open"]
+    )
+    def test_import_archive_binds_the_supplied_regular_path_before_streaming(
+        tmp_path: Path, kind: str, monkeypatch: pytest.MonkeyPatch
+    ) -&gt; None:
+        source = FileSystemCAS(tmp_path / "source")
+        incoming = _put(source, NEW)
+        legitimate = source.export_subgraph([incoming], tmp_path / "legitimate.tar.gz").output_path
+        legitimate_bytes = legitimate.read_bytes()
+        alias = tmp_path / "input.tar.gz"
+        sock = None
+        if kind == "regular_symlink":
+            alias.symlink_to(legitimate)
+        elif kind == "dangling_symlink":
+            alias.symlink_to(tmp_path / "absent")
+        elif kind == "fifo":
+            os.mkfifo(alias)
+        elif kind == "socket":
+            sock = socket.socket(socket.AF_UNIX)
+            previous_cwd = Path.cwd()
+            monkeypatch.chdir(tmp_path)
+            sock.bind(alias.name)
+            monkeypatch.chdir(previous_cwd)
+        else:
+            alias.write_bytes(legitimate_bytes)
+        receiver = FileSystemCAS(tmp_path / "receiver")
+        prior = _put(receiver, OLD)
+        owner_bytes = {
+            p.relative_to(receiver.root).as_posix(): p.read_bytes()
+            for p in receiver.root.rglob("*")
+            if p.is_file()
+        }
+        before = alias.lstat()
+        context = multiprocessing.get_context("spawn")
+        parent, child = context.Pipe()
+        process = context.Process(
+            target=_import_path_probe,
+            args=(str(receiver.root), str(alias), kind == "fifo_at_open", child),
+        )
+        process.start()
+        try:
+&gt;           assert parent.poll(20), "import path probe did not start"
+E           AssertionError: import path probe did not start
+E           assert False
+E            +  where False = poll(20)
+E            +    where poll = &lt;multiprocessing.connection.Connection object at 0x7fea52abc0d0&gt;.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:506: AssertionError</failure></testcase><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_get_bytes_local_hit" time="0.074" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_get_bytes_local_miss_remote_hit" time="0.073" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_get_bytes_cache_population_failure_can_raise" time="0.045" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_put_bytes_write_through" time="0.060" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_put_bytes_no_write_through" time="0.001" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_write_through_false_keeps_local_store_as_default_owner" time="0.039" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_write_through_selectorless_has_uses_remote_default_owner" time="0.039" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_write_through_inventory_omits_cache_only_default_orphans" time="0.063" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_has_selector_free_delegates_to_remote_default_owner" time="0.001" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_has_local_false_remote_true" time="0.001" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_verify_selector_free_delegates_to_remote" time="0.001" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_verify_selected_view_uses_local_when_cached" time="0.065" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_remote_population_preserves_the_complete_selected_manifest_profile" time="0.069" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_selectorless_manifest_read_uses_remote_default_when_cache_defaults_diverge" time="0.091" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_selector_free_read_pins_remote_profile_when_cache_default_diverges[same-kind-stale-profile]" time="0.076" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_selector_free_read_pins_remote_profile_when_cache_default_diverges[different-kind-default]" time="0.079" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_selected_remote_view_uses_matching_local_view_when_defaults_diverge" time="0.072" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_corrupt_admitted_exact_cache_view_fails_closed" time="0.070" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_exact_cached_view_requires_durable_tenant_admission" time="0.082" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_selectorless_verification_uses_remote_default_when_cache_defaults_diverge" time="0.055" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_write_through_accepts_remote_view_when_cache_defaults_diverge[True-put_bytes]" time="0.063" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_write_through_accepts_remote_view_when_cache_defaults_diverge[True-put_json]" time="0.066" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_write_through_accepts_remote_view_when_cache_defaults_diverge[False-put_bytes]" time="0.068" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_write_through_accepts_remote_view_when_cache_defaults_diverge[False-put_json]" time="0.068" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_remote_child_read_skips_cache_when_input_view_is_not_locally_admitted" time="0.116" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_same_default_profile_remains_readable_through_cache" time="0.055" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_cache_population_preserves_raw_manifest_and_signature_bytes" time="0.083" /><testcase classname="tests.unit.core.artifacts.backends.test_caching_store.TestCachingArtifactStore" name="test_cache_does_not_copy_signature_after_default_moves_off_pinned_view" time="0.084" /><testcase classname="tests.unit.remediation.test_cas_02" name="test_import_verifies_before_publication_and_preserves_prior_generation[False-directory]" time="0.070" /><testcase classname="tests.unit.remediation.test_cas_02" name="test_import_verifies_before_publication_and_preserves_prior_generation[True-tar]" time="0.066" /><testcase classname="tests.unit.remediation.test_cas_02" name="test_reused_directory_export_publishes_exact_new_inventory_without_a_to_b_leakage" time="0.065" /><testcase classname="tests.unit.remediation.test_cas_02" name="test_failed_reused_directory_export_preserves_prior_complete_generation" time="0.063"><failure message="Failed: DID NOT RAISE &lt;class 'OSError'&gt;">tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_failed_reused_directory_e0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fea51e23310&gt;
+
+    def test_failed_reused_directory_export_preserves_prior_complete_generation(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """A failed replacement leaves the previously published directory intact."""
+        import polisyos.core.artifacts._transfer_ops as transfer_ops
+    
+        source = FileSystemCAS(tmp_path / "source")
+        artifact_a = source.put_bytes(PAYLOAD_A, _options())
+        artifact_b = source.put_bytes(PAYLOAD_B, _options())
+        export_root = tmp_path / "reused-export"
+    
+        source.export_subgraph([artifact_a.artifact_id], export_root, compress=False)
+        prior_members = {
+            path.relative_to(export_root): path.read_bytes()
+            for path in export_root.rglob("*")
+            if path.is_file()
+        }
+    
+        def fail_replacement_copy(*_args: object, **_kwargs: object) -&gt; None:
+            raise OSError("injected replacement copy failure")
+    
+        monkeypatch.setattr(transfer_ops.shutil, "copy2", fail_replacement_copy)
+    
+&gt;       with pytest.raises(OSError, match="replacement copy"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'OSError'&gt;
+
+tests/unit/remediation/test_cas_02.py:207: Failed</failure></testcase><testcase classname="tests.unit.remediation.test_cas_02" name="test_reused_directory_export_preserves_unowned_non_file_entries" time="0.055" /><testcase classname="tests.unit.remediation.test_cas_02" name="test_import_rejects_valid_but_unlisted_member_from_export_inventory" time="0.085" /><testcase classname="tests.unit.remediation.test_cas_02" name="test_invalid_tar_member_is_reported_without_path_escape_or_user_directory_deletion" time="0.061" /><testcase classname="tests.unit.remediation.test_cas_02" name="test_signed_export_round_trip_preserves_signature_binding" time="0.089" /><testcase classname="tests.unit.remediation.test_cas_02" name="test_import_preserves_distinct_manifest_profile_as_selected_view" time="0.077" /><testcase classname="tests.unit.remediation.test_cas_02" name="test_transfer_round_trip_preserves_each_selected_view_and_signature" time="0.097" /><testcase classname="tests.unit.remediation.test_cas_02" name="test_import_enforces_existing_tenant_ownership" time="0.089"><failure message="Failed: DID NOT RAISE &lt;class 'PermissionError'&gt;">tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_import_enforces_existing_0')
+
+    def test_import_enforces_existing_tenant_ownership(tmp_path: Path) -&gt; None:
+        """A tenant cannot import over an artifact owned by another tenant."""
+        source = FileSystemCAS(tmp_path / "source")
+        source_ref = source.put_bytes(PAYLOAD_A, _options())
+        export = source.export_subgraph(
+            [source_ref.artifact_id],
+            tmp_path / "tenant.tar.gz",
+        )
+    
+        shared_root = tmp_path / "shared"
+        tenant_a = FileSystemCAS(shared_root, tenant_id="tenant-a")
+        tenant_a.put_bytes(PAYLOAD_A, _options())
+        tenant_b = FileSystemCAS(shared_root, tenant_id="tenant-b")
+    
+&gt;       with pytest.raises(PermissionError, match="not owned by tenant"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'PermissionError'&gt;
+
+tests/unit/remediation/test_cas_02.py:420: Failed</failure></testcase><testcase classname="tests.unit.remediation.test_cas_02" name="test_import_rejects_a_selected_view_bound_to_another_tenant" time="0.086"><failure message="Failed: DID NOT RAISE &lt;class 'PermissionError'&gt;">tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_import_rejects_a_selected0')
+
+    def test_import_rejects_a_selected_view_bound_to_another_tenant(tmp_path: Path) -&gt; None:
+        """An archive cannot transfer authority-bound tenant metadata by byte possession."""
+        source = FileSystemCAS(tmp_path / "source", tenant_id="tenant-a")
+        source_ref = source.put_bytes(
+            PAYLOAD_A,
+            PutOptions(
+                kind="tests.cas02.tenant-bound",
+                media_type="application/octet-stream",
+                tenant_context=ArtifactTenantContextInfo(tenant_id="tenant-a"),
+            ),
+        )
+        export = source.export_subgraph(
+            [source_ref],
+            tmp_path / "tenant-bound-view.tar.gz",
+        )
+        target = FileSystemCAS(tmp_path / "target", tenant_id="tenant-b")
+    
+&gt;       with pytest.raises(PermissionError, match="bound to a different tenant"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'PermissionError'&gt;
+
+tests/unit/remediation/test_cas_02.py:441: Failed</failure></testcase><testcase classname="tests.unit.remediation.test_cas_02" name="test_import_rejects_symlinked_parent_without_touching_external_target" time="0.071" /><testcase classname="tests.unit.remediation.test_cas_02" name="test_import_rejects_symlinked_owned_member_without_unlinking_external_file" time="0.041" /><testcase classname="tests.unit.remediation.test_cas_02" name="test_import_accepts_canonicalized_tar_manifest_marker" time="0.057" /><testcase classname="tests.unit.remediation.test_cas_02" name="test_import_rejects_malformed_or_mismatched_signature[malformed]" time="0.054" /><testcase classname="tests.unit.remediation.test_cas_02" name="test_import_rejects_malformed_or_mismatched_signature[mismatched]" time="0.056" /><testcase classname="tests.unit.remediation.test_cas_02" name="test_import_rolls_back_new_generation_on_mid_publication_failure" time="0.105"><failure message="Failed: DID NOT RAISE &lt;class 'OSError'&gt;">tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_import_rolls_back_new_gen0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fea51efa740&gt;
+
+    def test_import_rolls_back_new_generation_on_mid_publication_failure(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """A failed write cannot leave a partially accepted multi-artifact generation."""
+        source = FileSystemCAS(tmp_path / "source")
+        first = source.put_bytes(PAYLOAD_A, _options())
+        second = source.put_bytes(PAYLOAD_B, _options())
+        export = source.export_subgraph(
+            [first.artifact_id, second.artifact_id],
+            tmp_path / "mid-publication.tar.gz",
+        )
+        target = FileSystemCAS(tmp_path / "target")
+        original_write_once = target._files.write_once
+        writes = 0
+    
+        def fail_on_third_write(path: Path, data: bytes) -&gt; bool:
+            nonlocal writes
+            writes += 1
+            if writes == 3:
+                raise OSError("injected mid-publication failure")
+            return original_write_once(path, data)
+    
+        monkeypatch.setattr(target._files, "write_once", fail_on_third_write)
+    
+&gt;       with pytest.raises(OSError, match="mid-publication"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'OSError'&gt;
+
+tests/unit/remediation/test_cas_02.py:585: Failed</failure></testcase></testsuite></testsuites>

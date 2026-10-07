@@ -1,0 +1,21 @@
+{
+  "cases": 1,
+  "counts": {
+    "PASS": 0,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "testcases": [
+    {
+      "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+      "name": "test_finite_aliased_data_getter_keeps_real_numeric_warm_handles[True]",
+      "outcome": "FAIL",
+      "time": "0.097"
+    }
+  ],
+  "actual_child_exit": 1,
+  "hook_time_observed_module_count": 166,
+  "all_origin_bytes_reconciled": true,
+  "universal_readset": false
+}

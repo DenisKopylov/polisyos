@@ -1,0 +1,100 @@
+"""Independent immutable source/evidence reconciliation; imports no product code."""
+import ast
+import hashlib
+import json
+import subprocess
+
+ROOT = '/workspace/e02-B-current-cas-generation'
+SOURCE = 'b7d966af6551fc0ff63d3a830c70fe300c320967'
+BASE = '75ec14287da9e1f288de4699ff01240682bffe89'
+EVIDENCE = '9fba2e79095bb0eca4b50603df34cbac2b1fab9a'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/'
+
+def git(*args):
+    return subprocess.check_output(['git', '-C', ROOT, *args])
+
+def read(ref, path):
+    return git('show', ref + ':' + path)
+
+def evidence(name):
+    return read(EVIDENCE, PREFIX + name)
+
+def main():
+    index_raw = evidence('index.json')
+    assert hashlib.sha256(index_raw).hexdigest() == 'b0c7a9cdc779b1c9ffd81b33402d638e9772169335721cc87f98723318586f55'
+    index = json.loads(index_raw)
+    for item in index['files']:
+        raw = read(EVIDENCE, item['path'])
+        assert len(raw) == item['bytes']
+        assert hashlib.sha256(raw).hexdigest() == item['sha256']
+    paths = git('diff', '--name-only', BASE, SOURCE).decode().splitlines()
+    assert len(paths) == 5
+    assert not any((p.startswith('policy-engine/src/') and p.endswith('.py')) or
+                   p.startswith('policy-engine/tests/') for p in paths)
+    source_files = {}
+    for ref in [BASE, SOURCE]:
+        source_files[ref] = {}
+        for line in git('ls-tree', '-r', ref, 'policy-engine/src', 'policy-engine/tests').decode().splitlines():
+            meta, path = line.split('\t', 1)
+            if path.endswith('.py'):
+                source_files[ref][path] = meta.split()[2]
+    assert source_files[BASE] == source_files[SOURCE]
+    assert len(source_files[SOURCE]) == 5468
+    outputs = ['policy-engine/src/polisyos/foundry/methods/' + p for p in
+               ['base.pyi', 'registry.pyi', 'composer.pyi', 'components/composer.pyi']]
+    output_rows = []
+    for path in outputs:
+        a, b = read(BASE, path), read(SOURCE, path)
+        equal_ast = ast.dump(ast.parse(a), include_attributes=False) == ast.dump(ast.parse(b), include_attributes=False)
+        assert equal_ast
+        output_rows.append({'path': path, 'bytes': len(b), 'sha256': hashlib.sha256(b).hexdigest(),
+                            'byte_equal_base': a == b, 'ast_equal_base': equal_ast})
+    stages = []
+    for name, expected in [('final-check', 0), ('corrected-stale-copy', 1), ('final-ruff', 0), ('final-format', 0)]:
+        wrapper = json.loads(evidence(name + '.json'))
+        stdout = evidence(name + '.txt')
+        assert wrapper['exit_code'] == expected
+        assert wrapper['stdout']['bytes'] == len(stdout)
+        assert wrapper['stdout']['sha256'] == hashlib.sha256(stdout).hexdigest()
+        for role in ['source_before', 'source_after']:
+            state = wrapper[role]
+            assert state['sha'] == SOURCE and state['status'] == ''
+            for path, item in state['named_inputs'].items():
+                raw = read(SOURCE, path)
+                assert len(raw) == item['bytes']
+                assert hashlib.sha256(raw).hexdigest() == item['sha256']
+        stages.append({'stage': name, 'actual_exit': wrapper['exit_code'], 'argv': wrapper['argv'],
+                       'cwd': wrapper['cwd'], 'wall_seconds': wrapper['wall_seconds'],
+                       'stdout': {'source_sha': EVIDENCE, 'path': PREFIX + name + '.txt',
+                                  'bytes': len(stdout), 'sha256': hashlib.sha256(stdout).hexdigest()}})
+    text = evidence('corrected-stale-copy.txt').decode()
+    observation = json.loads(next(line.removeprefix('STUB_STALE_COPY_OBSERVATION ') for line in text.splitlines()
+                                  if line.startswith('STUB_STALE_COPY_OBSERVATION ')))
+    origin = json.loads(next(line.removeprefix('ACTUAL_STUB_GENERATOR ') for line in text.splitlines()
+                             if line.startswith('ACTUAL_STUB_GENERATOR ')))
+    assert origin['source_sha'] == SOURCE
+    assert origin['sha256'] == hashlib.sha256(read(SOURCE, 'policy-engine/tools/devx/foundry/generate_stubs.py')).hexdigest()
+    assert observation['copied_before'] == observation['copied_after']
+    assert observation['original_before'] == observation['original_after']
+    assert len(observation['original_before']) == 4
+    assert 'DRIFT: generated stub differs from' in text
+    assert observation['expected_refusal_exit'] == 1
+    for path, digest in observation['original_before'].items():
+        relative = path.removeprefix('/workspace/e02-B-current-composition/')
+        assert hashlib.sha256(read(SOURCE, relative)).hexdigest() == digest
+    print(json.dumps({'schema': 'policyos.e02.independent_stub_source_audit.v1',
+        'source_sha': SOURCE, 'source_tree': git('rev-parse', SOURCE + '^{tree}').decode().strip(),
+        'evidence_sha': EVIDENCE, 'evidence_tree': git('rev-parse', EVIDENCE + '^{tree}').decode().strip(),
+        'index_path': PREFIX + 'index.json', 'index_sha256': hashlib.sha256(index_raw).hexdigest(),
+        'indexed_objects': len(index['files']), 'total_evidence_objects_including_index': len(index['files']) + 1,
+        'indexed_bytes': sum(i['bytes'] for i in index['files']), 'index_bytes': len(index_raw),
+        'indexed_hash_mismatches': 0, 'runtime_test_py_denominator': 5468, 'runtime_test_py_delta': [],
+        'owned_source_footprint': paths, 'four_output_bindings': output_rows,
+        'actual_author_stages_independently_reconciled': stages,
+        'stale_control': {'actual_generator_identity_reconciled': True, 'all_four_original_bytes_unchanged': True,
+            'copied_input_before_after_equal': True, 'full_bytes_drift_refused': True},
+        'reviewer_execution': 'Git/JSON/AST/hash metadata only; no product imports/generator/native/gates.'},
+        ensure_ascii=False, indent=2))
+
+if __name__ == '__main__':
+    main()

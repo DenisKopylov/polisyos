@@ -1,0 +1,3154 @@
+{
+  "invocation": {
+    "argv": [
+      ".polisyos/foreign-final-adjudication/audit.py.txt",
+      "--proposal-sha",
+      "d1efd64136815a04a96a534e1be8003783f444fe",
+      "--proposal-hash",
+      "30b689d59c28e5173d6957a70ca1403a87ecc2406383f36060e8fc9ebe2c28c1",
+      "--cost-input-dir",
+      ".polisyos/foreign-final-adjudication",
+      "--out",
+      ".polisyos/foreign-final-adjudication/audit.json"
+    ],
+    "cwd": "/workspace/e02-B-current-cas-generation",
+    "metadata_reader_head_before": "6b0e917207af2001754d6fe352ec75ac47485461",
+    "utc": "2026-10-06T23:46:43.648392+00:00",
+    "execution_profile": "stdlib+Git only; no project imports/native/gates",
+    "metadata_reader_head_after": "6b0e917207af2001754d6fe352ec75ac47485461"
+  },
+  "mode": "Foreign criterion/source/evidence metadata review only; no project imports, native/gates/collection/provision/deletion or self-CAS acceptance.",
+  "source": {
+    "sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36"
+  },
+  "proposal": {
+    "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+    "bytes": 199636,
+    "sha256": "30b689d59c28e5173d6957a70ca1403a87ecc2406383f36060e8fc9ebe2c28c1"
+  },
+  "canonical_routing": {
+    "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+    "bytes": 9504,
+    "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722"
+  },
+  "scope": {
+    "bundles": [
+      "CMP-01",
+      "CMP-02",
+      "CMP-03",
+      "RES-03",
+      "RES-04",
+      "JIT-01"
+    ],
+    "cross_family": {
+      "B52": "EXE-01"
+    },
+    "findings": [
+      "B13",
+      "B42",
+      "B43",
+      "B44",
+      "B45",
+      "B46",
+      "B47",
+      "B48",
+      "B49",
+      "B50",
+      "B52",
+      "B53",
+      "B74",
+      "B75",
+      "B76"
+    ],
+    "counts": {
+      "proposed_bounded_closed": 13,
+      "limited": 2,
+      "formal_closure": 0
+    }
+  },
+  "canonical_reconciliation": [
+    {
+      "finding_id": "B13",
+      "bundle_id": "RES-03",
+      "criterion_raw_sha256": "8714cb99089ae3acaf3b6bad7954b4ea29bb018e3128bccb5c937d21aa43ad49",
+      "full_card": {
+        "git_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-03.md",
+        "bytes": 8261,
+        "sha256": "508bb623d91c7addea54b2006b296660212770eeef9f3a2dd0b09e91f8be3ccf"
+      },
+      "proposed_status": "limited",
+      "formal_closure": false
+    },
+    {
+      "finding_id": "B42",
+      "bundle_id": "CMP-01",
+      "criterion_raw_sha256": "434fc93d5f183004fa3dea62a3802632618b7a5a640c7a29a94b218cc09bbc77",
+      "full_card": {
+        "git_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-01.md",
+        "bytes": 16623,
+        "sha256": "29a3a0775bdac83d1f1804f52673e5cc99a5602a611877b216a423f191f1472e"
+      },
+      "proposed_status": "closed",
+      "formal_closure": false
+    },
+    {
+      "finding_id": "B43",
+      "bundle_id": "CMP-01",
+      "criterion_raw_sha256": "10b7eabc7d65e7ee68eff8d1b3ee523ce960f00f696c34edf1aae65cdd67a8c9",
+      "full_card": {
+        "git_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-01.md",
+        "bytes": 16623,
+        "sha256": "29a3a0775bdac83d1f1804f52673e5cc99a5602a611877b216a423f191f1472e"
+      },
+      "proposed_status": "closed",
+      "formal_closure": false
+    },
+    {
+      "finding_id": "B44",
+      "bundle_id": "CMP-01",
+      "criterion_raw_sha256": "0c36b2d0d5304b425dde05fe8679dc2adab49d9ae67925a4533cdb1f912be5ae",
+      "full_card": {
+        "git_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-01.md",
+        "bytes": 16623,
+        "sha256": "29a3a0775bdac83d1f1804f52673e5cc99a5602a611877b216a423f191f1472e"
+      },
+      "proposed_status": "closed",
+      "formal_closure": false
+    },
+    {
+      "finding_id": "B45",
+      "bundle_id": "CMP-02",
+      "criterion_raw_sha256": "164b0ecacd454c386662aac54c271c7298c3348b34de661816f015eaddc2e186",
+      "full_card": {
+        "git_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-02.md",
+        "bytes": 11948,
+        "sha256": "c5f35cc8c2239918750118ab56f58ff6c0013360e0766f41e50906628389f509"
+      },
+      "proposed_status": "closed",
+      "formal_closure": false
+    },
+    {
+      "finding_id": "B46",
+      "bundle_id": "CMP-02",
+      "criterion_raw_sha256": "662a1a626240391877225f0ba32d12c2977f1acfba0290386b4bdff0d317b580",
+      "full_card": {
+        "git_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-02.md",
+        "bytes": 11948,
+        "sha256": "c5f35cc8c2239918750118ab56f58ff6c0013360e0766f41e50906628389f509"
+      },
+      "proposed_status": "closed",
+      "formal_closure": false
+    },
+    {
+      "finding_id": "B47",
+      "bundle_id": "CMP-03",
+      "criterion_raw_sha256": "db0a46a8373da1087edb08b827fd8e925dc9c731492d6147ee683dc284a1dfa9",
+      "full_card": {
+        "git_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-03.md",
+        "bytes": 12845,
+        "sha256": "db8b0d2e0032c94c377e44b931b6920b54e88bb76223fb62d9b7d028305b0016"
+      },
+      "proposed_status": "closed",
+      "formal_closure": false
+    },
+    {
+      "finding_id": "B48",
+      "bundle_id": "CMP-03",
+      "criterion_raw_sha256": "f92d8823d473df1af96de2bc15940fe284bdb8ad0eb9e7d757478069c448007c",
+      "full_card": {
+        "git_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-03.md",
+        "bytes": 12845,
+        "sha256": "db8b0d2e0032c94c377e44b931b6920b54e88bb76223fb62d9b7d028305b0016"
+      },
+      "proposed_status": "closed",
+      "formal_closure": false
+    },
+    {
+      "finding_id": "B49",
+      "bundle_id": "JIT-01",
+      "criterion_raw_sha256": "e581a88f4245b540e42b3ac60bc78a278bbe890e6ce2149031305d4235188ab6",
+      "full_card": {
+        "git_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/JIT-01.md",
+        "bytes": 20023,
+        "sha256": "075aa27a93cbc77e98aa4376cb882ff218f432b2851f1aaba4773a94be487e71"
+      },
+      "proposed_status": "closed",
+      "formal_closure": false
+    },
+    {
+      "finding_id": "B50",
+      "bundle_id": "JIT-01",
+      "criterion_raw_sha256": "0aa3d14bac0b9f19c3362889bf0f13fdc54326453536084a4be68d1e295ed3bf",
+      "full_card": {
+        "git_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/JIT-01.md",
+        "bytes": 20023,
+        "sha256": "075aa27a93cbc77e98aa4376cb882ff218f432b2851f1aaba4773a94be487e71"
+      },
+      "proposed_status": "closed",
+      "formal_closure": false
+    },
+    {
+      "finding_id": "B52",
+      "bundle_id": "EXE-01",
+      "criterion_raw_sha256": "e4af31d50bb9263c6744fd0aef0e1fe452faa29181bb42294e0c1e0d4c441885",
+      "full_card": {
+        "git_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EXE-01.md",
+        "bytes": 17854,
+        "sha256": "125712af99fd3d1ab049636a1a176351b27c96becacaa10bfeab02e44eda4e1e"
+      },
+      "proposed_status": "closed",
+      "formal_closure": false
+    },
+    {
+      "finding_id": "B53",
+      "bundle_id": "JIT-01",
+      "criterion_raw_sha256": "7593081b5107446ae188b695b89f6b84599a3dfbb0da218002d9c2e69fef8b12",
+      "full_card": {
+        "git_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/JIT-01.md",
+        "bytes": 20023,
+        "sha256": "075aa27a93cbc77e98aa4376cb882ff218f432b2851f1aaba4773a94be487e71"
+      },
+      "proposed_status": "closed",
+      "formal_closure": false
+    },
+    {
+      "finding_id": "B74",
+      "bundle_id": "RES-04",
+      "criterion_raw_sha256": "fe5c80be8769dc007957fe5125cff3110cc02a77208d29f3b7523f0b267bc181",
+      "full_card": {
+        "git_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-04.md",
+        "bytes": 19677,
+        "sha256": "1beb9b75bb18f74356b568fa6a2261666b7d7893c879bd8ce08c513cb0ed38c2"
+      },
+      "proposed_status": "limited",
+      "formal_closure": false
+    },
+    {
+      "finding_id": "B75",
+      "bundle_id": "RES-04",
+      "criterion_raw_sha256": "bfa81a7d72085f1f37d2623263dff2cc2d52e19d297f8144a557d76875e443e6",
+      "full_card": {
+        "git_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-04.md",
+        "bytes": 19677,
+        "sha256": "1beb9b75bb18f74356b568fa6a2261666b7d7893c879bd8ce08c513cb0ed38c2"
+      },
+      "proposed_status": "closed",
+      "formal_closure": false
+    },
+    {
+      "finding_id": "B76",
+      "bundle_id": "RES-04",
+      "criterion_raw_sha256": "18fbe02ddd13babe4e4df26b023de3655025e27309ae780ac8c7e1a24fc7995a",
+      "full_card": {
+        "git_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-04.md",
+        "bytes": 19677,
+        "sha256": "1beb9b75bb18f74356b568fa6a2261666b7d7893c879bd8ce08c513cb0ed38c2"
+      },
+      "proposed_status": "closed",
+      "formal_closure": false
+    }
+  ],
+  "deciding_custody": {
+    "affected35_after": {
+      "git_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/source-after.json",
+      "bytes": 17940,
+      "sha256": "ea7408c104dbfcce2d33e8e43aa0d58c5fbadd8fd27189f2ef27adc4e99f0581"
+    },
+    "affected35_before": {
+      "git_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/source-before.json",
+      "bytes": 17892,
+      "sha256": "aa43bf2776386c7e57a29ccfd0cb007f2bc2bdf2eaf79206135fa00501ef767b"
+    },
+    "affected35_index": {
+      "git_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/index.json",
+      "bytes": 6673,
+      "sha256": "86ceebf8b3a51066d8c21bf95a8f99248e4529a3ea727fea3e67d262d5386701"
+    },
+    "affected35_partition": {
+      "git_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/case-partition-summary.json",
+      "bytes": 21271,
+      "sha256": "6b74170bb93f6bb6e9048dfc0abdebf6ca2367a367b317d116990afa3263d3c4"
+    },
+    "affected35_phases": {
+      "git_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/all-runtime-phases.json",
+      "bytes": 616455,
+      "sha256": "af4c083c552d6682bb14760ed8db10e0bfee32c84463e3403452370f15d5763a"
+    },
+    "affected35_profile": {
+      "git_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/execution-profile.json",
+      "bytes": 6034,
+      "sha256": "0c99f68549bc32f9bbfa1d3a992d13ddfc6330b87c00e93307d7cc749552bdb8"
+    },
+    "affected35_projection": {
+      "git_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/source-content-projection-summary.json",
+      "bytes": 1134,
+      "sha256": "4ed25c7cf728bc57cd0bc7917ceab601c35b1f3e58f75482e7f9380ded5049b3"
+    },
+    "affected35_selectors": {
+      "git_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/selector-proposal.json",
+      "bytes": 18136,
+      "sha256": "a2da65aae5ca75d42ea0f1c8804db5f776aca0b8c68dba86a474e3d67178c39f"
+    },
+    "affected35_stdout_wrapper": {
+      "git_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/native.txt.json",
+      "bytes": 107875,
+      "sha256": "a850cdf230e6c39f77d3176ba090ac51b71d4703245a453053fe454a7790633a"
+    },
+    "affected35_wrapper": {
+      "git_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/wrapper.json",
+      "bytes": 1808,
+      "sha256": "6b3a6e7909f2c9651cd164798b62ec7fe6b17801f8cc47484e019fbf93e11f73"
+    },
+    "affected35_xml": {
+      "git_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/native.xml",
+      "bytes": 123142,
+      "sha256": "e6726d596686c0fc52fcafd9e1648802d39fd13409fdc0603dbb974af4a4bfe6"
+    },
+    "cache_cost": {
+      "git_sha": "08be146b3ed191db7e51621fd638b851d1dddfd1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost.json",
+      "bytes": 55309,
+      "sha256": "27e8aabf39fd255056e9323d41055eef3cc096000b436f3e71dc405e8019fac4"
+    },
+    "checkpoint_foreign_review": {
+      "git_sha": "76028eda766d00b0b952b4927f72d07b0a477be1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-cancellation-independent-review/review.json",
+      "bytes": 35284,
+      "sha256": "f6ac4ba4235ad5ce7ff2cb7e8e2e2dae897a419ecb1b99810310eb953862e353"
+    },
+    "checkpoint_native": {
+      "git_sha": "03e52adb2a8a84f0339108fea7a1f5a10e041132",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget.json",
+      "bytes": 79078,
+      "sha256": "5e6c7415a26c69667e406e401d46c6a0ace5d33e496676b4c78996d827756f09"
+    },
+    "cmp_final": {
+      "git_sha": "41fd9c0479606c4e1b461489b55190a1c43e03e7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final.json",
+      "bytes": 101878,
+      "sha256": "85093d04bd4c027093ef476c2d107cc152eac8af9bcf7408c305947eef44b7e0"
+    },
+    "cmp_plan": {
+      "git_sha": "75ec14287da9e1f288de4699ff01240682bffe89",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan.json",
+      "bytes": 77658,
+      "sha256": "bec3267b25dd757b4d67b5ea85bd8904bb624727feedb1c16c29e2de822095f4"
+    },
+    "cmp_plan_independent": {
+      "git_sha": "e774768af0bbcc68ed14b101f8d5f869122fd87a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-oracle.json",
+      "bytes": 282230,
+      "sha256": "318d97c4ea1e0880614a469fce35883cf2c897fc2290498422687b884f000c83"
+    },
+    "dd_profile": {
+      "git_sha": "c58112d64bd6684120dc7dba5df07b1906402152",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/native.profile.json",
+      "bytes": 20483,
+      "sha256": "4efb2a6adb5f2d4c51c3598f831f1b8edc71fc4d9f10211b0d5b75a3f3bede83"
+    },
+    "dd_wrapper": {
+      "git_sha": "c58112d64bd6684120dc7dba5df07b1906402152",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/native.execution.json",
+      "bytes": 2866,
+      "sha256": "bec139fa5bfc2c15a12e4deac7bb3c8bc7eb414fe1ed1bb71d7a093e429bf111"
+    },
+    "dd_xml": {
+      "git_sha": "c58112d64bd6684120dc7dba5df07b1906402152",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/native.junit.xml",
+      "bytes": 3168754,
+      "sha256": "c61a02426c844ea6e3de05d0853fa939e1ce6cad9b5d31e1b8c5e8a65fa78cf7"
+    },
+    "exe15": {
+      "git_sha": "37e16cbb9fa3bc914a76882c28abfb4f01c612bc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all15-execution-state.json",
+      "bytes": 284620,
+      "sha256": "186761143590191aaa4057700c50c1f90a04bf467d60194cd17854f6e9a9a7f0"
+    },
+    "historical_manual_basis": {
+      "git_sha": "348252b6f9057a4dad2cd12c0a3d3fc8dbdd1d1a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json",
+      "bytes": 163774,
+      "sha256": "fd5c3edf97829c25e4635d41fde724a5b20fe4afb1fde3383fe5fe8f4487ab23"
+    },
+    "root_affected_profile": {
+      "git_sha": "120a9f11a0fb4f800c71da370176b6fc22d4aa87",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-affected-consumers-profile.json",
+      "bytes": 16353,
+      "sha256": "9f1559932776fcf0f215a15399b9f4329fc54a6bcd68aa2711a57523724fe9f1"
+    },
+    "root_affected_stdout": {
+      "git_sha": "120a9f11a0fb4f800c71da370176b6fc22d4aa87",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-affected-consumers.txt",
+      "bytes": 1673745,
+      "sha256": "05ca33cf103234b77d78b37ce4f5731d5e14d14895bf2223a6b77e8df41e3b49"
+    },
+    "root_affected_xml": {
+      "git_sha": "120a9f11a0fb4f800c71da370176b6fc22d4aa87",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/native-affected.xml",
+      "bytes": 151979,
+      "sha256": "e7952cf7c945b460e4511a526b0e38c4d9bc7bce54fe57c1e2c0ce1ad4d8c872"
+    }
+  },
+  "historical_actual_case_joins": [
+    {
+      "finding_id": "B13",
+      "source_cut": "dd9584728bd96f204983615216efdbc58117e713",
+      "cases": [
+        {
+          "index": 1106,
+          "classname": "tests.unit.remediation.test_res_03",
+          "name": "test_independent_success_survives_sibling_failure_with_exact_error_and_scope",
+          "state": "PASS"
+        }
+      ],
+      "claim_grade": "Historical actual source-bound cases; no literal final1862 execution asserted."
+    },
+    {
+      "finding_id": "B42",
+      "source_cut": "dd9584728bd96f204983615216efdbc58117e713",
+      "cases": [
+        {
+          "index": 1012,
+          "classname": "tests.unit.remediation.test_cmp_01",
+          "name": "test_async_wrapper_survives_both_fresh_import_orders",
+          "state": "PASS"
+        }
+      ],
+      "claim_grade": "Historical actual source-bound cases; no literal final1862 execution asserted."
+    },
+    {
+      "finding_id": "B43",
+      "source_cut": "dd9584728bd96f204983615216efdbc58117e713",
+      "cases": [
+        {
+          "index": 850,
+          "classname": "tests.unit.foundry.methods.test_compiler_e02",
+          "name": "test_real_required_compiled_alias_edge_has_no_numeric_preparation[False]",
+          "state": "PASS"
+        },
+        {
+          "index": 851,
+          "classname": "tests.unit.foundry.methods.test_compiler_e02",
+          "name": "test_real_required_compiled_alias_edge_has_no_numeric_preparation[True]",
+          "state": "PASS"
+        },
+        {
+          "index": 1013,
+          "classname": "tests.unit.remediation.test_cmp_01",
+          "name": "test_frozen_effective_graph_keeps_requires_and_parallel_sibling",
+          "state": "PASS"
+        },
+        {
+          "index": 1014,
+          "classname": "tests.unit.remediation.test_cmp_01",
+          "name": "test_requirement_cycle_is_rejected_before_execution",
+          "state": "PASS"
+        }
+      ],
+      "claim_grade": "Historical actual source-bound cases; no literal final1862 execution asserted."
+    },
+    {
+      "finding_id": "B44",
+      "source_cut": "dd9584728bd96f204983615216efdbc58117e713",
+      "cases": [
+        {
+          "index": 848,
+          "classname": "tests.unit.foundry.methods.test_compiler_e02",
+          "name": "test_actual_required_alias_runtime_uses_real_producer_output[False]",
+          "state": "PASS"
+        },
+        {
+          "index": 849,
+          "classname": "tests.unit.foundry.methods.test_compiler_e02",
+          "name": "test_actual_required_alias_runtime_uses_real_producer_output[True]",
+          "state": "PASS"
+        },
+        {
+          "index": 1015,
+          "classname": "tests.unit.remediation.test_cmp_01",
+          "name": "test_async_payload_matches_sequential_static_dynamic_override",
+          "state": "PASS"
+        }
+      ],
+      "claim_grade": "Historical actual source-bound cases; no literal final1862 execution asserted."
+    },
+    {
+      "finding_id": "B45",
+      "source_cut": "dd9584728bd96f204983615216efdbc58117e713",
+      "cases": [
+        {
+          "index": 1016,
+          "classname": "tests.unit.remediation.test_cmp_02",
+          "name": "test_duplicate_producers_are_visible_in_warn_mode",
+          "state": "PASS"
+        },
+        {
+          "index": 1017,
+          "classname": "tests.unit.remediation.test_cmp_02",
+          "name": "test_duplicate_producers_fail_closed_in_strict_mode",
+          "state": "PASS"
+        },
+        {
+          "index": 1019,
+          "classname": "tests.unit.remediation.test_cmp_02",
+          "name": "test_explicit_merge_node_owns_multiple_source_values",
+          "state": "PASS"
+        }
+      ],
+      "claim_grade": "Historical actual source-bound cases; no literal final1862 execution asserted."
+    },
+    {
+      "finding_id": "B46",
+      "source_cut": "dd9584728bd96f204983615216efdbc58117e713",
+      "cases": [
+        {
+          "index": 760,
+          "classname": "tests.unit.foundry.methods.components.test_composition_e02",
+          "name": "test_required_only_ambiguous_future_instances_are_typed_refused[SemanticValidationLevel.OFF]",
+          "state": "PASS"
+        },
+        {
+          "index": 761,
+          "classname": "tests.unit.foundry.methods.components.test_composition_e02",
+          "name": "test_required_only_ambiguous_future_instances_are_typed_refused[SemanticValidationLevel.WARN]",
+          "state": "PASS"
+        },
+        {
+          "index": 762,
+          "classname": "tests.unit.foundry.methods.components.test_composition_e02",
+          "name": "test_required_only_ambiguous_future_instances_are_typed_refused[SemanticValidationLevel.STRICT]",
+          "state": "PASS"
+        },
+        {
+          "index": 1020,
+          "classname": "tests.unit.remediation.test_cmp_02",
+          "name": "test_ordering_uses_early_estimate_occurrence[warn]",
+          "state": "PASS"
+        },
+        {
+          "index": 1021,
+          "classname": "tests.unit.remediation.test_cmp_02",
+          "name": "test_ordering_uses_early_estimate_occurrence[strict]",
+          "state": "PASS"
+        },
+        {
+          "index": 1022,
+          "classname": "tests.unit.remediation.test_cmp_02",
+          "name": "test_ordering_does_not_hide_early_sensitivity_occurrence[warn]",
+          "state": "PASS"
+        },
+        {
+          "index": 1023,
+          "classname": "tests.unit.remediation.test_cmp_02",
+          "name": "test_ordering_does_not_hide_early_sensitivity_occurrence[strict]",
+          "state": "PASS"
+        }
+      ],
+      "claim_grade": "Historical actual source-bound cases; no literal final1862 execution asserted."
+    },
+    {
+      "finding_id": "B47",
+      "source_cut": "dd9584728bd96f204983615216efdbc58117e713",
+      "cases": [
+        {
+          "index": 767,
+          "classname": "tests.unit.foundry.methods.components.test_composition_e02",
+          "name": "test_equal_full_matching_requires_explicit_choice_after_actual_numeric_controls[source_names0-target_names0]",
+          "state": "PASS"
+        },
+        {
+          "index": 768,
+          "classname": "tests.unit.foundry.methods.components.test_composition_e02",
+          "name": "test_equal_full_matching_requires_explicit_choice_after_actual_numeric_controls[source_names1-target_names1]",
+          "state": "PASS"
+        },
+        {
+          "index": 769,
+          "classname": "tests.unit.foundry.methods.components.test_composition_e02",
+          "name": "test_exact_named_full_matching_is_a_resolved_actual_numeric_control",
+          "state": "PASS"
+        },
+        {
+          "index": 1024,
+          "classname": "tests.unit.remediation.test_cmp_03",
+          "name": "test_auto_finds_bounded_augmenting_path_without_name_dependent_existence[source-card-counterexample]",
+          "state": "PASS"
+        },
+        {
+          "index": 1025,
+          "classname": "tests.unit.remediation.test_cmp_03",
+          "name": "test_auto_finds_bounded_augmenting_path_without_name_dependent_existence[neutral-slot-renaming]",
+          "state": "PASS"
+        },
+        {
+          "index": 1026,
+          "classname": "tests.unit.remediation.test_cmp_03",
+          "name": "test_auto_finds_bounded_augmenting_path_without_name_dependent_existence[adversarial-inverse-order-neutral-rename]",
+          "state": "PASS"
+        }
+      ],
+      "claim_grade": "Historical actual source-bound cases; no literal final1862 execution asserted."
+    },
+    {
+      "finding_id": "B48",
+      "source_cut": "dd9584728bd96f204983615216efdbc58117e713",
+      "cases": [
+        {
+          "index": 753,
+          "classname": "tests.unit.foundry.methods.components.test_composition_e02",
+          "name": "test_strict_complete_incoming_dag_materializes_actual_two_source_values[False]",
+          "state": "PASS"
+        },
+        {
+          "index": 754,
+          "classname": "tests.unit.foundry.methods.components.test_composition_e02",
+          "name": "test_strict_complete_incoming_dag_materializes_actual_two_source_values[True]",
+          "state": "PASS"
+        },
+        {
+          "index": 755,
+          "classname": "tests.unit.foundry.methods.components.test_composition_e02",
+          "name": "test_strict_linker_refuses_incomplete_incoming_dag_at_build[SemanticValidationLevel.OFF]",
+          "state": "PASS"
+        },
+        {
+          "index": 756,
+          "classname": "tests.unit.foundry.methods.components.test_composition_e02",
+          "name": "test_strict_linker_refuses_incomplete_incoming_dag_at_build[SemanticValidationLevel.WARN]",
+          "state": "PASS"
+        },
+        {
+          "index": 757,
+          "classname": "tests.unit.foundry.methods.components.test_composition_e02",
+          "name": "test_strict_linker_refuses_incomplete_incoming_dag_at_build[SemanticValidationLevel.STRICT]",
+          "state": "PASS"
+        },
+        {
+          "index": 1028,
+          "classname": "tests.unit.remediation.test_cmp_03",
+          "name": "test_auto_and_explicit_reject_the_same_named_semantic_mismatch",
+          "state": "PASS"
+        }
+      ],
+      "claim_grade": "Historical actual source-bound cases; no literal final1862 execution asserted."
+    },
+    {
+      "finding_id": "B49",
+      "source_cut": "dd9584728bd96f204983615216efdbc58117e713",
+      "cases": [
+        {
+          "index": 833,
+          "classname": "tests.unit.foundry.methods.test_compiler.TestMethodCompiler",
+          "name": "test_compile_cache_miss_different_static",
+          "state": "PASS"
+        },
+        {
+          "index": 836,
+          "classname": "tests.unit.foundry.methods.test_compiler.TestMethodCompiler",
+          "name": "test_static_param_changes_result",
+          "state": "PASS"
+        },
+        {
+          "index": 837,
+          "classname": "tests.unit.foundry.methods.test_compiler.TestMethodCompiler",
+          "name": "test_dynamic_param_changes_without_recompile",
+          "state": "PASS"
+        },
+        {
+          "index": 841,
+          "classname": "tests.unit.foundry.methods.test_compiler_e02",
+          "name": "test_real_jax_same_fqn_source_replacement_matches_cold_preserves_old_handle",
+          "state": "PASS"
+        },
+        {
+          "index": 842,
+          "classname": "tests.unit.foundry.methods.test_compiler_e02",
+          "name": "test_real_jax_same_class_helper_replacement_matches_cold_preserves_old_handle",
+          "state": "PASS"
+        },
+        {
+          "index": 846,
+          "classname": "tests.unit.foundry.methods.test_compiler_e02",
+          "name": "test_real_materialized_dtype_reconciles_prepared_consumer_specialization[False]",
+          "state": "PASS"
+        },
+        {
+          "index": 847,
+          "classname": "tests.unit.foundry.methods.test_compiler_e02",
+          "name": "test_real_materialized_dtype_reconciles_prepared_consumer_specialization[True]",
+          "state": "PASS"
+        },
+        {
+          "index": 1071,
+          "classname": "tests.unit.remediation.test_jit_01",
+          "name": "test_native_jax_dynamic_defaults_rebind_without_recompile",
+          "state": "PASS"
+        }
+      ],
+      "claim_grade": "Historical actual source-bound cases; no literal final1862 execution asserted."
+    },
+    {
+      "finding_id": "B50",
+      "source_cut": "dd9584728bd96f204983615216efdbc58117e713",
+      "cases": [
+        {
+          "index": 852,
+          "classname": "tests.unit.foundry.methods.test_compiler_leader_termination_e02",
+          "name": "test_actual_leader_terminal_fault_releases_follower_and_fresh_native_retry[cancelled]",
+          "state": "PASS"
+        },
+        {
+          "index": 853,
+          "classname": "tests.unit.foundry.methods.test_compiler_leader_termination_e02",
+          "name": "test_actual_leader_terminal_fault_releases_follower_and_fresh_native_retry[system-exit]",
+          "state": "PASS"
+        },
+        {
+          "index": 854,
+          "classname": "tests.unit.foundry.methods.test_compiler_leader_termination_e02",
+          "name": "test_actual_leader_terminal_fault_releases_follower_and_fresh_native_retry[publication]",
+          "state": "PASS"
+        },
+        {
+          "index": 1072,
+          "classname": "tests.unit.remediation.test_jit_01",
+          "name": "test_single_flight_publishes_before_followers_are_notified",
+          "state": "PASS"
+        },
+        {
+          "index": 1073,
+          "classname": "tests.unit.remediation.test_jit_01",
+          "name": "test_single_flight_is_shared_by_compiler_instances",
+          "state": "PASS"
+        },
+        {
+          "index": 1074,
+          "classname": "tests.unit.remediation.test_jit_01",
+          "name": "test_single_flight_follower_honors_deadline_and_cancellation",
+          "state": "PASS"
+        },
+        {
+          "index": 1075,
+          "classname": "tests.unit.remediation.test_jit_01",
+          "name": "test_single_flight_retries_when_invalidation_wins_result_delivery",
+          "state": "PASS"
+        },
+        {
+          "index": 1076,
+          "classname": "tests.unit.remediation.test_jit_01",
+          "name": "test_single_flight_error_releases_all_followers",
+          "state": "PASS"
+        }
+      ],
+      "claim_grade": "Historical actual source-bound cases; no literal final1862 execution asserted."
+    },
+    {
+      "finding_id": "B52",
+      "source_cut": "dd9584728bd96f204983615216efdbc58117e713",
+      "cases": [
+        {
+          "index": 2940,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_cold_seed_is_off_loop_and_replays_real_operations[trace]",
+          "state": "PASS"
+        },
+        {
+          "index": 2941,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_cold_seed_is_off_loop_and_replays_real_operations[checkpoint]",
+          "state": "PASS"
+        },
+        {
+          "index": 2942,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_cold_seed_late_read_cannot_publish_cache[deadline-trace]",
+          "state": "PASS"
+        },
+        {
+          "index": 2943,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_cold_seed_late_read_cannot_publish_cache[deadline-checkpoint]",
+          "state": "PASS"
+        },
+        {
+          "index": 2944,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_cold_seed_late_read_cannot_publish_cache[cancel-trace]",
+          "state": "PASS"
+        },
+        {
+          "index": 2945,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_cold_seed_late_read_cannot_publish_cache[cancel-checkpoint]",
+          "state": "PASS"
+        },
+        {
+          "index": 2951,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_seed_deadline_prevents_any_following_real_read[trace]",
+          "state": "PASS"
+        },
+        {
+          "index": 2952,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_seed_deadline_prevents_any_following_real_read[checkpoint]",
+          "state": "PASS"
+        },
+        {
+          "index": 2953,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_absent_owner_deadline_does_not_inherit_helper_timeout[recovery-trace]",
+          "state": "PASS"
+        },
+        {
+          "index": 2954,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_absent_owner_deadline_does_not_inherit_helper_timeout[recovery-checkpoint]",
+          "state": "PASS"
+        },
+        {
+          "index": 2955,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_absent_owner_deadline_does_not_inherit_helper_timeout[warm_read-trace]",
+          "state": "PASS"
+        },
+        {
+          "index": 2956,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_absent_owner_deadline_does_not_inherit_helper_timeout[warm_read-checkpoint]",
+          "state": "PASS"
+        },
+        {
+          "index": 2957,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_startup_and_body_share_one_absolute_workflow_deadline",
+          "state": "PASS"
+        },
+        {
+          "index": 2958,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_publication_trace_requires_completed_verified_storage[unbounded]",
+          "state": "PASS"
+        },
+        {
+          "index": 2959,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_publication_trace_requires_completed_verified_storage[cancel]",
+          "state": "PASS"
+        },
+        {
+          "index": 2960,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_publication_trace_requires_completed_verified_storage[corrupt_destination]",
+          "state": "PASS"
+        },
+        {
+          "index": 3158,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+          "name": "test_native_workflow_budget_replaces_hidden_helper_default[None-False-artifact]",
+          "state": "PASS"
+        },
+        {
+          "index": 3159,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+          "name": "test_native_workflow_budget_replaces_hidden_helper_default[None-False-head]",
+          "state": "PASS"
+        },
+        {
+          "index": 3160,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+          "name": "test_native_workflow_budget_replaces_hidden_helper_default[None-False-gc]",
+          "state": "PASS"
+        },
+        {
+          "index": 3161,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+          "name": "test_native_workflow_budget_replaces_hidden_helper_default[None-True-artifact]",
+          "state": "PASS"
+        },
+        {
+          "index": 3162,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+          "name": "test_native_workflow_budget_replaces_hidden_helper_default[None-True-head]",
+          "state": "PASS"
+        },
+        {
+          "index": 3163,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+          "name": "test_native_workflow_budget_replaces_hidden_helper_default[None-True-gc]",
+          "state": "PASS"
+        },
+        {
+          "index": 3164,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+          "name": "test_native_workflow_budget_replaces_hidden_helper_default[2-False-artifact]",
+          "state": "PASS"
+        },
+        {
+          "index": 3165,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+          "name": "test_native_workflow_budget_replaces_hidden_helper_default[2-False-head]",
+          "state": "PASS"
+        },
+        {
+          "index": 3166,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+          "name": "test_native_workflow_budget_replaces_hidden_helper_default[2-False-gc]",
+          "state": "PASS"
+        },
+        {
+          "index": 3167,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+          "name": "test_native_workflow_budget_replaces_hidden_helper_default[2-True-artifact]",
+          "state": "PASS"
+        },
+        {
+          "index": 3168,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+          "name": "test_native_workflow_budget_replaces_hidden_helper_default[2-True-head]",
+          "state": "PASS"
+        },
+        {
+          "index": 3169,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+          "name": "test_native_workflow_budget_replaces_hidden_helper_default[2-True-gc]",
+          "state": "PASS"
+        },
+        {
+          "index": 3170,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+          "name": "test_cancelled_checkpoint_cannot_adopt_reused_executor_owner",
+          "state": "PASS"
+        },
+        {
+          "index": 3171,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+          "name": "test_entered_native_head_cancel_reports_unknown_and_completes_generation",
+          "state": "PASS"
+        },
+        {
+          "index": 3172,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+          "name": "test_queued_native_cas_cancel_reports_not_admitted_without_publication",
+          "state": "PASS"
+        },
+        {
+          "index": 3173,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+          "name": "test_real_head_fsync_fence_keeps_previous_generation[deadline]",
+          "state": "PASS"
+        },
+        {
+          "index": 3174,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+          "name": "test_real_head_fsync_fence_keeps_previous_generation[cancel]",
+          "state": "PASS"
+        },
+        {
+          "index": 3175,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+          "name": "test_entered_head_replace_finishes_history_but_has_no_ack_or_gc",
+          "state": "PASS"
+        },
+        {
+          "index": 3176,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+          "name": "test_expired_budget_refuses_actual_cas_worker_before_artifact",
+          "state": "PASS"
+        },
+        {
+          "index": 3177,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+          "name": "test_explicit_adapter_limit_is_one_budget_across_artifact_and_head",
+          "state": "PASS"
+        },
+        {
+          "index": 3178,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+          "name": "test_real_gc_read_cannot_admit_expired_history_rewrite[deadline]",
+          "state": "PASS"
+        },
+        {
+          "index": 3179,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+          "name": "test_real_gc_read_cannot_admit_expired_history_rewrite[cancel]",
+          "state": "PASS"
+        },
+        {
+          "index": 3180,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+          "name": "test_budgeted_tier_preserves_fixed_signature_subclass_override",
+          "state": "PASS"
+        },
+        {
+          "index": 3181,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_short_budget_oracle",
+          "name": "test_real_checkpoint_healthy_control",
+          "state": "PASS"
+        },
+        {
+          "index": 3182,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_short_budget_oracle",
+          "name": "test_original_budget_refuses_new_phases_and_retains_entered_io[artifact-deadline]",
+          "state": "PASS"
+        },
+        {
+          "index": 3183,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_short_budget_oracle",
+          "name": "test_original_budget_refuses_new_phases_and_retains_entered_io[head_fsync-deadline]",
+          "state": "PASS"
+        },
+        {
+          "index": 3184,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_short_budget_oracle",
+          "name": "test_original_budget_refuses_new_phases_and_retains_entered_io[head_fsync-cancel]",
+          "state": "PASS"
+        },
+        {
+          "index": 3185,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_short_budget_oracle",
+          "name": "test_original_budget_refuses_new_phases_and_retains_entered_io[head_return-deadline]",
+          "state": "PASS"
+        },
+        {
+          "index": 3186,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_short_budget_oracle",
+          "name": "test_original_budget_refuses_new_phases_and_retains_entered_io[gc_read-deadline]",
+          "state": "PASS"
+        }
+      ],
+      "claim_grade": "Historical actual source-bound cases; no literal final1862 execution asserted."
+    },
+    {
+      "finding_id": "B53",
+      "source_cut": "dd9584728bd96f204983615216efdbc58117e713",
+      "cases": [
+        {
+          "index": 850,
+          "classname": "tests.unit.foundry.methods.test_compiler_e02",
+          "name": "test_real_required_compiled_alias_edge_has_no_numeric_preparation[False]",
+          "state": "PASS"
+        },
+        {
+          "index": 851,
+          "classname": "tests.unit.foundry.methods.test_compiler_e02",
+          "name": "test_real_required_compiled_alias_edge_has_no_numeric_preparation[True]",
+          "state": "PASS"
+        },
+        {
+          "index": 1077,
+          "classname": "tests.unit.remediation.test_jit_01",
+          "name": "test_chain_shape_inference_uses_declared_shapes_without_pure_step",
+          "state": "PASS"
+        },
+        {
+          "index": 1078,
+          "classname": "tests.unit.remediation.test_jit_01",
+          "name": "test_chain_shape_inference_refuses_unknown_data_dependent_shape",
+          "state": "PASS"
+        }
+      ],
+      "claim_grade": "Historical actual source-bound cases; no literal final1862 execution asserted."
+    },
+    {
+      "finding_id": "B74",
+      "source_cut": "dd9584728bd96f204983615216efdbc58117e713",
+      "cases": [
+        {
+          "index": 672,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_exact_selected_artifact_view_resumes_real_required_suffix_and_joint_generation",
+          "state": "PASS"
+        },
+        {
+          "index": 694,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_actual_class_helper_replacement_refuses_stale_required_resume[static]",
+          "state": "PASS"
+        },
+        {
+          "index": 695,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_actual_class_helper_replacement_refuses_stale_required_resume[class]",
+          "state": "PASS"
+        },
+        {
+          "index": 696,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_actual_class_helper_replacement_refuses_stale_required_resume[method]",
+          "state": "PASS"
+        },
+        {
+          "index": 697,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_actual_class_helper_replacement_refuses_stale_required_resume[property]",
+          "state": "PASS"
+        },
+        {
+          "index": 704,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_registry_change_during_actual_producer_uses_pinned_source_snapshot",
+          "state": "PASS"
+        },
+        {
+          "index": 1118,
+          "classname": "tests.unit.remediation.test_res_04",
+          "name": "test_resume_rejects_completed_ids_that_are_not_the_chain_prefix",
+          "state": "PASS"
+        }
+      ],
+      "claim_grade": "Historical actual source-bound cases; no literal final1862 execution asserted."
+    },
+    {
+      "finding_id": "B75",
+      "source_cut": "dd9584728bd96f204983615216efdbc58117e713",
+      "cases": [
+        {
+          "index": 731,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_resume_materializes_bound_slot_from_original_per_node_history",
+          "state": "PASS"
+        },
+        {
+          "index": 737,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_missing_history_preserves_frontier_and_known_suffix_through_filesystem",
+          "state": "PASS"
+        },
+        {
+          "index": 744,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_missing_bound_history_refuses_before_consumer_dispatch",
+          "state": "PASS"
+        },
+        {
+          "index": 745,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_foreign_history_is_not_admitted_as_original_result",
+          "state": "PASS"
+        },
+        {
+          "index": 746,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_present_rows_do_not_restore_incomplete_history_authority[header]",
+          "state": "PASS"
+        },
+        {
+          "index": 747,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_present_rows_do_not_restore_incomplete_history_authority[unknown_header]",
+          "state": "PASS"
+        },
+        {
+          "index": 748,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_present_rows_do_not_restore_incomplete_history_authority[missing_header]",
+          "state": "PASS"
+        },
+        {
+          "index": 749,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_present_rows_do_not_restore_incomplete_history_authority[original_warning]",
+          "state": "PASS"
+        },
+        {
+          "index": 1112,
+          "classname": "tests.unit.remediation.test_res_04",
+          "name": "test_resume_preserves_original_per_node_outputs_and_seed",
+          "state": "PASS"
+        }
+      ],
+      "claim_grade": "Historical actual source-bound cases; no literal final1862 execution asserted."
+    },
+    {
+      "finding_id": "B76",
+      "source_cut": "dd9584728bd96f204983615216efdbc58117e713",
+      "cases": [
+        {
+          "index": 709,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing",
+          "name": "test_chain_checkpoint_load_rejects_missing_sidecar",
+          "state": "PASS"
+        },
+        {
+          "index": 738,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_manifest_directory_fsync_fault_preserves_published_history_consumer",
+          "state": "PASS"
+        },
+        {
+          "index": 750,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_process_kill_selects_only_complete_old_or_new_history[before_pointer]",
+          "state": "PASS"
+        },
+        {
+          "index": 751,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_process_kill_selects_only_complete_old_or_new_history[after_pointer]",
+          "state": "PASS"
+        },
+        {
+          "index": 1123,
+          "classname": "tests.unit.remediation.test_res_04",
+          "name": "test_same_manifest_concurrent_saves_publish_complete_generations",
+          "state": "PASS"
+        },
+        {
+          "index": 1124,
+          "classname": "tests.unit.remediation.test_res_04",
+          "name": "test_sidecar_encoding_keeps_flat_and_nested_paths_distinct",
+          "state": "PASS"
+        },
+        {
+          "index": 1125,
+          "classname": "tests.unit.remediation.test_res_04",
+          "name": "test_failed_new_save_leaves_previous_snapshot_readable",
+          "state": "PASS"
+        }
+      ],
+      "claim_grade": "Historical actual source-bound cases; no literal final1862 execution asserted."
+    }
+  ],
+  "historical_test_input_identity": [
+    {
+      "key": "T11",
+      "historical": {
+        "commit": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+        "bytes": 33264,
+        "sha256": "23f3a815adb38d2b18ef9f68b320300788941a45e4d32bac2e9e2cfe734d13fd"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+        "bytes": 33264,
+        "sha256": "23f3a815adb38d2b18ef9f68b320300788941a45e4d32bac2e9e2cfe734d13fd"
+      },
+      "byte_equal": true
+    },
+    {
+      "key": "T12",
+      "historical": {
+        "commit": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+        "bytes": 13742,
+        "sha256": "025f395d25306b5a94d392489d1eea5ed9a1a0649cc0b28607b860b8d259385f"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+        "bytes": 13742,
+        "sha256": "025f395d25306b5a94d392489d1eea5ed9a1a0649cc0b28607b860b8d259385f"
+      },
+      "byte_equal": true
+    },
+    {
+      "key": "T13",
+      "historical": {
+        "commit": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+        "bytes": 30912,
+        "sha256": "70818a2e1b8c4e94f930823693ef7f0d232ff7c92f987decbf97d0c39ef18449"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+        "bytes": 30912,
+        "sha256": "70818a2e1b8c4e94f930823693ef7f0d232ff7c92f987decbf97d0c39ef18449"
+      },
+      "byte_equal": true
+    },
+    {
+      "key": "T14",
+      "historical": {
+        "commit": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/tests/unit/foundry/methods/components/test_composition_e02.py",
+        "bytes": 12213,
+        "sha256": "059bde6f9f3550b2f77f82039cf4d258cdac28262c2b53d092228d4cdfea91cc"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/tests/unit/foundry/methods/components/test_composition_e02.py",
+        "bytes": 12213,
+        "sha256": "059bde6f9f3550b2f77f82039cf4d258cdac28262c2b53d092228d4cdfea91cc"
+      },
+      "byte_equal": true
+    },
+    {
+      "key": "T15",
+      "historical": {
+        "commit": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/tests/unit/foundry/methods/test_compiler.py",
+        "bytes": 34246,
+        "sha256": "a015d14b41eb7bce0ab0b9ed96e79663be29e71aebd1f19f1f7801e646a5805f"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/tests/unit/foundry/methods/test_compiler.py",
+        "bytes": 34246,
+        "sha256": "a015d14b41eb7bce0ab0b9ed96e79663be29e71aebd1f19f1f7801e646a5805f"
+      },
+      "byte_equal": true
+    },
+    {
+      "key": "T16",
+      "historical": {
+        "commit": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/tests/unit/foundry/methods/test_compiler_e02.py",
+        "bytes": 11608,
+        "sha256": "75673416c70a2f82ca72194c015a8a1c1e5d0372ffeeb103c4658667121ba462"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/tests/unit/foundry/methods/test_compiler_e02.py",
+        "bytes": 11608,
+        "sha256": "75673416c70a2f82ca72194c015a8a1c1e5d0372ffeeb103c4658667121ba462"
+      },
+      "byte_equal": true
+    },
+    {
+      "key": "T17",
+      "historical": {
+        "commit": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/tests/unit/foundry/methods/test_compiler_leader_termination_e02.py",
+        "bytes": 8277,
+        "sha256": "75afc999a46ea3e4697b79dbecbe0678e4946cd89e360754543a32a0ea15812f"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/tests/unit/foundry/methods/test_compiler_leader_termination_e02.py",
+        "bytes": 8277,
+        "sha256": "75afc999a46ea3e4697b79dbecbe0678e4946cd89e360754543a32a0ea15812f"
+      },
+      "byte_equal": true
+    },
+    {
+      "key": "T21",
+      "historical": {
+        "commit": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+        "bytes": 9897,
+        "sha256": "1430274f7228fccb77a5c29832d31d65b30e22740f9b622ef6553f63efe59a16"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+        "bytes": 9897,
+        "sha256": "1430274f7228fccb77a5c29832d31d65b30e22740f9b622ef6553f63efe59a16"
+      },
+      "byte_equal": true
+    },
+    {
+      "key": "T22",
+      "historical": {
+        "commit": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/tests/unit/remediation/test_cmp_02.py",
+        "bytes": 9386,
+        "sha256": "368417feeb5bd2a64280de1a3e1d6071356c886e412209a4675062532974d74e"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/tests/unit/remediation/test_cmp_02.py",
+        "bytes": 9386,
+        "sha256": "368417feeb5bd2a64280de1a3e1d6071356c886e412209a4675062532974d74e"
+      },
+      "byte_equal": true
+    },
+    {
+      "key": "T23",
+      "historical": {
+        "commit": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/tests/unit/remediation/test_cmp_03.py",
+        "bytes": 8449,
+        "sha256": "79b396b1c7766377baf471c51b215a921409fbaa4541685073a25be215967f4a"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/tests/unit/remediation/test_cmp_03.py",
+        "bytes": 8449,
+        "sha256": "79b396b1c7766377baf471c51b215a921409fbaa4541685073a25be215967f4a"
+      },
+      "byte_equal": true
+    },
+    {
+      "key": "T25",
+      "historical": {
+        "commit": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/tests/unit/remediation/test_jit_01.py",
+        "bytes": 24311,
+        "sha256": "c7e68d8b29bd4d61b7cd5ec9c1e3b49c42cf410d38c456730171d63d0c6daa0a"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/tests/unit/remediation/test_jit_01.py",
+        "bytes": 24311,
+        "sha256": "c7e68d8b29bd4d61b7cd5ec9c1e3b49c42cf410d38c456730171d63d0c6daa0a"
+      },
+      "byte_equal": true
+    },
+    {
+      "key": "T29",
+      "historical": {
+        "commit": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/tests/unit/remediation/test_res_03.py",
+        "bytes": 8082,
+        "sha256": "8a53733d6ecfb84e68eb222c99926c0794b28d33b61c947ca97a3bf0b965e32d"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/tests/unit/remediation/test_res_03.py",
+        "bytes": 8082,
+        "sha256": "8a53733d6ecfb84e68eb222c99926c0794b28d33b61c947ca97a3bf0b965e32d"
+      },
+      "byte_equal": true
+    },
+    {
+      "key": "T30",
+      "historical": {
+        "commit": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+        "bytes": 15865,
+        "sha256": "d6ea1299420903c72a42e8c6b07b506ed6aaa1dc5d0366a7bcdf144aec4838b0"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+        "bytes": 15865,
+        "sha256": "d6ea1299420903c72a42e8c6b07b506ed6aaa1dc5d0366a7bcdf144aec4838b0"
+      },
+      "byte_equal": true
+    },
+    {
+      "key": "T35",
+      "historical": {
+        "commit": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+        "bytes": 20275,
+        "sha256": "e798e0546ac1b461e603ea43e7d9feb9de5526c45e90362a96a17faf1c4cb972"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+        "bytes": 20275,
+        "sha256": "e798e0546ac1b461e603ea43e7d9feb9de5526c45e90362a96a17faf1c4cb972"
+      },
+      "byte_equal": true
+    },
+    {
+      "key": "T41",
+      "historical": {
+        "commit": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+        "bytes": 20042,
+        "sha256": "3db521987208d8c01f2931a7b40f5c4da6746e0ad16b33c228bc35d84c984994"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+        "bytes": 20042,
+        "sha256": "3db521987208d8c01f2931a7b40f5c4da6746e0ad16b33c228bc35d84c984994"
+      },
+      "byte_equal": true
+    },
+    {
+      "key": "T42",
+      "historical": {
+        "commit": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+        "bytes": 11173,
+        "sha256": "b9e2005611669331441083aac3740f506bc6415f8b02bb01fb2d8310b5a7a57a"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+        "bytes": 11173,
+        "sha256": "b9e2005611669331441083aac3740f506bc6415f8b02bb01fb2d8310b5a7a57a"
+      },
+      "byte_equal": true
+    }
+  ],
+  "foreign_mechanism_source_projection": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+      "DD": {
+        "git_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+        "bytes": 8535,
+        "sha256": "5687fea7a29fb35a6093d2baa3f0a0c12674552dd4c29ee7867e096e19cee35d"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+        "bytes": 8535,
+        "sha256": "5687fea7a29fb35a6093d2baa3f0a0c12674552dd4c29ee7867e096e19cee35d"
+      },
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/__init__.py",
+      "DD": {
+        "git_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/src/polisyos/foundry/methods/backends/__init__.py",
+        "bytes": 6744,
+        "sha256": "99ba75d7f3848cc77a3fe775a3b394aa1df21e32f10364040345cbb5dc309c06"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/src/polisyos/foundry/methods/backends/__init__.py",
+        "bytes": 6744,
+        "sha256": "99ba75d7f3848cc77a3fe775a3b394aa1df21e32f10364040345cbb5dc309c06"
+      },
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+      "DD": {
+        "git_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+        "bytes": 13846,
+        "sha256": "769060f639d99f2a04f413cfcb7b7aa3fbd0812b38cf961b2a00f31a62da95e1"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+        "bytes": 13846,
+        "sha256": "769060f639d99f2a04f413cfcb7b7aa3fbd0812b38cf961b2a00f31a62da95e1"
+      },
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+      "DD": {
+        "git_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+        "bytes": 42439,
+        "sha256": "4ded29c3bb1ef77202b4a57d9595e8b4665552293e9b92321e675a52dcbee559"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+        "bytes": 42439,
+        "sha256": "4ded29c3bb1ef77202b4a57d9595e8b4665552293e9b92321e675a52dcbee559"
+      },
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+      "DD": {
+        "git_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+        "bytes": 58334,
+        "sha256": "1e76c8b5c43136bf60f459fc41295c699ac1ff1f8640195c867b37eafc876bba"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+        "bytes": 58334,
+        "sha256": "1e76c8b5c43136bf60f459fc41295c699ac1ff1f8640195c867b37eafc876bba"
+      },
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py",
+      "DD": {
+        "git_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py",
+        "bytes": 41586,
+        "sha256": "0d44e8e789c34c37160e6d4de77fbc1f3b0daae5e6f0381a20ef16211e573029"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py",
+        "bytes": 41586,
+        "sha256": "0d44e8e789c34c37160e6d4de77fbc1f3b0daae5e6f0381a20ef16211e573029"
+      },
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/compiler/specialization.py",
+      "DD": {
+        "git_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/src/polisyos/foundry/methods/compiler/specialization.py",
+        "bytes": 13808,
+        "sha256": "905f6b9270e7b137a373422e8d0795a451fed6e8639f6fd6a6974e5f8af32251"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/src/polisyos/foundry/methods/compiler/specialization.py",
+        "bytes": 13808,
+        "sha256": "905f6b9270e7b137a373422e8d0795a451fed6e8639f6fd6a6974e5f8af32251"
+      },
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+      "DD": {
+        "git_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+        "bytes": 34720,
+        "sha256": "402489fc3a89a9ce7567d6ae299576efb155aab1a37977b032cf532eb2833b4c"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+        "bytes": 37147,
+        "sha256": "4f6d6672a3af7a8dca845b26b91436fa3af68b34445fa9c09c8b6b2b39cfeb2a"
+      },
+      "byte_equal": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/linker.py",
+      "DD": {
+        "git_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/src/polisyos/foundry/methods/components/linker.py",
+        "bytes": 25992,
+        "sha256": "10d3d0439376525a2a270068d9024bb467468e6150dae3ec64ce250f1132d670"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/src/polisyos/foundry/methods/components/linker.py",
+        "bytes": 25992,
+        "sha256": "10d3d0439376525a2a270068d9024bb467468e6150dae3ec64ce250f1132d670"
+      },
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/exceptions.py",
+      "DD": {
+        "git_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/src/polisyos/foundry/methods/exceptions.py",
+        "bytes": 18716,
+        "sha256": "70210012ae7f5bc26b36a92bc9c5ab612b77f9b318d57a1c718a44276b1c9441"
+      },
+      "final": {
+        "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/src/polisyos/foundry/methods/exceptions.py",
+        "bytes": 18716,
+        "sha256": "70210012ae7f5bc26b36a92bc9c5ab612b77f9b318d57a1c718a44276b1c9441"
+      },
+      "byte_equal": true
+    }
+  ],
+  "composer_delta": "diff --git a/policy-engine/src/polisyos/foundry/methods/components/composer.py b/policy-engine/src/polisyos/foundry/methods/components/composer.py\nindex b9ae61ea8..1bfe83f15 100644\n--- a/policy-engine/src/polisyos/foundry/methods/components/composer.py\n+++ b/policy-engine/src/polisyos/foundry/methods/components/composer.py\n@@ -498,6 +498,56 @@ class MethodComposer:\n     def dag(self) -> CompositionDAG:\n         return self._dag\n \n+    @classmethod\n+    def from_nodes(\n+        cls,\n+        nodes: Sequence[MethodNode],\n+        *,\n+        registry: MethodRegistry | None = None,\n+        linker: SlotLinker | None = None,\n+    ) -> MethodComposer:\n+        \"\"\"Restore concrete occurrences using the normal parameter builder.\n+\n+        This internal artifact-intake seam restores nodes only. Connections and\n+        requirements still pass through ``connect`` and ``build``. It selects\n+        the current registry implementation, not historical method code.\n+        \"\"\"\n+        ordered = sorted(nodes, key=lambda node: node._insertion_order)\n+        if len({node.id for node in ordered}) != len(ordered):\n+            raise ValueError(\"Duplicate restored node UUID\")\n+        if [node._insertion_order for node in ordered] != list(range(len(ordered))):\n+            raise ValueError(\"Restored insertion order must be complete and unique\")\n+        composer = cls(registry=registry, linker=linker)\n+        restored_dag = CompositionDAG()\n+        restored_signatures: dict[UUID, MethodSignature] = {}\n+        for node in ordered:\n+            if set(node.params).intersection(node.static_params):\n+                raise ValueError(\"Restored static and dynamic parameters overlap\")\n+            prototype = composer.add(\n+                node.method_fqn, **dict(node.static_params), **dict(node.params)\n+            )\n+            actual_payload = _stable_digest(\n+                {\"static\": dict(prototype.static_params), \"dynamic\": dict(prototype.params)}\n+            )\n+            expected_payload = _stable_digest(\n+                {\"static\": dict(node.static_params), \"dynamic\": dict(node.params)}\n+            )\n+            if (\n+                prototype.method_fqn != node.method_fqn\n+                or prototype.node_key != node.node_key\n+                or prototype.instance_index != node.instance_index\n+                or prototype.commutes_with != node.commutes_with\n+                or actual_payload != expected_payload\n+            ):\n+                raise ValueError(f\"Restored node does not match current parameter ABI: {node.id}\")\n+            restored = replace(prototype, id=node.id)\n+            restored_dag.add_node(restored)\n+            restored_signatures[node.id] = composer._signatures[prototype.id]\n+        restored_dag._insertion_counter = len(ordered)\n+        composer._dag = restored_dag\n+        composer._signatures = restored_signatures\n+        return composer\n+\n     def add(self, method_name: str, **params: Any) -> MethodNode:\n         \"\"\"Add a method instance to the composition.\"\"\"\n         method_class = self._registry.get(method_name)\n@@ -819,9 +869,9 @@ class MethodComposer:\n                     uid for uid in req_predecessors[node_id] if uid in frozen_dag.nodes\n                 }\n             upstream_digests = sorted(\n-                frozen_dag.nodes[uid].node_key.static_params_digest\n-                for uid in upstream_ids\n-                if frozen_dag.nodes[uid].node_key is not None\n+                key.static_params_digest\n+                for key in (frozen_dag.nodes[uid].node_key for uid in upstream_ids)\n+                if key is not None\n             )\n             combined = {\n                 \"static_params\": dict(node.static_params),\n",
+  "actual_current_case_joins": [
+    {
+      "finding_id": "B42",
+      "cases": [
+        {
+          "index": 97,
+          "classname": "tests.unit.remediation.test_cmp_01",
+          "name": "test_async_wrapper_survives_both_fresh_import_orders",
+          "state": "PASS"
+        },
+        {
+          "index": 98,
+          "classname": "tests.unit.remediation.test_cmp_01",
+          "name": "test_frozen_effective_graph_keeps_requires_and_parallel_sibling",
+          "state": "PASS"
+        },
+        {
+          "index": 99,
+          "classname": "tests.unit.remediation.test_cmp_01",
+          "name": "test_requirement_cycle_is_rejected_before_execution",
+          "state": "PASS"
+        },
+        {
+          "index": 100,
+          "classname": "tests.unit.remediation.test_cmp_01",
+          "name": "test_async_payload_matches_sequential_static_dynamic_override",
+          "state": "PASS"
+        }
+      ],
+      "counts_role": "Actual declared current selector membership; not a count of independent defining predicates."
+    },
+    {
+      "finding_id": "B43",
+      "cases": [
+        {
+          "index": 5,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_real_cas_reopen_restores_payload_occurrences_and_executes[False]",
+          "state": "PASS"
+        },
+        {
+          "index": 6,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_real_cas_reopen_restores_payload_occurrences_and_executes[True]",
+          "state": "PASS"
+        },
+        {
+          "index": 7,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_persisted_plan_mutation_refuses_before_body[required-edge]",
+          "state": "PASS"
+        },
+        {
+          "index": 8,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_persisted_plan_mutation_refuses_before_body[order]",
+          "state": "PASS"
+        },
+        {
+          "index": 9,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_persisted_plan_mutation_refuses_before_body[cycle]",
+          "state": "PASS"
+        },
+        {
+          "index": 10,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_persisted_plan_mutation_refuses_before_body[missing-node]",
+          "state": "PASS"
+        },
+        {
+          "index": 11,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_persisted_plan_mutation_refuses_before_body[sparse]",
+          "state": "PASS"
+        },
+        {
+          "index": 12,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_persisted_plan_mutation_refuses_before_body[foreign]",
+          "state": "PASS"
+        },
+        {
+          "index": 13,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_persisted_plan_mutation_refuses_before_body[bool-index]",
+          "state": "PASS"
+        },
+        {
+          "index": 14,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_current_abi_drift_refuses_before_body",
+          "state": "PASS"
+        },
+        {
+          "index": 15,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_repeated_fqn_occurrences_reopen_with_nearest_earlier_requirement",
+          "state": "PASS"
+        },
+        {
+          "index": 16,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_selected_manifest_schema_is_consumed[foreign-plan]",
+          "state": "PASS"
+        },
+        {
+          "index": 17,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_selected_manifest_schema_is_consumed[polisyos.foundry.compiled_chain_plan]",
+          "state": "PASS"
+        },
+        {
+          "index": 18,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_non_json_payload_refused_at_real_producer[nan]",
+          "state": "PASS"
+        },
+        {
+          "index": 19,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_non_json_payload_refused_at_real_producer[value1]",
+          "state": "PASS"
+        },
+        {
+          "index": 20,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_non_json_payload_refused_at_real_producer[value2]",
+          "state": "PASS"
+        },
+        {
+          "index": 21,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_non_json_payload_refused_at_real_producer[value3]",
+          "state": "PASS"
+        },
+        {
+          "index": 22,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_cyclic_python_payload_refused_at_real_producer",
+          "state": "PASS"
+        },
+        {
+          "index": 23,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_unprofiled_reference_is_not_a_selected_plan",
+          "state": "PASS"
+        },
+        {
+          "index": 48,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[False-False]",
+          "state": "PASS"
+        },
+        {
+          "index": 49,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[False-True]",
+          "state": "PASS"
+        },
+        {
+          "index": 50,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-False]",
+          "state": "PASS"
+        },
+        {
+          "index": 51,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-True]",
+          "state": "PASS"
+        },
+        {
+          "index": 52,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_explicit_numerical_warmup_is_separate_from_preparation_and_future_seeds",
+          "state": "PASS"
+        },
+        {
+          "index": 53,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_reopened_plan_keeps_independent_real_branches_parallel[async]",
+          "state": "PASS"
+        },
+        {
+          "index": 54,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_reopened_plan_keeps_independent_real_branches_parallel[auto]",
+          "state": "PASS"
+        },
+        {
+          "index": 55,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[sequential]",
+          "state": "PASS"
+        },
+        {
+          "index": 56,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[async]",
+          "state": "PASS"
+        },
+        {
+          "index": 57,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[auto]",
+          "state": "PASS"
+        },
+        {
+          "index": 58,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[compiled]",
+          "state": "PASS"
+        },
+        {
+          "index": 59,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[compiled-jit]",
+          "state": "PASS"
+        },
+        {
+          "index": 60,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies[required-edge]",
+          "state": "PASS"
+        },
+        {
+          "index": 61,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies[required-node]",
+          "state": "PASS"
+        },
+        {
+          "index": 62,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies[cycle]",
+          "state": "PASS"
+        }
+      ],
+      "counts_role": "Actual declared current selector membership; not a count of independent defining predicates."
+    },
+    {
+      "finding_id": "B44",
+      "cases": [
+        {
+          "index": 5,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_real_cas_reopen_restores_payload_occurrences_and_executes[False]",
+          "state": "PASS"
+        },
+        {
+          "index": 6,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_real_cas_reopen_restores_payload_occurrences_and_executes[True]",
+          "state": "PASS"
+        },
+        {
+          "index": 7,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_persisted_plan_mutation_refuses_before_body[required-edge]",
+          "state": "PASS"
+        },
+        {
+          "index": 8,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_persisted_plan_mutation_refuses_before_body[order]",
+          "state": "PASS"
+        },
+        {
+          "index": 9,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_persisted_plan_mutation_refuses_before_body[cycle]",
+          "state": "PASS"
+        },
+        {
+          "index": 10,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_persisted_plan_mutation_refuses_before_body[missing-node]",
+          "state": "PASS"
+        },
+        {
+          "index": 11,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_persisted_plan_mutation_refuses_before_body[sparse]",
+          "state": "PASS"
+        },
+        {
+          "index": 12,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_persisted_plan_mutation_refuses_before_body[foreign]",
+          "state": "PASS"
+        },
+        {
+          "index": 13,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_persisted_plan_mutation_refuses_before_body[bool-index]",
+          "state": "PASS"
+        },
+        {
+          "index": 14,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_current_abi_drift_refuses_before_body",
+          "state": "PASS"
+        },
+        {
+          "index": 15,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_repeated_fqn_occurrences_reopen_with_nearest_earlier_requirement",
+          "state": "PASS"
+        },
+        {
+          "index": 16,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_selected_manifest_schema_is_consumed[foreign-plan]",
+          "state": "PASS"
+        },
+        {
+          "index": 17,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_selected_manifest_schema_is_consumed[polisyos.foundry.compiled_chain_plan]",
+          "state": "PASS"
+        },
+        {
+          "index": 18,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_non_json_payload_refused_at_real_producer[nan]",
+          "state": "PASS"
+        },
+        {
+          "index": 19,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_non_json_payload_refused_at_real_producer[value1]",
+          "state": "PASS"
+        },
+        {
+          "index": 20,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_non_json_payload_refused_at_real_producer[value2]",
+          "state": "PASS"
+        },
+        {
+          "index": 21,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_non_json_payload_refused_at_real_producer[value3]",
+          "state": "PASS"
+        },
+        {
+          "index": 22,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_cyclic_python_payload_refused_at_real_producer",
+          "state": "PASS"
+        },
+        {
+          "index": 23,
+          "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+          "name": "test_unprofiled_reference_is_not_a_selected_plan",
+          "state": "PASS"
+        },
+        {
+          "index": 63,
+          "classname": "tests.unit.foundry.methods.test_composer.TestCompositionDAG",
+          "name": "test_add_node",
+          "state": "PASS"
+        },
+        {
+          "index": 64,
+          "classname": "tests.unit.foundry.methods.test_composer.TestCompositionDAG",
+          "name": "test_add_duplicate_node_raises",
+          "state": "PASS"
+        },
+        {
+          "index": 65,
+          "classname": "tests.unit.foundry.methods.test_composer.TestCompositionDAG",
+          "name": "test_add_edge",
+          "state": "PASS"
+        },
+        {
+          "index": 66,
+          "classname": "tests.unit.foundry.methods.test_composer.TestCompositionDAG",
+          "name": "test_cycle_detection",
+          "state": "PASS"
+        },
+        {
+          "index": 67,
+          "classname": "tests.unit.foundry.methods.test_composer.TestMethodComposerBasic",
+          "name": "test_add_method",
+          "state": "PASS"
+        },
+        {
+          "index": 68,
+          "classname": "tests.unit.foundry.methods.test_composer.TestMethodComposerBasic",
+          "name": "test_add_method_with_params",
+          "state": "PASS"
+        },
+        {
+          "index": 69,
+          "classname": "tests.unit.foundry.methods.test_composer.TestMethodComposerBasic",
+          "name": "test_add_unknown_method_raises",
+          "state": "PASS"
+        },
+        {
+          "index": 70,
+          "classname": "tests.unit.foundry.methods.test_composer.TestMethodComposerBasic",
+          "name": "test_add_unknown_param_raises",
+          "state": "PASS"
+        },
+        {
+          "index": 71,
+          "classname": "tests.unit.foundry.methods.test_composer.TestParameterSplitting",
+          "name": "test_static_params_separated",
+          "state": "PASS"
+        },
+        {
+          "index": 72,
+          "classname": "tests.unit.foundry.methods.test_composer.TestParameterSplitting",
+          "name": "test_default_static_params",
+          "state": "PASS"
+        },
+        {
+          "index": 73,
+          "classname": "tests.unit.foundry.methods.test_composer.TestMethodConnection",
+          "name": "test_connect_compatible_methods",
+          "state": "PASS"
+        },
+        {
+          "index": 74,
+          "classname": "tests.unit.foundry.methods.test_composer.TestMethodConnection",
+          "name": "test_connect_establishes_order",
+          "state": "PASS"
+        },
+        {
+          "index": 75,
+          "classname": "tests.unit.foundry.methods.test_composer.TestMultiInstanceBindings",
+          "name": "test_bindings_use_node_ids",
+          "state": "PASS"
+        },
+        {
+          "index": 76,
+          "classname": "tests.unit.foundry.methods.test_composer.TestRequirementValidation",
+          "name": "test_missing_requirement_detected",
+          "state": "PASS"
+        },
+        {
+          "index": 77,
+          "classname": "tests.unit.foundry.methods.test_composer.TestRequirementValidation",
+          "name": "test_requires_enforces_order",
+          "state": "PASS"
+        },
+        {
+          "index": 78,
+          "classname": "tests.unit.foundry.methods.test_composer.TestConflictDetection",
+          "name": "test_conflict_detected_in_validation",
+          "state": "PASS"
+        },
+        {
+          "index": 79,
+          "classname": "tests.unit.foundry.methods.test_composer.TestDeterministicOrdering",
+          "name": "test_commuting_nodes_canonical_order",
+          "state": "PASS"
+        },
+        {
+          "index": 80,
+          "classname": "tests.unit.foundry.methods.test_composer.TestDeterministicOrdering",
+          "name": "test_non_commuting_respects_insertion",
+          "state": "PASS"
+        },
+        {
+          "index": 81,
+          "classname": "tests.unit.foundry.methods.test_composer.TestImmutability",
+          "name": "test_node_params_are_frozen",
+          "state": "PASS"
+        },
+        {
+          "index": 82,
+          "classname": "tests.unit.foundry.methods.test_composer.TestImmutability",
+          "name": "test_chain_dag_is_frozen",
+          "state": "PASS"
+        },
+        {
+          "index": 83,
+          "classname": "tests.unit.foundry.methods.test_composer.TestImmutability",
+          "name": "test_execution_order_is_tuple",
+          "state": "PASS"
+        },
+        {
+          "index": 84,
+          "classname": "tests.unit.foundry.methods.test_composer.TestEdgeCases",
+          "name": "test_empty_composition",
+          "state": "PASS"
+        },
+        {
+          "index": 85,
+          "classname": "tests.unit.foundry.methods.test_composer.TestEdgeCases",
+          "name": "test_single_node_composition",
+          "state": "PASS"
+        },
+        {
+          "index": 86,
+          "classname": "tests.unit.foundry.methods.test_composer.TestEdgeCases",
+          "name": "test_disconnected_components",
+          "state": "PASS"
+        },
+        {
+          "index": 87,
+          "classname": "tests.unit.foundry.methods.test_composer.TestEdgeCases",
+          "name": "test_multiple_instances_same_method",
+          "state": "PASS"
+        },
+        {
+          "index": 88,
+          "classname": "tests.unit.foundry.methods.test_composer_hardening.TestSemanticValidationDefaultOn",
+          "name": "test_default_level_is_warn",
+          "state": "PASS"
+        },
+        {
+          "index": 89,
+          "classname": "tests.unit.foundry.methods.test_composer_hardening.TestSemanticValidationDefaultOn",
+          "name": "test_bool_true_maps_to_strict",
+          "state": "PASS"
+        },
+        {
+          "index": 90,
+          "classname": "tests.unit.foundry.methods.test_composer_hardening.TestSemanticValidationDefaultOn",
+          "name": "test_bool_false_maps_to_off",
+          "state": "PASS"
+        },
+        {
+          "index": 91,
+          "classname": "tests.unit.foundry.methods.test_composer_hardening.TestMissingRequirementLevels",
+          "name": "test_missing_requirement_strict_raises",
+          "state": "PASS"
+        },
+        {
+          "index": 92,
+          "classname": "tests.unit.foundry.methods.test_composer_hardening.TestMissingRequirementLevels",
+          "name": "test_missing_requirement_warn_does_not_raise",
+          "state": "PASS"
+        },
+        {
+          "index": 93,
+          "classname": "tests.unit.foundry.methods.test_composer_hardening.TestMissingRequirementLevels",
+          "name": "test_missing_requirement_off_silent",
+          "state": "PASS"
+        },
+        {
+          "index": 94,
+          "classname": "tests.unit.foundry.methods.test_composer_hardening.TestCompositionCacheKeys",
+          "name": "test_dag_node_key_includes_upstream",
+          "state": "PASS"
+        },
+        {
+          "index": 95,
+          "classname": "tests.unit.foundry.methods.test_composer_hardening.TestCompositionCacheKeys",
+          "name": "test_isolated_node_cache_key_matches_params",
+          "state": "PASS"
+        },
+        {
+          "index": 96,
+          "classname": "tests.unit.foundry.methods.test_composer_hardening.TestCompositionCacheKeys",
+          "name": "test_cache_keys_present_for_all_nodes",
+          "state": "PASS"
+        }
+      ],
+      "counts_role": "Actual declared current selector membership; not a count of independent defining predicates."
+    },
+    {
+      "finding_id": "B52",
+      "cases": [
+        {
+          "index": 251,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_cost_oracle",
+          "name": "test_real_async_cache_costs_and_neighbour_waits[1024]",
+          "state": "PASS"
+        },
+        {
+          "index": 252,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_cost_oracle",
+          "name": "test_real_async_cache_costs_and_neighbour_waits[65536]",
+          "state": "PASS"
+        }
+      ],
+      "counts_role": "Actual declared current selector membership; not a count of independent defining predicates."
+    },
+    {
+      "finding_id": "B53",
+      "cases": [
+        {
+          "index": 48,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[False-False]",
+          "state": "PASS"
+        },
+        {
+          "index": 49,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[False-True]",
+          "state": "PASS"
+        },
+        {
+          "index": 50,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-False]",
+          "state": "PASS"
+        },
+        {
+          "index": 51,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-True]",
+          "state": "PASS"
+        },
+        {
+          "index": 52,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_explicit_numerical_warmup_is_separate_from_preparation_and_future_seeds",
+          "state": "PASS"
+        },
+        {
+          "index": 53,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_reopened_plan_keeps_independent_real_branches_parallel[async]",
+          "state": "PASS"
+        },
+        {
+          "index": 54,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_reopened_plan_keeps_independent_real_branches_parallel[auto]",
+          "state": "PASS"
+        },
+        {
+          "index": 55,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[sequential]",
+          "state": "PASS"
+        },
+        {
+          "index": 56,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[async]",
+          "state": "PASS"
+        },
+        {
+          "index": 57,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[auto]",
+          "state": "PASS"
+        },
+        {
+          "index": 58,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[compiled]",
+          "state": "PASS"
+        },
+        {
+          "index": 59,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[compiled-jit]",
+          "state": "PASS"
+        },
+        {
+          "index": 60,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies[required-edge]",
+          "state": "PASS"
+        },
+        {
+          "index": 61,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies[required-node]",
+          "state": "PASS"
+        },
+        {
+          "index": 62,
+          "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "name": "test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies[cycle]",
+          "state": "PASS"
+        }
+      ],
+      "counts_role": "Actual declared current selector membership; not a count of independent defining predicates."
+    }
+  ],
+  "actual_additional712_case_joins": [
+    {
+      "finding_id": "B52",
+      "actual_execution_sha": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+      "content_only_reference": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "cases": [
+        {
+          "index": 8,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncCacheBoundaries",
+          "name": "test_cache_io_does_not_block_independent_coroutine",
+          "state": "PASS"
+        },
+        {
+          "index": 9,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncCacheBoundaries",
+          "name": "test_expired_workflow_cache_wait_refuses_producer_admission",
+          "state": "PASS"
+        },
+        {
+          "index": 10,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncCacheBoundaries",
+          "name": "test_cache_put_does_not_block_and_failed_entry_is_not_published",
+          "state": "PASS"
+        },
+        {
+          "index": 27,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_cost_oracle",
+          "name": "test_real_async_cache_costs_and_neighbour_waits[1024]",
+          "state": "PASS"
+        },
+        {
+          "index": 28,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_cost_oracle",
+          "name": "test_real_async_cache_costs_and_neighbour_waits[65536]",
+          "state": "PASS"
+        },
+        {
+          "index": 29,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_cold_seed_is_off_loop_and_replays_real_operations[trace]",
+          "state": "PASS"
+        },
+        {
+          "index": 30,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_cold_seed_is_off_loop_and_replays_real_operations[checkpoint]",
+          "state": "PASS"
+        },
+        {
+          "index": 31,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_cold_seed_late_read_cannot_publish_cache[deadline-trace]",
+          "state": "PASS"
+        },
+        {
+          "index": 32,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_cold_seed_late_read_cannot_publish_cache[deadline-checkpoint]",
+          "state": "PASS"
+        },
+        {
+          "index": 33,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_cold_seed_late_read_cannot_publish_cache[cancel-trace]",
+          "state": "PASS"
+        },
+        {
+          "index": 34,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_cold_seed_late_read_cannot_publish_cache[cancel-checkpoint]",
+          "state": "PASS"
+        },
+        {
+          "index": 35,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_successful_native_publication_restores_trace_hit_after_reopen",
+          "state": "PASS"
+        },
+        {
+          "index": 36,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_recovery_respects_read_budget_and_warm_hit_skips_compute_budget[run-trace]",
+          "state": "PASS"
+        },
+        {
+          "index": 37,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_recovery_respects_read_budget_and_warm_hit_skips_compute_budget[run-checkpoint]",
+          "state": "PASS"
+        },
+        {
+          "index": 38,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_recovery_respects_read_budget_and_warm_hit_skips_compute_budget[read-trace]",
+          "state": "PASS"
+        },
+        {
+          "index": 39,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_recovery_respects_read_budget_and_warm_hit_skips_compute_budget[read-checkpoint]",
+          "state": "PASS"
+        },
+        {
+          "index": 40,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_seed_deadline_prevents_any_following_real_read[trace]",
+          "state": "PASS"
+        },
+        {
+          "index": 41,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_seed_deadline_prevents_any_following_real_read[checkpoint]",
+          "state": "PASS"
+        },
+        {
+          "index": 42,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_absent_owner_deadline_does_not_inherit_helper_timeout[recovery-trace]",
+          "state": "PASS"
+        },
+        {
+          "index": 43,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_absent_owner_deadline_does_not_inherit_helper_timeout[recovery-checkpoint]",
+          "state": "PASS"
+        },
+        {
+          "index": 44,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_absent_owner_deadline_does_not_inherit_helper_timeout[warm_read-trace]",
+          "state": "PASS"
+        },
+        {
+          "index": 45,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_absent_owner_deadline_does_not_inherit_helper_timeout[warm_read-checkpoint]",
+          "state": "PASS"
+        },
+        {
+          "index": 46,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_startup_and_body_share_one_absolute_workflow_deadline",
+          "state": "PASS"
+        },
+        {
+          "index": 47,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_publication_trace_requires_completed_verified_storage[unbounded]",
+          "state": "PASS"
+        },
+        {
+          "index": 48,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_publication_trace_requires_completed_verified_storage[cancel]",
+          "state": "PASS"
+        },
+        {
+          "index": 49,
+          "classname": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery",
+          "name": "test_publication_trace_requires_completed_verified_storage[corrupt_destination]",
+          "state": "PASS"
+        },
+        {
+          "index": 125,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_deadline_budget_oracle",
+          "name": "test_real_atomic_head_35_seconds_fits_original_60_second_workflow",
+          "state": "PASS"
+        },
+        {
+          "index": 126,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_short_budget_oracle",
+          "name": "test_real_checkpoint_healthy_control",
+          "state": "PASS"
+        },
+        {
+          "index": 127,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_short_budget_oracle",
+          "name": "test_original_budget_refuses_new_phases_and_retains_entered_io[artifact-deadline]",
+          "state": "PASS"
+        },
+        {
+          "index": 128,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_short_budget_oracle",
+          "name": "test_original_budget_refuses_new_phases_and_retains_entered_io[head_fsync-deadline]",
+          "state": "PASS"
+        },
+        {
+          "index": 129,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_short_budget_oracle",
+          "name": "test_original_budget_refuses_new_phases_and_retains_entered_io[head_fsync-cancel]",
+          "state": "PASS"
+        },
+        {
+          "index": 130,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_short_budget_oracle",
+          "name": "test_original_budget_refuses_new_phases_and_retains_entered_io[head_return-deadline]",
+          "state": "PASS"
+        },
+        {
+          "index": 131,
+          "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_short_budget_oracle",
+          "name": "test_original_budget_refuses_new_phases_and_retains_entered_io[gc_read-deadline]",
+          "state": "PASS"
+        }
+      ],
+      "counts_role": "Literal declared selection membership; overlapping rows are not independent predicates or automatic closure."
+    },
+    {
+      "finding_id": "B74",
+      "actual_execution_sha": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+      "content_only_reference": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "cases": [
+        {
+          "index": 528,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_actual_registry_source_or_abi_replacement_refuses_original_history[source]",
+          "state": "PASS"
+        },
+        {
+          "index": 529,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_actual_registry_source_or_abi_replacement_refuses_original_history[abi]",
+          "state": "PASS"
+        },
+        {
+          "index": 530,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_unrelated_registration_preserves_exact_effective_checkpoint_request",
+          "state": "PASS"
+        },
+        {
+          "index": 531,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_exact_selected_artifact_view_resumes_real_required_suffix_and_joint_generation",
+          "state": "PASS"
+        },
+        {
+          "index": 532,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_actual_cas_identity_change_refuses_before_required_suffix[input-content]",
+          "state": "PASS"
+        },
+        {
+          "index": 533,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_actual_cas_identity_change_refuses_before_required_suffix[input-view]",
+          "state": "PASS"
+        },
+        {
+          "index": 534,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_actual_cas_identity_change_refuses_before_required_suffix[config-content]",
+          "state": "PASS"
+        },
+        {
+          "index": 535,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_actual_cas_identity_change_refuses_before_required_suffix[config-origin]",
+          "state": "PASS"
+        },
+        {
+          "index": 536,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_actual_cas_identity_change_refuses_before_required_suffix[same-content-new-origin]",
+          "state": "PASS"
+        },
+        {
+          "index": 537,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_actual_cas_identity_change_refuses_before_required_suffix[dependency]",
+          "state": "PASS"
+        },
+        {
+          "index": 538,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_actual_cas_identity_change_refuses_before_required_suffix[cache-content]",
+          "state": "PASS"
+        },
+        {
+          "index": 539,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_actual_cas_identity_change_refuses_before_required_suffix[cache-view]",
+          "state": "PASS"
+        },
+        {
+          "index": 540,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_actual_cas_identity_change_refuses_before_required_suffix[input-role]",
+          "state": "PASS"
+        },
+        {
+          "index": 541,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_actual_cas_identity_change_refuses_before_required_suffix[legacy-profile]",
+          "state": "PASS"
+        },
+        {
+          "index": 542,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_protected_checkpoint_refuses_changed_actual_ambient_scope[scope0]",
+          "state": "PASS"
+        },
+        {
+          "index": 543,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_protected_checkpoint_refuses_changed_actual_ambient_scope[scope1]",
+          "state": "PASS"
+        },
+        {
+          "index": 544,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_strict_unestablished_ref_identity_refuses_before_any_dispatch[no-store]",
+          "state": "PASS"
+        },
+        {
+          "index": 545,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_strict_unestablished_ref_identity_refuses_before_any_dispatch[selector-missing]",
+          "state": "PASS"
+        },
+        {
+          "index": 546,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_strict_unestablished_ref_identity_refuses_before_any_dispatch[unknown-cache-node]",
+          "state": "PASS"
+        },
+        {
+          "index": 547,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_strict_unestablished_ref_identity_refuses_before_any_dispatch[tampered-blob]",
+          "state": "PASS"
+        },
+        {
+          "index": 548,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_strict_unestablished_ref_identity_refuses_before_any_dispatch[missing-selected-view]",
+          "state": "PASS"
+        },
+        {
+          "index": 549,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_strict_unestablished_ref_identity_refuses_before_any_dispatch[forged-kind]",
+          "state": "PASS"
+        },
+        {
+          "index": 550,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_strict_unavailable_actual_source_is_typed_refusal_not_artifact_authority",
+          "state": "PASS"
+        },
+        {
+          "index": 551,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_same_source_signature_new_immutable_capture_refuses_actual_stale_output",
+          "state": "PASS"
+        },
+        {
+          "index": 552,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_source_class_attribute_change_refuses_actual_stale_output",
+          "state": "PASS"
+        },
+        {
+          "index": 553,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_actual_class_helper_replacement_refuses_stale_required_resume[static]",
+          "state": "PASS"
+        },
+        {
+          "index": 554,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_actual_class_helper_replacement_refuses_stale_required_resume[class]",
+          "state": "PASS"
+        },
+        {
+          "index": 555,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_actual_class_helper_replacement_refuses_stale_required_resume[method]",
+          "state": "PASS"
+        },
+        {
+          "index": 556,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_actual_class_helper_replacement_refuses_stale_required_resume[property]",
+          "state": "PASS"
+        },
+        {
+          "index": 557,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_actual_consumed_frozen_metadata_change_refuses_stale_resume",
+          "state": "PASS"
+        },
+        {
+          "index": 558,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_unsupported_helper_graph_refuses_before_dispatch_with_real_removal_control[custom-descriptor]",
+          "state": "PASS"
+        },
+        {
+          "index": 559,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_unsupported_helper_graph_refuses_before_dispatch_with_real_removal_control[mutable-capture]",
+          "state": "PASS"
+        },
+        {
+          "index": 560,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_unsupported_helper_graph_refuses_before_dispatch_with_real_removal_control[wrapped-function]",
+          "state": "PASS"
+        },
+        {
+          "index": 561,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_mutable_nested_frozen_metadata_is_not_immutable_source_authority",
+          "state": "PASS"
+        },
+        {
+          "index": 562,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_mutable_source_capture_is_explicit_strict_boundary",
+          "state": "PASS"
+        },
+        {
+          "index": 563,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_registry_change_during_actual_producer_uses_pinned_source_snapshot",
+          "state": "PASS"
+        },
+        {
+          "index": 564,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_actual_source_mutation_during_dispatch_cannot_ack_old_identity",
+          "state": "PASS"
+        },
+        {
+          "index": 565,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_declared_runtime_dependency_without_exact_version_refuses_strict_dispatch",
+          "state": "PASS"
+        },
+        {
+          "index": 566,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpoint_identity",
+          "name": "test_operational_checkpoint_policy_change_reuses_actual_numerical_prefix",
+          "state": "PASS"
+        }
+      ],
+      "counts_role": "Literal declared selection membership; overlapping rows are not independent predicates or automatic closure."
+    },
+    {
+      "finding_id": "B75",
+      "actual_execution_sha": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+      "content_only_reference": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "cases": [
+        {
+          "index": 506,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_resume_materializes_bound_slot_from_original_per_node_history",
+          "state": "PASS"
+        },
+        {
+          "index": 512,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_missing_history_preserves_frontier_and_known_suffix_through_filesystem",
+          "state": "PASS"
+        },
+        {
+          "index": 519,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_missing_bound_history_refuses_before_consumer_dispatch",
+          "state": "PASS"
+        },
+        {
+          "index": 520,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_foreign_history_is_not_admitted_as_original_result",
+          "state": "PASS"
+        },
+        {
+          "index": 521,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_present_rows_do_not_restore_incomplete_history_authority[header]",
+          "state": "PASS"
+        },
+        {
+          "index": 522,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_present_rows_do_not_restore_incomplete_history_authority[unknown_header]",
+          "state": "PASS"
+        },
+        {
+          "index": 523,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_present_rows_do_not_restore_incomplete_history_authority[missing_header]",
+          "state": "PASS"
+        },
+        {
+          "index": 524,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_present_rows_do_not_restore_incomplete_history_authority[original_warning]",
+          "state": "PASS"
+        },
+        {
+          "index": 609,
+          "classname": "tests.unit.remediation.test_res_04",
+          "name": "test_resume_preserves_original_per_node_outputs_and_seed",
+          "state": "PASS"
+        }
+      ],
+      "counts_role": "Literal declared selection membership; overlapping rows are not independent predicates or automatic closure."
+    },
+    {
+      "finding_id": "B76",
+      "actual_execution_sha": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+      "content_only_reference": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "cases": [
+        {
+          "index": 513,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_manifest_directory_fsync_fault_preserves_published_history_consumer",
+          "state": "PASS"
+        },
+        {
+          "index": 514,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_history_only_failed_writer_cannot_delete_peer_publication",
+          "state": "PASS"
+        },
+        {
+          "index": 515,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_executor_generation_separates_state_and_original_history_array_roots[collision-absolute]",
+          "state": "PASS"
+        },
+        {
+          "index": 516,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_executor_generation_separates_state_and_original_history_array_roots[collision-relative]",
+          "state": "PASS"
+        },
+        {
+          "index": 517,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_executor_generation_separates_state_and_original_history_array_roots[control-absolute]",
+          "state": "PASS"
+        },
+        {
+          "index": 518,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_executor_generation_separates_state_and_original_history_array_roots[control-relative]",
+          "state": "PASS"
+        },
+        {
+          "index": 525,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_process_kill_selects_only_complete_old_or_new_history[before_pointer]",
+          "state": "PASS"
+        },
+        {
+          "index": 526,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_process_kill_selects_only_complete_old_or_new_history[after_pointer]",
+          "state": "PASS"
+        },
+        {
+          "index": 527,
+          "classname": "tests.unit.foundry.methods.backends.test_checkpointing_execution",
+          "name": "test_fresh_process_reader_observes_complete_generations_from_two_process_writers",
+          "state": "PASS"
+        },
+        {
+          "index": 616,
+          "classname": "tests.unit.remediation.test_res_04",
+          "name": "test_sidecar_reference_cannot_escape_checkpoint_directory[../foreign.npy]",
+          "state": "PASS"
+        },
+        {
+          "index": 617,
+          "classname": "tests.unit.remediation.test_res_04",
+          "name": "test_sidecar_reference_cannot_escape_checkpoint_directory[/tmp/foreign.npy]",
+          "state": "PASS"
+        },
+        {
+          "index": 618,
+          "classname": "tests.unit.remediation.test_res_04",
+          "name": "test_sidecar_symlink_is_rejected_before_load",
+          "state": "PASS"
+        },
+        {
+          "index": 619,
+          "classname": "tests.unit.remediation.test_res_04",
+          "name": "test_foreign_sidecar_content_is_rejected",
+          "state": "PASS"
+        },
+        {
+          "index": 620,
+          "classname": "tests.unit.remediation.test_res_04",
+          "name": "test_same_manifest_concurrent_saves_publish_complete_generations",
+          "state": "PASS"
+        },
+        {
+          "index": 621,
+          "classname": "tests.unit.remediation.test_res_04",
+          "name": "test_sidecar_encoding_keeps_flat_and_nested_paths_distinct",
+          "state": "PASS"
+        },
+        {
+          "index": 622,
+          "classname": "tests.unit.remediation.test_res_04",
+          "name": "test_failed_new_save_leaves_previous_snapshot_readable",
+          "state": "PASS"
+        }
+      ],
+      "counts_role": "Literal declared selection membership; overlapping rows are not independent predicates or automatic closure."
+    }
+  ],
+  "additional712_custody": {
+    "actual_execution_sha": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+    "content_reference_only": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "projection_argv": [
+      "git",
+      "ls-tree",
+      "-r",
+      "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+      "--",
+      "policy-engine/src",
+      "policy-engine/tests",
+      "policy-engine/product"
+    ],
+    "recomputed_entry_count": 6246,
+    "entry_mismatches": 0,
+    "declared_disk_inputs_count": 56,
+    "actual_xml_cases": 712,
+    "actual_xml_counts": {
+      "PASS": 712
+    },
+    "new_metric_timings_not_substituted_for_root807": true
+  },
+  "final_specific_inputs": [
+    {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_chain.py",
+      "bytes": 24555,
+      "sha256": "6b6a46c9a585f05fc39a62737c501cab9d0536e349867752d1e79becbc75b51c"
+    },
+    {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/parts.py",
+      "bytes": 7030,
+      "sha256": "5e897d5bf6ca57ecda7a3fcca4c2480206a9c1fa6d889c735cbe0d9ce53c2092"
+    },
+    {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+      "bytes": 10318,
+      "sha256": "07057da879f17797318fd14b7bc1f2bd3a1645d12cfa873e4ac71b1f2a149c00"
+    },
+    {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py",
+      "bytes": 22499,
+      "sha256": "46eefd6f29e0b417e96e746e4d0c0ac1ef8dffe6715b9361aa1b49284f75664c"
+    },
+    {
+      "git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py",
+      "bytes": 12414,
+      "sha256": "22925ca45c128fec913cb16417ddd2349b6127704e45da50cf335e2fdf8dc7c8"
+    }
+  ],
+  "costs": [
+    {
+      "payload_bytes": 1024,
+      "cold_workflow_return_cost_ns": 46407445,
+      "warm_observations": 12,
+      "neighbour_observations": 262,
+      "neighbour_wait_p95_ns": 3232576,
+      "neighbour_wait_p99_ns": 7805515,
+      "warm_workflow_return_cost_p95_ns": 56545771,
+      "warm_workflow_return_cost_p99_ns": 56545771,
+      "serialized_cache_put_bytes": 5545,
+      "raw_individual_measurements": "/dev/shm/e02-B-completed-affected-1862c021df74-bound/pytest/test_real_async_cache_costs_an0/individual-costs.json",
+      "qualification": "Finite 1KiB/64KiB workloads, injected12ms actual-cache-I/O delay; empirical nearest-rank statistics, no SLA or general speedup claim. Workflow hit return includes recovery/read/apply/state/report/finalize, not only disk read. CPU/GIL timing not isolated."
+    },
+    {
+      "payload_bytes": 65536,
+      "cold_workflow_return_cost_ns": 56855002,
+      "warm_observations": 12,
+      "neighbour_observations": 297,
+      "neighbour_wait_p95_ns": 1716105,
+      "neighbour_wait_p99_ns": 7587663,
+      "warm_workflow_return_cost_p95_ns": 62300180,
+      "warm_workflow_return_cost_p99_ns": 62300180,
+      "serialized_cache_put_bytes": 199085,
+      "raw_individual_measurements": "/dev/shm/e02-B-completed-affected-1862c021df74-bound/pytest/test_real_async_cache_costs_an1/individual-costs.json",
+      "qualification": "Finite 1KiB/64KiB workloads, injected12ms actual-cache-I/O delay; empirical nearest-rank statistics, no SLA or general speedup claim. Workflow hit return includes recovery/read/apply/state/report/finalize, not only disk read. CPU/GIL timing not isolated."
+    }
+  ],
+  "cost_input_custody": {
+    "manifest": ".polisyos/foreign-final-adjudication/cost-input-custody.json",
+    "bytes": 796,
+    "sha256": "b2f051a2be3665c6e40802831dc0fc706efeee2e0699b5518bf13daa6f1146f6"
+  },
+  "cost_math": [
+    {
+      "original_input": {
+        "actual_original_path": "/dev/shm/e02-B-completed-affected-1862c021df74-bound/pytest/test_real_async_cache_costs_an0/individual-costs.json",
+        "retained_name": "individual-costs-1024.json",
+        "bytes": 50299,
+        "sha256": "b8f37d14b742006dea960b33b0a0ca2189ba632ac525082973c72114aeb18667",
+        "actual_origin": "original root1862 affected807 physical fixture; no runtime replay"
+      },
+      "independently_recomputed": {
+        "payload_bytes": 1024,
+        "cold_workflow_return_cost_ns": 46407445,
+        "warm_observations": 12,
+        "neighbour_observations": 262,
+        "neighbour_wait_p95_ns": 3232576,
+        "neighbour_wait_p99_ns": 7805515,
+        "warm_workflow_return_cost_p95_ns": 56545771,
+        "warm_workflow_return_cost_p99_ns": 56545771,
+        "serialized_cache_put_bytes": 5545
+      },
+      "formula": "sort samples; choose index ceil(percent*N/100)-1 using integer arithmetic; no pooled samples",
+      "raw_phase_measurements_not_new_runtime": true
+    },
+    {
+      "original_input": {
+        "actual_original_path": "/dev/shm/e02-B-completed-affected-1862c021df74-bound/pytest/test_real_async_cache_costs_an1/individual-costs.json",
+        "retained_name": "individual-costs-65536.json",
+        "bytes": 54778,
+        "sha256": "dc886c0024ed82080ae1710f7dadeea944d46cd8c0f1ed06535a2c0092953c1e",
+        "actual_origin": "original root1862 affected807 physical fixture; no runtime replay"
+      },
+      "independently_recomputed": {
+        "payload_bytes": 65536,
+        "cold_workflow_return_cost_ns": 56855002,
+        "warm_observations": 12,
+        "neighbour_observations": 297,
+        "neighbour_wait_p95_ns": 1716105,
+        "neighbour_wait_p99_ns": 7587663,
+        "warm_workflow_return_cost_p95_ns": 62300180,
+        "warm_workflow_return_cost_p99_ns": 62300180,
+        "serialized_cache_put_bytes": 199085
+      },
+      "formula": "sort samples; choose index ceil(percent*N/100)-1 using integer arithmetic; no pooled samples",
+      "raw_phase_measurements_not_new_runtime": true
+    }
+  ],
+  "cost_qualification": "Each separate payload profile has12 warm-return observations, so its empirical nearest-rank p95/p99 equal its maximum. Neighbour observations are262/297, with distinct p95/p99. No pooled24 statistic, SLA, general speedup or isolated CPU/GIL claim.",
+  "baseline_navigation_only": {
+    "composition": {
+      "git_sha": "c31e69958ba1d639db6d739ec42f6595add88234",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/baseline-input-closure.json",
+      "bytes": 81611,
+      "sha256": "72074203c19fb69b2c21cf42438eef708f3afc7d63652b4c4afa22e29ef684b8"
+    },
+    "counts": {
+      "cells": 28,
+      "routes": 74,
+      "job_contexts": 11
+    },
+    "B52": [
+      {
+        "git_sha": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/baseline-cells.json",
+        "bytes": 10046,
+        "sha256": "dad98411d10760b9eb2aea4f2aa5ca60f40223230c5b6fa95415139daaa00cb0"
+      },
+      {
+        "git_sha": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/baseline-job-contexts.json",
+        "bytes": 6979,
+        "sha256": "cc5619fbc78218bea47e5a4463bfa9ea05af9ec8d1039d596977e421d2f4efcc"
+      }
+    ],
+    "raw_baseline_archives": "Unavailable; no new fix proof from source-reported baseline."
+  },
+  "full_native": {
+    "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "whole_files": 250,
+    "collected_cases": 3882,
+    "exit_code": -9,
+    "state": "native_full_join_pending_or_incomplete",
+    "terminal_phase_join": "UNRUN; retained inventory collection_finished_runtime_pending. Partial stdout is not converted into terminal grades.",
+    "resource_retry": "NOT_LAUNCHED/UNRUN; no unsafe blind OOM retry, quotas or cleanup.",
+    "ref_ids": [
+      "root_full_stdout",
+      "root_full_wrapper",
+      "root_full_profile"
+    ]
+  },
+  "global_code_acceptance": {
+    "state": "RED",
+    "first_evidence": "final_quality_first",
+    "first_eight": "Ruff/format/mypy FAIL; architecture prerequisite UNRUN; runtimeAPI PASS; invocation setupERROR; verify/parity FAIL.",
+    "later_architecture": "Complete actual retry exit1/213s: all four architecture families measured,171 static diagnostics/OpenAPI9example drift/trust drift. Exact full retry/stdout/property bindings in final_quality_retry. First prereqUNRUN remains separate historical result.",
+    "P41": "No inherited waiver and no zero-intersection assertion; whole source/gate acceptance remains separate from finite criterion proposals.",
+    "later_evidence": "final_quality_retry",
+    "full_native": "Full250whole/3882 collected SIGKILL(-9), no terminal phase join; complete current47 actual807 remains separate. G exactcandidate needs adequate fresh storage/memory; no third blind OOM retry."
+  },
+  "per_quantity_guard": {
+    "B43": "Finite JSON/current-registry ABI cold plan accepted. Selected persisted bytes reopen through canonical composer; actual requires-only five modes, physical two-branch barrier and before-body edge/cycle negatives. No checkpoint/prefix/historical-source authority.",
+    "B53": "Five current stochastic/preparation profiles within15 module cases. Known-shape preparation has zero substantive body entries, explicit numerical warmup2 separately consumes its seed997, repeated requests11/23/47/11 are separately checked with independent NumPy/Python transform of real JAX draws. Not independent validation of JAX RNG distribution or physical XLA compile count.",
+    "B52": "Each separate payload profile has12 warm-return observations, so its empirical nearest-rank p95/p99 equal its maximum. Neighbour observations are262/297, with distinct p95/p99. No pooled24 statistic, SLA, general speedup or isolated CPU/GIL claim. Root807 metric observations keep their120a identity. Actual affected35 at10e contributes33 selected cases (including2 new metric executions), not35 or2+33; original negative removals keep their original source. Content equality to1862 is not execution restamping.",
+    "B13": "LIMITED: real Foundry sibling partial output is not A served simulation-result recovery after later lifecycle failure. Local exact readonly catalog/history and A route remain next consumer.",
+    "B74": "LIMITED: ordinary inspectable Python/helper capture and current exact scoped refs are supported; ModuleType capture is module+installed version and builtin capture is interpreter/distribution version. Same-version imported member substitution can change cold arithmetic without captured module identity. This intrinsic source-profile boundary is distinct from held SKG/institutional law.",
+    "others": "Supported typed composition, occurrence, matching, single-flight and local immutable checkpoint/history claims remain finite; historical exact source and unchanged input cases are not literal current executions or complete joint acceptance."
+  },
+  "conclusion": "No foreign-row status blocker after the B52 per-quantity wording qualification.13 bounded criterion proposals and2 explicit LIMITED remain nonformal. Full cohort incomplete and global gates RED preserved; ROOT/G decides formal closure.",
+  "outcome": "PASS"
+}

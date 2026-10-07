@@ -1,0 +1,111 @@
+{
+  "mode": "Foreign source/evidence adjudication guard; no native execution or CAS mechanism acceptance",
+  "formal_closure_ids": [],
+  "rows": [
+    {
+      "finding_id": "B42",
+      "guard": "bounded_closed_nonblocking",
+      "basis": "Actual reverse fresh-process imports execute built registry chain; missing dependency stays diagnostic. Current root test_cmp_01 whole4 contains the import control.",
+      "falsifier": "An installed supported reverse import order leaves common wrapper holding None, or genuine missing dependency is converted into permanent executor unavailability."
+    },
+    {
+      "finding_id": "B43",
+      "guard": "bounded_closed_nonblocking",
+      "basis": "Current selected persisted plan uses actual guarded manifest profile; fresh CAS loads through strict current ABI composer, preserving ordering-only requires and independent sibling overlap. Five executor modes, before-body damage refusals and historical numerical edge-removal distinguish markers from effective graph.",
+      "falsifier": "Keep true wire/ref/ABI/order markers but remove actual reopened predecessor: dependent executes at producer's level and numerical total becomes0 rather than17.144009055176273.",
+      "boundary": "Cold structural plan only; no historical implementation/cache/checkpoint prefix/scientific authority."
+    },
+    {
+      "finding_id": "B44",
+      "guard": "bounded_closed_nonblocking",
+      "basis": "Actual source-bound numeric consumers exercise nondefault static parameters without redundant params_map, shared dynamic/override precedence and unknown-parameter refusal.",
+      "falsifier": "Same declared occurrence silently uses default static value in one mode or drops allowed per-call override; accepted DTO presence alone remains unchanged."
+    },
+    {
+      "finding_id": "B45",
+      "guard": "bounded_closed_nonblocking",
+      "basis": "Strict whole incoming target admission rejects duplicate scalar writers; WARN remains explicit diagnostic candidate. Distinct inputs and real explicit merge retain numeric meaning under changed UUIDs.",
+      "falsifier": "Two scalar producers execute as silent last-wins whose numeric output changes with UUID, while pairwise compatible binding markers remain true."
+    },
+    {
+      "finding_id": "B46",
+      "guard": "bounded_closed_nonblocking",
+      "basis": "Concrete occurrence and nearest earlier/explicit prerequisite mechanics retain valid estimate1-sensitive-estimate2 and reject unsupported early dependent. Existing warning and strict profiles keep supplied tag rules distinct from universal methodology.",
+      "falsifier": "A later occurrence erases the earlier prerequisite or retroactively legitimizes an unsupported earlier sensitivity."
+    },
+    {
+      "finding_id": "B47",
+      "guard": "bounded_closed_nonblocking",
+      "basis": "Supported typed bipartite matching reconciles complete cardinality then existing utility; meaningful equal optima require explicit mapping. Original native numeric and independent exhaustive finite graph evidence retain exact historical source.",
+      "falsifier": "Neutral rename destroys existence of flexible-to-second/fixed-to-first assignment, or silently chooses between two equally optimal mappings producing different numbers.",
+      "boundary": "Finite slots, not global scientific method search."
+    },
+    {
+      "finding_id": "B48",
+      "guard": "bounded_closed_nonblocking",
+      "basis": "Auto/manual pair routes share mandatory unit/shape/type/contract/supplied semantic predicates; final whole incoming DAG checks completeness rather than demanding each partial edge supply every input.",
+      "falsifier": "Auto accepts a pair manual rejects under same declared oracle, or complete/incomplete multi-source DAG differs solely by route.",
+      "boundary": "Supplied semantic oracle is explicit operational input; unknown semantics do not acquire evidence authority."
+    },
+    {
+      "finding_id": "B49",
+      "guard": "bounded_closed_nonblocking",
+      "basis": "Actual JAX old handle20/current30/cold parity and source/static/dtype identity controls remain source-qualified; dynamic defaults rebind the cached immutable kernel.",
+      "falsifier": "Warm handle closes over stale dynamic2 and returns20 for current3 while cache-key/build-count markers remain true.",
+      "boundary": "Wrapper construction counter is not physical XLA compilation count."
+    },
+    {
+      "finding_id": "B50",
+      "guard": "bounded_closed_nonblocking",
+      "basis": "Current byte-identical single-flight publishes cache value/error before wake; canonical BaseException terminal path includes logical cancel/SystemExit/publication fault and healthy retry. No physical XLA preemption promise.",
+      "falsifier": "Wake joined follower before terminal publication or leave flight pending after logical leader termination; follower starts duplicate useful compilation or hangs."
+    },
+    {
+      "finding_id": "B52",
+      "guard": "bounded_closed_nonblocking_after_wording_correction",
+      "basis": "Current2 real CAS profiles independently measured13 workflow invocations each, one cold and12 warm; prior exact deadline/cancel/fence removals retain original source. Neighbour N262/297 has distinct p95/p99; warm-return N12 per profile has p95=p99 maximum. No pooled24 computation.",
+      "falsifier": "Remove only actual cache off-loop admission while true stored cache/output/trace remains; independent ready neighbour makes zero progress within cache I/O. Separately remove absolute-budget publication fence and admit late mutable head/trim.",
+      "boundary": "Injected12ms I/O and empirical tiny profiles, no production SLA/general speedup/GIL-CPU isolation; entered opaque I/O remains typed uncertain.",
+      "additional_current_source": "Actual10e whole35 wave selects33 B52 cases (including2 metric reruns); root807 timing values retain120a original identity.Exact6246 Git entries equal1862; execution remains10e."
+    },
+    {
+      "finding_id": "B53",
+      "guard": "bounded_closed_nonblocking",
+      "basis": "Five B53 profiles within current whole15 preparation/readback cases show zero substantive preparation, separate explicit numerical warmup2 with seed997 and requests11/23/47/11 with independent NumPy/Python recomputation of real JAX draws. Original preparation/seed removals each fail actual numeric/body predicate.",
+      "falsifier": "Preparation performs actual scientific body work or ignores requested seed23 while compilation/cache/known-shape markers stay intact.",
+      "boundary": "Known-shape methods; actual shape-unknown refusal remains exact historical source. Oracle independently checks transformation, not JAX RNG distribution or scientific validity."
+    },
+    {
+      "finding_id": "B13",
+      "guard": "limited_required",
+      "basis": "Foundry surviving sibling output and structured error are genuine mechanism evidence; A served real simulation-result recovery after later lifecycle failure is not reached by those peers.",
+      "falsifier": "Earlier valid simulation exists in CAS but served failed-job route drops or misbinds its scope/stage reason, or common-basis invalidation still exposes dependent conclusions.",
+      "next_owner": "A generation_cycle.py/run_lifecycle.py consumer; G exact readonly catalog/acquisition/history and preserved candidate/input from RES03 handoff."
+    },
+    {
+      "finding_id": "B74",
+      "guard": "limited_required",
+      "basis": "Captured ordinary Python class/helper graph, exact scoped refs and effective request/prefix are genuinely checked. Imported ModuleType and builtin version projections do not bind their current mutable member implementation graph.",
+      "falsifier": "Same installed version/module symbol, method FQN/entrypoint and prefix markers remain, but imported helper member changes cold arithmetic and checkpoint identity remains equal. This is source-derived unexecuted falsifier, not a claimed observed FAIL.",
+      "next_owner": "CMP source/dependency owner supplies immutable external runtime capture contract or explicit supported fail-closed boundary; no held SKG/public authority rule invented.",
+      "additional_current_source": "Actual10e checkpoint identity39PASS strengthens declared ordinary Python/source/ref request profile; imported-member falsifier remains unexecuted and statusLIMITED."
+    },
+    {
+      "finding_id": "B75",
+      "guard": "bounded_closed_nonblocking",
+      "basis": "Fresh resume restores original A6/B7, seed/runtime/version and original warning/header; missing legacy row stays absent rather than substituting final state for each node. Exact unchanged historical inputs/outcomes are not current runtime reruns.",
+      "falsifier": "Resume manufactures7/7 history, labels replay as independent new calculation, rewrites old seed/runtime, or clears explicit incomplete provenance despite true row-presence markers.",
+      "boundary": "Foundry per-node history, not Scientist journal or downstream governed promotion.",
+      "additional_current_source": "Actual10e original-history9PASS with exact6246 entry projection to1862; no scientific/new-independent-work promotion."
+    },
+    {
+      "finding_id": "B76",
+      "guard": "bounded_closed_nonblocking",
+      "basis": "Structural path plus immutable generation separates flatunderscore/nested arrays; real fault/restart/concurrent writer controls retain exact original source. Postreplace directory-sync uncertainty retains visible full generation; no failed cleanup removes reachable peer generation.",
+      "falsifier": "Old valid JSON/hash remains while arrays become mixed/new after sidecar failure, or concurrent rollback deletes another reachable generation.",
+      "boundary": "Cooperative local filesystem and declared JSON/non-object NumPy codec. No hostile actor, universal OS/powerloss proof or new GC required for this finite criterion.",
+      "additional_current_source": "Actual10e immutable-generation16PASS; cooperative filesystem fault/reopen/concurrent snapshots, no allOS/powerloss promotion."
+    }
+  ],
+  "global_boundary": "All15 findings are foreign mechanism scope, not author's CAS source acceptance. Proposed status is nonformal. Root1862 affected807 is806PASS1FAIL; broad250/3882 execution SIGKILL has no complete terminal join; global gates RED/P41 not_established. No grade or closure is inferred from collected counts or incomplete stdout."
+}

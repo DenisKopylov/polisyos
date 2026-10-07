@@ -1,0 +1,13 @@
+{
+  "source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+  "caller_environment": {
+    "E02_REMOVE_PROTECTION": "0"
+  },
+  "profile_projection_limit": "Initial launcher whitelist omits this key; no claim that native profile alone records it.",
+  "independent_actual_process_sample": {
+    "git_sha": "9b57328d57cce174da8a2953e6db0e77c1ad1fee",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007.json",
+    "provenance": "Two live processes capture+pytest sampled with value0; tool-output provenance qualified. Later after-exit no-live assertion FAILED and retained."
+  },
+  "native_behavior": "B93 three actual PASS and removedFalse observations; no inferred process observation from later collection."
+}

@@ -1,0 +1,24 @@
+{
+  "source_sha": "73ad9cfaf882660e742d41ebca41376d53e8c369",
+  "author_preparation_outcome": "FAIL",
+  "phase": "Actual read-only cache query in product cwd returned relative _cache/uv; assertion rejected it before any gate/workspace",
+  "actual_query_argv": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+    "cache",
+    "dir"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "observed_query_output": "_cache/uv\n",
+  "query_output_bytes": 10,
+  "query_output_sha256": "64f847d81df0656640e7b672bf78be0c1f358b54a4f9c199bac416b39a172072",
+  "driver_exit_code": 1,
+  "driver_failure": "AssertionError at cache.is_absolute() and cache.is_dir()",
+  "all_runtime_gates": "UNRUN",
+  "root_generation": "UNRUN",
+  "qualified_inference": "Frozen73 helper would reject this relative product-scoped cache; helper was not invoked as a gate",
+  "root_scoped_query_prior": "/home/agent/.cache/uv from the same pinned tool at repository root; accepted by root as shared read-only input, not offline sufficiency",
+  "limitations": [
+    "Metadata preparation failure, not product gate FAIL or inherited red",
+    "No workspace/environment/generator/native/builder execution"
+  ]
+}

@@ -1,0 +1,177 @@
+"""Read immutable Git source and retained evidence; never import product/pytest."""
+
+import ast
+import hashlib
+import json
+import posixpath
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+from collections import Counter
+from pathlib import Path
+
+TARGET = "e82ac5834ee481051f905edfe0bd68ba19dcc6ad"
+BASE = "164d7267628f83866c3440df3128352b181fe313"
+PRODUCTION = "eb4a86032a5b787114c597c8a105a1f501e4abe4"
+PREFIX = (
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/"
+    "current-imported-module-source-identity-evidence/"
+)
+TEST = "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py"
+checks = []
+inputs = {}
+
+
+def git(*args):
+    return subprocess.check_output(["git", *args])
+
+
+def read(ref, path):
+    data = git("show", ref + ":" + path)
+    inputs[(ref, path)] = {
+        "git_sha": ref,
+        "path": path,
+        "bytes": len(data),
+        "sha256": hashlib.sha256(data).hexdigest(),
+    }
+    return data
+
+
+def check(name, actual, expected):
+    checks.append({"check": name, "actual": actual, "expected": expected, "pass": actual == expected})
+    assert actual == expected, name
+
+
+def obj(path):
+    return json.loads(read(TARGET, PREFIX + path))
+
+
+changes = git("diff", "--name-only", BASE, TARGET).decode().splitlines()
+check("target_tree", git("rev-parse", TARGET + "^{tree}").decode().strip(),
+      "aa8ac79b65490ca876f09a6c197186dc896d702e")
+prod_delta = git("diff", "--name-only", PRODUCTION, TARGET, "--", "policy-engine/src",
+                 ":(glob)**/*.py", ":(glob)**/*.pyi").decode().splitlines()
+# Restrict after the complete path walk: only Python implementation/stub paths.
+prod_delta = [path for path in prod_delta if path.startswith("policy-engine/src/")
+              and path.endswith((".py", ".pyi"))]
+check("production_python_delta_from_eb4", prod_delta, [])
+check("test_delta_paths", [p for p in changes if p.startswith("policy-engine/tests/")], [TEST])
+old = ast.parse(read(BASE, TEST))
+new = ast.parse(read(TARGET, TEST))
+old_defs = {n.name: ast.dump(n, include_attributes=False) for n in old.body
+            if isinstance(n, (ast.FunctionDef, ast.ClassDef))}
+new_defs = {n.name: ast.dump(n, include_attributes=False) for n in new.body
+            if isinstance(n, (ast.FunctionDef, ast.ClassDef))}
+check("all_original_top_level_definitions_preserved",
+      [name for name, value in old_defs.items() if new_defs.get(name) != value], [])
+check("new_definition_set", sorted(new_defs.keys() - old_defs.keys()),
+      sorted(["_frame_original_increment", "_frame_replacement_increment", "_FrameConsumer",
+              "test_returned_frame_namespace_refuses_before_replacement_effect"]))
+test_node = next(n for n in new.body if isinstance(n, ast.FunctionDef)
+                 and n.name == "test_returned_frame_namespace_refuses_before_replacement_effect")
+check("new_case_decorators", [ast.unparse(x) for x in test_node.decorator_list], [])
+
+retirements = obj("representation-retirements.json")["retirements"]
+check("retirement_count", len(retirements), 3)
+for row in retirements:
+    original = row["original"]
+    replacement = row["representation"]
+    check("original_raw_ref", original["git_sha"], "b9406000f57f6cdbff458a156142a8ca6bb95186")
+    raw = read(original["git_sha"], original["path"])
+    stored = read(TARGET, replacement["path"])
+    decoded = json.loads(stored)["text"].encode("utf-8")
+    check("decoded_exact_original:" + original["path"], decoded == raw, True)
+    check("original_hash:" + original["path"], hashlib.sha256(raw).hexdigest(), original["sha256"])
+    check("original_size:" + original["path"], len(raw), original["bytes"])
+    check("stored_hash:" + replacement["path"], hashlib.sha256(stored).hexdigest(), replacement["sha256"])
+    check("stored_size:" + replacement["path"], len(stored), replacement["bytes"])
+
+observed_expected = {
+    "original": 7, "unchanged_resume": 7, "before_effects": ["original", "original"],
+    "refusal": None, "changed_resume": 107, "history_complete": True,
+    "pointer_unchanged": True, "actual_effects": ["original", "original", "replacement"],
+}
+frames = []
+for name in ("frame-eb4", "frame-mirrored"):
+    measured = obj(name + "/measurement.json")
+    wrapper = obj(name + "/wrapper.json")
+    profile = obj(name + "/profile.json")
+    closure = obj(name + "/input-closure.json")
+    xml = ET.fromstring(read(TARGET, PREFIX + name + "/native.xml"))
+    cases = xml.findall(".//testcase")
+    raw = obj(name + "/stdout.lossless.json")["text"].encode("utf-8")
+    check(name + ":measurement", measured, observed_expected)
+    check(name + ":exit", wrapper["exit_code"], 1)
+    check(name + ":source_stable", wrapper["source_before"], wrapper["source_after"])
+    check(name + ":profile_identity", profile["source_before"], wrapper["source_before"])
+    check(name + ":junit_case_count", len(cases), 1)
+    check(name + ":junit_failures", sum(c.find("failure") is not None for c in cases), 1)
+    check(name + ":junit_errors_skips", sum(c.find("error") is not None or c.find("skipped") is not None for c in cases), 0)
+    check(name + ":stdout_hash", hashlib.sha256(raw).hexdigest(), wrapper["stdout"]["sha256"])
+    check(name + ":stdout_size", len(raw), wrapper["stdout"]["bytes"])
+    projection = (closure["source_sha"] if name == "frame-eb4"
+                  else closure["production_byte_projection_sha"])
+    check(name + ":production_projection", projection, PRODUCTION)
+    fixture = closure["fixture_dependency"]
+    fixture_ref = fixture.get("git_sha", TARGET)
+    fixture_bytes = read(fixture_ref, fixture["path"])
+    check(name + ":fixture_dependency_hash", hashlib.sha256(fixture_bytes).hexdigest(), fixture["sha256"])
+    check(name + ":fixture_dependency_size", len(fixture_bytes), fixture["bytes"])
+    origins = obj(name + "/module-origins.json")
+    for origin in origins["polisyos_file_origins"]:
+        actual = git("show", origin["source_sha"] + ":" + origin["git_path"])
+        check(name + ":origin_hash:" + origin["module"], hashlib.sha256(actual).hexdigest(), origin["sha256"])
+        check(name + ":origin_size:" + origin["module"], len(actual), origin["bytes"])
+    frames.append({"name": name, "actual_author_target": wrapper["source_before"],
+                   "cases": 1, "failures": 1, "exit_code": 1, "observed": measured,
+                   "wall_seconds": wrapper["wall_seconds"], "max_rss_kib": wrapper["max_rss_kib"],
+                   "loaded_file_origins_checked": len(origins["polisyos_file_origins"]),
+                   "origin_boundary": origins["phase"]})
+
+closure = obj("frame-mirrored/input-closure.json")
+for row in closure["preserved_fixture_objects"]:
+    b = read(TARGET, row["path"])
+    check("fixture_hash:" + row["path"], hashlib.sha256(b).hexdigest(), row["sha256"])
+    check("fixture_size:" + row["path"], len(b), row["bytes"])
+pointer_path = next(x["path"] for x in closure["preserved_fixture_objects"]
+                    if "/checkpoints/checkpoint_" in x["path"])
+pointer = json.loads(read(TARGET, pointer_path))
+snapshot_path = posixpath.normpath(posixpath.join(posixpath.dirname(pointer_path), pointer["snapshot_ref"]))
+snapshot_bytes = read(TARGET, snapshot_path)
+check("snapshot_pointer_content_hash", hashlib.sha256(snapshot_bytes).hexdigest(), pointer["snapshot_sha256"])
+snapshot = json.loads(snapshot_bytes)
+check("snapshot_producer_output", snapshot["node_results"][0]["output"], {"product": 6})
+check("snapshot_completed_prefix_size", len(snapshot["completed_node_ids"]), 1)
+check("snapshot_intermediate_state", snapshot["intermediate_state"], {"product": 6, "x": 3})
+captures = snapshot["identity_snapshot"]["methods"]["tests.checkpoint_identity.consumer@1.0.0"]["callbacks"]["pure_step"]["implementation"]["captures"]
+check("returned_namespace_not_in_callback_captures", sorted(captures), ["sys"])
+check("bound_builtin_leaf", captures["sys"]["selected_members"]["_getframe"]["symbol"], "sys._getframe")
+check("retained_physical_effect_bytes", read(TARGET, PREFIX + "frame-mirrored/effects.txt").decode("utf-8"), "original\noriginal\nreplacement\n")
+for path in ("policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+             "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+             "policy-engine/tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+             "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-04.md",
+             "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+             "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml"):
+    read(TARGET, path)
+
+result = {
+    "schema": "policyos.e02.frame_namespace_source_review.v1",
+    "target_sha": TARGET, "base_sha": BASE, "production_source_sha": PRODUCTION,
+    "reviewer_python": sys.version, "reviewer_runtime_execution": "UNRUN",
+    "scope": "Source/AST/Git byte and retained-output reconciliation only; no product/pytest import or new execution.",
+    "delta_paths": changes, "delta_path_count": len(changes),
+    "delta_file_suffix_denominator": dict(sorted(Counter(Path(p).suffix for p in changes).items())),
+    "check_groups": dict(sorted(Counter(row["check"].split(":", 1)[0] for row in checks).items())),
+    "check_count": len(checks), "all_check_predicates_pass": all(row["pass"] for row in checks),
+    "mismatches": [],
+    "input_refs": list(inputs.values()), "actual_author_frame_checks": frames,
+    "preserved_mirrored_fixture_count": len(closure["preserved_fixture_objects"]),
+    "verdict": "NONBLOCKING source/evidence delta; B74 LIMITED remains genuine unresolved runtime-context dependency.",
+    "qualification": "The suffix changed and physically executed; unchanged producer prefix is not shown numerically wrong. No universal reflection refusal, runtime-context closure or fresh reviewer native PASS.",
+    "closure_ids": [],
+}
+out = Path(sys.argv[1])
+out.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n")
+print(json.dumps({"checks": len(checks), "mismatches": 0, "delta_paths": len(changes),
+                  "author_frame_checks": frames, "reviewer_runtime_execution": "UNRUN"}, ensure_ascii=False))

@@ -1,0 +1,22 @@
+PT012 `pytest.raises()` block should contain a single simple statement
+   --> tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py:210:9
+    |
+208 |       assert math.__name__ == original_name
+209 |       try:
+210 | /         with pytest.raises((CheckpointDigestMismatchError, CheckpointIdentityError)):
+211 | |             wrongly_resumed = reopened.execute(
+212 | |                 chain,
+213 | |                 initial_state={"x": 3},
+214 | |                 params_per_node=params,
+215 | |                 checkpoint=checkpoint,
+216 | |                 seed=7,
+217 | |                 artifact_context=context,
+218 | |             )
+219 | |             # This branch exists only when the refusal property is absent.
+220 | |             print("WRONGLY_RESUMED_TOTAL", wrongly_resumed.final_state["total"])  # noqa: T201
+    | |________________________________________________________________________________^
+221 |       finally:
+222 |           # Retain the physical-effect discriminator in the deciding pytest log.
+    |
+
+Found 1 error.

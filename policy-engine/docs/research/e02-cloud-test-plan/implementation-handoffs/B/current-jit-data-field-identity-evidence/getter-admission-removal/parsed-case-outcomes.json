@@ -1,0 +1,14 @@
+{
+  "count": 1,
+  "pass": 0,
+  "nonpass": [
+    {
+      "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+      "name": "test_finite_aliased_data_getter_keeps_real_numeric_warm_handles[True]",
+      "tags": [
+        "failure"
+      ]
+    }
+  ],
+  "origins": 166
+}

@@ -1,0 +1,133 @@
+{
+  "schema": "policyos.e02.remote_source_readback.v1",
+  "access_method": "GitHub MCP read-only approved Git commit/compare/file endpoints",
+  "repository": "DenisKopylov/polisyos",
+  "base_branch": {
+    "name": "codex/e02-B-current-cas-generation",
+    "sha": "d81e7c68a83850834bbe48c492c87975010e79ba",
+    "tree": "f5be50a6768fc7f878784d98f715074175def60c"
+  },
+  "reviewed_source": {
+    "sha": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+    "tree": "d4faa64e884c863bdd8c4692432bff4bbd102c54",
+    "parents": [
+      "86ae8e065e5f28ad5fbb9e9cf2c6ed84a44b22ec"
+    ]
+  },
+  "source_history": [
+    {
+      "sha": "3bd353d42e06c5c879c580b2a6c61a00226ee5a2",
+      "parents": [
+        "2be5a49784403c875742588299d78639f5e8b6ef"
+      ],
+      "tree": "cd12335d3395457d9b851ebca4a49a15af1ce57b"
+    },
+    {
+      "sha": "f787362607db0feacc380975bf81efbb63dd1b65",
+      "parents": [
+        "3bd353d42e06c5c879c580b2a6c61a00226ee5a2"
+      ],
+      "tree": "1ab996eab67407804a1de3cd08cf9c2555dcd454"
+    },
+    {
+      "sha": "d5d5414bf74c57a2e49b4ece2b19c005f1a2299f",
+      "parents": [
+        "f787362607db0feacc380975bf81efbb63dd1b65"
+      ],
+      "tree": "dc010e069c2a94a3c9a69f80efa7be896d481d95"
+    },
+    {
+      "sha": "70a7f01f8513a45f3264ff1a7f7971d3bf8da53d",
+      "parents": [
+        "d5d5414bf74c57a2e49b4ece2b19c005f1a2299f"
+      ],
+      "tree": "acfb13f524e8a7b486195b9ddc5268dc77c37fc0"
+    },
+    {
+      "sha": "86ae8e065e5f28ad5fbb9e9cf2c6ed84a44b22ec",
+      "parents": [
+        "70a7f01f8513a45f3264ff1a7f7971d3bf8da53d"
+      ],
+      "tree": "e1307dd643af44c8547a4422991adbf915d46e6a"
+    },
+    {
+      "sha": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+      "parents": [
+        "86ae8e065e5f28ad5fbb9e9cf2c6ed84a44b22ec"
+      ],
+      "tree": "d4faa64e884c863bdd8c4692432bff4bbd102c54"
+    }
+  ],
+  "compare": {
+    "base": "2be5a49784403c875742588299d78639f5e8b6ef",
+    "head": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+    "status": "ahead",
+    "ahead_by": 6,
+    "files": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-07-e02-producer-model-scope.toml",
+        "status": "added",
+        "additions": 17,
+        "deletions": 0
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+        "status": "modified",
+        "additions": 23,
+        "deletions": 0
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+        "status": "modified",
+        "additions": 302,
+        "deletions": 37
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+        "status": "modified",
+        "additions": 199,
+        "deletions": 0
+      }
+    ]
+  },
+  "exact_committed_files": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+      "source_sha": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+      "blob_sha": "b15855c14c5bd6eb1e662ac3ff7c095ac4ab6c50",
+      "utf8_bytes": 50494
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+      "source_sha": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+      "blob_sha": "d670a631351088fda0e3d42cce6d48536b71c143",
+      "utf8_bytes": 15243
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-e02-producer-model-scope.toml",
+      "source_sha": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+      "blob_sha": "8e6ce376e6e2f022f7dd146daad3ef1e879256f2",
+      "utf8_bytes": 1537
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+      "source_sha": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+      "blob_sha": "476026dd34b5da75689b88de1a43958c73ddbdfd",
+      "utf8_bytes": 25676
+    }
+  ],
+  "source_blob_match": {
+    "expected_from_prior_complete_read": "b15855c14c5bd6eb1e662ac3ff7c095ac4ab6c50",
+    "actual": "b15855c14c5bd6eb1e662ac3ff7c095ac4ab6c50",
+    "matched": true
+  },
+  "receiver_local_raw_availability": "not_established",
+  "runtime": "UNRUN",
+  "reproduction_commands": [
+    "git fetch origin codex/e02-B-current-cas-generation",
+    "git show d18fe09b5bc0367c966011144a5418f836b9a4b7:policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+    "git diff --no-ext-diff 2be5a49784403c875742588299d78639f5e8b6ef d18fe09b5bc0367c966011144a5418f836b9a4b7 -- policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py policy-engine/src/polisyos/scientist/orchestration/engine/README.md policy-engine/release-fragments/unreleased/2026-10-07-e02-producer-model-scope.toml policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+    "On a fresh admitted final integrated checkout, use the actual installed root environment executable with PYTHONPATH=src and run both whole modules tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py and tests/unit/scientist/orchestration/engine/test_producer_model_scope_oracle.py with isolated retained basetemp and full JUnit/stdout; record exact source/profile first. This is a required future command, not executed here."
+  ],
+  "transcript_boundary": "These are complete compact source/readback observations, not substitutes for inaccessible local deciding runtime output."
+}

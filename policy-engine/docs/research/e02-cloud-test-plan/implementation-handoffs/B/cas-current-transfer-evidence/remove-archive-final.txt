@@ -1,0 +1,16 @@
+.F                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_streamed_write_failure_preserves_old_generation_and_no_false_inventory[True] _
+tests/unit/core/artifacts/test_transfer_generation_publication.py:146: in test_streamed_write_failure_preserves_old_generation_and_no_false_inventory
+    assert _package_bytes(target) == prior
+E   assert {'artifacts/s...sion":"2.0"}'} == {'artifacts/s...sion":"2.0"}'}
+E     
+E     Differing items:
+E     {'export_manifest.json': b'{"cas_layout":"artifacts/sha256/ab/cd/<hex>(.view.<profile>)?.(blob|manifest.json|sig)","ex...7a8901563cce52679b2decffebc4a5fb0.manifest.json"],"requested_artifacts":1,"requested_views":1,"schema_version":"2.0"}'} != {'export_manifest.json': b'{"cas_layout":"artifacts/sha256/ab/cd/<hex>(.view.<profile>)?.(blob|manifest.json|sig)","ex...1d35a3238af9d7b315b38191f42bb23e0.manifest.json"],"requested_artifacts":1,"requested_views":1,"schema_version":"2.0"}'}
+E     Left contains 2 more items:
+E     {'artifacts/sha256/f0/d8/f0d830a17d5b193677dc9e97...
+E     
+E     ...Full output truncated (237 lines hidden), use '-vv' to show
+=========================== short test summary info ============================
+FAILED tests/unit/core/artifacts/test_transfer_generation_publication.py::test_streamed_write_failure_preserves_old_generation_and_no_false_inventory[True]
+1 failed, 1 passed in 0.22s

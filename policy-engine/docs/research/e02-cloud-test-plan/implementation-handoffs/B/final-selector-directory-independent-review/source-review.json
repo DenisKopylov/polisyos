@@ -1,0 +1,35 @@
+{
+  "schema": "policyos.e02.selector_directory_source_review.v1",
+  "mode": "READ_ONLY independent source/delta/stdlib metadata discriminator; no pytest or collection",
+  "source_sha": "b336a91390ec5f68869ca512e0a0f3b3a4ebcbeb",
+  "tree_sha": "3edac3c155c08d4075ae1396f32ebf2036b9486b",
+  "delta_base_sha": "fa48c17425d9ebcd1a2597af2e7173c769e31021",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py"
+  ],
+  "numstat": "23\t0\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+  "property": "Expand true native pytest positional directory inputs from pinned Git tracked test descendants and preserve source/command/bundle lineage; keep nonpytest and option-value tokens outside that selector.",
+  "source_review": [
+    "The23 added lines expand immutable tracked descendants, not live/ignored filesystem. Sorting is deterministic; actual add retains locator, selector and bundle lineage.",
+    "Nonpytest command detection returns before directory expansion. Attached option tokens are skipped before parsing.",
+    "Separate option arguments are not consumed; --basetemp tests/controlled incorrectly expands into2wholefiles. This is a concrete same-class source/metadata discriminatorFAIL, not a product/runtime failure.",
+    "Exactpytest.ini has no python_files override. Full installed _pytest/python.py AST supplies test_*.py and *_test.py defaults. Complete2792tracked Python test paths have0secondary-only matches;25phase0 .py descendants alltest_. This bounds current filename basis, not future naming or collection."
+  ],
+  "counts": {
+    "PASS": 5,
+    "FAIL": 1
+  },
+  "blocking_next_owner": {
+    "owner": "B root selector author",
+    "issue": "Preserve/resolve separate option-value exclusion before generic positional-directory selector acceptance; leaf makes no root edits."
+  },
+  "old_lineage_census": "Parent-reported1765 old native objects/zero existing directory inputs was not recomputed by this delta review; not promoted to independent evidence.",
+  "grade": "Whole-file metadata selection only; no case count, collection, product execution, inherited attribution or finding closure.",
+  "stdout_alias": {
+    "actual_path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-selector-directory-independent-review/b336-qualified.stdout.txt",
+    "committed_full_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/b336.json",
+    "bytes": 17160,
+    "sha256": "ddb7d61f4cef87e6eef14069b78848e485be1aba17b0d4ea43be6840e39e9fbc"
+  },
+  "closure_ids": []
+}

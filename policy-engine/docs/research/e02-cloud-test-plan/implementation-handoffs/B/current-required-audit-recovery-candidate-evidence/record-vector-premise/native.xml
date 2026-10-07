@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="17" time="1.058" timestamp="2026-10-06T20:54:25.941937+00:00" hostname="b878f4efbdfc"><testcase classname="" name="test_protected_audit_reconciliation_precedes_next_provider[healthy-sync-invoke]" time="0.103" /><testcase classname="" name="test_protected_audit_reconciliation_precedes_next_provider[healthy-async-generate]" time="0.085" /><testcase classname="" name="test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-sync-invoke]" time="0.037" /><testcase classname="" name="test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-async-generate]" time="0.036" /><testcase classname="" name="test_real_budget_refusal_audit_restores_exact_act_without_provider_or_charge[healthy]" time="0.007" /><testcase classname="" name="test_real_budget_refusal_audit_restores_exact_act_without_provider_or_charge[protected-exceeded-fault]" time="0.016" /><testcase classname="" name="test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-sync-invoke]" time="0.055" /><testcase classname="" name="test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-async-generate]" time="0.058" /><testcase classname="" name="test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_CHECK-sync-invoke]" time="0.064" /><testcase classname="" name="test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_CHECK-async-generate]" time="0.066" /><testcase classname="" name="test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-sync-invoke]" time="0.093" /><testcase classname="" name="test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-async-generate]" time="0.096" /><testcase classname="" name="test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-sync-invoke]" time="0.033"><failure message="AssertionError: assert Decimal('0.00015000000000000001') == Decimal('0')&#10; +  where Decimal('0') = Decimal('0')">tmp_path = PosixPath('/tmp/e02-B65-recovery-a2-native/pytest-tmp/test_same_protected_owner_repl6')
+route = 'sync-invoke', action = 'BUDGET_COMMITTED'
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize(
+        "action", ["BUDGET_RESERVED", "BUDGET_CHECK", "BUDGET_RELEASED", "BUDGET_COMMITTED"]
+    )
+    def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
+        tmp_path: Path, route: str, action: str
+    ) -&gt; None:
+        enforcer, sink, audit, resolver, provider, audit_path, ledger_path = _recovery_fixture(
+            tmp_path, action
+        )
+        try:
+            with pytest.raises(LLMAccountingError) as first:
+                _call(enforcer, route)
+            error = first.value
+            obligation = error.event["audit_obligation"]
+            before = FileBudgetLedger(ledger_path).snapshot()
+            print(
+                "B65_PENDING "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "act_id": obligation.act_id,
+                        "obligation_digest": obligation.payload_digest,
+                        "provider_calls": len(provider.responses),
+                        "original_cause": type(error.cause).__name__,
+                        "settlement_status": error.event["settlement_status"],
+                        "captured_entry": sink.failed_entry.model_dump(mode="json"),
+                        "fresh_ledger": before.model_dump(mode="json"),
+                    }
+                )
+            )
+            assert error.event["required_audit_status"] == "pending"
+            assert obligation.action == action
+            assert error.cause is audit.failure and isinstance(error.cause, IsADirectoryError)
+            original_metadata = json.dumps(dict(obligation.metadata), sort_keys=True)
+            original_digest = obligation.payload_digest
+            detached_metadata = dict(obligation.metadata)
+            if "budget_keys" in detached_metadata:
+                detached_metadata["budget_keys"].append("different-caller-key")
+            else:
+                detached_metadata["payload_digest"] = "sha256:" + "0" * 64
+            print(
+                "B65_DETACHED_METADATA "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "original_metadata": json.loads(original_metadata),
+                        "mutated_caller_view": detached_metadata,
+                        "retained_metadata": dict(obligation.metadata),
+                        "original_digest": original_digest,
+                        "retained_digest": obligation.payload_digest,
+                    }
+                )
+            )
+            assert json.dumps(dict(obligation.metadata), sort_keys=True) == original_metadata
+            assert obligation.payload_digest == original_digest
+            initial_calls = len(provider.responses)
+            assert initial_calls == (0 if action in {"BUDGET_RESERVED", "BUDGET_CHECK"} else 1)
+            if initial_calls:
+                assert error.response is provider.responses[0]
+                assert obligation.event is not None and obligation.event.amount == Decimal("0.02")
+                assert obligation.charge_ack is not None and obligation.charge_ack.status == "committed"
+                assert error.event["settlement_status"] == "committed"
+                assert before.state.spent["run"] == Decimal("0.02")
+            else:
+                assert error.response is None and obligation.event is None
+                assert obligation.charge_ack is None
+                assert not before.spend_receipts
+                assert before.state.reserved["run"] &gt; Decimal("0")
+            assert before.completion_obligations
+            retained_audit = before.completion_obligations[obligation.act_id]
+            assert retained_audit.budget_keys == ("run",)
+            assert set(retained_audit.reserved_amounts) == {"run"}
+            if not initial_calls:
+                assert retained_audit.reserved_amounts["run"] == before.state.reserved["run"]
+            else:
+&gt;               assert retained_audit.reserved_amounts["run"] == Decimal("0")
+E               AssertionError: assert Decimal('0.00015000000000000001') == Decimal('0')
+E                +  where Decimal('0') = Decimal('0')
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:542: AssertionError</failure></testcase><testcase classname="" name="test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-async-generate]" time="0.033"><failure message="AssertionError: assert Decimal('0.00015000000000000001') == Decimal('0')&#10; +  where Decimal('0') = Decimal('0')">tmp_path = PosixPath('/tmp/e02-B65-recovery-a2-native/pytest-tmp/test_same_protected_owner_repl7')
+route = 'async-generate', action = 'BUDGET_COMMITTED'
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize(
+        "action", ["BUDGET_RESERVED", "BUDGET_CHECK", "BUDGET_RELEASED", "BUDGET_COMMITTED"]
+    )
+    def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
+        tmp_path: Path, route: str, action: str
+    ) -&gt; None:
+        enforcer, sink, audit, resolver, provider, audit_path, ledger_path = _recovery_fixture(
+            tmp_path, action
+        )
+        try:
+            with pytest.raises(LLMAccountingError) as first:
+                _call(enforcer, route)
+            error = first.value
+            obligation = error.event["audit_obligation"]
+            before = FileBudgetLedger(ledger_path).snapshot()
+            print(
+                "B65_PENDING "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "act_id": obligation.act_id,
+                        "obligation_digest": obligation.payload_digest,
+                        "provider_calls": len(provider.responses),
+                        "original_cause": type(error.cause).__name__,
+                        "settlement_status": error.event["settlement_status"],
+                        "captured_entry": sink.failed_entry.model_dump(mode="json"),
+                        "fresh_ledger": before.model_dump(mode="json"),
+                    }
+                )
+            )
+            assert error.event["required_audit_status"] == "pending"
+            assert obligation.action == action
+            assert error.cause is audit.failure and isinstance(error.cause, IsADirectoryError)
+            original_metadata = json.dumps(dict(obligation.metadata), sort_keys=True)
+            original_digest = obligation.payload_digest
+            detached_metadata = dict(obligation.metadata)
+            if "budget_keys" in detached_metadata:
+                detached_metadata["budget_keys"].append("different-caller-key")
+            else:
+                detached_metadata["payload_digest"] = "sha256:" + "0" * 64
+            print(
+                "B65_DETACHED_METADATA "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "original_metadata": json.loads(original_metadata),
+                        "mutated_caller_view": detached_metadata,
+                        "retained_metadata": dict(obligation.metadata),
+                        "original_digest": original_digest,
+                        "retained_digest": obligation.payload_digest,
+                    }
+                )
+            )
+            assert json.dumps(dict(obligation.metadata), sort_keys=True) == original_metadata
+            assert obligation.payload_digest == original_digest
+            initial_calls = len(provider.responses)
+            assert initial_calls == (0 if action in {"BUDGET_RESERVED", "BUDGET_CHECK"} else 1)
+            if initial_calls:
+                assert error.response is provider.responses[0]
+                assert obligation.event is not None and obligation.event.amount == Decimal("0.02")
+                assert obligation.charge_ack is not None and obligation.charge_ack.status == "committed"
+                assert error.event["settlement_status"] == "committed"
+                assert before.state.spent["run"] == Decimal("0.02")
+            else:
+                assert error.response is None and obligation.event is None
+                assert obligation.charge_ack is None
+                assert not before.spend_receipts
+                assert before.state.reserved["run"] &gt; Decimal("0")
+            assert before.completion_obligations
+            retained_audit = before.completion_obligations[obligation.act_id]
+            assert retained_audit.budget_keys == ("run",)
+            assert set(retained_audit.reserved_amounts) == {"run"}
+            if not initial_calls:
+                assert retained_audit.reserved_amounts["run"] == before.state.reserved["run"]
+            else:
+&gt;               assert retained_audit.reserved_amounts["run"] == Decimal("0")
+E               AssertionError: assert Decimal('0.00015000000000000001') == Decimal('0')
+E                +  where Decimal('0') = Decimal('0')
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:542: AssertionError</failure></testcase><testcase classname="" name="test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[event-id]" time="0.035" /><testcase classname="" name="test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[payload]" time="0.034" /><testcase classname="" name="test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[log-owner]" time="0.034" /></testsuite></testsuites>

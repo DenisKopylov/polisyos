@@ -1,0 +1,127 @@
+from __future__ import annotations
+
+import hashlib
+import json
+import subprocess
+from pathlib import Path
+from xml.etree import ElementTree as ET
+
+ROOT = Path('/workspace/e02-B-current-adapters')
+GIT_G = Path('/tmp/e02-B-tenth-wave-20261007/transport.git')
+RAW = Path('/tmp/e02-B-tenth-wave-20261007/adapters-numeric')
+E7 = 'e7c5182bf9d37f62a87e1effd003ee9732c20c32'
+TARGET = '590e5d18e7f56c7c4d2e42070dcc687c79acc58c'
+OWN = 'f0111fefcb6fa48e8ccb4aab213a14694dc206ad'
+FOREIGN = 'b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc'
+D = '8f58d7349edefebbac7e7f21e6859f8daa075c1d'
+P = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/'
+
+
+def git_bytes(sha: str, path: str) -> bytes:
+    return subprocess.check_output(['git', '-C', str(ROOT), 'show', f'{sha}:{path}'])
+
+
+def ref(sha: str, path: str) -> dict:
+    data = git_bytes(sha, path)
+    return {'source_sha': sha, 'path': path, 'bytes': len(data),
+            'sha256': hashlib.sha256(data).hexdigest()}
+
+
+def observations(data: bytes) -> list:
+    text = data.decode('utf-8')
+    marker = 'EXACT_MONEY_ACTUAL '
+    result = []
+    cursor = 0
+    while (start := text.find(marker, cursor)) != -1:
+        record, consumed = json.JSONDecoder().raw_decode(text[start + len(marker):])
+        result.append(record)
+        cursor = start + len(marker) + consumed
+    return result
+
+
+def own_path(origin: dict) -> str:
+    return origin.get('relative_path') or 'policy-engine/' + origin['path'].split('/policy-engine/')[1]
+
+
+def xml_counts(data: bytes) -> dict:
+    try:
+        envelope = json.loads(data)
+    except json.JSONDecodeError:
+        pass
+    else:
+        data = envelope['text'].encode('utf-8')
+    root = ET.fromstring(data)
+    tests = list(root.iter('testcase'))
+    return {'cases': len(tests), 'PASS': sum(not len(t) for t in tests),
+            'FAIL': sum(t.find('failure') is not None for t in tests),
+            'ERROR': sum(t.find('error') is not None for t in tests),
+            'SKIP': sum(t.find('skipped') is not None for t in tests)}
+
+
+own_profile_path = P + 'continuation-gateway-numeric-evidence/candidate/profile.json'
+own_profile = json.loads(git_bytes(OWN, own_profile_path))
+foreign_native_path = P + 'current-gateway-money-independent-evidence/candidate/native.txt'
+foreign_records = observations(git_bytes(FOREIGN, foreign_native_path))
+assert len(foreign_records) == 15
+paths = {own_path(row) for row in own_profile['origins']}
+origin_observations = len(own_profile['origins'])
+for record in foreign_records:
+    rows = record['source_origins_before'] + record['source_origins_after'] + record['fresh']['b_source']
+    origin_observations += len(rows)
+    for row in rows:
+        path = own_path(row)
+        assert hashlib.sha256(git_bytes(E7, path)).hexdigest() == row['sha256'], row
+        paths.add(path)
+    for row in record['fresh']['d_source']:
+        assert row['source_sha'] == D
+        assert hashlib.sha256(git_bytes(D, row['path'])).hexdigest() == row['sha256'], row
+for row in own_profile['origins']:
+    assert row['git_byte_match']
+    assert hashlib.sha256(git_bytes(E7, own_path(row))).hexdigest() == row['sha256']
+configs = ['policy-engine/pyproject.toml', 'policy-engine/uv.lock', 'policy-engine/pytest.ini',
+           'policy-engine/tests/conftest.py',
+           'policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py']
+paths.update(configs)
+rows = []
+for path in sorted(paths):
+    before, after = git_bytes(E7, path), git_bytes(TARGET, path)
+    rows.append({'path': path, 'E7_sha256': hashlib.sha256(before).hexdigest(),
+                 'target_sha256': hashlib.sha256(after).hexdigest(), 'equal': before == after})
+changes = [row for row in rows if not row['equal']]
+assert len(changes) == 1 and changes[0]['path'].endswith('/artifacts/_implementation_identity.py')
+test = 'policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py'
+assert git_bytes('595a2595316e3bd2aa791f2769b12f1180beba62', test) == git_bytes(TARGET, test)
+g_delta = subprocess.check_output(['git', '--git-dir=' + str(GIT_G), 'diff', '--name-only',
+                                  '9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7',
+                                  '855cb26a7a2c9fea60356663cf81e7d01e20c738'], text=True).splitlines()
+governed = ['policy-engine/src/', 'policy-engine/tests/']
+assert not any(path.startswith(tuple(governed)) or path in configs[:3] for path in g_delta)
+retained = []
+for name, sha, path in [
+    ('HTTP30', OWN, P + 'continuation-gateway-numeric-evidence/candidate/native.xml'),
+    ('HTTP_removal30', OWN, P + 'continuation-gateway-numeric-evidence/removal/native.xml'),
+    ('foreign15', FOREIGN, P + 'current-gateway-money-independent-evidence/candidate/native.xml'),
+    ('foreign_baseline15', FOREIGN, P + 'current-gateway-money-independent-evidence/baseline/native.xml'),
+    ('foreign_removal2', FOREIGN, P + 'current-gateway-money-independent-evidence/removal/native.xml'),
+]:
+    retained.append({'name': name, 'xml': ref(sha, path), 'counts': xml_counts(git_bytes(sha, path))})
+result = {'schema': 'policyos.e02.numeric-custody-delta.v1', 'holder': '/root/adapters_probe',
+          'target_sha': TARGET, 'target_tree': subprocess.check_output(
+              ['git', '-C', str(ROOT), 'rev-parse', TARGET + '^{tree}'], text=True).strip(),
+          'historical_runtime': E7, 'G': {'sha': '855cb26a7a2c9fea60356663cf81e7d01e20c738',
+                                       'baseline': '9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7',
+                                       'changed_paths': g_delta, 'governed_code_test_config_delta': []},
+          'input_custody': [ref(OWN, own_profile_path), ref(FOREIGN, foreign_native_path),
+                           ref('595a2595316e3bd2aa791f2769b12f1180beba62', test)],
+          'denominator': {'historical_origin_observations': origin_observations,
+                          'foreign_cases': len(foreign_records), 'distinct_paths_plus_configs': len(rows),
+                          'file_types': 'all file-backed polisyos origins captured by own HTTP30 hook and all15 parent/fresh child observations, plus four literal configs and HTTP30 input',
+                          'boundary': 'hook-time loaded files, not an import/read/call set or universal semantic dependency closure'},
+          'source_rows': rows, 'source_changes': changes, 'retained_receipts': retained,
+          'rerun_decision': 'Root required only guarded fresh-D15 after the loaded identity delta; no HTTP30/removal duplicate. Exact new native outcome is separate and never restamps retained E7 outcomes.',
+          'limitations': ['External D8f three-module reader after public B admission, not D controller/evaluator/cache-ledger bridge.',
+                          'B120 remains D CTL-03 bridge_missing; no parser/ledger change or invoice law.',
+                          'Current source equivalence is measured independently; author does not self-accept own monetary mechanism.']}
+(RAW / 'source-custody.json').write_text(json.dumps(result, indent=2) + '\n')
+print(json.dumps({'paths': len(rows), 'equal': len(rows)-len(changes), 'differences': changes,
+                  'retained': retained, 'G_changed_paths': len(g_delta)}))

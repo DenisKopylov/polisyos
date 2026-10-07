@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+    "pip",
+    "install",
+    "--python",
+    "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/bin/python",
+    "--no-deps",
+    "/tmp/e02-B-la057-final-dd9584728bd9/wheels/policy_engine-0.1.0-py3-none-any.whl"
+  ],
+  "cwd": "/tmp/e02-B-la057-final-dd9584728bd9",
+  "start_utc": "2026-10-06T19:09:05.129605+00:00",
+  "end_utc": "2026-10-06T19:09:05.661690+00:00",
+  "wall_s": 0.5320935729978373,
+  "child_maxrss_platform_units": 47700,
+  "maxrss_unit": "KiB on Linux; bytes on macOS",
+  "exit": 0,
+  "output": "/tmp/e02-B-la057-final-dd9584728bd9/wheel-install.txt",
+  "output_bytes": 251,
+  "output_sha256": "dea7129a7dc6b8d740971823e53e0945ee364a825de11025f9bae0b9ed20bb90",
+  "source": {
+    "head": "dd9584728bd96f204983615216efdbc58117e713",
+    "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+    "status": ""
+  }
+}

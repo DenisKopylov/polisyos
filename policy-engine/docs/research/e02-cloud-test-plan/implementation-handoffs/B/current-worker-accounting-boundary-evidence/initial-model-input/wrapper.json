@@ -1,0 +1,66 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-vv",
+    "-s",
+    "--noconftest",
+    "-c",
+    "/workspace/e02-B-current-adapters/policy-engine/pyproject.toml",
+    "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py",
+    "--basetemp",
+    "/tmp/e02-B-worker-accounting-a697-ox5n07s1/pytest",
+    "-o",
+    "cache_dir=/tmp/e02-B-worker-accounting-a697-ox5n07s1/cache",
+    "--junitxml=/tmp/e02-B-worker-accounting-a697-ox5n07s1/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-durability/policy-engine",
+  "target_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+  "source_before": {
+    "head": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+    "tree": "b2e13011d78a871f7f7ee6a7cc00444d479d2f95",
+    "tracked_status": "",
+    "test_sha256": "27581abb038462d0688792c59229dbace8a40f7f47b971917b11b5fe7e1abb73"
+  },
+  "source_after": {
+    "head": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+    "tree": "b2e13011d78a871f7f7ee6a7cc00444d479d2f95",
+    "tracked_status": "",
+    "test_sha256": "27581abb038462d0688792c59229dbace8a40f7f47b971917b11b5fe7e1abb73"
+  },
+  "test_input_sha": "9507edf8a179c407e5ef07d17b92a9e572182a84",
+  "start": "2026-10-06T21:54:13.662330+00:00",
+  "end": "2026-10-06T21:54:26.520537+00:00",
+  "wall_seconds": 12.83320026799629,
+  "exit_code": 1,
+  "raw_wait_status": 256,
+  "maxrss_kib": 668304,
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+    "E02_WORKER_ACCOUNTING_ROOT": "/workspace/e02-B-current-adapters",
+    "E02_WORKER_ACCOUNTING_SHA": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_METRICS_PORT": "0"
+  },
+  "ambient_numeric_caps_removed": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "VECLIB_MAXIMUM_THREADS": null,
+    "BLIS_NUM_THREADS": null
+  },
+  "actual_python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "tmp_scope": "Actual local filesystem fsync work witness; no powerloss durability claim",
+  "outputs": {
+    "native.txt": {
+      "bytes": 63618,
+      "sha256": "4a483ce8f62df129e420cbd464350583599c1d38c79118e6e2cc1c7cb657d870"
+    },
+    "native.xml": {
+      "bytes": 42930,
+      "sha256": "f9b8c6d78531b27440945c765844c898106354fb3c610701464e772f341a022b"
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "payload_count": 6,
+  "payload_bytes": 49783,
+  "files": {
+    "native.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/native.txt",
+      "bytes": 3034,
+      "sha256": "9021cc51d126cde3903e1cbb19585cc42c75d633a11f5664d5ec921d77cce695"
+    },
+    "native.xml": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/native.xml",
+      "bytes": 605,
+      "sha256": "489cb63e06027ba6c7a71d74395cd191e68882cafca04afdb3087829d8d8da70"
+    },
+    "wrapper.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/wrapper.json",
+      "bytes": 1177,
+      "sha256": "52672bd34910f299b75925c9a50d0929bd61ea2b81f7c9ea20815f21b1448452"
+    },
+    "profile.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/profile.json",
+      "bytes": 38615,
+      "sha256": "23d389dd78f1c513e3ff61a58645e61375e649b0110af5ff3b1fb460d668ee88"
+    },
+    "run-native.source.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/run-native.source.txt",
+      "bytes": 4636,
+      "sha256": "14471cae1773ec25fcda6ca0e85dc3494177975e0b840fd9c81689e7c715759b"
+    },
+    "review.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/review.json",
+      "bytes": 1716,
+      "sha256": "f1c0515ed2d9e2c5c2ab6b83e0e25ab69dd199349d115ddfcd12a6fcd26607ed"
+    }
+  }
+}

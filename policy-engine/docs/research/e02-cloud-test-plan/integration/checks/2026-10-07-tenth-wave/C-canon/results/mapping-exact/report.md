@@ -1,0 +1,7 @@
+# Exact persisted JSON Mapping probe
+
+This follow-up to the C-canon check uses candidate `55b45d9a5c95c3b773fc3b4d8679786b3993eb1e` / tree `70ed14e004063536ff3a12d30d14d9bdd79a4916` and does not run pytest. It writes a real artifact to a fresh local `FileSystemCAS`, then passes the complete, untouched `ArtifactManifest.model_dump(mode="json")` result through a Mapping-shaped store to public `get_json_artifact`.
+
+The typed-manifest read returns the payload (**PASS**). The exact JSON Mapping view fails with `polisyos.ir.model_layer.canon.CanonViolation: unsupported_ir_canon_profile`. The persisted canon profile has `separators` as JSON list `[",", ":"]`. The manifest dump hash is unchanged before, at the mapping callback, and after the reader call (`1a5cff6d9d71af8f34f122b54893d96c584df732a1adbdd6d70876c999440e48`); `get_bytes` callback count remains 0 before and after. The failure therefore occurs at profile validation before any payload read, and is not caused by a modified/default-substituted profile.
+
+The candidate-only import guard loaded 80 PolicyOS modules; all module files matched their Git blobs. The raw output includes the full returned manifest and origin list. Runtime was 0.569s under a 60s cap; no pytest, install, or source changes. See [receipt.json](receipt.json), [stdout.txt](stdout.txt), and the full 80-module inventory embedded in [stdout.txt](stdout.txt) (the separately hashed inventory stays in the ignored local receipt directory).

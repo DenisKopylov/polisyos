@@ -1,0 +1,70 @@
+{
+  "schema": "e02-independent-native-capture/v1",
+  "state": "EXECUTED",
+  "setup_failure": null,
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/tmp/e02-B-tenth-wave-20261007/adapters-numeric/capture.py",
+    "child",
+    "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+    "/tmp/e02-B-tenth-wave-20261007/adapters-numeric/candidate-590/profile.json",
+    "-v",
+    "-s",
+    "--tb=short",
+    "--cache-clear",
+    "-o",
+    "cache_dir=/tmp/e02-B-tenth-wave-20261007/adapters-numeric/candidate-590/pytest-cache",
+    "--basetemp=/tmp/e02-B-tenth-wave-20261007/adapters-numeric/candidate-590/fixtures",
+    "--junitxml=/tmp/e02-B-tenth-wave-20261007/adapters-numeric/candidate-590/native.xml",
+    "--noconftest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-s",
+    "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py"
+  ],
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "target_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+  "target_tree": "e6ec2e4bb34f84f946341004f1e5c8374fb29010",
+  "head_after": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+  "tree_after": "e6ec2e4bb34f84f946341004f1e5c8374fb29010",
+  "status_before": "",
+  "status_after": "",
+  "actual_exit": 0,
+  "wall_s": 158.67525674402714,
+  "max_rss_kib": 599720,
+  "environment": {
+    "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+    "TIKTOKEN_CACHE_DIR": null,
+    "E02_MONEY_SOURCE_ROOT": "/workspace/e02-B-current-adapters",
+    "E02_MONEY_SOURCE_SHA": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "numeric_caps": {
+      "OMP_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null,
+      "BLIS_NUM_THREADS": null
+    }
+  },
+  "driver_sha256": "b85e539272d21070692fabaf75b4ec3a9428320d476b599f2e7efc26c947be13",
+  "outputs": {
+    "native.txt": {
+      "path": "/tmp/e02-B-tenth-wave-20261007/adapters-numeric/candidate-590/native.txt",
+      "sha256": "91fea34e244bf89d6a0feb8308d99a863062477ab4059af4303f7237034f5956",
+      "bytes": 3614595
+    },
+    "native.xml": {
+      "path": "/tmp/e02-B-tenth-wave-20261007/adapters-numeric/candidate-590/native.xml",
+      "sha256": "db8a959b21bf2550c240b2886acbafbe3d5addf0be6141e29baf7d6ca79118e0",
+      "bytes": 3067
+    },
+    "profile.json": {
+      "path": "/tmp/e02-B-tenth-wave-20261007/adapters-numeric/candidate-590/profile.json",
+      "sha256": "af2c39a677f863007c2caf5c07c885aacb005544e6ab4420f878f430e1b6f373",
+      "bytes": 31398
+    }
+  }
+}

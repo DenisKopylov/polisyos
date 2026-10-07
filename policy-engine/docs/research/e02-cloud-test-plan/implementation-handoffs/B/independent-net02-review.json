@@ -1,0 +1,93 @@
+{
+  "reviewer": "/root/cmp_res_probe",
+  "source_production_sha": "943325b228984dd949e03b609e3173d6de814dbe",
+  "source_test_sha": "5f9c6a359a23ac4b8d7b5bc4ae662f304aeecd82",
+  "executed_HEAD": "4aedd41b256ee308c1832f488aa4318c6653b359",
+  "source_before_after_equal": true,
+  "scope": "Independent full canonical registry/regulator/decorator diff and actual whole6 nativecases. Author did not review itself; no source edits by reviewer.",
+  "status": "accepted_bounded; no blocking issue found for leased-regulator ownership delta",
+  "implementation_trace": [
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+      "lines": [
+        55,
+        75,
+        80,
+        113,
+        122,
+        156
+      ],
+      "basis": "Lookup+ownership admission+count increment atomic under same registry lock; active leases make entries protected even at neutral token state; TTL/overflow use same predicate; release count decrements once in synchronous finally; same-key nested owner shares protected resource budget."
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+      "lines": [
+        465,
+        489
+      ],
+      "basis": "Wrapper owns exact keyed limiter from before acquire through physical provider result/error/cancel; provider cooldown recorded on live resource cannot be detached by neutral refill/TTL pressure."
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+      "lines": [
+        700,
+        723
+      ],
+      "basis": "Decorator owns same keyed breaker through actual execute; circuit generation/attempt lease semantics preserved by unchanged execute path."
+    }
+  ],
+  "divergent_case": "Rate1 live provider remains physically pending after time2/1000 fully refills bucket and expiresTTL. Base owner log has actual3FAIL (newpressure provider erroneously admitted or liveentry replaced). Candidate refuses pressure before physical call when budget1, retains exact liveobject, accepts genuinely independent key when budget2.",
+  "baseline_owner_log": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/independent-net02-review/owner-baseline-red.txt",
+    "sha256": "fc9cbede75583e916f16cf20a24088acc3fc69fc725b645d3a13929d5d90bd19",
+    "bytes": 1866
+  },
+  "baseline_independent_replay": false,
+  "runtime_counts": {
+    "passed": 6,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "modules_observed_separate_same_env_process": {
+    "polisyos.fabric.connectors.resilience._bounded_registry": {
+      "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+      "sha256": "9003558130bcc2f378f22658a8ff685c4ab93766d8bc7f20de1d7bf5d5323429"
+    },
+    "polisyos.fabric.connectors.resilience.circuit_breaker": {
+      "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+      "sha256": "f02ff7db20a47e16f4129e38c4ba2a6f445cf98551ad935e27b178fa8cc0d6f3"
+    },
+    "polisyos.fabric.connectors.resilience.rate_limiter": {
+      "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+      "sha256": "dd05419162834ba7c7f74a6a71b85b32fdbc1f26fe520094414d1e5c06763d8b"
+    }
+  },
+  "deciding_artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/independent-net02-review/independent-net02-943-5f9.txt",
+      "sha256": "4729102e59db75b5820273a0249979ca622611e03b653c221e4dadacd7a4b70d",
+      "bytes": 98
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/independent-net02-review/independent-net02-943-5f9.xml",
+      "sha256": "f44ab51069e969bea2150854e6a97c093da83572dd6029abe8cdc17aa0e2cc58",
+      "bytes": 1232
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/independent-net02-review/independent-net02-943-5f9.json",
+      "sha256": "0f62d07b4755d7aa3029741e52b636fdd77f728711c2b278e662a73bbdb4cd5a",
+      "bytes": 4615
+    }
+  ],
+  "wrapper": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/independent-net02-review/review-net02.py.txt",
+    "sha256": "aaa4f009086362e2608ae07c94e62a951721a7c6e5bf5b10614dad981e2862f0",
+    "bytes": 2721
+  },
+  "limits": [
+    "Focused NET02 delta review, not all NET findings or full transport/stream closure.",
+    "No physical termination guarantee for arbitrary running/uncooperative provider work; cooperative cancellation/error controls establish registry owner release, not arbitrary BaseException safety of all preexisting circuit code.",
+    "Test finite registry budgets1/2 are intentional fixture data; no cloud numeric/process/thread execution quota configured."
+  ]
+}

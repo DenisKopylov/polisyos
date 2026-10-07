@@ -1,0 +1,25 @@
+{
+  "schema": "policyos.e02.literal_execution_instruments.v1",
+  "scripts": [
+    {
+      "executed_path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/capture-probe.py",
+      "bytes": 1109,
+      "sha256": "f5d4fee37ce0a78866096905853a78f7fccf6be6425bae82054118efb85d613b",
+      "code_utf8": "import json\nimport sys\nfrom pathlib import Path\nfrom polisyos.core.artifacts import FileSystemCAS, PutOptions\n\nstore = FileSystemCAS(Path(sys.argv[1]), ownership_enforced=False)\nref = store.put_bytes(b\"original\", PutOptions(kind=\"probe\", media_type=\"text/plain\"))\nstore._paths(ref.artifact_id)[0].write_bytes(b\"damaged\")\nowner = store._register_governed_public_read_owner()\nwith store._capture_public_read_set() as capture:\n    report = store.verify(ref)\nresult = {\"report\": report.model_dump(mode=\"json\"), \"captured_operations\": capture.serialized_operation_refs()}\ntry:\n    closure = store._record_governed_public_read_closure(\"gpr_\" + \"a\" * 32, capture, owner_token=owner)\nexcept ValueError as exc:\n    result[\"record_error\"] = str(exc)\nelse:\n    result[\"recorded_operations\"] = closure[\"operation_refs\"]\nprint(json.dumps(result, indent=2))\nassert not report.ok and report.actual_sha256_hex is not None\nassert \"record_error\" not in result, \"Invalid private helper operation poisoned actual owner-index read-closure consumer\"\nassert {row[\"operation\"] for row in result[\"recorded_operations\"]} == {\"verify\"}\n"
+    },
+    {
+      "executed_path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/capture_removal.py",
+      "bytes": 402,
+      "sha256": "faedabbf9e4071756cf15de59b2c5d256db1a8720e1fdac9606df9f097e0f794",
+      "code_utf8": "\"\"\"Reintroduce internal-result capture without removing the byte witness.\"\"\"\nimport pytest\nfrom polisyos.core.artifacts.store import FileSystemCAS, _transactional_read\n\noriginal = FileSystemCAS._load_snapshot_read_result\nFileSystemCAS._load_snapshot_read_result = _transactional_read()(original)\ntry:\n    raise SystemExit(pytest.main())\nfinally:\n    FileSystemCAS._load_snapshot_read_result = original\n"
+    },
+    {
+      "executed_path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/run_capture_removal.py",
+      "bytes": 1923,
+      "sha256": "6fde9f1571543ccaaa1e19f196b114bfa26315d20dcd4c0222fe848feeaaa9d2",
+      "code_utf8": "\"\"\"Run exact native checks without syncing the isolated environment or imposing caps.\"\"\"\nimport hashlib\nimport json\nimport os\nfrom pathlib import Path\nimport subprocess\nimport sys\nimport time\n\nroot = Path(__file__).resolve().parents[4]\nlabel, *selectors = sys.argv[1:]\nraw = Path(__file__).parent\noutput = raw / (label + '.txt')\nxml = raw / (label + '.xml')\npython = '/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python'\nenv = dict(os.environ)\nfor name in ('OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS', 'NUMEXPR_NUM_THREADS', 'VECLIB_MAXIMUM_THREADS', 'BLIS_NUM_THREADS'):\n    env.pop(name, None)\nenv.update(PYTHONPATH=str(root / 'policy-engine/src') + ':' + str(root / 'policy-engine'), POLISYOS_METRICS_PORT='0')\nargv = [python, str(raw / 'capture_removal.py'), '-vv', *selectors, '--basetemp=' + str(raw / (label + '-pytest')), '--junitxml=' + str(xml)]\nhead = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()\ntree = subprocess.check_output(['git', 'rev-parse', 'HEAD^{tree}'], cwd=root, text=True).strip()\nstart = time.monotonic()\nwith output.open('wb') as stream:\n    child = subprocess.Popen(argv, cwd=root / 'policy-engine', env=env, stdout=stream, stderr=subprocess.STDOUT)\n    pid, status, usage = os.wait4(child.pid, 0)\n    child.returncode = os.waitstatus_to_exitcode(status)\nrecord = dict(command=argv, cwd=str(root / 'policy-engine'), target_sha=head, target_tree=tree, exit_code=child.returncode, wall_s=time.monotonic()-start, maxrss_kib=usage.ru_maxrss, environment=dict(python=python, PYTHONPATH=env['PYTHONPATH'], POLISYOS_METRICS_PORT='0', numerical_caps='all6absent'), outputs=[dict(path=str(p), bytes=p.stat().st_size, sha256=hashlib.sha256(p.read_bytes()).hexdigest()) for p in (output, xml) if p.exists()])\n(raw / (label + '.json')).write_text(json.dumps(record, indent=2) + '\\n')\nprint(json.dumps(record, indent=2))\n"
+    }
+  ],
+  "reused_instruments_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/instrument-custody.json@ff86b2a74b29c058501077e9203d44b43e1cb589",
+  "capture_before_qualification": "The original command used actual Python and ownsrc PYTHONPATH at ownroot9dc unchanged source. Ambient six numerical caps were absent. The wrapper combined Python with a following cat, so its final shell exit0 is not the Python child status, and child RSS/wall/status were not separately captured. Full actual assertion traceback and actual owner-index refusal are retained as diagnosis; deciding controls use separately measured frozen463 children."
+}

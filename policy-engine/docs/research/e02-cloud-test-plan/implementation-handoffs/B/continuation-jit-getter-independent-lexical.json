@@ -1,0 +1,207 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "continuation-jit-getter-independent-lexical",
+  "closure_ids": [],
+  "bundle_ids": [
+    "JIT-01",
+    "RES-04"
+  ],
+  "finding_ids": [
+    "B49",
+    "B50",
+    "B53",
+    "B74"
+  ],
+  "slice_base_sha": "f6a3e0c8a6e6b4393dc81bb8f15b19815b48638b",
+  "implementation_commits": [
+    "20f76296d42592c41e8e0b1e75b2abee87a1cc7b"
+  ],
+  "candidate_tree_sha": "02a5d90be847a8706f5af0645cac1d2d6ef146f7",
+  "branch": "codex/e02-B-current-durability",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/43",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-evidence/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-evidence/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-evidence/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-evidence/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-evidence/run-native.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-evidence/wrapper.json"
+  ],
+  "production_changed_paths": [],
+  "test_changed_paths": [],
+  "baseline_cells": [],
+  "baseline_navigation": "Immutable predecessor 637 handoff preserves original d1efd finding/cell references. This is a classifier consumer replay with no new baseline or whole-B adjudication.",
+  "checks": [
+    {
+      "id": "same-three-lexical-capture-source",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02-dur-getter-oracle-5cd7d962f2bf/run_native.py"
+      ],
+      "target_sha": "5cd7d962f2bf87bc872e01365778858adf52ba9f",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "environment": {
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "PYTHONPATH": "/workspace/e02-B-current-composition/policy-engine/src:/workspace/e02-B-current-composition/policy-engine/product",
+          "GIT_OBJECT_DIRECTORY": "/tmp/e02-B-jit-data-getattr-20261007/git-objects",
+          "GIT_ALTERNATE_OBJECT_DIRECTORIES": "/workspace/polisyos/.git/objects",
+          "GIT_INDEX_FILE": "/tmp/e02-B-jit-data-getattr-20261007/index",
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+        },
+        "versions": {
+          "pytest": "9.0.2",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "numpy": "2.3.5",
+          "pydantic": "2.12.5"
+        }
+      },
+      "input_closure": {
+        "literal_test": {
+          "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/test_independent_getter_consumer.source.txt",
+          "bytes": 5272,
+          "sha256": "c60de7f76a3671961b44c830e6e1632f4be3c787ccc13eec49947e8e495b5559"
+        },
+        "actual_test_sha256": "c60de7f76a3671961b44c830e6e1632f4be3c787ccc13eec49947e8e495b5559",
+        "literal_runner": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-evidence/run-native.source.txt",
+          "bytes": 4636,
+          "sha256": "22aa12c61f1d355280c28f5f507f8d6bbc82b323bd65b33147676c79960db3b8",
+          "git_sha": "20f76296d42592c41e8e0b1e75b2abee87a1cc7b"
+        },
+        "full_origin_before_after": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-evidence/profile.json",
+          "bytes": 38615,
+          "sha256": "6c92a21c20e56012cfef2b53ce0bb913cd6c8e626b025b68a6fe420a86891c49",
+          "git_sha": "20f76296d42592c41e8e0b1e75b2abee87a1cc7b"
+        },
+        "actual_source_tree": "79444947f48872f7743002a796d8307dcc2cab81",
+        "fixture_root": "/tmp/e02-dur-getter-oracle-5cd7d962f2bf/fixtures-final",
+        "authority_qualification": "Independent arithmetic/immutable-field fixture; no scientific, permission or historical source authority."
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-evidence/native.txt",
+        "bytes": 3034,
+        "sha256": "21ee0dbbc6f024418b5da8728bd96dfea8c42f4fcf59f226a8723bd7ae5f5d09",
+        "git_sha": "20f76296d42592c41e8e0b1e75b2abee87a1cc7b"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-evidence/native.xml",
+        "bytes": 605,
+        "sha256": "c91e9526f79cfa972cacd374ac785906bb9e8b267ece1391d49c28b506c61bca",
+        "git_sha": "20f76296d42592c41e8e0b1e75b2abee87a1cc7b"
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-evidence/wrapper.json",
+        "bytes": 1176,
+        "sha256": "745c2f9fe73eb983c4bb3b584c33c521545401980095b8ac7caab57a7aa5201b",
+        "git_sha": "20f76296d42592c41e8e0b1e75b2abee87a1cc7b"
+      },
+      "actual_cases": {
+        "PASS": 3,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "wall_s": 2.559511642990401,
+      "max_rss_kib": 200336,
+      "qualification": "Actually executed 5cd7 only. Earlier 8aa, 5fdd and 0903 runs stay bound to their original sources. Subsequent typing/style successors are not executed by this packet."
+    }
+  ],
+  "property": {
+    "statement": "The widened lexical-capture classifier preserves supported immutable-field numerical/dynamic/cache behavior and captured-ModuleType typed refusal in the same real compiler consumer.",
+    "runtime_path": [
+      "Fresh real MethodRegistry and CompilationCache with exact 5cd7 source guard",
+      "Actual MethodCompiler eager and JAX compiled handles",
+      "Unchanged c60de7 two-output runtime arithmetic and dynamic parameter overrides",
+      "Aliased builtins.getattr dematerialization and captured math module refusal before physical body"
+    ],
+    "proxy_divergence": "Source marker agreement or a predecessor PASS does not determine this changed lexical classifier. The same three cases were newly executed against 5cd7 with 152 actual file-backed loaded source origins.",
+    "negative_controls": [
+      "Captured ModuleType raises CompilationError with the real physical body file absent",
+      "The old handle remains correct after the warm handle and an explicit dynamic override",
+      "Original 8aa harness source-guard ERROR and recording-property 2 FAIL/1 PASS remain unchanged in the original packet"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "NONBLOCKING finite consumer regression profile on 5cd7; closure_ids=[]",
+  "limitations_and_next_owner": [
+    "No full JIT/B74/source graph, generic descriptor, installed-callable or scientific authority acceptance. Actual frame-namespace 107 failures remain separate criterion evidence.",
+    "ROOT/G decides source integration, native/gates and formal closure. CMP owns classifier changes. No budget review, production writes, service, cleanup, quota, checkout or helper.",
+    "152 is the actual file-backed loaded polisyos origin denominator, not a transitive external/data/service closure or the author origin count.",
+    "Existing admitted lane uses alternate Git objects/index for metadata publication above exact remote f6. Local checkout HEAD is reported separately; no history rewrite or new checkout."
+  ],
+  "source_cut_history": [
+    {
+      "sha": "8aa69009572bdec3b4906257208c601bed4fd9a6",
+      "tree": "e6bfbe8e37f243bcb85d6097712e97a6832c52c7",
+      "actual_cases": {
+        "PASS": 3
+      },
+      "handoff": {
+        "git_sha": "637b821971f8d9a6413c5f8e93a7d416a30dbc65",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent.json",
+        "bytes": 18270,
+        "sha256": "f5fc67f6fd6a76939ef23caab28eecd2e53e1e75a02ba85f1f37e3fbefc83f06"
+      }
+    },
+    {
+      "sha": "5fdd09d3b772ca84a95c0bbf13e0b3ef74018640",
+      "tree": "ab2050dd1606edf90fa9771dce76b6a368eeff8e",
+      "actual_cases": {
+        "PASS": 3
+      },
+      "handoff": {
+        "git_sha": "66863a0d89e7acffde8deef79f47ab0b96061ccf",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-successor.json",
+        "bytes": 9415,
+        "sha256": "830fc61f4852e9605279a887c92bee331f69795f2f9d07b7a24c6012dd3c7fe1"
+      }
+    },
+    {
+      "sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+      "tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+      "actual_cases": {
+        "PASS": 3
+      },
+      "handoff": {
+        "git_sha": "f6a3e0c8a6e6b4393dc81bb8f15b19815b48638b",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-final.json",
+        "bytes": 10081,
+        "sha256": "8c37c0f7a93ef789652d90a3b5323a2f099b568d4e7e43a83fe80128b5faa1f6"
+      }
+    },
+    {
+      "sha": "5cd7d962f2bf87bc872e01365778858adf52ba9f",
+      "tree": "79444947f48872f7743002a796d8307dcc2cab81",
+      "actual_cases": {
+        "PASS": 3
+      },
+      "observed_new_execution": true
+    }
+  ],
+  "evidence_index": {
+    "git_sha": "20f76296d42592c41e8e0b1e75b2abee87a1cc7b",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-evidence/index.json",
+    "bytes": 1744,
+    "sha256": "759c2a1b573bf240f70f9d624a9d91d922184ea7cf6819d28386c03a7e8e9214"
+  },
+  "review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-evidence/review.json",
+    "bytes": 3195,
+    "sha256": "d9cebd4b1cbaf1b686e3cac01ef01cc5bdc9fd18e2730c7e5ae7d240772668ab",
+    "git_sha": "20f76296d42592c41e8e0b1e75b2abee87a1cc7b"
+  }
+}

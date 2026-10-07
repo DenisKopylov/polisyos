@@ -1,0 +1,591 @@
+### policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py@a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9:36-70
+def _sum_call_events(events: list[dict[str, Any]]) -> dict[str, float]:
+    prompt_tokens = 0.0
+    completion_tokens = 0.0
+    latency_ms = 0.0
+    cost_usd = 0.0
+    estimated_cost_usd = 0.0
+    cost_delta_usd = 0.0
+    for event in events:
+        prompt_tokens += float(event.get("prompt_tokens") or 0)
+        completion_tokens += float(event.get("completion_tokens") or 0)
+        latency_ms += float(event.get("latency_ms") or 0)
+        cost_usd += float(event.get("cost_usd") or 0.0)
+        estimated_cost_usd += float(event.get("estimated_cost_usd") or 0.0)
+        cost_delta_usd += float(event.get("cost_delta_usd") or 0.0)
+    return {
+        "prompt_tokens": prompt_tokens,
+        "completion_tokens": completion_tokens,
+        "latency_ms": latency_ms,
+        "cost_usd": cost_usd,
+        "estimated_cost_usd": estimated_cost_usd,
+        "cost_delta_usd": cost_delta_usd,
+    }
+
+
+def _delta_usage(
+    before: dict[str, float],
+    after: dict[str, float],
+) -> tuple[int, int, int, float]:
+    prompt = max(0, int(after["prompt_tokens"] - before["prompt_tokens"]))
+    completion = max(0, int(after["completion_tokens"] - before["completion_tokens"]))
+    latency = max(0, int(after["latency_ms"] - before["latency_ms"]))
+    cost = max(0.0, float(after["cost_usd"] - before["cost_usd"]))
+    return prompt, completion, latency, cost
+
+
+
+
+### policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py@a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9:4973-5003
+            async def _run_variant(model_name: str | None, variant_index: int) -> dict[str, Any]:
+                nonlocal current_capability_manifest_ref
+                variant_started_at = _now_ms()
+                variant_started_iso = datetime.now(UTC).replace(microsecond=0).isoformat()
+                call_events: list[dict[str, Any]] = []
+                variant_label = model_name or "mock"
+                variant_id = _normalize_model_variant_id(variant_label, variant_index)
+                notes: list[str] = []
+                llm_client = None
+                provider = "mock"
+                _emit_job_progress(
+                    phase="model_variant_started",
+                    variant_id=variant_id,
+                    variant_status="running",
+                    details={"model": model_name, "provider": provider},
+                )
+
+                if model_name:
+                    llm_client = create_traced_gateway_client(
+                        model_name=model_name,
+                        run_id=run_id,
+                        model_variant_id=variant_id,
+                        call_observer=call_events.append,
+                        tracer=self._tracer,
+                        metrics=self._metrics,
+                    )
+                    if llm_client is None:
+                        if allow_mock_fallback:
+                            notes.append("gateway_not_configured_contract_testing_mock")
+                        if allow_mock_fallback and callable(capability_manifest_updater):
+                            current_capability_manifest_ref = capability_manifest_updater(
+
+
+### policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py@a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9:5139-5148
+                ) -> object:
+                    before = _sum_call_events(call_events)
+                    started = _now_ms()
+                    running_step = {
+                        "agent": agent,
+                        "action": action,
+                        "status": "running",
+                        "summary": summary,
+                        "timestamp": datetime.now(UTC).replace(microsecond=0).isoformat(),
+                        "details": details or {},
+
+
+### policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py@a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9:5180-5202
+                        after,
+                    )
+                    total_tokens = prompt_tokens + completion_tokens
+                    step_latency = max(0, finished - started)
+                    step_entry = {
+                        "attempt": 1,
+                        "agent": agent,
+                        "action": action,
+                        "status": status,
+                        "timestamp": datetime.now(UTC).replace(microsecond=0).isoformat(),
+                        "summary": summary,
+                        "model": model_name,
+                        "provider": provider,
+                        "model_variant_id": variant_id,
+                        "latency_ms": llm_latency_ms or step_latency,
+                        "cost_usd": round(delta_cost, 8),
+                        "token_usage": {
+                            "prompt_tokens": prompt_tokens,
+                            "completion_tokens": completion_tokens,
+                            "total_tokens": total_tokens,
+                        },
+                        "details": details or {},
+                    }
+
+
+### policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py@a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9:6168-6185
+                        ),
+                        "_bundle": None,
+                    }
+                finally:
+                    if retrieval_catalog is not None:
+                        retrieval_catalog.close()
+                    await _close_llm_client(llm_client)
+
+                schema_healing = _trinity_schema_healing_notes(trinity_bundle)
+                for schema_note in schema_healing:
+                    if schema_note not in notes:
+                        notes.append(schema_note)
+
+                usage = _sum_call_events(call_events)
+                variant_cost = round(float(usage["cost_usd"]), 8)
+                status = "completed"
+                if per_model_budget_usd is not None and variant_cost > float(per_model_budget_usd):
+                    status = "budget_exceeded"
+
+
+### policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py@a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9:6427-6477
+            variants: list[dict[str, Any]] = []
+            if not models_to_run:
+                variants.append(await _run_variant(None, 0))
+            else:
+                run_budget_spent = 0.0
+                run_budget_stop = False
+                sem = asyncio.Semaphore(max(1, min(max_parallel_models, len(models_to_run))))
+                budget_lock = asyncio.Lock()
+
+                async def _run_with_limits(idx: int, model_name: str) -> dict[str, Any]:
+                    nonlocal run_budget_spent, run_budget_stop
+                    async with sem:
+                        async with budget_lock:
+                            if run_budget_stop:
+                                return {
+                                    "model_variant_id": _normalize_model_variant_id(
+                                        model_name, idx
+                                    ),
+                                    "model": model_name,
+                                    "provider": "gateway",
+                                    "status": "skipped_budget_guard",
+                                    "verdict": None,
+                                    "issue_count": 0,
+                                    "prompt_tokens": 0,
+                                    "completion_tokens": 0,
+                                    "total_tokens": 0,
+                                    "latency_ms": 0,
+                                    "cost_usd": 0.0,
+                                    "started_at": None,
+                                    "finished_at": None,
+                                    "steps": [],
+                                    "notes": ["run_budget_guard_prevented_start"],
+                                    "schema_healing": [],
+                                    "schema_healing_count": 0,
+                                    "_bundle": None,
+                                }
+                        variant = await _run_variant(model_name, idx)
+                        async with budget_lock:
+                            run_budget_spent += float(variant.get("cost_usd") or 0.0)
+                            if run_budget_usd is not None and run_budget_spent >= float(
+                                run_budget_usd
+                            ):
+                                run_budget_stop = True
+                        return variant
+
+                tasks = [
+                    asyncio.create_task(_run_with_limits(index, model_name))
+                    for index, model_name in enumerate(models_to_run)
+                ]
+                variants = await asyncio.gather(*tasks)
+
+
+
+### policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py@a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9:6958-7015
+    # ---- NL launch (agent circuit) ----------------------------------------
+
+    async def launch_nl_run(
+        self,
+        request: NaturalLanguageRunRequest,
+        *,
+        request_id: str | None = None,
+        principal: RuntimePrincipal | None = None,
+        authorization_proof: object | None = None,
+        authorization_request_body: bytes | None = None,
+        authorization_query_bytes: bytes = b"",
+    ) -> RunLaunchResponse:
+        """Queue a natural-language agent run and apply execution-policy fallback constraints."""
+        from polisyos.core.run.context import new_run_id
+
+        if authorization_proof is None:
+            raise ValueError("nl_route_authorization_proof_not_established")
+        _validate_nl_request_json_values(request)
+        run_id = new_run_id()
+        job_id = uuid.uuid4().hex
+        request_id = request_id or f"control-job:{job_id}"
+        policy = self._resolve_execution_policy(
+            requested_profile=request.execution_profile,
+            policy_flags=request.policy_flags,
+            principal=principal,
+        )
+        requested_models = _dedupe_models(list(request.llm_models or []))
+        if request.llm_model and request.llm_model not in requested_models:
+            requested_models.insert(0, request.llm_model)
+        if not _is_multimodel_enabled() and len(requested_models) > 1:
+            requested_models = requested_models[:1]
+        if not requested_models:
+            raise unprocessable_entity(
+                "Natural-language production runs require a configured LLM model.",
+                code="llm_model_unconfigured",
+            )
+        request_snapshot = {
+            "schema_version": _NL_REQUEST_SNAPSHOT_SCHEMA,
+            "digest_profile": _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE,
+            "request": request.model_dump(mode="json"),
+            "normalized_llm_models": list(requested_models),
+        }
+        request_body_bytes = (
+            authorization_request_body
+            if authorization_request_body is not None
+            else _nl_request_body_bytes(request)
+        )
+        authorization_receipt = (
+            _build_nl_authorization_receipt(
+                authorization_proof,
+                request_id=request_id,
+                request=request,
+                request_body_bytes=request_body_bytes,
+                request_query_bytes=authorization_query_bytes,
+                normalized_llm_models=requested_models,
+            )
+            if authorization_proof is not None
+            else None
+
+
+### policy-engine/src/polisyos/runtime/http/routes/control.py@a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9:369-404
+@router.post(
+    "/runs/nl",
+    response_model=RunLaunchResponse,
+    operation_id="launch_nl_run",
+    summary="Launch a natural-language run via agent circuit",
+    dependencies=[Depends(_LAUNCH_NL_RUN_AUTHZ)],
+)
+async def launch_nl_run(
+    body: NaturalLanguageRunRequest,
+    request: Request,
+) -> RunLaunchResponse:
+    set_authz_resource(
+        request,
+        tenant_id=getattr(request.state, "tenant_id", None),
+        kind="control.launch_nl_run",
+    )
+    control = _get_control_service(request)
+    request_id = ensure_request_id(request)
+    bound_permission = getattr(
+        request.state,
+        "action_permission_verification",
+        None,
+    )
+    if type(bound_permission) is not BoundActionPermissionVerification:
+        raise forbidden(
+            "The natural-language launch must consume its exact route authorization proof",
+            code="nl_route_authorization_proof_not_established",
+        )
+    return await control.launch_nl_run(
+        body,
+        request_id=request_id,
+        principal=_get_principal(request),
+        authorization_proof=bound_permission,
+        authorization_request_body=await request.body(),
+        authorization_query_bytes=bytes(request.scope.get("query_string", b"")),
+    )
+
+
+### policy-engine/src/polisyos/core/contracts/control.py@a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9:359-388
+class NaturalLanguageRunRequest(BaseModel):
+    """POST /api/v1/control/runs/nl — NL request triggering agent circuit."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    request: str = Field(..., min_length=1, max_length=10_000)
+    context: dict[str, Any] = Field(default_factory=dict)
+    domain_hint: str | None = None
+    data_source: DataSourceBinding | None = None
+    target_world_scope_profile_id: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=128,
+        pattern=r"^[a-z][a-z0-9._-]*$",
+    )
+    max_iterations: int = Field(default=3, ge=1, le=10)
+    llm_model: str | None = None
+    llm_models: list[str] | None = None
+    max_parallel_models: int = Field(default=1, ge=1, le=16)
+    run_budget_usd: float | None = Field(default=None, ge=0.0)
+    per_model_budget_usd: float | None = Field(default=None, ge=0.0)
+    checkpoint_policy: CheckpointPolicyType = "strict"
+    execution_profile: ExecutionProfile | None = None
+    policy_flags: PolicyFlags = Field(default_factory=PolicyFlags)
+    execution_plan_ref: str | None = None
+    execution_plan: dict[str, Any] | None = None
+    stop_criteria: dict[str, Any] = Field(default_factory=dict)
+    governance_constraints: list[dict[str, Any]] = Field(default_factory=list)
+    expected_outputs: list[dict[str, Any]] = Field(default_factory=list)
+
+
+
+### policy-engine/src/polisyos/core/llm/response.py@a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9:58-112
+    cache_hit, usage_origin, reuse_event_id, cache_key = _extract_cache_provenance(response)
+    origin_prompt_tokens = 0
+    origin_completion_tokens = 0
+    provider: str | None = None
+    model: str | None = None
+    cost_usd: float | None = None
+    request_id: str | None = None
+
+    usage = _field(response, "usage")
+    prompt_value = _field(usage, "prompt_tokens")
+    completion_value = _field(usage, "completion_tokens")
+    if usage is None:
+        prompt_value = _field(response, "input_tokens")
+        completion_value = _field(response, "output_tokens")
+    prompt_count = _usage_token(prompt_value)
+    completion_count = _usage_token(completion_value)
+    usage_status: LLMUsageStatus = "known"
+    if (prompt_value is not None and prompt_count is None) or (
+        completion_value is not None and completion_count is None
+    ):
+        usage_status = "invalid"
+    elif prompt_value is None or completion_value is None:
+        usage_status = "missing"
+    declared_usage = _field(usage, "usage_status")
+    if declared_usage in ("missing", "invalid"):
+        usage_status = declared_usage
+    origin_prompt_tokens = prompt_count or 0
+    origin_completion_tokens = completion_count or 0
+    cost_usd, cost_status = _extract_cost_data(usage=usage, payload=response)
+    declared_cost = _field(usage, "cost_status")
+    if declared_cost == "invalid":
+        cost_usd, cost_status = None, "invalid"
+    provider = _as_str(_field(response, "provider"))
+    model = _as_str(_field(response, "model"))
+    request_id = _as_str(_field(response, "request_id"))
+
+    reported_cost_usd = cost_usd
+    billable_prompt_tokens = 0 if cache_hit else origin_prompt_tokens
+    billable_completion_tokens = 0 if cache_hit else origin_completion_tokens
+    billable_cost_usd = 0.0 if cache_hit else reported_cost_usd
+
+    return LLMResponseData(
+        content=content,
+        prompt_tokens=max(0, billable_prompt_tokens),
+        completion_tokens=max(0, billable_completion_tokens),
+        provider=provider,
+        model=model,
+        cost_usd=billable_cost_usd,
+        cache_hit=cache_hit,
+        usage_origin=usage_origin,
+        request_id=request_id,
+        origin_prompt_tokens=max(0, origin_prompt_tokens),
+        origin_completion_tokens=max(0, origin_completion_tokens),
+        origin_cost_usd=reported_cost_usd,
+        reuse_event_id=reuse_event_id,
+
+
+### policy-engine/src/polisyos/core/llm/settlement.py@a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9:223-249
+def _completion_amount(
+    data: Any, model: str
+) -> tuple[Decimal | None, Literal["reported", "estimated", "reuse", "unknown"]]:
+    """Admit a numeric amount only from reported cost or observed priced usage."""
+    if data.cache_hit:
+        return Decimal(0), "reuse"
+    origin: Literal["reported", "estimated"]
+    if data.cost_status == "known" and data.cost_usd is not None:
+        value, origin = data.cost_usd, "reported"
+    elif data.cost_status == "missing" and data.usage_status == "known":
+        value = estimate_llm_cost_usd(
+            model=model,
+            prompt_tokens=data.prompt_tokens,
+            completion_tokens=data.completion_tokens,
+        )
+        origin = "estimated"
+    else:
+        return None, "unknown"
+    amount = Decimal(str(value))
+    if not amount.is_finite() or amount < 0:
+        return None, "unknown"
+    return amount, origin
+
+
+class LLMSettledResponse:
+    """Delegate a provider response while retaining its operational settlement."""
+
+
+
+### policy-engine/src/polisyos/core/llm/traced_client.py@a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9:469-519
+        estimated_cost_usd = self._estimate_cost_usd(
+            prompt_tokens=prompt_tokens,
+            completion_tokens=completion_tokens,
+        )
+        origin_cost_usd = parsed.origin_cost_usd
+        provider_call = not parsed.cache_hit
+        billable_prompt_tokens = parsed.prompt_tokens if provider_call else 0
+        billable_completion_tokens = parsed.completion_tokens if provider_call else 0
+        amount, cost_origin = _completion_amount(parsed, self._model_name)
+        billable_cost_usd = float(amount) if amount is not None else None
+        cost_delta_usd = (
+            float(origin_cost_usd) - float(estimated_cost_usd)
+            if origin_cost_usd is not None
+            else None
+        )
+
+        event = {
+            "model": self._model_name,
+            "provider": provider,
+            "status": "cache_hit" if parsed.cache_hit else status,
+            "prompt_tokens": billable_prompt_tokens,
+            "completion_tokens": billable_completion_tokens,
+            "total_tokens": billable_prompt_tokens + billable_completion_tokens,
+            "origin_prompt_tokens": prompt_tokens,
+            "origin_completion_tokens": completion_tokens,
+            "origin_total_tokens": prompt_tokens + completion_tokens,
+            "cost_usd": billable_cost_usd,
+            "cost_origin": cost_origin,
+            "usage_status": parsed.usage_status,
+            "cost_status": parsed.cost_status,
+            "origin_cost_usd": (float(origin_cost_usd) if origin_cost_usd is not None else None),
+            "estimated_cost_usd": float(estimated_cost_usd),
+            "cost_delta_usd": cost_delta_usd,
+            "latency_ms": latency_ms,
+            "run_id": self._run_id,
+            "model_variant_id": self._model_variant_id,
+            "request_id": parsed.request_id,
+            "cache_hit": parsed.cache_hit,
+            "provider_call": provider_call,
+            "usage_origin": parsed.usage_origin,
+            "reuse_event_id": parsed.reuse_event_id,
+            "cache_key": parsed.cache_key,
+            "event_identity": (
+                producer_event.event_id
+                if producer_event is not None
+                else parsed.reuse_event_id or parsed.request_id
+            ),
+        }
+        settlement = None
+        if producer_event is not None:
+            owner = _current_settlement_owner()
+
+
+### policy-engine/src/polisyos/core/llm/traced_client.py@a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9:602-612
+        if self._call_observer is not None:
+            try:
+                self._call_observer(dict(event))
+            except Exception:
+                # Observability callback must never break agent execution.
+                logging.getLogger(__name__).debug(
+                    "Observability callback failed",
+                    exc_info=True,
+                )
+
+        return settlement
+
+
+### policy-engine/src/polisyos/scientist/orchestration/llm/factory.py@a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9:1-30
+"""Factory helpers for creating traced gateway-backed LLM clients."""
+
+from __future__ import annotations
+
+import os
+from dataclasses import dataclass
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
+
+from polisyos.core.llm.sanitization import PromptSanitizer
+from polisyos.core.llm.traced_client import TracedLLMClient
+
+from .fallback_router import EndpointConfig, FallbackRouter
+from .gateway_client import GatewayLLMClient
+from .prompt_cache import CacheReuseAuthorizer, CachingLLMClient, InMemoryPromptCache
+from .simulated_gateway import DEFAULT_SIMULATED_MODEL_IDS, SimulatedGatewayLLMClient
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+
+def _as_bool(value: str | None, *, default: bool) -> bool:
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _is_plausible_gateway_api_key(value: str) -> bool:
+    key = value.strip()
+    return key.startswith("sk-") and len(key) >= 16 and not any(char.isspace() for char in key)
+
+
+### policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py@a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9:3085-3166
+def test_nl_pipeline_simulated_multimodel_honors_run_budget_guard_without_network(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    captured: dict[str, Any] = {}
+
+    def _capture_state(payload: dict[str, Any], **kwargs: Any) -> None:
+        captured["payload"] = payload
+        captured["kwargs"] = kwargs
+
+    monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "1")
+    _forbid_real_gateway_network(monkeypatch)
+    monkeypatch.setattr("polisyos.fabric.retrieval.RetrievalService", _FakeRetrievalService)
+    monkeypatch.setattr("polisyos.scientist.api.run_experiment", _capture_state)
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.catalog.ensure_all_methods_registered",
+        lambda: None,
+    )
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.build_method_catalog_snapshot",
+        lambda *, run_id=None: MethodCatalogSnapshot(
+            snapshot_id=f"test-catalog-{run_id or 'run'}",
+            run_id=run_id,
+        ),
+    )
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.persist_method_catalog_snapshot",
+        lambda _store, _snapshot: MethodCatalogSnapshotRef(artifact_id="sha256:" + "3" * 64),
+    )
+    from polisyos.common import async_tools
+
+    real_run_coro_sync = async_tools.run_coro_sync
+
+    def _run_coro_sync_with_load_budget(coro, *, timeout_seconds=None):
+        timeout = 120.0 if timeout_seconds is None else timeout_seconds
+        return real_run_coro_sync(coro, timeout_seconds=timeout)
+
+    monkeypatch.setattr(async_tools, "run_coro_sync", _run_coro_sync_with_load_budget)
+    service = ControlPlaneService(
+        cas_root=tmp_path / "cas",
+        core_runs_root=tmp_path / "runs",
+        registry_providers=_registry_providers(),
+    )
+
+    try:
+        service._execute_nl_pipeline(
+            run_id="R_nl_simulated_multimodel_budget",
+            nl_request="Compare deterministic simulated model variants for MSME support.",
+            context=_intent_context(requested_authority_level="dev"),
+            domain_hint="Ukraine wartime MSME support policy",
+            data_source=None,
+            max_iterations=1,
+            llm_models=["simulated-qwen", "simulated-llama"],
+            max_parallel_models=1,
+            run_budget_usd=0.0,
+            per_model_budget_usd=None,
+            checkpoint_policy="strict",
+            execution_plan_ref=None,
+            execution_plan_payload=None,
+            stop_criteria_payload={},
+            governance_constraints_payload=[],
+            expected_outputs_payload=[],
+            allow_mock_fallback=False,
+        )
+    finally:
+        service.close()
+
+    payload = captured["payload"]
+    assert captured["kwargs"]["store"] is service._artifact_store
+    params = payload["params"]
+    variants = params["llm_model_variants"]
+
+    assert params["llm_models"] == ["simulated-qwen", "simulated-llama"]
+    assert params["llm_selected_variant_id"] == variants[0]["model_variant_id"]
+    assert variants[0]["status"] == "completed"
+    assert variants[0]["prompt_tokens"] > 0
+    assert variants[0]["completion_tokens"] > 0
+    assert variants[0]["cost_usd"] == 0.0
+    assert variants[1]["status"] == "skipped_budget_guard"
+    assert variants[1]["notes"] == ["run_budget_guard_prevented_start"]
+    assert params["run_budget_usd"] == 0.0
+    assert params["run_cost_usd"] == 0.0

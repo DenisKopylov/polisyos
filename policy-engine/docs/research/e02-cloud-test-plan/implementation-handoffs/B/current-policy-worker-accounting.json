@@ -1,0 +1,2605 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-policy-worker-accounting",
+  "finding_ids": [
+    "B64",
+    "B65",
+    "B66",
+    "B67",
+    "B68",
+    "B87",
+    "B89",
+    "B90",
+    "B91",
+    "B92",
+    "B93",
+    "B94"
+  ],
+  "closure_ids": [],
+  "bundle_ids": [
+    "NET-01",
+    "NET-02",
+    "LLM-01",
+    "LLM-02",
+    "WIRE-01"
+  ],
+  "branch": "codex/e02-B-current-adapters",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/64",
+  "slice_base_sha": "82f7656a3848225c615dfef8c363e914dafe7e3e",
+  "slice_base_tree_sha": "4f9d18eb77392724d5118b43581719b255c2b974",
+  "main_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "predecessor_handoff": {
+    "git_sha": "90d2e869ae1e78b06932f8b2349848d41588def8",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair.json",
+    "bytes": 238204,
+    "sha256": "0f090915c51977633043f19086ebaa0ab0dc402484efb3167ac665513e419268"
+  },
+  "before_worker_edit_checkpoint_sha": "90d2e869ae1e78b06932f8b2349848d41588def8",
+  "production_freeze_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+  "production_freeze_tree_sha": "81a1399d2c167044e6127c8b4201f1276f85370d",
+  "docs_companion_sha": "9d80998f77300d226e152620fe73f7b905b023c5",
+  "implementation_commits": [
+    "90d2e869ae1e78b06932f8b2349848d41588def8",
+    "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+    "9d80998f77300d226e152620fe73f7b905b023c5",
+    "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce"
+  ],
+  "candidate_sha": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+  "candidate_tree_sha": "f9b23b654923fc6b3bf988f77ea7459b2a770b28",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/checks-and-limits.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/foreign-runtime-bindings.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/child.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/declared-source-context.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/native.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/run-native.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/selectors.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/public-surface-assessment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/slice-base.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/source-and-input-bindings.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-control.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-control.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-source/polisyos/__init__.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-source/polisyos/scientist/__init__.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-source/polisyos/scientist/policy_design/__init__.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-source/polisyos/scientist/policy_design/adversary.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-source/polisyos/scientist/policy_design/translator.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/check-0.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/check-1.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/check-2.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/checks.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/format-first.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/ruff.txt",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-policy-worker-accounting.toml",
+    "policy-engine/src/polisyos/scientist/policy_design/README.md",
+    "policy-engine/src/polisyos/scientist/policy_design/_llm_accounting.py",
+    "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+    "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+    "policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+    "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py"
+  ],
+  "source_changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-policy-worker-accounting.toml",
+    "policy-engine/src/polisyos/scientist/policy_design/README.md",
+    "policy-engine/src/polisyos/scientist/policy_design/_llm_accounting.py",
+    "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+    "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+    "policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+    "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py"
+  ],
+  "source_footprint": {
+    "git_sha": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/source-and-input-bindings.json",
+    "bytes": 4390,
+    "sha256": "9f924fe2d071e3cfa07ccbfae66b05df1d82733f5f361fe751722f34940bba04"
+  },
+  "evidence_index": {
+    "git_sha": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/index.json",
+    "bytes": 7595,
+    "sha256": "b78d42994d4138ea539d5ad68c91ba22fd31b74ced90527bf18cc1609e0debe0"
+  },
+  "evidence_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/checks-and-limits.json",
+      "bytes": 1318,
+      "sha256": "5038bd849f4cd3cd7ddf4a4e4a43e9c2682a91a044e234a5e79dd1c722554a83"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/foreign-runtime-bindings.json",
+      "bytes": 12246,
+      "sha256": "9f2474f620ca98112a81124cf2d9dcc6fc0ca1447580af1f87b5242df08bbcca"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/child.source.txt",
+      "bytes": 1764,
+      "sha256": "7c5abb26f3cb71930b14252d1adba9b90c792f4361e1ff8b8cf45dbe08d1d7e3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/declared-source-context.json",
+      "bytes": 7067,
+      "sha256": "cfce2f3a2dba559ff7676293dc5dc1b579db9e0ff8fe94c6df516ec510187cd3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/native.json",
+      "bytes": 7212,
+      "sha256": "47535f1acf77b7816b54e185a4ae8799d0a3ba7d43000f5a7134936273d8168e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/native.txt",
+      "bytes": 2344,
+      "sha256": "71bd86ddc99ef5edd6395f5b7fad918b027faa84150de637506e0ac3c7e859d9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/native.xml",
+      "bytes": 5618,
+      "sha256": "fcec9fb6a8947a676d51c55879ae32ab2f95648f640ca5775d7ebd839243a242"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/run-native.source.txt",
+      "bytes": 4147,
+      "sha256": "731efff59aad3dc8cba27ef1af73b96d84328faeea273a9bc3fd50487335cfad"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/selectors.json",
+      "bytes": 241,
+      "sha256": "6f2a06c71d3381eb550c58cd936af6b59ad810e6826127aa4a1afc0939660df7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/public-surface-assessment.json",
+      "bytes": 3441,
+      "sha256": "c2c8754a0607120c9f257430222b06dce5b6edb145d0f0f5decdcfd91205920d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/slice-base.json",
+      "bytes": 830,
+      "sha256": "65d8dcddb85b29af332da092985cbdf26bbec0f05e47c22e9e23b5dfa7453b1d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/source-and-input-bindings.json",
+      "bytes": 4390,
+      "sha256": "9f924fe2d071e3cfa07ccbfae66b05df1d82733f5f361fe751722f34940bba04"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-control.json",
+      "bytes": 3032,
+      "sha256": "dd923c7980d5f21dcdf03db5da0e511ccb685127616807022888f0b8c1c4902a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-control.txt",
+      "bytes": 3686,
+      "sha256": "f5a520e7fb0025d01af356790ba963e133ecd2619b8d9c27322cee33326a1402"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-source/polisyos/__init__.source.txt",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-source/polisyos/scientist/__init__.source.txt",
+      "bytes": 7829,
+      "sha256": "ab721e4a2e6da23e8786a1f1af1f7cc8a4a7b90d02384882b21de70b1cbb3e90"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-source/polisyos/scientist/policy_design/__init__.source.txt",
+      "bytes": 8526,
+      "sha256": "18bfb35730f0148d4542decc052e18f7e29fcb4f49360f379f1fe629d54cb82c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-source/polisyos/scientist/policy_design/adversary.source.txt",
+      "bytes": 15332,
+      "sha256": "e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-source/polisyos/scientist/policy_design/translator.source.txt",
+      "bytes": 15582,
+      "sha256": "a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/check-0.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/check-1.txt",
+      "bytes": 26,
+      "sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/check-2.txt",
+      "bytes": 3612,
+      "sha256": "2cc75a9a69a154db872c30e157ea99e319948184517ddff99de2268f7fc24c46"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/checks.json",
+      "bytes": 2514,
+      "sha256": "cdee87e67eac2a9eed778a68978632cd49b365a1a9d44c813cd68cd27994c5be"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/format-first.txt",
+      "bytes": 295,
+      "sha256": "3a19874a1bbe85b1930778c266c16ab569f65352ebecd3dc08ac0e1be777c914"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/ruff.txt",
+      "bytes": 1349,
+      "sha256": "efbd3db4f998e49e59d0dd16b1916dc7a03d74dbdf161453796db413eae27b95"
+    }
+  ],
+  "raw_only": [
+    {
+      "path": "/dev/shm/e02-B-workers-native-4b368/source-context.json",
+      "bytes": 1049048,
+      "sha256": "355b9ec4434484f399426c0a76162b7d739bd35d463d9723e5166286d5bfe216",
+      "G_availability": "not_established",
+      "role": "Full hook/pytest-main-return module origin census; compact declared origins/counters committed separately. Exact rerun needed for full source/resource review."
+    }
+  ],
+  "admission": {
+    "predecessor": {
+      "slice_base_checkpoint": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/slice-base.json",
+        "sha256": "402d89f88ee6a8d61f7825f3906ee8eb3d570509e3feec426f12a5c7880ad81d",
+        "bytes": 808
+      },
+      "receipts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/adapters-create.json",
+          "sha256": "ce7d9d148549b92e739dd8360724d7c6bff7846227ff65f3a0731882a8cf49af",
+          "bytes": 129567
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/adapters-resume.json",
+          "sha256": "4a26c4924d113a7c6867a08e52c5cb85b5619c09318382d2ba52c1af55fe7af1",
+          "bytes": 135633
+        }
+      ],
+      "qualification": "Root-created/admitted exactbase198 writer checkout; no new worktree or helper spawn. Original and fresh snapshots retained; snapshots are not reservations.",
+      "repairbase": "Normal published DD dependency merge d56 before first upper production edit; existing original admitted attached lane only, no new tree/helper. Current append-only evidence/HANDOFF does not revise custody history."
+    },
+    "worker_checkpoint": {
+      "git_sha": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/slice-base.json",
+      "bytes": 830,
+      "sha256": "65d8dcddb85b29af332da092985cbdf26bbec0f05e47c22e9e23b5dfa7453b1d"
+    },
+    "qualification": "Same root-created attached admitted checkout; published82f worker slice-base recorded before edits at90d docs-only progression. No new worktree, helpers, history rewrite or main push."
+  },
+  "dependencies": [
+    {
+      "source_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "source_tree_sha": "038b0012692a7fc12ca58aea91724f3a85c83b6e",
+      "merge_commit": "849cdae502edbd9f0ef1337f6133e3487b5b5748",
+      "owner": "DUR sole budget ledger/middleware author",
+      "receipt_ref": "fcd9fe50e504582736f9a012a145587d69b1dadf:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-obligations.json",
+      "schema": "strict snapshot1.2 completion_obligations, explicit full1.0/1.1 migration"
+    }
+  ],
+  "inventory": {
+    "canonical_finding_owners_ref": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@198076863e143dea9f89f02734b13d50dae3eed5",
+    "canonical_bundle_owners_ref": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv@198076863e143dea9f89f02734b13d50dae3eed5",
+    "unit_B_finding_count": 60,
+    "unit_B_ids": [
+      "B13",
+      "B14",
+      "B24",
+      "B37",
+      "B38",
+      "B39",
+      "B40",
+      "B42",
+      "B43",
+      "B44",
+      "B45",
+      "B46",
+      "B47",
+      "B48",
+      "B49",
+      "B50",
+      "B51",
+      "B52",
+      "B53",
+      "B55",
+      "B57",
+      "B58",
+      "B59",
+      "B60",
+      "B61",
+      "B62",
+      "B63",
+      "B64",
+      "B65",
+      "B66",
+      "B67",
+      "B68",
+      "B69",
+      "B70",
+      "B71",
+      "B72",
+      "B73",
+      "B74",
+      "B75",
+      "B76",
+      "B77",
+      "B78",
+      "B87",
+      "B89",
+      "B90",
+      "B91",
+      "B92",
+      "B93",
+      "B94",
+      "B95",
+      "B96",
+      "B148",
+      "B149",
+      "B150",
+      "B151",
+      "B152",
+      "B153",
+      "B154",
+      "B155",
+      "LA-057"
+    ],
+    "assigned_count": 12,
+    "assigned_ids": [
+      "B64",
+      "B65",
+      "B66",
+      "B67",
+      "B68",
+      "B87",
+      "B89",
+      "B90",
+      "B91",
+      "B92",
+      "B93",
+      "B94"
+    ],
+    "boundary": "B13 A-only generation route; B61 held runtime boundary remain outside this leaf. Root owns full25 bundles/all60 census and G reconciliation."
+  },
+  "baseline_cells": [
+    {
+      "id": "F01-P026",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt",
+      "source_line": 143,
+      "source_state": "PASS",
+      "related_findings": [
+        "B64",
+        "B65",
+        "B66",
+        "B67",
+        "B68"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F01-P026",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F02-P004",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt",
+      "source_line": 132,
+      "source_state": "PASS",
+      "related_findings": [
+        "B87",
+        "B89",
+        "B90"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F02-P004",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F03-P023",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt",
+      "source_line": 153,
+      "source_state": "PASS",
+      "related_findings": [
+        "B94"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F03-P023",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F03-P066",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt",
+      "source_line": 196,
+      "source_state": "PASS",
+      "related_findings": [
+        "B64",
+        "B65",
+        "B66"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F03-P066",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F03-P074",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "path": "policy-engine/tests/unit/remediation/test_wire_01.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt",
+      "source_line": 204,
+      "source_state": "PASS",
+      "related_findings": [
+        "B94"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F03-P074",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F03-P091",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt",
+      "source_line": 221,
+      "source_state": "PASS",
+      "related_findings": [
+        "B64",
+        "B65",
+        "B66"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F03-P091",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F04-P009",
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt",
+      "source_line": 219,
+      "source_state": "PASS",
+      "related_findings": [
+        "B87",
+        "B89",
+        "B90"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F04-P009",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F04-P021",
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt",
+      "source_line": 231,
+      "source_state": "PASS",
+      "related_findings": [
+        "B91",
+        "B92",
+        "B93"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F04-P021",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F05-P047",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt",
+      "source_line": 457,
+      "source_state": "PASS",
+      "related_findings": [
+        "B64",
+        "B65",
+        "B66",
+        "B67",
+        "B68"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F05-P047",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F06-P010",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt",
+      "source_line": 194,
+      "source_state": "PASS",
+      "related_findings": [
+        "B87",
+        "B89",
+        "B90"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F06-P010",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F06-P020",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt",
+      "source_line": 204,
+      "source_state": "PASS",
+      "related_findings": [
+        "B87",
+        "B89",
+        "B90"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F06-P020",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F06-P037",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt",
+      "source_line": 221,
+      "source_state": "PASS",
+      "related_findings": [
+        "B91",
+        "B92",
+        "B93"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F06-P037",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F06-P041",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt",
+      "source_line": 225,
+      "source_state": "PASS",
+      "related_findings": [
+        "B94"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F06-P041",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F07-P008",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt",
+      "source_line": 14,
+      "source_state": "PASS",
+      "related_findings": [
+        "B87",
+        "B89",
+        "B90"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F07-P008",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F07-P023",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt",
+      "source_line": 29,
+      "source_state": "PASS",
+      "related_findings": [
+        "B94"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F07-P023",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F07-P027",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt",
+      "source_line": 33,
+      "source_state": "PASS",
+      "related_findings": [
+        "B64",
+        "B65",
+        "B66",
+        "B67",
+        "B68"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F07-P027",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F07-P067",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "path": "policy-engine/tests/unit/remediation/test_wire_01.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt",
+      "source_line": 73,
+      "source_state": "PASS",
+      "related_findings": [
+        "B94"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F07-P067",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F07-P084",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt",
+      "source_line": 90,
+      "source_state": "PASS",
+      "related_findings": [
+        "B64",
+        "B65",
+        "B66"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F07-P084",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F08-P010",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt",
+      "source_line": 133,
+      "source_state": "PASS",
+      "related_findings": [
+        "B87",
+        "B89",
+        "B90"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F08-P010",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F08-P029",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt",
+      "source_line": 152,
+      "source_state": "PASS",
+      "related_findings": [
+        "B91",
+        "B92",
+        "B93"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F08-P029",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F10-P024",
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt",
+      "source_line": 144,
+      "source_state": "PASS",
+      "related_findings": [
+        "B91",
+        "B92",
+        "B93"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F10-P024",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F10-P027",
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt",
+      "source_line": 147,
+      "source_state": "PASS",
+      "related_findings": [
+        "B94"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F10-P027",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F10-P031",
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt",
+      "source_line": 151,
+      "source_state": "PASS",
+      "related_findings": [
+        "B64",
+        "B65",
+        "B66",
+        "B67",
+        "B68"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F10-P031",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F11-P015",
+      "job": "F11",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt",
+      "source_line": 144,
+      "source_state": "PASS",
+      "related_findings": [
+        "B87",
+        "B89",
+        "B90"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F11-P015",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F12-P008",
+      "job": "F12",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F12.txt",
+      "source_line": 593,
+      "source_state": "PASS",
+      "related_findings": [
+        "B87",
+        "B89",
+        "B90"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F12-P008",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F13-P010",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt",
+      "source_line": 137,
+      "source_state": "PASS",
+      "related_findings": [
+        "B87",
+        "B89",
+        "B90"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F13-P010",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F13-P024",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt",
+      "source_line": 151,
+      "source_state": "PASS",
+      "related_findings": [
+        "B91",
+        "B92",
+        "B93"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F13-P024",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F13-P027",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt",
+      "source_line": 154,
+      "source_state": "PASS",
+      "related_findings": [
+        "B94"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F13-P027",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F13-P104",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt",
+      "source_line": 231,
+      "source_state": "PASS",
+      "related_findings": [
+        "B64",
+        "B65",
+        "B66"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F13-P104",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F15-P004",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt",
+      "source_line": 159,
+      "source_state": "PASS",
+      "related_findings": [
+        "B87",
+        "B89",
+        "B90"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F15-P004",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F15-P032",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt",
+      "source_line": 187,
+      "source_state": "PASS",
+      "related_findings": [
+        "B64",
+        "B65",
+        "B66",
+        "B67",
+        "B68"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F15-P032",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F15-P087",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "path": "policy-engine/tests/unit/remediation/test_wire_01.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt",
+      "source_line": 242,
+      "source_state": "PASS",
+      "related_findings": [
+        "B94"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F15-P087",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    }
+  ],
+  "baseline_job_context": [
+    {
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "transferred_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt",
+        "sha256": "5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9",
+        "bytes": 71251
+      },
+      "environment_identity": {
+        "grade": "source_reported",
+        "metadata_json_root_lines": [
+          4
+        ],
+        "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt@sha256:5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9",
+        "instruction": "Read the full metadata JSON object(s) and exact cell/job context; F12 has two metadata roots. Python/tool/segment distinctions are retained in canonical bytes, not flattened to current environment."
+      },
+      "input_closure": {
+        "source": "Source-reported Git source point and transferred compact cell/job context only",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B64 --details --job-context --limit 1000 --block-limit 1000",
+        "raw_archive_transfer": "missing",
+        "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
+      }
+    },
+    {
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "transferred_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt",
+        "sha256": "69b55ba8ab1cd438d9cd3da1093e8c9e08f18653123ebc27acb310f6c8015447",
+        "bytes": 61014
+      },
+      "environment_identity": {
+        "grade": "source_reported",
+        "metadata_json_root_lines": [
+          5
+        ],
+        "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt@sha256:69b55ba8ab1cd438d9cd3da1093e8c9e08f18653123ebc27acb310f6c8015447",
+        "instruction": "Read the full metadata JSON object(s) and exact cell/job context; F12 has two metadata roots. Python/tool/segment distinctions are retained in canonical bytes, not flattened to current environment."
+      },
+      "input_closure": {
+        "source": "Source-reported Git source point and transferred compact cell/job context only",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B87 --details --job-context --limit 1000 --block-limit 1000",
+        "raw_archive_transfer": "missing",
+        "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
+      }
+    },
+    {
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "transferred_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt",
+        "sha256": "1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318",
+        "bytes": 75761
+      },
+      "environment_identity": {
+        "grade": "source_reported",
+        "metadata_json_root_lines": [
+          6
+        ],
+        "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt@sha256:1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318",
+        "instruction": "Read the full metadata JSON object(s) and exact cell/job context; F12 has two metadata roots. Python/tool/segment distinctions are retained in canonical bytes, not flattened to current environment."
+      },
+      "input_closure": {
+        "source": "Source-reported Git source point and transferred compact cell/job context only",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B94 --details --job-context --limit 1000 --block-limit 1000",
+        "raw_archive_transfer": "missing",
+        "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
+      }
+    },
+    {
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "transferred_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt",
+        "sha256": "17756ae979ae73e233cad8bf43a09a3118b1efbbc88acd9dd37e3db4125a8f86",
+        "bytes": 79431
+      },
+      "environment_identity": {
+        "grade": "source_reported",
+        "metadata_json_root_lines": [
+          4
+        ],
+        "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt@sha256:17756ae979ae73e233cad8bf43a09a3118b1efbbc88acd9dd37e3db4125a8f86",
+        "instruction": "Read the full metadata JSON object(s) and exact cell/job context; F12 has two metadata roots. Python/tool/segment distinctions are retained in canonical bytes, not flattened to current environment."
+      },
+      "input_closure": {
+        "source": "Source-reported Git source point and transferred compact cell/job context only",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B87 --details --job-context --limit 1000 --block-limit 1000",
+        "raw_archive_transfer": "missing",
+        "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
+      }
+    },
+    {
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "transferred_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt",
+        "sha256": "2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0",
+        "bytes": 97032
+      },
+      "environment_identity": {
+        "grade": "source_reported",
+        "metadata_json_root_lines": [
+          7
+        ],
+        "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt@sha256:2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0",
+        "instruction": "Read the full metadata JSON object(s) and exact cell/job context; F12 has two metadata roots. Python/tool/segment distinctions are retained in canonical bytes, not flattened to current environment."
+      },
+      "input_closure": {
+        "source": "Source-reported Git source point and transferred compact cell/job context only",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B64 --details --job-context --limit 1000 --block-limit 1000",
+        "raw_archive_transfer": "missing",
+        "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
+      }
+    },
+    {
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "transferred_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt",
+        "sha256": "b2e2bac4bbb9f2c89d0fe2ef5ad462fb2238833a9f64486383e07d135f4c4a3f",
+        "bytes": 99912
+      },
+      "environment_identity": {
+        "grade": "source_reported",
+        "metadata_json_root_lines": [
+          3
+        ],
+        "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt@sha256:b2e2bac4bbb9f2c89d0fe2ef5ad462fb2238833a9f64486383e07d135f4c4a3f",
+        "instruction": "Read the full metadata JSON object(s) and exact cell/job context; F12 has two metadata roots. Python/tool/segment distinctions are retained in canonical bytes, not flattened to current environment."
+      },
+      "input_closure": {
+        "source": "Source-reported Git source point and transferred compact cell/job context only",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B87 --details --job-context --limit 1000 --block-limit 1000",
+        "raw_archive_transfer": "missing",
+        "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
+      }
+    },
+    {
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "transferred_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt",
+        "sha256": "eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866",
+        "bytes": 74977
+      },
+      "environment_identity": {
+        "grade": "source_reported",
+        "metadata_json_root_lines": [
+          5
+        ],
+        "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt@sha256:eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866",
+        "instruction": "Read the full metadata JSON object(s) and exact cell/job context; F12 has two metadata roots. Python/tool/segment distinctions are retained in canonical bytes, not flattened to current environment."
+      },
+      "input_closure": {
+        "source": "Source-reported Git source point and transferred compact cell/job context only",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B87 --details --job-context --limit 1000 --block-limit 1000",
+        "raw_archive_transfer": "missing",
+        "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
+      }
+    },
+    {
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "transferred_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt",
+        "sha256": "d4ccc20c4f1c70e35c9e07c049552e5a8a2a1eca750c350f23f13040468d7f18",
+        "bytes": 95586
+      },
+      "environment_identity": {
+        "grade": "source_reported",
+        "metadata_json_root_lines": [
+          5
+        ],
+        "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt@sha256:d4ccc20c4f1c70e35c9e07c049552e5a8a2a1eca750c350f23f13040468d7f18",
+        "instruction": "Read the full metadata JSON object(s) and exact cell/job context; F12 has two metadata roots. Python/tool/segment distinctions are retained in canonical bytes, not flattened to current environment."
+      },
+      "input_closure": {
+        "source": "Source-reported Git source point and transferred compact cell/job context only",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B87 --details --job-context --limit 1000 --block-limit 1000",
+        "raw_archive_transfer": "missing",
+        "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
+      }
+    },
+    {
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "transferred_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt",
+        "sha256": "c45428c7e6574666b0a5ef98ba0427e3137c7008046fad65d4ed4dc55620fe36",
+        "bytes": 71852
+      },
+      "environment_identity": {
+        "grade": "source_reported",
+        "metadata_json_root_lines": [
+          5
+        ],
+        "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt@sha256:c45428c7e6574666b0a5ef98ba0427e3137c7008046fad65d4ed4dc55620fe36",
+        "instruction": "Read the full metadata JSON object(s) and exact cell/job context; F12 has two metadata roots. Python/tool/segment distinctions are retained in canonical bytes, not flattened to current environment."
+      },
+      "input_closure": {
+        "source": "Source-reported Git source point and transferred compact cell/job context only",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B91 --details --job-context --limit 1000 --block-limit 1000",
+        "raw_archive_transfer": "missing",
+        "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
+      }
+    },
+    {
+      "job": "F11",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "transferred_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt",
+        "sha256": "5d24641c10ed0943503e5c14c2965a849d5389a4ba35ece518418fe12a03f471",
+        "bytes": 62579
+      },
+      "environment_identity": {
+        "grade": "source_reported",
+        "metadata_json_root_lines": [
+          5
+        ],
+        "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt@sha256:5d24641c10ed0943503e5c14c2965a849d5389a4ba35ece518418fe12a03f471",
+        "instruction": "Read the full metadata JSON object(s) and exact cell/job context; F12 has two metadata roots. Python/tool/segment distinctions are retained in canonical bytes, not flattened to current environment."
+      },
+      "input_closure": {
+        "source": "Source-reported Git source point and transferred compact cell/job context only",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B87 --details --job-context --limit 1000 --block-limit 1000",
+        "raw_archive_transfer": "missing",
+        "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
+      }
+    },
+    {
+      "job": "F12",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "transferred_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F12.txt",
+        "sha256": "03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2",
+        "bytes": 110036
+      },
+      "environment_identity": {
+        "grade": "source_reported",
+        "metadata_json_root_lines": [
+          5,
+          346
+        ],
+        "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F12.txt@sha256:03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2",
+        "instruction": "Read the full metadata JSON object(s) and exact cell/job context; F12 has two metadata roots. Python/tool/segment distinctions are retained in canonical bytes, not flattened to current environment."
+      },
+      "input_closure": {
+        "source": "Source-reported Git source point and transferred compact cell/job context only",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B87 --details --job-context --limit 1000 --block-limit 1000",
+        "raw_archive_transfer": "missing",
+        "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
+      }
+    },
+    {
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "transferred_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt",
+        "sha256": "7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b",
+        "bytes": 87536
+      },
+      "environment_identity": {
+        "grade": "source_reported",
+        "metadata_json_root_lines": [
+          5
+        ],
+        "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt@sha256:7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b",
+        "instruction": "Read the full metadata JSON object(s) and exact cell/job context; F12 has two metadata roots. Python/tool/segment distinctions are retained in canonical bytes, not flattened to current environment."
+      },
+      "input_closure": {
+        "source": "Source-reported Git source point and transferred compact cell/job context only",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B87 --details --job-context --limit 1000 --block-limit 1000",
+        "raw_archive_transfer": "missing",
+        "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
+      }
+    },
+    {
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "transferred_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt",
+        "sha256": "efe346d9094f0906bb23b1061cb51b9252afd299f85062591e13449616879169",
+        "bytes": 85661
+      },
+      "environment_identity": {
+        "grade": "source_reported",
+        "metadata_json_root_lines": [
+          5
+        ],
+        "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt@sha256:efe346d9094f0906bb23b1061cb51b9252afd299f85062591e13449616879169",
+        "instruction": "Read the full metadata JSON object(s) and exact cell/job context; F12 has two metadata roots. Python/tool/segment distinctions are retained in canonical bytes, not flattened to current environment."
+      },
+      "input_closure": {
+        "source": "Source-reported Git source point and transferred compact cell/job context only",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B87 --details --job-context --limit 1000 --block-limit 1000",
+        "raw_archive_transfer": "missing",
+        "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
+      }
+    }
+  ],
+  "baseline_denominator": {
+    "cells": 32,
+    "jobs": 13,
+    "grade": "source_reported_compact_text_only; candidate_routes; raw archive missing",
+    "full_query_template": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding Bxx --details --job-context --limit1000 --block-limit1000",
+    "initial_failures_query": {
+      "command": "python3 docs/research/e02-cloud-test-plan/results/query.py --unit B --failures-only --limit 30",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/current-query-B-failures.json",
+        "sha256": "9620f913ce0faa3773d4e91862b06643135542725ab3fd9ed591843c69bf5624",
+        "bytes": 47140
+      }
+    },
+    "navigation_not_proof": true
+  },
+  "baseline_qualification": "Full32 exact cells/13 job contexts retained for criterion navigation only. Source SHA/ref, environment and input closure remain those original observations; none supplies new worker proof. Prior producer mechanism/evidence is separately pinned by90d.",
+  "checks": [
+    {
+      "id": "worker-full2-4b",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/dev/shm/e02-B-workers-native-4b368/child.source.txt",
+        "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py",
+        "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "--basetemp",
+        "/dev/shm/e02-B-workers-native-4b368/fixtures",
+        "--junitxml",
+        "/dev/shm/e02-B-workers-native-4b368/native.xml"
+      ],
+      "target_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "pytest": "9.0.2",
+        "explicit_environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+          "E02_B66_TARGET_ROOT": "/workspace/e02-B-current-adapters",
+          "E02_B66_TARGET_SHA": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+          "E02_B65_CONTEXT": "/dev/shm/e02-B-workers-native-4b368/source-context.json",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+        },
+        "origins": {
+          "git_sha": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/declared-source-context.json",
+          "bytes": 7067,
+          "sha256": "cfce2f3a2dba559ff7676293dc5dc1b579db9e0ff8fe94c6df516ec510187cd3"
+        },
+        "fixture_profile": "Unique actual /dev/shm filesystem/provider/ledger; temporary memory filesystem does not prove production storage durability. No live TCP/API/external financial authority or numerical/process/thread/CPU quota added."
+      },
+      "input_closure": {
+        "whole_files": [
+          "tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py",
+          "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py"
+        ],
+        "source_test_git_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+        "driver": {
+          "git_sha": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/child.source.txt",
+          "bytes": 1764,
+          "sha256": "7c5abb26f3cb71930b14252d1adba9b90c792f4361e1ff8b8cf45dbe08d1d7e3"
+        },
+        "capture": {
+          "git_sha": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/run-native.source.txt",
+          "bytes": 4147,
+          "sha256": "731efff59aad3dc8cba27ef1af73b96d84328faeea273a9bc3fd50487335cfad"
+        },
+        "selectors": {
+          "git_sha": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/selectors.json",
+          "bytes": 241,
+          "sha256": "6f2a06c71d3381eb550c58cd936af6b59ad810e6826127aa4a1afc0939660df7"
+        },
+        "native_wrapper": {
+          "git_sha": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/native.json",
+          "bytes": 7212,
+          "sha256": "47535f1acf77b7816b54e185a4ae8799d0a3ba7d43000f5a7134936273d8168e"
+        },
+        "tokenizer_asset": {
+          "bytes": 1681126,
+          "sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7"
+        },
+        "boundary": "Real initialized filesystem ledgers and factory consumer. Changed3 raw-budget fixture uses are explicit initialized-owner migration; all scientific and unbudgeted assertions retained. No test input/source/body outcome inferred from prefix."
+      },
+      "outcome": "FAIL",
+      "actual_exit": 1,
+      "case_counts": {
+        "PASS": 18,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "case_count": 19,
+      "wall_seconds": 19.92573846099549,
+      "max_rss_kib": 762392,
+      "output": {
+        "git_sha": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/native.txt",
+        "bytes": 2344,
+        "sha256": "71bd86ddc99ef5edd6395f5b7fad918b027faa84150de637506e0ac3c7e859d9"
+      },
+      "junit": {
+        "git_sha": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/native.xml",
+        "bytes": 5618,
+        "sha256": "fcec9fb6a8947a676d51c55879ae32ab2f95648f640ca5775d7ebd839243a242"
+      },
+      "deciding_output": "All12 new admission cases PASS; older whole7 has6PASS/1FAIL. Sole FAIL test_scenario_adversary_fallback_and_execution: unchanged vulnerabilities assertion receives [] after16 actual stress evaluations. No scientific assertion relaxation or inherited waiver.",
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "worker-ruff",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/scientist/policy_design/_llm_accounting.py",
+        "src/polisyos/scientist/policy_design/adversary.py",
+        "src/polisyos/scientist/policy_design/translator.py",
+        "tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py",
+        "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py"
+      ],
+      "target_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "tools_environment": "Same unchanged initialized root tools; exact command/actualwait4 captured in static/checks.json. No type ignore, annotation bypass, stub edit or gate relaxation."
+      },
+      "input_closure": {
+        "source_git_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+        "exact_declared_input": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "ruff",
+          "check",
+          "src/polisyos/scientist/policy_design/_llm_accounting.py",
+          "src/polisyos/scientist/policy_design/adversary.py",
+          "src/polisyos/scientist/policy_design/translator.py",
+          "tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py",
+          "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py"
+        ],
+        "wrapper": {
+          "git_sha": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/checks.json",
+          "bytes": 2514,
+          "sha256": "cdee87e67eac2a9eed778a68978632cd49b365a1a9d44c813cd68cd27994c5be"
+        },
+        "boundary": "Scoped selected files and actual transitive stub inputs; not a full global gate or child/import/resource closure."
+      },
+      "outcome": "PASS",
+      "actual_exit": 0,
+      "wall_seconds": 0.04284079400531482,
+      "max_rss_kib": 31680,
+      "output": {
+        "git_sha": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/check-0.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "deciding_output": "Actual scoped Ruff/format pass.",
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "worker-format",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/scientist/policy_design/_llm_accounting.py",
+        "src/polisyos/scientist/policy_design/adversary.py",
+        "src/polisyos/scientist/policy_design/translator.py",
+        "tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py",
+        "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py"
+      ],
+      "target_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "tools_environment": "Same unchanged initialized root tools; exact command/actualwait4 captured in static/checks.json. No type ignore, annotation bypass, stub edit or gate relaxation."
+      },
+      "input_closure": {
+        "source_git_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+        "exact_declared_input": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "src/polisyos/scientist/policy_design/_llm_accounting.py",
+          "src/polisyos/scientist/policy_design/adversary.py",
+          "src/polisyos/scientist/policy_design/translator.py",
+          "tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py",
+          "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py"
+        ],
+        "wrapper": {
+          "git_sha": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/checks.json",
+          "bytes": 2514,
+          "sha256": "cdee87e67eac2a9eed778a68978632cd49b365a1a9d44c813cd68cd27994c5be"
+        },
+        "boundary": "Scoped selected files and actual transitive stub inputs; not a full global gate or child/import/resource closure."
+      },
+      "outcome": "PASS",
+      "actual_exit": 0,
+      "wall_seconds": 0.03876838799624238,
+      "max_rss_kib": 22536,
+      "output": {
+        "git_sha": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/check-1.txt",
+        "bytes": 26,
+        "sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1"
+      },
+      "deciding_output": "Actual scoped Ruff/format pass.",
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "worker-mypy-current",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "mypy",
+        "--follow-imports=silent",
+        "--ignore-missing-imports",
+        "--cache-dir",
+        "/dev/shm/e02-B-worker-static/mypy-cache",
+        "src/polisyos/scientist/policy_design/_llm_accounting.py",
+        "src/polisyos/scientist/policy_design/adversary.py",
+        "src/polisyos/scientist/policy_design/translator.py"
+      ],
+      "target_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "tools_environment": "Same unchanged initialized root tools; exact command/actualwait4 captured in static/checks.json. No type ignore, annotation bypass, stub edit or gate relaxation."
+      },
+      "input_closure": {
+        "source_git_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+        "exact_declared_input": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "mypy",
+          "--follow-imports=silent",
+          "--ignore-missing-imports",
+          "--cache-dir",
+          "/dev/shm/e02-B-worker-static/mypy-cache",
+          "src/polisyos/scientist/policy_design/_llm_accounting.py",
+          "src/polisyos/scientist/policy_design/adversary.py",
+          "src/polisyos/scientist/policy_design/translator.py"
+        ],
+        "wrapper": {
+          "git_sha": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/checks.json",
+          "bytes": 2514,
+          "sha256": "cdee87e67eac2a9eed778a68978632cd49b365a1a9d44c813cd68cd27994c5be"
+        },
+        "boundary": "Scoped selected files and actual transitive stub inputs; not a full global gate or child/import/resource closure."
+      },
+      "outcome": "FAIL",
+      "actual_exit": 1,
+      "wall_seconds": 60.0786151689972,
+      "max_rss_kib": 1153100,
+      "output": {
+        "git_sha": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/check-2.txt",
+        "bytes": 3612,
+        "sha256": "2cc75a9a69a154db872c30e157ea99e319948184517ddff99de2268f7fc24c46"
+      },
+      "deciding_output": "13 actual mypy errors:11 transitive stub errors and2 selected old worker statements. FAIL retained; no P41 inherited waiver.",
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "worker-mypy-base-source-control",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "mypy",
+        "--follow-imports=silent",
+        "--ignore-missing-imports",
+        "--cache-dir",
+        "/dev/shm/e02-B-worker-static/mypy-cache",
+        "/dev/shm/e02-B-worker-static/base-source/polisyos/scientist/policy_design/adversary.py",
+        "/dev/shm/e02-B-worker-static/base-source/polisyos/scientist/policy_design/translator.py"
+      ],
+      "target_sha": "82f7656a3848225c615dfef8c363e914dafe7e3e",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "explicit_environment": {
+          "MYPYPATH": "/workspace/e02-B-current-adapters/policy-engine/src"
+        },
+        "dependencies": "Unchanged current admitted canonical source resolves transitive dependencies; exact two predecessor worker files +3 namespace initializers exported read-only."
+      },
+      "input_closure": {
+        "source_files": [
+          {
+            "source_ref": "82f7656a3848225c615dfef8c363e914dafe7e3e:policy-engine/src/polisyos/__init__.py",
+            "materialized_path": "/dev/shm/e02-B-worker-static/base-source/polisyos/__init__.py",
+            "bytes": 24,
+            "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+          },
+          {
+            "source_ref": "82f7656a3848225c615dfef8c363e914dafe7e3e:policy-engine/src/polisyos/scientist/__init__.py",
+            "materialized_path": "/dev/shm/e02-B-worker-static/base-source/polisyos/scientist/__init__.py",
+            "bytes": 7829,
+            "sha256": "ab721e4a2e6da23e8786a1f1af1f7cc8a4a7b90d02384882b21de70b1cbb3e90"
+          },
+          {
+            "source_ref": "82f7656a3848225c615dfef8c363e914dafe7e3e:policy-engine/src/polisyos/scientist/policy_design/__init__.py",
+            "materialized_path": "/dev/shm/e02-B-worker-static/base-source/polisyos/scientist/policy_design/__init__.py",
+            "bytes": 8526,
+            "sha256": "18bfb35730f0148d4542decc052e18f7e29fcb4f49360f379f1fe629d54cb82c"
+          },
+          {
+            "source_ref": "82f7656a3848225c615dfef8c363e914dafe7e3e:policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+            "materialized_path": "/dev/shm/e02-B-worker-static/base-source/polisyos/scientist/policy_design/adversary.py",
+            "bytes": 15332,
+            "sha256": "e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7"
+          },
+          {
+            "source_ref": "82f7656a3848225c615dfef8c363e914dafe7e3e:policy-engine/src/polisyos/scientist/policy_design/translator.py",
+            "materialized_path": "/dev/shm/e02-B-worker-static/base-source/polisyos/scientist/policy_design/translator.py",
+            "bytes": 15582,
+            "sha256": "a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1"
+          }
+        ],
+        "committed_lossless_source_copies": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-source/polisyos/__init__.source.txt",
+            "bytes": 24,
+            "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-source/polisyos/scientist/__init__.source.txt",
+            "bytes": 7829,
+            "sha256": "ab721e4a2e6da23e8786a1f1af1f7cc8a4a7b90d02384882b21de70b1cbb3e90"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-source/polisyos/scientist/policy_design/__init__.source.txt",
+            "bytes": 8526,
+            "sha256": "18bfb35730f0148d4542decc052e18f7e29fcb4f49360f379f1fe629d54cb82c"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-source/polisyos/scientist/policy_design/adversary.source.txt",
+            "bytes": 15332,
+            "sha256": "e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-source/polisyos/scientist/policy_design/translator.source.txt",
+            "bytes": 15582,
+            "sha256": "a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1"
+          }
+        ],
+        "control": {
+          "git_sha": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-control.json",
+          "bytes": 3032,
+          "sha256": "dd923c7980d5f21dcdf03db5da0e511ccb685127616807022888f0b8c1c4902a"
+        },
+        "boundary": "Exact two predecessor worker source files and namespace init files exported read-only; unchanged transitive dependencies resolved from current admitted source. Helper did not exist in predecessor and is not a baseline target. This is source-equivalent typing control, not a full predecessor runtime/worktree."
+      },
+      "outcome": "FAIL",
+      "actual_exit": 1,
+      "wall_seconds": 3.3274225929926615,
+      "max_rss_kib": 580796,
+      "output": {
+        "git_sha": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-control.txt",
+        "bytes": 3686,
+        "sha256": "f5a520e7fb0025d01af356790ba963e133ecd2619b8d9c27322cee33326a1402"
+      },
+      "deciding_output": "Same13 literal errors,11 stub plus2 old worker statements. Source-equivalent typing control only, not full predecessor tree/runtime and not an inherited/global gate waiver. Current changed fixtures still have actualFAIL grade.",
+      "predicate_basis": "recomputed"
+    }
+  ],
+  "foreign_checks": [
+    {
+      "id": "foreign-DUR-native",
+      "command": "python3 /tmp/e02-B-worker-repair-preparation-5902/run.source.txt --source-root /workspace/e02-B-current-adapters --source-sha 4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd --test-sha 5902db2744b518cdde223901904c1bbf928481f3 --output /tmp/e02-B-worker-repair-4b368-14-493612",
+      "target_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+      "environment": {
+        "actual_python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "wrapper": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/wrapper.json",
+          "bytes": 3431,
+          "sha256": "1f97384bcbadf33981be9118b8d8cd0e20b6166c47f6f0bc8a6cf6b86fb91468"
+        },
+        "shared_python_immutable": true,
+        "source_root": "/workspace/e02-B-current-adapters",
+        "strict_head_tree_tracked_clean_before_after": true,
+        "numeric_caps": "All six ambient numerical caps removed; values and explicit PYTHONPATH/tokenizer env in actual wrapper."
+      },
+      "input_closure": {
+        "test_git_sha": "5902db2744b518cdde223901904c1bbf928481f3",
+        "test_path": "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py",
+        "test_sha256": "bb171bf9a96bc0780eb27be2e229e8c986ef18fdae5ca10fc6b950b42ee34aa6",
+        "product_git_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+        "product_tree_sha": "81a1399d2c167044e6127c8b4201f1276f85370d",
+        "actual_command_driver": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/run-native.source.txt",
+          "bytes": 4177,
+          "sha256": "9ff2f665146389f9693e808f235280694d0a15ee24c2054d78f05df4695143e2"
+        },
+        "declared_in_memory_source_overlay": null,
+        "overlay_driver": null,
+        "fixture": "Real worker/factory/decoder/cache/Traced/enforcer/FileBudgetLedger; only GatewayLLMClient._post_json SDK boundary returns known .02 or omitted usage and fsyncs each full actual request. Fresh BudgetMiddleware and FileBudgetLedger(path) every configured call. Exact official cl100k cache asset pinned in wrapper."
+      },
+      "outcome": "PASS",
+      "expected_property_removal_failure": false,
+      "native_case_count": 14,
+      "deciding_quantities": "14 actual PASS. Unknown both worker routes physical1, first LLMAccountingError then fresh same-ledger refusal, actual cost_unknown/no spend or receipts. Known .02 twice becomes .04 all keys, no pending. Raw/mixed/ledgerless/active-loop actual typed refusal/physical0. Explicit unbudgeted known profile real output/physical2 remains non-durable.",
+      "wall_seconds": 13.84613847998844,
+      "maxrss_kib": 730784,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/native.txt",
+      "output_sha256": "6a9151b4e7a43cfa4d28126738d748f6a358f9ef5ece734daa4f5e53951b7d74",
+      "output_bytes": 137301,
+      "junit": {
+        "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/native.xml",
+        "bytes": 2182,
+        "sha256": "7a62a7ca067bd5aed4de7bddd6d904d1adef617d9d4e8c23b2e06998a87314f5"
+      },
+      "receipt": {
+        "git_sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-independent.json",
+        "bytes": 32317,
+        "sha256": "e9b62d7c792ad5925d39c90800efe49d47edf43fa81b6768e54e3899777b6ccd"
+      },
+      "evidence_implementation_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+      "predicate_basis": "independently_reconciled"
+    },
+    {
+      "id": "foreign-DUR-remove-admission",
+      "command": "python3 /tmp/e02-B-worker-repair-preparation-5902/run.source.txt --source-root /workspace/e02-B-current-adapters --source-sha 4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd --test-sha 5902db2744b518cdde223901904c1bbf928481f3 --output /tmp/e02-B-worker-repair-4b368-remove-admission-493612 --removal durable_admission",
+      "target_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+      "environment": {
+        "actual_python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "wrapper": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-admission/wrapper.json",
+          "bytes": 3066,
+          "sha256": "ca8bde6bc1031f418e0c5ea5217007f90357f1d615a09329eda12758488222da"
+        },
+        "shared_python_immutable": true,
+        "source_root": "/workspace/e02-B-current-adapters",
+        "strict_head_tree_tracked_clean_before_after": true,
+        "numeric_caps": "All six ambient numerical caps removed; values and explicit PYTHONPATH/tokenizer env in actual wrapper."
+      },
+      "input_closure": {
+        "test_git_sha": "5902db2744b518cdde223901904c1bbf928481f3",
+        "test_path": "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py",
+        "test_sha256": "bb171bf9a96bc0780eb27be2e229e8c986ef18fdae5ca10fc6b950b42ee34aa6",
+        "product_git_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+        "product_tree_sha": "81a1399d2c167044e6127c8b4201f1276f85370d",
+        "actual_command_driver": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/run-native.source.txt",
+          "bytes": 4177,
+          "sha256": "9ff2f665146389f9693e808f235280694d0a15ee24c2054d78f05df4695143e2"
+        },
+        "declared_in_memory_source_overlay": "durable_admission",
+        "overlay_driver": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/removal.source.txt",
+          "bytes": 3153,
+          "sha256": "74bbfc17cc4dd575b220904b76af9908fec88bf4b158cee7402c3ceed30e2d05"
+        },
+        "fixture": "Real worker/factory/decoder/cache/Traced/enforcer/FileBudgetLedger; only GatewayLLMClient._post_json SDK boundary returns known .02 or omitted usage and fsyncs each full actual request. Fresh BudgetMiddleware and FileBudgetLedger(path) every configured call. Exact official cl100k cache asset pinned in wrapper."
+      },
+      "outcome": "FAIL",
+      "expected_property_removal_failure": true,
+      "native_case_count": 2,
+      "deciding_quantities": "2 actual FAIL, no errors. Each worker raw-only missing SDK usage physically called twice, propagated unknown both times and retained estimated reservation without known spend. Same 14-case input selected raw-only; only declared admission function replacement in memory.",
+      "wall_seconds": 12.868397325000842,
+      "maxrss_kib": 689624,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-admission/native.txt",
+      "output_sha256": "07fb92d9def8e9870624c80794a0544e049fef5ead81752da5ecb5bef285ea16",
+      "output_bytes": 54870,
+      "junit": {
+        "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-admission/native.xml",
+        "bytes": 31056,
+        "sha256": "9deafbbfadfcd0d8642f0a04c79d330a82675532c174dd085ce5508d18a647b0"
+      },
+      "receipt": {
+        "git_sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-independent.json",
+        "bytes": 32317,
+        "sha256": "e9b62d7c792ad5925d39c90800efe49d47edf43fa81b6768e54e3899777b6ccd"
+      },
+      "evidence_implementation_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+      "predicate_basis": "independently_reconciled"
+    },
+    {
+      "id": "foreign-DUR-remove-propagation",
+      "command": "python3 /tmp/e02-B-worker-repair-preparation-5902/run.source.txt --source-root /workspace/e02-B-current-adapters --source-sha 4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd --test-sha 5902db2744b518cdde223901904c1bbf928481f3 --output /tmp/e02-B-worker-repair-4b368-remove-propagation-493612 --removal accounting_error_propagation",
+      "target_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+      "environment": {
+        "actual_python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "wrapper": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/wrapper.json",
+          "bytes": 3083,
+          "sha256": "2425510fe7e801b04f19e5b405138b95cb890d06622a30a1c790b710c2efa9b5"
+        },
+        "shared_python_immutable": true,
+        "source_root": "/workspace/e02-B-current-adapters",
+        "strict_head_tree_tracked_clean_before_after": true,
+        "numeric_caps": "All six ambient numerical caps removed; values and explicit PYTHONPATH/tokenizer env in actual wrapper."
+      },
+      "input_closure": {
+        "test_git_sha": "5902db2744b518cdde223901904c1bbf928481f3",
+        "test_path": "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py",
+        "test_sha256": "bb171bf9a96bc0780eb27be2e229e8c986ef18fdae5ca10fc6b950b42ee34aa6",
+        "product_git_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+        "product_tree_sha": "81a1399d2c167044e6127c8b4201f1276f85370d",
+        "actual_command_driver": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/run-native.source.txt",
+          "bytes": 4177,
+          "sha256": "9ff2f665146389f9693e808f235280694d0a15ee24c2054d78f05df4695143e2"
+        },
+        "declared_in_memory_source_overlay": "accounting_error_propagation",
+        "overlay_driver": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/removal.source.txt",
+          "bytes": 3153,
+          "sha256": "74bbfc17cc4dd575b220904b76af9908fec88bf4b158cee7402c3ceed30e2d05"
+        },
+        "fixture": "Real worker/factory/decoder/cache/Traced/enforcer/FileBudgetLedger; only GatewayLLMClient._post_json SDK boundary returns known .02 or omitted usage and fsyncs each full actual request. Fresh BudgetMiddleware and FileBudgetLedger(path) every configured call. Exact official cl100k cache asset pinned in wrapper."
+      },
+      "outcome": "FAIL",
+      "expected_property_removal_failure": true,
+      "native_case_count": 2,
+      "deciding_quantities": "2 actual FAIL, no errors. Each configured worker returned deterministic fallback twice instead of typed unknown; actual durable cost_unknown kept physical1. The error-handler removal proves propagation separately and does not show a second durable provider effect.",
+      "wall_seconds": 13.398496925001382,
+      "maxrss_kib": 692632,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/native.txt",
+      "output_sha256": "e218c8ec3181ad2a09ba4170a761f831d1914bec4d92f8eb2d5dd9aef3a523bc",
+      "output_bytes": 57283,
+      "junit": {
+        "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/native.xml",
+        "bytes": 31390,
+        "sha256": "b99053406197f80c546182da668802575ba9d9bdf9e9248aad43f93ef985584e"
+      },
+      "receipt": {
+        "git_sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-independent.json",
+        "bytes": 32317,
+        "sha256": "e9b62d7c792ad5925d39c90800efe49d47edf43fa81b6768e54e3899777b6ccd"
+      },
+      "evidence_implementation_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+      "predicate_basis": "independently_reconciled"
+    },
+    {
+      "id": "foreign-EXE-source-4b",
+      "command": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-source-review-evidence/census.source.txt"
+      ],
+      "target_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+      "environment": {
+        "python": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "git": "git version 2.52.0",
+        "cwd": "/workspace/e02-B-current-execution-state",
+        "profile": "Git immutable source/stdlibAST/XML and published-byte inspection only"
+      },
+      "input_closure": {
+        "receipt": {
+          "git_sha": "e20a089f567c0e66a2976ec4983a12fc0abaaffe",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-source-review.json",
+          "bytes": 19003,
+          "sha256": "c82a5afe59eea1df38241d0b9a3d3470f49a7ad676768a0016e091605c2b6373"
+        },
+        "evidence_commit": "af17567389e255ae561cf86db6f068e385b5a9da",
+        "source_delta": "90d→4b complete7 paths plus factory/middleware/enforcer/ledger caller and canonical facade input census.",
+        "exact_executed_source_census_input": {
+          "driver": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-source-review-evidence/census.source.txt",
+            "commit": "af17567389e255ae561cf86db6f068e385b5a9da",
+            "bytes": 5709,
+            "sha256": "667cf7552dcde1e316e21dbcf069eeb816af2d155c5ee9fff8505f9261148ae7"
+          },
+          "source_base": "90d2e869ae1e78b06932f8b2349848d41588def8",
+          "all_source_inputs": [
+            {
+              "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+              "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-policy-worker-accounting.toml",
+              "bytes": 1854,
+              "sha256": "2312633268736b1b6d917be14abdbd30bc2dc96c14fb955989896a707c90281f",
+              "git_blob": "f1626c737c4778e5bce8c4834a924348b5651c19"
+            },
+            {
+              "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+              "path": "policy-engine/src/polisyos/scientist/policy_design/README.md",
+              "bytes": 3370,
+              "sha256": "0baac80416762708d4c2535eeec4a4d792e945622c0cfbb234067618d71c1467",
+              "git_blob": "87487ecbc74baf43346574b2d2ef61d427bc64e7"
+            },
+            {
+              "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+              "path": "policy-engine/src/polisyos/scientist/policy_design/_llm_accounting.py",
+              "bytes": 2087,
+              "sha256": "c6c8ebf138fcdeb0610fb9a95082e9fa9fca3ececd3a8af265558bf08198232a",
+              "git_blob": "2beecf08fcc874d1408662ff2f1b42452a390570",
+              "stdlib_ast_parsed": true
+            },
+            {
+              "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+              "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+              "bytes": 16143,
+              "sha256": "563f03f061d3b3ed5d26b936b840b3d3cdd48b25dbd27e837ef447dc3f6edde3",
+              "git_blob": "4aed06a564237d42a70be6714cb00f8c677562ca",
+              "stdlib_ast_parsed": true
+            },
+            {
+              "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+              "path": "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+              "bytes": 16508,
+              "sha256": "ed8d6b29e3c3ebaef73a780d07c8fb7b8180b2151d40f72b89ddb91a5567b232",
+              "git_blob": "dd223bb6d8f2431e92d1f6e26ec6ae4627dc7355",
+              "stdlib_ast_parsed": true
+            },
+            {
+              "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+              "path": "policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+              "bytes": 11777,
+              "sha256": "7f7bd9d73237ddc63dfda0dd5ebceb5a442215ebe19978db68b84e9edaad69f3",
+              "git_blob": "e54433cde268024ed5771a8ec57b831a2e03736c",
+              "stdlib_ast_parsed": true
+            },
+            {
+              "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+              "path": "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py",
+              "bytes": 5528,
+              "sha256": "d374fd3b01165efd691fb8620e75da5a063c90c59e7645825cfe6b2e25a292ea",
+              "git_blob": "bddfc565f08c39944148c976efacd9b09ea84548",
+              "stdlib_ast_parsed": true
+            },
+            {
+              "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+              "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget.py",
+              "bytes": 6159,
+              "sha256": "76adb290dd270a7a8ce6fb0823bf1f035c00673f3662abf7cb35ca13d8209516",
+              "git_blob": "1a2fbb73bb87d60674d168791a214f882e79347f",
+              "unchanged_from_source_base": true,
+              "stdlib_ast_parsed": true
+            },
+            {
+              "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+              "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+              "bytes": 10751,
+              "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8",
+              "git_blob": "596731c164fc1ad264b4f157f74b58cf73f7c513",
+              "unchanged_from_source_base": true,
+              "stdlib_ast_parsed": true
+            },
+            {
+              "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+              "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+              "bytes": 59381,
+              "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe",
+              "git_blob": "edc20aeef614fa3486868b04fc4be03ace992893",
+              "unchanged_from_source_base": true,
+              "stdlib_ast_parsed": true
+            },
+            {
+              "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+              "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+              "bytes": 58032,
+              "sha256": "66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a",
+              "git_blob": "70b6067337a239d98ae468f2d8cb229a1d7bd336",
+              "unchanged_from_source_base": true,
+              "stdlib_ast_parsed": true
+            },
+            {
+              "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+              "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+              "bytes": 9508,
+              "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68",
+              "git_blob": "311b66e54dea6c49c4a295121f3ece57aa4a30b9",
+              "unchanged_from_source_base": true,
+              "stdlib_ast_parsed": true
+            },
+            {
+              "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+              "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+              "bytes": 37572,
+              "sha256": "f982028c7533dacac0df93475177bd840857768744ebf0bfd8c2181af912b81a",
+              "git_blob": "df786193b548215d84b4e7b1707c73272416d618",
+              "unchanged_from_source_base": true,
+              "stdlib_ast_parsed": true
+            },
+            {
+              "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+              "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_translation.py",
+              "bytes": 12216,
+              "sha256": "c2b79cfc2b61a279502f92abf7b406996b555f3acac019ac58b91f8b8012da8f",
+              "git_blob": "c1fb2e25f718dbebfc631e688a645ac0b0857b3b",
+              "unchanged_from_source_base": true,
+              "stdlib_ast_parsed": true
+            },
+            {
+              "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+              "path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+              "bytes": 55516,
+              "sha256": "a9045842cbfe78123f42d702317f4c65b979ebbc2c3ce46ef192d1472f51412e",
+              "git_blob": "49ddb4c29f333de12211a1e7222a1d8368f8cd85",
+              "unchanged_from_source_base": true,
+              "stdlib_ast_parsed": true
+            }
+          ],
+          "external_packet": {
+            "source_sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-independent.json",
+            "bytes": 32317,
+            "sha256": "e9b62d7c792ad5925d39c90800efe49d47edf43fa81b6768e54e3899777b6ccd",
+            "git_blob": "c42cf51b50473a84a3392a9c19187b1bea73432e"
+          },
+          "external_test": {
+            "source_sha": "5902db2744b518cdde223901904c1bbf928481f3",
+            "path": "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py",
+            "bytes": 13669,
+            "sha256": "bb171bf9a96bc0780eb27be2e229e8c986ef18fdae5ca10fc6b950b42ee34aa6",
+            "git_blob": "61c8bfe60148100accaac114ca744e3bef814fde"
+          },
+          "mode": "No project imports, factory/provider/native/collection/style/mypy/generator/gate execution"
+        }
+      },
+      "outcome": "PASS",
+      "output": {
+        "git_sha": "e20a089f567c0e66a2976ec4983a12fc0abaaffe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-source-review.json",
+        "bytes": 19003,
+        "sha256": "c82a5afe59eea1df38241d0b9a3d3470f49a7ad676768a0016e091605c2b6373"
+      },
+      "review_grade": "NONBLOCKING finite source-only profile",
+      "runtime_status": "UNRUN by reviewer",
+      "predicate_basis": "independently_reconciled",
+      "review_publication": "Normal remote and fresh FETCH_HEAD verified e20a089f567c0e66a2976ec4983a12fc0abaaffe/treec0423fc2df60e7ef8fd9383f9320b12e0c21706d by independent publisher."
+    }
+  ],
+  "finding_dispositions": [
+    {
+      "finding_id": "B64",
+      "bundle_id": "LLM-01",
+      "state": "verified_bounded_pending_G",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5:1649",
+      "criterion_canonical_bundle_ref": "bundle-catalog.md#llm-01; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B64",
+      "baseline_cell_ids": [
+        "F01-P026",
+        "F03-P066",
+        "F03-P091",
+        "F05-P047",
+        "F07-P027",
+        "F07-P084",
+        "F10-P031",
+        "F13-P104",
+        "F15-P032"
+      ],
+      "source_point": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+      "statement": "Actual named/positional prompt normalized once; supported user/system/messages preserved; conflicting forms fail before provider work.",
+      "predicate_basis": "recomputed",
+      "checks": [
+        "predecessor-90d:full34-31d613",
+        "predecessor-90d:gateway-a697"
+      ],
+      "limitations_and_next_owner": [
+        "Supported generic protocol input only; no claim of a mandatory named-prompt production call. G accepts bounded criterion."
+      ],
+      "finding_closure": "not asserted; separate root/G full canonical semantic acceptance",
+      "baseline_role": "Navigation only, never future candidate proof.",
+      "predecessor_receipt": {
+        "git_sha": "90d2e869ae1e78b06932f8b2349848d41588def8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair.json",
+        "bytes": 238204,
+        "sha256": "0f090915c51977633043f19086ebaa0ab0dc402484efb3167ac665513e419268"
+      },
+      "successor_scope": "Worker consumer-only change; prior defining bytes and actual checks remain at their original target/environment/input. No new NET/WIRE/LLM institutionally supplied verdict inferred."
+    },
+    {
+      "finding_id": "B65",
+      "bundle_id": "LLM-01",
+      "state": "initialized_ledger_and_worker_profile_verified_with_explicit_author_gate_failures",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5:1669",
+      "criterion_canonical_bundle_ref": "bundle-catalog.md#llm-01; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B65",
+      "baseline_cell_ids": [
+        "F01-P026",
+        "F03-P066",
+        "F03-P091",
+        "F05-P047",
+        "F07-P027",
+        "F07-P084",
+        "F10-P031",
+        "F13-P104",
+        "F15-P032"
+      ],
+      "source_point": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+      "statement": "Optional metrics/tracing cannot replace provider outcome. Configured mandatory completion and supplied protected audit keep immutable exact act/run/actor/body/digest/known charge ACK separate. All five protected actions retain unresolved ownership; next intersecting spend blocks across same live sibling/fresh FileBudgetLedger owner. Trusted constructor resolver restores/verifies the same actual missing act before clearing; no recharge/regeneration. Both actual policy-worker entries now require explicit initialized Middleware as sole budget authority; raw/mixed/ledgerless/current unreadable owner refuses before factory/provider, and original obtained accounting error propagates before scientific fallback. Fresh middleware/worker same ledger discovers unknown and refuses before a second physical request.",
+      "predicate_basis": "recomputed",
+      "checks": [
+        "predecessor-90d:full34-31d613",
+        "predecessor-90d:gateway-a697",
+        "predecessor-90d:audit17-31d613",
+        "predecessor-90d:audit-view-removal-a2",
+        "predecessor-90d:foreign-RUN7-b138",
+        "predecessor-90d:foreign-DUR9f",
+        "predecessor-90d:foreign-CMP-agent-a391",
+        "worker-full2-4b",
+        "foreign-DUR-native",
+        "foreign-DUR-remove-admission",
+        "foreign-DUR-remove-propagation",
+        "foreign-EXE-source-4b"
+      ],
+      "limitations_and_next_owner": [
+        "Real LocalJsonlBackend definite noappend directory-refusal recovery and full ChainVerifier are proven; ambiguous postappend/fsync cannot blindappend a new act and stays pending absent exact read/status and trusted resolution.",
+        "Only configured mandatory initialized ledger/protected sink profile. Noop/optional observer are not silently made mandatory; audit ACK and known .02 charge are distinct.",
+        "A/G optional served response_shapes._sum_call_events still converts costNone to0 in actual a2 projection; receipt is not deployment-wide accounting closure. Root/G adjudicate canonical B65 using full source and foreign oracles.",
+        "Original independent a697 worker2PASS2FAIL is retained in3ec, not erased or regraded; actual successor4b/test5902 gives14PASS and two independent removals2FAIL each. Known .02 twice spends .04; unknown first physical1 stays cost_unknown/no spend receipts and fresh initialized owner blocks. No knownzeroACK claim for original swallowed-error bug.",
+        "Configured worker constructor contour is a supported finite operational profile, distinct from existing explicitly unbudgeted callers, factory alone without ledger, external vendor invoice and institutional reuse permission. No implicit ledger path/bootstrap or public API classification invented.",
+        "Author affected whole2files19=18PASS1 scientificFAIL and scoped mypy13FAIL are preserved; no inherited waiver or global code acceptance. Root/G recompute final integrated generators/type/wholecohort on their own frozen source."
+      ],
+      "finding_closure": "not asserted; separate root/G full canonical semantic acceptance",
+      "baseline_role": "Navigation only, never future candidate proof.",
+      "predecessor_receipt": {
+        "git_sha": "90d2e869ae1e78b06932f8b2349848d41588def8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair.json",
+        "bytes": 238204,
+        "sha256": "0f090915c51977633043f19086ebaa0ab0dc402484efb3167ac665513e419268"
+      },
+      "successor_scope": "Worker consumer-only change; prior defining bytes and actual checks remain at their original target/environment/input. No new NET/WIRE/LLM institutionally supplied verdict inferred."
+    },
+    {
+      "finding_id": "B66",
+      "bundle_id": "LLM-01",
+      "state": "initialized_ledger_and_worker_profile_verified_with_explicit_author_gate_failures",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5:1689",
+      "criterion_canonical_bundle_ref": "bundle-catalog.md#llm-01; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B66",
+      "baseline_cell_ids": [
+        "F01-P026",
+        "F03-P066",
+        "F03-P091",
+        "F05-P047",
+        "F07-P027",
+        "F07-P084",
+        "F10-P031",
+        "F13-P104",
+        "F15-P032"
+      ],
+      "source_point": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+      "statement": "Actual observed usage/cost knowledge survives intake/normalize/freeze/thaw. Missing/invalid evidence yields amountNone and pending exact producer/response/reservation, never known numeric0 or reusable cache ACK. Explicit reported0/.02, known priced token usage/configured free retain legitimate known charge. Atomic durable pre-provider intent/all-key reserve gates fresh owners; known physical completion settles idempotently despite caller cancellation/result deadline. Actual receiver-bound flight role/registration retires only joined unentered logical intent, preserving original producer known/unknown settlement. Both actual policy-worker entries now require explicit initialized Middleware as sole budget authority; raw/mixed/ledgerless/current unreadable owner refuses before factory/provider, and original obtained accounting error propagates before scientific fallback. Fresh middleware/worker same ledger discovers unknown and refuses before a second physical request.",
+      "predicate_basis": "recomputed",
+      "checks": [
+        "predecessor-90d:full34-31d613",
+        "predecessor-90d:gateway-a697",
+        "predecessor-90d:audit17-31d613",
+        "predecessor-90d:flight-removal-31d613",
+        "predecessor-90d:unknown-amount-removal-a2",
+        "predecessor-90d:foreign-RUN7-b138",
+        "predecessor-90d:foreign-DUR9f",
+        "predecessor-90d:foreign-CAS-admission-a391",
+        "worker-full2-4b",
+        "foreign-DUR-native",
+        "foreign-DUR-remove-admission",
+        "foreign-DUR-remove-propagation",
+        "foreign-EXE-source-4b"
+      ],
+      "limitations_and_next_owner": [
+        "Actual fixture provider-reported amounts are finite input knowledge, not verified external invoice. Missing/invalid usage does not acquire authority via rawNone, typed constructor, response flags or reserve estimate.",
+        "No blanket crash/external status/multihost/hardware powerloss guarantee. Already-admitted physical work remains owned; unknown provider failure blocks and is not cancelled-cost0. Temporary filesystem fsync/reopen demonstrates actual kernel path, not production storage powerloss.",
+        "A/G optional served aggregation still needs typed costNone/knowledge bridge; root/G decides full finding. Bare/unconfigured Traced has no invented external mandatory ledger.",
+        "Original independent a697 worker2PASS2FAIL is retained in3ec, not erased or regraded; actual successor4b/test5902 gives14PASS and two independent removals2FAIL each. Known .02 twice spends .04; unknown first physical1 stays cost_unknown/no spend receipts and fresh initialized owner blocks. No knownzeroACK claim for original swallowed-error bug.",
+        "Configured worker constructor contour is a supported finite operational profile, distinct from existing explicitly unbudgeted callers, factory alone without ledger, external vendor invoice and institutional reuse permission. No implicit ledger path/bootstrap or public API classification invented.",
+        "Author affected whole2files19=18PASS1 scientificFAIL and scoped mypy13FAIL are preserved; no inherited waiver or global code acceptance. Root/G recompute final integrated generators/type/wholecohort on their own frozen source.",
+        "A/G actual optional observer projection at97d remains1FAIL2PASS: costNone becomes numeric0 in A helper; served NL later-admission proof remains UNRUN. Worker/library repair is not fabricated deployed mandatory factory→ledger bridge."
+      ],
+      "finding_closure": "not asserted; separate root/G full canonical semantic acceptance",
+      "baseline_role": "Navigation only, never future candidate proof.",
+      "predecessor_receipt": {
+        "git_sha": "90d2e869ae1e78b06932f8b2349848d41588def8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair.json",
+        "bytes": 238204,
+        "sha256": "0f090915c51977633043f19086ebaa0ab0dc402484efb3167ac665513e419268"
+      },
+      "successor_scope": "Worker consumer-only change; prior defining bytes and actual checks remain at their original target/environment/input. No new NET/WIRE/LLM institutionally supplied verdict inferred."
+    },
+    {
+      "finding_id": "B67",
+      "bundle_id": "LLM-02",
+      "state": "held_owner_permission",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5:1709",
+      "criterion_canonical_bundle_ref": "bundle-catalog.md#llm-02; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B67",
+      "baseline_cell_ids": [
+        "F01-P026",
+        "F05-P047",
+        "F07-P027",
+        "F10-P031",
+        "F15-P032"
+      ],
+      "source_point": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+      "statement": "Real CAS content bytes/hash and actual principal are checked by injected typed operational deployment-owner actor/tenant/scope/purpose/ref/version/model/parameters/epoch policy; live URLs/declarations deny reuse, mutations/revocation/freshness changes deny cached/follower publication.",
+      "predicate_basis": "institutionally_supplied",
+      "checks": [
+        "predecessor-90d:full34-31d613",
+        "predecessor-90d:gateway-a697"
+      ],
+      "limitations_and_next_owner": [
+        "Functional injected versioned actual owner-decision policy/CAS content controls are tested only. Institutional production permission and atomic owner epoch are supplied by actual deployment owner/localG; root, CASread/hash and metadata cannot ratify reuse. Remains held."
+      ],
+      "finding_closure": "not asserted; separate root/G full canonical semantic acceptance",
+      "baseline_role": "Navigation only, never future candidate proof.",
+      "predecessor_receipt": {
+        "git_sha": "90d2e869ae1e78b06932f8b2349848d41588def8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair.json",
+        "bytes": 238204,
+        "sha256": "0f090915c51977633043f19086ebaa0ab0dc402484efb3167ac665513e419268"
+      },
+      "successor_scope": "Worker consumer-only change; prior defining bytes and actual checks remain at their original target/environment/input. No new NET/WIRE/LLM institutionally supplied verdict inferred."
+    },
+    {
+      "finding_id": "B68",
+      "bundle_id": "LLM-02",
+      "state": "bounded_runtime_dependent_permission_held",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5:1729",
+      "criterion_canonical_bundle_ref": "bundle-catalog.md#llm-02; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B68",
+      "baseline_cell_ids": [
+        "F01-P026",
+        "F05-P047",
+        "F07-P027",
+        "F10-P031",
+        "F15-P032"
+      ],
+      "source_point": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+      "statement": "Actual scoped flight admission and receiver-registered producer/join roles preserve physical completion ownership across success/error/cancel, immutable absolute producer deadline and mandatory accounting before canonical cache publication. Joined own intent is retired only by exact emitter/request/scope/attempt membership; original known/unknown event stays unchanged.",
+      "predicate_basis": "recomputed",
+      "checks": [
+        "predecessor-90d:full34-31d613",
+        "predecessor-90d:gateway-a697",
+        "predecessor-90d:flight-removal-31d613",
+        "predecessor-90d:foreign-RUN7-b138"
+      ],
+      "limitations_and_next_owner": [
+        "Canonical InMemoryPromptCache atomic admission verified. Foreign put signature compatibility is not semantic conformance. Uncooperative provider/accounting/cache-lock completion may exceed logical deadline; flight ownership remains until completion. Production permission premise remains B67-held.",
+        "Shared-flight runtime evidence does not provide missing institutional B67 grant. Physical uncooperative completion hardwall and custom cache atomic semantic conformance remain unestablished."
+      ],
+      "finding_closure": "not asserted; separate root/G full canonical semantic acceptance",
+      "baseline_role": "Navigation only, never future candidate proof.",
+      "predecessor_receipt": {
+        "git_sha": "90d2e869ae1e78b06932f8b2349848d41588def8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair.json",
+        "bytes": 238204,
+        "sha256": "0f090915c51977633043f19086ebaa0ab0dc402484efb3167ac665513e419268"
+      },
+      "successor_scope": "Worker consumer-only change; prior defining bytes and actual checks remain at their original target/environment/input. No new NET/WIRE/LLM institutionally supplied verdict inferred."
+    },
+    {
+      "finding_id": "B87",
+      "bundle_id": "NET-01",
+      "state": "partial_C_consumer",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5:2263",
+      "criterion_canonical_bundle_ref": "bundle-catalog.md#net-01; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B87",
+      "baseline_cell_ids": [
+        "F02-P004",
+        "F04-P009",
+        "F06-P010",
+        "F06-P020",
+        "F07-P008",
+        "F08-P010",
+        "F11-P015",
+        "F12-P008",
+        "F13-P010",
+        "F15-P004"
+      ],
+      "source_point": "126024b95fcac6400f5afc29a60596b88cdd5212",
+      "statement": "Actual pool producer, publication and physical cleanup ownership are exercised; successful admission retires local registration atomically and no await follows publication.",
+      "predicate_basis": "recomputed",
+      "checks": [
+        "predecessor-90d:historical-current-adapters:native-0f",
+        "predecessor-90d:historical-current-adapters:property-pool"
+      ],
+      "limitations_and_next_owner": [
+        "C alone owns served streaming flush/cap/recovery consumer. B-to-C checkpoint contract supplied; cap3 persisted rows restored under cap1 and real served cancellation require C/G current consumer acceptance, not pool package PASS."
+      ],
+      "finding_closure": "not asserted; separate root/G full canonical semantic acceptance",
+      "baseline_role": "Navigation only, never future candidate proof.",
+      "historical_receipt_ref": "250df6ec8366659c13b72b6a33cedf4dba5ec24a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters.json",
+      "check_scope": "No NET/WIRE source or current native claim added by this LLM successor; previous exact source/check points stay historical.",
+      "predecessor_receipt": {
+        "git_sha": "90d2e869ae1e78b06932f8b2349848d41588def8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair.json",
+        "bytes": 238204,
+        "sha256": "0f090915c51977633043f19086ebaa0ab0dc402484efb3167ac665513e419268"
+      },
+      "successor_scope": "Worker consumer-only change; prior defining bytes and actual checks remain at their original target/environment/input. No new NET/WIRE/LLM institutionally supplied verdict inferred."
+    },
+    {
+      "finding_id": "B89",
+      "bundle_id": "NET-01",
+      "state": "partial_C_consumer",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5:2405",
+      "criterion_canonical_bundle_ref": "bundle-catalog.md#net-01; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B89",
+      "baseline_cell_ids": [
+        "F02-P004",
+        "F04-P009",
+        "F06-P010",
+        "F06-P020",
+        "F07-P008",
+        "F08-P010",
+        "F11-P015",
+        "F12-P008",
+        "F13-P010",
+        "F15-P004"
+      ],
+      "source_point": "126024b95fcac6400f5afc29a60596b88cdd5212",
+      "statement": "Acquisition waiter/connect/health cancellation and primary exceptions retire only owned registration; physical disconnect settles before exact-once permit release, failed cleanup retains handle/permit for actual retry.",
+      "predicate_basis": "recomputed",
+      "checks": [
+        "predecessor-90d:historical-current-adapters:native-0f",
+        "predecessor-90d:historical-current-adapters:property-pool"
+      ],
+      "limitations_and_next_owner": [
+        "Synthetic actual connector path proves pool boundary, not live served C endpoint or universal physical hard cancellation. C/G must verify current pooled stream disconnect+consumer recovery path."
+      ],
+      "finding_closure": "not asserted; separate root/G full canonical semantic acceptance",
+      "baseline_role": "Navigation only, never future candidate proof.",
+      "historical_receipt_ref": "250df6ec8366659c13b72b6a33cedf4dba5ec24a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters.json",
+      "check_scope": "No NET/WIRE source or current native claim added by this LLM successor; previous exact source/check points stay historical.",
+      "predecessor_receipt": {
+        "git_sha": "90d2e869ae1e78b06932f8b2349848d41588def8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair.json",
+        "bytes": 238204,
+        "sha256": "0f090915c51977633043f19086ebaa0ab0dc402484efb3167ac665513e419268"
+      },
+      "successor_scope": "Worker consumer-only change; prior defining bytes and actual checks remain at their original target/environment/input. No new NET/WIRE/LLM institutionally supplied verdict inferred."
+    },
+    {
+      "finding_id": "B90",
+      "bundle_id": "NET-01",
+      "state": "verified_bounded",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5:2419",
+      "criterion_canonical_bundle_ref": "bundle-catalog.md#net-01; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B90",
+      "baseline_cell_ids": [
+        "F02-P004",
+        "F04-P009",
+        "F06-P010",
+        "F06-P020",
+        "F07-P008",
+        "F08-P010",
+        "F11-P015",
+        "F12-P008",
+        "F13-P010",
+        "F15-P004"
+      ],
+      "source_point": "126024b95fcac6400f5afc29a60596b88cdd5212",
+      "statement": "One absolute monotonic whole acquisition budget covers semaphore wait/connect/health/metadata lock and atomic handle publication; late cancellation-suppressing handles never admit; external cancellation epoch checked before publication.",
+      "predicate_basis": "recomputed",
+      "checks": [
+        "predecessor-90d:historical-current-adapters:native-0f",
+        "predecessor-90d:historical-current-adapters:property-pool"
+      ],
+      "limitations_and_next_owner": [
+        "No hard wall bound for an uncooperative physical disconnect or cancellation counter erasure by arbitrary provider code; permit is deliberately retained until physical settlement. No live TCP/provider SLO/percentage throughput claim."
+      ],
+      "finding_closure": "not asserted; separate root/G full canonical semantic acceptance",
+      "baseline_role": "Navigation only, never future candidate proof.",
+      "historical_receipt_ref": "250df6ec8366659c13b72b6a33cedf4dba5ec24a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters.json",
+      "check_scope": "No NET/WIRE source or current native claim added by this LLM successor; previous exact source/check points stay historical.",
+      "predecessor_receipt": {
+        "git_sha": "90d2e869ae1e78b06932f8b2349848d41588def8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair.json",
+        "bytes": 238204,
+        "sha256": "0f090915c51977633043f19086ebaa0ab0dc402484efb3167ac665513e419268"
+      },
+      "successor_scope": "Worker consumer-only change; prior defining bytes and actual checks remain at their original target/environment/input. No new NET/WIRE/LLM institutionally supplied verdict inferred."
+    },
+    {
+      "finding_id": "B91",
+      "bundle_id": "NET-02",
+      "state": "verified_bounded",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5:2435",
+      "criterion_canonical_bundle_ref": "bundle-catalog.md#net-02; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B91",
+      "baseline_cell_ids": [
+        "F04-P021",
+        "F06-P037",
+        "F08-P029",
+        "F10-P024",
+        "F13-P024"
+      ],
+      "source_point": "126024b95fcac6400f5afc29a60596b88cdd5212",
+      "statement": "Rate unit capacity is separate from fractional average rate; finite positive config/runtime quantities/cooldowns refuse before provider or mutation. Actual fake-clock fractional service and physical decorator refusal tested.",
+      "predicate_basis": "recomputed",
+      "checks": [
+        "predecessor-90d:historical-current-adapters:native-c0",
+        "predecessor-90d:historical-current-adapters:finite-rate-base",
+        "predecessor-90d:historical-current-adapters:finite-rate-c0",
+        "predecessor-90d:historical-current-adapters:property-rate"
+      ],
+      "limitations_and_next_owner": [
+        "Source-law production connector/SLO not identified. Generic rate0.1/0.2/1/>1 weighted/cold-start/cooldown/cancellation behavior is bounded library evidence; no universal external quota authority."
+      ],
+      "finding_closure": "not asserted; separate root/G full canonical semantic acceptance",
+      "baseline_role": "Navigation only, never future candidate proof.",
+      "historical_receipt_ref": "250df6ec8366659c13b72b6a33cedf4dba5ec24a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters.json",
+      "check_scope": "No NET/WIRE source or current native claim added by this LLM successor; previous exact source/check points stay historical.",
+      "predecessor_receipt": {
+        "git_sha": "90d2e869ae1e78b06932f8b2349848d41588def8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair.json",
+        "bytes": 238204,
+        "sha256": "0f090915c51977633043f19086ebaa0ab0dc402484efb3167ac665513e419268"
+      },
+      "successor_scope": "Worker consumer-only change; prior defining bytes and actual checks remain at their original target/environment/input. No new NET/WIRE/LLM institutionally supplied verdict inferred."
+    },
+    {
+      "finding_id": "B92",
+      "bundle_id": "NET-02",
+      "state": "verified_bounded",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5:2449",
+      "criterion_canonical_bundle_ref": "bundle-catalog.md#net-02; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B92",
+      "baseline_cell_ids": [
+        "F04-P021",
+        "F06-P037",
+        "F08-P029",
+        "F10-P024",
+        "F13-P024"
+      ],
+      "source_point": "126024b95fcac6400f5afc29a60596b88cdd5212",
+      "statement": "Existing generation-bound breaker leases preserve old closed success/failure and stale half-open outcomes without voting on current recovery; current probes, cancellation and duplicate finalization retain ownership diagnostics.",
+      "predicate_basis": "recomputed",
+      "checks": [
+        "predecessor-90d:historical-current-adapters:native-0f",
+        "predecessor-90d:historical-current-adapters:native-c0"
+      ],
+      "limitations_and_next_owner": [
+        "No live HTTP provider invoked. Exact generic native event/fake-clock circuit cases establish finite ownership behavior; existing correct cancellation is retained, not claimed as an absent baseline capability."
+      ],
+      "finding_closure": "not asserted; separate root/G full canonical semantic acceptance",
+      "baseline_role": "Navigation only, never future candidate proof.",
+      "historical_receipt_ref": "250df6ec8366659c13b72b6a33cedf4dba5ec24a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters.json",
+      "check_scope": "No NET/WIRE source or current native claim added by this LLM successor; previous exact source/check points stay historical.",
+      "predecessor_receipt": {
+        "git_sha": "90d2e869ae1e78b06932f8b2349848d41588def8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair.json",
+        "bytes": 238204,
+        "sha256": "0f090915c51977633043f19086ebaa0ab0dc402484efb3167ac665513e419268"
+      },
+      "successor_scope": "Worker consumer-only change; prior defining bytes and actual checks remain at their original target/environment/input. No new NET/WIRE/LLM institutionally supplied verdict inferred."
+    },
+    {
+      "finding_id": "B93",
+      "bundle_id": "NET-02",
+      "state": "verified_bounded_mapping_pending",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5:2463",
+      "criterion_canonical_bundle_ref": "bundle-catalog.md#net-02; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B93",
+      "baseline_cell_ids": [
+        "F04-P021",
+        "F06-P037",
+        "F08-P029",
+        "F10-P024",
+        "F13-P024"
+      ],
+      "source_point": "126024b95fcac6400f5afc29a60596b88cdd5212",
+      "statement": "Finite keyed registry leases retain one regulator across entire real decorator await/retry; active ownership and live cooldown/balance/history cannot TTL/LRU evict; pressure rejects before provider start, exact-key concurrent reuse shares state, release paths retire lease once.",
+      "predicate_basis": "recomputed",
+      "checks": [
+        "predecessor-90d:historical-current-adapters:native-c0",
+        "predecessor-90d:historical-current-adapters:property-registry"
+      ],
+      "limitations_and_next_owner": [
+        "Canonical B_r19 criterion is bounded regulator registry, while historical ledger declaration has a mapping mismatch. Preserve warning until G reconciles declarations; package PASS is not mapping/closure. No unbounded side map; capacity is unchanged."
+      ],
+      "finding_closure": "not asserted; separate root/G full canonical semantic acceptance",
+      "baseline_role": "Navigation only, never future candidate proof.",
+      "historical_receipt_ref": "250df6ec8366659c13b72b6a33cedf4dba5ec24a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters.json",
+      "check_scope": "No NET/WIRE source or current native claim added by this LLM successor; previous exact source/check points stay historical.",
+      "predecessor_receipt": {
+        "git_sha": "90d2e869ae1e78b06932f8b2349848d41588def8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair.json",
+        "bytes": 238204,
+        "sha256": "0f090915c51977633043f19086ebaa0ab0dc402484efb3167ac665513e419268"
+      },
+      "successor_scope": "Worker consumer-only change; prior defining bytes and actual checks remain at their original target/environment/input. No new NET/WIRE/LLM institutionally supplied verdict inferred."
+    },
+    {
+      "finding_id": "B94",
+      "bundle_id": "WIRE-01",
+      "state": "verified_bounded",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5:2477",
+      "criterion_canonical_bundle_ref": "bundle-catalog.md#wire-01; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/WIRE-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B94",
+      "baseline_cell_ids": [
+        "F03-P023",
+        "F03-P074",
+        "F06-P041",
+        "F07-P023",
+        "F07-P067",
+        "F10-P027",
+        "F13-P027",
+        "F15-P087"
+      ],
+      "source_point": "126024b95fcac6400f5afc29a60596b88cdd5212",
+      "statement": "Exact versioned state_wire.v2/outcome_wire.v2 strict Decimal tags preserve budget/union/nested types before model coercion under both JSON backends; real nested fork worker consumes state and emits typed outcome. Independent safe frame.v1 digest and corrupt/unsupported/nonfinite negative controls pass.",
+      "predicate_basis": "recomputed",
+      "checks": [
+        "predecessor-90d:historical-current-adapters:native-0f",
+        "predecessor-90d:historical-current-adapters:property-wire",
+        "predecessor-90d:historical-wire-current-envelope"
+      ],
+      "limitations_and_next_owner": [
+        "Explicit legacy unversioned payload/mutations.v1 compatibility remains. Version2 finite strictness does not assert all legacy inputs are strict. Real Ray/Temporal services unrun; wire integrity is not tenant permission or institutional authority. Root owns shared runner README companion.",
+        "Current writer v2 envelope fixture repair is separately pinned a4dd actual119PASS/removal6FAIL at485 receipt; original root4e2 bare-envelope KeyErrors remain historical. This LLM repair does not relabel those executions or imply Ray/Temporal obligation."
+      ],
+      "finding_closure": "not asserted; separate root/G full canonical semantic acceptance",
+      "baseline_role": "Navigation only, never future candidate proof.",
+      "historical_receipt_ref": "250df6ec8366659c13b72b6a33cedf4dba5ec24a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters.json",
+      "check_scope": "No NET/WIRE source or current native claim added by this LLM successor; previous exact source/check points stay historical.",
+      "successor_consumer_source_point": "a4dd3b25c369be19c80727395c689a121950fc64",
+      "predecessor_receipt": {
+        "git_sha": "90d2e869ae1e78b06932f8b2349848d41588def8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair.json",
+        "bytes": 238204,
+        "sha256": "0f090915c51977633043f19086ebaa0ab0dc402484efb3167ac665513e419268"
+      },
+      "successor_scope": "Worker consumer-only change; prior defining bytes and actual checks remain at their original target/environment/input. No new NET/WIRE/LLM institutionally supplied verdict inferred."
+    }
+  ],
+  "property": {
+    "statement": "Actual B-owned budgeted policy workers retain the same initialized durable accounting-owner boundary before physical work and original mandatory accounting-error identity before scientific fallback.",
+    "runtime_path": [
+      "Constructor/entry configured initialized BudgetMiddleware current strict settlement_owner_identity read",
+      "Canonical helper refuses raw/mixed/ledgerless/missing/corrupt owner before real factory or active-loop fallback",
+      "Real factory → Gateway SDK decoder → cache/Traced/enforcer exact durable pre-provider intent+all-key reserve",
+      "Known actual completion durable receipts or typed cost_unknown/ledgerACK_unknown/protected audit pending",
+      "Worker scientific output only after supported known completion; obtained accounting error re-raised unchanged; fresh FileLedger/Middleware/worker refuses unresolved intersecting intent"
+    ],
+    "proxy_divergence": "Raw in-memory BudgetState and a caught error looked like budget protection but original a697 witness performed two physical requests while fallback hid unknown. New explicit initialized contour plus error propagation is distinguished by real SDK-boundary filesystem effect, fresh snapshot, receipts/reserves/pending and two property-removal failures; constructor/marker/collection-only proof is insufficient.",
+    "negative_controls": [
+      "Independent admission removal2FAIL physically2 unknown requests with retained reservation, no numeric0ACK invented",
+      "Independent propagation removal2FAIL returns scientific fallback while durable pending gate keeps physical1",
+      "Own raw/mixed/same-state/ledgerless/current missing/corrupt owner12 cases PASS with actual realfactory observer and unchanged filesystem/budget quantities",
+      "Foreign known .02 two worker actions become .04 true durable spend; explicit unbudgeted known profile remains qualified",
+      "Author whole scientific assertionFAIL and actual13 mypyFAIL kept independently of those safety quantities"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_by_quantity": {
+    "author_runtime_static": "recomputed",
+    "foreign_DUR_native_and_removals": "independently_reconciled",
+    "EXE_source_only": "independently_reconciled",
+    "institutional_B67_permission": "institutionally_supplied required; held, not supplied by root or constructor",
+    "full_G_raw_module_availability": "not_established"
+  },
+  "capability_state_or_finding_state": "Finite configured initialized worker contour implemented and independently discriminated; own scientific/runtime and typing checks remain FAIL; no canonical finding closure or global acceptance asserted.",
+  "public_surface_review": {
+    "git_sha": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/public-surface-assessment.json",
+    "bytes": 3441,
+    "sha256": "c2c8754a0607120c9f257430222b06dce5b6edb145d0f0f5decdcfd91205920d"
+  },
+  "surface_classification": "internal unlisted policy_design modules under full registered contract; existing local lazy exports do not promote them. Initial4b public_experimental release claim corrected append-only9d. No registered facade/inventory/schema regenerated by leaf.",
+  "cross_unit_handoff": {
+    "predecessor": {
+      "A_G": "Optional observed event retains costNone/unknown, but served response_shapes._sum_call_events coalesces None0 in actual CMP a2 witness; A-only lifecycle/generation/nl_pipeline runtime paths not edited. Owner must preserve typed knowledge before run-budget decisions; no production durable bridge invented.",
+      "C": "Original B-to-C streaming pool/cap3→cap1 consumer boundaries remain separate; no C streaming edits or current live endpoint proof.",
+      "operational_authority": "Trusted constructor-injected owner/resolver/emitter runtime capability is finite in-process composition, not institutional reuse permission, serialized authority or hostile Python sandbox."
+    },
+    "A_G_optional_projection": {
+      "git_sha": "97d0684c1f2765fc67d40331a8a2602a08c1f2e0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-boundary.json",
+      "bytes": 17779,
+      "sha256": "06fe970bfb85b274a62741ce57b001a52d0971751cfac61fd32c652033635804"
+    },
+    "qualification": "A source not edited; costNone→0 helper witness real1FAIL2PASS at a2. Full served-route financial consumer remains separate localG input/admission decision."
+  },
+  "limitations_and_next_owner": [
+    "Root/G alone adjudicate all25 bundles/all60 criteria, integrated generated inputs and global acceptance. This leaf includes all12 assigned dispositions but closure_ids empty.",
+    "Author whole19=18PASS1FAIL unchanged scientific vulnerability assertion, no inherited waiver. Scoped current mypy13FAIL and source-equivalent predecessor13FAIL both remain literalFAIL; later integrated regenerated stubs/gates must actually be executed, not assumed.",
+    "DUR14 and two removal2FAIL grades are bound to actual4b and foreign5902 input; source-only EXE e20 is not native PASS. Preceding library full641/17/126 grades stay exact oldpins90d and do not automatically cover worker successor.",
+    "Cloud real temporary-filesystem fsync/reopen effects do not establish hardware powerloss, production invoice, external process status, complete production dataset or institutional permission.",
+    "Full1MB raw module census availability for G not_established; compact declared module origins/counters and full moderate stdout/JUnit/wrappers/drivers are in Git. Exact replay command worker-full2-4b captures full census on G if required.",
+    "B67 institutional owner permission and B68 dependent scope remain held; C served stream/cap contracts, B93 registry criterion mapping and A/G optional aggregation boundaries remain exact prior qualifications.",
+    "Source-root ordinary unbudgeted default/injected scientific callers are not claimed deployed durable compositions; caller must deliberately supply initialized middleware. Mixed raw limits are rejected, no limit/path/bootstrap chosen."
+  ],
+  "P41": {
+    "status": "not_established",
+    "waiver": false,
+    "control": "Source-equivalent predecessor typing control captures same errors but cannot waive changed consumer fixture/runtime or global gates."
+  },
+  "final_snapshot_custody": {
+    "candidate_sha": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+    "candidate_tree_sha": "f9b23b654923fc6b3bf988f77ea7459b2a770b28",
+    "runtime_source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+    "runtime_tree_sha": "81a1399d2c167044e6127c8b4201f1276f85370d",
+    "later_commits": "9d README/release classification only;047 evidence only; no product/test input changes after4b actual native."
+  },
+  "implementation_remote_custody": {
+    "ls_remote_head": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+    "fresh_fetch_head": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+    "fresh_fetch_tree_sha": "f9b23b654923fc6b3bf988f77ea7459b2a770b28",
+    "qualification": "Normal topic push and fresh fetch verified before separate receipt; receipt never names its own future SHA."
+  },
+  "external_check_reference_protocol": {
+    "predecessor-90d:<id>": "Exact90d predecessor_handoff checks/foreign_checks byid; original target/env/input/outcome preserved without new replay.",
+    "foreign-DUR-<id>": "Exact c85 independent worker receipt and full e6af committed outputs; copy full native/removal command/environment/input into foreign_checks.",
+    "foreign-EXE-source-4b": "Exact e20 source-only receipt checks[0]; product import/runtime/gates UNRUN by reviewer, source NONBLOCKING only."
+  },
+  "created_at_utc": "2026-10-06T22:23:01.342225+00:00"
+}

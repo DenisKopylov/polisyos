@@ -1,0 +1,303 @@
+FF.......FFFF....                                                        [100%]
+=================================== FAILURES ===================================
+____ test_real_cas_reopen_restores_payload_occurrences_and_executes[False] _____
+
+tmp_path = PosixPath('/dev/shm/e02-B-cmp-b43-freeze/tmp-f563/test_real_cas_reopen_restores_0')
+data_flow = False
+
+    @pytest.mark.parametrize("data_flow", [False, True])
+    def test_real_cas_reopen_restores_payload_occurrences_and_executes(tmp_path, data_flow):
+        fixture = _chain(data_flow=data_flow)
+        plan = CompiledChainPlan.from_chain(fixture.chain)
+        cas = FileSystemCAS(tmp_path / "cas")
+        ref = store_compiled_chain_plan(cas, plan)
+>       assert ref.manifest_profile_sha256 is not None
+E       AssertionError: assert None is not None
+E        +  where None = ArtifactRef(artifact_id=ArtifactID(root='sha256:221c30823bf6745ca1d89bcf534586c990c8e96e3f6ad0e344c0b01fae41b1ac'), kind='foundry.compiled_chain_plan', media_type='application/json', manifest_profile_sha256=None).manifest_profile_sha256
+
+tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py:119: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 21:19:37 [info     ] method_registered              backend=numpy fqn=tests.compiled_plan.produce@1.0.0 lazy=False namespace=tests.compiled_plan override=False tags=[] version=1.0.0
+2026-10-06 21:19:37 [info     ] method_registered              backend=numpy fqn=tests.compiled_plan.consume@1.0.0 lazy=False namespace=tests.compiled_plan override=False tags=[] version=1.0.0
+_____ test_real_cas_reopen_restores_payload_occurrences_and_executes[True] _____
+
+tmp_path = PosixPath('/dev/shm/e02-B-cmp-b43-freeze/tmp-f563/test_real_cas_reopen_restores_1')
+data_flow = True
+
+    @pytest.mark.parametrize("data_flow", [False, True])
+    def test_real_cas_reopen_restores_payload_occurrences_and_executes(tmp_path, data_flow):
+        fixture = _chain(data_flow=data_flow)
+        plan = CompiledChainPlan.from_chain(fixture.chain)
+        cas = FileSystemCAS(tmp_path / "cas")
+        ref = store_compiled_chain_plan(cas, plan)
+>       assert ref.manifest_profile_sha256 is not None
+E       AssertionError: assert None is not None
+E        +  where None = ArtifactRef(artifact_id=ArtifactID(root='sha256:6664470564e378732136912019bdb7de793b5a7d66d7c8a5c4f7c1041b784375'), kind='foundry.compiled_chain_plan', media_type='application/json', manifest_profile_sha256=None).manifest_profile_sha256
+
+tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py:119: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 21:19:37 [info     ] method_registered              backend=numpy fqn=tests.compiled_plan.produce@1.0.0 lazy=False namespace=tests.compiled_plan override=False tags=[] version=1.0.0
+2026-10-06 21:19:37 [info     ] method_registered              backend=numpy fqn=tests.compiled_plan.consume@1.0.0 lazy=False namespace=tests.compiled_plan override=False tags=[] version=1.0.0
+__________________ test_current_abi_drift_refuses_before_body __________________
+
+tmp_path = PosixPath('/dev/shm/e02-B-cmp-b43-freeze/tmp-f563/test_current_abi_drift_refuses0')
+
+    def test_current_abi_drift_refuses_before_body(tmp_path):
+        fixture = _chain()
+        cas = FileSystemCAS(tmp_path / "cas")
+        ref = store_compiled_chain_plan(cas, CompiledChainPlan.from_chain(fixture.chain))
+        fixture.classes[1].signature = replace(fixture.classes[1].signature, requires=frozenset())
+        with pytest.raises(ValueError, match="signature ABI mismatch"):
+>           load_compiled_chain_plan(cas, ref, registry=fixture.registry)
+
+tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py:173: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cas = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f16ac05c550>
+ref = ArtifactRef(artifact_id=ArtifactID(root='sha256:b076744e0add98760f7a0b0ff142fafa379f5a296c8df904ae3eb8be9813ba4f'), kind='foundry.compiled_chain_plan', media_type='application/json', manifest_profile_sha256=None)
+
+    def load_compiled_chain_plan(
+        cas: FileSystemCAS,
+        ref: ArtifactRef,
+        *,
+        registry: MethodRegistry | None = None,
+    ) -> CompiledMethodChain:
+        """Guard-read a selected plan view and rebuild its current cold chain.
+    
+        The exact reference is retained for both public CAS reads. Its manifest and
+        blob verification grant no authority over method code or execution policy.
+        """
+        if (
+            not isinstance(ref, ArtifactRef)
+            or ref.kind != "foundry.compiled_chain_plan"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+>           raise ValueError("Compiled plan requires an exact typed selected-manifest reference")
+E           ValueError: Compiled plan requires an exact typed selected-manifest reference
+
+src/polisyos/foundry/methods/artifacts/parts.py:156: ValueError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/dev/shm/e02-B-cmp-b43-freeze/tmp-f563/test_current_abi_drift_refuses0')
+
+    def test_current_abi_drift_refuses_before_body(tmp_path):
+        fixture = _chain()
+        cas = FileSystemCAS(tmp_path / "cas")
+        ref = store_compiled_chain_plan(cas, CompiledChainPlan.from_chain(fixture.chain))
+        fixture.classes[1].signature = replace(fixture.classes[1].signature, requires=frozenset())
+>       with pytest.raises(ValueError, match="signature ABI mismatch"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'signature ABI mismatch'
+E         Actual message: 'Compiled plan requires an exact typed selected-manifest reference'
+
+tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py:172: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 21:19:37 [info     ] method_registered              backend=numpy fqn=tests.compiled_plan.produce@1.0.0 lazy=False namespace=tests.compiled_plan override=False tags=[] version=1.0.0
+2026-10-06 21:19:37 [info     ] method_registered              backend=numpy fqn=tests.compiled_plan.consume@1.0.0 lazy=False namespace=tests.compiled_plan override=False tags=[] version=1.0.0
+____ test_repeated_fqn_occurrences_reopen_with_nearest_earlier_requirement _____
+
+tmp_path = PosixPath('/dev/shm/e02-B-cmp-b43-freeze/tmp-f563/test_repeated_fqn_occurrences_0')
+
+    def test_repeated_fqn_occurrences_reopen_with_nearest_earlier_requirement(tmp_path):
+        fixture = _chain()
+        composer = MethodComposer(registry=fixture.registry)
+        first = composer.add(fixture.classes[0].signature.fqn, factor=3)
+        dependent = composer.add(fixture.classes[1].signature.fqn, offset=5)
+        second = composer.add(fixture.classes[0].signature.fqn, factor=3)
+        original = composer.build()
+        cas = FileSystemCAS(tmp_path / "cas")
+        ref = store_compiled_chain_plan(cas, CompiledChainPlan.from_chain(original))
+>       restored = load_compiled_chain_plan(
+            FileSystemCAS(tmp_path / "cas"), ref, registry=fixture.registry
+        )
+
+tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py:186: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cas = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f16ac05d250>
+ref = ArtifactRef(artifact_id=ArtifactID(root='sha256:9a35111b2d25f9f0b9c3f1d0b5840db9d5779c843f6b0fcc47bf3a0540c98507'), kind='foundry.compiled_chain_plan', media_type='application/json', manifest_profile_sha256=None)
+
+    def load_compiled_chain_plan(
+        cas: FileSystemCAS,
+        ref: ArtifactRef,
+        *,
+        registry: MethodRegistry | None = None,
+    ) -> CompiledMethodChain:
+        """Guard-read a selected plan view and rebuild its current cold chain.
+    
+        The exact reference is retained for both public CAS reads. Its manifest and
+        blob verification grant no authority over method code or execution policy.
+        """
+        if (
+            not isinstance(ref, ArtifactRef)
+            or ref.kind != "foundry.compiled_chain_plan"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+>           raise ValueError("Compiled plan requires an exact typed selected-manifest reference")
+E           ValueError: Compiled plan requires an exact typed selected-manifest reference
+
+src/polisyos/foundry/methods/artifacts/parts.py:156: ValueError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 21:19:37 [info     ] method_registered              backend=numpy fqn=tests.compiled_plan.produce@1.0.0 lazy=False namespace=tests.compiled_plan override=False tags=[] version=1.0.0
+2026-10-06 21:19:37 [info     ] method_registered              backend=numpy fqn=tests.compiled_plan.consume@1.0.0 lazy=False namespace=tests.compiled_plan override=False tags=[] version=1.0.0
+___________ test_selected_manifest_schema_is_consumed[foreign-plan] ____________
+
+tmp_path = PosixPath('/dev/shm/e02-B-cmp-b43-freeze/tmp-f563/test_selected_manifest_schema_0')
+schema_name = 'foreign-plan'
+
+    @pytest.mark.parametrize("schema_name", ["foreign-plan", "polisyos.foundry.compiled_chain_plan"])
+    def test_selected_manifest_schema_is_consumed(tmp_path, schema_name):
+        fixture = _chain()
+        cas = FileSystemCAS(tmp_path / "cas")
+        ref = cas.put_bytes(
+            CompiledChainPlan.from_chain(fixture.chain).content,
+            PutOptions(
+                kind="foundry.compiled_chain_plan",
+                media_type="application/json",
+                schema=SchemaInfo(name=schema_name, version="foreign-version"),
+            ),
+        )
+        with pytest.raises(ValueError, match="manifest schema mismatch"):
+>           load_compiled_chain_plan(cas, ref, registry=fixture.registry)
+
+tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py:211: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cas = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f16ac05dc50>
+ref = ArtifactRef(artifact_id=ArtifactID(root='sha256:aa8c5a89db2bb00d63261441282f2b573aa0985febd488efaa44427f02825331'), kind='foundry.compiled_chain_plan', media_type='application/json', manifest_profile_sha256=None)
+
+    def load_compiled_chain_plan(
+        cas: FileSystemCAS,
+        ref: ArtifactRef,
+        *,
+        registry: MethodRegistry | None = None,
+    ) -> CompiledMethodChain:
+        """Guard-read a selected plan view and rebuild its current cold chain.
+    
+        The exact reference is retained for both public CAS reads. Its manifest and
+        blob verification grant no authority over method code or execution policy.
+        """
+        if (
+            not isinstance(ref, ArtifactRef)
+            or ref.kind != "foundry.compiled_chain_plan"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+>           raise ValueError("Compiled plan requires an exact typed selected-manifest reference")
+E           ValueError: Compiled plan requires an exact typed selected-manifest reference
+
+src/polisyos/foundry/methods/artifacts/parts.py:156: ValueError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/dev/shm/e02-B-cmp-b43-freeze/tmp-f563/test_selected_manifest_schema_0')
+schema_name = 'foreign-plan'
+
+    @pytest.mark.parametrize("schema_name", ["foreign-plan", "polisyos.foundry.compiled_chain_plan"])
+    def test_selected_manifest_schema_is_consumed(tmp_path, schema_name):
+        fixture = _chain()
+        cas = FileSystemCAS(tmp_path / "cas")
+        ref = cas.put_bytes(
+            CompiledChainPlan.from_chain(fixture.chain).content,
+            PutOptions(
+                kind="foundry.compiled_chain_plan",
+                media_type="application/json",
+                schema=SchemaInfo(name=schema_name, version="foreign-version"),
+            ),
+        )
+>       with pytest.raises(ValueError, match="manifest schema mismatch"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'manifest schema mismatch'
+E         Actual message: 'Compiled plan requires an exact typed selected-manifest reference'
+
+tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py:210: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 21:19:37 [info     ] method_registered              backend=numpy fqn=tests.compiled_plan.produce@1.0.0 lazy=False namespace=tests.compiled_plan override=False tags=[] version=1.0.0
+2026-10-06 21:19:37 [info     ] method_registered              backend=numpy fqn=tests.compiled_plan.consume@1.0.0 lazy=False namespace=tests.compiled_plan override=False tags=[] version=1.0.0
+_ test_selected_manifest_schema_is_consumed[polisyos.foundry.compiled_chain_plan] _
+
+tmp_path = PosixPath('/dev/shm/e02-B-cmp-b43-freeze/tmp-f563/test_selected_manifest_schema_1')
+schema_name = 'polisyos.foundry.compiled_chain_plan'
+
+    @pytest.mark.parametrize("schema_name", ["foreign-plan", "polisyos.foundry.compiled_chain_plan"])
+    def test_selected_manifest_schema_is_consumed(tmp_path, schema_name):
+        fixture = _chain()
+        cas = FileSystemCAS(tmp_path / "cas")
+        ref = cas.put_bytes(
+            CompiledChainPlan.from_chain(fixture.chain).content,
+            PutOptions(
+                kind="foundry.compiled_chain_plan",
+                media_type="application/json",
+                schema=SchemaInfo(name=schema_name, version="foreign-version"),
+            ),
+        )
+        with pytest.raises(ValueError, match="manifest schema mismatch"):
+>           load_compiled_chain_plan(cas, ref, registry=fixture.registry)
+
+tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py:211: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cas = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f16ac05eb50>
+ref = ArtifactRef(artifact_id=ArtifactID(root='sha256:193f2faa2a17a2fe892ac8f8f6cb5e04dd5bca2a1fa51689214aa1ac9f31c6a9'), kind='foundry.compiled_chain_plan', media_type='application/json', manifest_profile_sha256=None)
+
+    def load_compiled_chain_plan(
+        cas: FileSystemCAS,
+        ref: ArtifactRef,
+        *,
+        registry: MethodRegistry | None = None,
+    ) -> CompiledMethodChain:
+        """Guard-read a selected plan view and rebuild its current cold chain.
+    
+        The exact reference is retained for both public CAS reads. Its manifest and
+        blob verification grant no authority over method code or execution policy.
+        """
+        if (
+            not isinstance(ref, ArtifactRef)
+            or ref.kind != "foundry.compiled_chain_plan"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+>           raise ValueError("Compiled plan requires an exact typed selected-manifest reference")
+E           ValueError: Compiled plan requires an exact typed selected-manifest reference
+
+src/polisyos/foundry/methods/artifacts/parts.py:156: ValueError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/dev/shm/e02-B-cmp-b43-freeze/tmp-f563/test_selected_manifest_schema_1')
+schema_name = 'polisyos.foundry.compiled_chain_plan'
+
+    @pytest.mark.parametrize("schema_name", ["foreign-plan", "polisyos.foundry.compiled_chain_plan"])
+    def test_selected_manifest_schema_is_consumed(tmp_path, schema_name):
+        fixture = _chain()
+        cas = FileSystemCAS(tmp_path / "cas")
+        ref = cas.put_bytes(
+            CompiledChainPlan.from_chain(fixture.chain).content,
+            PutOptions(
+                kind="foundry.compiled_chain_plan",
+                media_type="application/json",
+                schema=SchemaInfo(name=schema_name, version="foreign-version"),
+            ),
+        )
+>       with pytest.raises(ValueError, match="manifest schema mismatch"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'manifest schema mismatch'
+E         Actual message: 'Compiled plan requires an exact typed selected-manifest reference'
+
+tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py:210: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 21:19:37 [info     ] method_registered              backend=numpy fqn=tests.compiled_plan.produce@1.0.0 lazy=False namespace=tests.compiled_plan override=False tags=[] version=1.0.0
+2026-10-06 21:19:37 [info     ] method_registered              backend=numpy fqn=tests.compiled_plan.consume@1.0.0 lazy=False namespace=tests.compiled_plan override=False tags=[] version=1.0.0
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py::test_real_cas_reopen_restores_payload_occurrences_and_executes[False]
+FAILED tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py::test_real_cas_reopen_restores_payload_occurrences_and_executes[True]
+FAILED tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py::test_current_abi_drift_refuses_before_body
+FAILED tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py::test_repeated_fqn_occurrences_reopen_with_nearest_earlier_requirement
+FAILED tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py::test_selected_manifest_schema_is_consumed[foreign-plan]
+FAILED tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py::test_selected_manifest_schema_is_consumed[polisyos.foundry.compiled_chain_plan]

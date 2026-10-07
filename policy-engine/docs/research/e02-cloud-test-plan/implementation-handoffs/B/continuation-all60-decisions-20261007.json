@@ -1,0 +1,1028 @@
+{
+  "schema": "policyos.e02.continuation_all60_decision_index.v1",
+  "unit": "B",
+  "mode": "Updated compact criterion/evidence decisions, not copied original criterion table and not formal closure",
+  "closure_ids": [],
+  "formal_closure": false,
+  "technical_counts_role": "Bounded technical recommendations only; not G closure or automatic code acceptance",
+  "technical_counts": {
+    "limited": 7,
+    "closed": 48,
+    "held": 4,
+    "open": 1
+  },
+  "finding_count": 60,
+  "bundle_count": 25,
+  "decisions_by_id": {
+    "B13": {
+      "bundle_id": "RES-03",
+      "technical_decision": "limited",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/0",
+        "criterion_sha256": "8714cb99089ae3acaf3b6bad7954b4ea29bb018e3128bccb5c937d21aa43ad49"
+      },
+      "current_delta": "Full frozen6fa served case actual FAIL catalog_fetch_source_unreadable; no producer-only served-route proof.",
+      "next_owner": "A/G: real served simulation recovery on exact local read-only catalog/acquisition/history",
+      "missing_input_or_admission": "Full frozen6fa served case actual FAIL catalog_fetch_source_unreadable; no producer-only served-route proof.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B14": {
+      "bundle_id": "RUN-01",
+      "technical_decision": "limited",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/1",
+        "criterion_sha256": "6751a4ad3fac17a99f232f0c277b7df5b9a7911393ed10edf4013c8e60f71b0f"
+      },
+      "current_delta": "Linux proof retained; native Mac receipt absent.",
+      "next_owner": "G: native Mac runtime owner",
+      "missing_input_or_admission": "Linux proof retained; native Mac receipt absent.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B24": {
+      "bundle_id": "RUN-02",
+      "technical_decision": "limited",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/2",
+        "criterion_sha256": "07a88c84d0c6ba90c263ae4eac6963f2a204362af642aa95d60a00792aa7ece0"
+      },
+      "current_delta": "Linux proof retained; native Mac receipt absent.",
+      "next_owner": "G: native Mac process/cancellation owner",
+      "missing_input_or_admission": "Linux proof retained; native Mac receipt absent.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B37": {
+      "bundle_id": "DUR-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/3",
+        "criterion_sha256": "c555fb1ccd7afd60ee4c21887f0da19bb1d95885fd7b3a736cd84872814db01e"
+      },
+      "current_delta": "Wire/atomic-persistence criterion stays at the original strict old/new-or-typed-recovery basis. New full Traced/cache/enforcer process witness consumes the same lower source, retains provider_in_flight after physical SDK request then SIGKILL, and fresh same-key consumer refuses before another request. No lower mechanism escape observed; no second ledger introduced.",
+      "next_owner": "ROOT/G accepts transferred source-bound lower evidence and chooses final exact cohort; DUR owns lower only if a new actual escape appears.",
+      "missing_input_or_admission": "Original strict sparse-versus-explicit-unlimited, nullable omission, complete legacy migration and publication fault proofs retain exact old sources. A new combined frozen-source affected-consumer rejoin is not executed by this navigation slice. SIGKILL is process interruption, not power loss or multihost proof.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B38": {
+      "bundle_id": "DUR-02",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/4",
+        "criterion_sha256": "d37d987dae1f7e9c87bb88d46bbbdb91c30f0a7208e28c12bdcd21ab46b73258"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "Root/G criterion acceptance; DUR store/worker source owner; external effect owner for distinct B78 contract.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B39": {
+      "bundle_id": "RUN-03",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/5",
+        "criterion_sha256": "f2546edff7c1593a0c052e825aff9229abba6c4a98bf2f9a215698aafb27a7e2"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "Root/G combined acceptance; backend owner supplies any external status/idempotency law.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B40": {
+      "bundle_id": "RUN-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/6",
+        "criterion_sha256": "0f1f3de7c6168147385cad77e0eb9c8e974e6b51c28dd7bf6cc1533f5f655ed9"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "Root/G final affected-consumer acceptance; EXE owns checkpoint/async source and RUN owns common/retry.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B42": {
+      "bundle_id": "CMP-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/7",
+        "criterion_sha256": "434fc93d5f183004fa3dea62a3802632618b7a5a640c7a29a94b218cc09bbc77"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "CMP/root/G effective-plan acceptance.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B43": {
+      "bundle_id": "CMP-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/8",
+        "criterion_sha256": "10b7eabc7d65e7ee68eff8d1b3ee523ce960f00f696c34edf1aae65cdd67a8c9"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "ROOT/G formal finite-plan acceptance; method/source scientific owner for unclaimed historical source authority.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B44": {
+      "bundle_id": "CMP-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/9",
+        "criterion_sha256": "0c36b2d0d5304b425dde05fe8679dc2adab49d9ae67925a4533cdb1f912be5ae"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "CMP/root/G merged executor consumer.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B45": {
+      "bundle_id": "CMP-02",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/10",
+        "criterion_sha256": "164b0ecacd454c386662aac54c271c7298c3348b34de661816f015eaddc2e186"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "CMP/root/G composition acceptance.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B46": {
+      "bundle_id": "CMP-02",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/11",
+        "criterion_sha256": "662a1a626240391877225f0ba32d12c2977f1acfba0290386b4bdff0d317b580"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "CMP/root/G; semantic source owner for substantive tag rules.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B47": {
+      "bundle_id": "CMP-03",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/12",
+        "criterion_sha256": "db0a46a8373da1087edb08b827fd8e925dc9c731492d6147ee683dc284a1dfa9"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "CMP/root/G final supported composition consumer.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B48": {
+      "bundle_id": "CMP-03",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/13",
+        "criterion_sha256": "f92d8823d473df1af96de2bc15940fe284bdb8ad0eb9e7d757478069c448007c"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "CMP/root/G; semantic owner supplies actual transformation law.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B49": {
+      "bundle_id": "JIT-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/14",
+        "criterion_sha256": "e581a88f4245b540e42b3ac60bc78a278bbe890e6ce2149031305d4235188ab6"
+      },
+      "current_delta": "Actual frozen6fa JIT9FAIL repaired by finite ordinary-function data-field admission plus generic actual root binding. Final exact affected-consumer union and foreign realJAX oracle: {\"FAIL\": 1, \"FAIL_identity\": \"known returned-frame namespace escape B74 LIMITED\", \"PASS\": 127, \"Ruff\": \"PASS\", \"canonical_JIT_PASS\": 9, \"collected\": 128, \"format\": \"PASS\", \"independent_real_JAX_PASS\": 3, \"mypy_normal_imports\": \"PASS\", \"property_removal_FAIL\": 1, \"whole_files\": 5}. Matched getter admission removal fails materially. Intermediate0903 lexical-shadow3FAIL retained; B74 frame remains LIMITED. Closed is a bounded technical proposal, formal=false.",
+      "next_owner": "G code acceptance; JIT/CMP canonical writer for a new finite-profile escape",
+      "missing_input_or_admission": "Full successor B/native/gates not replayed; full observed source remains6fa. G accepts code separately from finding closure.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B50": {
+      "bundle_id": "JIT-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/15",
+        "criterion_sha256": "0aa3d14bac0b9f19c3362889bf0f13fdc54326453536084a4be68d1e295ed3bf"
+      },
+      "current_delta": "Actual frozen6fa JIT9FAIL repaired by finite ordinary-function data-field admission plus generic actual root binding. Final exact affected-consumer union and foreign realJAX oracle: {\"FAIL\": 1, \"FAIL_identity\": \"known returned-frame namespace escape B74 LIMITED\", \"PASS\": 127, \"Ruff\": \"PASS\", \"canonical_JIT_PASS\": 9, \"collected\": 128, \"format\": \"PASS\", \"independent_real_JAX_PASS\": 3, \"mypy_normal_imports\": \"PASS\", \"property_removal_FAIL\": 1, \"whole_files\": 5}. Matched getter admission removal fails materially. Intermediate0903 lexical-shadow3FAIL retained; B74 frame remains LIMITED. Closed is a bounded technical proposal, formal=false.",
+      "next_owner": "G code acceptance; JIT/CMP canonical writer for a new finite-profile escape",
+      "missing_input_or_admission": "Full successor B/native/gates not replayed; full observed source remains6fa. G accepts code separately from finding closure.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B51": {
+      "bundle_id": "EXE-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/16",
+        "criterion_sha256": "8be3876e053d7fa9b13fafcf7d74ae50aae980a6949966dcbf5962344bd7aafd"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "Root/G new affected consumer rejoin after LLM/budget repair; EXE owns native cache inlet.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B52": {
+      "bundle_id": "EXE-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/17",
+        "criterion_sha256": "e4af31d50bb9263c6744fd0aef0e1fe452faa29181bb42294e0c1e0d4c441885"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "ROOT/G finite criterion acceptance and full-joint verification; local workload owner may measure production distribution separately.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B53": {
+      "bundle_id": "JIT-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/18",
+        "criterion_sha256": "7593081b5107446ae188b695b89f6b84599a3dfbb0da218002d9c2e69fef8b12"
+      },
+      "current_delta": "Actual frozen6fa JIT9FAIL repaired by finite ordinary-function data-field admission plus generic actual root binding. Final exact affected-consumer union and foreign realJAX oracle: {\"FAIL\": 1, \"FAIL_identity\": \"known returned-frame namespace escape B74 LIMITED\", \"PASS\": 127, \"Ruff\": \"PASS\", \"canonical_JIT_PASS\": 9, \"collected\": 128, \"format\": \"PASS\", \"independent_real_JAX_PASS\": 3, \"mypy_normal_imports\": \"PASS\", \"property_removal_FAIL\": 1, \"whole_files\": 5}. Matched getter admission removal fails materially. Intermediate0903 lexical-shadow3FAIL retained; B74 frame remains LIMITED. Closed is a bounded technical proposal, formal=false.",
+      "next_owner": "G code acceptance; JIT/CMP canonical writer for a new finite-profile escape",
+      "missing_input_or_admission": "Full successor B/native/gates not replayed; full observed source remains6fa. G accepts code separately from finding closure.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B55": {
+      "bundle_id": "EXE-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/19",
+        "criterion_sha256": "8191ea528e4cb3823ee245a3c5ff0d7a66aef73cd44e4a4bcb57ac1c4c2409da"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "EXE/root/G affected native scheduler consumer.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B57": {
+      "bundle_id": "STA-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/20",
+        "criterion_sha256": "989c4b3d91329d24324c501149ed1325207d8755c3de0cb749b7ad79f339702a"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "EXE/root/G native state/cache consumer acceptance; RUN foreign graph reviewer.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B58": {
+      "bundle_id": "STA-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/21",
+        "criterion_sha256": "f033cf80f557c6d0182c48122321772bc26ce47dff30de0b0cca1baf1279285a"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "EXE/root/G actual merge/consumer acceptance.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B59": {
+      "bundle_id": "STA-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/22",
+        "criterion_sha256": "2c0c22b628ad881f863d35c1ee9e05976d4e9cd281f4ab540820ae555bf50295"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "EXE/root/G original producer and branch consumer.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B60": {
+      "bundle_id": "STA-02",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/23",
+        "criterion_sha256": "2064253937c5fc51352981eef9dada91cd145e1a85afd788b33cd72866ee7635"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "EXE/root/G affected ResolveParametersNode; causal source owner for B61.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B61": {
+      "bundle_id": "STA-02",
+      "technical_decision": "held",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/24",
+        "criterion_sha256": "6c229b5194b7ece8cf32e5c774c9dc2d06092fb0e5eb592b60b956c9bf38baff"
+      },
+      "current_delta": "Consumed versioned immutable SKG snapshot/epoch and permission law not supplied.",
+      "next_owner": "SKG/causal source owner + G",
+      "missing_input_or_admission": "Consumed versioned immutable SKG snapshot/epoch and permission law not supplied.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B62": {
+      "bundle_id": "STA-02",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/25",
+        "criterion_sha256": "1cae96d29d981d9650032e044e8fda65b6165702f2ff6aa9ca7640b1d6444ac2"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "EXE/root/G native cache consumer.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B63": {
+      "bundle_id": "RES-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/26",
+        "criterion_sha256": "7bccf9e6d563e9575f5da7d0c320fcdb6ec07175920c088106cb690c0bac9c28"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "EXE/root/G successor affected cache recovery consumer.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B64": {
+      "bundle_id": "LLM-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/27",
+        "criterion_sha256": "8b937eee0a8702760af6f5bc4cccec275c9d06f350456ba6c124cbdc55953487"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "ADAPTER/root/G actual canonical client consumer.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B65": {
+      "bundle_id": "LLM-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/28",
+        "criterion_sha256": "90e562abc3c5f0f27d186df9b75f70a800407315b44b6bc92dd4a2d69469d4b9"
+      },
+      "current_delta": "Healthy and caller-cancel cases each complete one actual producer, .02 durable receipt and required BUDGET_COMMITTED with valid whole audit chain; fresh legitimate second call yields .04/two receipts. SIGKILL leaves no ACK or COMMITTED and one durable unknown intent. Predicate removal produces SDK call2/intent2/changedbytes despite eventual typed refusal: refusal status alone is insufficient.",
+      "next_owner": "ROOT/G formal acceptance; ADAPTER owns upper audit/producer bridge, DUR supplies unchanged lower contract.",
+      "missing_input_or_admission": "Known SDK .02 is fixture-reported operational cost, not invoice authority. Required audit resolver and actual initialized ledger are explicit constructor-owned premises. No pending-intent crash is auto-cleared and no fresh external reconciliation authority is invented. No new all-B/cohort or deployed-factory claim.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B66": {
+      "bundle_id": "LLM-01",
+      "technical_decision": "limited",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/29",
+        "criterion_sha256": "ef9b4c4d8d959e699bfc06780c1d7e6e4abb4c44b1f6386a78bf6d08d193610e"
+      },
+      "current_delta": "B durable producer/ACK controls and exact HTTP decoder repaired; A real helper still maps unknown None to0.0:3PASS1FAIL; real served downstream admission remains UNRUN.",
+      "next_owner": "A/G: response_shapes, protected served NL/cycle budget-admission route",
+      "missing_input_or_admission": "B durable producer/ACK controls and exact HTTP decoder repaired; A real helper still maps unknown None to0.0:3PASS1FAIL; real served downstream admission remains UNRUN.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B67": {
+      "bundle_id": "LLM-02",
+      "technical_decision": "held",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/30",
+        "criterion_sha256": "b05c118cdc26e84579548072dcb2c766cfd5e75946b3cabe13ae3d021c62fdd4"
+      },
+      "current_delta": "Actor/scope/purpose/epoch/evidence-bound permission law absent; readability/hash/fixture grants no authority.",
+      "next_owner": "Institutional evidence/reuse authorization owner + G",
+      "missing_input_or_admission": "Actor/scope/purpose/epoch/evidence-bound permission law absent; readability/hash/fixture grants no authority.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B68": {
+      "bundle_id": "LLM-02",
+      "technical_decision": "held",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/31",
+        "criterion_sha256": "e4ed51ed64211794192a8f19d6cceeeff1f29df468bf3b40109650658a7b2675"
+      },
+      "current_delta": "B67 authorization plus intended independent repetition/scoped single-flight contract absent.",
+      "next_owner": "Institutional reuse owner/B67 + G",
+      "missing_input_or_admission": "B67 authorization plus intended independent repetition/scoped single-flight contract absent.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B69": {
+      "bundle_id": "RUN-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/32",
+        "criterion_sha256": "f3c09fefcef97725af61bccc6480d59034302012b9413815c6944474d632bb3e"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "RUN/root/G common executor consumers.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B70": {
+      "bundle_id": "RES-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/33",
+        "criterion_sha256": "bcf7738eb29ed6a0676ca42fdd999c14a680494038333aa8d557a605dc2047cb"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "EXE/root/G concrete restore consumer.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B71": {
+      "bundle_id": "RES-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/34",
+        "criterion_sha256": "f68a12b118f6d8105fc247896d765126ba087d740747a069abbb36ffc4bbc2cd"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "EXE/root/G supported native protected resume consumer.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B72": {
+      "bundle_id": "RES-02",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/35",
+        "criterion_sha256": "c2c20881bd0e439dfde5c4c59873754fd09a8eb20f6e5e30dc26563fd0a506ce"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "EXE/root/G native checkpoint consumer.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B73": {
+      "bundle_id": "RES-02",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/36",
+        "criterion_sha256": "5d7c44528f1e1d6845265d8bf932cf121cd2959bf2d144348d6b404066f8d8f4"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "EXE/root/G complete checkpoint consumer; DUR independent real two-policy oracle.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B74": {
+      "bundle_id": "RES-04",
+      "technical_decision": "limited",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/37",
+        "criterion_sha256": "fe5c80be8769dc007957fe5125cff3110cc02a77208d29f3b7523f0b267bc181"
+      },
+      "current_delta": "Static imported member identity is repaired; actual returned-frame namespace permits changed member effect107 and remains FAIL. Ordinary-function constant public data-field getter profile is finite; no universal runtime descriptor/namespace closure.",
+      "next_owner": "CMP canonical graph owner + G real checkpoint/served consumer",
+      "missing_input_or_admission": "Static imported member identity is repaired; actual returned-frame namespace permits changed member effect107 and remains FAIL. Ordinary-function constant public data-field getter profile is finite; no universal runtime descriptor/namespace closure.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B75": {
+      "bundle_id": "RES-04",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/38",
+        "criterion_sha256": "bfa81a7d72085f1f37d2623263dff2cc2d52e19d297f8144a557d76875e443e6"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "CMP/root/G Foundry history consumer.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B76": {
+      "bundle_id": "RES-04",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/39",
+        "criterion_sha256": "18fbe02ddd13babe4e4df26b023de3655025e27309ae780ac8c7e1a24fc7995a"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "CMP/root/G supported native save/load consumer.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B77": {
+      "bundle_id": "EXE-02",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/40",
+        "criterion_sha256": "a83c4caf19814d7cf068b5e1a24d095f44228f905d50acb4f8931e3818a6ca86"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "EXE/root/G supported native DAG scheduler consumer.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B78": {
+      "bundle_id": "DUR-02",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/41",
+        "criterion_sha256": "5b3639630d2e7af82b90281906e6ed658c5f45687c3d3904dc2f177c07258dd0"
+      },
+      "current_delta": "New killed provider intent is consistent with unknown-not-zero, but is not a Ray/Temporal primary fallback status probe. Original local effect count/typedPrimaryExecutionOutcomeUnknownError clause stays source-bound closed; authoritative external reconciliation remains a held extension.",
+      "next_owner": "ROOT/G local clause acceptance; primary external status/idempotency owner supplies held authoritative capability.",
+      "missing_input_or_admission": "Actual external operation status/idempotency owner contract before any reconciliation/reissue. No fabricated operation ID, connection-error permission or exactly-once external guarantee.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B87": {
+      "bundle_id": "NET-01",
+      "technical_decision": "open",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/42",
+        "criterion_sha256": "9c6e17b748643693b07a5fefefd6943e2ada4415b4b29c7a3e3aaa70d3846781"
+      },
+      "current_delta": "Actual pending old physical handle loses production retry owner while permitfree=1 and next session creates another handle. Transfer exact failed pool to production retry owner; independent late cleanup is insufficient.",
+      "next_owner": "C: streaming.py and production process-final cleanup owner; G consumer",
+      "missing_input_or_admission": "Actual pending old physical handle loses production retry owner while permitfree=1 and next session creates another handle. Transfer exact failed pool to production retry owner; independent late cleanup is insufficient.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B89": {
+      "bundle_id": "NET-01",
+      "technical_decision": "limited",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/43",
+        "criterion_sha256": "5c543b225505ffd632e3ffb90bee0ac51d0473a19a0dfe2a93c0be2aaf6380c4"
+      },
+      "current_delta": "Separate cap3 two-row checkpoint→restart cap1 real budget failure persists; budget/cleanup conditions distinct. Requires typed C acceptance before poll/flush/commit or agreed exact contract.",
+      "next_owner": "C/G: stream/cursor/checkpoint and process lifecycle, B pool contract",
+      "missing_input_or_admission": "Separate cap3 two-row checkpoint→restart cap1 real budget failure persists; budget/cleanup conditions distinct. Requires typed C acceptance before poll/flush/commit or agreed exact contract.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B90": {
+      "bundle_id": "NET-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/44",
+        "criterion_sha256": "8b1e63a16da14bf95ef0104b412bbd1da0b8ce0b4bb093026d80d50253bc94ab"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "ADAPTER/root/G real pool acquire consumer.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B91": {
+      "bundle_id": "NET-02",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/45",
+        "criterion_sha256": "0f2ed6f8615e478a4110ac1658fba923e87255d0810a6ace9c78144b8fd7e541"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "ADAPTER/root/G configured source regulator consumer.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B92": {
+      "bundle_id": "NET-02",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/46",
+        "criterion_sha256": "eb9d5ebf88004fea69fff0eef6961700a7fa3fddf27ba044b317b4dcad90b5d4"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "ADAPTER/root/G source decorator consumer.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B93": {
+      "bundle_id": "NET-02",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/47",
+        "criterion_sha256": "87741d3b2986ece596a60a5ae476e33558b94b6dceb92afd4b85598bfedc750d"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "ROOT/G formal finite registry criterion acceptance and explicit historical mapping correction; no intrinsic protection mechanism gap demonstrated.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B94": {
+      "bundle_id": "WIRE-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/48",
+        "criterion_sha256": "42eed64bf083f227b7f0fb37cf13d60117e5521d8e06bc982bbb6b5e42a87aa5"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "ADAPTER/root/G actual worker/envelope consumers.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B95": {
+      "bundle_id": "RUN-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/49",
+        "criterion_sha256": "e20a5f278e861f80727aa69e770584595eacef1d7b2aeb9d22ff9bf6aaade341"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "RUN/root/G actual scope consumer; institutional owner authorizes the scope separately.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B96": {
+      "bundle_id": "RUN-03",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/50",
+        "criterion_sha256": "e715c9c7e265cdca1b906cdce523be2a4a4728b354aa25a334d27082f0f1c73b"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "RUN/root/G native retry state/expense consumer and external effect owner.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B148": {
+      "bundle_id": "CAS-02",
+      "technical_decision": "held",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/51",
+        "criterion_sha256": "7737ebff60bc5812b79091bfcc2859cd7a9415c47f4327f271e82641b076fe34"
+      },
+      "current_delta": "Cross-tenant/first-for-tenant ownership law absent; exact bytes/hash do not grant tenant ownership.",
+      "next_owner": "CAS tenant/security source owner + G",
+      "missing_input_or_admission": "Cross-tenant/first-for-tenant ownership law absent; exact bytes/hash do not grant tenant ownership.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B149": {
+      "bundle_id": "CAS-02",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/52",
+        "criterion_sha256": "911157062b91d21961884fc59c818a40ec8075917ef74f9e585510c9e611534f"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "CAS/root/G supported transfer consumer.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B150": {
+      "bundle_id": "CAS-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/53",
+        "criterion_sha256": "135dfde8a0bb25422fa6a9972ccb662ede9706af55cf81c481c86dd1be843672"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "CAS/root/G actual profile consumers.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B151": {
+      "bundle_id": "CAS-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/54",
+        "criterion_sha256": "b7883805cfa726a3d09a814b00e5894c860ce9b4f4314ef1e78e818cb75af25a"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "CAS/root/G actual write/retry downstream consumer.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B152": {
+      "bundle_id": "CAS-03",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/55",
+        "criterion_sha256": "1bf037809d7d4612858d37aae8198d5314bfb170d827c75126876df705bec85d"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "CAS/root/G native snapshot/report/chronology consumer acceptance.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B153": {
+      "bundle_id": "CAS-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/56",
+        "criterion_sha256": "adc89fe0916a2dfc26efa1b77d98c34550c9c75e2532424401c6f927093506aa"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "CAS/root/G local long-lived store consumer.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B154": {
+      "bundle_id": "CAS-03",
+      "technical_decision": "limited",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/57",
+        "criterion_sha256": "4238b2c281dcc1a9c504c40351b70039945a0e99b14e450cc571b7e3c3307b9f"
+      },
+      "current_delta": "B typed full-batch partial/aborted report and obligations available; real served publisher refusal/recovery on exact local read-only input unproved.",
+      "next_owner": "A/G: actual all-confirmations governed publisher",
+      "missing_input_or_admission": "B typed full-batch partial/aborted report and obligations available; real served publisher refusal/recovery on exact local read-only input unproved.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "B155": {
+      "bundle_id": "CAS-03",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/58",
+        "criterion_sha256": "85ce1ecb40bf521ab7ef979d26f376fad77248c267b8d16eb87de42b3cacb2b9"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "CAS/root/G bounded iterator batch consumer.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    },
+    "LA-057": {
+      "bundle_id": "RUN-01",
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "criterion_basis": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "pointer": "/all60_manual_rows/59",
+        "criterion_sha256": "2afe404aaaa4e0abb4dce006674af34f61ca3269d1e0b9e516b788bb42c8ac57"
+      },
+      "current_delta": "Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.",
+      "next_owner": "ROOT/G bounded common/package formal acceptance and full-joint verification; external consumer owner only if actual compatibility dependency is found.",
+      "missing_input_or_admission": "No new semantic authority inferred; backend/input scope remains the exact original criterion profile.",
+      "backend_scope": "See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS."
+    }
+  },
+  "original_evidence_navigation": {
+    "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+    "sha256": "30b689d59c28e5173d6957a70ca1403a87ecc2406383f36060e8fc9ebe2c28c1"
+  },
+  "continuation_delta_navigation": {
+    "git_sha": "b61ed83242bb88fd2e1101751793f2a042545c1e",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-disposition-delta-20261007.json",
+    "sha256": "2ce1a110fe35ae14e00e5fc61380b70fac90c623ca32b4d5cd70f745ae9aa5d1"
+  },
+  "frozen_full_observation": {
+    "source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+    "source_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+    "packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence/packet.json"
+  },
+  "final_source_carrier": {
+    "sha": "b371fce793afddbe15e18ee2eadec3c7b9d51e52",
+    "tree": "f38d33e7006a75d2bdb145f0367afe82075cf4a5",
+    "production_blob_identity": "final-source-readback.json"
+  },
+  "latest_controls": {
+    "JIT_source": "7c05686dbd8427fa2e8bf217827046acef097058",
+    "JIT_foreign": "0bf268e7860831241e3fd193b3da46086d5893cc",
+    "JIT_review": "8c292c4904462a1ecd57d250f06fdfd7ff293c95",
+    "targeted_partition": {
+      "whole_files": 5,
+      "collected": 128,
+      "PASS": 127,
+      "FAIL": 1,
+      "FAIL_identity": "known returned-frame namespace escape B74 LIMITED",
+      "canonical_JIT_PASS": 9,
+      "independent_real_JAX_PASS": 3,
+      "property_removal_FAIL": 1,
+      "Ruff": "PASS",
+      "format": "PASS",
+      "mypy_normal_imports": "PASS"
+    },
+    "current_output_foreign": "91e343e0fa79ff77ff08fa0fae6fd3f035633190"
+  },
+  "quality_admission": "not_established; no P41 inherited waiver; full6fa FAIL and setup ERROR preserved, successor assessed only by new bounded affected consumers",
+  "production_data": "Unavailable in cloud; exact read-only inputs remain G local work, no transfer",
+  "absent_distributions": [
+    "numba",
+    "dask",
+    "distributed",
+    "dowhy",
+    "econml",
+    "temporalio"
+  ],
+  "SKIP_XFAIL_UNRUN": "Full6fa SKIP0/XFAIL0; verify14/parity34 constituents UNRUN; killed gates incomplete; missing optional backends not inferred from SKIP0."
+}

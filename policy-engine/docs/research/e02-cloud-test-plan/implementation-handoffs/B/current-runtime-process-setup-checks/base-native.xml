@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="6" time="3.740" timestamp="2026-10-06T10:44:37.895674+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_worker_setup_fault_closes_real_pipe_descriptors[cold-sync]" time="0.513"><failure message="AssertionError: {'after': [0, 1, 2, 3, 4, 5, ...], 'before': [0, 1, 2, 3, 4], 'body_effect': False, 'failure': {'errno': 24, 'message'...onment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/synchronize.py'&quot;, 'type': 'OSError'}, ...}&#10;assert [5, 6] == []&#10;  &#10;  Left contains 2 more items, first extra item: 5&#10;  Use -v to get more diff">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-159/test_worker_setup_fault_closes0')
+mode = 'sync', preparation = 'cold'
+
+    @pytest.mark.skipif(sys.platform != "linux", reason="actual Linux RLIMIT descriptor oracle")
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    @pytest.mark.parametrize("preparation", ["cold", "synchronize", "shared"])
+    def test_worker_setup_fault_closes_real_pipe_descriptors(tmp_path, mode, preparation):
+        """Every preparation failure releases owned Pipe ends, with traceback retained."""
+        effects = tmp_path / "node.effects"
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(Path(__file__).with_name("_retry_setup_probe.py")),
+                mode,
+                preparation,
+                str(effects),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        assert completed.returncode == 0, completed.stderr
+        observed = json.loads(completed.stdout)
+        assert observed["failure"]["type"] == "OSError", observed
+        assert observed["failure"]["errno"] == 24, observed
+        assert observed["retained_exception"] is True, observed
+&gt;       assert observed["new_descriptors"] == [], observed
+E       AssertionError: {'after': [0, 1, 2, 3, 4, 5, ...], 'before': [0, 1, 2, 3, 4], 'body_effect': False, 'failure': {'errno': 24, 'message'...onment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/synchronize.py'", 'type': 'OSError'}, ...}
+E       assert [5, 6] == []
+E         
+E         Left contains 2 more items, first extra item: 5
+E         Use -v to get more diff
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1493: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_worker_setup_fault_closes_real_pipe_descriptors[cold-async]" time="0.500"><failure message="AssertionError: {'after': [0, 1, 2, 3, 4, 5, ...], 'before': [0, 1, 2, 3, 4, 5, ...], 'body_effect': False, 'failure': {'errno': 24, '...onment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/synchronize.py'&quot;, 'type': 'OSError'}, ...}&#10;assert [8, 9] == []&#10;  &#10;  Left contains 2 more items, first extra item: 8&#10;  Use -v to get more diff">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-159/test_worker_setup_fault_closes1')
+mode = 'async', preparation = 'cold'
+
+    @pytest.mark.skipif(sys.platform != "linux", reason="actual Linux RLIMIT descriptor oracle")
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    @pytest.mark.parametrize("preparation", ["cold", "synchronize", "shared"])
+    def test_worker_setup_fault_closes_real_pipe_descriptors(tmp_path, mode, preparation):
+        """Every preparation failure releases owned Pipe ends, with traceback retained."""
+        effects = tmp_path / "node.effects"
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(Path(__file__).with_name("_retry_setup_probe.py")),
+                mode,
+                preparation,
+                str(effects),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        assert completed.returncode == 0, completed.stderr
+        observed = json.loads(completed.stdout)
+        assert observed["failure"]["type"] == "OSError", observed
+        assert observed["failure"]["errno"] == 24, observed
+        assert observed["retained_exception"] is True, observed
+&gt;       assert observed["new_descriptors"] == [], observed
+E       AssertionError: {'after': [0, 1, 2, 3, 4, 5, ...], 'before': [0, 1, 2, 3, 4, 5, ...], 'body_effect': False, 'failure': {'errno': 24, '...onment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/synchronize.py'", 'type': 'OSError'}, ...}
+E       assert [8, 9] == []
+E         
+E         Left contains 2 more items, first extra item: 8
+E         Use -v to get more diff
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1493: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_worker_setup_fault_closes_real_pipe_descriptors[synchronize-sync]" time="0.512"><failure message="AssertionError: {'after': [0, 1, 2, 3, 4, 5, ...], 'before': [0, 1, 2, 3, 4], 'body_effect': False, 'failure': {'errno': 24, 'message': '[Errno 24] Too many open files', 'type': 'OSError'}, ...}&#10;assert [5, 6] == []&#10;  &#10;  Left contains 2 more items, first extra item: 5&#10;  Use -v to get more diff">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-159/test_worker_setup_fault_closes2')
+mode = 'sync', preparation = 'synchronize'
+
+    @pytest.mark.skipif(sys.platform != "linux", reason="actual Linux RLIMIT descriptor oracle")
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    @pytest.mark.parametrize("preparation", ["cold", "synchronize", "shared"])
+    def test_worker_setup_fault_closes_real_pipe_descriptors(tmp_path, mode, preparation):
+        """Every preparation failure releases owned Pipe ends, with traceback retained."""
+        effects = tmp_path / "node.effects"
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(Path(__file__).with_name("_retry_setup_probe.py")),
+                mode,
+                preparation,
+                str(effects),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        assert completed.returncode == 0, completed.stderr
+        observed = json.loads(completed.stdout)
+        assert observed["failure"]["type"] == "OSError", observed
+        assert observed["failure"]["errno"] == 24, observed
+        assert observed["retained_exception"] is True, observed
+&gt;       assert observed["new_descriptors"] == [], observed
+E       AssertionError: {'after': [0, 1, 2, 3, 4, 5, ...], 'before': [0, 1, 2, 3, 4], 'body_effect': False, 'failure': {'errno': 24, 'message': '[Errno 24] Too many open files', 'type': 'OSError'}, ...}
+E       assert [5, 6] == []
+E         
+E         Left contains 2 more items, first extra item: 5
+E         Use -v to get more diff
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1493: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_worker_setup_fault_closes_real_pipe_descriptors[synchronize-async]" time="0.500"><failure message="AssertionError: {'after': [0, 1, 2, 3, 4, 5, ...], 'before': [0, 1, 2, 3, 4, 5, ...], 'body_effect': False, 'failure': {'errno': 24, 'message': '[Errno 24] Too many open files', 'type': 'OSError'}, ...}&#10;assert [8, 9] == []&#10;  &#10;  Left contains 2 more items, first extra item: 8&#10;  Use -v to get more diff">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-159/test_worker_setup_fault_closes3')
+mode = 'async', preparation = 'synchronize'
+
+    @pytest.mark.skipif(sys.platform != "linux", reason="actual Linux RLIMIT descriptor oracle")
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    @pytest.mark.parametrize("preparation", ["cold", "synchronize", "shared"])
+    def test_worker_setup_fault_closes_real_pipe_descriptors(tmp_path, mode, preparation):
+        """Every preparation failure releases owned Pipe ends, with traceback retained."""
+        effects = tmp_path / "node.effects"
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(Path(__file__).with_name("_retry_setup_probe.py")),
+                mode,
+                preparation,
+                str(effects),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        assert completed.returncode == 0, completed.stderr
+        observed = json.loads(completed.stdout)
+        assert observed["failure"]["type"] == "OSError", observed
+        assert observed["failure"]["errno"] == 24, observed
+        assert observed["retained_exception"] is True, observed
+&gt;       assert observed["new_descriptors"] == [], observed
+E       AssertionError: {'after': [0, 1, 2, 3, 4, 5, ...], 'before': [0, 1, 2, 3, 4, 5, ...], 'body_effect': False, 'failure': {'errno': 24, 'message': '[Errno 24] Too many open files', 'type': 'OSError'}, ...}
+E       assert [8, 9] == []
+E         
+E         Left contains 2 more items, first extra item: 8
+E         Use -v to get more diff
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1493: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_worker_setup_fault_closes_real_pipe_descriptors[shared-sync]" time="0.514"><failure message="AssertionError: {'after': [0, 1, 2, 3, 4, 5, ...], 'before': [0, 1, 2, 3, 4, 5, ...], 'body_effect': False, 'failure': {'errno': 24, 'message': '[Errno 24] Too many open files', 'type': 'OSError'}, ...}&#10;assert [7, 8] == []&#10;  &#10;  Left contains 2 more items, first extra item: 7&#10;  Use -v to get more diff">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-159/test_worker_setup_fault_closes4')
+mode = 'sync', preparation = 'shared'
+
+    @pytest.mark.skipif(sys.platform != "linux", reason="actual Linux RLIMIT descriptor oracle")
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    @pytest.mark.parametrize("preparation", ["cold", "synchronize", "shared"])
+    def test_worker_setup_fault_closes_real_pipe_descriptors(tmp_path, mode, preparation):
+        """Every preparation failure releases owned Pipe ends, with traceback retained."""
+        effects = tmp_path / "node.effects"
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(Path(__file__).with_name("_retry_setup_probe.py")),
+                mode,
+                preparation,
+                str(effects),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        assert completed.returncode == 0, completed.stderr
+        observed = json.loads(completed.stdout)
+        assert observed["failure"]["type"] == "OSError", observed
+        assert observed["failure"]["errno"] == 24, observed
+        assert observed["retained_exception"] is True, observed
+&gt;       assert observed["new_descriptors"] == [], observed
+E       AssertionError: {'after': [0, 1, 2, 3, 4, 5, ...], 'before': [0, 1, 2, 3, 4, 5, ...], 'body_effect': False, 'failure': {'errno': 24, 'message': '[Errno 24] Too many open files', 'type': 'OSError'}, ...}
+E       assert [7, 8] == []
+E         
+E         Left contains 2 more items, first extra item: 7
+E         Use -v to get more diff
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1493: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_worker_setup_fault_closes_real_pipe_descriptors[shared-async]" time="0.505"><failure message="AssertionError: {'after': [0, 1, 2, 3, 4, 5, ...], 'before': [0, 1, 2, 3, 4, 5, ...], 'body_effect': False, 'failure': {'errno': 24, 'message': '[Errno 24] Too many open files', 'type': 'OSError'}, ...}&#10;assert [10, 11] == []&#10;  &#10;  Left contains 2 more items, first extra item: 10&#10;  Use -v to get more diff">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-159/test_worker_setup_fault_closes5')
+mode = 'async', preparation = 'shared'
+
+    @pytest.mark.skipif(sys.platform != "linux", reason="actual Linux RLIMIT descriptor oracle")
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    @pytest.mark.parametrize("preparation", ["cold", "synchronize", "shared"])
+    def test_worker_setup_fault_closes_real_pipe_descriptors(tmp_path, mode, preparation):
+        """Every preparation failure releases owned Pipe ends, with traceback retained."""
+        effects = tmp_path / "node.effects"
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(Path(__file__).with_name("_retry_setup_probe.py")),
+                mode,
+                preparation,
+                str(effects),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        assert completed.returncode == 0, completed.stderr
+        observed = json.loads(completed.stdout)
+        assert observed["failure"]["type"] == "OSError", observed
+        assert observed["failure"]["errno"] == 24, observed
+        assert observed["retained_exception"] is True, observed
+&gt;       assert observed["new_descriptors"] == [], observed
+E       AssertionError: {'after': [0, 1, 2, 3, 4, 5, ...], 'before': [0, 1, 2, 3, 4, 5, ...], 'body_effect': False, 'failure': {'errno': 24, 'message': '[Errno 24] Too many open files', 'type': 'OSError'}, ...}
+E       assert [10, 11] == []
+E         
+E         Left contains 2 more items, first extra item: 10
+E         Use -v to get more diff
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1493: AssertionError</failure></testcase></testsuite></testsuites>

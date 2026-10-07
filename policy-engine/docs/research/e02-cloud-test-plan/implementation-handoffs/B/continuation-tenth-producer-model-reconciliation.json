@@ -1,0 +1,705 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "continuation-tenth-producer-model-reconciliation",
+  "closure_ids": [],
+  "formal_closure": false,
+  "bundle_ids": [
+    "STA-01"
+  ],
+  "slice_base_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+  "slice_base_tree_sha": "dc4ebd99afba72d13c60a46e77cd8fc99a002e60",
+  "mechanism_base_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+  "mechanism_base_tree_sha": "e6ec2e4bb34f84f946341004f1e5c8374fb29010",
+  "author_exact_red_sha": "2be5a49784403c875742588299d78639f5e8b6ef",
+  "implementation_commits": [
+    "0bf788ac2e57533b08be9172d64c19705a3af30d"
+  ],
+  "candidate_tree_sha": "2e069f18e02175dd0d6f7acd6573a4c0b071c766",
+  "branch": "codex/e02-B-current-coordination",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/55",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/E.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/semantic-decisions.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/B-resume-after-d030.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/E.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/F-resume-after-offline-519e.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/ancestry-audit-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/ancestry-audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/ancestry-audit.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/initial-ancestry-audit-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/initial-ancestry-audit.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/input-context.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/source-refs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/source-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/test-source-ref.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-evidence/test-source-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-branch-reconciliation-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/configuration-custody.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/native.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/physical-fixtures.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/projection-input.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/native.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/physical-fixtures.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/resources-after.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/run-checkpoint.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit-initial-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit-initial.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit-second-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit-second.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-consumer-seams-20261007.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-consumer-seams-20261007/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-consumer-seams-20261007/baseline-navigation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-consumer-seams-20261007/check.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-consumer-seams-20261007/import-check.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-consumer-seams-20261007/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-consumer-seams-20261007/inspect-consumer-delta.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-consumer-seams-20261007/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-consumer-seams-20261007/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-consumer-seams-20261007/style-check.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/actual-case-partition.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/candidate-590/native.txt.lossless.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/candidate-590/native.xml.lossless.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/candidate-590/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/candidate-590/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/capture.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/package.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom0/budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom0/fresh-reader.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom0/fresh-reader.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom0/http-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom0/response.bin",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom1/budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom1/fresh-reader.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom1/fresh-reader.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom1/http-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom1/response.bin",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom10/budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom10/fresh-reader.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom10/fresh-reader.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom10/http-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom10/response.bin",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom11/budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom11/fresh-reader.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom11/fresh-reader.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom11/http-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom11/response.bin",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom12/budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom12/fresh-reader.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom12/fresh-reader.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom12/http-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom12/response.bin",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom13/budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom13/fresh-reader.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom13/fresh-reader.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom13/http-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom13/response.bin",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom14/budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom14/fresh-reader.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom14/fresh-reader.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom14/http-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom14/response.bin",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom2/budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom2/fresh-reader.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom2/fresh-reader.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom2/http-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom2/response.bin",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom3/budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom3/fresh-reader.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom3/fresh-reader.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom3/http-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom3/response.bin",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom4/budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom4/fresh-reader.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom4/fresh-reader.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom4/http-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom4/response.bin",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom5/budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom5/fresh-reader.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom5/fresh-reader.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom5/http-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom5/response.bin",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom6/budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom6/fresh-reader.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom6/fresh-reader.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom6/http-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom6/response.bin",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom7/budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom7/fresh-reader.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom7/fresh-reader.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom7/http-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom7/response.bin",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom8/budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom8/fresh-reader.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom8/fresh-reader.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom8/http-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom8/response.bin",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom9/budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom9/fresh-reader.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom9/fresh-reader.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom9/http-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom9/response.bin",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/read-notes.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/source-custody.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/source-custody.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-numeric-custody.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/candidate.junit.xml.lossless.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/candidate.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/candidate.stdout.txt.lossless.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/control.junit.xml.lossless.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/control.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/control.stdout.txt.lossless.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/executed-observer-ruff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/g_origin_plugin.executed.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/independent-review.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/ruff.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/ruff.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/.gitignore",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/independent-review.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/attempt2/pytest.junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/attempt2/runner-result.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/attempt2/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/attempt2/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/attempt2/supervisor-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/report.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervisor-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/supervise_attempt2.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/decisions/B201-B202-E-owner-2026-10-07.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/decisions/B201-B202-E-owner-2026-10-07.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/E.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/B.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/D.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/E.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/F-merge-tree.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/F.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/independent-review.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/pins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/B-journal-correction.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/B-journal-readback.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/B-prompt-independent-review.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/B.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/C.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/D.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/E-IR-decision.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/E.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/F-criteria-correction.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/F-prompt-independent-review.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/F.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/independent-publication-review.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/pins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/storage/C-extractions-1116-native.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/storage/C-old-admin-1008-native.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/storage/C-old-and-env-1008-native.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/storage/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/storage/source-preservation.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/A-source-disposition.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/C-source-disposition.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/E-appointment-independent.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/E-delta.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/IR-consumer-map.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/LA033-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/N6-source-disposition.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/cleanup-actions.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/cleanup-publication-independent-followup.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/cleanup-publication-independent.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/production-name-fixture-provenance.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-e02-producer-model-scope.toml",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_model_scope_oracle.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py"
+  ],
+  "baseline_cells": [],
+  "baseline_role": "Baseline integrity/verification/navigation were read before use; no baseline summary used as proof of new code. Original cells/environment refs remain immutable peer navigation.",
+  "canonical_owner": {
+    "source_writer": "B exe_state_writer",
+    "file": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+    "independent_source_reviewer": "B cas_probe",
+    "independent_native_oracle_author": "B cmp_res_probe",
+    "root_git_delivery": "B root",
+    "code_acceptance_and_formal_closure": "G; canonical external owners for semantic authority laws"
+  },
+  "property": {
+    "statement": "Declared producer scope applies to each actual finite ordinary model field and all live aliases, validated/copy/deletion operations, and the producer-grant lifetime before publication or fresh CAS/cache replay.",
+    "runtime_path": [
+      "ExperimentState/NodeSpec state_writes → branch_state root grant",
+      "Sequential/Async actual node mutation; serialized shared-worker entrypoint → typed mutation envelope",
+      "Producer completion creates a separate neutral completed snapshot/COPY; the original producer-held live view retains its scope guards. The actual full snapshot is published without granting mutation authority to the original view.",
+      "actual CAS and NodeResultCache → fresh restored node/state; unsupported mutation rejected before publication"
+    ],
+    "proxy_divergence": "An unchanged caller base or empty mutation journal can coexist with undeclared branch output99 or mutated typed refs; producer artifact presence alone misses the scope escape. Physical model membership/caller state/CAS/cache restored value distinguish admission from marker/constructor assertions.",
+    "negative_controls": [
+      "Actual author2be30-case18PASS/12FAIL identified ordinary typed-model assignment/copy-update false admission; complete local output/XML15physical observations not independently fetchable until published.",
+      "Independent20-case oracle prepared with leaf/alias/list/copy/validated/root-deletion behavior and real CAS/cache consumer.",
+      "Matched generic property removal strips only BaseModel wrapping admission while retaining preflight/root/container/grant/cache guards; UNRUN.",
+      "Unsupported static mutation/copy/init/schema/metaclass hooks refuse before construction; defining native controls UNRUN."
+    ]
+  },
+  "predicate_basis": "not_established",
+  "per_premise_basis": {
+    "exact_tree_blob_footprint": "independently_reconciled",
+    "finite_source_review": "independently_reconciled",
+    "new_behavior_and_generic_removal": "not_established",
+    "old4_and15_peer_controls": "independently_reconciled",
+    "old_author_12_red": "consumer_asserted",
+    "external_authority": "not_established",
+    "P41": "not_established"
+  },
+  "P40": {
+    "class": "owned-object-graph live-scope escape",
+    "remedy": "One generic supported model protocol/all-alias path mechanism, not ArtifactRef.kind or instance patch.",
+    "finite_boundary": "Ordinary statically guarded Pydantic public fields/RootModel; unsupported custom hooks, private/extra/cyclic/opaque/reflection fail closed or are outside declared profile. Explicit base-class mutators and reflection are not a Python sandbox guarantee.",
+    "falsifier": "A supported ordinary field/copy/validated alias changes under undeclared state_writes before actual CAS/cache publication without typed refusal; native defining/removal tests pending."
+  },
+  "source_delivery": {
+    "exact_tree_match": "0bf788 tree2e069 equals local6b87tree2e069",
+    "history": "Append-only same PR55 first parentd030; actual G855 plus six published B lane parents preserve their original histories, for eight parents total. Old local6b87 SHA remains a separate matching source-tree carrier.",
+    "git_method": "GitHub MCP immutable blob/tree/commit/ref operations; normal expected-head fast-forward force=false; original physical checkout remains attached590.",
+    "unexpected_local_refs": "Originalfetch corrupt refs/stash and unrelated bad composition ref preserved; normal isolated bare fetch used; no ref deletion/prune/reset.",
+    "admission": "All seven exact existing lane branch/path resume admissions admitted; full135k JSON each retained. No new checkout/worktree created.",
+    "additional_parent_shas": [
+      "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "3dd221a83dbfa4a9f900b4a2d9338f14ce0a1f29",
+      "2d0f65266a9b42f56bcc73264c43e0f296e10ac5",
+      "d81e7c68a83850834bbe48c492c87975010e79ba",
+      "2c773afbcd2b84c96f482ff3d757e0ed4b18de63",
+      "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+      "ed065a94069aed53cd5e7f7c7031e27fc86e6462"
+    ]
+  },
+  "capability_state_or_finding_state": "Source implemented and reviewable finite NONBLOCKING; code acceptance HELD for native source-bound verification. B59 current technical OPEN verification_required. All60formalfalse/closure_ids[].",
+  "limitations_and_next_owner": [
+    "B EXE/CMP: final author59, independent20, matched generic removal and13affected consumers on one full source snapshot; preserve complete outputs/JUnit/input origin hashes.",
+    "G: review exact0bf source/G producer reconciliation, then one expensive fullB/native/quality replay after acceptance/freeze; no inherited-red waiver.",
+    "A/G: B66 None→0.0 served admission, B13 actual local-input simulation recovery, B154 all-confirmations publisher.",
+    "C canonical writer: B87 production retry-owner physical handle repair; B89 checkpoint cap budget independent.",
+    "SKG/institutional/CAS external owner: B61/B67/B68/B148 law held; fixtures/hashes/readability do not supply authority.",
+    "Native Mac B14/B24, absent optional backends and local production input remain unavailable; D B120 actual evaluator/controller bridge not covered by gateway/freshD reader.",
+    "API publication does not execute local hooks. Required repository checks and native hooks remain pending; no bypass/waiver claim."
+  ],
+  "evidence_scope_companion_bundles": [
+    "JIT-01",
+    "DUR-01",
+    "LLM-01",
+    "WIRE-01"
+  ],
+  "checks": [
+    {
+      "command": {
+        "method": "GitHub MCP immutable fetch_file for220literal paths; create_tree; create_commit; expected-head update_ref; compare_commits",
+        "base": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "head": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+        "force": false,
+        "comparison_file_count": 220
+      },
+      "target_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+      "environment": {
+        "backend": "GitHub MCP remote Git objects",
+        "repo": "DenisKopylov/polisyos",
+        "cloud_shell": "offline; latest observed starting",
+        "author": "B root",
+        "compute_controls": "No artificial cloud process/workers/CPU/thread/runtime quotas; per-command Git packed-cache buffers only in completed local listing."
+      },
+      "input_closure": {
+        "complete_source_test_companions": [
+          {
+            "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+            "ref": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+            "origin": "EXE",
+            "sha": "b15855c14c5bd6eb1e662ac3ff7c095ac4ab6c50",
+            "mode": "100644",
+            "type": "blob",
+            "sha256": "505a0314c98f0d42ce520b33f489b88c0a96048383147f51873b28746a140066",
+            "bytes": 50494
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+            "ref": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+            "origin": "EXE",
+            "sha": "d670a631351088fda0e3d42cce6d48536b71c143",
+            "mode": "100644",
+            "type": "blob",
+            "sha256": "d92a4643d56a576c3e873e2243ef4f8a48a4f403ad86edec47b74e8d205444d6",
+            "bytes": 15243
+          },
+          {
+            "path": "policy-engine/release-fragments/unreleased/2026-10-07-e02-producer-model-scope.toml",
+            "ref": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+            "origin": "EXE",
+            "sha": "8e6ce376e6e2f022f7dd146daad3ef1e879256f2",
+            "mode": "100644",
+            "type": "blob",
+            "sha256": "5708fa6770920df6b7d85092f8c89ce520964a4b958e92186af6b2ff2503dc5d",
+            "bytes": 1537
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+            "ref": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+            "origin": "EXE",
+            "sha": "476026dd34b5da75689b88de1a43958c73ddbdfd",
+            "mode": "100644",
+            "type": "blob",
+            "sha256": "d820210e832ab97404d3a7eecd62dec9b21f0bc172607beb3b71b7c0f3eab4db",
+            "bytes": 25676
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_model_scope_oracle.py",
+            "ref": "ed065a94069aed53cd5e7f7c7031e27fc86e6462",
+            "origin": "CMP",
+            "sha": "e4116da90128cb85c1736ed470fd08487b6c2f74",
+            "mode": "100644",
+            "type": "blob",
+            "sha256": "a73c17bd153bd0d9d306b016548e8c282880309e7f98b7ee7f8a36fbbf1472ce",
+            "bytes": 21597
+          }
+        ],
+        "full_delivery_footprint": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/full-footprint.json",
+          "sha256": "555d954e19e21740ae863dfc3dbd2af3826d2cf8f95d915fa8f5183ec4e83d07",
+          "bytes": 81348
+        },
+        "parent_refs": [
+          "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "3dd221a83dbfa4a9f900b4a2d9338f14ce0a1f29",
+          "2d0f65266a9b42f56bcc73264c43e0f296e10ac5",
+          "d81e7c68a83850834bbe48c492c87975010e79ba",
+          "2c773afbcd2b84c96f482ff3d757e0ed4b18de63",
+          "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+          "ed065a94069aed53cd5e7f7c7031e27fc86e6462"
+        ],
+        "base_main": {
+          "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+          "anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+          "ancestor_verified": true
+        }
+      },
+      "outcome": "PASS",
+      "output": "Remote tree2e069f18 exactly equals frozen local6b87tree; actual compare d030...0bf returns220files, too_large=null, all5product/source/test companions exact d18/ed065; normal ref readback0bf. Source custody only, not native."
+    },
+    {
+      "command": {
+        "method": "Independent CAS immutable GitHub source/MRO/scope review and root candidate readback",
+        "review_receipt": {
+          "git_sha": "587eda2d11a2193123a6d862fb6fcea6539cfc4e",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-source-independent-review.json"
+        },
+        "root_binding": {
+          "git_sha": "87fa1099ce560f334847f8bc0c30535c33c629f0",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-candidate-binding.json",
+          "sha256": "324e622a06cdc9e55b80cf2edbb09dfbbb169a9df7fb49c77297d98437d394d1",
+          "bytes": 13240,
+          "grade": "Finite source NONBLOCKING; actual0bf tree+eightparents+fiveproduct source+fiveprotected paths remotely MATCH; physical full snapshot/nativeUNRUN; initial422 abbreviated-ref metadata ERROR retained."
+        }
+      },
+      "target_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+      "environment": {
+        "executor": "B cas_probe, not canonical source author",
+        "imports": "UNRUN",
+        "native": "UNRUN"
+      },
+      "input_closure": {
+        "exact_source_equivalence": [
+          {
+            "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+            "ref": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+            "origin": "EXE",
+            "sha": "b15855c14c5bd6eb1e662ac3ff7c095ac4ab6c50",
+            "mode": "100644",
+            "type": "blob",
+            "sha256": "505a0314c98f0d42ce520b33f489b88c0a96048383147f51873b28746a140066",
+            "bytes": 50494
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+            "ref": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+            "origin": "EXE",
+            "sha": "d670a631351088fda0e3d42cce6d48536b71c143",
+            "mode": "100644",
+            "type": "blob",
+            "sha256": "d92a4643d56a576c3e873e2243ef4f8a48a4f403ad86edec47b74e8d205444d6",
+            "bytes": 15243
+          },
+          {
+            "path": "policy-engine/release-fragments/unreleased/2026-10-07-e02-producer-model-scope.toml",
+            "ref": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+            "origin": "EXE",
+            "sha": "8e6ce376e6e2f022f7dd146daad3ef1e879256f2",
+            "mode": "100644",
+            "type": "blob",
+            "sha256": "5708fa6770920df6b7d85092f8c89ce520964a4b958e92186af6b2ff2503dc5d",
+            "bytes": 1537
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+            "ref": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+            "origin": "EXE",
+            "sha": "476026dd34b5da75689b88de1a43958c73ddbdfd",
+            "mode": "100644",
+            "type": "blob",
+            "sha256": "d820210e832ab97404d3a7eecd62dec9b21f0bc172607beb3b71b7c0f3eab4db",
+            "bytes": 25676
+          }
+        ],
+        "finite_profile": "Plain public Pydantic fields/RootModel; preflight actual static hook/metaclass identity before isolation; explicit reflection not a sandbox guarantee."
+      },
+      "outcome": "PASS",
+      "output": "Finite source review NONBLOCKING; new runtime/physical snapshot custody UNRUN. Root candidate source equality separately independently checked; committed final binding packet will be a metadata companion."
+    },
+    {
+      "command": {
+        "immutable_peer_receipt": {
+          "git_sha": "3dd221a83dbfa4a9f900b4a2d9338f14ce0a1f29",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth.json"
+        },
+        "selector": "tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py"
+      },
+      "target_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "environment": "Exact normal native environment/profile/166 origins and fullstdout/XML/fixtures in immutable peer packet",
+      "input_closure": "Full literal four-case input and origins bound in peer receipt; no state_branching import; producer successor does not restamp its native target.",
+      "outcome": "PASS",
+      "output": "4PASS/12pytest phasesPASS; matched generic_module_capture removal1actualFAIL/3deselected with erroneous real resumed107. Complete logs/physicaloutputs independently reviewed and committed; B74 remainsLIMITED."
+    },
+    {
+      "command": {
+        "immutable_peer_receipt": {
+          "git_sha": "2d0f65266a9b42f56bcc73264c43e0f296e10ac5",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-numeric-custody.json"
+        },
+        "selector": "literal15-case HTTP→B ledger→freshDreader argv in peer receipt"
+      },
+      "target_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "environment": "Exact existing cloud environment; no state_branching imported. Current15native has874 distinct loaded sourcepaths(871B+3D),14369 observations; historical source-equivalence separately875of876. Fullphysical HTTP/work/ledger/audit committed in peer packet.",
+      "input_closure": "Actual raw HTTP responsebytes→parse_float=Decimal→B enforcer→canonical ledger→freshDreader;874 actual loaded sourcepaths in committed custody; source remains same.",
+      "outcome": "PASS",
+      "output": "15PASS/45pytest phasesPASS. Completed peer log3614595B and all cases retained; this is bounded transport/ledger, not D B120 actual evaluator/controller/cache-ledger provider bridge."
+    },
+    {
+      "command": {
+        "status": "NOT EXECUTED",
+        "required_contour": "Author59source-derivedprepared cases and13affectedwholefile modules via exact14file normal pytest command in committedEXE native-preparation; independent20prepared cases and one matched generic BaseModel-wrap removal via explicitbounded native-plan."
+      },
+      "target_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+      "environment": {
+        "actual_cloud": "offline/starting",
+        "complete_fulltracked_projection_custody": "not_established",
+        "CPU_thread_process_quota": "none"
+      },
+      "input_closure": {
+        "author_test": {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+          "ref": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+          "origin": "EXE",
+          "sha": "476026dd34b5da75689b88de1a43958c73ddbdfd",
+          "mode": "100644",
+          "type": "blob",
+          "sha256": "d820210e832ab97404d3a7eecd62dec9b21f0bc172607beb3b71b7c0f3eab4db",
+          "bytes": 25676
+        },
+        "independent_test": {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_model_scope_oracle.py",
+          "ref": "ed065a94069aed53cd5e7f7c7031e27fc86e6462",
+          "origin": "CMP",
+          "sha": "e4116da90128cb85c1736ed470fd08487b6c2f74",
+          "mode": "100644",
+          "type": "blob",
+          "sha256": "a73c17bd153bd0d9d306b016548e8c282880309e7f98b7ee7f8a36fbbf1472ce",
+          "bytes": 21597
+        },
+        "fulltracked_expected_files": 19038,
+        "fulltracked_actual_complete": "not_established",
+        "capture_instruments": "Exact14author selectors and ready child argv are nowcommitted; full physical archive/currentruntime/origin closure remainsnot_established. Independent outer driver still needs forwardstream correction and actual complete source/admission/hash.",
+        "author_native_preparation": {
+          "git_sha": "082c28efd1afcd4e0d7718d3ffdfd49045174861",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-native-preparation.json",
+          "sha256": "bd287813ef987e9db15757d2ebf36587230cb668334833a2d44b079d555aa089",
+          "bytes": 13555,
+          "status": "14wholefile inputs/13affected module list and literal absolutePython/concrete scratch planned;59source-derived cases, no native collection/output; original2be rawreceiver availability pending."
+        }
+      },
+      "outcome": "UNRUN",
+      "output": "No final pytest collection/case/JUnit/partition exists. Earlier partial projection has1collectionERROR and author preflightERROR before bodies; instrumentation status separate."
+    },
+    {
+      "command": {
+        "status": "NOT EXECUTED",
+        "required_contour": "One G fullB/native+deciding expensive replay after source acceptance/freeze; no redundant fullB carrier run"
+      },
+      "target_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+      "environment": "G exact-source/native/local read-only inputs/backends as required; production dataset not transferred",
+      "input_closure": "Full original B cohort denominator plus final defining/consumer tests and quality gate actual dependencies; old historical counts never a stopping condition.",
+      "outcome": "UNRUN",
+      "output": "Old6fa3986=1326PASS/10FAIL/2650ERROR0SKIP remains oldsource.8red/incomplete oldgates,14verify/34parity constituentsUNRUN; P41not_established, no inheritedwaiver. Source-identical oldlateJIT128retained, not rerun."
+    }
+  ],
+  "full_all60_disposition": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-wave-all60-overlay.json",
+    "sha256": "6b27528772116e604e47db53fef0bfc844b16e645d14ae718c2ead4e71781533",
+    "bytes": 39625,
+    "technical_counts": {
+      "closed": 47,
+      "limited": 7,
+      "held": 4,
+      "open": 2
+    },
+    "closure_ids": [],
+    "formal_closure": false,
+    "changed_ids": [
+      "B59"
+    ],
+    "unchanged_59": "Exact immutable original per-ID recommendation, criterion, deciding evidence and next-owner refs; no new execution/closure."
+  },
+  "instrumentation_status": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/instrumentation-status.json",
+    "sha256": "c36f21b39d53f6d87d01bba86c3898a8ed8323d9c2415895af20d8cc1794a8f5",
+    "bytes": 8697,
+    "receiver_raw_availability": "VM-only actual instrument outputs not_established until published; no summary proof."
+  },
+  "footprint": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/full-footprint.json",
+    "sha256": "555d954e19e21740ae863dfc3dbd2af3826d2cf8f95d915fa8f5183ec4e83d07",
+    "bytes": 81348
+  },
+  "saved_local_hooks": {
+    "commits_completed": [
+      "590e5d18",
+      "cf37e61d",
+      "0defd072",
+      "f3f72d0a",
+      "70934154",
+      "fd6cc997"
+    ],
+    "actual_corrected_outcome": "Each exit0; all4frontend hook commands SKIP because no matching paths. This is not frontend quality PASS.",
+    "original_instrument_error": "First bare topology include .venv guardERROR retained; exact original info/exclude metadata restored and corrected separate run.",
+    "source_api_commit_native_hooks": "UNRUN; repository required checks remainpending",
+    "receiver_custody": "VM-only /tmp/e02-B-tenth-wave-20261007/retrospective-hooks/ complete raw/JSON, not_established until deliverable."
+  },
+  "independent_candidate_binding": {
+    "git_sha": "87fa1099ce560f334847f8bc0c30535c33c629f0",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-candidate-binding.json",
+    "sha256": "324e622a06cdc9e55b80cf2edbb09dfbbb169a9df7fb49c77297d98437d394d1",
+    "bytes": 13240,
+    "grade": "Finite source NONBLOCKING; actual0bf tree+eightparents+fiveproduct source+fiveprotected paths remotely MATCH; physical full snapshot/nativeUNRUN; initial422 abbreviated-ref metadata ERROR retained."
+  },
+  "handoff_payload_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/full-footprint.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/instrumentation-status.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-wave-all60-overlay.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-model-reconciliation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/native-plan.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-source-independent-offline-evidence/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-source-independent-offline-evidence/git-readback.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-source-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-candidate-binding-evidence/readback.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-candidate-binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-native-preparation-evidence/input-plan.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-native-preparation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-root-handoff-independent-evidence/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-root-handoff-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/independent-handoff-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/cas-corrective-readback.txt"
+  ],
+  "native_plan": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/native-plan.json",
+    "sha256": "a6e2064a1d9583ca00fb819011f267b83c99bf76299b3fd012afa25f9904a841",
+    "bytes": 14282,
+    "status": "Author14normal files and exact argv nowindependently Git byte-qualified; independent20preparedfile/removal finite-no-conftest contour stillseparate; runtime/origins/sourceprojection UNRUN/notestablished."
+  },
+  "current_execution_status": "Spec76 briefly connected: actual smallPython probeexit0, streaming19038guard invokedsession47767; pollingtransport disconnected before completion. Officialrunning/offline. Full physicalsourceclosure/guardexit/hash not_established; dependent finalnative/removalUNRUN. No causal sender/mechanism established.",
+  "author_native_preparation": {
+    "git_sha": "082c28efd1afcd4e0d7718d3ffdfd49045174861",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-native-preparation.json",
+    "sha256": "bd287813ef987e9db15757d2ebf36587230cb668334833a2d44b079d555aa089",
+    "bytes": 13555,
+    "status": "14wholefile inputs/13affected module list and literal absolutePython/concrete scratch planned;59source-derived cases, no native collection/output; original2be rawreceiver availability pending.",
+    "root_input_readback": {
+      "source_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+      "source_tree_sha": "2e069f18e02175dd0d6f7acd6573a4c0b071c766",
+      "wholefile_inputs": 14,
+      "status": "All14immutable APIblob/byte/SHA256 MATCH; no imports/collection",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/native-plan.json"
+    }
+  },
+  "independent_handoff_review": {
+    "git_sha": "4741ee31ec12529dc12c434e0a25e313bbd864be",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-root-handoff-independent-review.json",
+    "sha256": "f3b836e967064cdb98c5734e6443fbe024a1bb19190d81d0b300748e5d880497",
+    "bytes": 11996,
+    "outcome": "Schema/data/source-binding PASS; three exact historicalc2 wording FAILs corrected forward R1parents/R2origincount/R3neutralcopy. Newnative remainsUNRUN."
+  },
+  "forward_metadata_corrections": {
+    "reviewed_receipt_sha": "c2b9564d9e758727567c5e7bdc9c977826c06da0",
+    "R1": "G855 plus six Badditional=sevenadditional/eighttotalparents",
+    "R2": "Current15 has874actualpaths871B+3D; separate historical equivalence875/876",
+    "R3": "Completion neutralCOPY, original producer-held live view retains scopeguards",
+    "new_author_plan": "Exact14wholefile APIblob inputs nowcommitted; normal currentnative executionUNRUN",
+    "source_and_old_deciding_outputs": "Unchanged, no rerun or evidence-grade restamp.",
+    "P37": "One registered label per premise; holder-specific descriptive annotations separate. Absent external law not_established, institutionally_supplied only requested future basis."
+  },
+  "per_premise_qualifications": {
+    "prior_descriptive_annotations": {
+      "exact_tree_blob_footprint": "recomputed and independently_reconciled",
+      "finite_source_review": "independently_reconciled NONBLOCKING",
+      "new_behavior_and_generic_removal": "not_established UNRUN",
+      "old4_and15_peer_controls": "independently_reconciled exact590; no current producer source transfer",
+      "old_author_12_red": "consumer_asserted; receiver raw availability not_established",
+      "external_authority": "institutionally_supplied required, not present",
+      "P41": "not_established"
+    },
+    "exact_tree_blob_footprint": "Root recomputed immutable220path/source bytes; independent CAS reconciled exacttree/parent/protected-source and full-footprint. No native from tree equality.",
+    "finite_source_review": "Declared finite profile NONBLOCKING independent source review, not code acceptance or runtime.",
+    "new_behavior_and_generic_removal": "Finalsource native/removalUNRUN; previous physical inputguard ERROR not currentbehavior evidence.",
+    "old4_and15_peer_controls": "Actual completed590 native binding only; current source carry uses exact unchanged dependencies without calling newnativePASS.",
+    "old_author_12_red": "Actual author2be controls observed; complete decidingbytes receiver custody not_established pending VMrecovery.",
+    "external_authority": "Requested canonical owner law requires institutionally supplied authority; absent law isnot_established, never granted by fixture/hash/readability.",
+    "P41": "No exact slice-base+completezero-input-intersection proof; no inherited-red attribution."
+  },
+  "final_independent_metadata_review": {
+    "review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/independent-handoff-review.json",
+      "sha256": "e2da0d252af413ded0c4ef69d62912fa6acb04c3900917fc943a17f30f462bed",
+      "bytes": 6550,
+      "reviewed_sha": "abd3c94c19295a2ecfcf60dbe4634fa9810b6345",
+      "outcome": "NONBLOCKING after accepted P37 normalization; source/native acceptance held."
+    },
+    "CAS_delta": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/cas-corrective-readback.txt",
+      "sha256": "e9b64accca01b164aec665a5ba21e705d71377a88999b0a60566f0c1461e7a59",
+      "bytes": 1307,
+      "reviewed_sha": "abd3c94c19295a2ecfcf60dbe4634fa9810b6345",
+      "outcome": "R1/R2/R3 exact corrective readbackPASS; no source/native grade transfer."
+    },
+    "normalization": "All currentper_premise_basis labels nowexactone enum. Descriptive annotations separate; absent lawnot_established."
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "source": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+  "tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+  "selected_whole_files": 261,
+  "unique_cases": 3986,
+  "runtime_phases": 9308,
+  "case_counts": {
+    "PASS": 1323,
+    "FAIL": 10,
+    "ERROR": 2646
+  },
+  "phase_counts": {
+    "setup:passed": 1336,
+    "call:passed": 1326,
+    "teardown:passed": 3986,
+    "call:failed": 10,
+    "setup:failed": 2650
+  },
+  "error_diagnostic_buckets": {
+    "numbered_tmpdir_refusal_without_literal_errno28": 2646
+  },
+  "audit_errors": [
+    "unresolved/ambiguous XML identity ('', 'test_actual_half_open_provider_retains_regulator[ttl-and-pressure]')",
+    "unresolved/ambiguous XML identity ('', 'test_actual_half_open_provider_retains_regulator[pressure-without-expiry]')",
+    "unresolved/ambiguous XML identity ('', 'test_actual_half_open_provider_retains_regulator[spare-protected-slot]')",
+    "unresolved/ambiguous XML identity ('tests.unit.runtime.http.test_control_api.TestDecisionValidity', 'test_invalidation_domains_update_lifecycle_status[data_snapshot-data::msme-panel::2026-data_invalidation-stale-refresh_decision]')",
+    "unresolved/ambiguous XML identity ('tests.unit.runtime.http.test_control_api.TestDecisionValidity', 'test_invalidation_domains_update_lifecycle_status[quality_report-metric::msme_survival_rate-metric_invalidation-review_required-human_review]')",
+    "unresolved/ambiguous XML identity ('tests.unit.runtime.http.test_control_api.TestDecisionValidity', 'test_invalidation_domains_update_lifecycle_status[econometric_evidence-model::survival-effect-v2-model_invalidation-superseded-review_superseded]')",
+    "unresolved/ambiguous XML identity ('tests.unit.runtime.http.test_control_api.TestDecisionValidity', 'test_invalidation_domains_update_lifecycle_status[normative_arbitration-conflict::eligibility-budget-2026-conflict_invalidation-review_required-human_review]')",
+    "XML/inventory full identity set mismatch",
+    "JUnit declared denominator mismatch"
+  ],
+  "output": "/tmp/e02-B-cas-output-audit-20261007/native-audit.json",
+  "bytes": 111679,
+  "sha256": "564229dcd14978a6e10543c6af4b966a24b036d287a203ad05b77eaa723c3a97"
+}

@@ -1,0 +1,2761 @@
+B65_EXACT_SOURCE_ORIGINS [{"path": "policy-engine/src/polisyos/core/llm/response.py", "actual_origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/llm/response.py", "bytes": 7635, "sha256": "04778d8fe0dd2cb6e29a9547865321afb92e8355fbbffd602f5d4e276948f6af", "git_blob": "947105fccabb40710f563e3e57d71ed06e7f0bb3", "source_sha": "dd9584728bd96f204983615216efdbc58117e713", "module": "polisyos.core.llm.response"}, {"path": "policy-engine/src/polisyos/core/llm/traced_client.py", "actual_origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/llm/traced_client.py", "bytes": 35161, "sha256": "1d604c7d24f254017e4b69ba304f207d364c0a7e6dd1c0408ffce7e39e05c30a", "git_blob": "da043259222ebeccf48e4fa8270a56fd2aa9bd62", "source_sha": "dd9584728bd96f204983615216efdbc58117e713", "module": "polisyos.core.llm.traced_client"}, {"path": "policy-engine/src/polisyos/core/llm/settlement.py", "actual_origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/llm/settlement.py", "bytes": 8687, "sha256": "c2d9ee2d061898a7b4f31181cd9ef23ebf193c467ad4bb18785dcd435f189c3b", "git_blob": "c2c631442a3ecf7587425445565d723598eaba81", "source_sha": "dd9584728bd96f204983615216efdbc58117e713", "module": "polisyos.core.llm.settlement"}, {"path": "policy-engine/src/polisyos/core/security/audit_log_adapter.py", "actual_origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/security/audit_log_adapter.py", "bytes": 2917, "sha256": "e2f1a1ddafa681bdfda7f151e5c3603be2fd29bf58084f642b7cbf004ffc6f14", "git_blob": "18b74346ce1bd3313526f260deabfaa10ef1d37d", "source_sha": "dd9584728bd96f204983615216efdbc58117e713", "module": "polisyos.core.security.audit_log_adapter"}, {"path": "policy-engine/src/polisyos/core/security/audit_protocol.py", "actual_origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/security/audit_protocol.py", "bytes": 997, "sha256": "af87aaf57f6fecf097efaa131e49cb97d93a7692e4d098d11ec4e1ca7bd50a66", "git_blob": "8376a3e476272b649c02d39b57ca1e62ef0d0a12", "source_sha": "dd9584728bd96f204983615216efdbc58117e713", "module": "polisyos.core.security.audit_protocol"}, {"path": "policy-engine/src/polisyos/core/security/audit_sink.py", "actual_origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/security/audit_sink.py", "bytes": 14861, "sha256": "edbd457fe7da614834767484b350c906b7f37f531ed0b38fcf153e280415b576", "git_blob": "7ca64fc28be8e36edc3c6ad46d9c4ac8ec6e9fac", "source_sha": "dd9584728bd96f204983615216efdbc58117e713", "module": "polisyos.core.security.audit_sink"}, {"path": "policy-engine/src/polisyos/core/security/audit_models.py", "actual_origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/security/audit_models.py", "bytes": 4287, "sha256": "c9006d8058ab735ef95283007e09358138826f894faa617dccfdc8481b0d4dc5", "git_blob": "4396c884f267cbbb70eb49eda5d56200ca7d89fa", "source_sha": "dd9584728bd96f204983615216efdbc58117e713", "module": "polisyos.core.security.audit_models"}, {"path": "policy-engine/src/polisyos/core/security/audit_verifier.py", "actual_origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/security/audit_verifier.py", "bytes": 3243, "sha256": "a48f8e4eadfa8deefe842518dd7e13b5480a86921f39cf5ccafc02e084e0ab55", "git_blob": "203795297cbad90dfa64d78015b246b9c6f31f6c", "source_sha": "dd9584728bd96f204983615216efdbc58117e713", "module": "polisyos.core.security.audit_verifier"}, {"path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget.py", "actual_origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/engine/budget.py", "bytes": 6159, "sha256": "76adb290dd270a7a8ce6fb0823bf1f035c00673f3662abf7cb35ca13d8209516", "git_blob": "1a2fbb73bb87d60674d168791a214f882e79347f", "source_sha": "dd9584728bd96f204983615216efdbc58117e713", "module": "polisyos.scientist.orchestration.engine.budget"}, {"path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py", "actual_origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py", "bytes": 26353, "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f", "git_blob": "48908cebc44656fc6b22105d8d7a99d3acf915b6", "source_sha": "dd9584728bd96f204983615216efdbc58117e713", "module": "polisyos.scientist.orchestration.engine.budget_ledger"}, {"path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py", "actual_origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py", "bytes": 6067, "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0", "git_blob": "4dcf43321044bd9bf9a0c579417af8ba29344945", "source_sha": "dd9584728bd96f204983615216efdbc58117e713", "module": "polisyos.scientist.orchestration.engine.budget_middleware"}, {"path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py", "actual_origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py", "bytes": 28432, "sha256": "dd6a95c397d7fac287cc26ff1f18c37e4d18c0b1abb152bd04f43f9a0efcd61e", "git_blob": "ac98ed93e6c48d8f409f10e37d8133bd676a0569", "source_sha": "dd9584728bd96f204983615216efdbc58117e713", "module": "polisyos.scientist.orchestration.llm.budget_enforcer"}, {"path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py", "actual_origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py", "bytes": 28121, "sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7", "git_blob": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4", "source_sha": "dd9584728bd96f204983615216efdbc58117e713", "module": "polisyos.scientist.orchestration.llm.gateway_client"}]
+B65_NATIVE_ARGUMENTS ["/workspace/e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py", "-c", "/workspace/e02-B-current-coordination/policy-engine/pyproject.toml", "--noconftest", "-p", "no:cacheprovider", "-s", "-ra", "--basetemp=/tmp/e02-B65-protected-audit/pytest-tmp", "--junitxml=/tmp/e02-B65-protected-audit/native.xml"]
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /workspace/e02-B-current-coordination/policy-engine
+configfile: pyproject.toml
+plugins: anyio-4.12.0, hypothesis-6.151.2, jaxtyping-0.3.4, langsmith-0.6.0, asyncio-1.3.0, benchmark-5.2.3, xdist-3.8.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 4 items
+
+. FFFF
+
+=================================== FAILURES ===================================
+_ test_protected_audit_reconciliation_precedes_next_provider[healthy-sync-invoke] _
+
+text = 'nonempty physical request'
+
+    def _tiktoken_count(text: str, *, model: str | None = None) -> int:
+        """Count tokens using tiktoken (lazy-loaded)."""
+        import tiktoken  # type: ignore[import-untyped]
+    
+        if model:
+            try:
+>               enc = tiktoken.encoding_for_model(model)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/polisyos/scientist/orchestration/llm/token_estimator.py:227: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/model.py:118: in encoding_for_model
+    return get_encoding(encoding_name_for_model(model_name))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model_name = 'default'
+
+    def encoding_name_for_model(model_name: str) -> str:
+        """Returns the name of the encoding used by a model.
+    
+        Raises a KeyError if the model name is not recognised.
+        """
+        encoding_name = None
+        if model_name in MODEL_TO_ENCODING:
+            encoding_name = MODEL_TO_ENCODING[model_name]
+        else:
+            # Check if the model matches a known prefix
+            # Prefix matching avoids needing library updates for every model version release
+            # Note that this can match on non-existent models (e.g., gpt-3.5-turbo-FAKE)
+            for model_prefix, model_encoding_name in MODEL_PREFIX_TO_ENCODING.items():
+                if model_name.startswith(model_prefix):
+                    return model_encoding_name
+    
+        if encoding_name is None:
+>           raise KeyError(
+                f"Could not automatically map {model_name} to a tokeniser. "
+                "Please use `tiktoken.get_encoding` to explicitly get the tokeniser you expect."
+            ) from None
+E           KeyError: 'Could not automatically map default to a tokeniser. Please use `tiktoken.get_encoding` to explicitly get the tokeniser you expect.'
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/model.py:105: KeyError
+
+During handling of the above exception, another exception occurred:
+
+self = <urllib3.connectionpool.HTTPSConnectionPool object at 0x7fcc4665e270>
+method = 'GET', url = '/encodings/cl100k_base.tiktoken', body = None
+headers = {'User-Agent': 'python-requests/2.32.5', 'Accept-Encoding': 'gzip, deflate, zstd', 'Accept': '*/*', 'Connection': 'keep-alive'}
+retries = Retry(total=0, connect=None, read=False, redirect=None, status=None)
+redirect = False, assert_same_host = False
+timeout = Timeout(connect=None, read=None, total=None), pool_timeout = None
+release_conn = False, chunked = False, body_pos = None, preload_content = False
+decode_content = False, response_kw = {}
+parsed_url = Url(scheme=None, auth=None, host=None, port=None, path='/encodings/cl100k_base.tiktoken', query=None, fragment=None)
+destination_scheme = None, conn = None, release_this_conn = True
+http_tunnel_required = True, err = None, clean_exit = False
+
+    def urlopen(  # type: ignore[override]
+        self,
+        method: str,
+        url: str,
+        body: _TYPE_BODY | None = None,
+        headers: typing.Mapping[str, str] | None = None,
+        retries: Retry | bool | int | None = None,
+        redirect: bool = True,
+        assert_same_host: bool = True,
+        timeout: _TYPE_TIMEOUT = _DEFAULT_TIMEOUT,
+        pool_timeout: int | None = None,
+        release_conn: bool | None = None,
+        chunked: bool = False,
+        body_pos: _TYPE_BODY_POSITION | None = None,
+        preload_content: bool = True,
+        decode_content: bool = True,
+        **response_kw: typing.Any,
+    ) -> BaseHTTPResponse:
+        """
+        Get a connection from the pool and perform an HTTP request. This is the
+        lowest level call for making a request, so you'll need to specify all
+        the raw details.
+    
+        .. note::
+    
+           More commonly, it's appropriate to use a convenience method
+           such as :meth:`request`.
+    
+        .. note::
+    
+           `release_conn` will only behave as expected if
+           `preload_content=False` because we want to make
+           `preload_content=False` the default behaviour someday soon without
+           breaking backwards compatibility.
+    
+        :param method:
+            HTTP request method (such as GET, POST, PUT, etc.)
+    
+        :param url:
+            The URL to perform the request on.
+    
+        :param body:
+            Data to send in the request body, either :class:`str`, :class:`bytes`,
+            an iterable of :class:`str`/:class:`bytes`, or a file-like object.
+    
+        :param headers:
+            Dictionary of custom headers to send, such as User-Agent,
+            If-None-Match, etc. If None, pool headers are used. If provided,
+            these headers completely replace any pool-specific headers.
+    
+        :param retries:
+            Configure the number of retries to allow before raising a
+            :class:`~urllib3.exceptions.MaxRetryError` exception.
+    
+            If ``None`` (default) will retry 3 times, see ``Retry.DEFAULT``. Pass a
+            :class:`~urllib3.util.retry.Retry` object for fine-grained control
+            over different types of retries.
+            Pass an integer number to retry connection errors that many times,
+            but no other types of errors. Pass zero to never retry.
+    
+            If ``False``, then retries are disabled and any exception is raised
+            immediately. Also, instead of raising a MaxRetryError on redirects,
+            the redirect response will be returned.
+    
+        :type retries: :class:`~urllib3.util.retry.Retry`, False, or an int.
+    
+        :param redirect:
+            If True, automatically handle redirects (status codes 301, 302,
+            303, 307, 308). Each redirect counts as a retry. Disabling retries
+            will disable redirect, too.
+    
+        :param assert_same_host:
+            If ``True``, will make sure that the host of the pool requests is
+            consistent else will raise HostChangedError. When ``False``, you can
+            use the pool on an HTTP proxy and request foreign hosts.
+    
+        :param timeout:
+            If specified, overrides the default timeout for this one
+            request. It may be a float (in seconds) or an instance of
+            :class:`urllib3.util.Timeout`.
+    
+        :param pool_timeout:
+            If set and the pool is set to block=True, then this method will
+            block for ``pool_timeout`` seconds and raise EmptyPoolError if no
+            connection is available within the time period.
+    
+        :param bool preload_content:
+            If True, the response's body will be preloaded into memory.
+    
+        :param bool decode_content:
+            If True, will attempt to decode the body based on the
+            'content-encoding' header.
+    
+        :param release_conn:
+            If False, then the urlopen call will not release the connection
+            back into the pool once a response is received (but will release if
+            you read the entire contents of the response such as when
+            `preload_content=True`). This is useful if you're not preloading
+            the response's content immediately. You will need to call
+            ``r.release_conn()`` on the response ``r`` to return the connection
+            back into the pool. If None, it takes the value of ``preload_content``
+            which defaults to ``True``.
+    
+        :param bool chunked:
+            If True, urllib3 will send the body using chunked transfer
+            encoding. Otherwise, urllib3 will send the body using the standard
+            content-length form. Defaults to False.
+    
+        :param int body_pos:
+            Position to seek to in file-like body in the event of a retry or
+            redirect. Typically this won't need to be set because urllib3 will
+            auto-populate the value when needed.
+        """
+        parsed_url = parse_url(url)
+        destination_scheme = parsed_url.scheme
+    
+        if headers is None:
+            headers = self.headers
+    
+        if not isinstance(retries, Retry):
+            retries = Retry.from_int(retries, redirect=redirect, default=self.retries)
+    
+        if release_conn is None:
+            release_conn = preload_content
+    
+        # Check host
+        if assert_same_host and not self.is_same_host(url):
+            raise HostChangedError(self, url, retries)
+    
+        # Ensure that the URL we're connecting to is properly encoded
+        if url.startswith("/"):
+            url = to_str(_encode_target(url))
+        else:
+            url = to_str(parsed_url.url)
+    
+        conn = None
+    
+        # Track whether `conn` needs to be released before
+        # returning/raising/recursing. Update this variable if necessary, and
+        # leave `release_conn` constant throughout the function. That way, if
+        # the function recurses, the original value of `release_conn` will be
+        # passed down into the recursive call, and its value will be respected.
+        #
+        # See issue #651 [1] for details.
+        #
+        # [1] <https://github.com/urllib3/urllib3/issues/651>
+        release_this_conn = release_conn
+    
+        http_tunnel_required = connection_requires_http_tunnel(
+            self.proxy, self.proxy_config, destination_scheme
+        )
+    
+        # Merge the proxy headers. Only done when not using HTTP CONNECT. We
+        # have to copy the headers dict so we can safely change it without those
+        # changes being reflected in anyone else's copy.
+        if not http_tunnel_required:
+            headers = headers.copy()  # type: ignore[attr-defined]
+            headers.update(self.proxy_headers)  # type: ignore[union-attr]
+    
+        # Must keep the exception bound to a separate variable or else Python 3
+        # complains about UnboundLocalError.
+        err = None
+    
+        # Keep track of whether we cleanly exited the except block. This
+        # ensures we do proper cleanup in finally.
+        clean_exit = False
+    
+        # Rewind body position, if needed. Record current position
+        # for future rewinds in the event of a redirect/retry.
+        body_pos = set_file_position(body, body_pos)
+    
+        try:
+            # Request a connection from the queue.
+            timeout_obj = self._get_timeout(timeout)
+            conn = self._get_conn(timeout=pool_timeout)
+    
+            conn.timeout = timeout_obj.connect_timeout  # type: ignore[assignment]
+    
+            # Is this a closed/new connection that requires CONNECT tunnelling?
+            if self.proxy is not None and http_tunnel_required and conn.is_closed:
+                try:
+>                   self._prepare_proxy(conn)
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connectionpool.py:773: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connectionpool.py:1042: in _prepare_proxy
+    conn.connect()
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connection.py:776: in connect
+    self._tunnel()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <HTTPSConnection(host='proxy', port=8080) at 0x7fcc4665e660>
+
+    def _tunnel(self):
+        connect = b"CONNECT %s:%d %s\r\n" % (
+            self._wrap_ipv6(self._tunnel_host.encode("idna")),
+            self._tunnel_port,
+            self._http_vsn_str.encode("ascii"))
+        headers = [connect]
+        for header, value in self._tunnel_headers.items():
+            headers.append(f"{header}: {value}\r\n".encode("latin-1"))
+        headers.append(b"\r\n")
+        # Making a single send() call instead of one per line encourages
+        # the host OS to use a more optimal packet size instead of
+        # potentially emitting a series of small packets.
+        self.send(b"".join(headers))
+        del headers
+    
+        response = self.response_class(self.sock, method=self._method)
+        try:
+            (version, code, message) = response._read_status()
+    
+            self._raw_proxy_headers = _read_headers(response.fp)
+    
+            if self.debuglevel > 0:
+                for header in self._raw_proxy_headers:
+                    print('header:', header.decode())
+    
+            if code != http.HTTPStatus.OK:
+                self.close()
+>               raise OSError(f"Tunnel connection failed: {code} {message.strip()}")
+E               OSError: Tunnel connection failed: 403 Forbidden
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/http/client.py:1001: OSError
+
+The above exception was the direct cause of the following exception:
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/llm/token_estimator.py", line 227, in _tiktoken_count
+    enc = tiktoken.encoding_for_model(model)
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/model.py", line 118, in encoding_for_model
+    return get_encoding(encoding_name_for_model(model_name))
+                        ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/model.py", line 105, in encoding_name_for_model
+    raise KeyError(
+    ...<2 lines>...
+    ) from None
+KeyError: 'Could not automatically map default to a tokeniser. Please use `tiktoken.get_encoding` to explicitly get the tokeniser you expect.'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connectionpool.py", line 773, in urlopen
+    self._prepare_proxy(conn)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connectionpool.py", line 1042, in _prepare_proxy
+    conn.connect()
+    ~~~~~~~~~~~~^^
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connection.py", line 776, in connect
+    self._tunnel()
+    ~~~~~~~~~~~~^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/http/client.py", line 1001, in _tunnel
+    raise OSError(f"Tunnel connection failed: {code} {message.strip()}")
+OSError: Tunnel connection failed: 403 Forbidden
+
+The above exception was the direct cause of the following exception:
+
+urllib3.exceptions.ProxyError: ('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))
+
+The above exception was the direct cause of the following exception:
+
+self = <requests.adapters.HTTPAdapter object at 0x7fcc4665dd30>
+request = <PreparedRequest [GET]>, stream = False
+timeout = Timeout(connect=None, read=None, total=None)
+verify = '/etc/ssl/certs/ca-certificates.crt', cert = None
+proxies = OrderedDict({'no': 'localhost,127.0.0.1,::1', 'https': 'http://proxy:8080', 'http': 'http://proxy:8080'})
+
+    def send(
+        self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
+    ):
+        """Sends PreparedRequest object. Returns Response object.
+    
+        :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
+        :param stream: (optional) Whether to stream the request content.
+        :param timeout: (optional) How long to wait for the server to send
+            data before giving up, as a float, or a :ref:`(connect timeout,
+            read timeout) <timeouts>` tuple.
+        :type timeout: float or tuple or urllib3 Timeout object
+        :param verify: (optional) Either a boolean, in which case it controls whether
+            we verify the server's TLS certificate, or a string, in which case it
+            must be a path to a CA bundle to use
+        :param cert: (optional) Any user-provided SSL certificate to be trusted.
+        :param proxies: (optional) The proxies dictionary to apply to the request.
+        :rtype: requests.Response
+        """
+    
+        try:
+            conn = self.get_connection_with_tls_context(
+                request, verify, proxies=proxies, cert=cert
+            )
+        except LocationValueError as e:
+            raise InvalidURL(e, request=request)
+    
+        self.cert_verify(conn, request.url, verify, cert)
+        url = self.request_url(request, proxies)
+        self.add_headers(
+            request,
+            stream=stream,
+            timeout=timeout,
+            verify=verify,
+            cert=cert,
+            proxies=proxies,
+        )
+    
+        chunked = not (request.body is None or "Content-Length" in request.headers)
+    
+        if isinstance(timeout, tuple):
+            try:
+                connect, read = timeout
+                timeout = TimeoutSauce(connect=connect, read=read)
+            except ValueError:
+                raise ValueError(
+                    f"Invalid timeout {timeout}. Pass a (connect, read) timeout tuple, "
+                    f"or a single float to set both timeouts to the same value."
+                )
+        elif isinstance(timeout, TimeoutSauce):
+            pass
+        else:
+            timeout = TimeoutSauce(connect=timeout, read=timeout)
+    
+        try:
+>           resp = conn.urlopen(
+                method=request.method,
+                url=url,
+                body=request.body,
+                headers=request.headers,
+                redirect=False,
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                retries=self.max_retries,
+                timeout=timeout,
+                chunked=chunked,
+            )
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/adapters.py:644: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connectionpool.py:841: in urlopen
+    retries = retries.increment(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = Retry(total=0, connect=None, read=False, redirect=None, status=None)
+method = 'GET', url = '/encodings/cl100k_base.tiktoken', response = None
+error = ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))
+_pool = <urllib3.connectionpool.HTTPSConnectionPool object at 0x7fcc4665e270>
+_stacktrace = <traceback object at 0x7fcc4669f880>
+
+    def increment(
+        self,
+        method: str | None = None,
+        url: str | None = None,
+        response: BaseHTTPResponse | None = None,
+        error: Exception | None = None,
+        _pool: ConnectionPool | None = None,
+        _stacktrace: TracebackType | None = None,
+    ) -> Self:
+        """Return a new Retry object with incremented retry counters.
+    
+        :param response: A response object, or None, if the server did not
+            return a response.
+        :type response: :class:`~urllib3.response.BaseHTTPResponse`
+        :param Exception error: An error encountered during the request, or
+            None if the response was received successfully.
+    
+        :return: A new ``Retry`` object.
+        """
+        if self.total is False and error:
+            # Disabled, indicate to re-raise the error.
+            raise reraise(type(error), error, _stacktrace)
+    
+        total = self.total
+        if total is not None:
+            total -= 1
+    
+        connect = self.connect
+        read = self.read
+        redirect = self.redirect
+        status_count = self.status
+        other = self.other
+        cause = "unknown"
+        status = None
+        redirect_location = None
+    
+        if error and self._is_connection_error(error):
+            # Connect retry?
+            if connect is False:
+                raise reraise(type(error), error, _stacktrace)
+            elif connect is not None:
+                connect -= 1
+    
+        elif error and self._is_read_error(error):
+            # Read retry?
+            if read is False or method is None or not self._is_method_retryable(method):
+                raise reraise(type(error), error, _stacktrace)
+            elif read is not None:
+                read -= 1
+    
+        elif error:
+            # Other retry?
+            if other is not None:
+                other -= 1
+    
+        elif response and response.get_redirect_location():
+            # Redirect retry?
+            if redirect is not None:
+                redirect -= 1
+            cause = "too many redirects"
+            response_redirect_location = response.get_redirect_location()
+            if response_redirect_location:
+                redirect_location = response_redirect_location
+            status = response.status
+    
+        else:
+            # Incrementing because of a server error like a 500 in
+            # status_forcelist and the given method is in the allowed_methods
+            cause = ResponseError.GENERIC_ERROR
+            if response and response.status:
+                if status_count is not None:
+                    status_count -= 1
+                cause = ResponseError.SPECIFIC_ERROR.format(status_code=response.status)
+                status = response.status
+    
+        history = self.history + (
+            RequestHistory(method, url, error, status, redirect_location),
+        )
+    
+        new_retry = self.new(
+            total=total,
+            connect=connect,
+            read=read,
+            redirect=redirect,
+            status=status_count,
+            other=other,
+            history=history,
+        )
+    
+        if new_retry.is_exhausted():
+            reason = error or ResponseError(cause)
+>           raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/util/retry.py:519: MaxRetryError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/tmp/e02-B65-protected-audit/pytest-tmp/test_protected_audit_reconcili0')
+route = 'sync-invoke', fail_commit = False
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("fail_commit", [False, True], ids=["healthy", "protected-commit-fault"])
+    def test_protected_audit_reconciliation_precedes_next_provider(
+        tmp_path: Path, route: str, fail_commit: bool
+    ) -> None:
+        audit_path = tmp_path / "protected-audit.jsonl"
+        ledger_path = tmp_path / "ledger.json"
+        provider_path = tmp_path / "actual-provider.jsonl"
+        initial = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))})
+        middleware = BudgetMiddleware(initial, ledger=FileBudgetLedger(ledger_path))
+        # Explicit bootstrap precedes the tested reservation and real provider.
+        assert FileBudgetLedger(ledger_path).snapshot().state.spent == {}
+        sink = ChainedAuditSink(chain_id="B65:protected-local", local_path=audit_path)
+        audit = _CommitFaultAuditLog(sink, audit_path, fail=fail_commit)
+        provider = _PhysicalProvider(provider_path)
+        enforcer = LLMBudgetEnforcer(
+            client=TracedLLMClient(provider, model_name="default", run_id="B65-real-audit"),
+            budget_state=initial,
+            budget_keys=["run"],
+            budget_middleware=middleware,
+            audit_log=audit,
+            run_id="B65-real-audit",
+        )
+        try:
+            first_error = None
+            first_response = None
+            try:
+>               first_response = _call(enforcer, route)
+                                 ^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:139: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:97: in _call
+    return enforcer.invoke("nonempty physical request", max_tokens=4)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:634: in invoke
+    reservation = self._pre_check({"user": prompt, **kwargs})
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:181: in _pre_check
+    estimated = self._estimate_cost(kwargs)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:150: in _estimate_cost
+    prompt_tokens = estimate_request_tokens(
+src/polisyos/scientist/orchestration/llm/token_estimator.py:91: in estimate_request_tokens
+    estimate_tokens(
+src/polisyos/scientist/orchestration/llm/token_estimator.py:37: in estimate_tokens
+    return _tiktoken_count(text, model=model)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/token_estimator.py:229: in _tiktoken_count
+    enc = tiktoken.get_encoding("cl100k_base")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/registry.py:86: in get_encoding
+    enc = Encoding(**constructor())
+                     ^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken_ext/openai_public.py:76: in cl100k_base
+    mergeable_ranks = load_tiktoken_bpe(
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/load.py:162: in load_tiktoken_bpe
+    contents = read_file_cached(tiktoken_bpe_file, expected_hash)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/load.py:67: in read_file_cached
+    contents = read_file(blobpath)
+               ^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/load.py:17: in read_file
+    resp = requests.get(blobpath)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/api.py:73: in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/api.py:59: in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/sessions.py:589: in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/sessions.py:703: in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <requests.adapters.HTTPAdapter object at 0x7fcc4665dd30>
+request = <PreparedRequest [GET]>, stream = False
+timeout = Timeout(connect=None, read=None, total=None)
+verify = '/etc/ssl/certs/ca-certificates.crt', cert = None
+proxies = OrderedDict({'no': 'localhost,127.0.0.1,::1', 'https': 'http://proxy:8080', 'http': 'http://proxy:8080'})
+
+    def send(
+        self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
+    ):
+        """Sends PreparedRequest object. Returns Response object.
+    
+        :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
+        :param stream: (optional) Whether to stream the request content.
+        :param timeout: (optional) How long to wait for the server to send
+            data before giving up, as a float, or a :ref:`(connect timeout,
+            read timeout) <timeouts>` tuple.
+        :type timeout: float or tuple or urllib3 Timeout object
+        :param verify: (optional) Either a boolean, in which case it controls whether
+            we verify the server's TLS certificate, or a string, in which case it
+            must be a path to a CA bundle to use
+        :param cert: (optional) Any user-provided SSL certificate to be trusted.
+        :param proxies: (optional) The proxies dictionary to apply to the request.
+        :rtype: requests.Response
+        """
+    
+        try:
+            conn = self.get_connection_with_tls_context(
+                request, verify, proxies=proxies, cert=cert
+            )
+        except LocationValueError as e:
+            raise InvalidURL(e, request=request)
+    
+        self.cert_verify(conn, request.url, verify, cert)
+        url = self.request_url(request, proxies)
+        self.add_headers(
+            request,
+            stream=stream,
+            timeout=timeout,
+            verify=verify,
+            cert=cert,
+            proxies=proxies,
+        )
+    
+        chunked = not (request.body is None or "Content-Length" in request.headers)
+    
+        if isinstance(timeout, tuple):
+            try:
+                connect, read = timeout
+                timeout = TimeoutSauce(connect=connect, read=read)
+            except ValueError:
+                raise ValueError(
+                    f"Invalid timeout {timeout}. Pass a (connect, read) timeout tuple, "
+                    f"or a single float to set both timeouts to the same value."
+                )
+        elif isinstance(timeout, TimeoutSauce):
+            pass
+        else:
+            timeout = TimeoutSauce(connect=timeout, read=timeout)
+    
+        try:
+            resp = conn.urlopen(
+                method=request.method,
+                url=url,
+                body=request.body,
+                headers=request.headers,
+                redirect=False,
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                retries=self.max_retries,
+                timeout=timeout,
+                chunked=chunked,
+            )
+    
+        except (ProtocolError, OSError) as err:
+            raise ConnectionError(err, request=request)
+    
+        except MaxRetryError as e:
+            if isinstance(e.reason, ConnectTimeoutError):
+                # TODO: Remove this in 3.0.0: see #2811
+                if not isinstance(e.reason, NewConnectionError):
+                    raise ConnectTimeout(e, request=request)
+    
+            if isinstance(e.reason, ResponseError):
+                raise RetryError(e, request=request)
+    
+            if isinstance(e.reason, _ProxyError):
+>               raise ProxyError(e, request=request)
+E               requests.exceptions.ProxyError: HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/adapters.py:671: ProxyError
+_ test_protected_audit_reconciliation_precedes_next_provider[healthy-async-generate] _
+
+text = 'nonempty physical request'
+
+    def _tiktoken_count(text: str, *, model: str | None = None) -> int:
+        """Count tokens using tiktoken (lazy-loaded)."""
+        import tiktoken  # type: ignore[import-untyped]
+    
+        if model:
+            try:
+>               enc = tiktoken.encoding_for_model(model)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/polisyos/scientist/orchestration/llm/token_estimator.py:227: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/model.py:118: in encoding_for_model
+    return get_encoding(encoding_name_for_model(model_name))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model_name = 'default'
+
+    def encoding_name_for_model(model_name: str) -> str:
+        """Returns the name of the encoding used by a model.
+    
+        Raises a KeyError if the model name is not recognised.
+        """
+        encoding_name = None
+        if model_name in MODEL_TO_ENCODING:
+            encoding_name = MODEL_TO_ENCODING[model_name]
+        else:
+            # Check if the model matches a known prefix
+            # Prefix matching avoids needing library updates for every model version release
+            # Note that this can match on non-existent models (e.g., gpt-3.5-turbo-FAKE)
+            for model_prefix, model_encoding_name in MODEL_PREFIX_TO_ENCODING.items():
+                if model_name.startswith(model_prefix):
+                    return model_encoding_name
+    
+        if encoding_name is None:
+>           raise KeyError(
+                f"Could not automatically map {model_name} to a tokeniser. "
+                "Please use `tiktoken.get_encoding` to explicitly get the tokeniser you expect."
+            ) from None
+E           KeyError: 'Could not automatically map default to a tokeniser. Please use `tiktoken.get_encoding` to explicitly get the tokeniser you expect.'
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/model.py:105: KeyError
+
+During handling of the above exception, another exception occurred:
+
+self = <urllib3.connectionpool.HTTPSConnectionPool object at 0x7fcc451b9bd0>
+method = 'GET', url = '/encodings/cl100k_base.tiktoken', body = None
+headers = {'User-Agent': 'python-requests/2.32.5', 'Accept-Encoding': 'gzip, deflate, zstd', 'Accept': '*/*', 'Connection': 'keep-alive'}
+retries = Retry(total=0, connect=None, read=False, redirect=None, status=None)
+redirect = False, assert_same_host = False
+timeout = Timeout(connect=None, read=None, total=None), pool_timeout = None
+release_conn = False, chunked = False, body_pos = None, preload_content = False
+decode_content = False, response_kw = {}
+parsed_url = Url(scheme=None, auth=None, host=None, port=None, path='/encodings/cl100k_base.tiktoken', query=None, fragment=None)
+destination_scheme = None, conn = None, release_this_conn = True
+http_tunnel_required = True, err = None, clean_exit = False
+
+    def urlopen(  # type: ignore[override]
+        self,
+        method: str,
+        url: str,
+        body: _TYPE_BODY | None = None,
+        headers: typing.Mapping[str, str] | None = None,
+        retries: Retry | bool | int | None = None,
+        redirect: bool = True,
+        assert_same_host: bool = True,
+        timeout: _TYPE_TIMEOUT = _DEFAULT_TIMEOUT,
+        pool_timeout: int | None = None,
+        release_conn: bool | None = None,
+        chunked: bool = False,
+        body_pos: _TYPE_BODY_POSITION | None = None,
+        preload_content: bool = True,
+        decode_content: bool = True,
+        **response_kw: typing.Any,
+    ) -> BaseHTTPResponse:
+        """
+        Get a connection from the pool and perform an HTTP request. This is the
+        lowest level call for making a request, so you'll need to specify all
+        the raw details.
+    
+        .. note::
+    
+           More commonly, it's appropriate to use a convenience method
+           such as :meth:`request`.
+    
+        .. note::
+    
+           `release_conn` will only behave as expected if
+           `preload_content=False` because we want to make
+           `preload_content=False` the default behaviour someday soon without
+           breaking backwards compatibility.
+    
+        :param method:
+            HTTP request method (such as GET, POST, PUT, etc.)
+    
+        :param url:
+            The URL to perform the request on.
+    
+        :param body:
+            Data to send in the request body, either :class:`str`, :class:`bytes`,
+            an iterable of :class:`str`/:class:`bytes`, or a file-like object.
+    
+        :param headers:
+            Dictionary of custom headers to send, such as User-Agent,
+            If-None-Match, etc. If None, pool headers are used. If provided,
+            these headers completely replace any pool-specific headers.
+    
+        :param retries:
+            Configure the number of retries to allow before raising a
+            :class:`~urllib3.exceptions.MaxRetryError` exception.
+    
+            If ``None`` (default) will retry 3 times, see ``Retry.DEFAULT``. Pass a
+            :class:`~urllib3.util.retry.Retry` object for fine-grained control
+            over different types of retries.
+            Pass an integer number to retry connection errors that many times,
+            but no other types of errors. Pass zero to never retry.
+    
+            If ``False``, then retries are disabled and any exception is raised
+            immediately. Also, instead of raising a MaxRetryError on redirects,
+            the redirect response will be returned.
+    
+        :type retries: :class:`~urllib3.util.retry.Retry`, False, or an int.
+    
+        :param redirect:
+            If True, automatically handle redirects (status codes 301, 302,
+            303, 307, 308). Each redirect counts as a retry. Disabling retries
+            will disable redirect, too.
+    
+        :param assert_same_host:
+            If ``True``, will make sure that the host of the pool requests is
+            consistent else will raise HostChangedError. When ``False``, you can
+            use the pool on an HTTP proxy and request foreign hosts.
+    
+        :param timeout:
+            If specified, overrides the default timeout for this one
+            request. It may be a float (in seconds) or an instance of
+            :class:`urllib3.util.Timeout`.
+    
+        :param pool_timeout:
+            If set and the pool is set to block=True, then this method will
+            block for ``pool_timeout`` seconds and raise EmptyPoolError if no
+            connection is available within the time period.
+    
+        :param bool preload_content:
+            If True, the response's body will be preloaded into memory.
+    
+        :param bool decode_content:
+            If True, will attempt to decode the body based on the
+            'content-encoding' header.
+    
+        :param release_conn:
+            If False, then the urlopen call will not release the connection
+            back into the pool once a response is received (but will release if
+            you read the entire contents of the response such as when
+            `preload_content=True`). This is useful if you're not preloading
+            the response's content immediately. You will need to call
+            ``r.release_conn()`` on the response ``r`` to return the connection
+            back into the pool. If None, it takes the value of ``preload_content``
+            which defaults to ``True``.
+    
+        :param bool chunked:
+            If True, urllib3 will send the body using chunked transfer
+            encoding. Otherwise, urllib3 will send the body using the standard
+            content-length form. Defaults to False.
+    
+        :param int body_pos:
+            Position to seek to in file-like body in the event of a retry or
+            redirect. Typically this won't need to be set because urllib3 will
+            auto-populate the value when needed.
+        """
+        parsed_url = parse_url(url)
+        destination_scheme = parsed_url.scheme
+    
+        if headers is None:
+            headers = self.headers
+    
+        if not isinstance(retries, Retry):
+            retries = Retry.from_int(retries, redirect=redirect, default=self.retries)
+    
+        if release_conn is None:
+            release_conn = preload_content
+    
+        # Check host
+        if assert_same_host and not self.is_same_host(url):
+            raise HostChangedError(self, url, retries)
+    
+        # Ensure that the URL we're connecting to is properly encoded
+        if url.startswith("/"):
+            url = to_str(_encode_target(url))
+        else:
+            url = to_str(parsed_url.url)
+    
+        conn = None
+    
+        # Track whether `conn` needs to be released before
+        # returning/raising/recursing. Update this variable if necessary, and
+        # leave `release_conn` constant throughout the function. That way, if
+        # the function recurses, the original value of `release_conn` will be
+        # passed down into the recursive call, and its value will be respected.
+        #
+        # See issue #651 [1] for details.
+        #
+        # [1] <https://github.com/urllib3/urllib3/issues/651>
+        release_this_conn = release_conn
+    
+        http_tunnel_required = connection_requires_http_tunnel(
+            self.proxy, self.proxy_config, destination_scheme
+        )
+    
+        # Merge the proxy headers. Only done when not using HTTP CONNECT. We
+        # have to copy the headers dict so we can safely change it without those
+        # changes being reflected in anyone else's copy.
+        if not http_tunnel_required:
+            headers = headers.copy()  # type: ignore[attr-defined]
+            headers.update(self.proxy_headers)  # type: ignore[union-attr]
+    
+        # Must keep the exception bound to a separate variable or else Python 3
+        # complains about UnboundLocalError.
+        err = None
+    
+        # Keep track of whether we cleanly exited the except block. This
+        # ensures we do proper cleanup in finally.
+        clean_exit = False
+    
+        # Rewind body position, if needed. Record current position
+        # for future rewinds in the event of a redirect/retry.
+        body_pos = set_file_position(body, body_pos)
+    
+        try:
+            # Request a connection from the queue.
+            timeout_obj = self._get_timeout(timeout)
+            conn = self._get_conn(timeout=pool_timeout)
+    
+            conn.timeout = timeout_obj.connect_timeout  # type: ignore[assignment]
+    
+            # Is this a closed/new connection that requires CONNECT tunnelling?
+            if self.proxy is not None and http_tunnel_required and conn.is_closed:
+                try:
+>                   self._prepare_proxy(conn)
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connectionpool.py:773: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connectionpool.py:1042: in _prepare_proxy
+    conn.connect()
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connection.py:776: in connect
+    self._tunnel()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <HTTPSConnection(host='proxy', port=8080) at 0x7fcc451b9e50>
+
+    def _tunnel(self):
+        connect = b"CONNECT %s:%d %s\r\n" % (
+            self._wrap_ipv6(self._tunnel_host.encode("idna")),
+            self._tunnel_port,
+            self._http_vsn_str.encode("ascii"))
+        headers = [connect]
+        for header, value in self._tunnel_headers.items():
+            headers.append(f"{header}: {value}\r\n".encode("latin-1"))
+        headers.append(b"\r\n")
+        # Making a single send() call instead of one per line encourages
+        # the host OS to use a more optimal packet size instead of
+        # potentially emitting a series of small packets.
+        self.send(b"".join(headers))
+        del headers
+    
+        response = self.response_class(self.sock, method=self._method)
+        try:
+            (version, code, message) = response._read_status()
+    
+            self._raw_proxy_headers = _read_headers(response.fp)
+    
+            if self.debuglevel > 0:
+                for header in self._raw_proxy_headers:
+                    print('header:', header.decode())
+    
+            if code != http.HTTPStatus.OK:
+                self.close()
+>               raise OSError(f"Tunnel connection failed: {code} {message.strip()}")
+E               OSError: Tunnel connection failed: 403 Forbidden
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/http/client.py:1001: OSError
+
+The above exception was the direct cause of the following exception:
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/llm/token_estimator.py", line 227, in _tiktoken_count
+    enc = tiktoken.encoding_for_model(model)
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/model.py", line 118, in encoding_for_model
+    return get_encoding(encoding_name_for_model(model_name))
+                        ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/model.py", line 105, in encoding_name_for_model
+    raise KeyError(
+    ...<2 lines>...
+    ) from None
+KeyError: 'Could not automatically map default to a tokeniser. Please use `tiktoken.get_encoding` to explicitly get the tokeniser you expect.'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connectionpool.py", line 773, in urlopen
+    self._prepare_proxy(conn)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connectionpool.py", line 1042, in _prepare_proxy
+    conn.connect()
+    ~~~~~~~~~~~~^^
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connection.py", line 776, in connect
+    self._tunnel()
+    ~~~~~~~~~~~~^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/http/client.py", line 1001, in _tunnel
+    raise OSError(f"Tunnel connection failed: {code} {message.strip()}")
+OSError: Tunnel connection failed: 403 Forbidden
+
+The above exception was the direct cause of the following exception:
+
+urllib3.exceptions.ProxyError: ('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))
+
+The above exception was the direct cause of the following exception:
+
+self = <requests.adapters.HTTPAdapter object at 0x7fcc451b96d0>
+request = <PreparedRequest [GET]>, stream = False
+timeout = Timeout(connect=None, read=None, total=None)
+verify = '/etc/ssl/certs/ca-certificates.crt', cert = None
+proxies = OrderedDict({'no': 'localhost,127.0.0.1,::1', 'https': 'http://proxy:8080', 'http': 'http://proxy:8080'})
+
+    def send(
+        self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
+    ):
+        """Sends PreparedRequest object. Returns Response object.
+    
+        :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
+        :param stream: (optional) Whether to stream the request content.
+        :param timeout: (optional) How long to wait for the server to send
+            data before giving up, as a float, or a :ref:`(connect timeout,
+            read timeout) <timeouts>` tuple.
+        :type timeout: float or tuple or urllib3 Timeout object
+        :param verify: (optional) Either a boolean, in which case it controls whether
+            we verify the server's TLS certificate, or a string, in which case it
+            must be a path to a CA bundle to use
+        :param cert: (optional) Any user-provided SSL certificate to be trusted.
+        :param proxies: (optional) The proxies dictionary to apply to the request.
+        :rtype: requests.Response
+        """
+    
+        try:
+            conn = self.get_connection_with_tls_context(
+                request, verify, proxies=proxies, cert=cert
+            )
+        except LocationValueError as e:
+            raise InvalidURL(e, request=request)
+    
+        self.cert_verify(conn, request.url, verify, cert)
+        url = self.request_url(request, proxies)
+        self.add_headers(
+            request,
+            stream=stream,
+            timeout=timeout,
+            verify=verify,
+            cert=cert,
+            proxies=proxies,
+        )
+    
+        chunked = not (request.body is None or "Content-Length" in request.headers)
+    
+        if isinstance(timeout, tuple):
+            try:
+                connect, read = timeout
+                timeout = TimeoutSauce(connect=connect, read=read)
+            except ValueError:
+                raise ValueError(
+                    f"Invalid timeout {timeout}. Pass a (connect, read) timeout tuple, "
+                    f"or a single float to set both timeouts to the same value."
+                )
+        elif isinstance(timeout, TimeoutSauce):
+            pass
+        else:
+            timeout = TimeoutSauce(connect=timeout, read=timeout)
+    
+        try:
+>           resp = conn.urlopen(
+                method=request.method,
+                url=url,
+                body=request.body,
+                headers=request.headers,
+                redirect=False,
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                retries=self.max_retries,
+                timeout=timeout,
+                chunked=chunked,
+            )
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/adapters.py:644: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connectionpool.py:841: in urlopen
+    retries = retries.increment(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = Retry(total=0, connect=None, read=False, redirect=None, status=None)
+method = 'GET', url = '/encodings/cl100k_base.tiktoken', response = None
+error = ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))
+_pool = <urllib3.connectionpool.HTTPSConnectionPool object at 0x7fcc451b9bd0>
+_stacktrace = <traceback object at 0x7fcc44c0a840>
+
+    def increment(
+        self,
+        method: str | None = None,
+        url: str | None = None,
+        response: BaseHTTPResponse | None = None,
+        error: Exception | None = None,
+        _pool: ConnectionPool | None = None,
+        _stacktrace: TracebackType | None = None,
+    ) -> Self:
+        """Return a new Retry object with incremented retry counters.
+    
+        :param response: A response object, or None, if the server did not
+            return a response.
+        :type response: :class:`~urllib3.response.BaseHTTPResponse`
+        :param Exception error: An error encountered during the request, or
+            None if the response was received successfully.
+    
+        :return: A new ``Retry`` object.
+        """
+        if self.total is False and error:
+            # Disabled, indicate to re-raise the error.
+            raise reraise(type(error), error, _stacktrace)
+    
+        total = self.total
+        if total is not None:
+            total -= 1
+    
+        connect = self.connect
+        read = self.read
+        redirect = self.redirect
+        status_count = self.status
+        other = self.other
+        cause = "unknown"
+        status = None
+        redirect_location = None
+    
+        if error and self._is_connection_error(error):
+            # Connect retry?
+            if connect is False:
+                raise reraise(type(error), error, _stacktrace)
+            elif connect is not None:
+                connect -= 1
+    
+        elif error and self._is_read_error(error):
+            # Read retry?
+            if read is False or method is None or not self._is_method_retryable(method):
+                raise reraise(type(error), error, _stacktrace)
+            elif read is not None:
+                read -= 1
+    
+        elif error:
+            # Other retry?
+            if other is not None:
+                other -= 1
+    
+        elif response and response.get_redirect_location():
+            # Redirect retry?
+            if redirect is not None:
+                redirect -= 1
+            cause = "too many redirects"
+            response_redirect_location = response.get_redirect_location()
+            if response_redirect_location:
+                redirect_location = response_redirect_location
+            status = response.status
+    
+        else:
+            # Incrementing because of a server error like a 500 in
+            # status_forcelist and the given method is in the allowed_methods
+            cause = ResponseError.GENERIC_ERROR
+            if response and response.status:
+                if status_count is not None:
+                    status_count -= 1
+                cause = ResponseError.SPECIFIC_ERROR.format(status_code=response.status)
+                status = response.status
+    
+        history = self.history + (
+            RequestHistory(method, url, error, status, redirect_location),
+        )
+    
+        new_retry = self.new(
+            total=total,
+            connect=connect,
+            read=read,
+            redirect=redirect,
+            status=status_count,
+            other=other,
+            history=history,
+        )
+    
+        if new_retry.is_exhausted():
+            reason = error or ResponseError(cause)
+>           raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/util/retry.py:519: MaxRetryError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/tmp/e02-B65-protected-audit/pytest-tmp/test_protected_audit_reconcili1')
+route = 'async-generate', fail_commit = False
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("fail_commit", [False, True], ids=["healthy", "protected-commit-fault"])
+    def test_protected_audit_reconciliation_precedes_next_provider(
+        tmp_path: Path, route: str, fail_commit: bool
+    ) -> None:
+        audit_path = tmp_path / "protected-audit.jsonl"
+        ledger_path = tmp_path / "ledger.json"
+        provider_path = tmp_path / "actual-provider.jsonl"
+        initial = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))})
+        middleware = BudgetMiddleware(initial, ledger=FileBudgetLedger(ledger_path))
+        # Explicit bootstrap precedes the tested reservation and real provider.
+        assert FileBudgetLedger(ledger_path).snapshot().state.spent == {}
+        sink = ChainedAuditSink(chain_id="B65:protected-local", local_path=audit_path)
+        audit = _CommitFaultAuditLog(sink, audit_path, fail=fail_commit)
+        provider = _PhysicalProvider(provider_path)
+        enforcer = LLMBudgetEnforcer(
+            client=TracedLLMClient(provider, model_name="default", run_id="B65-real-audit"),
+            budget_state=initial,
+            budget_keys=["run"],
+            budget_middleware=middleware,
+            audit_log=audit,
+            run_id="B65-real-audit",
+        )
+        try:
+            first_error = None
+            first_response = None
+            try:
+>               first_response = _call(enforcer, route)
+                                 ^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:139: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:98: in _call
+    return asyncio.run(enforcer.generate(user="nonempty physical request", max_tokens=4))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:204: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:127: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py:719: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:576: in generate
+    return await asyncio.shield(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:593: in _generate_owned
+    reservation = self._pre_check(kwargs if prompt is None else {"user": prompt, **kwargs})
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:181: in _pre_check
+    estimated = self._estimate_cost(kwargs)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:150: in _estimate_cost
+    prompt_tokens = estimate_request_tokens(
+src/polisyos/scientist/orchestration/llm/token_estimator.py:91: in estimate_request_tokens
+    estimate_tokens(
+src/polisyos/scientist/orchestration/llm/token_estimator.py:37: in estimate_tokens
+    return _tiktoken_count(text, model=model)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/token_estimator.py:229: in _tiktoken_count
+    enc = tiktoken.get_encoding("cl100k_base")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/registry.py:86: in get_encoding
+    enc = Encoding(**constructor())
+                     ^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken_ext/openai_public.py:76: in cl100k_base
+    mergeable_ranks = load_tiktoken_bpe(
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/load.py:162: in load_tiktoken_bpe
+    contents = read_file_cached(tiktoken_bpe_file, expected_hash)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/load.py:67: in read_file_cached
+    contents = read_file(blobpath)
+               ^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/load.py:17: in read_file
+    resp = requests.get(blobpath)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/api.py:73: in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/api.py:59: in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/sessions.py:589: in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/sessions.py:703: in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <requests.adapters.HTTPAdapter object at 0x7fcc451b96d0>
+request = <PreparedRequest [GET]>, stream = False
+timeout = Timeout(connect=None, read=None, total=None)
+verify = '/etc/ssl/certs/ca-certificates.crt', cert = None
+proxies = OrderedDict({'no': 'localhost,127.0.0.1,::1', 'https': 'http://proxy:8080', 'http': 'http://proxy:8080'})
+
+    def send(
+        self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
+    ):
+        """Sends PreparedRequest object. Returns Response object.
+    
+        :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
+        :param stream: (optional) Whether to stream the request content.
+        :param timeout: (optional) How long to wait for the server to send
+            data before giving up, as a float, or a :ref:`(connect timeout,
+            read timeout) <timeouts>` tuple.
+        :type timeout: float or tuple or urllib3 Timeout object
+        :param verify: (optional) Either a boolean, in which case it controls whether
+            we verify the server's TLS certificate, or a string, in which case it
+            must be a path to a CA bundle to use
+        :param cert: (optional) Any user-provided SSL certificate to be trusted.
+        :param proxies: (optional) The proxies dictionary to apply to the request.
+        :rtype: requests.Response
+        """
+    
+        try:
+            conn = self.get_connection_with_tls_context(
+                request, verify, proxies=proxies, cert=cert
+            )
+        except LocationValueError as e:
+            raise InvalidURL(e, request=request)
+    
+        self.cert_verify(conn, request.url, verify, cert)
+        url = self.request_url(request, proxies)
+        self.add_headers(
+            request,
+            stream=stream,
+            timeout=timeout,
+            verify=verify,
+            cert=cert,
+            proxies=proxies,
+        )
+    
+        chunked = not (request.body is None or "Content-Length" in request.headers)
+    
+        if isinstance(timeout, tuple):
+            try:
+                connect, read = timeout
+                timeout = TimeoutSauce(connect=connect, read=read)
+            except ValueError:
+                raise ValueError(
+                    f"Invalid timeout {timeout}. Pass a (connect, read) timeout tuple, "
+                    f"or a single float to set both timeouts to the same value."
+                )
+        elif isinstance(timeout, TimeoutSauce):
+            pass
+        else:
+            timeout = TimeoutSauce(connect=timeout, read=timeout)
+    
+        try:
+            resp = conn.urlopen(
+                method=request.method,
+                url=url,
+                body=request.body,
+                headers=request.headers,
+                redirect=False,
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                retries=self.max_retries,
+                timeout=timeout,
+                chunked=chunked,
+            )
+    
+        except (ProtocolError, OSError) as err:
+            raise ConnectionError(err, request=request)
+    
+        except MaxRetryError as e:
+            if isinstance(e.reason, ConnectTimeoutError):
+                # TODO: Remove this in 3.0.0: see #2811
+                if not isinstance(e.reason, NewConnectionError):
+                    raise ConnectTimeout(e, request=request)
+    
+            if isinstance(e.reason, ResponseError):
+                raise RetryError(e, request=request)
+    
+            if isinstance(e.reason, _ProxyError):
+>               raise ProxyError(e, request=request)
+E               requests.exceptions.ProxyError: HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/adapters.py:671: ProxyError
+_ test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-sync-invoke] _
+
+text = 'nonempty physical request'
+
+    def _tiktoken_count(text: str, *, model: str | None = None) -> int:
+        """Count tokens using tiktoken (lazy-loaded)."""
+        import tiktoken  # type: ignore[import-untyped]
+    
+        if model:
+            try:
+>               enc = tiktoken.encoding_for_model(model)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/polisyos/scientist/orchestration/llm/token_estimator.py:227: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/model.py:118: in encoding_for_model
+    return get_encoding(encoding_name_for_model(model_name))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model_name = 'default'
+
+    def encoding_name_for_model(model_name: str) -> str:
+        """Returns the name of the encoding used by a model.
+    
+        Raises a KeyError if the model name is not recognised.
+        """
+        encoding_name = None
+        if model_name in MODEL_TO_ENCODING:
+            encoding_name = MODEL_TO_ENCODING[model_name]
+        else:
+            # Check if the model matches a known prefix
+            # Prefix matching avoids needing library updates for every model version release
+            # Note that this can match on non-existent models (e.g., gpt-3.5-turbo-FAKE)
+            for model_prefix, model_encoding_name in MODEL_PREFIX_TO_ENCODING.items():
+                if model_name.startswith(model_prefix):
+                    return model_encoding_name
+    
+        if encoding_name is None:
+>           raise KeyError(
+                f"Could not automatically map {model_name} to a tokeniser. "
+                "Please use `tiktoken.get_encoding` to explicitly get the tokeniser you expect."
+            ) from None
+E           KeyError: 'Could not automatically map default to a tokeniser. Please use `tiktoken.get_encoding` to explicitly get the tokeniser you expect.'
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/model.py:105: KeyError
+
+During handling of the above exception, another exception occurred:
+
+self = <urllib3.connectionpool.HTTPSConnectionPool object at 0x7fcc451bbd90>
+method = 'GET', url = '/encodings/cl100k_base.tiktoken', body = None
+headers = {'User-Agent': 'python-requests/2.32.5', 'Accept-Encoding': 'gzip, deflate, zstd', 'Accept': '*/*', 'Connection': 'keep-alive'}
+retries = Retry(total=0, connect=None, read=False, redirect=None, status=None)
+redirect = False, assert_same_host = False
+timeout = Timeout(connect=None, read=None, total=None), pool_timeout = None
+release_conn = False, chunked = False, body_pos = None, preload_content = False
+decode_content = False, response_kw = {}
+parsed_url = Url(scheme=None, auth=None, host=None, port=None, path='/encodings/cl100k_base.tiktoken', query=None, fragment=None)
+destination_scheme = None, conn = None, release_this_conn = True
+http_tunnel_required = True, err = None, clean_exit = False
+
+    def urlopen(  # type: ignore[override]
+        self,
+        method: str,
+        url: str,
+        body: _TYPE_BODY | None = None,
+        headers: typing.Mapping[str, str] | None = None,
+        retries: Retry | bool | int | None = None,
+        redirect: bool = True,
+        assert_same_host: bool = True,
+        timeout: _TYPE_TIMEOUT = _DEFAULT_TIMEOUT,
+        pool_timeout: int | None = None,
+        release_conn: bool | None = None,
+        chunked: bool = False,
+        body_pos: _TYPE_BODY_POSITION | None = None,
+        preload_content: bool = True,
+        decode_content: bool = True,
+        **response_kw: typing.Any,
+    ) -> BaseHTTPResponse:
+        """
+        Get a connection from the pool and perform an HTTP request. This is the
+        lowest level call for making a request, so you'll need to specify all
+        the raw details.
+    
+        .. note::
+    
+           More commonly, it's appropriate to use a convenience method
+           such as :meth:`request`.
+    
+        .. note::
+    
+           `release_conn` will only behave as expected if
+           `preload_content=False` because we want to make
+           `preload_content=False` the default behaviour someday soon without
+           breaking backwards compatibility.
+    
+        :param method:
+            HTTP request method (such as GET, POST, PUT, etc.)
+    
+        :param url:
+            The URL to perform the request on.
+    
+        :param body:
+            Data to send in the request body, either :class:`str`, :class:`bytes`,
+            an iterable of :class:`str`/:class:`bytes`, or a file-like object.
+    
+        :param headers:
+            Dictionary of custom headers to send, such as User-Agent,
+            If-None-Match, etc. If None, pool headers are used. If provided,
+            these headers completely replace any pool-specific headers.
+    
+        :param retries:
+            Configure the number of retries to allow before raising a
+            :class:`~urllib3.exceptions.MaxRetryError` exception.
+    
+            If ``None`` (default) will retry 3 times, see ``Retry.DEFAULT``. Pass a
+            :class:`~urllib3.util.retry.Retry` object for fine-grained control
+            over different types of retries.
+            Pass an integer number to retry connection errors that many times,
+            but no other types of errors. Pass zero to never retry.
+    
+            If ``False``, then retries are disabled and any exception is raised
+            immediately. Also, instead of raising a MaxRetryError on redirects,
+            the redirect response will be returned.
+    
+        :type retries: :class:`~urllib3.util.retry.Retry`, False, or an int.
+    
+        :param redirect:
+            If True, automatically handle redirects (status codes 301, 302,
+            303, 307, 308). Each redirect counts as a retry. Disabling retries
+            will disable redirect, too.
+    
+        :param assert_same_host:
+            If ``True``, will make sure that the host of the pool requests is
+            consistent else will raise HostChangedError. When ``False``, you can
+            use the pool on an HTTP proxy and request foreign hosts.
+    
+        :param timeout:
+            If specified, overrides the default timeout for this one
+            request. It may be a float (in seconds) or an instance of
+            :class:`urllib3.util.Timeout`.
+    
+        :param pool_timeout:
+            If set and the pool is set to block=True, then this method will
+            block for ``pool_timeout`` seconds and raise EmptyPoolError if no
+            connection is available within the time period.
+    
+        :param bool preload_content:
+            If True, the response's body will be preloaded into memory.
+    
+        :param bool decode_content:
+            If True, will attempt to decode the body based on the
+            'content-encoding' header.
+    
+        :param release_conn:
+            If False, then the urlopen call will not release the connection
+            back into the pool once a response is received (but will release if
+            you read the entire contents of the response such as when
+            `preload_content=True`). This is useful if you're not preloading
+            the response's content immediately. You will need to call
+            ``r.release_conn()`` on the response ``r`` to return the connection
+            back into the pool. If None, it takes the value of ``preload_content``
+            which defaults to ``True``.
+    
+        :param bool chunked:
+            If True, urllib3 will send the body using chunked transfer
+            encoding. Otherwise, urllib3 will send the body using the standard
+            content-length form. Defaults to False.
+    
+        :param int body_pos:
+            Position to seek to in file-like body in the event of a retry or
+            redirect. Typically this won't need to be set because urllib3 will
+            auto-populate the value when needed.
+        """
+        parsed_url = parse_url(url)
+        destination_scheme = parsed_url.scheme
+    
+        if headers is None:
+            headers = self.headers
+    
+        if not isinstance(retries, Retry):
+            retries = Retry.from_int(retries, redirect=redirect, default=self.retries)
+    
+        if release_conn is None:
+            release_conn = preload_content
+    
+        # Check host
+        if assert_same_host and not self.is_same_host(url):
+            raise HostChangedError(self, url, retries)
+    
+        # Ensure that the URL we're connecting to is properly encoded
+        if url.startswith("/"):
+            url = to_str(_encode_target(url))
+        else:
+            url = to_str(parsed_url.url)
+    
+        conn = None
+    
+        # Track whether `conn` needs to be released before
+        # returning/raising/recursing. Update this variable if necessary, and
+        # leave `release_conn` constant throughout the function. That way, if
+        # the function recurses, the original value of `release_conn` will be
+        # passed down into the recursive call, and its value will be respected.
+        #
+        # See issue #651 [1] for details.
+        #
+        # [1] <https://github.com/urllib3/urllib3/issues/651>
+        release_this_conn = release_conn
+    
+        http_tunnel_required = connection_requires_http_tunnel(
+            self.proxy, self.proxy_config, destination_scheme
+        )
+    
+        # Merge the proxy headers. Only done when not using HTTP CONNECT. We
+        # have to copy the headers dict so we can safely change it without those
+        # changes being reflected in anyone else's copy.
+        if not http_tunnel_required:
+            headers = headers.copy()  # type: ignore[attr-defined]
+            headers.update(self.proxy_headers)  # type: ignore[union-attr]
+    
+        # Must keep the exception bound to a separate variable or else Python 3
+        # complains about UnboundLocalError.
+        err = None
+    
+        # Keep track of whether we cleanly exited the except block. This
+        # ensures we do proper cleanup in finally.
+        clean_exit = False
+    
+        # Rewind body position, if needed. Record current position
+        # for future rewinds in the event of a redirect/retry.
+        body_pos = set_file_position(body, body_pos)
+    
+        try:
+            # Request a connection from the queue.
+            timeout_obj = self._get_timeout(timeout)
+            conn = self._get_conn(timeout=pool_timeout)
+    
+            conn.timeout = timeout_obj.connect_timeout  # type: ignore[assignment]
+    
+            # Is this a closed/new connection that requires CONNECT tunnelling?
+            if self.proxy is not None and http_tunnel_required and conn.is_closed:
+                try:
+>                   self._prepare_proxy(conn)
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connectionpool.py:773: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connectionpool.py:1042: in _prepare_proxy
+    conn.connect()
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connection.py:776: in connect
+    self._tunnel()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <HTTPSConnection(host='proxy', port=8080) at 0x7fcc44ea8050>
+
+    def _tunnel(self):
+        connect = b"CONNECT %s:%d %s\r\n" % (
+            self._wrap_ipv6(self._tunnel_host.encode("idna")),
+            self._tunnel_port,
+            self._http_vsn_str.encode("ascii"))
+        headers = [connect]
+        for header, value in self._tunnel_headers.items():
+            headers.append(f"{header}: {value}\r\n".encode("latin-1"))
+        headers.append(b"\r\n")
+        # Making a single send() call instead of one per line encourages
+        # the host OS to use a more optimal packet size instead of
+        # potentially emitting a series of small packets.
+        self.send(b"".join(headers))
+        del headers
+    
+        response = self.response_class(self.sock, method=self._method)
+        try:
+            (version, code, message) = response._read_status()
+    
+            self._raw_proxy_headers = _read_headers(response.fp)
+    
+            if self.debuglevel > 0:
+                for header in self._raw_proxy_headers:
+                    print('header:', header.decode())
+    
+            if code != http.HTTPStatus.OK:
+                self.close()
+>               raise OSError(f"Tunnel connection failed: {code} {message.strip()}")
+E               OSError: Tunnel connection failed: 403 Forbidden
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/http/client.py:1001: OSError
+
+The above exception was the direct cause of the following exception:
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/llm/token_estimator.py", line 227, in _tiktoken_count
+    enc = tiktoken.encoding_for_model(model)
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/model.py", line 118, in encoding_for_model
+    return get_encoding(encoding_name_for_model(model_name))
+                        ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/model.py", line 105, in encoding_name_for_model
+    raise KeyError(
+    ...<2 lines>...
+    ) from None
+KeyError: 'Could not automatically map default to a tokeniser. Please use `tiktoken.get_encoding` to explicitly get the tokeniser you expect.'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connectionpool.py", line 773, in urlopen
+    self._prepare_proxy(conn)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connectionpool.py", line 1042, in _prepare_proxy
+    conn.connect()
+    ~~~~~~~~~~~~^^
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connection.py", line 776, in connect
+    self._tunnel()
+    ~~~~~~~~~~~~^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/http/client.py", line 1001, in _tunnel
+    raise OSError(f"Tunnel connection failed: {code} {message.strip()}")
+OSError: Tunnel connection failed: 403 Forbidden
+
+The above exception was the direct cause of the following exception:
+
+urllib3.exceptions.ProxyError: ('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))
+
+The above exception was the direct cause of the following exception:
+
+self = <requests.adapters.HTTPAdapter object at 0x7fcc44f55220>
+request = <PreparedRequest [GET]>, stream = False
+timeout = Timeout(connect=None, read=None, total=None)
+verify = '/etc/ssl/certs/ca-certificates.crt', cert = None
+proxies = OrderedDict({'no': 'localhost,127.0.0.1,::1', 'https': 'http://proxy:8080', 'http': 'http://proxy:8080'})
+
+    def send(
+        self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
+    ):
+        """Sends PreparedRequest object. Returns Response object.
+    
+        :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
+        :param stream: (optional) Whether to stream the request content.
+        :param timeout: (optional) How long to wait for the server to send
+            data before giving up, as a float, or a :ref:`(connect timeout,
+            read timeout) <timeouts>` tuple.
+        :type timeout: float or tuple or urllib3 Timeout object
+        :param verify: (optional) Either a boolean, in which case it controls whether
+            we verify the server's TLS certificate, or a string, in which case it
+            must be a path to a CA bundle to use
+        :param cert: (optional) Any user-provided SSL certificate to be trusted.
+        :param proxies: (optional) The proxies dictionary to apply to the request.
+        :rtype: requests.Response
+        """
+    
+        try:
+            conn = self.get_connection_with_tls_context(
+                request, verify, proxies=proxies, cert=cert
+            )
+        except LocationValueError as e:
+            raise InvalidURL(e, request=request)
+    
+        self.cert_verify(conn, request.url, verify, cert)
+        url = self.request_url(request, proxies)
+        self.add_headers(
+            request,
+            stream=stream,
+            timeout=timeout,
+            verify=verify,
+            cert=cert,
+            proxies=proxies,
+        )
+    
+        chunked = not (request.body is None or "Content-Length" in request.headers)
+    
+        if isinstance(timeout, tuple):
+            try:
+                connect, read = timeout
+                timeout = TimeoutSauce(connect=connect, read=read)
+            except ValueError:
+                raise ValueError(
+                    f"Invalid timeout {timeout}. Pass a (connect, read) timeout tuple, "
+                    f"or a single float to set both timeouts to the same value."
+                )
+        elif isinstance(timeout, TimeoutSauce):
+            pass
+        else:
+            timeout = TimeoutSauce(connect=timeout, read=timeout)
+    
+        try:
+>           resp = conn.urlopen(
+                method=request.method,
+                url=url,
+                body=request.body,
+                headers=request.headers,
+                redirect=False,
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                retries=self.max_retries,
+                timeout=timeout,
+                chunked=chunked,
+            )
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/adapters.py:644: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connectionpool.py:841: in urlopen
+    retries = retries.increment(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = Retry(total=0, connect=None, read=False, redirect=None, status=None)
+method = 'GET', url = '/encodings/cl100k_base.tiktoken', response = None
+error = ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))
+_pool = <urllib3.connectionpool.HTTPSConnectionPool object at 0x7fcc451bbd90>
+_stacktrace = <traceback object at 0x7fcc4492e1c0>
+
+    def increment(
+        self,
+        method: str | None = None,
+        url: str | None = None,
+        response: BaseHTTPResponse | None = None,
+        error: Exception | None = None,
+        _pool: ConnectionPool | None = None,
+        _stacktrace: TracebackType | None = None,
+    ) -> Self:
+        """Return a new Retry object with incremented retry counters.
+    
+        :param response: A response object, or None, if the server did not
+            return a response.
+        :type response: :class:`~urllib3.response.BaseHTTPResponse`
+        :param Exception error: An error encountered during the request, or
+            None if the response was received successfully.
+    
+        :return: A new ``Retry`` object.
+        """
+        if self.total is False and error:
+            # Disabled, indicate to re-raise the error.
+            raise reraise(type(error), error, _stacktrace)
+    
+        total = self.total
+        if total is not None:
+            total -= 1
+    
+        connect = self.connect
+        read = self.read
+        redirect = self.redirect
+        status_count = self.status
+        other = self.other
+        cause = "unknown"
+        status = None
+        redirect_location = None
+    
+        if error and self._is_connection_error(error):
+            # Connect retry?
+            if connect is False:
+                raise reraise(type(error), error, _stacktrace)
+            elif connect is not None:
+                connect -= 1
+    
+        elif error and self._is_read_error(error):
+            # Read retry?
+            if read is False or method is None or not self._is_method_retryable(method):
+                raise reraise(type(error), error, _stacktrace)
+            elif read is not None:
+                read -= 1
+    
+        elif error:
+            # Other retry?
+            if other is not None:
+                other -= 1
+    
+        elif response and response.get_redirect_location():
+            # Redirect retry?
+            if redirect is not None:
+                redirect -= 1
+            cause = "too many redirects"
+            response_redirect_location = response.get_redirect_location()
+            if response_redirect_location:
+                redirect_location = response_redirect_location
+            status = response.status
+    
+        else:
+            # Incrementing because of a server error like a 500 in
+            # status_forcelist and the given method is in the allowed_methods
+            cause = ResponseError.GENERIC_ERROR
+            if response and response.status:
+                if status_count is not None:
+                    status_count -= 1
+                cause = ResponseError.SPECIFIC_ERROR.format(status_code=response.status)
+                status = response.status
+    
+        history = self.history + (
+            RequestHistory(method, url, error, status, redirect_location),
+        )
+    
+        new_retry = self.new(
+            total=total,
+            connect=connect,
+            read=read,
+            redirect=redirect,
+            status=status_count,
+            other=other,
+            history=history,
+        )
+    
+        if new_retry.is_exhausted():
+            reason = error or ResponseError(cause)
+>           raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/util/retry.py:519: MaxRetryError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/tmp/e02-B65-protected-audit/pytest-tmp/test_protected_audit_reconcili2')
+route = 'sync-invoke', fail_commit = True
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("fail_commit", [False, True], ids=["healthy", "protected-commit-fault"])
+    def test_protected_audit_reconciliation_precedes_next_provider(
+        tmp_path: Path, route: str, fail_commit: bool
+    ) -> None:
+        audit_path = tmp_path / "protected-audit.jsonl"
+        ledger_path = tmp_path / "ledger.json"
+        provider_path = tmp_path / "actual-provider.jsonl"
+        initial = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))})
+        middleware = BudgetMiddleware(initial, ledger=FileBudgetLedger(ledger_path))
+        # Explicit bootstrap precedes the tested reservation and real provider.
+        assert FileBudgetLedger(ledger_path).snapshot().state.spent == {}
+        sink = ChainedAuditSink(chain_id="B65:protected-local", local_path=audit_path)
+        audit = _CommitFaultAuditLog(sink, audit_path, fail=fail_commit)
+        provider = _PhysicalProvider(provider_path)
+        enforcer = LLMBudgetEnforcer(
+            client=TracedLLMClient(provider, model_name="default", run_id="B65-real-audit"),
+            budget_state=initial,
+            budget_keys=["run"],
+            budget_middleware=middleware,
+            audit_log=audit,
+            run_id="B65-real-audit",
+        )
+        try:
+            first_error = None
+            first_response = None
+            try:
+>               first_response = _call(enforcer, route)
+                                 ^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:139: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:97: in _call
+    return enforcer.invoke("nonempty physical request", max_tokens=4)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:634: in invoke
+    reservation = self._pre_check({"user": prompt, **kwargs})
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:181: in _pre_check
+    estimated = self._estimate_cost(kwargs)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:150: in _estimate_cost
+    prompt_tokens = estimate_request_tokens(
+src/polisyos/scientist/orchestration/llm/token_estimator.py:91: in estimate_request_tokens
+    estimate_tokens(
+src/polisyos/scientist/orchestration/llm/token_estimator.py:37: in estimate_tokens
+    return _tiktoken_count(text, model=model)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/token_estimator.py:229: in _tiktoken_count
+    enc = tiktoken.get_encoding("cl100k_base")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/registry.py:86: in get_encoding
+    enc = Encoding(**constructor())
+                     ^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken_ext/openai_public.py:76: in cl100k_base
+    mergeable_ranks = load_tiktoken_bpe(
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/load.py:162: in load_tiktoken_bpe
+    contents = read_file_cached(tiktoken_bpe_file, expected_hash)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/load.py:67: in read_file_cached
+    contents = read_file(blobpath)
+               ^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/load.py:17: in read_file
+    resp = requests.get(blobpath)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/api.py:73: in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/api.py:59: in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/sessions.py:589: in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/sessions.py:703: in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <requests.adapters.HTTPAdapter object at 0x7fcc44f55220>
+request = <PreparedRequest [GET]>, stream = False
+timeout = Timeout(connect=None, read=None, total=None)
+verify = '/etc/ssl/certs/ca-certificates.crt', cert = None
+proxies = OrderedDict({'no': 'localhost,127.0.0.1,::1', 'https': 'http://proxy:8080', 'http': 'http://proxy:8080'})
+
+    def send(
+        self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
+    ):
+        """Sends PreparedRequest object. Returns Response object.
+    
+        :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
+        :param stream: (optional) Whether to stream the request content.
+        :param timeout: (optional) How long to wait for the server to send
+            data before giving up, as a float, or a :ref:`(connect timeout,
+            read timeout) <timeouts>` tuple.
+        :type timeout: float or tuple or urllib3 Timeout object
+        :param verify: (optional) Either a boolean, in which case it controls whether
+            we verify the server's TLS certificate, or a string, in which case it
+            must be a path to a CA bundle to use
+        :param cert: (optional) Any user-provided SSL certificate to be trusted.
+        :param proxies: (optional) The proxies dictionary to apply to the request.
+        :rtype: requests.Response
+        """
+    
+        try:
+            conn = self.get_connection_with_tls_context(
+                request, verify, proxies=proxies, cert=cert
+            )
+        except LocationValueError as e:
+            raise InvalidURL(e, request=request)
+    
+        self.cert_verify(conn, request.url, verify, cert)
+        url = self.request_url(request, proxies)
+        self.add_headers(
+            request,
+            stream=stream,
+            timeout=timeout,
+            verify=verify,
+            cert=cert,
+            proxies=proxies,
+        )
+    
+        chunked = not (request.body is None or "Content-Length" in request.headers)
+    
+        if isinstance(timeout, tuple):
+            try:
+                connect, read = timeout
+                timeout = TimeoutSauce(connect=connect, read=read)
+            except ValueError:
+                raise ValueError(
+                    f"Invalid timeout {timeout}. Pass a (connect, read) timeout tuple, "
+                    f"or a single float to set both timeouts to the same value."
+                )
+        elif isinstance(timeout, TimeoutSauce):
+            pass
+        else:
+            timeout = TimeoutSauce(connect=timeout, read=timeout)
+    
+        try:
+            resp = conn.urlopen(
+                method=request.method,
+                url=url,
+                body=request.body,
+                headers=request.headers,
+                redirect=False,
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                retries=self.max_retries,
+                timeout=timeout,
+                chunked=chunked,
+            )
+    
+        except (ProtocolError, OSError) as err:
+            raise ConnectionError(err, request=request)
+    
+        except MaxRetryError as e:
+            if isinstance(e.reason, ConnectTimeoutError):
+                # TODO: Remove this in 3.0.0: see #2811
+                if not isinstance(e.reason, NewConnectionError):
+                    raise ConnectTimeout(e, request=request)
+    
+            if isinstance(e.reason, ResponseError):
+                raise RetryError(e, request=request)
+    
+            if isinstance(e.reason, _ProxyError):
+>               raise ProxyError(e, request=request)
+E               requests.exceptions.ProxyError: HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/adapters.py:671: ProxyError
+_ test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-async-generate] _
+
+text = 'nonempty physical request'
+
+    def _tiktoken_count(text: str, *, model: str | None = None) -> int:
+        """Count tokens using tiktoken (lazy-loaded)."""
+        import tiktoken  # type: ignore[import-untyped]
+    
+        if model:
+            try:
+>               enc = tiktoken.encoding_for_model(model)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/polisyos/scientist/orchestration/llm/token_estimator.py:227: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/model.py:118: in encoding_for_model
+    return get_encoding(encoding_name_for_model(model_name))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model_name = 'default'
+
+    def encoding_name_for_model(model_name: str) -> str:
+        """Returns the name of the encoding used by a model.
+    
+        Raises a KeyError if the model name is not recognised.
+        """
+        encoding_name = None
+        if model_name in MODEL_TO_ENCODING:
+            encoding_name = MODEL_TO_ENCODING[model_name]
+        else:
+            # Check if the model matches a known prefix
+            # Prefix matching avoids needing library updates for every model version release
+            # Note that this can match on non-existent models (e.g., gpt-3.5-turbo-FAKE)
+            for model_prefix, model_encoding_name in MODEL_PREFIX_TO_ENCODING.items():
+                if model_name.startswith(model_prefix):
+                    return model_encoding_name
+    
+        if encoding_name is None:
+>           raise KeyError(
+                f"Could not automatically map {model_name} to a tokeniser. "
+                "Please use `tiktoken.get_encoding` to explicitly get the tokeniser you expect."
+            ) from None
+E           KeyError: 'Could not automatically map default to a tokeniser. Please use `tiktoken.get_encoding` to explicitly get the tokeniser you expect.'
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/model.py:105: KeyError
+
+During handling of the above exception, another exception occurred:
+
+self = <urllib3.connectionpool.HTTPSConnectionPool object at 0x7fcc44f569e0>
+method = 'GET', url = '/encodings/cl100k_base.tiktoken', body = None
+headers = {'User-Agent': 'python-requests/2.32.5', 'Accept-Encoding': 'gzip, deflate, zstd', 'Accept': '*/*', 'Connection': 'keep-alive'}
+retries = Retry(total=0, connect=None, read=False, redirect=None, status=None)
+redirect = False, assert_same_host = False
+timeout = Timeout(connect=None, read=None, total=None), pool_timeout = None
+release_conn = False, chunked = False, body_pos = None, preload_content = False
+decode_content = False, response_kw = {}
+parsed_url = Url(scheme=None, auth=None, host=None, port=None, path='/encodings/cl100k_base.tiktoken', query=None, fragment=None)
+destination_scheme = None, conn = None, release_this_conn = True
+http_tunnel_required = True, err = None, clean_exit = False
+
+    def urlopen(  # type: ignore[override]
+        self,
+        method: str,
+        url: str,
+        body: _TYPE_BODY | None = None,
+        headers: typing.Mapping[str, str] | None = None,
+        retries: Retry | bool | int | None = None,
+        redirect: bool = True,
+        assert_same_host: bool = True,
+        timeout: _TYPE_TIMEOUT = _DEFAULT_TIMEOUT,
+        pool_timeout: int | None = None,
+        release_conn: bool | None = None,
+        chunked: bool = False,
+        body_pos: _TYPE_BODY_POSITION | None = None,
+        preload_content: bool = True,
+        decode_content: bool = True,
+        **response_kw: typing.Any,
+    ) -> BaseHTTPResponse:
+        """
+        Get a connection from the pool and perform an HTTP request. This is the
+        lowest level call for making a request, so you'll need to specify all
+        the raw details.
+    
+        .. note::
+    
+           More commonly, it's appropriate to use a convenience method
+           such as :meth:`request`.
+    
+        .. note::
+    
+           `release_conn` will only behave as expected if
+           `preload_content=False` because we want to make
+           `preload_content=False` the default behaviour someday soon without
+           breaking backwards compatibility.
+    
+        :param method:
+            HTTP request method (such as GET, POST, PUT, etc.)
+    
+        :param url:
+            The URL to perform the request on.
+    
+        :param body:
+            Data to send in the request body, either :class:`str`, :class:`bytes`,
+            an iterable of :class:`str`/:class:`bytes`, or a file-like object.
+    
+        :param headers:
+            Dictionary of custom headers to send, such as User-Agent,
+            If-None-Match, etc. If None, pool headers are used. If provided,
+            these headers completely replace any pool-specific headers.
+    
+        :param retries:
+            Configure the number of retries to allow before raising a
+            :class:`~urllib3.exceptions.MaxRetryError` exception.
+    
+            If ``None`` (default) will retry 3 times, see ``Retry.DEFAULT``. Pass a
+            :class:`~urllib3.util.retry.Retry` object for fine-grained control
+            over different types of retries.
+            Pass an integer number to retry connection errors that many times,
+            but no other types of errors. Pass zero to never retry.
+    
+            If ``False``, then retries are disabled and any exception is raised
+            immediately. Also, instead of raising a MaxRetryError on redirects,
+            the redirect response will be returned.
+    
+        :type retries: :class:`~urllib3.util.retry.Retry`, False, or an int.
+    
+        :param redirect:
+            If True, automatically handle redirects (status codes 301, 302,
+            303, 307, 308). Each redirect counts as a retry. Disabling retries
+            will disable redirect, too.
+    
+        :param assert_same_host:
+            If ``True``, will make sure that the host of the pool requests is
+            consistent else will raise HostChangedError. When ``False``, you can
+            use the pool on an HTTP proxy and request foreign hosts.
+    
+        :param timeout:
+            If specified, overrides the default timeout for this one
+            request. It may be a float (in seconds) or an instance of
+            :class:`urllib3.util.Timeout`.
+    
+        :param pool_timeout:
+            If set and the pool is set to block=True, then this method will
+            block for ``pool_timeout`` seconds and raise EmptyPoolError if no
+            connection is available within the time period.
+    
+        :param bool preload_content:
+            If True, the response's body will be preloaded into memory.
+    
+        :param bool decode_content:
+            If True, will attempt to decode the body based on the
+            'content-encoding' header.
+    
+        :param release_conn:
+            If False, then the urlopen call will not release the connection
+            back into the pool once a response is received (but will release if
+            you read the entire contents of the response such as when
+            `preload_content=True`). This is useful if you're not preloading
+            the response's content immediately. You will need to call
+            ``r.release_conn()`` on the response ``r`` to return the connection
+            back into the pool. If None, it takes the value of ``preload_content``
+            which defaults to ``True``.
+    
+        :param bool chunked:
+            If True, urllib3 will send the body using chunked transfer
+            encoding. Otherwise, urllib3 will send the body using the standard
+            content-length form. Defaults to False.
+    
+        :param int body_pos:
+            Position to seek to in file-like body in the event of a retry or
+            redirect. Typically this won't need to be set because urllib3 will
+            auto-populate the value when needed.
+        """
+        parsed_url = parse_url(url)
+        destination_scheme = parsed_url.scheme
+    
+        if headers is None:
+            headers = self.headers
+    
+        if not isinstance(retries, Retry):
+            retries = Retry.from_int(retries, redirect=redirect, default=self.retries)
+    
+        if release_conn is None:
+            release_conn = preload_content
+    
+        # Check host
+        if assert_same_host and not self.is_same_host(url):
+            raise HostChangedError(self, url, retries)
+    
+        # Ensure that the URL we're connecting to is properly encoded
+        if url.startswith("/"):
+            url = to_str(_encode_target(url))
+        else:
+            url = to_str(parsed_url.url)
+    
+        conn = None
+    
+        # Track whether `conn` needs to be released before
+        # returning/raising/recursing. Update this variable if necessary, and
+        # leave `release_conn` constant throughout the function. That way, if
+        # the function recurses, the original value of `release_conn` will be
+        # passed down into the recursive call, and its value will be respected.
+        #
+        # See issue #651 [1] for details.
+        #
+        # [1] <https://github.com/urllib3/urllib3/issues/651>
+        release_this_conn = release_conn
+    
+        http_tunnel_required = connection_requires_http_tunnel(
+            self.proxy, self.proxy_config, destination_scheme
+        )
+    
+        # Merge the proxy headers. Only done when not using HTTP CONNECT. We
+        # have to copy the headers dict so we can safely change it without those
+        # changes being reflected in anyone else's copy.
+        if not http_tunnel_required:
+            headers = headers.copy()  # type: ignore[attr-defined]
+            headers.update(self.proxy_headers)  # type: ignore[union-attr]
+    
+        # Must keep the exception bound to a separate variable or else Python 3
+        # complains about UnboundLocalError.
+        err = None
+    
+        # Keep track of whether we cleanly exited the except block. This
+        # ensures we do proper cleanup in finally.
+        clean_exit = False
+    
+        # Rewind body position, if needed. Record current position
+        # for future rewinds in the event of a redirect/retry.
+        body_pos = set_file_position(body, body_pos)
+    
+        try:
+            # Request a connection from the queue.
+            timeout_obj = self._get_timeout(timeout)
+            conn = self._get_conn(timeout=pool_timeout)
+    
+            conn.timeout = timeout_obj.connect_timeout  # type: ignore[assignment]
+    
+            # Is this a closed/new connection that requires CONNECT tunnelling?
+            if self.proxy is not None and http_tunnel_required and conn.is_closed:
+                try:
+>                   self._prepare_proxy(conn)
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connectionpool.py:773: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connectionpool.py:1042: in _prepare_proxy
+    conn.connect()
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connection.py:776: in connect
+    self._tunnel()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <HTTPSConnection(host='proxy', port=8080) at 0x7fcc44ea9450>
+
+    def _tunnel(self):
+        connect = b"CONNECT %s:%d %s\r\n" % (
+            self._wrap_ipv6(self._tunnel_host.encode("idna")),
+            self._tunnel_port,
+            self._http_vsn_str.encode("ascii"))
+        headers = [connect]
+        for header, value in self._tunnel_headers.items():
+            headers.append(f"{header}: {value}\r\n".encode("latin-1"))
+        headers.append(b"\r\n")
+        # Making a single send() call instead of one per line encourages
+        # the host OS to use a more optimal packet size instead of
+        # potentially emitting a series of small packets.
+        self.send(b"".join(headers))
+        del headers
+    
+        response = self.response_class(self.sock, method=self._method)
+        try:
+            (version, code, message) = response._read_status()
+    
+            self._raw_proxy_headers = _read_headers(response.fp)
+    
+            if self.debuglevel > 0:
+                for header in self._raw_proxy_headers:
+                    print('header:', header.decode())
+    
+            if code != http.HTTPStatus.OK:
+                self.close()
+>               raise OSError(f"Tunnel connection failed: {code} {message.strip()}")
+E               OSError: Tunnel connection failed: 403 Forbidden
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/http/client.py:1001: OSError
+
+The above exception was the direct cause of the following exception:
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/llm/token_estimator.py", line 227, in _tiktoken_count
+    enc = tiktoken.encoding_for_model(model)
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/model.py", line 118, in encoding_for_model
+    return get_encoding(encoding_name_for_model(model_name))
+                        ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/model.py", line 105, in encoding_name_for_model
+    raise KeyError(
+    ...<2 lines>...
+    ) from None
+KeyError: 'Could not automatically map default to a tokeniser. Please use `tiktoken.get_encoding` to explicitly get the tokeniser you expect.'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connectionpool.py", line 773, in urlopen
+    self._prepare_proxy(conn)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connectionpool.py", line 1042, in _prepare_proxy
+    conn.connect()
+    ~~~~~~~~~~~~^^
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connection.py", line 776, in connect
+    self._tunnel()
+    ~~~~~~~~~~~~^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/http/client.py", line 1001, in _tunnel
+    raise OSError(f"Tunnel connection failed: {code} {message.strip()}")
+OSError: Tunnel connection failed: 403 Forbidden
+
+The above exception was the direct cause of the following exception:
+
+urllib3.exceptions.ProxyError: ('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))
+
+The above exception was the direct cause of the following exception:
+
+self = <requests.adapters.HTTPAdapter object at 0x7fcc44f60d10>
+request = <PreparedRequest [GET]>, stream = False
+timeout = Timeout(connect=None, read=None, total=None)
+verify = '/etc/ssl/certs/ca-certificates.crt', cert = None
+proxies = OrderedDict({'no': 'localhost,127.0.0.1,::1', 'https': 'http://proxy:8080', 'http': 'http://proxy:8080'})
+
+    def send(
+        self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
+    ):
+        """Sends PreparedRequest object. Returns Response object.
+    
+        :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
+        :param stream: (optional) Whether to stream the request content.
+        :param timeout: (optional) How long to wait for the server to send
+            data before giving up, as a float, or a :ref:`(connect timeout,
+            read timeout) <timeouts>` tuple.
+        :type timeout: float or tuple or urllib3 Timeout object
+        :param verify: (optional) Either a boolean, in which case it controls whether
+            we verify the server's TLS certificate, or a string, in which case it
+            must be a path to a CA bundle to use
+        :param cert: (optional) Any user-provided SSL certificate to be trusted.
+        :param proxies: (optional) The proxies dictionary to apply to the request.
+        :rtype: requests.Response
+        """
+    
+        try:
+            conn = self.get_connection_with_tls_context(
+                request, verify, proxies=proxies, cert=cert
+            )
+        except LocationValueError as e:
+            raise InvalidURL(e, request=request)
+    
+        self.cert_verify(conn, request.url, verify, cert)
+        url = self.request_url(request, proxies)
+        self.add_headers(
+            request,
+            stream=stream,
+            timeout=timeout,
+            verify=verify,
+            cert=cert,
+            proxies=proxies,
+        )
+    
+        chunked = not (request.body is None or "Content-Length" in request.headers)
+    
+        if isinstance(timeout, tuple):
+            try:
+                connect, read = timeout
+                timeout = TimeoutSauce(connect=connect, read=read)
+            except ValueError:
+                raise ValueError(
+                    f"Invalid timeout {timeout}. Pass a (connect, read) timeout tuple, "
+                    f"or a single float to set both timeouts to the same value."
+                )
+        elif isinstance(timeout, TimeoutSauce):
+            pass
+        else:
+            timeout = TimeoutSauce(connect=timeout, read=timeout)
+    
+        try:
+>           resp = conn.urlopen(
+                method=request.method,
+                url=url,
+                body=request.body,
+                headers=request.headers,
+                redirect=False,
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                retries=self.max_retries,
+                timeout=timeout,
+                chunked=chunked,
+            )
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/adapters.py:644: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/connectionpool.py:841: in urlopen
+    retries = retries.increment(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = Retry(total=0, connect=None, read=False, redirect=None, status=None)
+method = 'GET', url = '/encodings/cl100k_base.tiktoken', response = None
+error = ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))
+_pool = <urllib3.connectionpool.HTTPSConnectionPool object at 0x7fcc44f569e0>
+_stacktrace = <traceback object at 0x7fcc44a45c00>
+
+    def increment(
+        self,
+        method: str | None = None,
+        url: str | None = None,
+        response: BaseHTTPResponse | None = None,
+        error: Exception | None = None,
+        _pool: ConnectionPool | None = None,
+        _stacktrace: TracebackType | None = None,
+    ) -> Self:
+        """Return a new Retry object with incremented retry counters.
+    
+        :param response: A response object, or None, if the server did not
+            return a response.
+        :type response: :class:`~urllib3.response.BaseHTTPResponse`
+        :param Exception error: An error encountered during the request, or
+            None if the response was received successfully.
+    
+        :return: A new ``Retry`` object.
+        """
+        if self.total is False and error:
+            # Disabled, indicate to re-raise the error.
+            raise reraise(type(error), error, _stacktrace)
+    
+        total = self.total
+        if total is not None:
+            total -= 1
+    
+        connect = self.connect
+        read = self.read
+        redirect = self.redirect
+        status_count = self.status
+        other = self.other
+        cause = "unknown"
+        status = None
+        redirect_location = None
+    
+        if error and self._is_connection_error(error):
+            # Connect retry?
+            if connect is False:
+                raise reraise(type(error), error, _stacktrace)
+            elif connect is not None:
+                connect -= 1
+    
+        elif error and self._is_read_error(error):
+            # Read retry?
+            if read is False or method is None or not self._is_method_retryable(method):
+                raise reraise(type(error), error, _stacktrace)
+            elif read is not None:
+                read -= 1
+    
+        elif error:
+            # Other retry?
+            if other is not None:
+                other -= 1
+    
+        elif response and response.get_redirect_location():
+            # Redirect retry?
+            if redirect is not None:
+                redirect -= 1
+            cause = "too many redirects"
+            response_redirect_location = response.get_redirect_location()
+            if response_redirect_location:
+                redirect_location = response_redirect_location
+            status = response.status
+    
+        else:
+            # Incrementing because of a server error like a 500 in
+            # status_forcelist and the given method is in the allowed_methods
+            cause = ResponseError.GENERIC_ERROR
+            if response and response.status:
+                if status_count is not None:
+                    status_count -= 1
+                cause = ResponseError.SPECIFIC_ERROR.format(status_code=response.status)
+                status = response.status
+    
+        history = self.history + (
+            RequestHistory(method, url, error, status, redirect_location),
+        )
+    
+        new_retry = self.new(
+            total=total,
+            connect=connect,
+            read=read,
+            redirect=redirect,
+            status=status_count,
+            other=other,
+            history=history,
+        )
+    
+        if new_retry.is_exhausted():
+            reason = error or ResponseError(cause)
+>           raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3/util/retry.py:519: MaxRetryError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/tmp/e02-B65-protected-audit/pytest-tmp/test_protected_audit_reconcili3')
+route = 'async-generate', fail_commit = True
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("fail_commit", [False, True], ids=["healthy", "protected-commit-fault"])
+    def test_protected_audit_reconciliation_precedes_next_provider(
+        tmp_path: Path, route: str, fail_commit: bool
+    ) -> None:
+        audit_path = tmp_path / "protected-audit.jsonl"
+        ledger_path = tmp_path / "ledger.json"
+        provider_path = tmp_path / "actual-provider.jsonl"
+        initial = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))})
+        middleware = BudgetMiddleware(initial, ledger=FileBudgetLedger(ledger_path))
+        # Explicit bootstrap precedes the tested reservation and real provider.
+        assert FileBudgetLedger(ledger_path).snapshot().state.spent == {}
+        sink = ChainedAuditSink(chain_id="B65:protected-local", local_path=audit_path)
+        audit = _CommitFaultAuditLog(sink, audit_path, fail=fail_commit)
+        provider = _PhysicalProvider(provider_path)
+        enforcer = LLMBudgetEnforcer(
+            client=TracedLLMClient(provider, model_name="default", run_id="B65-real-audit"),
+            budget_state=initial,
+            budget_keys=["run"],
+            budget_middleware=middleware,
+            audit_log=audit,
+            run_id="B65-real-audit",
+        )
+        try:
+            first_error = None
+            first_response = None
+            try:
+>               first_response = _call(enforcer, route)
+                                 ^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:139: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:98: in _call
+    return asyncio.run(enforcer.generate(user="nonempty physical request", max_tokens=4))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:204: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:127: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py:719: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:576: in generate
+    return await asyncio.shield(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:593: in _generate_owned
+    reservation = self._pre_check(kwargs if prompt is None else {"user": prompt, **kwargs})
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:181: in _pre_check
+    estimated = self._estimate_cost(kwargs)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:150: in _estimate_cost
+    prompt_tokens = estimate_request_tokens(
+src/polisyos/scientist/orchestration/llm/token_estimator.py:91: in estimate_request_tokens
+    estimate_tokens(
+src/polisyos/scientist/orchestration/llm/token_estimator.py:37: in estimate_tokens
+    return _tiktoken_count(text, model=model)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/token_estimator.py:229: in _tiktoken_count
+    enc = tiktoken.get_encoding("cl100k_base")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/registry.py:86: in get_encoding
+    enc = Encoding(**constructor())
+                     ^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken_ext/openai_public.py:76: in cl100k_base
+    mergeable_ranks = load_tiktoken_bpe(
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/load.py:162: in load_tiktoken_bpe
+    contents = read_file_cached(tiktoken_bpe_file, expected_hash)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/load.py:67: in read_file_cached
+    contents = read_file(blobpath)
+               ^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken/load.py:17: in read_file
+    resp = requests.get(blobpath)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/api.py:73: in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/api.py:59: in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/sessions.py:589: in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/sessions.py:703: in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <requests.adapters.HTTPAdapter object at 0x7fcc44f60d10>
+request = <PreparedRequest [GET]>, stream = False
+timeout = Timeout(connect=None, read=None, total=None)
+verify = '/etc/ssl/certs/ca-certificates.crt', cert = None
+proxies = OrderedDict({'no': 'localhost,127.0.0.1,::1', 'https': 'http://proxy:8080', 'http': 'http://proxy:8080'})
+
+    def send(
+        self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
+    ):
+        """Sends PreparedRequest object. Returns Response object.
+    
+        :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
+        :param stream: (optional) Whether to stream the request content.
+        :param timeout: (optional) How long to wait for the server to send
+            data before giving up, as a float, or a :ref:`(connect timeout,
+            read timeout) <timeouts>` tuple.
+        :type timeout: float or tuple or urllib3 Timeout object
+        :param verify: (optional) Either a boolean, in which case it controls whether
+            we verify the server's TLS certificate, or a string, in which case it
+            must be a path to a CA bundle to use
+        :param cert: (optional) Any user-provided SSL certificate to be trusted.
+        :param proxies: (optional) The proxies dictionary to apply to the request.
+        :rtype: requests.Response
+        """
+    
+        try:
+            conn = self.get_connection_with_tls_context(
+                request, verify, proxies=proxies, cert=cert
+            )
+        except LocationValueError as e:
+            raise InvalidURL(e, request=request)
+    
+        self.cert_verify(conn, request.url, verify, cert)
+        url = self.request_url(request, proxies)
+        self.add_headers(
+            request,
+            stream=stream,
+            timeout=timeout,
+            verify=verify,
+            cert=cert,
+            proxies=proxies,
+        )
+    
+        chunked = not (request.body is None or "Content-Length" in request.headers)
+    
+        if isinstance(timeout, tuple):
+            try:
+                connect, read = timeout
+                timeout = TimeoutSauce(connect=connect, read=read)
+            except ValueError:
+                raise ValueError(
+                    f"Invalid timeout {timeout}. Pass a (connect, read) timeout tuple, "
+                    f"or a single float to set both timeouts to the same value."
+                )
+        elif isinstance(timeout, TimeoutSauce):
+            pass
+        else:
+            timeout = TimeoutSauce(connect=timeout, read=timeout)
+    
+        try:
+            resp = conn.urlopen(
+                method=request.method,
+                url=url,
+                body=request.body,
+                headers=request.headers,
+                redirect=False,
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                retries=self.max_retries,
+                timeout=timeout,
+                chunked=chunked,
+            )
+    
+        except (ProtocolError, OSError) as err:
+            raise ConnectionError(err, request=request)
+    
+        except MaxRetryError as e:
+            if isinstance(e.reason, ConnectTimeoutError):
+                # TODO: Remove this in 3.0.0: see #2811
+                if not isinstance(e.reason, NewConnectionError):
+                    raise ConnectTimeout(e, request=request)
+    
+            if isinstance(e.reason, ResponseError):
+                raise RetryError(e, request=request)
+    
+            if isinstance(e.reason, _ProxyError):
+>               raise ProxyError(e, request=request)
+E               requests.exceptions.ProxyError: HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests/adapters.py:671: ProxyError
+--------- generated xml file: /tmp/e02-B65-protected-audit/native.xml ----------
+=========================== short test summary info ============================
+FAILED ::test_protected_audit_reconciliation_precedes_next_provider[healthy-sync-invoke]
+FAILED ::test_protected_audit_reconciliation_precedes_next_provider[healthy-async-generate]
+FAILED ::test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-sync-invoke]
+FAILED ::test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-async-generate]
+============================== 4 failed in 0.75s ===============================

@@ -1,0 +1,45 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/tmp/e02-dur-imported-checkpoint-tenth-20261007/run_checkpoint.py",
+    "--source-sha",
+    "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+    "--source-tree",
+    "e6ec2e4bb34f84f946341004f1e5c8374fb29010",
+    "--git-root",
+    "/workspace/e02-B-current-coordination",
+    "--task-root",
+    "/tmp/e02-dur-imported-checkpoint-tenth-20261007/runtime-590e5d",
+    "--mode",
+    "native",
+    "--child"
+  ],
+  "cwd": "/tmp/e02-dur-imported-checkpoint-tenth-20261007/runtime-590e5d/projection/policy-engine",
+  "actual_exit": 0,
+  "wall_s": 4.84515096899122,
+  "max_rss_kib": 175792,
+  "source": {
+    "sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+    "tree": "e6ec2e4bb34f84f946341004f1e5c8374fb29010"
+  },
+  "input_files": [
+    {
+      "path": "/tmp/e02-dur-imported-checkpoint-tenth-20261007/run_checkpoint.py",
+      "bytes": 9168,
+      "sha256": "f5099e0b9ac5cf4861d93d2b8f2d7d1bc8c55c258d7164fff5c4e5e1e66075c7"
+    },
+    {
+      "path": "/tmp/e02-dur-imported-checkpoint-tenth-20261007/runtime-590e5d/projection/policy-engine/tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+      "bytes": 11096,
+      "sha256": "1c22fd256f2038def925ed5467c5bc842d680bfa0669cee202a75ea881cc71f8"
+    }
+  ],
+  "numeric_caps": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "VECLIB_MAXIMUM_THREADS": null,
+    "BLIS_NUM_THREADS": null
+  }
+}

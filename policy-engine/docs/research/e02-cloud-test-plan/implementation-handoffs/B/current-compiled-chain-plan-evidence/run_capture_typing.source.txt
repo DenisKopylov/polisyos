@@ -1,0 +1,21 @@
+import datetime, hashlib, json, os, pathlib, subprocess, sys, time
+root = pathlib.Path('/workspace/e02-B-current-composition')
+out = pathlib.Path(sys.argv[1])
+argv = sys.argv[2:]
+paths = [str(p.relative_to(root)) for p in (root/'policy-engine/src/polisyos/foundry/methods/artifacts').glob('*.py')]
+paths += ['policy-engine/src/polisyos/foundry/methods/base.py', 'policy-engine/src/polisyos/foundry/methods/base.pyi', 'policy-engine/src/polisyos/foundry/methods/components/composer.py', 'policy-engine/src/polisyos/foundry/methods/components/composer.pyi', 'policy-engine/tools/devx/foundry/generate_stubs.py', 'policy-engine/tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py']
+def source():
+ return {'head': subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(), 'tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],cwd=root,text=True).strip(), 'status':subprocess.check_output(['git','status','--porcelain'],cwd=root,text=True), 'files': {p: hashlib.sha256((root/p).read_bytes()).hexdigest() for p in paths}}
+env = os.environ.copy()
+env.update(PYTHONPATH='src', PYTHONDONTWRITEBYTECODE='1', POLISYOS_METRICS_PORT='0')
+for key in ('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','VECLIB_MAXIMUM_THREADS','NUMEXPR_NUM_THREADS','XLA_FLAGS'): env.pop(key,None)
+before=source(); start=time.time(); stamp=datetime.datetime.now(datetime.timezone.utc).isoformat()
+with out.with_suffix('.txt').open('xb') as log:
+ child=subprocess.Popen(argv,cwd=root/'policy-engine',env=env,stdout=log,stderr=subprocess.STDOUT)
+ _, status, usage=os.wait4(child.pid,0)
+ child.returncode=os.waitstatus_to_exitcode(status)
+record={'argv':argv,'cwd':str(root/'policy-engine'),'environment':{k:env.get(k) for k in ('PYTHONPATH','PYTHONDONTWRITEBYTECODE','POLISYOS_METRICS_PORT','PATH')}, 'caps_absent':all(k not in env for k in ('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','VECLIB_MAXIMUM_THREADS','NUMEXPR_NUM_THREADS','XLA_FLAGS')), 'start':stamp, 'end':datetime.datetime.now(datetime.timezone.utc).isoformat(), 'wall_seconds':time.time()-start,'exit_code':child.returncode,'raw_wait_status':status,'rusage':{'maxrss_kib':usage.ru_maxrss,'user_seconds':usage.ru_utime,'system_seconds':usage.ru_stime},'source_before':before,'source_after':source()}
+record['stdout']={'path':str(out.with_suffix('.txt')),'bytes':out.with_suffix('.txt').stat().st_size,'sha256':hashlib.sha256(out.with_suffix('.txt').read_bytes()).hexdigest()}
+out.with_suffix('.json').write_text(json.dumps(record,indent=2)+'\n')
+print(json.dumps({'exit_code':child.returncode,'wall_seconds':record['wall_seconds'],'output':record['stdout']}))
+raise SystemExit(child.returncode)

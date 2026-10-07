@@ -1,0 +1,18 @@
+{
+  "source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+  "source_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+  "source_test_read_only": "policy-engine/tests/unit/remediation/test_jit_01.py",
+  "actual_native_full_xml": {
+    "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/native.xml",
+    "bytes": 4697237,
+    "sha256": "beb9c1aab3508e78d07445b223aa6f4116ae37500f23f5fb107ba32ad4cd2108"
+  },
+  "full_stdout": {
+    "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-admitted-native.txt",
+    "sha256": "ffe9b73469ce61c647b3ce5a0992e4dfa6038eeb3efd2e2906b5545586106231"
+  },
+  "actual_defining_cases": 9,
+  "actual_fail": 9,
+  "earliest_property": "four compiler request/shape tests refuse source identity for actual builtin getattr; five singleflight barriers never entered",
+  "qualification": "These nine actual FAILs are preserved before fix. Remaining whole-root errors and A production-catalog failure are not attributed or relabeled here. No P41 inherited waiver."
+}

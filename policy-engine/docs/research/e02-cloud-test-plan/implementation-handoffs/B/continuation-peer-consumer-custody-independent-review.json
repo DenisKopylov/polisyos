@@ -1,0 +1,386 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "continuation-peer-consumer-custody-independent-review",
+  "closure_ids": [],
+  "bundle_ids": [
+    "RES-04",
+    "LLM-01",
+    "CTL-03"
+  ],
+  "slice_base_sha": "d9dbf432c99304db779a2141b7a7ee3e7e53cb2e",
+  "implementation_commits": [
+    "1adbcc9b13d19ae7dbb85be35e18f7b5f6c785e9"
+  ],
+  "candidate_tree_sha": "20891e1c0dc470f3aa639da1658d37bc2dea0bab",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit-initial.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit-initial-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit-second.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit-second-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/index.json"
+  ],
+  "baseline_cells": [],
+  "baseline_role": "No baseline cells or summaries prove a new edit; this is source-specific peer completed-evidence custody only.",
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "/tmp/e02-B-cas-tenth-wave-review-20261007/peer-packet-audit.source.txt",
+        "/tmp/e02-B-cas-tenth-wave-review-20261007/peer-packet-audit.json"
+      ],
+      "target_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation",
+        "actual_attached_checkout_head": "a058426e743e8ce8c88c0b4469451b3180458915",
+        "instrument_interpreter": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "candidate_runtime": "UNRUN by this reviewer",
+        "read_method": "Explicit immutable git show/diff-tree/cat-file identities; SHA256/length/JSON/XML/physical-byte reconciliation",
+        "Git_headers": {
+          "590e5d18e7f56c7c4d2e42070dcc687c79acc58c": {
+            "sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+            "tree": "e6ec2e4bb34f84f946341004f1e5c8374fb29010",
+            "parents": [
+              "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+              "855cb26a7a2c9fea60356663cf81e7d01e20c738"
+            ]
+          },
+          "3dd221a83dbfa4a9f900b4a2d9338f14ce0a1f29": {
+            "sha": "3dd221a83dbfa4a9f900b4a2d9338f14ce0a1f29",
+            "tree": "526435eb211b83c6c6f0ff35ef145b199d621008",
+            "parents": [
+              "2fffbf940509d220050694957bfff2b85f930b83"
+            ]
+          },
+          "2d0f65266a9b42f56bcc73264c43e0f296e10ac5": {
+            "sha": "2d0f65266a9b42f56bcc73264c43e0f296e10ac5",
+            "tree": "dd10d17bc2caf9ed5beb3ca25a32db5ec92e558e",
+            "parents": [
+              "91651c5e2b8b2f35a7e0cf3294550ad0487504cb"
+            ]
+          }
+        },
+        "numeric_caps_added": false,
+        "execution_profile_boundary": "Peer native profiles are read from their original source-specific receipts; no new receiver execution.",
+        "instrument_interpreter_role": "Actual python3 executable for stdlib-only metadata audit; no candidate imports"
+      },
+      "input_closure": {
+        "exact_peer_receipts": [
+          {
+            "git_sha": "3dd221a83dbfa4a9f900b4a2d9338f14ce0a1f29",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth.json",
+            "bytes": 21310,
+            "sha256": "c926e0e7ef7de4f9587552f34767f67b57d3bb07903f59359868c89b7785b244"
+          },
+          {
+            "git_sha": "2d0f65266a9b42f56bcc73264c43e0f296e10ac5",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-numeric-custody.json",
+            "bytes": 69980,
+            "sha256": "7ba3fcd7c49b24dde88255bdd8ebc8564d595006aa1f1657f6e6f006883bd9fd"
+          }
+        ],
+        "exact_peer_indices": [
+          {
+            "git_sha": "2fffbf940509d220050694957bfff2b85f930b83",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/index.json",
+            "bytes": 4640,
+            "sha256": "678bfc734982fb6aa88dca37c925439e99e1fc0ec6776bc97080df3a136e3ae6"
+          },
+          {
+            "source_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/index.json",
+            "bytes": 26390,
+            "sha256": "1490118981b334c19305e52c5d8734c8e423e53431677c23decf97d2af1d3d43"
+          }
+        ],
+        "complete_declared_ref_hashes": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit.json",
+          "bytes": 58251,
+          "sha256": "33c1cb27e056ae29c79130d3b9bf9ea46783c3977e7c45aadda9bec830f709ee",
+          "git_sha": "1adbcc9b13d19ae7dbb85be35e18f7b5f6c785e9"
+        },
+        "source_target": {
+          "sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+          "tree": "e6ec2e4bb34f84f946341004f1e5c8374fb29010",
+          "parents": [
+            "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+            "855cb26a7a2c9fea60356663cf81e7d01e20c738"
+          ]
+        },
+        "literal_executed_instrument": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit-initial.source.txt",
+          "bytes": 14031,
+          "sha256": "470dcd9f43939202dc37be770ba37c7825440c389ed07c254bd73c4131f0fde4",
+          "git_sha": "1adbcc9b13d19ae7dbb85be35e18f7b5f6c785e9"
+        }
+      },
+      "outcome": "ERROR",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit-initial-stdout.txt",
+        "bytes": 1737,
+        "sha256": "53c50cb9561b8ebc3af6ae9b64c8bbdaa31dd885588930adc44cf7d0e474cfca",
+        "git_sha": "1adbcc9b13d19ae7dbb85be35e18f7b5f6c785e9"
+      },
+      "qualification": "Initial metadata instrument doubled an already-complete physical prefix. Original CalledProcessError preserved; no peer/runtime defect inferred."
+    },
+    {
+      "command": [
+        "python3",
+        "/tmp/e02-B-cas-tenth-wave-review-20261007/peer-packet-audit.source.txt",
+        "/tmp/e02-B-cas-tenth-wave-review-20261007/peer-packet-audit.json"
+      ],
+      "target_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation",
+        "actual_attached_checkout_head": "a058426e743e8ce8c88c0b4469451b3180458915",
+        "instrument_interpreter": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "candidate_runtime": "UNRUN by this reviewer",
+        "read_method": "Explicit immutable git show/diff-tree/cat-file identities; SHA256/length/JSON/XML/physical-byte reconciliation",
+        "Git_headers": {
+          "590e5d18e7f56c7c4d2e42070dcc687c79acc58c": {
+            "sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+            "tree": "e6ec2e4bb34f84f946341004f1e5c8374fb29010",
+            "parents": [
+              "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+              "855cb26a7a2c9fea60356663cf81e7d01e20c738"
+            ]
+          },
+          "3dd221a83dbfa4a9f900b4a2d9338f14ce0a1f29": {
+            "sha": "3dd221a83dbfa4a9f900b4a2d9338f14ce0a1f29",
+            "tree": "526435eb211b83c6c6f0ff35ef145b199d621008",
+            "parents": [
+              "2fffbf940509d220050694957bfff2b85f930b83"
+            ]
+          },
+          "2d0f65266a9b42f56bcc73264c43e0f296e10ac5": {
+            "sha": "2d0f65266a9b42f56bcc73264c43e0f296e10ac5",
+            "tree": "dd10d17bc2caf9ed5beb3ca25a32db5ec92e558e",
+            "parents": [
+              "91651c5e2b8b2f35a7e0cf3294550ad0487504cb"
+            ]
+          }
+        },
+        "numeric_caps_added": false,
+        "execution_profile_boundary": "Peer native profiles are read from their original source-specific receipts; no new receiver execution.",
+        "instrument_interpreter_role": "Actual python3 executable for stdlib-only metadata audit; no candidate imports"
+      },
+      "input_closure": {
+        "exact_peer_receipts": [
+          {
+            "git_sha": "3dd221a83dbfa4a9f900b4a2d9338f14ce0a1f29",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth.json",
+            "bytes": 21310,
+            "sha256": "c926e0e7ef7de4f9587552f34767f67b57d3bb07903f59359868c89b7785b244"
+          },
+          {
+            "git_sha": "2d0f65266a9b42f56bcc73264c43e0f296e10ac5",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-numeric-custody.json",
+            "bytes": 69980,
+            "sha256": "7ba3fcd7c49b24dde88255bdd8ebc8564d595006aa1f1657f6e6f006883bd9fd"
+          }
+        ],
+        "exact_peer_indices": [
+          {
+            "git_sha": "2fffbf940509d220050694957bfff2b85f930b83",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/index.json",
+            "bytes": 4640,
+            "sha256": "678bfc734982fb6aa88dca37c925439e99e1fc0ec6776bc97080df3a136e3ae6"
+          },
+          {
+            "source_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/index.json",
+            "bytes": 26390,
+            "sha256": "1490118981b334c19305e52c5d8734c8e423e53431677c23decf97d2af1d3d43"
+          }
+        ],
+        "complete_declared_ref_hashes": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit.json",
+          "bytes": 58251,
+          "sha256": "33c1cb27e056ae29c79130d3b9bf9ea46783c3977e7c45aadda9bec830f709ee",
+          "git_sha": "1adbcc9b13d19ae7dbb85be35e18f7b5f6c785e9"
+        },
+        "source_target": {
+          "sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+          "tree": "e6ec2e4bb34f84f946341004f1e5c8374fb29010",
+          "parents": [
+            "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+            "855cb26a7a2c9fea60356663cf81e7d01e20c738"
+          ]
+        },
+        "literal_executed_instrument": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit-second.source.txt",
+          "bytes": 13941,
+          "sha256": "5c8cdcbf87eb50a89a0a0a55f1c99166f9fc93d3f88ca1e5454ae162632ed618",
+          "git_sha": "1adbcc9b13d19ae7dbb85be35e18f7b5f6c785e9"
+        }
+      },
+      "outcome": "ERROR",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit-second-stdout.txt",
+        "bytes": 253,
+        "sha256": "ab5f1d6ba9d06564d1cef881257d50c73bbbffce3a1a0948397ffbd26858962d",
+        "git_sha": "1adbcc9b13d19ae7dbb85be35e18f7b5f6c785e9"
+      },
+      "qualification": "Second metadata instrument incorrectly equated exclude_none serialized wire and nullable model defaults. AssertionError preserved; no data difference or decoder waiver inferred."
+    },
+    {
+      "command": [
+        "python3",
+        "/tmp/e02-B-cas-tenth-wave-review-20261007/peer-packet-audit.source.txt",
+        "/tmp/e02-B-cas-tenth-wave-review-20261007/peer-packet-audit.json"
+      ],
+      "target_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation",
+        "actual_attached_checkout_head": "a058426e743e8ce8c88c0b4469451b3180458915",
+        "instrument_interpreter": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "candidate_runtime": "UNRUN by this reviewer",
+        "read_method": "Explicit immutable git show/diff-tree/cat-file identities; SHA256/length/JSON/XML/physical-byte reconciliation",
+        "Git_headers": {
+          "590e5d18e7f56c7c4d2e42070dcc687c79acc58c": {
+            "sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+            "tree": "e6ec2e4bb34f84f946341004f1e5c8374fb29010",
+            "parents": [
+              "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+              "855cb26a7a2c9fea60356663cf81e7d01e20c738"
+            ]
+          },
+          "3dd221a83dbfa4a9f900b4a2d9338f14ce0a1f29": {
+            "sha": "3dd221a83dbfa4a9f900b4a2d9338f14ce0a1f29",
+            "tree": "526435eb211b83c6c6f0ff35ef145b199d621008",
+            "parents": [
+              "2fffbf940509d220050694957bfff2b85f930b83"
+            ]
+          },
+          "2d0f65266a9b42f56bcc73264c43e0f296e10ac5": {
+            "sha": "2d0f65266a9b42f56bcc73264c43e0f296e10ac5",
+            "tree": "dd10d17bc2caf9ed5beb3ca25a32db5ec92e558e",
+            "parents": [
+              "91651c5e2b8b2f35a7e0cf3294550ad0487504cb"
+            ]
+          }
+        },
+        "numeric_caps_added": false,
+        "execution_profile_boundary": "Peer native profiles are read from their original source-specific receipts; no new receiver execution.",
+        "instrument_interpreter_role": "Actual python3 executable for stdlib-only metadata audit; no candidate imports"
+      },
+      "input_closure": {
+        "exact_peer_receipts": [
+          {
+            "git_sha": "3dd221a83dbfa4a9f900b4a2d9338f14ce0a1f29",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth.json",
+            "bytes": 21310,
+            "sha256": "c926e0e7ef7de4f9587552f34767f67b57d3bb07903f59359868c89b7785b244"
+          },
+          {
+            "git_sha": "2d0f65266a9b42f56bcc73264c43e0f296e10ac5",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-numeric-custody.json",
+            "bytes": 69980,
+            "sha256": "7ba3fcd7c49b24dde88255bdd8ebc8564d595006aa1f1657f6e6f006883bd9fd"
+          }
+        ],
+        "exact_peer_indices": [
+          {
+            "git_sha": "2fffbf940509d220050694957bfff2b85f930b83",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/index.json",
+            "bytes": 4640,
+            "sha256": "678bfc734982fb6aa88dca37c925439e99e1fc0ec6776bc97080df3a136e3ae6"
+          },
+          {
+            "source_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/index.json",
+            "bytes": 26390,
+            "sha256": "1490118981b334c19305e52c5d8734c8e423e53431677c23decf97d2af1d3d43"
+          }
+        ],
+        "complete_declared_ref_hashes": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit.json",
+          "bytes": 58251,
+          "sha256": "33c1cb27e056ae29c79130d3b9bf9ea46783c3977e7c45aadda9bec830f709ee",
+          "git_sha": "1adbcc9b13d19ae7dbb85be35e18f7b5f6c785e9"
+        },
+        "source_target": {
+          "sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+          "tree": "e6ec2e4bb34f84f946341004f1e5c8374fb29010",
+          "parents": [
+            "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+            "855cb26a7a2c9fea60356663cf81e7d01e20c738"
+          ]
+        },
+        "literal_executed_instrument": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit.source.txt",
+          "bytes": 15446,
+          "sha256": "2afef11b66e867897487b7187aeb3e35e75e76d40aab970f73bf69e49b87d60d",
+          "git_sha": "1adbcc9b13d19ae7dbb85be35e18f7b5f6c785e9"
+        }
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit-stdout.txt",
+        "bytes": 38032,
+        "sha256": "92f3e68bee3ae3979e571378721ce5b2cf4794b4c02af35760775b51935f6249",
+        "git_sha": "1adbcc9b13d19ae7dbb85be35e18f7b5f6c785e9"
+      },
+      "qualification": "Corrected full audit reconciles strict schemas, complete implementation unions/indices/all declared bytes, actual current native/removal XML/phases/origins, all15 raw HTTP/ledger/fresh-process measurements and original historical targets. Nullable omissions are explicitly enumerated and actual disk fields remain exact."
+    }
+  ],
+  "property": {
+    "statement": "Current590 checkpoint and guarded numeric consumer evidence is inspectable, exactly bound and bounded to its measured runtime profiles, distinct from historical evidence or missing publication/controller authority.",
+    "runtime_path": [
+      "DUR real saved checkpoint prefix → selected member replacement → resume refusal; separate cold107 control",
+      "Gateway physical HTTP Decimal token → upper intent/settlement → durable FileBudgetLedger → separate OS process B pre_check → explicit real D stopping consumer",
+      "Independent receipt/index/Git/phase/XML/physical byte reconciliation; reviewer performs no candidate runtime"
+    ],
+    "proxy_divergence": "Module name/version/checkpoint pointers can remain while omitted selected members permit resume107 and physical replacement. Numeric reported-known markers can coexist with tiny nonzero underflow in historical controls. Ledger-reading fixture or guarded D stopping call does not establish the default D evaluator/controller bridge.",
+    "negative_controls": [
+      "Current590 member-removal actual one materialFAIL with resume107/replacement; source/module markers preserved.",
+      "Current590 ten invalid/unknown HTTP bodies retain positive reservations/obligations and refuse fresh B admission; five real known zero/.02 controls settle.",
+      "Six historical Gateway baseline/removal checks keep original E7/source refs and are not restamped590.",
+      "Two original metadata parser ERRORs preserved; corrected full hash/byte/output audit separate PASS."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "per_premise_basis": {
+    "Git_schema_union_hashes_actual_phase_XML_measurement_binding": "independently_reconciled",
+    "peer_runtime_effects": "consumer_asserted from completed source-bound peer native; independently read full physical output/fixtures",
+    "source_mechanism_acceptance_and_formal_closure": "not_established by this custody review"
+  },
+  "capability_state_or_finding_state": "NONBLOCKING bounded peer receipt/custody and literal measured outcomes. B74 LIMITED; D B120 default controller bridge_missing; closure_ids empty.",
+  "limitations_and_next_owner": [
+    "No candidate imports, tests/gates/native reruns, production/test edits, new checkout, children, cleanup/deletion or numeric quotas.",
+    "Current source590 is distinct from later metadata heads and future EXE generic model source; no source/runtime transplant.",
+    "DUR newly executed an earlier CAS-authored test. This metadata custodian does not self-accept its test/source mechanism or whole imported-module graph.",
+    "Returned frame namespaces and opaque mutable internals remain B74 LIMITED; true default D evaluator/controller retry/cache-ledger integration remains missing.",
+    "Gateway current15 uses recorded --noconftest/-o addopts= finite profile; neither profile is relabelled whole-B canonical execution.",
+    "Loaded file-backed origin hooks do not prove universal reads/calls/finalization. Current numeric all15 physical files are reconciled with original nullable wire projection, not a schema/default waiver.",
+    "Historical Gateway30/removals and earlier source/gate failures remain at original refs. No P41 inherited-red waiver, whole-B acceptance or production dataset claim.",
+    "ROOT/G decides integrated code/criterion closure; EXE owns separate pending generic model mutation repair. Original peer logs are referenced once, not duplicated.",
+    "Unpublished predecessor receipt fc28 used an incorrect literal /usr/local/bin/python3 environment locator. This forward correction records actual /opt/codex python3 without changing deciding instruments, outputs, implementation tree or runtime targets; predecessor retained append-only."
+  ],
+  "evidence_index": {
+    "git_sha": "1adbcc9b13d19ae7dbb85be35e18f7b5f6c785e9",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/index.json",
+    "bytes": 2672,
+    "sha256": "573b4daa8c4937170fbd8b183e742805a7d02f349bea0d90642487003be681f6"
+  },
+  "independent_full_audit": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit.json",
+    "bytes": 58251,
+    "sha256": "33c1cb27e056ae29c79130d3b9bf9ea46783c3977e7c45aadda9bec830f709ee",
+    "git_sha": "1adbcc9b13d19ae7dbb85be35e18f7b5f6c785e9"
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-review.json",
+    "bytes": 5632,
+    "sha256": "ab08890d833877edd4da0ecc8016eff89e8f0217b0af5996db2a3b7adf8fc52f",
+    "git_sha": "1adbcc9b13d19ae7dbb85be35e18f7b5f6c785e9"
+  },
+  "reviewed_root_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+  "reviewed_root_tree": "e6ec2e4bb34f84f946341004f1e5c8374fb29010"
+}

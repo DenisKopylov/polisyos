@@ -1,0 +1,118 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-all60-source-only-candidate-map",
+  "bundle_ids": [
+    "CAS-01",
+    "CAS-02",
+    "CAS-03",
+    "CMP-01",
+    "CMP-02",
+    "CMP-03",
+    "DUR-01",
+    "DUR-02",
+    "EXE-01",
+    "EXE-02",
+    "JIT-01",
+    "LLM-01",
+    "LLM-02",
+    "NET-01",
+    "NET-02",
+    "RES-01",
+    "RES-02",
+    "RES-03",
+    "RES-04",
+    "RUN-01",
+    "RUN-02",
+    "RUN-03",
+    "STA-01",
+    "STA-02",
+    "WIRE-01"
+  ],
+  "closure_ids": [],
+  "slice_base_sha": "d760672190fd00237d499aa6f2b62ef276ca0b5a",
+  "implementation_commits": [
+    "5569fb060a42f7858cf353530363cfa1118ccf92"
+  ],
+  "candidate_tree_sha": "cd1bfd5165a2fdde9c1ce8fd345c3b55a87141eb",
+  "branch": "codex/e02-B-current-durability",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/43",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-source-only-candidate-map.json"
+  ],
+  "baseline_cells": [],
+  "baseline_binding": "The exact prior compact receipt map#/basis_index/prior and canonical results TSV/received source cut bind baseline cells, SHA/ref/environment/input. Navigation only, no baseline summary promoted to proof. No duplicate baseline catalogue retained.",
+  "source_map": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-source-only-candidate-map.json",
+    "sha": "5569fb060a42f7858cf353530363cfa1118ccf92",
+    "bytes": 83577,
+    "sha256": "750b6d3a87c334d67225f29ce1877d21c1b014387fbb5aa5fe0fe7f50cf6c15b"
+  },
+  "root_source_cut": {
+    "sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+    "tree": "b75980daba837e15d8664785107e12d759101b82",
+    "role": "Source/readiness identity only. Running targeted wave result and upcoming full native/gates not imported."
+  },
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "- (stdin)"
+      ],
+      "script": "import json,subprocess,hashlib,re,csv,io\nfrom pathlib import Path\nrepo=Path('/workspace/e02-B-current-durability')\np='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-source-only-candidate-map.json'\nd=json.loads((repo/p).read_text()); root=d['root_source_cut']['sha']; canonical=d['canonical_source_basis']['git_sha']\ndef blob(ref,path): return subprocess.check_output(['git','show',ref+':'+path],cwd=repo)\nids={r['finding_id'] for r in csv.DictReader(io.StringIO(blob(root,'policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv').decode()),delimiter='\\t') if r['unit']=='B'}\nassert ids=={r['finding_id'] for r in d['rows']} and len(ids)==len(d['rows'])==60\ncards={}\nfor r in d['rows']:\n path=d['canonical_source_basis']['card_path_template'].format(bundle_id=r['bundle_id'])\n cards[path]=blob(canonical,path); assert cards[path]==blob(root,path)\n match=re.search(r'<!-- SOURCE_BEGIN [^ ]+:'+re.escape(r['finding_id'])+r' -->(.*?)<!-- SOURCE_END [^ ]+:'+re.escape(r['finding_id'])+r' -->',cards[path].decode(),re.S)\n assert match and hashlib.sha256(match.group(1).encode()).hexdigest()==r['canonical_criterion']['source_block_sha256']\nassert len(cards)==len(d['scope_profiles'])==25\nfor name,v in d['basis_index'].items():\n raw=blob(v.get('git_sha',v.get('sha')),v['path'])\n assert hashlib.sha256(raw).hexdigest()==v['sha256'] and len(raw)==v['bytes'],name\nassert d['closure_ids']==[] and d['current_final_native_case_join'] is None\nassert all('finding_status_proposal' not in r and 'technical_property_proposal' not in r for r in d['rows'])\nprint(json.dumps({'owner_ids':60,'cards':25,'criterion_digest_matches':60,'basis_git_objects':len(d['basis_index']),'no_status_upgrade_fields':True,'closure_ids':[],'runtime_case_join':'WAIT'}))\n",
+      "target_sha": "5569fb060a42f7858cf353530363cfa1118ccf92",
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "cwd": "/workspace/e02-B-current-durability",
+        "dependencies": "stdlib only + read-only Git object reads; no pytest/product import/gate/build"
+      },
+      "input_closure": "Committed source-mapJSON; exact18 immutable basis Git blobs; full pinned root finding-owner TSV and all25 canonical/root cards; current root actual source cut0fd. No local production data or mutable services.",
+      "outcome": "PASS",
+      "output": "{\"map_source_sha\":\"5569fb060a42f7858cf353530363cfa1118ccf92\",\"root_source_cut\":\"0fdc39831bc95f059dd220c054494fd410bde9da\",\"owner_ids\":60,\"cards\":25,\"criterion_digest_matches\":60,\"basis_git_objects\":18,\"no_status_upgrade_fields\":true,\"closure_ids\":[],\"runtime_case_join\":\"WAIT\"}",
+      "qualification": "Source/custody reconciliation only, not code/property/runtime acceptance."
+    },
+    {
+      "command": "Root final native defining-case join and per-criterion manual adjudication after exact repaired freeze",
+      "target_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+      "environment": "Current candidate source cut only; exact future execution source/environment/inputs not supplied in this source-only slice.",
+      "input_closure": "New defining XML/phase/source/oracle result joins not yet admitted; source prefixes are navigation only.",
+      "outcome": "UNRUN",
+      "output": "No new tests/gates/collection/native/wheel build by DUR in this slice; no future result imported."
+    }
+  ],
+  "property": {
+    "statement": "Bind all60B canonical criteria to finite realconsumer predicate, exact source/evidence locators, pending nativecasejoin and missing owner law without laundering historical package success or source shape into finding closure.",
+    "runtime_path": [
+      "Canonical immutable criterion/full bundle",
+      "Exact current candidate source cut",
+      "Historical immutable deciding receipts/output locators",
+      "Existing/new defining actual consumer prefixes",
+      "Pending root phase/casejoin",
+      "Root/G manual finding and separate code acceptance"
+    ],
+    "proxy_divergence": "A green package can omit a served route, lose actual failed cleanup ownership, accept a scoped functional fixture without institutional permission, or run wrong installed-module origin. Map preserves those exact missing consumer/law/failure distinctions and leaves every new-runtime predicate not_established.",
+    "negative_controls": [
+      "All60 owner IDs/content-bound canonical rawcapture hashes checked, not sampled.",
+      "No per-row status/technical upgrade fields, no targetstatuscount and closure_ids[].",
+      "B87 physicaldisconnect ownership remains actualCOPEN, distinct from occupiedpermit/FD and cap1budget witness.",
+      "B61/B67/B68/B78/B93/B148 standinglaws remainheld; source shapes do not supply them."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_qualification": "Recomputed applies source/card/footprint/custody quantities only. Current runtime property not_established, historical observer quantities explicitly map-labelled, fixture declarations consumer_asserted. Normative canonical text does not supply an empirical gate premise.",
+  "capability_state_or_finding_state": "SOURCE_ONLY_MAP_READY; final property/finding/code adjudication WAIT; no own-source semantic approval",
+  "independent_review_reference": {
+    "sha": "08e18da60f79121a8b3b09b1b1147257ad3fdb6f",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-root-wheel-postgres-input-source-review.json",
+    "sha256": "2ad53550b5320979a79fd4a1d2e9a3d79fadc153169a99822479e90f5d1d418e",
+    "role": "Additional foreign CMP source-only LA input/root launcher review; no runtime/build/gate proof imported."
+  },
+  "limitations_and_next_owner": [
+    "Root supplies final accepted exact source and actual native/phase/casejoin; manually read full60criterion/cases before status decisions. Counts are not a target.",
+    "Root/G decides closure separately from active architecture/format/typing/runtime/API/CI gates; P41 inheritance not established without exactslice-base replay/zero input intersection.",
+    "Protected A generation_cycle/run_lifecycle, C streaming and actual signature/served/cleanup owner contracts remain exclusively assigned. Generic fixture proof does not demand full production dataset.",
+    "DUR installed-wheel verification is cloud actionable but stillUNRUN until final root freeze; ordinary source outer1 and isolated child8 are separate.",
+    "Own DUR production mechanisms are not independently accepted by this self-authored map; foreign/root review and actual finalcasejoin remain authority. No blanket all-checkouts admission claim."
+  ]
+}

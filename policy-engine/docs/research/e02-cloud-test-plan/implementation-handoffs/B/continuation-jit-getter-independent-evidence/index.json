@@ -1,0 +1,92 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "payload_count": 17,
+  "payload_bytes": 118074,
+  "files": {
+    "native.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/native.txt",
+      "bytes": 3034,
+      "sha256": "fb949bce0d5f5741c1c850562215e659565b5a8cd86ff600796f2b83c42c4c0c"
+    },
+    "native.xml": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/native.xml",
+      "bytes": 605,
+      "sha256": "4720e3a8d68aece69c55da3f7e0df77930bdc2f25b0c03540b751b4f2ea30538"
+    },
+    "profile.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/profile.json",
+      "bytes": 38615,
+      "sha256": "b6adb5df1cb6156182dc0e70c0663564d206594dc3c7b9ef1062508b58042c4d"
+    },
+    "wrapper.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/wrapper.json",
+      "bytes": 1176,
+      "sha256": "f2d1b0a1d007e9ec6a08ed9089b6e4178ae460f790506dd881c6a06a0c5bdbbe"
+    },
+    "test_independent_getter_consumer.source.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/test_independent_getter_consumer.source.txt",
+      "bytes": 5272,
+      "sha256": "c60de7f76a3671961b44c830e6e1632f4be3c787ccc13eec49947e8e495b5559"
+    },
+    "run-native.source.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/run-native.source.txt",
+      "bytes": 4635,
+      "sha256": "7b69709c8b9da0957fb8e2ef3fb1010ef8fab5456b87a4b291d1f27a6c97068b"
+    },
+    "initial-index-premise/native.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/initial-index-premise/native.txt",
+      "bytes": 840,
+      "sha256": "5ca4e6c942dff8be8d21458b806aa77c3d4ea64fd545f8e496bbdba73218b78c"
+    },
+    "initial-index-premise/wrapper.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/initial-index-premise/wrapper.json",
+      "bytes": 1175,
+      "sha256": "1502c8e3f9659dd8440d7e2e3b2585b2ea1d49590fe20726c7851565b98678c6"
+    },
+    "initial-index-premise/run_native.source.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/initial-index-premise/run_native.source.txt",
+      "bytes": 4537,
+      "sha256": "902de6d6b853ed5c0cd7a1204a1aa0b40c56bbe95fb13144311aa27a06050d99"
+    },
+    "recording-property-premise/native.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/recording-property-premise/native.txt",
+      "bytes": 3224,
+      "sha256": "5639bf562783db2a2452b62d2799e39ec1a2c568361f9ed2c621ade27aa54aa0"
+    },
+    "recording-property-premise/native.xml": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/recording-property-premise/native.xml",
+      "bytes": 1291,
+      "sha256": "95a411d83a87017aeefaca1026ea8d384af5a49e9051b14d60eac7174a7d6176"
+    },
+    "recording-property-premise/wrapper.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/recording-property-premise/wrapper.json",
+      "bytes": 1176,
+      "sha256": "5b47c045d2df3bc2c772644348a95fb4ad4ab0c9c198c5a823ef4df5583c97c6"
+    },
+    "recording-property-premise/profile.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/recording-property-premise/profile.json",
+      "bytes": 38615,
+      "sha256": "e3ee8c16eb246124614bf1ca1ab5f219c89d34fc48bb9f1a852477df82691c38"
+    },
+    "recording-property-premise/test_independent_getter_consumer.source.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/recording-property-premise/test_independent_getter_consumer.source.txt",
+      "bytes": 5274,
+      "sha256": "4dff86160af2406675f65f8099d84c5ed3bfd4779972315b435441c4faa00934"
+    },
+    "recording-property-premise/run_native.source.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/recording-property-premise/run_native.source.txt",
+      "bytes": 4629,
+      "sha256": "7548687bdcaef6f65c29a0314b41bf3d98e93c93d19626d13c75d4b3cfb6122a"
+    },
+    "resource-after.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/resource-after.json",
+      "bytes": 682,
+      "sha256": "3d5eb0bece7cd92649c10bd5ed48e99fa297b00e05495587dabc8a6b8df0218d"
+    },
+    "review.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/review.json",
+      "bytes": 3294,
+      "sha256": "24934bb1225e0897bd88545bf7c46852e924ca3f6b977dbadcde6f9920cd6663"
+    }
+  }
+}

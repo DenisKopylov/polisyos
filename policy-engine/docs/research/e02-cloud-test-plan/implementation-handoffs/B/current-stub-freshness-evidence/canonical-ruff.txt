@@ -1,0 +1,15 @@
+F403 `from polisyos.foundry.methods.components.composer import *` used; unable to detect undefined names
+ --> src/polisyos/foundry/methods/composer.pyi:1:1
+  |
+1 | from polisyos.foundry.methods.components.composer import *
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+
+F403 `from polisyos.foundry.methods.selection.registry import *` used; unable to detect undefined names
+ --> src/polisyos/foundry/methods/registry.pyi:1:1
+  |
+1 | from polisyos.foundry.methods.selection.registry import *
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+
+Found 2 errors.

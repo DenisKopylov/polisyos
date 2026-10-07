@@ -1,0 +1,2 @@
+Would reformat: tools/devx/foundry/generate_stubs.py
+1 file would be reformatted, 6 files already formatted

@@ -1,0 +1,18 @@
+{
+  "packet": "/tmp/e02-run-selector-role-audit.json",
+  "bytes": 53962,
+  "sha256": "2a592ca43aaf21c61f36a5baa48335b1401c384ac46c8eb6fb54238b8b79d064",
+  "root_source_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+  "root_source_tree": "b75980daba837e15d8664785107e12d759101b82",
+  "selector_source": {
+    "source_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+    "git_blob": "3cd41faaf0bfe849e427d10ed2b31941b0a9180f",
+    "bytes": 35758,
+    "sha256": "c8eed06f75fb395c3b064d251d5d8854988eaefc9c7f71b244403f4f5f5e7a4d"
+  },
+  "source_state": "PASS bounded source role readiness; no direct helper admission gap and no selector repair required.",
+  "source_derived_outer": 1,
+  "source_derived_child": 8,
+  "runtime_and_selector_invocation": "UNRUN"
+}

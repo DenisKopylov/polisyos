@@ -1,0 +1,65 @@
+[
+  {
+    "name": "current-durable-completion-obligations.json"
+  },
+  {
+    "name": "current-llm-completion-source-independent-review.json"
+  },
+  {
+    "name": "current-required-audit-recovery-candidate.json"
+  },
+  {
+    "name": "current-shared-flight-independent-review.json"
+  },
+  {
+    "name": "current-async-cache-cost.json"
+  },
+  {
+    "name": "current-compiled-chain-plan.json"
+  },
+  {
+    "name": "compiled-plan-consumer-oracle.json"
+  },
+  {
+    "name": "current-compiled-plan-source-independent.json"
+  },
+  {
+    "name": "current-compiled-plan-final-custody-handoff.json"
+  },
+  {
+    "name": "current-completed-cohort-launcher-review.json"
+  },
+  {
+    "name": "completion-admission-consumer-oracle.json"
+  },
+  {
+    "name": "current-stub-freshness.json"
+  },
+  {
+    "name": "current-stub-freshness-independent-review.json"
+  },
+  {
+    "name": "current-llm-completion-repair.json"
+  },
+  {
+    "name": "current-policy-worker-accounting.json"
+  },
+  {
+    "name": "current-worker-accounting-repair-independent.json"
+  },
+  {
+    "name": "current-completed-quality-worker-targets-review.json"
+  },
+  {
+    "name": "current-worker-accounting-source-review.json"
+  },
+  {
+    "name": "current-opa-ci-backend.json"
+  },
+  {
+    "name": "current-completed-generated-companions.json"
+  },
+  {
+    "name": "current-root-generated-companion-independent-review.json"
+  }
+]

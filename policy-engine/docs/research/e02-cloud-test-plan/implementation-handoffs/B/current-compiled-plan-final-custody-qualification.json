@@ -1,0 +1,347 @@
+{
+  "schema": "policyos.e02.independent_custody_source_qualification.v1",
+  "unit": "B",
+  "reviewer": "/root/dur_probe",
+  "closure_ids": [],
+  "mode": "Read-only immutable Git/source/full deciding output and metadata reconciliation. Reviewer native/build/mypy/gates UNRUN.",
+  "prior_own_review_sha": "2d6318b0acc25fd30dfdf8de0229ef43e221c1b0",
+  "created_at_utc": "2026-10-06T21:43:27.725374+00:00",
+  "public_surface_classification": {
+    "source_sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+    "style_source_sha": "7cecfd7efbfe0e1d17d9513def504455f222cc1c",
+    "inputs": [
+      {
+        "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "path": "policy-engine/architecture/public_surface/contract.toml",
+        "bytes": 19715,
+        "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+      },
+      {
+        "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "path": "policy-engine/architecture/public_surface/inventory.json",
+        "bytes": 220738,
+        "sha256": "58ec72001a9d236b4cb247a4229c64291a14f3c47429b26666cca484cb06cf0d"
+      },
+      {
+        "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "path": "policy-engine/src/polisyos/foundry/__init__.py",
+        "bytes": 9106,
+        "sha256": "80ee58c0811aab682d76cf0940d4c376f3b0e0f2b7a431f4ca772a8cffc3d7c1"
+      },
+      {
+        "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "path": "policy-engine/src/polisyos/foundry/api.py",
+        "bytes": 287,
+        "sha256": "e0b6d24717028a59ff53a184e064e0f53b5eb726f3e868deec67aed006e6e35a"
+      },
+      {
+        "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "path": "policy-engine/src/polisyos/foundry/compile/__init__.py",
+        "bytes": 1641,
+        "sha256": "c4d0aab98b83d67d2685b73307bfb71d33d059582b2c67d9b774308992b7d55f"
+      },
+      {
+        "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "path": "policy-engine/src/polisyos/foundry/execute/__init__.py",
+        "bytes": 1561,
+        "sha256": "4572f556ca63babc19c33f5d44b1418b310d9089455773266b655979cf723ce1"
+      },
+      {
+        "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+        "bytes": 1617,
+        "sha256": "d255be704dee62743c27f2f3c3a0995f1b4accd25d47ffd638b8fe4aad680b85"
+      },
+      {
+        "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "path": "policy-engine/src/polisyos/foundry/methods/artifacts/parts.py",
+        "bytes": 7030,
+        "sha256": "5e897d5bf6ca57ecda7a3fcca4c2480206a9c1fa6d889c735cbe0d9ce53c2092"
+      },
+      {
+        "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "path": "policy-engine/src/polisyos/foundry/methods/artifacts/__init__.py",
+        "bytes": 383,
+        "sha256": "79a2f5203ae44074bc81e1fe6074adf23b1942960bbe62527b16772c1d827670"
+      }
+    ],
+    "complete_inventory_denominator": {
+      "JSON_scalar_values": 5165,
+      "JSON_string_values": 4970,
+      "JSON_object_keys": 713,
+      "traversal": "Every dictionary value and list element recursively, plus all dictionary keys separately; no sampling or text-index absence authority.",
+      "exact_target_hits": {
+        "CompiledChainPlan": 0,
+        "store_compiled_chain_plan": 0,
+        "load_compiled_chain_plan": 0,
+        "polisyos.foundry.methods.artifacts": 0,
+        "MethodComposer": 0,
+        "from_nodes": 0
+      }
+    },
+    "normative_rule": "Any polisyos module path not listed in this manifest is internal by default.",
+    "foundry_classification": "public_stable only listed package root plus four literal supported entrypoints; no recursive deep-module promotion",
+    "listed_supported_entrypoints": [
+      "polisyos.foundry",
+      "polisyos.foundry.api",
+      "polisyos.foundry.compile",
+      "polisyos.foundry.execute",
+      "polisyos.foundry.uncertainty"
+    ],
+    "literal_supported_facade_export_counts": {
+      "polisyos.foundry": 27,
+      "polisyos.foundry.api": 3,
+      "polisyos.foundry.compile": 1,
+      "polisyos.foundry.execute": 3,
+      "polisyos.foundry.uncertainty": 12
+    },
+    "literal_internal_facade_change": {
+      "parts_exports": 16,
+      "new_exports": [
+        "CompiledChainPlan",
+        "load_compiled_chain_plan",
+        "store_compiled_chain_plan"
+      ],
+      "artifact_facade_exports": 18,
+      "bridge": "artifact/__init__.py literal star-parts plus two existing implementation_identity exports; internal import/export convenience is not public-stable ratification"
+    },
+    "classification": "INTERNAL for CompiledChainPlan/store/load and unlisted canonical MethodComposer.from_nodes; no selected stable facade alias/new public inventory row",
+    "root_required_companion": "Root alone may set public_surface_inventory_reviewed=true after actual inventory review/regeneration/required sync; author current release false remains honest until then. This review does not edit release or inventory."
+  },
+  "CMP_actual_final": {
+    "published_packet": {
+      "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/evidence-index.json",
+      "bytes": 8762,
+      "sha256": "609f830ee8f5a3b8f851b508c837232b9955d5f9e172a11a32929f330585f2a4"
+    },
+    "complete_index": "61indexed369244B+index=62completefiles; allhashesMATCH",
+    "actual_runs": [
+      {
+        "label": "native-final",
+        "source": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+        "wrapper": {
+          "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/native-final.json",
+          "bytes": 6016,
+          "sha256": "8f6911624a55252420a58be9d31a908b3158a82191aec975f143dfc169079742"
+        },
+        "stdout": {
+          "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/native-final.txt",
+          "bytes": 160,
+          "sha256": "3d62d17cda0245ac103dacbc19a54714f32a472955ffa1297184c4315837fbd1"
+        },
+        "outcome": "PASS81actualXML"
+      },
+      {
+        "label": "mypy-final",
+        "source": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+        "wrapper": {
+          "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-final.json",
+          "bytes": 5788,
+          "sha256": "3d6d5fe8f1b86b86f96b9d3c1d326678ede7ecd65fd46d4085552bc53aab50e9"
+        },
+        "stdout": {
+          "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-final.txt",
+          "bytes": 43,
+          "sha256": "8228fcc5ce46d42d01caf3cd941f4e9c5f2bcc372bb5b147a2f0572d2dd675a8"
+        },
+        "outcome": "PASS3sourcefiles"
+      },
+      {
+        "label": "ruff-candidate",
+        "source": "7cecfd7efbfe0e1d17d9513def504455f222cc1c",
+        "wrapper": {
+          "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-candidate.json",
+          "bytes": 5937,
+          "sha256": "b2716a0f8c82939f24477ba39756cf313942c649e04ff131101f2b35c1601e35"
+        },
+        "stdout": {
+          "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-candidate.txt",
+          "bytes": 19,
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        "outcome": "PASS7paths"
+      },
+      {
+        "label": "format-candidate",
+        "source": "7cecfd7efbfe0e1d17d9513def504455f222cc1c",
+        "wrapper": {
+          "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/format-candidate.json",
+          "bytes": 5955,
+          "sha256": "ff9bf071cf3d535a81f0a8f3e848b5997b549f3666ab3805f3562beca9ac8aa9"
+        },
+        "stdout": {
+          "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/format-candidate.txt",
+          "bytes": 26,
+          "sha256": "0321fffcb91606a42c0a19d8c1121d5c544379d663821fce616c71a7bb62f6b5"
+        },
+        "outcome": "PASS7paths"
+      }
+    ],
+    "native_xml": {
+      "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/native-final.xml",
+      "bytes": 11998,
+      "sha256": "858255aa4f502a99beeb63ad48bba288841416897dffa9a5b38aeebd8104afe1"
+    },
+    "source_binding": {
+      "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/final-source-binding.json",
+      "bytes": 2744,
+      "sha256": "42c3406f6fcddae6b4636f447fa05447ca26441cbc39effa87ce0fd6e76a2f68"
+    },
+    "qualification": "Native/mypy literal6d7; final Ruff/format literal7cec. Source/tests/config unchanged across formatter-only tool delta and full generator AST equal, never relabel old execution target. format-final filename is actual6d7FAIL; format-candidate is7cecPASS. First author11/6,18/1 and9ce checkerFAILs retained in prior2d qualification. Selected wrapper source hashes match Git; full runtime origins are stronger separately in CAS packet.",
+    "canonical_handoff": {
+      "sha": "75ec14287da9e1f288de4699ff01240682bffe89",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan.json",
+      "bytes": 77658,
+      "sha256": "bec3267b25dd757b4d67b5ea85bd8904bb624727feedb1c16c29e2de822095f4",
+      "mandatory_check_fields": "All19 checks have command,target_sha,environment,input_closure,outcome,output. Exact73 implementation paths exclude future receipt; closure_ids empty."
+    }
+  },
+  "CAS_independent_consumer": {
+    "final_receipt": {
+      "sha": "e774768af0bbcc68ed14b101f8d5f869122fd87a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-oracle.json",
+      "bytes": 282230,
+      "sha256": "318d97c4ea1e0880614a469fce35883cf2c897fc2290498422687b884f000c83"
+    },
+    "implementation_sha": "ec8ec7c3eeb708bb82975be18b7750d8951e811d",
+    "implementation_tree": "728c2d05565088af3d19c1ebeb02bc9779303384",
+    "complete_custody": "Exact314implementationpaths,313moderateobjects1403886B, allhashesMATCH; complete seven XML/checksum joins; no copies of peer logs.",
+    "actual_literals": {
+      "first-f563": {
+        "actual_cases": 16,
+        "passed": 6,
+        "failed": 10,
+        "error": 0,
+        "skipped": 0
+      },
+      "second-e69": {
+        "actual_cases": 16,
+        "passed": 13,
+        "failed": 3,
+        "error": 0,
+        "skipped": 0
+      },
+      "final-9ce": {
+        "actual_cases": 16,
+        "passed": 16,
+        "failed": 0,
+        "error": 0,
+        "skipped": 0
+      },
+      "removal-plan": {
+        "actual_cases": 1,
+        "passed": 0,
+        "failed": 1,
+        "error": 0,
+        "skipped": 0
+      },
+      "removal-preparation": {
+        "actual_cases": 1,
+        "passed": 0,
+        "failed": 1,
+        "error": 0,
+        "skipped": 0
+      },
+      "removal-seed": {
+        "actual_cases": 1,
+        "passed": 0,
+        "failed": 1,
+        "error": 0,
+        "skipped": 0
+      },
+      "final-6d7": {
+        "actual_cases": 16,
+        "passed": 16,
+        "failed": 0,
+        "error": 0,
+        "skipped": 0
+      }
+    },
+    "final_runtime_source_sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+    "final_runtime_source_tree_sha": "cff82fb64cf0627a71c4616e5c8b453c441c31dd",
+    "final_test_sha": "f3fec71449f752d7933dc21b979cb7dd21500ccf",
+    "final_source_closure": "All168unique concrete module-file records at both collection_finish/session_finish match6d7 and885 Git bytes under original plugin prefix guard; before/after source and test custody unchanged. Source9ce removals are controlled in-memory objects despite matching original filebytes.",
+    "body_and_oracle_review": "Full final22499B independent test read: genuine store→freshCAS→load→normal current-registry executors, zero scientific entry before return, preserved ordering-only DAG no dataflow, exact static0.5/dynamicseed23/offset0.75 arithmetic17.144009055176273 in five modes; actual two-thread barrier sibling+required29/3/dependent36; selected-wire required-edge/missing-node/cycle refuse before bodies. Separate stochastic11/23/47/11 and numerical warmup2; NumPy/Python transform of real JAX RNG, not RNG-law authority.",
+    "deciding_negative": "Full three removal stdout/source drivers read. Drop actual restored effective predecessors after genuine CASload gives async actual0 versus17.144009055176273; actual prep body entry and seed11 substitution cause separate unchanged expected FAILs. Not marker or constructor tests.",
+    "boundaries": "Actual12soft output-validation warnings retained. No strict scientific output schema, historical implementation/cache prefix, all-Ray/backend, acquisition/permission/tenant or scientific-validity authority. FreshCASsameOSprocess is criterion readback profile, not process/powerloss/multihost guarantee. Formal root current-candidate join pending.",
+    "deciding_check_refs": {
+      "receipt": {
+        "sha": "e774768af0bbcc68ed14b101f8d5f869122fd87a",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-oracle.json",
+        "bytes": 282230,
+        "sha256": "318d97c4ea1e0880614a469fce35883cf2c897fc2290498422687b884f000c83"
+      },
+      "checks": [
+        "final-9ce",
+        "removal-plan",
+        "removal-preparation",
+        "removal-seed",
+        "final-6d7"
+      ],
+      "identity_source": "Exact stdout/XML/profile/result/origin/command/env/input objects in the named receipt checks; all313 blobs reconciled. These locators replace duplicate imported inventories, not deciding bytes."
+    },
+    "final_deciding_output_refs": {
+      "stdout": {
+        "bytes": 8263,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/native-stdout.txt",
+        "sha256": "7eb649d830dc263750aae0b41238c94ccf41a6ed3311f89bb469e5875d5b8724",
+        "source_sha": "ec8ec7c3eeb708bb82975be18b7750d8951e811d"
+      },
+      "xml": {
+        "bytes": 3346,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/native.xml",
+        "sha256": "c7115218d85f1aa7d1e0adb201f02dc6f94a17562aaa875f5ff21df345a24d75",
+        "source_sha": "ec8ec7c3eeb708bb82975be18b7750d8951e811d"
+      }
+    },
+    "removal_stdout_sha256": {
+      "removal-plan": "3de114c88d9c756e08c730c3a688d25be894916eddaaec94b66a08dce88b99d6",
+      "removal-preparation": "1861bcd797764c69d827ce199733c05cbef4614bca6000dadc8cadc6f35f7f0e",
+      "removal-seed": "ab32e7d59feaad6f6f7dfb7dbd28260ce35a11ec0deefcd9966b08d6badb5ad9"
+    }
+  },
+  "RUN_shared_flight_custody": {
+    "receipt": {
+      "sha": "7dd59ddc2b6885ce6b917bfac6b94a0d24e2794e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-review.json",
+      "bytes": 70444,
+      "sha256": "b699cefef5697967f3290f5002f513fd9a9228af628d0b08ff30a14b78fa925d"
+    },
+    "implementation_sha": "823a3f7b4e1eec20be5a2aac50cf80830319a881",
+    "implementation_tree": "34cb11930e3c3ba2693c64b8bd9c687dab500c94",
+    "footprint": "Exact44implementationpaths=1test+43companions; ownreceipt is only impl→handoff delta; lower/product source0.",
+    "index": "42indexed165489B+index43completecompanions,0mismatches;17actualJSONL6911B retained with sharedignore reason.",
+    "actual_runtime": "Literal7PASS@b138 actualtest09; all92actualsamechild concrete origin records matchb138 Git bytes/prefix; no ownnative",
+    "qualification": "Old executed driver exact; qualified current-successor replay UNRUN. Copies of opaque genuine proof are actual white-box negative inputs, not hostile-private-key or external financial authority. B65/B66 no formal closure imported."
+  },
+  "registered_predicate_basis": {
+    "frozen_bytes_hashes_counts_actualorigin_records": "recomputed",
+    "manual_source_and_full_foreign_deciding_outputs": "independently_reconciled",
+    "current_registry_stability_known_numericfixture_and_constructor_trust": "consumer_asserted",
+    "externalfinancial_scientific_or_permission_authority": "not_established",
+    "newrootcohort_and_formalclosure": "not_established"
+  },
+  "own_metadata_observer_corrections": [
+    "Initial own len(index)==43 assertion was wrong because42indexed+1self=43. Original failed observer assertion retained in tool stdout; corrected complete denominator before verdict. No product/native error.",
+    "First metadata walk expected same origins key at finalcheck; actual finalkey has explicit actual6d7_and_projection885 suffix. Original KeyError is observer input decoding ERROR, no product/native countercase. Corrected unique prefix lookup verifies actual full source records without omitting finalcheck.",
+    "Attempted old removal driver locator ended .source.txt under nonexistent9ce directory; actual immutable literal-instruments/removal_plan.py.txt read full afterward. No product/native execution or changed deciding bytes."
+  ],
+  "finding_adjudication_boundary": "B43/B53 finite real predicate evidence now available on named source. Root/G independently decides closure after current canonical integration and NEW fullcohort; old DD all60 proposal and statuses remain historical. No new closure totals. B65/B66 real newer evidence is distinct from DD negatives and external owner law; B87 C cleanup OPEN/six semantic held unaffected.",
+  "next_owners": [
+    "Root performs final surface/release sync and integrates exact accepted source/test/evidence cuts.",
+    "Root provides NEW frozen source/nativeXML/stdout/phasepartition and actual check declarations for manual all60 casejoin; no priorDD prefixPASS transplantation.",
+    "CMP owns structural producer, CAS independent consumer, RUN sharedflight reviewer; this leaf makes no self-review acceptance of own lower9f."
+  ],
+  "metadata_scope": "No source/test/native/build/gate execution. Actual foreign deciding outputs read and hashes/counts/source custody independently reconciled. No copied peer logs or recomputable source catalogs."
+}

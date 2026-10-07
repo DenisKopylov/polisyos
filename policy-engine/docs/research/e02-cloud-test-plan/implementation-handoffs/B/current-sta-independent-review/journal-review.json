@@ -1,0 +1,216 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "reviewer": "run_writer",
+  "author": "exe_state_writer",
+  "slice": "current-sta-journal-negative",
+  "reviewed_source_sha": "1bd1fd11b683bbade5411a71b02706ea206b149d",
+  "reviewed_tree_sha": "185dc1e866579d48712580bd62b39aff83529158",
+  "read_only_source_tests": true,
+  "closure_ids": [],
+  "related_finding_ids": [
+    "B57",
+    "B58",
+    "B62",
+    "B70"
+  ],
+  "bundle_ids": [
+    "STA-01",
+    "STA-02",
+    "RES-01"
+  ],
+  "classification": "BLOCKING_OPERATION_REPLAY_COUNTEREXAMPLES",
+  "source_identity": {
+    "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py": "68f3d342ccb9a565e51999609171d2cc501c02328d5c1b48523f30d07ee81cfb",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py": "6eb8cd4bcb7f3e67c82f24903357591e44e38fe6aa96f4467f09ee3e36846d83",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py": "59209cc47cdb4077507ec21e3b4c10cbb3b97ecc2632f2fe309e64bb9cca71df",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/state.py": "7f02ad147eae494e905a984dd6eb1d5282e315122d40c37146ce66a0e9e180a9"
+  },
+  "source_main_comparison": "state_branching.py and state_merge.py are byte-identical198\u21921bd; idempotency/checkpoint/executor changed in EXE branch. This source property was not introduced by the deadline1bd delta; current full canonical B57 replay capability still fails.",
+  "property": {
+    "statement": "Persisted journal operations must reproduce actual branch writes on a permitted current base, preserve unrelated nested values/reservations, and reject protected deletion without altering original serialized state/evidence.",
+    "runtime_path": [
+      "actual branch_state",
+      "producer nested list/dict writes",
+      "actual NodeOutcome",
+      "NodeResultCache.put and verified typed CAS proof",
+      "warm get or reopened FileSystemCAS/load_entry/get",
+      "merge_parallel_outcomes",
+      "persist merged state and read actual CAS bytes",
+      "native RunContext JSONL consumer"
+    ],
+    "proxy_divergence": "CAS integrity and producer-issued journal proof are valid; actual producer holds new0/old5, but warm/reopened reader persists new5/old1. No-shift nested leaf mutation can throw TypeError even though the cached producer state and proof verify.",
+    "negative_controls": [
+      "Insert then update shifted existing descendant, compared with literal independent expected native result",
+      "No-shift nested dict write reveals list-index branch-path isolation rejection",
+      "Explicit same-value set plus delete/null/no-write on current changed base",
+      "Protected evidence delete after staged ordinary write retains original wire bytes, reserved budget and actual evidence CAS bytes"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "baseline_cells": [
+    "F01-P093",
+    "F01-P113",
+    "F02-P019",
+    "F02-P025",
+    "F02-P033",
+    "F02-P085",
+    "F03-P022",
+    "F03-P104",
+    "F04-P025",
+    "F04-P094",
+    "F05-P043",
+    "F05-P110",
+    "F05-P111",
+    "F05-P121",
+    "F05-P128",
+    "F06-P034",
+    "F06-P040",
+    "F06-P044",
+    "F06-P053",
+    "F07-P106",
+    "F08-P033",
+    "F08-P040",
+    "F08-P087",
+    "F08-P095",
+    "F09-P026",
+    "F09-P031",
+    "F09-P033",
+    "F09-P096",
+    "F09-P106",
+    "F10-P026",
+    "F10-P029",
+    "F10-P085",
+    "F10-P094",
+    "F11-P026",
+    "F11-P090",
+    "F12-P033",
+    "F12-P041",
+    "F12-P104",
+    "F13-P026",
+    "F13-P029",
+    "F13-P098",
+    "F13-P107",
+    "F13-P121",
+    "F13-P133",
+    "F14-P030",
+    "F15-P022",
+    "F15-P040",
+    "F15-P109"
+  ],
+  "baseline_navigation": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/baseline-navigation.json",
+    "sha256": "bc28269508d00f90e467bbf2a576d34e725c12695c2d2d930261f5813e2c9d80",
+    "bytes": 118475
+  },
+  "canonical_criteria": {
+    "B57": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "line": 1543,
+      "excerpt_sha256": "311733b6c5a5bb6907ebc0142a728a0381d0d1e80e9e0c9d9dffbca33a9676f2",
+      "full_criterion_read": true
+    },
+    "B58": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "line": 1559,
+      "excerpt_sha256": "a4b3f09edf7d6a97bcac413cddd8335f3f83f654d823c5561b4c06b826b9838e",
+      "full_criterion_read": true
+    },
+    "B62": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "line": 1615,
+      "excerpt_sha256": "b8cf6da156cbaf10ecf2a7d84383b3cbbe9502e7055fafd345667f7be48288ef",
+      "full_criterion_read": true
+    },
+    "B70": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "line": 1873,
+      "excerpt_sha256": "f963622d49c8de3af543f00c4f93ee30bfdb540c6b20a123dab65009f63ae0d0",
+      "full_criterion_read": true
+    }
+  },
+  "baseline_qualification": "All48 unique cells/15 source SHA/tree/ref/environment/input contexts are source-reported compact transfer navigation. Routes candidate_unverified and semantic_adequacy not_established remain. Original raw archives unavailable; baseline-green totals are not candidate evidence.",
+  "checks": [
+    {
+      "target_sha": "1bd1fd11b683bbade5411a71b02706ea206b149d",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/journal-negative.py"
+      ],
+      "actual_execution_driver": "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/journal-oracle.py",
+      "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "python": "3.14.2",
+        "source_scope": "Defining4 canonical files asserted actual bytes match target Git before runtime; other dependencies normal imported from existing admitted EXE lane. No full immutable checkout claim; source imports used no ignored prior candidate inputs."
+      },
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/journal-negative.py",
+          "sha256": "89804ddc2e521aa7dd39e452dbfe5a37064d275f183aaed1f2738acc623cdcd5",
+          "bytes": 7306
+        },
+        "initial_inputs": "runR_independent_STA; x2, rows old/v1; insert new/v0 then mutate shifted row1/v5; current unrelated=new and neighboring reserved Decimal11. Original base and sibling retained native wire bytes; forbidden deletion evidence is actual CAS artifact."
+      },
+      "outcome": "FAIL",
+      "deciding_output": "2 named semantic cases fail in both warm/reopened profiles; same-value/delete/null/no-write and protected-delete atomicity cases pass. 4 profile failures: two physically wrong CAS results +two TypeError rejections; unrelated=new and reserved11/13 retained.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/journal-negative.json",
+        "sha256": "12033cfe8799bbec98683359c2f3efb0a5e701a470fc75bd4cb35c6e95217d6e",
+        "bytes": 22711
+      }
+    }
+  ],
+  "finding_dispositions": [
+    {
+      "finding_id": "B57",
+      "state": "OPEN",
+      "reason": "Actual verified warm/cold journal replay corrupts shifted nested list member and rejects unshifted indexed descendant. EXE canonical operation owner fixing same class; original independent input retained."
+    },
+    {
+      "finding_id": "B58",
+      "state": "LIMITED",
+      "reason": "Allowed delete/null/no-write and protected deletion controls pass actual replay/native wire/CAS readback; B57 nested list operation residual prevents broad replay closure."
+    },
+    {
+      "finding_id": "B62",
+      "state": "UNRUN",
+      "reason": "Separate independent presence consumer probe next; no closure based on author suite."
+    },
+    {
+      "finding_id": "B70",
+      "state": "UNRUN",
+      "reason": "Separate original-graph/double-resume consumer probe next; belongs RES-01, not relabeled STA."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "EXE owns state_branching repair; reviewer edits no source/test files. Root owns P40 same-class classification and final cohort; G retains production-dependent/local profile authority.",
+    "Only generic real fixture operation semantics are measured. No claim about corruption frequency in production nodes.",
+    "Runner wire intentionally forbids private journaled subtype; independent retained-state oracle strips to public ExperimentState just as canonical runner merge does before using actual serialize_state_safe bytes."
+  ],
+  "excluded_exploratory_runs": [
+    "Initial probe tried to send private _JournaledExperimentState directly to strict wire codec; harness corrected public-state conversion, not classified production defect. Subsequent early draft stopped on newly observed actual TypeError; final driver captures this deciding exception and preserves completed full packet."
+  ],
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/baseline-navigation.json",
+      "sha256": "bc28269508d00f90e467bbf2a576d34e725c12695c2d2d930261f5813e2c9d80",
+      "bytes": 118475
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/journal-negative.json",
+      "sha256": "12033cfe8799bbec98683359c2f3efb0a5e701a470fc75bd4cb35c6e95217d6e",
+      "bytes": 22711
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/journal-negative.py",
+      "sha256": "89804ddc2e521aa7dd39e452dbfe5a37064d275f183aaed1f2738acc623cdcd5",
+      "bytes": 7306
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+from __future__ import annotations
+
+import ast
+import hashlib
+import json
+import pathlib
+import subprocess
+
+ROOT = pathlib.Path('/workspace/e02-B-current-composition')
+SCRATCH = pathlib.Path(__file__).parent
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence'
+DEST = ROOT / PREFIX
+DEST.mkdir(parents=True, exist_ok=False)
+STAGES = ['before-check','producer','canonical-producer','canonical-check','stale-copy','canonical-dry-run','canonical-ruff','canonical-format','facade-producer','final-producer','final-check','corrected-stale-copy','final-ruff','final-format']
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT, text=True).strip()
+
+def identity(path):
+    raw = path.read_bytes()
+    return {'path': path.relative_to(ROOT).as_posix(), 'bytes': len(raw), 'sha256': hashlib.sha256(raw).hexdigest()}
+
+for stage in STAGES:
+    for suffix in ['.txt', '.json']:
+        source = SCRATCH / (stage + suffix)
+        (DEST / source.name).write_bytes(source.read_bytes())
+for source, name in [('run.py','capture.source.txt'),('run-initial.source.txt','capture-initial.source.txt'),('stale_copy.py','stale-copy.source.txt'),('stale-copy-initial.source.txt','stale-copy-initial.source.txt'),('source-binding.json','source-binding.json'),('package.py','package.source.txt')]:
+    (DEST / name).write_bytes((SCRATCH / source).read_bytes())
+observation = None
+for line in (SCRATCH / 'corrected-stale-copy.txt').read_text().splitlines():
+    if line.startswith('STUB_STALE_COPY_OBSERVATION '):
+        observation = json.loads(line.split(' ',1)[1])
+assert observation is not None and observation['copied_before'] == observation['copied_after']
+assert observation['original_before'] == observation['original_after']
+stale = pathlib.Path(observation['scratch']) / '0/base.pyi'
+assert hashlib.sha256(stale.read_bytes()).hexdigest() == observation['copied_before'][str(stale)]
+(DEST / 'stale-expected-base.source.txt').write_bytes(stale.read_bytes())
+base = '75ec14287da9e1f288de4699ff01240682bffe89'
+source = 'b7d966af6551fc0ff63d3a830c70fe300c320967'
+changed = git('diff','--name-only',base,source).splitlines()
+py_paths = [path for path in git('ls-tree','-r','--name-only',source,'policy-engine/src','policy-engine/tests').splitlines() if path.endswith('.py')]
+assert not set(changed)&set(py_paths)
+binding = json.loads((DEST / 'source-binding.json').read_text())
+assert binding['runtime_test_py_denominator'] == len(py_paths)
+for row in binding['all_four_outputs']:
+    raw = subprocess.check_output(['git','show',f"{source}:{row['path']}"],cwd=ROOT)
+    old = subprocess.check_output(['git','show',f"{base}:{row['path']}"],cwd=ROOT)
+    assert row['after']['sha256'] == hashlib.sha256(raw).hexdigest()
+    assert ast.dump(ast.parse(raw),include_attributes=False) == ast.dump(ast.parse(old),include_attributes=False)
+summary = {'source_sha':source,'source_tree':git('rev-parse',source+'^{tree}'),'slice_base_sha':base,'source_footprint':changed,'actual_stages':[{key:json.loads((DEST/(stage+'.json')).read_text()).get(key) for key in ['stage','mode','exit_code','wall_seconds','max_rss_kib','source_before','source_after','stdout']} for stage in STAGES], 'qualifications': ['Initial d6 explicit pyproject config was not actual repository Ruff owner; its2drift/producer layout outcomes do not establish proper freshness.', '7eb actual ruff.toml four-target producer/check and dry-run succeeded; two F403 facade lines still failed full Ruff and were corrected generically in the declared re-export recipes.', 'Initial stale-copy invocation resolved a foreign old tools module and failed argument parsing exit2 before the freshness predicate; source provenance was not established for that attempt.', 'Corrected stale-copy instrument inserts exact product tool root and checks actual generator file/Git bytes before invoking unchanged final --check against a four-file expected-map copy with one stale full-definition-preserving comment.', 'Final producer ran066 with generated target overlay and ended with two expected facade changes; final checker/style/negative ran literal clean b7; no prior outcome relabeled as b7 runtime evidence.', 'No native tests, product workflows, scientific body, architecture/gate, collection or broad suite executed by this companion slice.', 'P41 inherited red not_established; no inherited waiver used.']}
+(DEST/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+files = [path for path in sorted(DEST.rglob('*')) if path.is_file()]
+index = {'schema':'policyos.e02.evidence_index.v1','source_sha':source,'files':[identity(path) for path in files],'file_count_excluding_index':len(files),'bytes_excluding_index':sum(path.stat().st_size for path in files)}
+(DEST/'index.json').write_text(json.dumps(index,indent=2)+'\n')
+print(json.dumps({'file_count_including_index':len(files)+1,'bytes_excluding_index':index['bytes_excluding_index'],'index':identity(DEST/'index.json')}))

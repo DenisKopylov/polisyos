@@ -1,0 +1,33 @@
+"""Forward lossless UTF-8 evidence envelopes; raw deciding Git objects stay unchanged."""
+from pathlib import Path
+import hashlib,json,re,subprocess
+root=Path('/workspace/e02-B-current-execution-state')
+prefix='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/'
+old='b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc'
+paths=sorted({line.rsplit(':',2)[0] for line in Path('/tmp/e02-B-gateway-D-controller/diff-check-before.txt').read_text().splitlines() if re.match(r'.+:\d+: (trailing whitespace|new blank line at EOF)',line)})
+assert len(paths)==7 and all(path.startswith(prefix) for path in paths)
+def blob(data): return {'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+rows=[]
+for path in paths:
+    file=root/path; raw=file.read_bytes()
+    original=subprocess.check_output(['git','-C',str(root),'show',old+':'+path])
+    assert raw==original
+    envelope={'schema':'policyos.e02.lossless_utf8_text.v1','encoding':'utf-8','original':{'commit':old,'path':path,**blob(raw)},'text':raw.decode('utf-8')}
+    serialized=(json.dumps(envelope,ensure_ascii=True,indent=2)+'\n').encode('utf-8')
+    assert json.loads(serialized)['text'].encode('utf-8')==raw
+    file.write_bytes(serialized)
+    rows.append({'path':path,'representation':'lossless_utf8_json_text','raw':envelope['original'],'stored':blob(serialized),'decode':'json.loads(stored_bytes)["text"].encode("utf-8")','decoded_hash_verified':True})
+index_path=root/(prefix+'index.json')
+index=json.loads(index_path.read_bytes())
+for row in rows:
+    match=next(a for a in index['artifacts'] if a['path']==row['path'])
+    assert {k:match[k] for k in ['bytes','sha256']}=={k:row['raw'][k] for k in ['bytes','sha256']}
+    match['raw_original']=row['raw'];match['representation']='lossless_utf8_json_text';match['decoded_raw_bytes']=row['raw']['bytes'];match['decoded_raw_sha256']=row['raw']['sha256'];match['decode']=row['decode']
+    match.update(row['stored'])
+index['payload_bytes']=sum(a['bytes'] for a in index['artifacts']);index['representation_count']=len(rows)
+index['representation_instructions']='Seven flagged prior raw UTF-8 stdout/XML files now contain lossless JSON envelopes. For those entries decode top-level text and verify decoded_raw_sha256/bytes; original deciding objects remain exact raw at immutableb82. Other267 payloads remain byte-identical.'
+index_path.write_text(json.dumps(index,indent=2)+'\n')
+report={'schema':'policyos.e02.B.evidence_representation_review.v1','original_raw_commit':old,'new_execution':False,'source_and_tests_changed':False,'raw_deciding_evidence_changed':False,'represented_objects':rows,'current_payload_count':index['artifact_count'],'current_stored_payload_bytes':index['payload_bytes'],'prior_raw_receipt_commit':'29024b9537b46376957350c9e12f648c0bfb2d63','instruction':'Historical receipts remain bound to exact original Git source SHA, so no raw SHA is silently restamped. New current index states stored representation and explicit raw decoder. No outcome relabeling or physical fixture mutation.'}
+(root/(prefix+'lossless-representation.json')).write_text(json.dumps(report,indent=2)+'\n')
+(root/(prefix+'representation.py.source.txt')).write_bytes(Path(__file__).read_bytes())
+print(json.dumps({'represented':len(rows),'payload_bytes':index['payload_bytes']}))

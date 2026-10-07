@@ -1,0 +1,105 @@
+from pathlib import Path
+import collections,hashlib,json,re,shutil,subprocess,xml.etree.ElementTree as ET
+own=Path('/workspace/e02-B-current-composition')
+raw=own/'.polisyos/e02-B-current-composition/optional-spend-review'
+evidence=own/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence'
+evidence.mkdir(exist_ok=False)
+sha='a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9'
+pins=['198076863e143dea9f89f02734b13d50dae3eed5','dd9584728bd96f204983615216efdbc58117e713',sha]
+def blob(pin,path):return subprocess.check_output(['git','-C',str(own),'show',pin+':'+path])
+def h(data):return hashlib.sha256(data).hexdigest()
+def write(path,obj):path.write_text(json.dumps(obj,ensure_ascii=False,indent=2)+'\n')
+for name in ['native.txt','native.xml','wrapper.json']:
+ shutil.copyfile(raw/'candidate-a2f'/name,evidence/name)
+shutil.copyfile(raw/'run-oracle.py',evidence/'run-oracle.source.txt')
+shutil.copyfile(Path(__file__),evidence/'package.source.txt')
+physical=[]
+for path in sorted((raw/'candidate-a2f/tmp').glob('*/physical-provider.jsonl')):
+ dst=evidence/'physical-inputs'/path.parent.name/path.name
+ dst.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(path,dst)
+ physical.append({'path':str(dst.relative_to(own)),'bytes':dst.stat().st_size,'sha256':h(dst.read_bytes()),'json_rows':[json.loads(row) for row in dst.read_text().splitlines()]})
+text=(evidence/'native.txt').read_text()
+observations=[]
+for line in text.splitlines():
+ if 'OPTIONAL_SPEND_ACTUAL {' in line:
+  observations.append(json.loads(line.split('OPTIONAL_SPEND_ACTUAL ',1)[1]))
+assert len(observations)==3
+cases=[]
+for case in ET.parse(evidence/'native.xml').getroot().iter('testcase'):
+ outcome='FAIL' if case.find('failure') is not None else 'ERROR' if case.find('error') is not None else 'SKIP' if case.find('skipped') is not None else 'PASS'
+ cases.append({'name':case.attrib['name'],'outcome':outcome})
+assert collections.Counter(c['outcome'] for c in cases)=={'PASS':2,'FAIL':1}
+write(evidence/'actual-observations.json',{'source_sha':sha,'cases':cases,'physical_inputs':physical,'observations':observations,'predicate_basis':'independently_reconciled'})
+paths={
+ 'response_shapes':'policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py',
+ 'nl_pipeline':'policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py',
+ 'run_lifecycle':'policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py',
+ 'route':'policy-engine/src/polisyos/runtime/http/routes/control.py',
+ 'request_contract':'policy-engine/src/polisyos/core/contracts/control.py',
+ 'response':'policy-engine/src/polisyos/core/llm/response.py',
+ 'settlement':'policy-engine/src/polisyos/core/llm/settlement.py',
+ 'traced_client':'policy-engine/src/polisyos/core/llm/traced_client.py',
+ 'factory':'policy-engine/src/polisyos/scientist/orchestration/llm/factory.py',
+ 'route_fixture_navigation':'policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py',
+}
+contexts={
+ 'response_shapes':[(36,70)],
+ 'nl_pipeline':[(4973,5003),(5139,5148),(5180,5202),(6168,6185),(6427,6477)],
+ 'run_lifecycle':[(6958,7015)],
+ 'route':[(369,404)],
+ 'request_contract':[(359,388)],
+ 'response':[(58,112)],
+ 'settlement':[(223,249)],
+ 'traced_client':[(469,519),(602,612)],
+ 'factory':[(1,30)],
+ 'route_fixture_navigation':[(3085,3166)],
+}
+source=[]
+snips=[]
+for name,path in paths.items():
+ rows=[]
+ for pin in pins:
+  data=blob(pin,path)
+  rows.append({'source_sha':pin,'git_blob':subprocess.check_output(['git','-C',str(own),'rev-parse',pin+':'+path],text=True).strip(),'bytes':len(data),'sha256':h(data)})
+ actual=blob(sha,path).decode()
+ ranges=[]
+ for first,last in contexts[name]:
+  data=''.join(actual.splitlines(keepends=True)[first-1:last]).encode()
+  ranges.append({'lines':[first,last],'bytes':len(data),'sha256':h(data)})
+  snips.append(f'### {path}@{sha}:{first}-{last}\n'+data.decode())
+ source.append({'role':name,'path':path,'pins':rows,'same_198_DD':rows[0]['sha256']==rows[1]['sha256'],'same_DD_candidate':rows[1]['sha256']==rows[2]['sha256'],'candidate_contexts':ranges})
+write(evidence/'source-custody.json',{'source_points':pins,'paths':source,'predicate_basis':'independently_reconciled','limit':'Only these complete Git source inputs and cited line ranges; no complete runtime imported graph/resource/network readset.'})
+(evidence/'source-contexts.txt').write_text('\n\n'.join(snips))
+request={'request':'Compare policy model variants for MSME support under an explicit run spend ceiling.','context':{},'domain_hint':'Ukraine wartime MSME support policy','data_source':None,'max_iterations':1,'llm_models':['gpt-4o','gpt-4o-mini'],'max_parallel_models':1,'run_budget_usd':0.01,'per_model_budget_usd':None,'checkpoint_policy':'strict','execution_plan_ref':None,'execution_plan':None,'stop_criteria':{},'governance_constraints':[],'expected_outputs':[]}
+write(evidence/'local-G-route-request.json',request)
+write(evidence/'local-G-route-input-contract.json',{
+ 'status':'PREPARED_UNRUN_NO_PRODUCTION_INPUT_CLOSURE',
+ 'source_candidate_sha':sha,'source_candidate_tree':'f5fb536b70b7d8d57b19c78570b3addd798083dd',
+ 'endpoint':'POST /api/v1/control/runs/nl','operation_id':'launch_nl_run',
+ 'request_path':str((evidence/'local-G-route-request.json').relative_to(own)),
+ 'request_role':'Exact minimal DTO-shaped request, not an attested production context or dataset. context={} is intentionally not represented as an acquired governed profile. G must record any typed preflight stop before spend consumer.',
+ 'required_local_inputs':[
+ 'An actually supported runtime endpoint and exact tenant/cell route authorization proof; never a fake BoundActionPermissionVerification.',
+ 'Actual independently acquired method catalog, execution/data grounding, policy-design context and production dataset closure required by that local runtime; those refs/bytes are absent from this cloud input.',
+ 'Actual configured gateway catalog permits both listed gpt-4o/gpt-4o-mini model IDs; if not, retain llm_model_unconfigured/preflight refusal and do not relabel as spend consumer evidence.',
+ 'Explicit isolated CAS/run/registry/DB roots, fresh run/job IDs and metrics port0; actual authenticated endpoint address and credentials remain local and unprinted.',
+ 'Controlled actual provider-response boundary preserving content and request effects, with three known inputs usage=None/no reported monetary fields; usage={prompt_tokens:7,completion_tokens:3,cost_usd:0.02}; usage={prompt_tokens:7,completion_tokens:3,cost_usd:0.0}. No hand-authored observer events.',
+ 'Multimodel policy is actually enabled and permits both models; launch_nl_run otherwise truncates to one and cannot demonstrate subsequent-variant admission.'
+ ],
+ 'consumer_negative':{'case':'unknown physical provider monetary evidence','expected_owner_decision':'A/G chooses explicit unknown spend state and admission/refusal policy; a reported zero may remain legitimate. Unknown must not acquire known-zero budget authority solely by numeric aggregation.','actual_cloud_stop':'Only actual response_shapes._sum_call_events executed; _delta_usage, _run_variant, _run_with_limits, route authorization, job scheduling, catalog/dataset and run_budget enforcement were not executed.'},
+ 'controls':{'reported_02':'The tested helper totals0.02. For run_budget0.01 sequential variants, local route oracle should independently count whether the second starts after first cost observation; this route result is UNRUN.','reported_zero':'The tested helper totals0 with reported provenance; do not reject a legitimate reportedzero merely to make unknown failclosed.'},
+ 'local_commands':{
+ 'bounded_exact_helper_replay':{'cwd':'<local checkout at source_candidate_sha>/policy-engine','interpreter':'<local supported interpreter with runtime dependencies>','argv':['<python>','-m','pytest','--noconftest','-c','/dev/null','-o','cache_dir=<fresh scratch>/cache','--basetemp=<fresh scratch>/tmp','--junitxml=<fresh scratch>/native.xml','-vv','-s','<fetched own implementation>/policy-engine/tests/unit/scientist/agent/test_optional_spend_projection_boundary.py'],'environment':{'PYTHONPATH':'<candidate>/policy-engine/src:<candidate>/policy-engine/product','POLISYOS_METRICS_PORT':'0','PYTHONDONTWRITEBYTECODE':'1','PYTEST_DISABLE_PLUGIN_AUTOLOAD':'1','E02_OPTIONAL_SPEND_SOURCE_ROOT':'<candidate>','E02_OPTIONAL_SPEND_SOURCE_SHA':sha}},
+ 'route_request_after_local_authority_input_admission':{'argv':['curl','--silent','--show-error','--fail-with-body','--request','POST','--header','Content-Type: application/json','--header','Authorization: Bearer <local-only authenticated credential>','--data-binary','@<fetched local-G-route-request.json>','<isolated local runtime>/api/v1/control/runs/nl'],'status':'PREPARED_UNRUN; POST starts local work and must be executed only by A/G under its admitted local authority/input, never by this read-only cloud reviewer.'}
+ },
+ 'not_attested':['Full served route or provider invoice/billing','Unknown-cost mandatory ledger/protected audit settlement','Actual second provider admission by the NL budget guard','Production dataset, artifact-ref provenance, acquisition overlay or institutionally valid authority','Any later candidate without independently establishing its complete source/input projection'],
+ 'closure_ids':[],'predicate_basis':'independently_reconciled'
+})
+criteria=blob(pins[1],'policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md').decode().splitlines(keepends=True)
+(evidence/'criterion-contexts.txt').write_text(''.join(criteria[1668:1708]))
+write(evidence/'criterion-refs.json',{'source_sha':pins[1],'path':'policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md','lines':[1669,1708],'bytes':len(''.join(criteria[1668:1708]).encode()),'sha256':h(''.join(criteria[1668:1708]).encode()),'finding_ids':['B65','B66'],'bundle_ids':['LLM-01'],'scope':'B66 explicit unknown network cost cannot be nulled; B65 required/optional accounting boundary. This new A/G helper observation gives no cache-reuse/expiry or mandatory accounting closure.'})
+files=[]
+for path in sorted(evidence.rglob('*')):
+ if path.is_file():files.append({'path':str(path.relative_to(own)),'bytes':path.stat().st_size,'sha256':h(path.read_bytes())})
+write(evidence/'evidence-index.json',{'files':files,'bytes':sum(row['bytes'] for row in files)})
+print(json.dumps({'evidence':str(evidence),'files':len(files)+1,'bytes_without_index':sum(row['bytes'] for row in files),'cases':cases,'all_A_sources_198_DD_candidate_unchanged':all(row['same_198_DD'] and row['same_DD_candidate'] for row in source if row['role'] in ['response_shapes','nl_pipeline','run_lifecycle','route','request_contract'])},indent=2))

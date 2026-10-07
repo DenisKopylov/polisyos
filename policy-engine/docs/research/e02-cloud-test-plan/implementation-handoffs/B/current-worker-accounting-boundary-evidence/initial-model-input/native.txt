@@ -1,0 +1,622 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/polisyos/policy-engine/.venv/bin/python
+cachedir: /tmp/e02-B-worker-accounting-a697-ox5n07s1/cache
+hypothesis profile 'default'
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /workspace/e02-B-current-adapters/policy-engine
+configfile: pyproject.toml
+plugins: anyio-4.12.0, hypothesis-6.151.2, jaxtyping-0.3.4, langsmith-0.6.0, asyncio-1.3.0, benchmark-5.2.3, xdist-3.8.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 4 items
+
+../../e02-B-current-adapters/policy-engine::test_actual_worker_preserves_accounting_unknown_before_fresh_worker[missing-sdk-usage-adversary] <- ../../e02-B-current-durability/policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py E02_WORKER_ACCOUNTING {"actual_enforcer_errors": [], "cost_kind": "missing-sdk-usage", "origins": [{"module": "polisyos.scientist.policy_design.adversary", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/adversary.py", "sha256": "e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.policy_design.translator", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/translator.py", "sha256": "a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.orchestration.llm.factory", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py", "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.orchestration.llm.gateway_client", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py", "sha256": "df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.orchestration.llm.prompt_cache", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py", "sha256": "e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.orchestration.llm.budget_enforcer", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py", "sha256": "66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.orchestration.engine.budget", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/engine/budget.py", "sha256": "76adb290dd270a7a8ce6fb0823bf1f035c00673f3662abf7cb35ca13d8209516", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.core.llm.response", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/response.py", "sha256": "9964c5183108f47143cec32b0beb8b65aa4de6df706757b3a1f02be1c77b0581", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.core.llm.settlement", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/settlement.py", "sha256": "6d680b37b3107322ec79e56d6e7959b6605c5af22be641d6305f65bc495f78a7", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.core.llm.traced_client", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/traced_client.py", "sha256": "f982028c7533dacac0df93475177bd840857768744ebf0bfd8c2181af912b81a", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}], "physical_calls": 0, "physical_work": [], "profile": "actual production raw-BudgetState worker constructors; no durable middleware injected", "same_budget_state": {"limits": {"policy_adversary": {"key": "policy_adversary", "max_usd": "10", "soft_limit_usd": null}}, "provider_spent": {}, "reserved": {}, "spent": {}}, "worker": "adversary", "worker_outcomes": [{"returned_type": "AdversarialScenarioBundle", "value": {"candidate_id": "actual-worker-candidate", "fallback_used": true, "metadata": {"preview_scenarios": []}, "scenario_sweep": {"scenarios": []}, "scenarios": [], "schema_version": "1.0"}}, {"returned_type": "AdversarialScenarioBundle", "value": {"candidate_id": "actual-worker-candidate", "fallback_used": true, "metadata": {"preview_scenarios": []}, "scenario_sweep": {"scenarios": []}, "scenarios": [], "schema_version": "1.0"}}]}
+FAILED
+../../e02-B-current-adapters/policy-engine::test_actual_worker_preserves_accounting_unknown_before_fresh_worker[missing-sdk-usage-translator] <- ../../e02-B-current-durability/policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py E02_WORKER_ACCOUNTING {"actual_enforcer_errors": [], "cost_kind": "missing-sdk-usage", "origins": [{"module": "polisyos.scientist.policy_design.adversary", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/adversary.py", "sha256": "e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.policy_design.translator", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/translator.py", "sha256": "a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.orchestration.llm.factory", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py", "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.orchestration.llm.gateway_client", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py", "sha256": "df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.orchestration.llm.prompt_cache", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py", "sha256": "e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.orchestration.llm.budget_enforcer", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py", "sha256": "66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.orchestration.engine.budget", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/engine/budget.py", "sha256": "76adb290dd270a7a8ce6fb0823bf1f035c00673f3662abf7cb35ca13d8209516", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.core.llm.response", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/response.py", "sha256": "9964c5183108f47143cec32b0beb8b65aa4de6df706757b3a1f02be1c77b0581", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.core.llm.settlement", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/settlement.py", "sha256": "6d680b37b3107322ec79e56d6e7959b6605c5af22be641d6305f65bc495f78a7", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.core.llm.traced_client", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/traced_client.py", "sha256": "f982028c7533dacac0df93475177bd840857768744ebf0bfd8c2181af912b81a", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}], "physical_calls": 0, "physical_work": [], "profile": "actual production raw-BudgetState worker constructors; no durable middleware injected", "same_budget_state": {"limits": {"policy_briefing": {"key": "policy_briefing", "max_usd": "10", "soft_limit_usd": null}, "policy_translator": {"key": "policy_translator", "max_usd": "10", "soft_limit_usd": null}}, "provider_spent": {}, "reserved": {}, "spent": {}}, "worker": "translator", "worker_outcomes": [{"returned_type": "PolicyBrief", "value": {"artifact_functions": ["promotion_gating"], "audience": "decision_maker", "brief_id": "brief_0185bdd03f93", "executive_summary": "Observed candidate evidence.", "hard_constraint_notes": [], "metadata": {"translator_mode": "deterministic"}, "readiness_level": "recommendation_ready", "recommended_actions": [{"action_id": "action_f7d3591dee", "description": "Confirm monitoring and rollback triggers before deployment.", "priority": "high", "title": "Review rollout safeguards"}], "risks": [], "schema_version": "1.0", "subgroup_harms": [], "surfaced_assumptions": [], "title": "Policy brief for actual-worker-candidate", "tradeoffs": [{"axis": "policy_value", "champion_value": "1.2000", "comparator_value": null, "rationale": "Technical objective policy_value is 1.2000 in the dossier."}], "uncertainty_highlights": []}}, {"returned_type": "PolicyBrief", "value": {"artifact_functions": ["promotion_gating"], "audience": "decision_maker", "brief_id": "brief_e38a3da134c6", "executive_summary": "Observed candidate evidence.", "hard_constraint_notes": [], "metadata": {"translator_mode": "deterministic"}, "readiness_level": "recommendation_ready", "recommended_actions": [{"action_id": "action_42bcdde62f", "description": "Confirm monitoring and rollback triggers before deployment.", "priority": "high", "title": "Review rollout safeguards"}], "risks": [], "schema_version": "1.0", "subgroup_harms": [], "surfaced_assumptions": [], "title": "Policy brief for actual-worker-candidate", "tradeoffs": [{"axis": "policy_value", "champion_value": "1.2000", "comparator_value": null, "rationale": "Technical objective policy_value is 1.2000 in the dossier."}], "uncertainty_highlights": []}}]}
+FAILED
+../../e02-B-current-adapters/policy-engine::test_actual_worker_preserves_accounting_unknown_before_fresh_worker[reported-positive-adversary] <- ../../e02-B-current-durability/policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py E02_WORKER_ACCOUNTING {"actual_enforcer_errors": [], "cost_kind": "reported-positive", "origins": [{"module": "polisyos.scientist.policy_design.adversary", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/adversary.py", "sha256": "e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.policy_design.translator", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/translator.py", "sha256": "a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.orchestration.llm.factory", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py", "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.orchestration.llm.gateway_client", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py", "sha256": "df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.orchestration.llm.prompt_cache", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py", "sha256": "e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.orchestration.llm.budget_enforcer", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py", "sha256": "66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.orchestration.engine.budget", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/engine/budget.py", "sha256": "76adb290dd270a7a8ce6fb0823bf1f035c00673f3662abf7cb35ca13d8209516", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.core.llm.response", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/response.py", "sha256": "9964c5183108f47143cec32b0beb8b65aa4de6df706757b3a1f02be1c77b0581", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.core.llm.settlement", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/settlement.py", "sha256": "6d680b37b3107322ec79e56d6e7959b6605c5af22be641d6305f65bc495f78a7", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.core.llm.traced_client", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/traced_client.py", "sha256": "f982028c7533dacac0df93475177bd840857768744ebf0bfd8c2181af912b81a", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}], "physical_calls": 0, "physical_work": [], "profile": "actual production raw-BudgetState worker constructors; no durable middleware injected", "same_budget_state": {"limits": {"policy_adversary": {"key": "policy_adversary", "max_usd": "10", "soft_limit_usd": null}}, "provider_spent": {}, "reserved": {}, "spent": {}}, "worker": "adversary", "worker_outcomes": [{"returned_type": "AdversarialScenarioBundle", "value": {"candidate_id": "actual-worker-candidate", "fallback_used": true, "metadata": {"preview_scenarios": []}, "scenario_sweep": {"scenarios": []}, "scenarios": [], "schema_version": "1.0"}}, {"returned_type": "AdversarialScenarioBundle", "value": {"candidate_id": "actual-worker-candidate", "fallback_used": true, "metadata": {"preview_scenarios": []}, "scenario_sweep": {"scenarios": []}, "scenarios": [], "schema_version": "1.0"}}]}
+FAILED
+../../e02-B-current-adapters/policy-engine::test_actual_worker_preserves_accounting_unknown_before_fresh_worker[reported-positive-translator] <- ../../e02-B-current-durability/policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py E02_WORKER_ACCOUNTING {"actual_enforcer_errors": [], "cost_kind": "reported-positive", "origins": [{"module": "polisyos.scientist.policy_design.adversary", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/adversary.py", "sha256": "e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.policy_design.translator", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/translator.py", "sha256": "a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.orchestration.llm.factory", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py", "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.orchestration.llm.gateway_client", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py", "sha256": "df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.orchestration.llm.prompt_cache", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py", "sha256": "e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.orchestration.llm.budget_enforcer", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py", "sha256": "66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.scientist.orchestration.engine.budget", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/engine/budget.py", "sha256": "76adb290dd270a7a8ce6fb0823bf1f035c00673f3662abf7cb35ca13d8209516", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.core.llm.response", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/response.py", "sha256": "9964c5183108f47143cec32b0beb8b65aa4de6df706757b3a1f02be1c77b0581", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.core.llm.settlement", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/settlement.py", "sha256": "6d680b37b3107322ec79e56d6e7959b6605c5af22be641d6305f65bc495f78a7", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}, {"module": "polisyos.core.llm.traced_client", "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/traced_client.py", "sha256": "f982028c7533dacac0df93475177bd840857768744ebf0bfd8c2181af912b81a", "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"}], "physical_calls": 0, "physical_work": [], "profile": "actual production raw-BudgetState worker constructors; no durable middleware injected", "same_budget_state": {"limits": {"policy_briefing": {"key": "policy_briefing", "max_usd": "10", "soft_limit_usd": null}, "policy_translator": {"key": "policy_translator", "max_usd": "10", "soft_limit_usd": null}}, "provider_spent": {}, "reserved": {}, "spent": {}}, "worker": "translator", "worker_outcomes": [{"returned_type": "PolicyBrief", "value": {"artifact_functions": ["promotion_gating"], "audience": "decision_maker", "brief_id": "brief_0dd05889235a", "executive_summary": "Observed candidate evidence.", "hard_constraint_notes": [], "metadata": {"translator_mode": "deterministic"}, "readiness_level": "recommendation_ready", "recommended_actions": [{"action_id": "action_1f03fa8a9d", "description": "Confirm monitoring and rollback triggers before deployment.", "priority": "high", "title": "Review rollout safeguards"}], "risks": [], "schema_version": "1.0", "subgroup_harms": [], "surfaced_assumptions": [], "title": "Policy brief for actual-worker-candidate", "tradeoffs": [{"axis": "policy_value", "champion_value": "1.2000", "comparator_value": null, "rationale": "Technical objective policy_value is 1.2000 in the dossier."}], "uncertainty_highlights": []}}, {"returned_type": "PolicyBrief", "value": {"artifact_functions": ["promotion_gating"], "audience": "decision_maker", "brief_id": "brief_d5cc5b80e85f", "executive_summary": "Observed candidate evidence.", "hard_constraint_notes": [], "metadata": {"translator_mode": "deterministic"}, "readiness_level": "recommendation_ready", "recommended_actions": [{"action_id": "action_4e752e96e8", "description": "Confirm monitoring and rollback triggers before deployment.", "priority": "high", "title": "Review rollout safeguards"}], "risks": [], "schema_version": "1.0", "subgroup_harms": [], "surfaced_assumptions": [], "title": "Policy brief for actual-worker-candidate", "tradeoffs": [{"axis": "policy_value", "champion_value": "1.2000", "comparator_value": null, "rationale": "Technical objective policy_value is 1.2000 in the dossier."}], "uncertainty_highlights": []}}]}
+FAILED
+
+=================================== FAILURES ===================================
+_ test_actual_worker_preserves_accounting_unknown_before_fresh_worker[missing-sdk-usage-adversary] _
+
+tmp_path = PosixPath('/tmp/e02-B-worker-accounting-a697-ox5n07s1/pytest/test_actual_worker_preserves_a0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff12deded70>
+worker_kind = 'adversary', cost_kind = 'missing-sdk-usage'
+
+    @pytest.mark.parametrize("worker_kind", ["adversary", "translator"])
+    @pytest.mark.parametrize("cost_kind", ["missing-sdk-usage", "reported-positive"])
+    def test_actual_worker_preserves_accounting_unknown_before_fresh_worker(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        worker_kind: str,
+        cost_kind: str,
+    ) -> None:
+        origins = _source_origins()
+        keys = (
+            ["policy_adversary"]
+            if worker_kind == "adversary"
+            else ["policy_translator", "policy_briefing"]
+        )
+        state = BudgetState(limits={key: BudgetLimit(key=key, max_usd=Decimal("10")) for key in keys})
+        bundle = _translator_input(state)
+        actual_content = (
+            {
+                "scenarios": [
+                    {
+                        "scenario_id": "obtained-scenario",
+                        "scenario_type": "shift",
+                        "rationale": "Obtained response.",
+                    }
+                ]
+            }
+            if worker_kind == "adversary"
+            else translator.DeterministicPolicyTranslator().translate(bundle).model_dump(mode="json")
+        )
+        if worker_kind == "translator":
+            actual_content["title"] = "Obtained physical provider brief"
+        physical = tmp_path / "physical-provider-work.jsonl"
+        for key, value in {
+            "POLISYOS_LLM_GATEWAY_BASE_URL": "https://worker-oracle.invalid/v1",
+            "POLISYOS_LLM_GATEWAY_API_KEY": "sk-worker-oracle-boundary-fixture",
+            "POLISYOS_LLM_SIMULATION_MODE": "false",
+            "POLISYOS_METRICS_PORT": "0",
+        }.items():
+            monkeypatch.setenv(key, value)
+    
+        async def sdk_boundary(
+            self: Any, *, endpoint: str, payload: dict[str, Any], timeout_s: float
+        ) -> dict[str, Any]:
+            with physical.open("a", encoding="utf-8") as stream:
+                stream.write(
+                    json.dumps({"endpoint": endpoint, "payload": payload, "timeout_s": timeout_s})
+                    + "\n"
+                )
+                stream.flush()
+                os.fsync(stream.fileno())
+            result = {
+                "choices": [{"message": {"content": json.dumps(actual_content)}}],
+                "model": self.model,
+                "provider": "actual-sdk-boundary-fixture",
+            }
+            if cost_kind == "reported-positive":
+                result["usage"] = {
+                    "prompt_tokens": 7,
+                    "completion_tokens": 3,
+                    "total_tokens": 10,
+                    "cost_usd": 0.02,
+                }
+            return result
+    
+        monkeypatch.setattr(gateway_client.GatewayLLMClient, "_post_json", sdk_boundary)
+        observed_errors: list[dict[str, Any]] = []
+        original_trace = sys.gettrace()
+    
+        def observe(frame: Any, event: str, arg: Any) -> Any:
+            if event == "exception" and frame.f_code is LLMBudgetEnforcer.generate.__code__:
+                error = arg[1]
+                if isinstance(error, LLMAccountingError):
+                    producer = error.event.get("producer_event")
+                    observed_errors.append(
+                        {
+                            "type": type(error).__name__,
+                            "message": str(error),
+                            "amount": str(producer.amount)
+                            if producer is not None and producer.amount is not None
+                            else None,
+                            "cost_origin": getattr(producer, "cost_origin", None),
+                            "status": error.event.get("settlement_status"),
+                        }
+                    )
+            return observe
+    
+        async def invoke_fresh_worker() -> Any:
+            if worker_kind == "adversary":
+                return await adversary.ScenarioAdversaryWorker(
+                    adversary.ScenarioAdversaryConfig(model_name="gpt-4o")
+                ).propose_async(
+                    adversary.ScenarioAttackSurface(candidate_id="actual-worker-candidate"),
+                    run_id="same-actual-worker-run",
+                    budget_state=state,
+                )
+            return await translator.PolicyTranslatorWorker(
+                translator.PolicyTranslatorConfig(model_name="gpt-4o")
+            ).translate_async(bundle)
+    
+        outcomes = []
+        sys.settrace(observe)
+        try:
+            for _ in range(2):
+                try:
+                    value = asyncio.run(invoke_fresh_worker())
+                    outcomes.append(
+                        {"returned_type": type(value).__name__, "value": value.model_dump(mode="json")}
+                    )
+                except Exception as exc:
+                    outcomes.append({"exception": type(exc).__name__, "message": str(exc)})
+        finally:
+            sys.settrace(original_trace)
+        physical_rows = (
+            [json.loads(line) for line in physical.read_text().splitlines()]
+            if physical.exists()
+            else []
+        )
+        quantities = {
+            "worker": worker_kind,
+            "cost_kind": cost_kind,
+            "origins": origins,
+            "physical_calls": len(physical_rows),
+            "physical_work": physical_rows,
+            "actual_enforcer_errors": observed_errors,
+            "worker_outcomes": outcomes,
+            "same_budget_state": state.model_dump(mode="json"),
+            "profile": "actual production raw-BudgetState worker constructors; no durable middleware injected",
+        }
+        print("E02_WORKER_ACCOUNTING " + json.dumps(quantities, sort_keys=True))
+        if cost_kind == "missing-sdk-usage":
+>           assert observed_errors and all(error["amount"] is None for error in observed_errors), (
+                quantities
+            )
+E           AssertionError: {'actual_enforcer_errors': [], 'cost_kind': 'missing-sdk-usage', 'origins': [{'module': 'polisyos.scientist.policy_design.adversary', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/adversary.py', 'sha256': 'e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.policy_design.translator', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/translator.py', 'sha256': 'a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.factory', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py', 'sha256': 'e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.gateway_client', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py', 'sha256': 'df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.prompt_cache', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py', 'sha256': 'e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.budget_enforcer', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py', 'sha256': '66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, ...], 'physical_calls': 0, ...}
+E           assert ([])
+
+tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py:258: AssertionError
+_ test_actual_worker_preserves_accounting_unknown_before_fresh_worker[missing-sdk-usage-translator] _
+
+tmp_path = PosixPath('/tmp/e02-B-worker-accounting-a697-ox5n07s1/pytest/test_actual_worker_preserves_a1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff12deddcd0>
+worker_kind = 'translator', cost_kind = 'missing-sdk-usage'
+
+    @pytest.mark.parametrize("worker_kind", ["adversary", "translator"])
+    @pytest.mark.parametrize("cost_kind", ["missing-sdk-usage", "reported-positive"])
+    def test_actual_worker_preserves_accounting_unknown_before_fresh_worker(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        worker_kind: str,
+        cost_kind: str,
+    ) -> None:
+        origins = _source_origins()
+        keys = (
+            ["policy_adversary"]
+            if worker_kind == "adversary"
+            else ["policy_translator", "policy_briefing"]
+        )
+        state = BudgetState(limits={key: BudgetLimit(key=key, max_usd=Decimal("10")) for key in keys})
+        bundle = _translator_input(state)
+        actual_content = (
+            {
+                "scenarios": [
+                    {
+                        "scenario_id": "obtained-scenario",
+                        "scenario_type": "shift",
+                        "rationale": "Obtained response.",
+                    }
+                ]
+            }
+            if worker_kind == "adversary"
+            else translator.DeterministicPolicyTranslator().translate(bundle).model_dump(mode="json")
+        )
+        if worker_kind == "translator":
+            actual_content["title"] = "Obtained physical provider brief"
+        physical = tmp_path / "physical-provider-work.jsonl"
+        for key, value in {
+            "POLISYOS_LLM_GATEWAY_BASE_URL": "https://worker-oracle.invalid/v1",
+            "POLISYOS_LLM_GATEWAY_API_KEY": "sk-worker-oracle-boundary-fixture",
+            "POLISYOS_LLM_SIMULATION_MODE": "false",
+            "POLISYOS_METRICS_PORT": "0",
+        }.items():
+            monkeypatch.setenv(key, value)
+    
+        async def sdk_boundary(
+            self: Any, *, endpoint: str, payload: dict[str, Any], timeout_s: float
+        ) -> dict[str, Any]:
+            with physical.open("a", encoding="utf-8") as stream:
+                stream.write(
+                    json.dumps({"endpoint": endpoint, "payload": payload, "timeout_s": timeout_s})
+                    + "\n"
+                )
+                stream.flush()
+                os.fsync(stream.fileno())
+            result = {
+                "choices": [{"message": {"content": json.dumps(actual_content)}}],
+                "model": self.model,
+                "provider": "actual-sdk-boundary-fixture",
+            }
+            if cost_kind == "reported-positive":
+                result["usage"] = {
+                    "prompt_tokens": 7,
+                    "completion_tokens": 3,
+                    "total_tokens": 10,
+                    "cost_usd": 0.02,
+                }
+            return result
+    
+        monkeypatch.setattr(gateway_client.GatewayLLMClient, "_post_json", sdk_boundary)
+        observed_errors: list[dict[str, Any]] = []
+        original_trace = sys.gettrace()
+    
+        def observe(frame: Any, event: str, arg: Any) -> Any:
+            if event == "exception" and frame.f_code is LLMBudgetEnforcer.generate.__code__:
+                error = arg[1]
+                if isinstance(error, LLMAccountingError):
+                    producer = error.event.get("producer_event")
+                    observed_errors.append(
+                        {
+                            "type": type(error).__name__,
+                            "message": str(error),
+                            "amount": str(producer.amount)
+                            if producer is not None and producer.amount is not None
+                            else None,
+                            "cost_origin": getattr(producer, "cost_origin", None),
+                            "status": error.event.get("settlement_status"),
+                        }
+                    )
+            return observe
+    
+        async def invoke_fresh_worker() -> Any:
+            if worker_kind == "adversary":
+                return await adversary.ScenarioAdversaryWorker(
+                    adversary.ScenarioAdversaryConfig(model_name="gpt-4o")
+                ).propose_async(
+                    adversary.ScenarioAttackSurface(candidate_id="actual-worker-candidate"),
+                    run_id="same-actual-worker-run",
+                    budget_state=state,
+                )
+            return await translator.PolicyTranslatorWorker(
+                translator.PolicyTranslatorConfig(model_name="gpt-4o")
+            ).translate_async(bundle)
+    
+        outcomes = []
+        sys.settrace(observe)
+        try:
+            for _ in range(2):
+                try:
+                    value = asyncio.run(invoke_fresh_worker())
+                    outcomes.append(
+                        {"returned_type": type(value).__name__, "value": value.model_dump(mode="json")}
+                    )
+                except Exception as exc:
+                    outcomes.append({"exception": type(exc).__name__, "message": str(exc)})
+        finally:
+            sys.settrace(original_trace)
+        physical_rows = (
+            [json.loads(line) for line in physical.read_text().splitlines()]
+            if physical.exists()
+            else []
+        )
+        quantities = {
+            "worker": worker_kind,
+            "cost_kind": cost_kind,
+            "origins": origins,
+            "physical_calls": len(physical_rows),
+            "physical_work": physical_rows,
+            "actual_enforcer_errors": observed_errors,
+            "worker_outcomes": outcomes,
+            "same_budget_state": state.model_dump(mode="json"),
+            "profile": "actual production raw-BudgetState worker constructors; no durable middleware injected",
+        }
+        print("E02_WORKER_ACCOUNTING " + json.dumps(quantities, sort_keys=True))
+        if cost_kind == "missing-sdk-usage":
+>           assert observed_errors and all(error["amount"] is None for error in observed_errors), (
+                quantities
+            )
+E           AssertionError: {'actual_enforcer_errors': [], 'cost_kind': 'missing-sdk-usage', 'origins': [{'module': 'polisyos.scientist.policy_design.adversary', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/adversary.py', 'sha256': 'e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.policy_design.translator', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/translator.py', 'sha256': 'a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.factory', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py', 'sha256': 'e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.gateway_client', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py', 'sha256': 'df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.prompt_cache', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py', 'sha256': 'e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.budget_enforcer', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py', 'sha256': '66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, ...], 'physical_calls': 0, ...}
+E           assert ([])
+
+tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py:258: AssertionError
+_ test_actual_worker_preserves_accounting_unknown_before_fresh_worker[reported-positive-adversary] _
+
+tmp_path = PosixPath('/tmp/e02-B-worker-accounting-a697-ox5n07s1/pytest/test_actual_worker_preserves_a2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff12d9a9130>
+worker_kind = 'adversary', cost_kind = 'reported-positive'
+
+    @pytest.mark.parametrize("worker_kind", ["adversary", "translator"])
+    @pytest.mark.parametrize("cost_kind", ["missing-sdk-usage", "reported-positive"])
+    def test_actual_worker_preserves_accounting_unknown_before_fresh_worker(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        worker_kind: str,
+        cost_kind: str,
+    ) -> None:
+        origins = _source_origins()
+        keys = (
+            ["policy_adversary"]
+            if worker_kind == "adversary"
+            else ["policy_translator", "policy_briefing"]
+        )
+        state = BudgetState(limits={key: BudgetLimit(key=key, max_usd=Decimal("10")) for key in keys})
+        bundle = _translator_input(state)
+        actual_content = (
+            {
+                "scenarios": [
+                    {
+                        "scenario_id": "obtained-scenario",
+                        "scenario_type": "shift",
+                        "rationale": "Obtained response.",
+                    }
+                ]
+            }
+            if worker_kind == "adversary"
+            else translator.DeterministicPolicyTranslator().translate(bundle).model_dump(mode="json")
+        )
+        if worker_kind == "translator":
+            actual_content["title"] = "Obtained physical provider brief"
+        physical = tmp_path / "physical-provider-work.jsonl"
+        for key, value in {
+            "POLISYOS_LLM_GATEWAY_BASE_URL": "https://worker-oracle.invalid/v1",
+            "POLISYOS_LLM_GATEWAY_API_KEY": "sk-worker-oracle-boundary-fixture",
+            "POLISYOS_LLM_SIMULATION_MODE": "false",
+            "POLISYOS_METRICS_PORT": "0",
+        }.items():
+            monkeypatch.setenv(key, value)
+    
+        async def sdk_boundary(
+            self: Any, *, endpoint: str, payload: dict[str, Any], timeout_s: float
+        ) -> dict[str, Any]:
+            with physical.open("a", encoding="utf-8") as stream:
+                stream.write(
+                    json.dumps({"endpoint": endpoint, "payload": payload, "timeout_s": timeout_s})
+                    + "\n"
+                )
+                stream.flush()
+                os.fsync(stream.fileno())
+            result = {
+                "choices": [{"message": {"content": json.dumps(actual_content)}}],
+                "model": self.model,
+                "provider": "actual-sdk-boundary-fixture",
+            }
+            if cost_kind == "reported-positive":
+                result["usage"] = {
+                    "prompt_tokens": 7,
+                    "completion_tokens": 3,
+                    "total_tokens": 10,
+                    "cost_usd": 0.02,
+                }
+            return result
+    
+        monkeypatch.setattr(gateway_client.GatewayLLMClient, "_post_json", sdk_boundary)
+        observed_errors: list[dict[str, Any]] = []
+        original_trace = sys.gettrace()
+    
+        def observe(frame: Any, event: str, arg: Any) -> Any:
+            if event == "exception" and frame.f_code is LLMBudgetEnforcer.generate.__code__:
+                error = arg[1]
+                if isinstance(error, LLMAccountingError):
+                    producer = error.event.get("producer_event")
+                    observed_errors.append(
+                        {
+                            "type": type(error).__name__,
+                            "message": str(error),
+                            "amount": str(producer.amount)
+                            if producer is not None and producer.amount is not None
+                            else None,
+                            "cost_origin": getattr(producer, "cost_origin", None),
+                            "status": error.event.get("settlement_status"),
+                        }
+                    )
+            return observe
+    
+        async def invoke_fresh_worker() -> Any:
+            if worker_kind == "adversary":
+                return await adversary.ScenarioAdversaryWorker(
+                    adversary.ScenarioAdversaryConfig(model_name="gpt-4o")
+                ).propose_async(
+                    adversary.ScenarioAttackSurface(candidate_id="actual-worker-candidate"),
+                    run_id="same-actual-worker-run",
+                    budget_state=state,
+                )
+            return await translator.PolicyTranslatorWorker(
+                translator.PolicyTranslatorConfig(model_name="gpt-4o")
+            ).translate_async(bundle)
+    
+        outcomes = []
+        sys.settrace(observe)
+        try:
+            for _ in range(2):
+                try:
+                    value = asyncio.run(invoke_fresh_worker())
+                    outcomes.append(
+                        {"returned_type": type(value).__name__, "value": value.model_dump(mode="json")}
+                    )
+                except Exception as exc:
+                    outcomes.append({"exception": type(exc).__name__, "message": str(exc)})
+        finally:
+            sys.settrace(original_trace)
+        physical_rows = (
+            [json.loads(line) for line in physical.read_text().splitlines()]
+            if physical.exists()
+            else []
+        )
+        quantities = {
+            "worker": worker_kind,
+            "cost_kind": cost_kind,
+            "origins": origins,
+            "physical_calls": len(physical_rows),
+            "physical_work": physical_rows,
+            "actual_enforcer_errors": observed_errors,
+            "worker_outcomes": outcomes,
+            "same_budget_state": state.model_dump(mode="json"),
+            "profile": "actual production raw-BudgetState worker constructors; no durable middleware injected",
+        }
+        print("E02_WORKER_ACCOUNTING " + json.dumps(quantities, sort_keys=True))
+        if cost_kind == "missing-sdk-usage":
+            assert observed_errors and all(error["amount"] is None for error in observed_errors), (
+                quantities
+            )
+            assert outcomes[0].get("exception") == "LLMAccountingError", quantities
+            assert len(physical_rows) == 1, quantities
+        else:
+            assert not observed_errors and all("exception" not in value for value in outcomes), (
+                quantities
+            )
+>           assert len(physical_rows) == 2, quantities
+E           AssertionError: {'actual_enforcer_errors': [], 'cost_kind': 'reported-positive', 'origins': [{'module': 'polisyos.scientist.policy_design.adversary', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/adversary.py', 'sha256': 'e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.policy_design.translator', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/translator.py', 'sha256': 'a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.factory', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py', 'sha256': 'e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.gateway_client', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py', 'sha256': 'df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.prompt_cache', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py', 'sha256': 'e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.budget_enforcer', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py', 'sha256': '66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, ...], 'physical_calls': 0, ...}
+E           assert 0 == 2
+E            +  where 0 = len([])
+
+tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py:267: AssertionError
+_ test_actual_worker_preserves_accounting_unknown_before_fresh_worker[reported-positive-translator] _
+
+tmp_path = PosixPath('/tmp/e02-B-worker-accounting-a697-ox5n07s1/pytest/test_actual_worker_preserves_a3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff12d976690>
+worker_kind = 'translator', cost_kind = 'reported-positive'
+
+    @pytest.mark.parametrize("worker_kind", ["adversary", "translator"])
+    @pytest.mark.parametrize("cost_kind", ["missing-sdk-usage", "reported-positive"])
+    def test_actual_worker_preserves_accounting_unknown_before_fresh_worker(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        worker_kind: str,
+        cost_kind: str,
+    ) -> None:
+        origins = _source_origins()
+        keys = (
+            ["policy_adversary"]
+            if worker_kind == "adversary"
+            else ["policy_translator", "policy_briefing"]
+        )
+        state = BudgetState(limits={key: BudgetLimit(key=key, max_usd=Decimal("10")) for key in keys})
+        bundle = _translator_input(state)
+        actual_content = (
+            {
+                "scenarios": [
+                    {
+                        "scenario_id": "obtained-scenario",
+                        "scenario_type": "shift",
+                        "rationale": "Obtained response.",
+                    }
+                ]
+            }
+            if worker_kind == "adversary"
+            else translator.DeterministicPolicyTranslator().translate(bundle).model_dump(mode="json")
+        )
+        if worker_kind == "translator":
+            actual_content["title"] = "Obtained physical provider brief"
+        physical = tmp_path / "physical-provider-work.jsonl"
+        for key, value in {
+            "POLISYOS_LLM_GATEWAY_BASE_URL": "https://worker-oracle.invalid/v1",
+            "POLISYOS_LLM_GATEWAY_API_KEY": "sk-worker-oracle-boundary-fixture",
+            "POLISYOS_LLM_SIMULATION_MODE": "false",
+            "POLISYOS_METRICS_PORT": "0",
+        }.items():
+            monkeypatch.setenv(key, value)
+    
+        async def sdk_boundary(
+            self: Any, *, endpoint: str, payload: dict[str, Any], timeout_s: float
+        ) -> dict[str, Any]:
+            with physical.open("a", encoding="utf-8") as stream:
+                stream.write(
+                    json.dumps({"endpoint": endpoint, "payload": payload, "timeout_s": timeout_s})
+                    + "\n"
+                )
+                stream.flush()
+                os.fsync(stream.fileno())
+            result = {
+                "choices": [{"message": {"content": json.dumps(actual_content)}}],
+                "model": self.model,
+                "provider": "actual-sdk-boundary-fixture",
+            }
+            if cost_kind == "reported-positive":
+                result["usage"] = {
+                    "prompt_tokens": 7,
+                    "completion_tokens": 3,
+                    "total_tokens": 10,
+                    "cost_usd": 0.02,
+                }
+            return result
+    
+        monkeypatch.setattr(gateway_client.GatewayLLMClient, "_post_json", sdk_boundary)
+        observed_errors: list[dict[str, Any]] = []
+        original_trace = sys.gettrace()
+    
+        def observe(frame: Any, event: str, arg: Any) -> Any:
+            if event == "exception" and frame.f_code is LLMBudgetEnforcer.generate.__code__:
+                error = arg[1]
+                if isinstance(error, LLMAccountingError):
+                    producer = error.event.get("producer_event")
+                    observed_errors.append(
+                        {
+                            "type": type(error).__name__,
+                            "message": str(error),
+                            "amount": str(producer.amount)
+                            if producer is not None and producer.amount is not None
+                            else None,
+                            "cost_origin": getattr(producer, "cost_origin", None),
+                            "status": error.event.get("settlement_status"),
+                        }
+                    )
+            return observe
+    
+        async def invoke_fresh_worker() -> Any:
+            if worker_kind == "adversary":
+                return await adversary.ScenarioAdversaryWorker(
+                    adversary.ScenarioAdversaryConfig(model_name="gpt-4o")
+                ).propose_async(
+                    adversary.ScenarioAttackSurface(candidate_id="actual-worker-candidate"),
+                    run_id="same-actual-worker-run",
+                    budget_state=state,
+                )
+            return await translator.PolicyTranslatorWorker(
+                translator.PolicyTranslatorConfig(model_name="gpt-4o")
+            ).translate_async(bundle)
+    
+        outcomes = []
+        sys.settrace(observe)
+        try:
+            for _ in range(2):
+                try:
+                    value = asyncio.run(invoke_fresh_worker())
+                    outcomes.append(
+                        {"returned_type": type(value).__name__, "value": value.model_dump(mode="json")}
+                    )
+                except Exception as exc:
+                    outcomes.append({"exception": type(exc).__name__, "message": str(exc)})
+        finally:
+            sys.settrace(original_trace)
+        physical_rows = (
+            [json.loads(line) for line in physical.read_text().splitlines()]
+            if physical.exists()
+            else []
+        )
+        quantities = {
+            "worker": worker_kind,
+            "cost_kind": cost_kind,
+            "origins": origins,
+            "physical_calls": len(physical_rows),
+            "physical_work": physical_rows,
+            "actual_enforcer_errors": observed_errors,
+            "worker_outcomes": outcomes,
+            "same_budget_state": state.model_dump(mode="json"),
+            "profile": "actual production raw-BudgetState worker constructors; no durable middleware injected",
+        }
+        print("E02_WORKER_ACCOUNTING " + json.dumps(quantities, sort_keys=True))
+        if cost_kind == "missing-sdk-usage":
+            assert observed_errors and all(error["amount"] is None for error in observed_errors), (
+                quantities
+            )
+            assert outcomes[0].get("exception") == "LLMAccountingError", quantities
+            assert len(physical_rows) == 1, quantities
+        else:
+            assert not observed_errors and all("exception" not in value for value in outcomes), (
+                quantities
+            )
+>           assert len(physical_rows) == 2, quantities
+E           AssertionError: {'actual_enforcer_errors': [], 'cost_kind': 'reported-positive', 'origins': [{'module': 'polisyos.scientist.policy_design.adversary', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/adversary.py', 'sha256': 'e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.policy_design.translator', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/translator.py', 'sha256': 'a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.factory', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py', 'sha256': 'e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.gateway_client', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py', 'sha256': 'df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.prompt_cache', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py', 'sha256': 'e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.budget_enforcer', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py', 'sha256': '66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, ...], 'physical_calls': 0, ...}
+E           assert 0 == 2
+E            +  where 0 = len([])
+
+tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py:267: AssertionError
+-- generated xml file: /tmp/e02-B-worker-accounting-a697-ox5n07s1/native.xml ---
+=========================== short test summary info ============================
+FAILED ../../e02-B-current-adapters/policy-engine::test_actual_worker_preserves_accounting_unknown_before_fresh_worker[missing-sdk-usage-adversary] - AssertionError: {'actual_enforcer_errors': [], 'cost_kind': 'missing-sdk-usage', 'origins': [{'module': 'polisyos.scientist.policy_design.adversary', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/adversary.py', 'sha256': 'e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.policy_design.translator', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/translator.py', 'sha256': 'a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.factory', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py', 'sha256': 'e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.gateway_client', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py', 'sha256': 'df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.prompt_cache', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py', 'sha256': 'e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.budget_enforcer', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py', 'sha256': '66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, ...], 'physical_calls': 0, ...}
+assert ([])
+FAILED ../../e02-B-current-adapters/policy-engine::test_actual_worker_preserves_accounting_unknown_before_fresh_worker[missing-sdk-usage-translator] - AssertionError: {'actual_enforcer_errors': [], 'cost_kind': 'missing-sdk-usage', 'origins': [{'module': 'polisyos.scientist.policy_design.adversary', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/adversary.py', 'sha256': 'e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.policy_design.translator', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/translator.py', 'sha256': 'a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.factory', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py', 'sha256': 'e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.gateway_client', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py', 'sha256': 'df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.prompt_cache', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py', 'sha256': 'e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.budget_enforcer', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py', 'sha256': '66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, ...], 'physical_calls': 0, ...}
+assert ([])
+FAILED ../../e02-B-current-adapters/policy-engine::test_actual_worker_preserves_accounting_unknown_before_fresh_worker[reported-positive-adversary] - AssertionError: {'actual_enforcer_errors': [], 'cost_kind': 'reported-positive', 'origins': [{'module': 'polisyos.scientist.policy_design.adversary', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/adversary.py', 'sha256': 'e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.policy_design.translator', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/translator.py', 'sha256': 'a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.factory', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py', 'sha256': 'e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.gateway_client', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py', 'sha256': 'df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.prompt_cache', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py', 'sha256': 'e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.budget_enforcer', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py', 'sha256': '66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, ...], 'physical_calls': 0, ...}
+assert 0 == 2
+ +  where 0 = len([])
+FAILED ../../e02-B-current-adapters/policy-engine::test_actual_worker_preserves_accounting_unknown_before_fresh_worker[reported-positive-translator] - AssertionError: {'actual_enforcer_errors': [], 'cost_kind': 'reported-positive', 'origins': [{'module': 'polisyos.scientist.policy_design.adversary', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/adversary.py', 'sha256': 'e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.policy_design.translator', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/translator.py', 'sha256': 'a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.factory', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py', 'sha256': 'e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.gateway_client', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py', 'sha256': 'df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.prompt_cache', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py', 'sha256': 'e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.budget_enforcer', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py', 'sha256': '66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, ...], 'physical_calls': 0, ...}
+assert 0 == 2
+ +  where 0 = len([])
+============================== 4 failed in 8.40s ===============================

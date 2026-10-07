@@ -1,0 +1,142 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "continuation-native-phase-journal",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+  "slice_base_tree_sha": "a07dc5b12a14ce004746cb43f7fbe609e8e0ff50",
+  "implementation_commits": [
+    "72965ae4d665db7d57ba0a2dbd7c050e5795492b"
+  ],
+  "candidate_tree_sha": "38bca96997cacfc24f985a1a74f74aa1018f8bbf",
+  "branch": "codex/e02-B-current-coordination",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/55",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-journal-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "current_cohort_inventory",
+        "-vv",
+        "-o",
+        "addopts=",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/journal/cache",
+        "--rootdir",
+        "/workspace/e02-B-current-coordination",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/journal/pytest",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py"
+      ],
+      "target_sha": "72965ae4d665db7d57ba0a2dbd7c050e5795492b",
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "native": "real pytest subprocess, source instrument at implementationSHA",
+        "signal_sender": "explicit test os.kill(self, SIGKILL)"
+      },
+      "input_closure": {
+        "instrument_sha256": "869afd5e4f6e3acdb665dec5193c936655bc6747c26e7b870dd8ee56f94bc104",
+        "fixture_source": "continuation-journal-probe.py@72965ae4d665db7d57ba0a2dbd7c050e5795492b",
+        "two_actual_cases": true
+      },
+      "outcome": "PASS",
+      "native_child_exit": -9,
+      "predicate": "preservation oracle; native session intentionally incomplete",
+      "output": {
+        "git_source_sha": "21dbeabe539f8154c30e5b2e1745d8d34224fe34",
+        "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal",
+        "stdout_native_sha256": "d700695c86bd3d2a0a9cec8b3aa5d8075942a9551eca78c3a5cd0abaa62ce52d",
+        "preserved_phases": 4,
+        "completed_cases": 1,
+        "terminal_partition": "not_established",
+        "junit": "absent; child explicitly killed"
+      }
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "current_cohort_inventory",
+        "-vv",
+        "-o",
+        "addopts=",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/without-journal/cache",
+        "--rootdir",
+        "/workspace/e02-B-current-coordination",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/without-journal/pytest",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py"
+      ],
+      "target_sha": "72965ae4d665db7d57ba0a2dbd7c050e5795492b",
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "native": "real pytest subprocess, source instrument at implementationSHA",
+        "signal_sender": "explicit test os.kill(self, SIGKILL)"
+      },
+      "input_closure": {
+        "instrument_sha256": "869afd5e4f6e3acdb665dec5193c936655bc6747c26e7b870dd8ee56f94bc104",
+        "fixture_source": "continuation-journal-probe.py@72965ae4d665db7d57ba0a2dbd7c050e5795492b",
+        "two_actual_cases": true
+      },
+      "outcome": "PASS",
+      "native_child_exit": -9,
+      "predicate": "preservation oracle; native session intentionally incomplete",
+      "output": {
+        "git_source_sha": "21dbeabe539f8154c30e5b2e1745d8d34224fe34",
+        "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/without-journal",
+        "stdout_native_sha256": "9f7c7ba6bd9369a7d2349454f399dd7f33e4b43920bac97767b2d33f7b9dd163",
+        "preserved_phases": 0,
+        "completed_cases": "not_established",
+        "terminal_partition": "not_established",
+        "junit": "absent; child explicitly killed"
+      }
+    }
+  ],
+  "property": {
+    "statement": "Retain actual completed pytest phases before abrupt process death, separately from collection and whole-session completion.",
+    "runtime_path": [
+      "real native pytest reports",
+      "optional exclusive ignored JSONL journal",
+      "per-report flush",
+      "explicit child SIGKILL",
+      "read actual surviving report prefix"
+    ],
+    "proxy_divergence": "Collection nodeids and stdout progress do not prove completed runtime phases. Optional journal retains first-case setup/call/teardown and second-case setup; final inventory remains collection_finished_runtime_pending.",
+    "negative_controls": [
+      "Same actual two cases with journal disabled retain zero runtime phases in the final inventory checkpoint."
+    ],
+    "scope": "Observation tooling only; no runtime finding admission, resource causality or power-loss durability."
+  },
+  "predicate_basis": "recomputed",
+  "independent_review": {
+    "reviewer": "B RUN helper, distinct from root author",
+    "source_sha": "21dbeabe539f8154c30e5b2e1745d8d34224fe34",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007.json",
+    "verdict": "NONBLOCKING for serial flushed-report preservation; xdist suffix source-reviewed only"
+  },
+  "capability_state_or_finding_state": "OBSERVATION_SOURCE_ACCEPTANCE_PROPOSAL; formal_closure=false",
+  "limitations_and_next_owner": [
+    "G/root must join actual phases with the complete frozen collection denominator; a partial journal never establishes a complete PASS/FAIL partition.",
+    "No fsync/power-loss or multi-host guarantee.",
+    "Source-only worker-output suffix review; native controlled probe was serial.",
+    "Root observes the forthcoming broad wave once; G controls code acceptance and finding closure."
+  ],
+  "full_deciding_oracle": {
+    "source_sha": "21dbeabe539f8154c30e5b2e1745d8d34224fe34",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/oracle.json",
+    "bytes": 3596,
+    "sha256": "5f4caa290be5998bec369f1a0f942b0983237c4483f63378b65a12b6728fe718"
+  },
+  "cleanup_policy": "All fixtures/environments/outputs preserved. No move, deletion, Trash or prune is authorized."
+}

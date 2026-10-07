@@ -1,0 +1,1031 @@
+{
+  "chain_digest": "5618c4f9685d368b68c4138409bfc5c47543f5d19295ff32b88a2c250b15f214",
+  "completed_fqns": [
+    "tests.checkpoint_identity.source@1.0.0"
+  ],
+  "completed_node_ids": [
+    "a2ee4bc8-7696-42c6-bc77-199330ff1027"
+  ],
+  "created_at": 1791359528.9115024,
+  "execution_digest": "e587cf6daf2636b685d1011ed3b71d11eae185e526ff3bd5f2d8f7fb8602b9f2",
+  "history_complete": true,
+  "identity_snapshot": {
+    "artifacts": {
+      "cache_refs": {
+        "a2ee4bc8-7696-42c6-bc77-199330ff1027": {
+          "content_sha256": "50d1cf2bfffe543934cd0ccc0d3a8c28489f7077e03514ba87464865f5a4d8b1",
+          "manifest_profile": {
+            "inputs": [],
+            "integrity": {},
+            "kind": "test.checkpoint_identity.output",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "producer": {
+              "component": "test.checkpoint_identity",
+              "version": "original"
+            },
+            "warnings": []
+          },
+          "ref": [
+            "sha256:50d1cf2bfffe543934cd0ccc0d3a8c28489f7077e03514ba87464865f5a4d8b1",
+            "test.checkpoint_identity.output",
+            "application/json",
+            "sha256:4b8ca8fe00bdb4d5112c9cac2a4d34cb617352cc8a712f90e837e862b1585b61"
+          ]
+        }
+      },
+      "config_refs": {
+        "factor": {
+          "content_sha256": "82efa4cadfd760a830325f23095d858a8288960861a180431111b7780ca6c0eb",
+          "manifest_profile": {
+            "inputs": [],
+            "integrity": {},
+            "kind": "test.checkpoint_identity.config",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "producer": {
+              "component": "test.checkpoint_identity",
+              "version": "original"
+            },
+            "warnings": []
+          },
+          "ref": [
+            "sha256:82efa4cadfd760a830325f23095d858a8288960861a180431111b7780ca6c0eb",
+            "test.checkpoint_identity.config",
+            "application/json",
+            "sha256:90007d2337069532f2676129c26e41573a24489a9943362b152fcdad96108754"
+          ]
+        }
+      },
+      "dependency_refs": {
+        "abi": {
+          "content_sha256": "1f6cc535d545c493085d9554876926bc5d383fa72eccc2826d5ca3b8b5d8456b",
+          "manifest_profile": {
+            "inputs": [],
+            "integrity": {},
+            "kind": "test.checkpoint_identity.dependency",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "producer": {
+              "component": "test.checkpoint_identity",
+              "version": "original"
+            },
+            "warnings": []
+          },
+          "ref": [
+            "sha256:1f6cc535d545c493085d9554876926bc5d383fa72eccc2826d5ca3b8b5d8456b",
+            "test.checkpoint_identity.dependency",
+            "application/json",
+            "sha256:d0781446623cb15730b4660e7370ed2ca39352fe447b4d3e3a1d88d7f371ba33"
+          ]
+        }
+      },
+      "input_refs": {
+        "x": {
+          "content_sha256": "54afd0d590e6b277d9cd1ce46e5480f683682e43b6b480f7d24906d9e935e44c",
+          "manifest_profile": {
+            "inputs": [],
+            "integrity": {},
+            "kind": "test.checkpoint_identity.input",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "producer": {
+              "component": "test.checkpoint_identity",
+              "version": "original"
+            },
+            "warnings": []
+          },
+          "ref": [
+            "sha256:54afd0d590e6b277d9cd1ce46e5480f683682e43b6b480f7d24906d9e935e44c",
+            "test.checkpoint_identity.input",
+            "application/json",
+            "sha256:896bcd82a984d8e7891171c414f6b97cba69e2b564de5bd0169995bf6a0bdfc3"
+          ]
+        }
+      },
+      "origin_ref": {
+        "origin": {
+          "content_sha256": "4e9e9062c4cb2d1a3310dc8b4819525800efc4f5e77f367c8e9d02870cf004ae",
+          "manifest_profile": {
+            "inputs": [],
+            "integrity": {},
+            "kind": "test.checkpoint_identity.origin",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "producer": {
+              "component": "test.checkpoint_identity",
+              "version": "original"
+            },
+            "warnings": []
+          },
+          "ref": [
+            "sha256:4e9e9062c4cb2d1a3310dc8b4819525800efc4f5e77f367c8e9d02870cf004ae",
+            "test.checkpoint_identity.origin",
+            "application/json",
+            "sha256:53a935e13bbbbeb42a838d3ecf0e62e36d144df455d207dd38603afe6c9860a5"
+          ]
+        }
+      }
+    },
+    "methods": {
+      "tests.checkpoint_identity.consumer@1.0.0": {
+        "callbacks": {
+          "pure_step": {
+            "implementation": {
+              "attributes": {},
+              "captures": {},
+              "defaults": null,
+              "keyword_defaults": {},
+              "source_hash": "11e7f88fca3272fa67720e0ef3b34016",
+              "symbol": "backends.test_checkpoint_identity._Consumer.pure_step"
+            },
+            "profile": "supported-python-code-graph-v2"
+          }
+        },
+        "class_source": {
+          "implementation": {
+            "attributes": {
+              "__firstlineno__": 97,
+              "__static_attributes__": {
+                "tuple": []
+              },
+              "metadata": {
+                "fields": {
+                  "assumptions": {
+                    "mapping_proxy": {}
+                  },
+                  "citations": {
+                    "tuple": []
+                  },
+                  "contracts": null,
+                  "coverage_contract": {
+                    "mapping_proxy": {}
+                  },
+                  "declared_truthfulness_tier": null,
+                  "description": "Checkpoint identity arithmetic",
+                  "determinism_tier": null,
+                  "diagnostic_checks": {
+                    "tuple": []
+                  },
+                  "diagnostic_contract": {
+                    "mapping_proxy": {}
+                  },
+                  "equations": {
+                    "mapping_proxy": {}
+                  },
+                  "fallback_policy": "none",
+                  "identifiable_target": {
+                    "mapping_proxy": {}
+                  },
+                  "optional_deps": {
+                    "tuple": []
+                  },
+                  "output_interpretation": "",
+                  "prerequisites": {
+                    "tuple": []
+                  },
+                  "required_deps": {
+                    "tuple": []
+                  },
+                  "side_effect_profile": {
+                    "enum": "polisyos.foundry.methods.base.SideEffectProfile",
+                    "value": "none"
+                  },
+                  "simulator_regime_schema": {
+                    "mapping_proxy": {}
+                  },
+                  "summary_schema_ref": null,
+                  "tags": {
+                    "frozenset": [
+                      "test"
+                    ]
+                  },
+                  "truthfulness_scope": null,
+                  "typical_min_obs": null,
+                  "when_not_to_use": "",
+                  "when_to_use": ""
+                },
+                "frozen_record": "polisyos.foundry.methods.base.MethodMetadata",
+                "source_hash": "3e5db0854746b039a99ce12757c88cdd"
+              },
+              "pure_step": {
+                "descriptor": "staticmethod",
+                "function": {
+                  "attributes": {},
+                  "captures": {},
+                  "defaults": null,
+                  "keyword_defaults": {},
+                  "source_hash": "11e7f88fca3272fa67720e0ef3b34016",
+                  "symbol": "backends.test_checkpoint_identity._Consumer.pure_step"
+                }
+              },
+              "signature": {
+                "fields": {
+                  "backend": {
+                    "enum": "polisyos.foundry.methods.base.ComputeBackend",
+                    "value": "numpy"
+                  },
+                  "commutes_with": {
+                    "frozenset": []
+                  },
+                  "complexity": {
+                    "enum": "polisyos.foundry.methods.base.ComplexityClass",
+                    "value": 1
+                  },
+                  "conflicts_with": {
+                    "frozenset": []
+                  },
+                  "data_modalities": {
+                    "frozenset": []
+                  },
+                  "family": "tests.checkpoint_identity",
+                  "fidelity": {
+                    "enum": "polisyos.foundry.methods.base.FidelityLevel",
+                    "value": 1
+                  },
+                  "fidelity_tier": {
+                    "enum": "polisyos.foundry.methods.base.FidelityLevel",
+                    "value": 1
+                  },
+                  "input_slots": {
+                    "frozenset": [
+                      {
+                        "fields": {
+                          "bounds": {
+                            "tuple": [
+                              null,
+                              null
+                            ]
+                          },
+                          "contract_capabilities": {
+                            "frozenset": []
+                          },
+                          "contract_id": null,
+                          "contract_owner": null,
+                          "description": "",
+                          "name": "operand",
+                          "shape": {
+                            "tuple": []
+                          },
+                          "slot_type": {
+                            "enum": "polisyos.foundry.methods.base.SlotType",
+                            "value": 1
+                          },
+                          "unit": {
+                            "fields": {
+                              "dimension": "count",
+                              "scale": {
+                                "float_hex": "0x1.0000000000000p+0"
+                              },
+                              "symbol": "1"
+                            },
+                            "frozen_record": "polisyos.foundry.methods.base.Unit",
+                            "source_hash": "d3c8a4e3b5f319a8dc831fcbadb0ad93"
+                          }
+                        },
+                        "frozen_record": "polisyos.foundry.methods.base.SlotSpec",
+                        "source_hash": "acf6f48b63b379b8c30ddea59654538d"
+                      }
+                    ]
+                  },
+                  "kind": {
+                    "enum": "polisyos.foundry.methods.base.MethodKind",
+                    "value": "pure"
+                  },
+                  "name": "consumer",
+                  "namespace": "tests.checkpoint_identity",
+                  "output_slots": {
+                    "frozenset": [
+                      {
+                        "fields": {
+                          "bounds": {
+                            "tuple": [
+                              null,
+                              null
+                            ]
+                          },
+                          "contract_capabilities": {
+                            "frozenset": []
+                          },
+                          "contract_id": null,
+                          "contract_owner": null,
+                          "description": "",
+                          "name": "total",
+                          "shape": {
+                            "tuple": []
+                          },
+                          "slot_type": {
+                            "enum": "polisyos.foundry.methods.base.SlotType",
+                            "value": 1
+                          },
+                          "unit": {
+                            "fields": {
+                              "dimension": "count",
+                              "scale": {
+                                "float_hex": "0x1.0000000000000p+0"
+                              },
+                              "symbol": "1"
+                            },
+                            "frozen_record": "polisyos.foundry.methods.base.Unit",
+                            "source_hash": "d3c8a4e3b5f319a8dc831fcbadb0ad93"
+                          }
+                        },
+                        "frozen_record": "polisyos.foundry.methods.base.SlotSpec",
+                        "source_hash": "acf6f48b63b379b8c30ddea59654538d"
+                      }
+                    ]
+                  },
+                  "parameters": {
+                    "tuple": [
+                      {
+                        "fields": {
+                          "bounds": {
+                            "tuple": [
+                              null,
+                              null
+                            ]
+                          },
+                          "default": 1,
+                          "description": "",
+                          "is_static": false,
+                          "name": "increment"
+                        },
+                        "frozen_record": "polisyos.foundry.methods.base.ParameterSpec",
+                        "source_hash": "75146d35e886745ead05ee7a77337452"
+                      }
+                    ]
+                  },
+                  "requires": {
+                    "frozenset": [
+                      "tests.checkpoint_identity.source@1.0.0"
+                    ]
+                  },
+                  "supports_grad": false,
+                  "supports_jit": false,
+                  "supports_vmap": false,
+                  "variant": "source",
+                  "version": "1.0.0"
+                },
+                "frozen_record": "polisyos.foundry.methods.base.MethodSignature",
+                "source_hash": "89e97f069a9788230edd361de49253f1"
+              }
+            },
+            "bases": [],
+            "source_hash": "55da34ebc8d8c6a33dd0c12cec36d2e8",
+            "symbol": "backends.test_checkpoint_identity._Consumer"
+          },
+          "profile": "supported-python-code-graph-v2"
+        },
+        "runtime": {
+          "backend": "numpy",
+          "determinism_tier": "library_deterministic",
+          "execution_device": "cpu:numpy",
+          "library_versions": {
+            "numpy": "2.3.5",
+            "pandas": "2.3.3",
+            "scipy": "1.16.3"
+          },
+          "route_key": {
+            "arch_family": "x86_64",
+            "autotune_key": null,
+            "backend_route": "numpy",
+            "blas_vendor": "unknown",
+            "device_family": "cpu",
+            "dtype_mode": "float64_capable",
+            "jax_matmul_precision": null,
+            "solver_name": null,
+            "solver_options_hash": null,
+            "thread_policy": "default",
+            "xla_flags_hash": null
+          },
+          "runtime_backend": null,
+          "runtime_stack": []
+        },
+        "signature_digest": "9a027a72266e24f9821256d8f9a0853087fcc1f913378b9b5896a40e49bf2e82"
+      },
+      "tests.checkpoint_identity.source@1.0.0": {
+        "callbacks": {
+          "pure_step": {
+            "implementation": {
+              "attributes": {},
+              "captures": {
+                "math": {
+                  "module": "math",
+                  "selected_members": {
+                    "_e02_b74_owner_multiplier": {
+                      "attributes": {},
+                      "captures": {},
+                      "defaults": null,
+                      "keyword_defaults": {},
+                      "source_hash": "046afea80123bd4f91151dc0dbc8a78d",
+                      "symbol": "backends.test_module_source_identity._original_multiplier"
+                    }
+                  },
+                  "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+                }
+              },
+              "defaults": null,
+              "keyword_defaults": {},
+              "source_hash": "c29a023afd11f37d9c6e4fb1c2454093",
+              "symbol": "backends.test_module_source_identity._ImportedSource.pure_step"
+            },
+            "profile": "supported-python-code-graph-v2"
+          }
+        },
+        "class_source": {
+          "implementation": {
+            "attributes": {
+              "__firstlineno__": 37,
+              "__static_attributes__": {
+                "tuple": []
+              },
+              "metadata": {
+                "fields": {
+                  "assumptions": {
+                    "mapping_proxy": {}
+                  },
+                  "citations": {
+                    "tuple": []
+                  },
+                  "contracts": null,
+                  "coverage_contract": {
+                    "mapping_proxy": {}
+                  },
+                  "declared_truthfulness_tier": null,
+                  "description": "Checkpoint identity arithmetic",
+                  "determinism_tier": null,
+                  "diagnostic_checks": {
+                    "tuple": []
+                  },
+                  "diagnostic_contract": {
+                    "mapping_proxy": {}
+                  },
+                  "equations": {
+                    "mapping_proxy": {}
+                  },
+                  "fallback_policy": "none",
+                  "identifiable_target": {
+                    "mapping_proxy": {}
+                  },
+                  "optional_deps": {
+                    "tuple": []
+                  },
+                  "output_interpretation": "",
+                  "prerequisites": {
+                    "tuple": []
+                  },
+                  "required_deps": {
+                    "tuple": []
+                  },
+                  "side_effect_profile": {
+                    "enum": "polisyos.foundry.methods.base.SideEffectProfile",
+                    "value": "none"
+                  },
+                  "simulator_regime_schema": {
+                    "mapping_proxy": {}
+                  },
+                  "summary_schema_ref": null,
+                  "tags": {
+                    "frozenset": [
+                      "test"
+                    ]
+                  },
+                  "truthfulness_scope": null,
+                  "typical_min_obs": null,
+                  "when_not_to_use": "",
+                  "when_to_use": ""
+                },
+                "frozen_record": "polisyos.foundry.methods.base.MethodMetadata",
+                "source_hash": "3e5db0854746b039a99ce12757c88cdd"
+              },
+              "pure_step": {
+                "descriptor": "staticmethod",
+                "function": {
+                  "attributes": {},
+                  "captures": {
+                    "math": {
+                      "module": "math",
+                      "selected_members": {
+                        "_e02_b74_owner_multiplier": {
+                          "attributes": {},
+                          "captures": {},
+                          "defaults": null,
+                          "keyword_defaults": {},
+                          "source_hash": "046afea80123bd4f91151dc0dbc8a78d",
+                          "symbol": "backends.test_module_source_identity._original_multiplier"
+                        }
+                      },
+                      "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+                    }
+                  },
+                  "defaults": null,
+                  "keyword_defaults": {},
+                  "source_hash": "c29a023afd11f37d9c6e4fb1c2454093",
+                  "symbol": "backends.test_module_source_identity._ImportedSource.pure_step"
+                }
+              },
+              "signature": {
+                "fields": {
+                  "backend": {
+                    "enum": "polisyos.foundry.methods.base.ComputeBackend",
+                    "value": "numpy"
+                  },
+                  "commutes_with": {
+                    "frozenset": []
+                  },
+                  "complexity": {
+                    "enum": "polisyos.foundry.methods.base.ComplexityClass",
+                    "value": 1
+                  },
+                  "conflicts_with": {
+                    "frozenset": []
+                  },
+                  "data_modalities": {
+                    "frozenset": []
+                  },
+                  "family": "tests.checkpoint_identity",
+                  "fidelity": {
+                    "enum": "polisyos.foundry.methods.base.FidelityLevel",
+                    "value": 1
+                  },
+                  "fidelity_tier": {
+                    "enum": "polisyos.foundry.methods.base.FidelityLevel",
+                    "value": 1
+                  },
+                  "input_slots": {
+                    "frozenset": []
+                  },
+                  "kind": {
+                    "enum": "polisyos.foundry.methods.base.MethodKind",
+                    "value": "pure"
+                  },
+                  "name": "source",
+                  "namespace": "tests.checkpoint_identity",
+                  "output_slots": {
+                    "frozenset": [
+                      {
+                        "fields": {
+                          "bounds": {
+                            "tuple": [
+                              null,
+                              null
+                            ]
+                          },
+                          "contract_capabilities": {
+                            "frozenset": []
+                          },
+                          "contract_id": null,
+                          "contract_owner": null,
+                          "description": "",
+                          "name": "product",
+                          "shape": {
+                            "tuple": []
+                          },
+                          "slot_type": {
+                            "enum": "polisyos.foundry.methods.base.SlotType",
+                            "value": 1
+                          },
+                          "unit": {
+                            "fields": {
+                              "dimension": "count",
+                              "scale": {
+                                "float_hex": "0x1.0000000000000p+0"
+                              },
+                              "symbol": "1"
+                            },
+                            "frozen_record": "polisyos.foundry.methods.base.Unit",
+                            "source_hash": "d3c8a4e3b5f319a8dc831fcbadb0ad93"
+                          }
+                        },
+                        "frozen_record": "polisyos.foundry.methods.base.SlotSpec",
+                        "source_hash": "acf6f48b63b379b8c30ddea59654538d"
+                      }
+                    ]
+                  },
+                  "parameters": {
+                    "tuple": [
+                      {
+                        "fields": {
+                          "bounds": {
+                            "tuple": [
+                              null,
+                              null
+                            ]
+                          },
+                          "default": 2,
+                          "description": "",
+                          "is_static": true,
+                          "name": "factor"
+                        },
+                        "frozen_record": "polisyos.foundry.methods.base.ParameterSpec",
+                        "source_hash": "75146d35e886745ead05ee7a77337452"
+                      }
+                    ]
+                  },
+                  "requires": {
+                    "frozenset": []
+                  },
+                  "supports_grad": false,
+                  "supports_jit": false,
+                  "supports_vmap": false,
+                  "variant": "source",
+                  "version": "1.0.0"
+                },
+                "frozen_record": "polisyos.foundry.methods.base.MethodSignature",
+                "source_hash": "89e97f069a9788230edd361de49253f1"
+              }
+            },
+            "bases": [],
+            "source_hash": "aef287d0d17ae3823e8338bee8ea3d62",
+            "symbol": "backends.test_module_source_identity._ImportedSource"
+          },
+          "profile": "supported-python-code-graph-v2"
+        },
+        "runtime": {
+          "backend": "numpy",
+          "determinism_tier": "library_deterministic",
+          "execution_device": "cpu:numpy",
+          "library_versions": {
+            "numpy": "2.3.5",
+            "pandas": "2.3.3",
+            "scipy": "1.16.3"
+          },
+          "route_key": {
+            "arch_family": "x86_64",
+            "autotune_key": null,
+            "backend_route": "numpy",
+            "blas_vendor": "unknown",
+            "device_family": "cpu",
+            "dtype_mode": "float64_capable",
+            "jax_matmul_precision": null,
+            "solver_name": null,
+            "solver_options_hash": null,
+            "thread_policy": "default",
+            "xla_flags_hash": null
+          },
+          "runtime_backend": null,
+          "runtime_stack": []
+        },
+        "signature_digest": "78cc12bb64baef1eeefa4c371bed8693ace08ba089a1426d33fb8724aee2b371"
+      }
+    },
+    "profile": "artifact-source-v1",
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "scope": {
+      "cell_id": null,
+      "tenant_id": null
+    }
+  },
+  "intermediate_state": {
+    "product": 6,
+    "x": 3
+  },
+  "node_results": [
+    {
+      "artifacts": {
+        "backend_runtime_fingerprint": {
+          "available": true,
+          "backend": "numpy",
+          "determinism_tier": "library_deterministic",
+          "execution_device": "cpu:numpy",
+          "fingerprint": "d45b151a5aee01d8",
+          "library_versions": {
+            "numpy": "2.3.5",
+            "pandas": "2.3.3",
+            "scipy": "1.16.3"
+          },
+          "notes": [],
+          "observed_tolerance_budget": {
+            "abs_tol_p50": null,
+            "abs_tol_p95": null,
+            "abs_tol_p99": null,
+            "budget_source": "seed_prior",
+            "canary_suite_id": null,
+            "distributional_metrics": {
+              "ks_statistic": null,
+              "q50_abs_error": null,
+              "q90_width_abs_error": null
+            },
+            "downgraded_from": null,
+            "downgraded_to": null,
+            "expected_budget": {
+              "cross_architecture_abs_tol": 1e-09,
+              "cross_architecture_ks_tol": null,
+              "cross_architecture_q50_abs_tol": null,
+              "cross_architecture_q90_width_abs_tol": null,
+              "cross_architecture_rel_tol": 1e-08,
+              "same_architecture_abs_tol": 1e-12,
+              "same_architecture_ks_tol": null,
+              "same_architecture_q50_abs_tol": null,
+              "same_architecture_q90_width_abs_tol": null,
+              "same_architecture_rel_tol": 1e-12,
+              "same_fingerprint_abs_tol": 0.0,
+              "same_fingerprint_ks_tol": null,
+              "same_fingerprint_q50_abs_tol": null,
+              "same_fingerprint_q90_width_abs_tol": null,
+              "same_fingerprint_rel_tol": 0.0,
+              "semantic_mode": "library_exact_cpu"
+            },
+            "failure_reasons": [],
+            "mode": "allclose",
+            "reference_fingerprint": "d45b151a5aee01d8",
+            "rel_tol_p50": null,
+            "rel_tol_p95": null,
+            "rel_tol_p99": null,
+            "route_key": {
+              "arch_family": "x86_64",
+              "autotune_key": null,
+              "backend_route": "numpy",
+              "blas_vendor": "unknown",
+              "device_family": "cpu",
+              "dtype_mode": "float64_capable",
+              "jax_matmul_precision": null,
+              "solver_name": null,
+              "solver_options_hash": null,
+              "thread_policy": "default",
+              "xla_flags_hash": null
+            },
+            "sample_count": 0,
+            "scope": "same_fingerprint",
+            "solver_residual_budget": {
+              "dual": null,
+              "gap": null,
+              "optimality": null,
+              "primal": null
+            },
+            "ulp_tol_p99": null,
+            "validation_status": "compatible"
+          },
+          "replay_semantics": "Replay must match exactly within the same CPU/library stack; cross-ISA uses tolerance budget.",
+          "route_key": {
+            "arch_family": "x86_64",
+            "autotune_key": null,
+            "backend_route": "numpy",
+            "blas_vendor": "unknown",
+            "device_family": "cpu",
+            "dtype_mode": "float64_capable",
+            "jax_matmul_precision": null,
+            "solver_name": null,
+            "solver_options_hash": null,
+            "thread_policy": "default",
+            "xla_flags_hash": null
+          },
+          "runtime_backend": null,
+          "runtime_stack": [],
+          "seed": 7,
+          "tolerance_budget": {
+            "cross_architecture_abs_tol": 1e-09,
+            "cross_architecture_rel_tol": 1e-08,
+            "same_architecture_abs_tol": 1e-12,
+            "same_architecture_rel_tol": 1e-12,
+            "semantic_mode": "library_exact_cpu"
+          }
+        },
+        "cost_attribution": {
+          "backend": "numpy",
+          "compile_time_ms": null,
+          "cpu_time_ms": null,
+          "determinism_tier": "library_deterministic",
+          "estimated_cost_usd": 1.2e-09,
+          "method_fqn": "tests.checkpoint_identity.source@1.0.0",
+          "seed": 7,
+          "usd_per_ms": 5e-07,
+          "wall_time_ms": 0.0024139881134033203
+        },
+        "dispatch_trace": {
+          "attempts": [
+            {
+              "backend": "numpy",
+              "outcome": "success"
+            }
+          ],
+          "declared_route_budget": {
+            "abs_tol_p50": null,
+            "abs_tol_p95": null,
+            "abs_tol_p99": null,
+            "budget_source": "seed_prior",
+            "canary_suite_id": null,
+            "distributional_metrics": {
+              "ks_statistic": null,
+              "q50_abs_error": null,
+              "q90_width_abs_error": null
+            },
+            "downgraded_from": null,
+            "downgraded_to": null,
+            "expected_budget": {
+              "cross_architecture_abs_tol": 1e-09,
+              "cross_architecture_ks_tol": null,
+              "cross_architecture_q50_abs_tol": null,
+              "cross_architecture_q90_width_abs_tol": null,
+              "cross_architecture_rel_tol": 1e-08,
+              "same_architecture_abs_tol": 1e-12,
+              "same_architecture_ks_tol": null,
+              "same_architecture_q50_abs_tol": null,
+              "same_architecture_q90_width_abs_tol": null,
+              "same_architecture_rel_tol": 1e-12,
+              "same_fingerprint_abs_tol": 0.0,
+              "same_fingerprint_ks_tol": null,
+              "same_fingerprint_q50_abs_tol": null,
+              "same_fingerprint_q90_width_abs_tol": null,
+              "same_fingerprint_rel_tol": 0.0,
+              "semantic_mode": "library_exact_cpu"
+            },
+            "failure_reasons": [],
+            "mode": "allclose",
+            "reference_fingerprint": "d45b151a5aee01d8",
+            "rel_tol_p50": null,
+            "rel_tol_p95": null,
+            "rel_tol_p99": null,
+            "route_key": {
+              "arch_family": "x86_64",
+              "autotune_key": null,
+              "backend_route": "numpy",
+              "blas_vendor": "unknown",
+              "device_family": "cpu",
+              "dtype_mode": "float64_capable",
+              "jax_matmul_precision": null,
+              "solver_name": null,
+              "solver_options_hash": null,
+              "thread_policy": "default",
+              "xla_flags_hash": null
+            },
+            "sample_count": 0,
+            "scope": "same_fingerprint",
+            "solver_residual_budget": {
+              "dual": null,
+              "gap": null,
+              "optimality": null,
+              "primal": null
+            },
+            "ulp_tol_p99": null,
+            "validation_status": "compatible"
+          },
+          "degraded": false,
+          "method_fqn": "tests.checkpoint_identity.source@1.0.0",
+          "n_obs": null,
+          "observed_route_budget": {
+            "abs_tol_p50": null,
+            "abs_tol_p95": null,
+            "abs_tol_p99": null,
+            "budget_source": "seed_prior",
+            "canary_suite_id": null,
+            "distributional_metrics": {
+              "ks_statistic": null,
+              "q50_abs_error": null,
+              "q90_width_abs_error": null
+            },
+            "downgraded_from": null,
+            "downgraded_to": null,
+            "expected_budget": {
+              "cross_architecture_abs_tol": 1e-09,
+              "cross_architecture_ks_tol": null,
+              "cross_architecture_q50_abs_tol": null,
+              "cross_architecture_q90_width_abs_tol": null,
+              "cross_architecture_rel_tol": 1e-08,
+              "same_architecture_abs_tol": 1e-12,
+              "same_architecture_ks_tol": null,
+              "same_architecture_q50_abs_tol": null,
+              "same_architecture_q90_width_abs_tol": null,
+              "same_architecture_rel_tol": 1e-12,
+              "same_fingerprint_abs_tol": 0.0,
+              "same_fingerprint_ks_tol": null,
+              "same_fingerprint_q50_abs_tol": null,
+              "same_fingerprint_q90_width_abs_tol": null,
+              "same_fingerprint_rel_tol": 0.0,
+              "semantic_mode": "library_exact_cpu"
+            },
+            "failure_reasons": [],
+            "mode": "allclose",
+            "reference_fingerprint": "d45b151a5aee01d8",
+            "rel_tol_p50": null,
+            "rel_tol_p95": null,
+            "rel_tol_p99": null,
+            "route_key": {
+              "arch_family": "x86_64",
+              "autotune_key": null,
+              "backend_route": "numpy",
+              "blas_vendor": "unknown",
+              "device_family": "cpu",
+              "dtype_mode": "float64_capable",
+              "jax_matmul_precision": null,
+              "solver_name": null,
+              "solver_options_hash": null,
+              "thread_policy": "default",
+              "xla_flags_hash": null
+            },
+            "sample_count": 0,
+            "scope": "same_fingerprint",
+            "solver_residual_budget": {
+              "dual": null,
+              "gap": null,
+              "optimality": null,
+              "primal": null
+            },
+            "ulp_tol_p99": null,
+            "validation_status": "compatible"
+          },
+          "predicted_requested_ms": null,
+          "predicted_selected_ms": null,
+          "requested_backend": "numpy",
+          "selected_backend": "numpy",
+          "selection_reason": "declared_backend"
+        }
+      },
+      "cross_backend_equivalence_ref": null,
+      "method_fqn": "tests.checkpoint_identity.source@1.0.0",
+      "node_id": "a2ee4bc8-7696-42c6-bc77-199330ff1027",
+      "output": {
+        "product": 6
+      },
+      "reproducibility": {
+        "backend": "numpy",
+        "determinism_tier": "library_deterministic",
+        "fingerprint": "2a8340fe06d17bd6",
+        "library_versions": {
+          "numpy": "2.3.5",
+          "pandas": "2.3.3",
+          "scipy": "1.16.3"
+        },
+        "note": "Replay must match exactly within the same CPU/library stack; cross-ISA uses tolerance budget.",
+        "observed_tolerance_budget": {
+          "abs_tol_p50": null,
+          "abs_tol_p95": null,
+          "abs_tol_p99": null,
+          "budget_source": "seed_prior",
+          "canary_suite_id": null,
+          "distributional_metrics": {
+            "ks_statistic": null,
+            "q50_abs_error": null,
+            "q90_width_abs_error": null
+          },
+          "downgraded_from": null,
+          "downgraded_to": null,
+          "expected_budget": {
+            "cross_architecture_abs_tol": 1e-09,
+            "cross_architecture_ks_tol": null,
+            "cross_architecture_q50_abs_tol": null,
+            "cross_architecture_q90_width_abs_tol": null,
+            "cross_architecture_rel_tol": 1e-08,
+            "same_architecture_abs_tol": 1e-12,
+            "same_architecture_ks_tol": null,
+            "same_architecture_q50_abs_tol": null,
+            "same_architecture_q90_width_abs_tol": null,
+            "same_architecture_rel_tol": 1e-12,
+            "same_fingerprint_abs_tol": 0.0,
+            "same_fingerprint_ks_tol": null,
+            "same_fingerprint_q50_abs_tol": null,
+            "same_fingerprint_q90_width_abs_tol": null,
+            "same_fingerprint_rel_tol": 0.0,
+            "semantic_mode": "library_exact_cpu"
+          },
+          "failure_reasons": [],
+          "mode": "allclose",
+          "reference_fingerprint": "d45b151a5aee01d8",
+          "rel_tol_p50": null,
+          "rel_tol_p95": null,
+          "rel_tol_p99": null,
+          "route_key": {
+            "arch_family": "x86_64",
+            "autotune_key": null,
+            "backend_route": "numpy",
+            "blas_vendor": "unknown",
+            "device_family": "cpu",
+            "dtype_mode": "float64_capable",
+            "jax_matmul_precision": null,
+            "solver_name": null,
+            "solver_options_hash": null,
+            "thread_policy": "default",
+            "xla_flags_hash": null
+          },
+          "sample_count": 0,
+          "scope": "same_fingerprint",
+          "solver_residual_budget": {
+            "dual": null,
+            "gap": null,
+            "optimality": null,
+            "primal": null
+          },
+          "ulp_tol_p99": null,
+          "validation_status": "compatible"
+        },
+        "seed": 7,
+        "solver_gap": null,
+        "solver_iterations": null,
+        "solver_status": null
+      },
+      "slot_outputs": {
+        "product": 6
+      },
+      "timing": {
+        "compile_time_ms": null,
+        "cpu_time_ms": null,
+        "wall_time_ms": 0.0024139881134033203
+      },
+      "validated_bound": null,
+      "warnings": []
+    }
+  ],
+  "node_timing_ms": [
+    0.0024139881134033203
+  ]
+}

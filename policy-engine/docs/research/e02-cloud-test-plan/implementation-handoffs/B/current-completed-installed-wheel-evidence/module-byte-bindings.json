@@ -1,0 +1,103 @@
+{
+  "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "actual_child_origin_record": {
+    "distribution_version": "0.1.0",
+    "installed_site": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/lib/python3.14/site-packages",
+    "modules": [
+      {
+        "module": "polisyos",
+        "origin": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/lib/python3.14/site-packages/polisyos/__init__.py",
+        "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c",
+        "wheel_member": "polisyos/__init__.py"
+      },
+      {
+        "module": "polisyos.common",
+        "origin": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/lib/python3.14/site-packages/polisyos/common/__init__.py",
+        "sha256": "80cb9fa767bae18ffe0514ca9b1fb09f45263c754a921b77671d3deada89e080",
+        "wheel_member": "polisyos/common/__init__.py"
+      },
+      {
+        "module": "polisyos.common.async_tools",
+        "origin": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/lib/python3.14/site-packages/polisyos/common/async_tools.py",
+        "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+        "wheel_member": "polisyos/common/async_tools.py"
+      }
+    ],
+    "observation": "installed-wheel-source-identity",
+    "python": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/bin/python",
+    "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "test_sha256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+    "wheel": "/tmp/e02-B-la057-final-1862c021df74-run/wheels/policy_engine-0.1.0-py3-none-any.whl",
+    "wheel_sha256": "a9b7d921724a176b725222ca609f93d241fc83c244ec8aba996a3b0588912449"
+  },
+  "independently_recomputed_three_module_bytes": [
+    {
+      "module": "polisyos.__init__",
+      "wheel_member": "polisyos/__init__.py",
+      "actual_installed_path": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/lib/python3.14/site-packages/polisyos/__init__.py",
+      "source": {
+        "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/src/polisyos/__init__.py",
+        "git_blob": "a1b746537b78f1e2e6c5e8f288df8174fb936906",
+        "bytes": 24,
+        "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+      },
+      "actual_bytes": 24,
+      "actual_sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c",
+      "wheel_source_installed_actual_equal": true
+    },
+    {
+      "module": "polisyos.common.__init__",
+      "wheel_member": "polisyos/common/__init__.py",
+      "actual_installed_path": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/lib/python3.14/site-packages/polisyos/common/__init__.py",
+      "source": {
+        "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/src/polisyos/common/__init__.py",
+        "git_blob": "696045bd775c9a9fe4023217628e686bf76b78f3",
+        "bytes": 1336,
+        "sha256": "80cb9fa767bae18ffe0514ca9b1fb09f45263c754a921b77671d3deada89e080"
+      },
+      "actual_bytes": 1336,
+      "actual_sha256": "80cb9fa767bae18ffe0514ca9b1fb09f45263c754a921b77671d3deada89e080",
+      "wheel_source_installed_actual_equal": true
+    },
+    {
+      "module": "polisyos.common.async_tools",
+      "wheel_member": "polisyos/common/async_tools.py",
+      "actual_installed_path": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/lib/python3.14/site-packages/polisyos/common/async_tools.py",
+      "source": {
+        "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/src/polisyos/common/async_tools.py",
+        "git_blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+        "bytes": 11846,
+        "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+      },
+      "actual_bytes": 11846,
+      "actual_sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+      "wheel_source_installed_actual_equal": true
+    }
+  ],
+  "actual_printed_effect_observations": [
+    {
+      "observation": "cooperative-timeout-finally",
+      "actual": [
+        "outer-finally",
+        "child-finally"
+      ]
+    },
+    {
+      "observation": "caller-cancellation-finally",
+      "inside_loop": false,
+      "actual": [
+        "finally"
+      ]
+    },
+    {
+      "observation": "caller-cancellation-finally",
+      "inside_loop": true,
+      "actual": [
+        "finally"
+      ]
+    }
+  ],
+  "scope": "Complete3 module source/wheel/installed binding plus actual printed cooperative cleanup; not all wheel modules or arbitrary external consumers"
+}

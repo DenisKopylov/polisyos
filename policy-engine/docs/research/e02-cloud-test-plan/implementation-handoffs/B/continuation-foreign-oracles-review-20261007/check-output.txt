@@ -1,0 +1,101 @@
+{
+  "DUR_rows": {
+    "native": {
+      "actual_rows": [
+        {
+          "mode": "healthy",
+          "effect_physical_requests": 1,
+          "phase": [
+            "provider_in_flight"
+          ],
+          "reserved": {
+            "run": "0.00015000000000000001"
+          },
+          "caller_cancelled": false,
+          "owner_spent": {
+            "run": "0.02"
+          },
+          "owner_COMMITTED": 1,
+          "fresh_calls": 2,
+          "fresh_pending": 0,
+          "fresh_receipts": 2,
+          "freshstatus": "accepted",
+          "refusal_bytes_unchanged": false,
+          "fresh_source_origins": 7
+        },
+        {
+          "mode": "cancel",
+          "effect_physical_requests": 1,
+          "phase": [
+            "provider_in_flight"
+          ],
+          "reserved": {
+            "run": "0.00015000000000000001"
+          },
+          "caller_cancelled": true,
+          "owner_spent": {
+            "run": "0.02"
+          },
+          "owner_COMMITTED": 1,
+          "fresh_calls": 2,
+          "fresh_pending": 0,
+          "fresh_receipts": 2,
+          "freshstatus": "accepted",
+          "refusal_bytes_unchanged": false,
+          "fresh_source_origins": 7
+        },
+        {
+          "mode": "kill",
+          "effect_physical_requests": 1,
+          "phase": [
+            "provider_in_flight"
+          ],
+          "reserved": {
+            "run": "0.00015000000000000001"
+          },
+          "caller_cancelled": false,
+          "owner_spent": null,
+          "owner_COMMITTED": null,
+          "fresh_calls": 1,
+          "fresh_pending": 1,
+          "fresh_receipts": 0,
+          "freshstatus": "refused",
+          "refusal_bytes_unchanged": true,
+          "fresh_source_origins": 7
+        }
+      ],
+      "PASS": 3,
+      "FAIL": 0,
+      "ERROR": 0
+    },
+    "removal": {
+      "actual_rows": [
+        {
+          "mode": "kill",
+          "effect_physical_requests": 1,
+          "phase": [
+            "provider_in_flight"
+          ],
+          "reserved": {
+            "run": "0.00015000000000000001"
+          },
+          "caller_cancelled": false,
+          "owner_spent": null,
+          "owner_COMMITTED": null,
+          "fresh_calls": 2,
+          "fresh_pending": 2,
+          "fresh_receipts": 0,
+          "freshstatus": "refused",
+          "refusal_bytes_unchanged": false,
+          "fresh_source_origins": 7
+        }
+      ],
+      "PASS": 0,
+      "FAIL": 1,
+      "ERROR": 0
+    }
+  },
+  "observer_reports": 4,
+  "verdict": "NONBLOCKING",
+  "no_native": true
+}

@@ -1,0 +1,11 @@
+{
+  "base_sha": "c383c91007d8ae4438304392cc133f6fffbda5ac",
+  "root_frozen_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+  "source_path": "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+  "source_bytes": 12567,
+  "source_sha256": "5d73103dac73c60d2db247c12dd114ae9f433e8d5d759f58f96259789007a015",
+  "base_current_bytes_equal": true,
+  "whole_AST_equal": true,
+  "no_import_change": true,
+  "runtime_rerun": false
+}

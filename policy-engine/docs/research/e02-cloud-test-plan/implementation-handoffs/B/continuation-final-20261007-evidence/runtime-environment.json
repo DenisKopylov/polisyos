@@ -1,0 +1,24 @@
+{
+  "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+  "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "versions": {
+    "pytest": "9.0.2",
+    "hypothesis": "6.151.2",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "jax": "0.8.2",
+    "jaxlib": "0.8.2",
+    "pydantic": "2.12.5",
+    "tiktoken": "0.12.0",
+    "numba": null,
+    "dask": null,
+    "distributed": null,
+    "duckdb": "1.4.3",
+    "psycopg": null,
+    "dowhy": null,
+    "econml": null,
+    "temporalio": null
+  },
+  "interpretation": "Read-only distribution metadata; absence is missing distribution, presence does not prove imported or executed backend. PG driver3.3.2 separately supplied target may not be on this reader PYTHONPATH."
+}

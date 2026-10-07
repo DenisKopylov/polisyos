@@ -1,0 +1,76 @@
+{
+  "source_sha": "b4dbcfb261f7cf46085de4063050c486cb8551ad",
+  "source_tree": "47f3bb861ba15db9b174b45181667c2bc9f21117",
+  "files": [
+    {
+      "path": "policy-engine/architecture/generated_artifacts.toml",
+      "sha256": "2a647722c8e8448fca732ff77328a9157265c86dcc80346246d578c0cfebe6fc",
+      "bytes": 255402
+    },
+    {
+      "path": "policy-engine/docs/reference/generated-artifacts.md",
+      "sha256": "b4bb509a3a43304bc42b249aa0e9457090d27eb66a6df1e1b9b463cab6c86ebd",
+      "bytes": 268710
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "sha256": "58ec72001a9d236b4cb247a4229c64291a14f3c47429b26666cca484cb06cf0d",
+      "bytes": 220738
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "sha256": "3621f45572f23b6e0b5d3d1af7aefa56cfa2c3734129c814a6ac1b239520b102",
+      "bytes": 152713
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+      "bytes": 19715
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-compiled-chain-plan.toml",
+      "sha256": "89e39e107fdf8cb232fbf7109c96468b212a87a3e8d80cf4ee1d514ad72850d5",
+      "bytes": 1725
+    }
+  ],
+  "family": {
+    "id": "foundry-method-type-stubs",
+    "label": "Foundry method type stubs",
+    "owner": "team-policyos-foundry",
+    "approval_owner": "team-policyos-foundry",
+    "lifecycle": "generated_committed",
+    "generator": "Canonical Foundry stub generator with shared Ruff import sorting and formatting",
+    "verifier": "Canonical readonly --check compares all four generated outputs with their committed bytes",
+    "promotion_target": "The four internal method typing outputs listed in outputs",
+    "stale_output_behavior": "fail",
+    "source_of_truth": "tools/devx/foundry/generate_stubs.py TARGETS and OUTPUT_MAP; src/polisyos/foundry/methods/base.py; canonical components/composer.py; compatibility re-export policy",
+    "outputs": [
+      "src/polisyos/foundry/methods/base.pyi",
+      "src/polisyos/foundry/methods/registry.pyi",
+      "src/polisyos/foundry/methods/composer.pyi",
+      "src/polisyos/foundry/methods/components/composer.pyi"
+    ],
+    "regenerate_commands": [
+      "uv run polisyos-tools foundry generate-stubs"
+    ],
+    "commit_policy": "committed",
+    "freshness_rule": "Regenerate and commit when any declared source, private typing dependency, generator target, canonical formatting policy or re-export policy changes. Run the readonly comparator after regeneration.",
+    "compatibility_class": "internal-python-typing",
+    "version_owner": "team-policyos-foundry",
+    "release_fragment_change_class": "internal-tooling",
+    "compatibility_promise": "Generated stubs describe the existing internal implementations and compatibility re-exports; they do not enlarge a registered stable public facade.",
+    "drift_gate": "automated",
+    "workflow": "tools/devx/foundry/generate_stubs.py",
+    "check_cwd": ".",
+    "check_command": [
+      "uv",
+      "run",
+      "polisyos-tools",
+      "foundry",
+      "generate-stubs",
+      "--check"
+    ]
+  },
+  "public_classification_review": "Full contract/unlisted-module rule, recursive inventory and all five Foundry supported facades independently inspected in current-compiled-plan-final-custody-handoff.json@ba327b4a997b7cd06a341e521c472a970f06beb6. Three new plan internal artifact facade exports do not enlarge a listed stable facade.",
+  "qualification": "Only actual canonical public-surface/reference sync and committed generated lifecycle metadata; new comparator execution, OpenAPI/client regeneration and global architecture acceptance remain separate pending exact-candidate checks."
+}

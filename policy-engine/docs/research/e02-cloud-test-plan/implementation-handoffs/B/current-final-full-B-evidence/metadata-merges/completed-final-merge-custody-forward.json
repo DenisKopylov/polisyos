@@ -1,0 +1,17 @@
+{
+  "peer": "80ffac038e92eaf904d1939dc84bf4ba76b124bd",
+  "before": "ebecab2d4376f28285293808e5952de519932a53",
+  "merge_base": "322fc9ea598b5ebf82c915e2fffdccc9b4641965",
+  "after": "6884f3926155420ab78c968a84d58841a8c9fe04",
+  "after_tree": "d81972697c829e2516ecb2b4f7baab076b352a4c",
+  "paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-custody-forward-evidence/verify.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-custody-forward-evidence/verify.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-custody-forward-evidence/verify.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-incomplete-review.json"
+  ],
+  "non_handoff_paths": [],
+  "full_stdout": "Merge made by the 'ort' strategy.\n .../verify.source.txt                              | 123 +++++\n .../verify.stderr.txt                              |   0\n .../verify.stdout.json                             | 260 +++++++++\n ...current-completed-native-incomplete-review.json | 579 +++++++++++++++++++--\n 4 files changed, 919 insertions(+), 43 deletions(-)\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-custody-forward-evidence/verify.source.txt\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-custody-forward-evidence/verify.stderr.txt\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-custody-forward-evidence/verify.stdout.json\n",
+  "full_stderr": "",
+  "exit_code": 0
+}

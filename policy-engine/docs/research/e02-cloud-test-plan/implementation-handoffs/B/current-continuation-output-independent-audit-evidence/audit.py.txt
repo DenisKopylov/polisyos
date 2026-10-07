@@ -1,0 +1,75 @@
+"""Stdlib-only metadata audit of six retained parent gate outputs."""
+import collections
+import hashlib
+import json
+from pathlib import Path
+import re
+import subprocess
+import sys
+
+ROOT = Path('/workspace/e02-B-current-coordination')
+SOURCE = '6fa9b7142ba590c3173f1cd3be097286db5acc4d'
+RAW = ROOT / '.polisyos/e02-B-current/raw'
+TAG = 'continuation-' + SOURCE[:12]
+OUT = Path(sys.argv[1])
+ERRORS = []
+sha = lambda b: hashlib.sha256(b).hexdigest()
+git = lambda *a: subprocess.check_output(['git', *a], cwd=ROOT)
+TREE = git('rev-parse', SOURCE + '^{tree}').decode().strip()
+
+def read(path):
+    b = path.read_bytes()
+    return b, {'path':str(path),'bytes':len(b),'sha256':sha(b),'receiver_git_availability':'not_established'}
+
+def category(p):
+    return next((v for k,v in [('docs/research/','research'),('src/','production'),('tests/','tests'),('tools/','tools')] if p.removeprefix('policy-engine/').startswith(k)), 'other')
+
+def kv(s):
+    return {a:int(b) for a,b in (line.split() for line in s.splitlines())}
+
+rows = []
+for name in ['ruff','format','mypy','runtime-api','production-invocation','architecture']:
+    wb,wr = read(RAW/'review'/(TAG+'-'+name+'.json')); w=json.loads(wb)
+    pb,pr = read(RAW/TAG/name/'profile.json'); p=json.loads(pb)
+    ab,ar = read(RAW/TAG/name/'resource-after.json'); a=json.loads(ab)
+    ob,oref = read(Path(w['output_path'])); text=ob.decode()
+    if sha(ob)!=w['output_sha256']: ERRORS.append(name+': stdout hash mismatch')
+    if any(w[k]!=SOURCE for k in ['head','head_after']) or w['tree']!=TREE or p['sha']!=SOURCE or p['tree']!=TREE: ERRORS.append(name+': source/tree mismatch')
+    if w['command']!=p['command']: ERRORS.append(name+': argv mismatch')
+    inputs=p['inputs']; paths=inputs.get('full_paths',[]); projections={}
+    for base,supplied in inputs.get('comparison_projections',{}).items():
+        actual=sorted(x for x in git('diff','--name-only','--diff-filter=ACMR',base,SOURCE).decode().splitlines() if x.startswith('policy-engine/') and x.endswith('.py'))
+        match=actual==sorted(supplied); projections[base]={'count':len(supplied),'recomputed_count':len(actual),'same_full_set':match}
+        if not match: ERRORS.append(name+': projection mismatch '+base)
+    if projections:
+        union=sorted({x for xs in inputs['comparison_projections'].values() for x in xs})
+        expected=[x for x in union if x.startswith('policy-engine/src/')] if name=='mypy' else union
+        if paths!=expected or paths!=['policy-engine/'+x for x in w['command'] if x.endswith('.py')]: ERRORS.append(name+': literal input denominator mismatch')
+    manifest=[]
+    for path in paths:
+        b=git('show',SOURCE+':'+path)
+        manifest.append({'path':path,'bytes':len(b),'sha256':sha(b),'blob':git('rev-parse',SOURCE+':'+path).decode().strip()})
+    before=p['resources_before']
+    resource=lambda v:{'memory_current':int(v['memory.current']),'memory_max':int(v['memory.max']),'memory_events':kv(v['memory.events']),'memory_stat':kv(v['memory.stat']),'pids_current':int(v['pids.current']),'storage':v['storage']}
+    row={'gate':name,'source_sha':SOURCE,'source_tree':TREE,'command':w['command'],'cwd':w['cwd'],'exit_code':w['exit_code'],'exec_setup_error':w['exec_setup_error'],'harness_state':w['harness_state'],'wall_s':w['wall_s'],'wait4_child_maxrss_kib':w['process_rusage_maxrss_kib'],'refs':[wr,pr,ar,oref],'numeric_caps_absent':p['numeric_cap_names_absent'],'resources':{'before':resource(before),'after':resource(a),'attribution':'Shared cgroup observations and child maxRSS do not identify signal sender/cause or aggregate simultaneous gates.'},'inputs':{'selected_python':len(paths),'categories':dict(collections.Counter(category(x) for x in paths)),'comparison_projections':projections,'complete_selected_blob_manifest_sha256':sha(json.dumps(manifest,sort_keys=True).encode()),'all_selected_tracked_at_source':True,'full_profile':pr,'actual_profile_inputs':inputs if not projections else {'profile':inputs['profile']}},'P41':'NOT_ESTABLISHED: no same-full-input baseline replay/zero-intersection proof. Actual changed selected inputs/corpus intersect candidate; no inherited waiver.'}
+    if name=='ruff':
+        d=re.findall(r'^([A-Z]+\d+) ([^\n]+)\n\s*--> ([^\n]+):(\d+):(\d+)',text,re.M);declared=[int(x) for x in re.findall(r'Found (\d+) errors',text)]
+        if declared!=[len(d)]: ERRORS.append('Ruff parse/declared mismatch')
+        row.update(outcome='FAIL',complete_verdict=True,diagnostics={'parsed':len(d),'declared':declared,'by_category':dict(collections.Counter(category(x[2]) for x in d)),'by_code':dict(collections.Counter(x[0] for x in d)),'by_path':dict(sorted(collections.Counter(x[2] for x in d).items())),'nonresearch':[{'code':c,'message':m,'path':pa,'line':int(li),'column':int(co)} for c,m,pa,li,co in d if category(pa)!='research']})
+    elif name=='format':
+        d=re.findall(r'^Would reformat: (.+)$',text,re.M); total=re.findall(r'(\d+) files? would be reformatted, (\d+) files? already formatted',text)
+        if len(total)!=1 or tuple(map(int,total[0]))!=(len(d),len(paths)-len(d)): ERRORS.append('format full denominator mismatch')
+        row.update(outcome='FAIL',complete_verdict=True,diagnostics={'would_reformat':len(d),'already_formatted':len(paths)-len(d),'by_category':dict(collections.Counter(category(x) for x in d)),'nonresearch':[x for x in d if category(x)!='research']})
+    elif name=='mypy':
+        d=re.findall(r'^(.+?):(\d+): error: (.+)$',text,re.M)
+        row.update(outcome='ERROR',complete_verdict=False,observed_diagnostics=len(d),diagnostic_paths=dict(collections.Counter(x[0] for x in d)),terminal_summary=bool(re.search(r'^Found \d+ errors|^Success:',text,re.M)),qualification='Direct returncode -9 proves SIGKILL, not sender/cause. Actual observed source errors remain; no completed full diagnostic denominator/verdict.')
+    elif name=='runtime-api': row.update(outcome='ERROR',complete_verdict=False,qualification='Outer CLI exits137 after retained initialization logs; exact nested signal/PID/cause and runtime contract verdict not established.')
+    elif name=='production-invocation': row.update(outcome='ERROR',complete_verdict=False,qualification='Direct returncode -9 proves SIGKILL, not sender/cause; zero stdout is an interrupted scanner, not empty successful verdict.')
+    else:
+        lines=text.splitlines(); issues=[x for x in lines if x.startswith('- ')]
+        row.update(outcome='UNRUN',complete_verdict=False,complete_measured_families=[x for x in lines if x.startswith('Generated artifact freshness clean:')],unrun_measurements=[x for x in issues if x.startswith('- UNRUN')],structural_diagnostics=len([x for x in issues if not x.startswith('- UNRUN')]),qualification='Canonical full architecture output explicitly UNRUN/no complete verdict; OpenAPI generator137. Client3+1 measurements and structural diagnostics do not make full PASS.')
+    rows.append(row)
+result={'schema':'policyos.e02.captured_output_independent_audit.v1','source_sha':SOURCE,'source_tree':TREE,'actual_source_capture':{'head':git('rev-parse','HEAD').decode().strip(),'tree':git('rev-parse','HEAD^{tree}').decode().strip(),'status':git('status','--porcelain').decode()},'gates':rows,'audit_errors':ERRORS,'outcome_counts':dict(collections.Counter(x['outcome'] for x in rows)),'predicate_basis':'independently_reconciled','scope':'Stdlib metadata/output audit only; no candidate imports, gate/runtime execution, new source verdict, finding closure or bundle derivation.','pending':'Native/verify/parity are not graded here; wait for terminal parent evidence.','custody':'Original complete raw logs/profiles referenced with actual byte/hash. Receiver/Git availability not established by this audit; ROOT owns their publication or receiver must rerun with complete inputs.'}
+OUT.write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({'source':SOURCE,'tree':TREE,'gates':[{'name':x['gate'],'outcome':x['outcome'],'exit':x['exit_code'],'inputs':x['inputs']['selected_python'],'complete':x['complete_verdict'],'stdout':x['refs'][3]} for x in rows],'audit_errors':ERRORS,'output':str(OUT),'bytes':OUT.stat().st_size,'sha256':sha(OUT.read_bytes())},indent=2))
+sys.exit(1 if ERRORS else 0)

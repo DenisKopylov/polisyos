@@ -1,0 +1,74 @@
+{
+  "files": [
+    {
+      "path": "checks/results-import/results-import.json",
+      "bytes": 7681,
+      "sha256": "3c121c1f054a2fda19ac81b6f614b767bbd1d6231952c9fe46dc265db1e066d9"
+    },
+    {
+      "path": "checks/results-import/results-import.stdout.txt",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+    },
+    {
+      "path": "cleanup-candidates.json",
+      "bytes": 306,
+      "sha256": "096a69103ccd02934b4d4b5a4d2008ec636a6d21b8ce4dc9a030534f61d9342c"
+    },
+    {
+      "path": "execution-complete.json",
+      "bytes": 103,
+      "sha256": "15b7cce7eda42a7635e7389f2dae5a746ebd2cf8c407ac8946952b31ac310dd3"
+    },
+    {
+      "path": "plan.json",
+      "bytes": 998,
+      "sha256": "da07f645ec8f99ad96f7277d9819b685f1814e60fa37d3d2a6032cf23f7a4d8b"
+    },
+    {
+      "path": "publication-receipt.json",
+      "bytes": 9711,
+      "sha256": "4c537c2c1930ff8b7933fc3ba6ba7a9d663e0071e871cce51e8abcef51ea5331"
+    },
+    {
+      "path": "raw-custody.json",
+      "bytes": 223,
+      "sha256": "877442fe2bc9c8182fa86fbf4dd05d28b908a3bc9bbadcc297c1723653270c25"
+    },
+    {
+      "path": "wave-started.json",
+      "bytes": 98,
+      "sha256": "3d17254baadfb488e3fa998c5490bc9253f883c5b8c43c64acf273f848335066"
+    }
+  ],
+  "file_count": 8,
+  "total_bytes": 19232,
+  "self_index_excluded": true,
+  "wave_source_assets": [
+    {
+      "path": "plan.json",
+      "bytes": 998,
+      "sha256": "da07f645ec8f99ad96f7277d9819b685f1814e60fa37d3d2a6032cf23f7a4d8b"
+    },
+    {
+      "path": "wave-started.json",
+      "bytes": 98,
+      "sha256": "3d17254baadfb488e3fa998c5490bc9253f883c5b8c43c64acf273f848335066"
+    },
+    {
+      "path": "execution-complete.json",
+      "bytes": 103,
+      "sha256": "15b7cce7eda42a7635e7389f2dae5a746ebd2cf8c407ac8946952b31ac310dd3"
+    },
+    {
+      "path": "checks/results-import/results-import.json",
+      "bytes": 7681,
+      "sha256": "3c121c1f054a2fda19ac81b6f614b767bbd1d6231952c9fe46dc265db1e066d9"
+    },
+    {
+      "path": "checks/results-import/results-import.stdout.txt",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+    }
+  ]
+}

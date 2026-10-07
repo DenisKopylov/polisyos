@@ -1,0 +1,9 @@
+{
+  "outcome": "GO bounded DTOdelta/exactmathreuse",
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "actual_full_ABI_MODELS": 103,
+  "actual_IR_subset": 101,
+  "method_segments": 22,
+  "actualDTO_schema_equal": true,
+  "fresh_mean": 1.0
+}

@@ -1,0 +1,574 @@
+
+{
+    "version": "1.39.0",
+    "time": "1791375552943",
+    "generalDiagnostics": [
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Variable not allowed in type expression",
+            "range": {
+                "start": {
+                    "line": 225,
+                    "character": 18
+                },
+                "end": {
+                    "line": 225,
+                    "character": 31
+                }
+            },
+            "rule": "reportInvalidTypeForm"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Type arguments for \"Literal\" must be None, a literal value (int, bool, str, or bytes), or an enum value",
+            "range": {
+                "start": {
+                    "line": 225,
+                    "character": 18
+                },
+                "end": {
+                    "line": 225,
+                    "character": 31
+                }
+            },
+            "rule": "reportInvalidTypeForm"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "\"media_type\" overrides symbol of same name in class \"ArtifactRefModel\"\n  Variable is mutable so its type is invariant\n    Override type \"Literal['application/json']\" is not the same as base type \"str\"",
+            "range": {
+                "start": {
+                    "line": 226,
+                    "character": 4
+                },
+                "end": {
+                    "line": 226,
+                    "character": 14
+                }
+            },
+            "rule": "reportIncompatibleVariableOverride"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "\"kind\" overrides symbol of same name in class \"ArtifactRefModel\"\n  Variable is mutable so its type is invariant\n    Override type \"Literal['ir.forecast_candidate_receipt']\" is not the same as base type \"str\"",
+            "range": {
+                "start": {
+                    "line": 250,
+                    "character": 4
+                },
+                "end": {
+                    "line": 250,
+                    "character": 8
+                }
+            },
+            "rule": "reportIncompatibleVariableOverride"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "\"media_type\" overrides symbol of same name in class \"ArtifactRefModel\"\n  Variable is mutable so its type is invariant\n    Override type \"Literal['application/json']\" is not the same as base type \"str\"",
+            "range": {
+                "start": {
+                    "line": 251,
+                    "character": 4
+                },
+                "end": {
+                    "line": 251,
+                    "character": 14
+                }
+            },
+            "rule": "reportIncompatibleVariableOverride"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"object | None\" cannot be assigned to parameter \"schema_id\" of type \"str\" in function \"__init__\"\n  Type \"object | None\" is not assignable to type \"str\"\n    \"object\" is not assignable to \"str\"",
+            "range": {
+                "start": {
+                    "line": 365,
+                    "character": 18
+                },
+                "end": {
+                    "line": 365,
+                    "character": 41
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"str | object | None\" cannot be assigned to parameter \"schema_version\" of type \"str\" in function \"__init__\"\n  Type \"str | object | None\" is not assignable to type \"str\"\n    \"object\" is not assignable to \"str\"",
+            "range": {
+                "start": {
+                    "line": 366,
+                    "character": 23
+                },
+                "end": {
+                    "line": 366,
+                    "character": 30
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Variable not allowed in type expression",
+            "range": {
+                "start": {
+                    "line": 390,
+                    "character": 22
+                },
+                "end": {
+                    "line": 390,
+                    "character": 41
+                }
+            },
+            "rule": "reportInvalidTypeForm"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Type arguments for \"Literal\" must be None, a literal value (int, bool, str, or bytes), or an enum value",
+            "range": {
+                "start": {
+                    "line": 390,
+                    "character": 22
+                },
+                "end": {
+                    "line": 390,
+                    "character": 41
+                }
+            },
+            "rule": "reportInvalidTypeForm"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Variable not allowed in type expression",
+            "range": {
+                "start": {
+                    "line": 482,
+                    "character": 22
+                },
+                "end": {
+                    "line": 482,
+                    "character": 41
+                }
+            },
+            "rule": "reportInvalidTypeForm"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Type arguments for \"Literal\" must be None, a literal value (int, bool, str, or bytes), or an enum value",
+            "range": {
+                "start": {
+                    "line": 482,
+                    "character": 22
+                },
+                "end": {
+                    "line": 482,
+                    "character": 41
+                }
+            },
+            "rule": "reportInvalidTypeForm"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"tuple[AuthorityDenial, ...] | tuple[str, ...]\" cannot be assigned to parameter \"may_not_use_for\" of type \"tuple[AuthorityDenial, ...]\" in function \"__init__\"\n  Type \"tuple[AuthorityDenial, ...] | tuple[str, ...]\" is not assignable to type \"tuple[AuthorityDenial, ...]\"\n    \"tuple[str, ...]\" is not assignable to \"tuple[AuthorityDenial, ...]\"\n      Tuple entry 1 is incorrect type\n        Type \"str\" is not assignable to type \"AuthorityDenial\"\n          \"str\" is not assignable to type \"Literal['causal_effect_authority']\"\n          \"str\" is not assignable to type \"Literal['treatment_assignment_authority']\"\n          \"str\" is not assignable to type \"Literal['s10_authority']\"",
+            "range": {
+                "start": {
+                    "line": 610,
+                    "character": 24
+                },
+                "end": {
+                    "line": 610,
+                    "character": 94
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"CanonSpec\" cannot be assigned to parameter \"canon_spec\" of type \"CanonSpec | None\" in function \"put_json_artifact\"\n  Type \"CanonSpec\" is not assignable to type \"CanonSpec | None\"\n    \"polisyos.core.canon.canon_json.CanonSpec\" is not assignable to \"polisyos.ir.model_layer.canon.CanonSpec\"\n    \"CanonSpec\" is not assignable to \"None\"",
+            "range": {
+                "start": {
+                    "line": 676,
+                    "character": 19
+                },
+                "end": {
+                    "line": 676,
+                    "character": 60
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"object\" cannot be assigned to parameter \"expected_schema_version\" of type \"str | None\" in function \"_validate_json_artifact\"\n  Type \"object\" is not assignable to type \"str | None\"\n    \"object\" is not assignable to \"str\"\n    \"object\" is not assignable to \"None\"",
+            "range": {
+                "start": {
+                    "line": 761,
+                    "character": 32
+                },
+                "end": {
+                    "line": 761,
+                    "character": 47
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"CanonSpec\" cannot be assigned to parameter \"canon_spec\" of type \"CanonSpec | None\" in function \"put_json_artifact\"\n  Type \"CanonSpec\" is not assignable to type \"CanonSpec | None\"\n    \"polisyos.core.canon.canon_json.CanonSpec\" is not assignable to \"polisyos.ir.model_layer.canon.CanonSpec\"\n    \"CanonSpec\" is not assignable to \"None\"",
+            "range": {
+                "start": {
+                    "line": 786,
+                    "character": 19
+                },
+                "end": {
+                    "line": 786,
+                    "character": 60
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Cannot access attribute \"rpartition\" for class \"object\"\n  Attribute \"rpartition\" is unknown",
+            "range": {
+                "start": {
+                    "line": 842,
+                    "character": 47
+                },
+                "end": {
+                    "line": 842,
+                    "character": 57
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"object | None\" cannot be assigned to parameter \"target_metric\" of type \"str\" in function \"resolve_forecast_measurement_binding\"\n  Type \"object | None\" is not assignable to type \"str\"\n    \"object\" is not assignable to \"str\"",
+            "range": {
+                "start": {
+                    "line": 888,
+                    "character": 26
+                },
+                "end": {
+                    "line": 888,
+                    "character": 32
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"object | None\" cannot be assigned to parameter \"target_unit\" of type \"str\" in function \"resolve_forecast_measurement_binding\"\n  Type \"object | None\" is not assignable to type \"str\"\n    \"object\" is not assignable to \"str\"",
+            "range": {
+                "start": {
+                    "line": 889,
+                    "character": 24
+                },
+                "end": {
+                    "line": 889,
+                    "character": 50
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"object | None\" cannot be assigned to parameter \"target_scale\" of type \"str\" in function \"resolve_forecast_measurement_binding\"\n  Type \"object | None\" is not assignable to type \"str\"\n    \"object\" is not assignable to \"str\"",
+            "range": {
+                "start": {
+                    "line": 890,
+                    "character": 25
+                },
+                "end": {
+                    "line": 890,
+                    "character": 52
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Operator \"<=\" not supported for types \"Literal[0]\" and \"object | None\"\n  Operator \"<=\" not supported for types \"Literal[0]\" and \"object\"\n  Operator \"<=\" not supported for types \"Literal[0]\" and \"None\"",
+            "range": {
+                "start": {
+                    "line": 909,
+                    "character": 8
+                },
+                "end": {
+                    "line": 909,
+                    "character": 55
+                }
+            },
+            "rule": "reportOperatorIssue"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Operator \"<\" not supported for types \"object | None\" and \"object | None\"\n  Operator \"<\" not supported for types \"object\" and \"object\"\n  Operator \"<\" not supported for types \"object\" and \"None\"\n  Operator \"<\" not supported for types \"None\" and \"object\"\n  Operator \"<\" not supported for types \"None\" and \"None\"",
+            "range": {
+                "start": {
+                    "line": 909,
+                    "character": 13
+                },
+                "end": {
+                    "line": 909,
+                    "character": 55
+                }
+            },
+            "rule": "reportOperatorIssue"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Operator \"<\" not supported for types \"object | None\" and \"object | None\"\n  Operator \"<\" not supported for types \"object\" and \"object\"\n  Operator \"<\" not supported for types \"object\" and \"None\"\n  Operator \"<\" not supported for types \"None\" and \"object\"\n  Operator \"<\" not supported for types \"None\" and \"None\"",
+            "range": {
+                "start": {
+                    "line": 909,
+                    "character": 28
+                },
+                "end": {
+                    "line": 909,
+                    "character": 55
+                }
+            },
+            "rule": "reportOperatorIssue"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Operator \"-\" not supported for types \"object | None\" and \"object | None\"\n  Operator \"-\" not supported for types \"object\" and \"object\"\n  Operator \"-\" not supported for types \"object\" and \"None\"\n  Operator \"-\" not supported for types \"None\" and \"object\"\n  Operator \"-\" not supported for types \"None\" and \"None\"",
+            "range": {
+                "start": {
+                    "line": 910,
+                    "character": 23
+                },
+                "end": {
+                    "line": 910,
+                    "character": 50
+                }
+            },
+            "rule": "reportOperatorIssue"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Operator \">\" not supported for types \"object | None\" and \"int\"\n  Operator \">\" not supported for types \"object\" and \"int\"\n  Operator \">\" not supported for types \"None\" and \"int\"",
+            "range": {
+                "start": {
+                    "line": 914,
+                    "character": 39
+                },
+                "end": {
+                    "line": 914,
+                    "character": 64
+                }
+            },
+            "rule": "reportOperatorIssue"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"str | ArtifactID\" cannot be assigned to parameter \"artifact_id\" of type \"ArtifactID\" in function \"_manifest_input_edges\"\n  Type \"str | ArtifactID\" is not assignable to type \"ArtifactID\"\n    \"str\" is not assignable to \"ArtifactID\"",
+            "range": {
+                "start": {
+                    "line": 954,
+                    "character": 19
+                },
+                "end": {
+                    "line": 954,
+                    "character": 76
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Operator \"-\" not supported for types \"int\" and \"object | None\"\n  Operator \"-\" not supported for types \"int\" and \"object\"\n  Operator \"-\" not supported for types \"int\" and \"None\"",
+            "range": {
+                "start": {
+                    "line": 968,
+                    "character": 23
+                },
+                "end": {
+                    "line": 968,
+                    "character": 44
+                }
+            },
+            "rule": "reportOperatorIssue"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"object | None\" cannot be assigned to parameter \"start\" of type \"SupportsIndex\" in function \"__new__\"\n  Type \"object | None\" is not assignable to type \"SupportsIndex\"\n    \"object\" is incompatible with protocol \"SupportsIndex\"\n      \"__index__\" is not present",
+            "range": {
+                "start": {
+                    "line": 971,
+                    "character": 27
+                },
+                "end": {
+                    "line": 971,
+                    "character": 40
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"object | None\" cannot be assigned to parameter \"stop\" of type \"SupportsIndex\" in function \"__new__\"\n  Type \"object | None\" is not assignable to type \"SupportsIndex\"\n    \"object\" is incompatible with protocol \"SupportsIndex\"\n      \"__index__\" is not present",
+            "range": {
+                "start": {
+                    "line": 971,
+                    "character": 42
+                },
+                "end": {
+                    "line": 971,
+                    "character": 53
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Operator \"+\" not supported for types \"object | None\" and \"Literal[1]\"\n  Operator \"+\" not supported for types \"object\" and \"Literal[1]\" when expected type is \"SupportsIndex\"\n  Operator \"+\" not supported for types \"None\" and \"Literal[1]\" when expected type is \"SupportsIndex\"",
+            "range": {
+                "start": {
+                    "line": 1014,
+                    "character": 38
+                },
+                "end": {
+                    "line": 1014,
+                    "character": 49
+                }
+            },
+            "rule": "reportOperatorIssue"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"object | None\" cannot be assigned to parameter \"expected_schema_name\" of type \"str | None\" in function \"_validate_json_artifact\"\n  Type \"object | None\" is not assignable to type \"str | None\"\n    Type \"object\" is not assignable to type \"str | None\"\n      \"object\" is not assignable to \"str\"\n      \"object\" is not assignable to \"None\"",
+            "range": {
+                "start": {
+                    "line": 1051,
+                    "character": 29
+                },
+                "end": {
+                    "line": 1051,
+                    "character": 47
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"object | None\" cannot be assigned to parameter \"expected_schema_version\" of type \"str | None\" in function \"_validate_json_artifact\"\n  Type \"object | None\" is not assignable to type \"str | None\"\n    Type \"object\" is not assignable to type \"str | None\"\n      \"object\" is not assignable to \"str\"\n      \"object\" is not assignable to \"None\"",
+            "range": {
+                "start": {
+                    "line": 1052,
+                    "character": 32
+                },
+                "end": {
+                    "line": 1052,
+                    "character": 53
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"object\" cannot be assigned to parameter \"x\" of type \"ConvertibleToInt\" in function \"__new__\"\n  Type \"object\" is not assignable to type \"ConvertibleToInt\"\n    \"object\" is not assignable to \"str\"\n    \"object\" is incompatible with protocol \"Buffer\"\n      \"__buffer__\" is not present\n    \"object\" is incompatible with protocol \"SupportsInt\"\n      \"__int__\" is not present\n    \"object\" is incompatible with protocol \"SupportsIndex\"\n      \"__index__\" is not present",
+            "range": {
+                "start": {
+                    "line": 1279,
+                    "character": 37
+                },
+                "end": {
+                    "line": 1279,
+                    "character": 46
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Operator \"<=\" not supported for \"None\"",
+            "range": {
+                "start": {
+                    "line": 1525,
+                    "character": 29
+                },
+                "end": {
+                    "line": 1525,
+                    "character": 48
+                }
+            },
+            "rule": "reportOptionalOperand"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Operator \"<=\" not supported for types \"float\" and \"float | None\"\n  Operator \"<=\" not supported for types \"float\" and \"None\"",
+            "range": {
+                "start": {
+                    "line": 1525,
+                    "character": 52
+                },
+                "end": {
+                    "line": 1525,
+                    "character": 92
+                }
+            },
+            "rule": "reportOperatorIssue"
+        },
+        {
+            "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"object\" cannot be assigned to parameter \"x\" of type \"ConvertibleToInt\" in function \"__new__\"\n  Type \"object\" is not assignable to type \"ConvertibleToInt\"\n    \"object\" is not assignable to \"str\"\n    \"object\" is incompatible with protocol \"Buffer\"\n      \"__buffer__\" is not present\n    \"object\" is incompatible with protocol \"SupportsInt\"\n      \"__int__\" is not present\n    \"object\" is incompatible with protocol \"SupportsIndex\"\n      \"__index__\" is not present",
+            "range": {
+                "start": {
+                    "line": 1940,
+                    "character": 22
+                },
+                "end": {
+                    "line": 1940,
+                    "character": 27
+                }
+            },
+            "rule": "reportArgumentType"
+        }
+    ],
+    "summary": {
+        "filesAnalyzed": 1,
+        "errorCount": 35,
+        "warningCount": 0,
+        "informationCount": 0,
+        "timeInSec": 2.185
+    }
+}

@@ -1,0 +1,7 @@
+[codex/e02-E-frc-20261006 ac2682a66] docs(e02): bind canonical wave receipts by exact name
+ 8 files changed, 371 insertions(+), 9 deletions(-)
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/v2-prearchive-normal.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/v2-prearchive-normal.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/v2-prearchive-optimized.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/v2-prearchive-optimized.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/validate-common-wave-v2.py.txt

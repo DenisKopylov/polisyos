@@ -1,0 +1,32 @@
+from __future__ import annotations
+import hashlib, importlib.metadata, json, os, platform, resource, runpy, subprocess, sys, time
+from pathlib import Path
+import numpy as np
+from polisyos.scientist.nodes.builtins.simulate import propagate_welfare as module
+fixture = runpy.run_path('tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py')
+output = Path('/workspace/e02-E-pr38-r2-receipts/welfare-native-deciding.json')
+start = time.monotonic()
+store, bundle, receipt, samples, envelope_ref = fixture['_run_native'](Path('/workspace/e02-E-pr38-r2-receipts/welfare-native-cas'))
+report = module.from_canonical_bytes(store.get_bytes(bundle.diagnostics['propagation_report_ref']))
+expected_rows = (np.random.default_rng(31415).random(128) >= .75).astype(int).tolist()
+assert receipt['failed_draw_count'] == sum(expected_rows)
+assert [row['row_index'] for row in receipt['empirical_rows']] == expected_rows
+assert samples.welfare_draws == (2.0,) * (128-sum(expected_rows))
+source = Path(module.__file__)
+payload = {
+ 'schema': 'policyos.e02.native_welfare_empirical_witness.v1',
+ 'target_sha': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+ 'tree_sha': subprocess.check_output(['git', 'rev-parse', 'HEAD^{tree}'], text=True).strip(),
+ 'module_origin': str(source), 'module_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+ 'environment': {'python': sys.version, 'executable': sys.executable, 'platform': platform.platform(), 'cpu_count': os.cpu_count(), 'packages': {name:importlib.metadata.version(name) for name in ['numpy','scipy','jax','jaxlib','pydantic','pytest']}},
+ 'input_identity': {'source': 'bounded synthetic mathematical law, not production evidence', 'target': 'configured native linearized_ge_io response', 'sample_axis': 'fixture_row', 'row_identity_basis': 'content-bound carrier position', 'atoms': [0,1], 'weights':[3,1], 'seed':31415, 'requested':128, 'GE_operator': 'numpy.linalg.inv(I-A)', 'base_response':2, 'social_weight':1, 'nominal_A':.25, 'envelope_ref': envelope_ref.model_dump(mode='json')},
+ 'independent_oracle': {'failure_probability':.25, 'successful_welfare':2, 'unconditional_pushforward': 'not established on singular support', 'expected_failed_count_for_declared_seed':sum(expected_rows)},
+ 'bundle': bundle.model_dump(mode='json'), 'report': report, 'complete_draw_outcomes':receipt,
+ 'source_envelope': module.load_uncertainty_envelope(store, envelope_ref).model_dump(mode='json'),
+ 'source_manifest': store.get_manifest(envelope_ref.artifact_id).model_dump(mode='json'),
+ 'draw_outcomes_manifest': store.get_manifest(receipt_ref := bundle.diagnostics['draw_outcomes_ref']['artifact_id']).model_dump(mode='json'),
+ 'fresh_reader': {'native_samples_ref': samples.metadata['draw_outcomes_ref'], 'sampled_atom_set':sorted({row['sampled_input']['A'] for row in receipt['sampled_inputs']}), 'conditional_mean':float(np.mean(samples.welfare_draws)), 'unconditional_mean':report['draw_summary']['welfare_mean'], 'credible_interval':bundle.credible_interval, 'robust_interval':bundle.robust_interval},
+ 'measurement': {'wall_seconds':time.monotonic()-start, 'max_rss_kib':resource.getrusage(resource.RUSAGE_SELF).ru_maxrss},
+}
+output.write_text(json.dumps(payload, indent=2)+'\n')
+print(json.dumps({'output':str(output), 'bytes':output.stat().st_size, 'sha256':hashlib.sha256(output.read_bytes()).hexdigest(), 'target_sha':payload['target_sha'], 'failed':receipt['failed_draw_count'], 'success':receipt['successful_draw_count'], 'conditional_mean':2, 'unconditional_mean':None}))

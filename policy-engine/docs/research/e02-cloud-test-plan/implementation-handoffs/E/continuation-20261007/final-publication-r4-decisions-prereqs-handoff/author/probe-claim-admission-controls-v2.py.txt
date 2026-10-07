@@ -1,0 +1,50 @@
+import copy,hashlib,json,subprocess,sys
+from pathlib import Path
+S=Path('/tmp/e02-E-decisions-prereqs-publication-r4-stage');OUT=S/'author-claim-admission-v2';OUT.mkdir(exist_ok=True)
+M=json.loads((S/'manifest.json').read_text());SCRIPT=S/'copy-decisions-prereqs.py.txt';metadata=['copy-decisions-prereqs.py.txt','build-stage.py.txt','README.md','qualification.json','build.stdout.json','build.stderr.txt','resume-admission.json','resume-admission.stderr.txt']
+def case(name,data,script=SCRIPT,optimized=False,companion=None):
+ p=OUT/(('optimized-' if optimized else 'normal-')+name);p.mkdir();(p/'payload').symlink_to(S/'payload',target_is_directory=True)
+ for n in metadata:(p/n).write_bytes((S/n).read_bytes())
+ if companion is not None:(p/'qualification.json').write_text(json.dumps(companion,indent=2)+'\n')
+ (p/'manifest.json').write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
+ argv=[sys.executable]+(['-O'] if optimized else [])+[str(script),'--manifest',str(p/'manifest.json'),'--destination-root',str(p/'destination')]
+ with (p/'stdout.txt').open('wb') as out,(p/'stderr.txt').open('wb') as err:r=subprocess.run(argv,stdout=out,stderr=err)
+ return {'case':name,'optimized':optimized,'argv':argv,'exit_code':r.returncode,'destination_created':(p/'destination').exists(),'stdout':str(p/'stdout.txt'),'stderr':str(p/'stderr.txt')}
+mods={}
+def edit(name,fn):x=copy.deepcopy(M);fn(x);mods[name]=x
+edit('bool_ledger_integer',lambda x:x['qualification']['frozen54']['historical_ledger'].update(closed=True))
+edit('forged_ROOT_after',lambda x:x['ROOT_after'].update(head='0'*40))
+edit('false_execution_flag',lambda x:x.update(source_tests_gate_numeric_execution=True))
+edit('false_BASE_SHA',lambda x:x.update(publication_base='0'*40))
+edit('false_BASE_TREE',lambda x:x.update(publication_base_tree='0'*40))
+edit('false_PREFIX',lambda x:x.update(proposed_git_prefix='unowned-prefix'))
+edit('int_alias_bool',lambda x:x['logical_sources'][0].update(literal_alias=0))
+edit('float_logical_count',lambda x:x.update(logical_count=float(x['logical_count'])))
+edit('float_selector_count',lambda x:x['selection_inputs'][0].update(selected_members=float(x['selection_inputs'][0]['selected_members'])))
+edit('float_carrier_size',lambda x:x['canonical_copies'][0].update(source_bytes=float(x['canonical_copies'][0]['source_bytes'])))
+edit('unknown_root_metadata',lambda x:x.update(global_finding_PASS=True))
+edit('unknown_logical_row_metadata',lambda x:x['logical_sources'][0].update(owner_authority=True))
+edit('unknown_selector_metadata',lambda x:x['selection_inputs'][0].update(owner_authority=True))
+edit('duplicate_selector_header',lambda x:x['selection_inputs'].append(copy.deepcopy(x['selection_inputs'][0])))
+edit('numeric_lock_flag',lambda x:x.update(ROOT_source_env_locks_written=0))
+edit('selector_omission',lambda x:x['selection_inputs'].pop())
+edit('qualifier_omission',lambda x:x['logical_sources'].pop())
+zeros=[n for n,r in enumerate(M['logical_sources']) if r['family']=='frozen54' and r['member_class']=='identical_byte_aliases' and r['source_bytes']==0]
+edit('same_body_alias_substitution',lambda x:x['logical_sources'].__setitem__(zeros[0],copy.deepcopy(x['logical_sources'][zeros[1]])))
+companion=copy.deepcopy(M['qualification']);companion['frozen54']['historical_ledger']['closed']=True
+s=SCRIPT.read_text();needle="if canonical({k:manifest[k] for k in FIXED_HEADER})!=canonical(FIXED_HEADER):raise ValueError('typed fixed publication/source/before-after/flags claims')"
+if s.count(needle)!=1:raise ValueError('unique header predicate')
+removed=OUT/'typed-fixed-header-removal.py.txt';removed.write_text(s.replace(needle,"if False:raise ValueError('typed fixed publication/source/before-after/flags claims')"))
+records=[]
+for optimized in (False,True):
+ healthy=case('healthy',copy.deepcopy(M),optimized=optimized);records.append(healthy)
+ if healthy['exit_code']!=0:raise ValueError('healthy')
+ for name,data in mods.items():
+  r=case(name,data,optimized=optimized);records.append(r)
+  if r['exit_code']!=1 or r['destination_created']:raise ValueError('corrupt control '+name)
+ r=case('bool_companion_integer',copy.deepcopy(M),optimized=optimized,companion=companion);records.append(r)
+ if r['exit_code']!=1 or r['destination_created']:raise ValueError('companion control')
+ r=case('effective_header_predicate_removal',mods['forged_ROOT_after'],script=removed,optimized=optimized);records.append(r)
+ if r['exit_code']!=0 or not r['destination_created']:raise ValueError('ineffective header removal')
+receipt={'schema':'policyos.e02.decisions_prereqs_typed_claim_admission_controls.v2','copier_sha256':hashlib.sha256(SCRIPT.read_bytes()).hexdigest(),'manifest_sha256':hashlib.sha256((S/'manifest.json').read_bytes()).hexdigest(),'healthy_modes':['normal','optimized'],'negative_count_per_mode':len(mods)+1,'controls':records,'effective_header_removal':'forgedROOT_after accepted with identical payload/counts/other flags after removing only fixed-header comparison; source-claim propertyFAIL','historical_72049_preserved':True,'ROOT_source_env_locks_changed':False,'numeric_or_gate_reexecuted':False}
+(S/'author-claim-admission-controls-v2.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps({'healthy_modes':receipt['healthy_modes'],'negative_count_per_mode':receipt['negative_count_per_mode'],'source_claim_removal':'effective, defining propertyFAIL','ROOT_written':False}))

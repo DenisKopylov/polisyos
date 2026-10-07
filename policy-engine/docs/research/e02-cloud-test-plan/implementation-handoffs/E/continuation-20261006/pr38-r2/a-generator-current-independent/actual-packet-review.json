@@ -1,0 +1,183 @@
+{
+  "schema": "policyos.e02.independent-current-A-G-packet.v1",
+  "reviewer": "doe_r2 independent of FRC packet author and A shared runtime writer",
+  "source_pin": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "source_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "actual_packet_verdict": "GO-bounded-current-packet-source/ref/math/writer/custody",
+  "author_reusable_validator_verdict": "HOLD-valid-bytes-wrong-current-candidate-escape, separate append-only correction pending",
+  "author_original_index": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817/copy-index.json",
+    "bytes": 1958,
+    "sha256": "716cfb15445b16de654f16fc8c7f860c2bbe79f0f02a099082dc514e70c3f53e",
+    "files": 10,
+    "asset_bytes": 84975
+  },
+  "original_CAL_review_reuse": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-independent/independent-review-eb035.json",
+    "Git_source": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "source_blob": "68c88b9e6359cb1c44c2cd956e2fa4458d4d5e3a",
+    "disposition": "GO as owner-ready bounded dependency packet; default A and generator implementation remain missing",
+    "all29sourceblobs_unchanged": true,
+    "sevenoriginalcontrols_not_replayed": true
+  },
+  "source_joins": {
+    "selected": 29,
+    "current_G_packet_refs": 20,
+    "actual_definition_coordinates": [
+      {
+        "name": "RealValueOwnerGateway",
+        "line": 4249,
+        "end_line": 4372,
+        "sha256": "f02fc746216e300915aae3bfc5da9c15314a4155f371873e6d80280d2c789938"
+      },
+      {
+        "name": "_s10_empirical_projection",
+        "line": 10746,
+        "end_line": 10849,
+        "sha256": "db1224e00ec80ed79ed02b2a135de882706ad6c219207ae2c6b37a8d27b3b14f"
+      },
+      {
+        "name": "_resolve_s10_empirical_evidence",
+        "line": 10871,
+        "end_line": 10928,
+        "sha256": "771e561cb8e1f5c844b6a81b6743cc9f0ec371eb6215cf7f41730da9fc9835c3"
+      },
+      {
+        "name": "_build_s10_forecast_inputs",
+        "line": 10931,
+        "end_line": 11105,
+        "sha256": "37a8d727042545c7948c4f566ae5e509c8cdc858df54de12e0591d92ca5b4324"
+      },
+      {
+        "name": "_build_real_s10_forecast_inputs",
+        "line": 11108,
+        "end_line": 11152,
+        "sha256": "f5d5ef88edb787cd28044696f607ac868973976ab682d9570b46b751eea894cc"
+      },
+      {
+        "name": "_bound_s10_temporal_roles",
+        "line": 11302,
+        "end_line": 11332,
+        "sha256": "a6d18d9548c0189effb5db5f127da2706a6c2c09262c0a29fff20f80795aa8dc"
+      },
+      {
+        "name": "_s10_limitation_refs",
+        "line": 11352,
+        "end_line": 11371,
+        "sha256": "5e1ed29a9946bd80004c38769cdd81d6260c6ab5221332c3b6262c35e2653a1e"
+      },
+      {
+        "name": "_s10_value_authority_boundary",
+        "line": 11374,
+        "end_line": 11411,
+        "sha256": "c6bf1b5e16bab6e9e4ec7710cb7c69b4abac0094515f8cb3c1cbbacc39d3bec6"
+      }
+    ],
+    "old19assets_current20portablecopyrecords": true,
+    "complete_consulted_generator_inputclosure_established": false
+  },
+  "reason_boundary": {
+    "missing_ref": "specific empirical_evidence_ref_missing; preserve kind/integrity/unresolved/time/rule refusals",
+    "resolved_limited_zero_of_four": "specific calibration_floor_not_met from bound measurement",
+    "actual_finite_estimator_without_empiricalhistory": "separate insufficient-history allowed, not fallback for every missingref or0/4 floorfailure"
+  },
+  "math_boundary": {
+    "independent_analytic_points": [
+      31,
+      32,
+      33,
+      34
+    ],
+    "point_intervalhits": 4,
+    "heldout1000hits": 0,
+    "oracle_reuse": "Same priorETS/CAS fixture/source; no numericbackend rerun or claim of production/default/HTTP authority"
+  },
+  "writer_boundary": {
+    "A": "generation_cycle/run_lifecycle/default/HTTP producer-resolver-verifier andnormalizedreasons; packetpatch unapplied and code unchanged",
+    "G": "owner action clarification/integration and generator leases",
+    "Core_IR_A_generator": "canonical generation/compatibility classification; no handgeneratedfilechanges",
+    "E": "existing strict producer+typedCAS packet, no A writes/wiresemantics ratification"
+  },
+  "old_and_current_measurement": {
+    "5eCAS": "5 setupERROR, not propertyFAIL/PASS",
+    "5estatus": "1 actualFAIL+1 setupERROR, historical8486twoFAIL separate",
+    "compiler": "G A577 oneinstalledwheelPASS only, no E replay/FRCacceptance",
+    "generator": "1493 exact5e historical,1492 older58 historical; currenta9measurementpending",
+    "packet_preparation": "NOT_LAUNCHED correctly describes prep; rootcommonwave nowRUNNING perparentmessage; no new results read or inferred"
+  },
+  "independent_forged_field_controls": [
+    {
+      "control": "valid source bytes, wrong current row candidate",
+      "outcome": "REFUSED",
+      "product_native_numeric_gate_commands": 0
+    },
+    {
+      "control": "valid source bytes, wrong top current candidate",
+      "outcome": "REFUSED",
+      "product_native_numeric_gate_commands": 0
+    },
+    {
+      "control": "present source ref, counterfeit blobID",
+      "outcome": "REFUSED",
+      "product_native_numeric_gate_commands": 0
+    },
+    {
+      "control": "present Gref, counterfeit digest",
+      "outcome": "REFUSED",
+      "product_native_numeric_gate_commands": 0
+    },
+    {
+      "control": "missing-ref mislabeled measuredfloor",
+      "outcome": "REFUSED",
+      "product_native_numeric_gate_commands": 0
+    },
+    {
+      "control": "resolvedfloor mislabeled missingref",
+      "outcome": "REFUSED",
+      "product_native_numeric_gate_commands": 0
+    },
+    {
+      "control": "resolvedfloor mislabeled insufficienthistory",
+      "outcome": "REFUSED",
+      "product_native_numeric_gate_commands": 0
+    },
+    {
+      "control": "historical1493 calledcurrentcount",
+      "outcome": "REFUSED",
+      "product_native_numeric_gate_commands": 0
+    },
+    {
+      "control": "installedcompilerPASS calledFRCacceptance",
+      "outcome": "REFUSED",
+      "product_native_numeric_gate_commands": 0
+    }
+  ],
+  "findings_closed": [],
+  "ledger": "B32/LA051partial/limited,B194/B197/B201/B202held,B198historicalclosed; no reclassification",
+  "P41": "not_established without exactbasecommand/fullinputdenominator;29unchangedblobs are onlyboundedsourcequalifier",
+  "runtime_numeric_gate_or_wheel_commands_executed": 0,
+  "root_Git_config_ref_fetch_writes": 0,
+  "environment": {
+    "python": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "UV_NO_SYNC": "1",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "author_packet_and_root_source_unchanged": true,
+  "cleanup": "No disposable nativeenvironment; preserve usefuldocs/source/uniqueoutput. No Trash/deletion.",
+  "review_harness_history": [
+    {
+      "kind": "TypeError string/list shape",
+      "scope": "Initial helper expected G-merge all_paths entries as dicts; actual schema is strings. Corrected script/set join; initial fullinputs/stderr preserved. Not product/packetFAIL."
+    },
+    {
+      "kind": "Index byte denominator label",
+      "scope": "Initial JSON shadowed index bytes with total asset bytes. Corrected indexbytes computed from original file vsassetbytes84975; initial fullinputs/JSON/stdout retained; final recomputation verified. Not author/source artifact corruption."
+    },
+    {
+      "kind": "Reviewer hardcoded indexsize assertion",
+      "scope": "Initial freeze helper guessed2415B instead of reading original index; failed before any index write. Removed guess and recomputed exact original bytes/hash; full helper/stdout history retained. Not product/source/author failure."
+    }
+  ]
+}

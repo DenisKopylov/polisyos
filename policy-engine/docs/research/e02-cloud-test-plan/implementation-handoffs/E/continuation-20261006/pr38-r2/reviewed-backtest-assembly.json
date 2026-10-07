@@ -1,0 +1,91 @@
+{
+  "schema": "policyos.e02.reviewed_slice_assembly.v1",
+  "base_sha": "806e5b307b4e8625a87257368dc04a702fc0ff56",
+  "candidate_sha": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+  "candidate_tree": "ba48381b0cf671c316e2cffa4be6568fd945011a",
+  "source_sha": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+  "source_tree": "438277e00ae3cdaf6c7729c509d40fa09464e88f",
+  "published_receipt_head": "07fca57f9c7c2a3576796650e88f321b2f9e26be",
+  "full_footprint": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/backtest-chain-cas-readback.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/backtest-chain-cas-readback.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/backtest-chain-curated-identity.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/backtest-chain-native.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/backtest-chain-native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/copy-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/independent-9c51-reader-falsifiers.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/independent-compiled_model_removal.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/independent-compiled_model_removal.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/independent-order-falsifiers-final.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/independent-order-falsifiers-removal.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/independent-order_falsifier.final.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/independent-order_falsifier_final.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/independent-review-go-0983.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-curated-identity.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-curated-native.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-curated-native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-environment-corrected.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-native-deciding-evidence.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-native-frozen.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-native-frozen.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-old58-complete.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-old58-falsifier.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-old58-trace.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-pr51-curated-readback.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-regression-frozen.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-regression-frozen.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-results-import-check.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/copy-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/measure-command.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2.json",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-backtest-native-trajectory.toml",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/README.md",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/README.md",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_native_replay.py"
+  ],
+  "property_paths_exact_reviewed_blobs": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-backtest-native-trajectory.toml",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/README.md",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_native_replay.py"
+  ],
+  "publication_documentation_delta": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/README.md",
+      "reviewed_blob": "c561e6d9b7c1414f85751b4b489b97f06ea41b0d",
+      "published_blob": "46dca4dc8b5f9fd623b089d8f92d7db668adde57",
+      "delta": "three README lines describe actual compiled-model/materializer/clock/lineage reader checks; no runtime/test change"
+    }
+  ],
+  "independent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/independent-review-go-0983.json",
+  "superseded_review": "Exact9c reader HOLD retained: chain/initialbinding/actualcompiledTrinity fakes admitted. Corrective0983 refuses5fakes andmodeljoin removal detects loss",
+  "runtime_property": "Native defaultworkflow maskedDataSnapshot+matchingTrinity+actualExecConfigseed -> DefaultFoundryexecute ->StateSnapshots ->trajectoryCAS ->freshBacktestReport; requested/attempted/completed exactcounts",
+  "independent_oracle": "Own nativeK3 tax25% income2 givesfuture[1.5,1],6real executes, distinctactualseeds/runIDs, nofallback;5integrity-valid chain/model forgeries refused",
+  "author_evidence": "Original0eK1/K7+104regressions; corrected5adactualK1+12controls; final0983identityand8genuineCASscenarios/fiveforgerieseach. Source-qualified reports; no aggregatewave yet",
+  "predicate_basis": {
+    "recomputed": "source/model/registry/nativeclock/materializer/previoussnapshot/actualExecPlan→ProgramGraph→LoweredIR targettimeunitseed joins",
+    "caller_asserted": "predictiveprofile/sourcefeaturelaw selection",
+    "not_established": "actualproductionhistory/equivalence/trustgrade/institutionalissuer authority"
+  },
+  "code_decision": "GO_bounded_native_replay; G acceptancepending",
+  "finding_decision": "B166/B169/B170 historicalpartial/limited; G recipes updatedexactcandidate andno longer callnativebridge missing",
+  "owner_dependencies": [
+    "Core artifact/canon/registry, Foundrysnapshothelper canonicalfacade admission",
+    "G exactactualhistory/sourcefeaturelaw read-only inputs onlyiforiginalcriterionrequires"
+  ],
+  "additional_E_work": [
+    "legacyCalibrationReportkind/schema consumer1e942underindependentreview",
+    "Welfare unsupportedlaw Gaussian substitution callerfalsifier/classfix underway"
+  ],
+  "merge_output": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/root-merge-backtest.stdout.txt",
+    "bytes": 8227,
+    "sha256": "cf647f5c8750691fd265e0f814fbf5442407999a84fb0709b4846b32827b52fc"
+  }
+}

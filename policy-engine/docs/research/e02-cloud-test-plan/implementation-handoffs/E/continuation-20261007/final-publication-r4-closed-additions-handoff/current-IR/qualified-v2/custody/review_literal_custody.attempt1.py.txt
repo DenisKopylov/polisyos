@@ -1,0 +1,117 @@
+"""Read-only literal review of G855 response and exact finite gold; no candidate imports."""
+import argparse,ast,copy,hashlib,json,re,subprocess,sys
+from pathlib import Path,PurePosixPath
+
+B=Path('/tmp/e02-E-ir-G855-conditions-independent-64d')
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+SOURCE='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE='aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+IR='700f9d5a5e2167787d7042ca11e1ef3bf80ced74'
+G='855cb26a7a2c9fea60356663cf81e7d01e20c738'
+PATHS=['policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py','policy-engine/src/polisyos/ir/analytics/posterior_summary.py','policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py','policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py','policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py','policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py']
+NAMES=['G855-E.md','G855-E-IR-decision.md','actual-conditions-counterexamples.json','independent-owner-response.json','probe_actual_conditions.py.txt','probe.stdout.json','probe.stderr.txt','probe-removed-helper-environment-ERROR.py.txt','probe-removed-helper-environment-ERROR.stdout.json','probe-removed-helper-environment-ERROR.stderr.txt']
+
+def require(v,msg):
+ if not v:raise ValueError(msg)
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def ref(p):
+ raw=p.read_bytes();return {'path':str(p),'bytes':len(raw),'sha256':sha(raw)}
+def typed_equal(a,b):
+ if type(a) is not type(b):return False
+ if isinstance(a,dict):return a.keys()==b.keys() and all(typed_equal(a[k],b[k]) for k in a)
+ if isinstance(a,list):return len(a)==len(b) and all(typed_equal(x,y) for x,y in zip(a,b))
+ return a==b
+def admit_sha(value,size=40):require(type(value) is str and re.fullmatch('[0-9a-f]{'+str(size)+'}',value) is not None,'full identity preflight')
+def admit_path(value):
+ require(type(value) is str and bool(value),'path type preflight');p=PurePosixPath(value);require(not p.is_absolute() and bool(p.parts) and str(p)==value and all(x not in ['.','..'] for x in p.parts) and '\\' not in value and '\x00' not in value and not value.startswith('-'),'canonical path preflight')
+def asset_binding(row,raw):return type(row['bytes']) is int and row['bytes']==len(raw) and type(row['sha256']) is str and row['sha256']==sha(raw)
+def validate(selection=None,observations=None):
+ selection=json.loads((B/'publication-selection.json').read_text()) if selection is None else selection
+ observation=json.loads((B/'actual-conditions-counterexamples.json').read_text()) if observations is None else observations
+ response=json.loads((B/'independent-owner-response.json').read_text()); gold=json.loads((B/'exact-finite-oracle.json').read_text()); fixtures=json.loads((B/'literal-legacy-profile700-fixture-index.json').read_text())
+ for v in [selection,observation,response]:
+  admit_sha(v['source']);admit_sha(v['tree']);require(v['source']==SOURCE and v['tree']==TREE,'exact source')
+ for v in [observation,response]:admit_sha(v['IR_candidate']);require(v['IR_candidate']==IR,'exact IR source')
+ admit_sha(response['G_review_commit']);require(response['G_review_commit']==G and observation['G_review']==G,'exact G review')
+ require([Path(x['source_path']).name for x in selection['assets']]==NAMES,'complete original10 rows')
+ assets=[];by_path={}
+ for row in selection['assets']:
+  require(type(row['source_path']) is str and Path(row['source_path']).parent==B,'selected source namespace');admit_path(row['destination']);admit_sha(row['sha256'],64);require(type(row['bytes']) is int and row['bytes']>=0,'selected size type')
+  raw=Path(row['source_path']).read_bytes();require(asset_binding(row,raw),'asset_custody');assets.append(row);by_path[row['source_path']]={'path':row['source_path'],'bytes':len(raw),'sha256':sha(raw)}
+ require(typed_equal(response['current_actual_counterexample'],ref(B/'actual-conditions-counterexamples.json')),'response native receipt ref')
+ for r in response['G_review_refs']:require(typed_equal(r,ref(Path(r['path']))),'G captured bytes')
+ require(typed_equal(observation['source_guard_before'],observation['source_guard_after']) and observation['source_unchanged'] is True,'saved before/after guards')
+ guards=observation['source_guard_before'];require([r['path'] for r in guards]==PATHS,'complete six source paths')
+ for row in guards:
+  admit_path(row['path']);admit_sha(row['sha256'],64);require(type(row['bytes']) is int and row['bytes']>0 and row['700_equals_64d_equals_physical'] is True,'source object admission')
+ # Every selected/source object record is admitted before any Git callback.
+ require(subprocess.check_output(['git','rev-parse',SOURCE+'^{tree}'],cwd=ROOT,text=True).strip()==TREE,'source tree')
+ source_bindings=[]
+ for row in guards:
+  raw64=subprocess.check_output(['git','show',SOURCE+':'+row['path']],cwd=ROOT);raw700=subprocess.check_output(['git','show',IR+':'+row['path']],cwd=ROOT);physical=(ROOT/row['path']).read_bytes()
+  require(raw64==raw700==physical and len(raw64)==row['bytes'] and sha(raw64)==row['sha256'],'six physical/700/64d bytes')
+  source_bindings.append({**row,'git64_blob':hashlib.sha1(b'blob '+str(len(raw64)).encode()+b'\0'+raw64).hexdigest(),'physical_700_64d_equal':True})
+ for key,path in [('G855-E.md','policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/E.md'),('G855-E-IR-decision.md','policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/E-IR-decision.md')]:
+  require(subprocess.check_output(['git','show',G+':'+path],cwd=ROOT)==(B/key).read_bytes(),'literal G review blob')
+ stdout=json.loads((B/'probe.stdout.json').read_text());require(typed_equal(stdout['receipt'],ref(B/'actual-conditions-counterexamples.json')),'native stdout receipt binding')
+ require(stdout['outcome']=='CHANGE_REQUIRED two bounded current conditions' and stdout['source_unchanged'] is True,'native capture disposition')
+ observations=observation['joint_source_condition']['observations'];require(len(observations)==3,'complete3 actual observations')
+ for row in observations:
+  require(type(row['actual_callback_count']) is int and row['actual_callback_count']==stdout['actual_callback_count_per_case']==129,'actual native callback denominator')
+  require(sum(x['count'] for x in row['actual_callback_rows'])+1==row['actual_callback_count'] and all(type(x['count']) is int and x['count']==64 for x in row['actual_callback_rows']),'actualdraws plus nominal')
+  require(row['output_gate_eligible'] is False and row['actual_MC_admission_failure'] is None,'native admission no authority')
+ finite=observation['finite_probability_condition']['observation']
+ for a,b in [('finite_profile_mean','stored_profile_named_mean'),('finite_CDF_mean','actual_CDF_law_mean_independent'),('mean_difference','mean_difference')]:require(typed_equal(stdout[a],finite[b]),'finite raw stdout summary binding')
+ require(finite['gate_eligible'] is False and finite['same_positive_category_support'] is True and finite['strict_fresh_profile_reader_admitted'] is True,'native finite scope')
+ gold_stdout=json.loads((B/'exact-oracle.stdout.json').read_text());require(gold_stdout['bytes']==(B/'exact-finite-oracle.json').stat().st_size and gold_stdout['sha256']==sha((B/'exact-finite-oracle.json').read_bytes()) and gold_stdout['path']==str(B/'exact-finite-oracle.json'),'gold result custody')
+ require(typed_equal(gold_stdout['dyadic'],gold['dyadic_joint_y']) and typed_equal(gold_stdout['third_boundary_actual_gold'],gold['one_third_neighbors']) and gold_stdout['candidate_imports_or_tests'] is False,'gold captured outputs unchanged')
+ require(gold['role']=='Gold expectations only, not candidate PASS or source authority.','gold scope no authority')
+ require((B/'probe_actual_conditions.py').read_bytes()==(B/'probe_actual_conditions.py.txt').read_bytes()==(B/'probe-removed-helper-environment-ERROR.py.txt').read_bytes(),'same literal actual/error observer')
+ missing=(B/'probe-removed-helper-environment-ERROR.stderr.txt').read_text();require("ModuleNotFoundError: No module named 'numpy'" in missing and (B/'probe-removed-helper-environment-ERROR.stdout.json').read_bytes()==b'','missing FRC environment preserved')
+ require(response['exact_commands']==[['env','PYTHONPATH='+str(ROOT/'policy-engine/src'),'/workspace/e02-E-frc-20261006/policy-engine/.venv/bin/python','-B',str(B/'probe_actual_conditions.py')],['env','PYTHONPATH='+str(ROOT/'policy-engine/src'),'/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python','-B',str(B/'probe_actual_conditions.py')]],'actual recorded2 commands')
+ require(response['environment']==observation['environment'] and response['environment']['executable'].startswith('/workspace/e02-E-doe-20261006/'),'native leaf environment no root')
+ require(response['disposition']=='CHANGE_REQUIRED two current bounded implementation conditions' and len(response['condition_responses'])==2,'owner response two current seams')
+ require(observation['tests_or_wave_repeated'] is False and observation['ROOT_interpreter_or_packages_mutated'] is False and selection['native_wave_repeated'] is False and selection['finding_closure'] is False,'saved runtime/finding limits')
+ require(fixtures['source']==IR and fixtures['same_source_blobs_in']==SOURCE and fixtures['count']==len(fixtures['records'])==7,'full fixture source/index')
+ cas=[]
+ for r in fixtures['records']:
+  p=Path(r['path']);require(p.is_relative_to(B) and p.suffix=='.blob','CAS namespace');admit_sha(r['sha256'],64);require(type(r['bytes']) is int and r['bytes']>0,'CAS byte count');raw=p.read_bytes();require(len(raw)==r['bytes'] and sha(raw)==r['sha256'] and p.name==r['sha256']+'.blob','actual CAS content digest')
+  payload=json.loads(raw);profile=payload['metadata']['posterior_summary_profile'];require(profile['profile_id']==r['profile_id'] and profile['profile_version']==r['profile_version'] and profile['parameter_name']==r['parameter_name'] and profile['row_identity_basis']==r['row_identity_basis'],'CAS strict profile fields')
+  require(typed_equal(profile['posterior_mean'],r['expected_old_named_mean']) and typed_equal(payload['point_estimate'],r['expected_generic_median']) and typed_equal(payload['confidence_interval'],r['expected_equal_tail_interval']) and payload['gate_eligible'] is r['expected_gate_eligible'] is False,'literal CAS mean/point/interval/eligibility')
+  if r['label']=='finite_probability_residual':require(finite['fresh_CAS_ref']['artifact_id']=='sha256:'+r['sha256'],'native finite actual reference')
+  else:
+   o=next(x for x in observations if x['label']==r['label']);require(o['fresh_CAS_refs'][r['parameter_name']]['artifact_id']=='sha256:'+r['sha256'] and profile['joint_law_sha256']==o['joint_digest'] and profile['draw_ids']==o['profile_draw_ids'] and profile['context']['lineage_refs']==o['context_lineage_refs'],'native joint actual CAS refs')
+  cas.append({'label':r['label'],'path':str(p),'bytes':len(raw),'sha256':sha(raw),'profile_id':profile['profile_id'],'row_identity_basis':profile['row_identity_basis'],'gate_eligible':payload['gate_eligible']})
+ require(fixtures['bytes']==sum(x['bytes'] for x in cas),'full CAS bytes')
+ probe_ast=ast.parse((B/'probe_actual_conditions.py.txt').read_text());gold_ast=ast.parse((B/'exact_finite_oracle.py').read_text())
+ require(not any(isinstance(x,(ast.Import,ast.ImportFrom)) and (getattr(x,'module','') or '').startswith('pytest') for x in ast.walk(probe_ast)),'no source lane pytest fixture invocation')
+ require(not any(isinstance(x,ast.ImportFrom) and (x.module or '').startswith(('polisyos','numpy','scipy')) for x in ast.walk(gold_ast)),'gold script no candidate imports')
+ unique={(x['bytes'],x['sha256']) for x in assets}
+ return {'outcome':'GO literal custody with append-only selector correction','source':SOURCE,'tree':TREE,'IR_source':IR,'G_review':G,'original_selection':ref(B/'publication-selection.json'),'actual_original_denominator':{'logical':len(assets),'unique':len(unique),'logical_bytes':sum(x['bytes'] for x in assets),'unique_bytes':sum(x[0] for x in unique)},'original_metadata_corrections':['unique_assets10→8','unique_bytes61292→51496','empty observerERROR stdout role: preserve original.json bytes, portable suffix.txt'],'source_bindings':source_bindings,'CAS_readback':cas,'native_commands':response['exact_commands'],'native_exit_code':'not separately captured by original probe receipts; complete script stdout/result/source guards and previous NumPy traceback retained','gold_script':ref(B/'exact_finite_oracle.py'),'gold':ref(B/'exact-finite-oracle.json'),'gold_stdout':ref(B/'exact-oracle.stdout.json'),'third_source_lane_tests_invoked_by_this_review':False,'native_or_numerical_repeat':False,'ROOT_source_environment_or_interpreter_mutated_or_used':False,'finding_closure':False,'technical_conditions':'Current B201/B202 two implementation conditions remain open/change-required; root-approved MC/profile bounded correction is separate and pending author/review. Historical ledger/semantic ratification not rewritten.'}
+
+def main():
+ parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path,required=True);args=parser.parse_args();require(not args.output.exists(),'append-only review');healthy=validate();controls=[]
+ selection=json.loads((B/'publication-selection.json').read_text());obs=json.loads((B/'actual-conditions-counterexamples.json').read_text());original=subprocess.check_output
+ for name,mutator in [('size',lambda r:r.update(bytes=1)),('hash',lambda r:r.update(sha256='0'*64)),('bool_size',lambda r:r.update(bytes=True))]:
+  altered=copy.deepcopy(selection);mutator(altered['assets'][-1]);counter={'count':0}
+  def spy(*a,**k):counter['count']+=1;raise ValueError('Git reached')
+  subprocess.check_output=spy
+  try:validate(altered)
+  except ValueError as e:require(counter['count']==0,'asset negative reached Git');controls.append({'control':'actual_late_asset_'+name,'outcome':'PASS','refusal':str(e),'Git_callback_count':0})
+  else:raise ValueError('corrupt actual asset accepted')
+  finally:subprocess.check_output=original
+ for name,path,value in [('option_source',['source'],'--output=/tmp/forbidden'),('late_path',['source_guard_before',5,'path'],'.'),('late_hash_bool',['source_guard_before',5,'sha256'],True)]:
+  altered=copy.deepcopy(obs);cursor=altered
+  for k in path[:-1]:cursor=cursor[k]
+  cursor[path[-1]]=value
+  if path[0]=='source_guard_before':altered['source_guard_after']=copy.deepcopy(altered['source_guard_before'])
+  counter={'count':0}
+  def spy(*a,**k):counter['count']+=1;raise ValueError('Git reached')
+  subprocess.check_output=spy
+  try:validate(observations=altered)
+  except ValueError as e:require(counter['count']==0,'source malformed callback');controls.append({'control':name,'outcome':'PASS','refusal':str(e),'Git_callback_count':0})
+  else:raise ValueError('bad source accepted')
+  finally:subprocess.check_output=original
+ healthy['controls']=controls;healthy['environment']={'python':sys.version,'executable':sys.executable};healthy['observer']=ref(Path(__file__));args.output.write_text(json.dumps(healthy,indent=2)+'\n');sys.stdout.write(json.dumps({'outcome':healthy['outcome'],'receipt':ref(args.output),'controls':len(controls),'actual_original_denominator':healthy['actual_original_denominator'],'CAS_readbacks':len(healthy['CAS_readback'])},indent=2)+'\n')
+
+if __name__=='__main__':main()

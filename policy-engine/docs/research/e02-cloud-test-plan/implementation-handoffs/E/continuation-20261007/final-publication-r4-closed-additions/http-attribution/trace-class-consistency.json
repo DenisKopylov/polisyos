@@ -1,0 +1,22 @@
+{
+  "schema": "policyos.e02.http_trace_class_consistency.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "junit": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/pytest.xml",
+    "bytes": 2421172,
+    "sha256": "b94c3b86ca8edb3b059714e68492faaf31cc2a05297006279201a62dac202c30"
+  },
+  "actual_trace_counts": {
+    "catalog_total": 413,
+    "catalog_is_file_guard": 413,
+    "catalog_exact_default_db": 413,
+    "numbered_total": 437,
+    "numbered_no_direct_cause": 437,
+    "numbered_no_errno": 437
+  },
+  "conclusion": "All413catalog traces identify the same absent configured DB/is_file guard; all437numbered-dir traces omit underlying errno/direct cause. No ENOSPC propagation across either class.",
+  "P41": "not_established",
+  "finding_closure": false,
+  "no_native_test_rerun": true
+}

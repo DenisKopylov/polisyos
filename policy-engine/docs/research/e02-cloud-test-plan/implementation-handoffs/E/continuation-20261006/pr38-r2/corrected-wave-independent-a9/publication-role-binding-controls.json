@@ -1,0 +1,14 @@
+[
+  {
+    "control": "omitted actual external review",
+    "outcome": "REJECTED"
+  },
+  {
+    "control": "false canonical all-eight validation",
+    "outcome": "REJECTED"
+  },
+  {
+    "control": "changed original source timestamp",
+    "outcome": "REJECTED"
+  }
+]

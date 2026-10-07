@@ -1,0 +1,6 @@
+# Non-deciding first harness raw outputs stay local; deciding attempt2 and exact Mapping outputs are committed.
+/results/stdout.txt
+/results/stderr.txt
+/results/pytest.junit.xml
+/results/runner-result.json
+/results/supervisor-receipt.json

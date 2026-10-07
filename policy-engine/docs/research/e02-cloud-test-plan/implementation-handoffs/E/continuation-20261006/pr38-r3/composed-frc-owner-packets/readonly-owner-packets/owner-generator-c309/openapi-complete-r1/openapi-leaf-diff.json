@@ -1,0 +1,52 @@
+[
+  {
+    "path": "/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/projection_hash",
+    "before": "sha256:4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee",
+    "after": "sha256:e15e22343a76dbd46d993da42e5182b3a00faef519500f41aee7a2f1ad44b25d"
+  },
+  {
+    "path": "/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/replay_address",
+    "before": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3Afe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
+    "after": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3Ae15e22343a76dbd46d993da42e5182b3a00faef519500f41aee7a2f1ad44b25d&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3Ae7fd3d5b6e5df2455f14918543d9787e2ebf4634b26f85ad86056dcc18487449"
+  },
+  {
+    "path": "/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/replay_pins/projection_hash",
+    "before": "sha256:4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee",
+    "after": "sha256:e15e22343a76dbd46d993da42e5182b3a00faef519500f41aee7a2f1ad44b25d"
+  },
+  {
+    "path": "/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/replay_pins/source_dependency_hash",
+    "before": "sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
+    "after": "sha256:e7fd3d5b6e5df2455f14918543d9787e2ebf4634b26f85ad86056dcc18487449"
+  },
+  {
+    "path": "/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/source/validation/bound_dependency_aggregate_identity",
+    "before": "sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
+    "after": "sha256:e7fd3d5b6e5df2455f14918543d9787e2ebf4634b26f85ad86056dcc18487449"
+  },
+  {
+    "path": "/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/source/validation/bound_dependency_count",
+    "before": 1489,
+    "after": 1493
+  },
+  {
+    "path": "/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/source/validation/worker_validation_receipt_hash",
+    "before": "sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2",
+    "after": "sha256:1ce9294aefcdcf88577114faa3c3edae6b0ef066a143e258dd36b5a57415d9ac"
+  },
+  {
+    "path": "/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/source_dependency_hash",
+    "before": "sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
+    "after": "sha256:e7fd3d5b6e5df2455f14918543d9787e2ebf4634b26f85ad86056dcc18487449"
+  },
+  {
+    "path": "/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/worker_validation_receipt_hash",
+    "before": "sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2",
+    "after": "sha256:1ce9294aefcdcf88577114faa3c3edae6b0ef066a143e258dd36b5a57415d9ac"
+  },
+  {
+    "path": "/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/worker_validation_receipt_ref",
+    "before": "owner-validation:sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2",
+    "after": "owner-validation:sha256:1ce9294aefcdcf88577114faa3c3edae6b0ef066a143e258dd36b5a57415d9ac"
+  }
+]

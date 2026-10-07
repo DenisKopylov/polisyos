@@ -1,0 +1,372 @@
+........................................................................ [ 48%]
+.........................................................F.............. [ 96%]
+.....                                                                    [100%]
+=================================== FAILURES ===================================
+_ test_execute_program_graph_fail_closes_on_unclassified_method_dispatch_error _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-159/test_execute_program_graph_fai0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb2d03019a0>
+
+    def test_execute_program_graph_fail_closes_on_unclassified_method_dispatch_error(
+        tmp_path,
+        monkeypatch,
+    ):
+        class _DummyRegistry:
+            @staticmethod
+            def get(_method_fqn: str, version: str | None = None):
+                return type("MethodClass", (), {"signature": object()})
+    
+        class _FailingDispatcher:
+            @staticmethod
+            def dispatch(**_kwargs):
+                raise KeyError("unexpected method dispatch lookup")
+    
+        store = FileSystemCAS(tmp_path)
+        base_state = GlobalState.empty(n_agents=1, n_firms=1)
+        program_ref, exec_plan_ref = _put_graph_and_plan(
+            store,
+            nodes=[
+                ProgramNode(
+                    node_id="method_node",
+                    node_kind="method",
+                    method_fqn="tests.method@1.0.0",
+                )
+            ],
+        )
+        monkeypatch.setattr(
+            "polisyos.foundry.methods.registry.MethodRegistry.get_instance",
+            lambda: _DummyRegistry(),
+        )
+        monkeypatch.setattr(
+            "polisyos.foundry.methods.backends.dispatch.MethodDispatcher.get_instance",
+            lambda: _FailingDispatcher(),
+        )
+    
+        with pytest.raises(KeyError, match="unexpected method dispatch lookup"):
+>           execute_program_graph(
+                store,
+                program_ref=program_ref,
+                exec_plan_ref=exec_plan_ref,
+                base_state=base_state,
+                mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+                slot_registry=DEFAULT_SLOT_REGISTRY,
+                merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+                strictness=ExecutionStrictness.FAIL_CLOSED,
+            )
+
+tests/unit/foundry/runtime/test_executor_fail_semantics.py:436: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7fb2d0395850>
+
+    def execute_program_graph(
+        store: FileSystemCAS,
+        *,
+        program_ref: ArtifactRef | ArtifactID | str,
+        exec_plan_ref: ArtifactRef | ArtifactID | str,
+        base_state: Any,
+        mechanism_registry: MechanismTypeRegistry,
+        slot_registry: SlotRegistry,
+        merge_registry: MergeRuleRegistry,
+        selector_field_registry: SelectorFieldRegistry | None = None,
+        constraint_registry: ConstraintRegistry | None = None,
+        step: int = 0,
+        seed: int = 0,
+        base_ref: ArtifactRef | None = None,
+        project_root: str | None = None,
+        capture_env: bool = False,
+        parameter_overrides: dict[str, dict[str, Any]] | None = None,
+        parameter_override_bundle_ref: ArtifactRef | None = None,
+        observed_range_bundle_ref: ArtifactRef | None = None,
+        welfare_bound_mode: str = "ex_ante",
+        persist_welfare_bound_reports: bool = True,
+        strictness: ExecutionStrictness = ExecutionStrictness.FAIL_CLOSED,
+    ) -> ExecuteArtifacts:
+        """Execute program graph."""
+        env_manifest_ref: EnvironmentManifestRef | None = None
+        env_fingerprint: str | None = None
+        if capture_env:
+            env_manifest = capture_environment(
+                project_root=project_root,
+                include_git=True,
+                include_dependencies=True,
+                custom_metadata={
+                    "seed": seed,
+                    "seed_source": "jax_prng",
+                    "exec_plan_id": str(artifact_id(exec_plan_ref)),
+                },
+            )
+            env_manifest_ref = _persist_environment_manifest(store, env_manifest, exec_plan_ref)
+            env_fingerprint = env_manifest.fingerprint
+            _log_environment_captured(env_manifest)
+    
+        start_time = time.perf_counter()
+        program_graph = load_model(store, program_ref, ProgramGraph)
+        exec_plan = load_model(store, exec_plan_ref, ExecPlan)
+        if program_graph.lowered_ir_ref is None:
+            raise ValueError("program_graph_missing_lowered_ir_ref")
+        lowered_ir = load_model(store, program_graph.lowered_ir_ref, LoweredIR)
+        observed_ranges = None
+        if persist_welfare_bound_reports and welfare_bound_mode != "off":
+            observed_ranges = (
+                load_observed_range_bundle(store, observed_range_bundle_ref)
+                if observed_range_bundle_ref is not None
+                else None
+            )
+    
+        order = exec_plan.order or [node.node_id for node in program_graph.nodes]
+        node_map = {node.node_id: node for node in program_graph.nodes}
+        incoming_dependencies = _incoming_dependencies(program_graph)
+        mask_barrier_targets = _mask_barrier_targets(program_graph)
+    
+        n_agents = getattr(base_state.agents, "size", None)
+        if n_agents is None:
+            n_agents = int(base_state.agents.income.shape[0])
+        n_firms = getattr(base_state.firms, "size", None)
+        if n_firms is None:
+            n_firms = int(base_state.firms.capital.shape[0])
+    
+        key = jax.random.PRNGKey(seed)
+        tax_rate_value = _resolve_income_tax_rate(
+            program_graph,
+            store,
+            step,
+            parameter_overrides=parameter_overrides,
+        )
+        visible_state = base_state
+        patch_records: dict[str, list[dict[str, Any]]] = {}
+        ops: list[PatchOp] = []
+        applied_nodes = 0
+        skipped_nodes = 0
+        failure_cards: list[FailureCard] = []
+        failure_cards_dropped = 0
+        provenance: dict[str, list[str]] = {}
+        derived_artifacts: list[tuple[str, ArtifactRef]] = []
+        touched_slots: set[str] = set()
+        executed_mutating_nodes: set[str] = set()
+        op_nodes = 0
+        checked_constraints = 0
+        masks: dict[str, tuple[jnp.ndarray, SlotScope]] = {}
+        constraint_report = ConstraintReport(
+            ok=True,
+            hard_fail=False,
+            constraint_mode=lowered_ir.constraint_mode,
+            total_constraints=0,
+            violations=[],
+            penalty_total=None,
+            notes=[],
+        )
+    
+        def _flush_pending_records() -> None:
+            nonlocal patch_records, visible_state
+            if not patch_records:
+                return
+            touched_slots.update(patch_records.keys())
+            base_values = {
+                slot_id: get_state_path(visible_state, slot_spec.state_path)
+                for slot_id in patch_records
+                for slot_spec in [slot_registry.slots.get(slot_id)]
+                if slot_spec is not None and slot_spec.state_path
+            }
+            merged_ops = merge_patch_records(
+                store,
+                patch_records,
+                base_values=base_values,
+                slot_registry=slot_registry,
+                merge_registry=merge_registry,
+            )
+            visible_state = apply_ops_to_state(
+                store,
+                base_state=visible_state,
+                ops=merged_ops,
+                slot_registry=slot_registry,
+                merge_registry=merge_registry,
+            )
+            patch_records = {}
+    
+        def _persist_welfare_report(node: Any, report: Any) -> None:
+            if report is None or not persist_welfare_bound_reports:
+                return
+            report_inputs = [
+                artifact_input_ref(exec_plan_ref, role="exec_plan"),
+            ]
+            if base_ref is not None:
+                report_inputs.append(input_ref_from_artifact_ref(base_ref, role="base_state_snapshot"))
+            if node.params_ref is not None:
+                report_inputs.append(
+                    input_ref_from_artifact_ref(node.params_ref, role="mechanism_params")
+                )
+            if parameter_override_bundle_ref is not None:
+                report_inputs.append(
+                    input_ref_from_artifact_ref(
+                        parameter_override_bundle_ref,
+                        role="parameter_override_bundle",
+                    )
+                )
+            if observed_range_bundle_ref is not None:
+                report_inputs.append(
+                    input_ref_from_artifact_ref(observed_range_bundle_ref, role="observed_range_bundle")
+                )
+            report_ref = persist_welfare_bound_report(store, report, inputs=report_inputs)
+            derived_artifacts.append((f"welfare_bound_report:{node.node_id}", report_ref))
+    
+        for node_id in order:
+            node = node_map.get(node_id)
+            if node is None:
+                card = _build_failure_card(
+                    ProgramNodeValidationError(
+                        f"ExecPlan referenced unknown node '{node_id}'",
+                        node_id=node_id,
+                        code="unknown_exec_plan_node",
+                    ),
+                    node_id=node_id,
+                    slot_context=(),
+                )
+                failure_cards_dropped += _append_failure_card(failure_cards, card)
+                if _should_abort(card, strictness):
+                    raise MethodExecutionAbortError(card)
+                skipped_nodes += 1
+                continue
+            barrier_target = mask_barrier_targets.get(node_id, node_id)
+            if patch_records and _depends_on_executed_mutation(
+                barrier_target,
+                incoming_dependencies=incoming_dependencies,
+                executed_mutating_nodes=executed_mutating_nodes,
+            ):
+                _flush_pending_records()
+            try:
+                if node.node_kind == "op":
+                    op_nodes += 1
+                    if node.op is None:
+                        raise ProgramNodeValidationError(
+                            f"Program op node '{node_id}' is missing op payload",
+                            node_id=node_id,
+                            op_kind=None,
+                            code="missing_program_op",
+                        )
+                    if node.op.op_kind == "make_mask":
+                        selector_payload = node.op.params.get("selector") or {}
+                        target = _parse_selector_payload(selector_payload, node=node)
+                        mask, scope = evaluate_selector(
+                            target, visible_state, selector_field_registry=selector_field_registry
+                        )
+                        masks[node.node_id] = (mask, scope)
+                        continue
+                    if node.op.op_kind == "apply_mechanism":
+                        key, patch_map, payload, welfare_report = _execute_mechanism_like_node(
+                            store,
+                            node=node,
+                            visible_state=visible_state,
+                            selector_field_registry=selector_field_registry,
+                            masks=masks,
+                            step=step,
+                            key=key,
+                            n_agents=n_agents,
+                            n_firms=n_firms,
+                            mechanism_registry=mechanism_registry,
+                            parameter_overrides=parameter_overrides,
+                            observed_ranges=observed_ranges,
+                            slot_registry=slot_registry,
+                            merge_registry=merge_registry,
+                            tax_rate_value=tax_rate_value,
+                            welfare_bound_mode=welfare_bound_mode,
+                        )
+                        if patch_map is None:
+                            skipped_nodes += 1
+                            continue
+                        _append_patch_map_records(
+                            patch_records,
+                            node=node,
+                            payload=payload,
+                            patch_map=patch_map,
+                        )
+                        _persist_welfare_report(node, welfare_report)
+                        applied_nodes += 1
+                        executed_mutating_nodes.add(node_id)
+                        continue
+                    if node.op.op_kind == "merge_state":
+                        _flush_pending_records()
+                        continue
+                    if node.op.op_kind == "check_constraints":
+                        ids = node.op.params.get("constraint_ids") or []
+                        if constraint_registry is not None:
+                            from polisyos.foundry.validation.constraints_engine import (
+                                check_constraints as evaluate_lowered_constraints,
+                            )
+    
+                            constraint_ids = [item for item in ids if isinstance(item, str)]
+                            lowered_constraints = [
+                                item
+                                for item in lowered_ir.constraints
+                                if item.constraint_id in constraint_ids
+                            ]
+                            checked_constraints += len(lowered_constraints)
+                            constraint_report = evaluate_lowered_constraints(
+                                constraints=lowered_constraints,
+                                slot_registry=slot_registry,
+                                state=visible_state,
+                            )
+                        continue
+                    raise ProgramNodeValidationError(
+                        f"Unsupported program op '{node.op.op_kind}'",
+                        node_id=node_id,
+                        op_kind=node.op.op_kind,
+                        code="unsupported_program_op",
+                    )
+                if node.node_kind == "mechanism":
+                    key, patch_map, payload, welfare_report = _execute_mechanism_like_node(
+                        store,
+                        node=node,
+                        visible_state=visible_state,
+                        selector_field_registry=selector_field_registry,
+                        masks=masks,
+                        step=step,
+                        key=key,
+                        n_agents=n_agents,
+                        n_firms=n_firms,
+                        mechanism_registry=mechanism_registry,
+                        parameter_overrides=parameter_overrides,
+                        observed_ranges=observed_ranges,
+                        slot_registry=slot_registry,
+                        merge_registry=merge_registry,
+                        tax_rate_value=tax_rate_value,
+                        welfare_bound_mode=welfare_bound_mode,
+                    )
+                    if patch_map is None:
+                        skipped_nodes += 1
+                        continue
+                    _append_patch_map_records(
+                        patch_records,
+                        node=node,
+                        payload=payload,
+                        patch_map=patch_map,
+                    )
+                    _persist_welfare_report(node, welfare_report)
+                    applied_nodes += 1
+                    executed_mutating_nodes.add(node_id)
+                    continue
+                if node.node_kind == "method":
+                    method_fqn = node.method_fqn
+                    if not method_fqn:
+                        raise ProgramNodeValidationError(
+                            f"Method node '{node_id}' is missing method_fqn",
+                            node_id=node_id,
+                            code="missing_method_fqn",
+                        )
+                    from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+                    from polisyos.foundry.methods.registry import MethodRegistry
+    
+                    registry = MethodRegistry.get_instance()
+                    method_class = registry.get(method_fqn, version=node.method_version)
+                    signature = method_class.signature
+                    dispatcher = MethodDispatcher.get_instance()
+                    key, step_key = jax.random.split(key)
+                    method_params = dict(node.method_params)
+>                   if signature.backend.value == "numpy":
+                       ^^^^^^^^^^^^^^^^^
+E                   AttributeError: 'object' object has no attribute 'backend'
+
+src/polisyos/foundry/execute/_internal/graph/__init__.py:422: AttributeError
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/runtime/test_executor_fail_semantics.py::test_execute_program_graph_fail_closes_on_unclassified_method_dispatch_error
+1 failed, 148 passed in 53.83s

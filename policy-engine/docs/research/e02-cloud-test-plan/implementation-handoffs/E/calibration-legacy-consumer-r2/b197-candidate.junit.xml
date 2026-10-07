@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="7" time="15.032" timestamp="2026-10-06T14:05:19.204609+00:00" hostname="b5f0914494dc"><testcase classname="tests.unit.scientist.nodes.test_calibration_report_consumer" name="test_actual_legacy_consumer_accepts_valid_canonical_report" time="0.022" /><testcase classname="tests.unit.scientist.nodes.test_calibration_report_consumer" name="test_legacy_node_refuses_same_bytes_wrong_cas_profile_before_dispatch[foundry.funnel_calibration_report-polisyos.foundry.CalibrationReport-2.0]" time="0.066" /><testcase classname="tests.unit.scientist.nodes.test_calibration_report_consumer" name="test_legacy_node_refuses_same_bytes_wrong_cas_profile_before_dispatch[foundry.calibration_report-polisyos.foundry.FunnelCalibrationReport-2.0]" time="0.087" /><testcase classname="tests.unit.scientist.nodes.test_calibration_report_consumer" name="test_legacy_node_refuses_same_bytes_wrong_cas_profile_before_dispatch[foundry.calibration_report-polisyos.foundry.CalibrationReport-1.0]" time="0.089" /><testcase classname="tests.unit.scientist.nodes.test_calibration_report_consumer" name="test_actual_tied_calibrator_v2_reaches_fresh_legacy_node" time="7.443"><failure message="AttributeError: 'dict' object has no attribute 'artifact_id'">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-198/test_actual_tied_calibrator_v20')
+
+    def test_actual_tied_calibrator_v2_reaches_fresh_legacy_node(tmp_path):
+        from polisyos.core.canon import from_canonical_bytes
+        from polisyos.ir.analytics.uncertainty import PosteriorSamplesCarrier
+    
+        helper = runpy.run_path(
+            "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py"
+        )
+        store = FileSystemCAS(tmp_path)
+        report_ref, report = helper["_run_b197_tied_calibrator"](store)
+        assert report.schema_version == "2.0"
+        fresh = FileSystemCAS(tmp_path)
+        ctx, state = _node_fixture(fresh, report_ref, {"A.rate": 1.0, "B.rate": -1.0})
+        outcome = PropagateUncertaintyNode().execute(ctx, state)
+        assert outcome.status == "ok"
+        sim = from_canonical_bytes(
+            fresh.get_bytes(outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF].artifact_id)
+        )
+&gt;       envelope = load_uncertainty_envelope(fresh, sim["uncertainty_envelopes"]["y"])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/nodes/test_calibration_report_consumer.py:215: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f217560b550&gt;
+ref = {'artifact_id': 'sha256:15781b99d29fd32593e7af36fd1f6cc30a0eee1a0fa6513effe2db03ddfdc823', 'kind': 'ir.uncertainty_envelope', 'media_type': 'application/json'}
+
+    def load_uncertainty_envelope(
+        store: ArtifactStore,
+        ref: UncertaintyEnvelopeRef,
+    ) -&gt; UncertaintyEnvelope:
+        """Load an uncertainty envelope from artifact storage."""
+&gt;       payload = get_json_artifact(store, ref.artifact_id)
+                                           ^^^^^^^^^^^^^^^
+E       AttributeError: 'dict' object has no attribute 'artifact_id'
+
+src/polisyos/ir/analytics/uncertainty.py:2141: AttributeError</failure></testcase><testcase classname="tests.unit.scientist.nodes.test_calibration_report_consumer" name="test_invalid_explicit_report_cannot_hide_behind_valid_snapshot" time="0.059" /><testcase classname="tests.unit.scientist.nodes.test_propagate_uncertainty_node" name="test_propagate_uncertainty_node_updates_simulation_result" time="0.681" /></testsuite></testsuites>

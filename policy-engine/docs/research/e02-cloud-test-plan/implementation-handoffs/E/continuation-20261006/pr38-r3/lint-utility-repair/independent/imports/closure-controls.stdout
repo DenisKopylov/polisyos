@@ -1,0 +1,15 @@
+{
+  "schema": "policyos.e02.independent_closure_controls.v1",
+  "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+  "utility_denominator": 229,
+  "actual_named_capture_rows": 12,
+  "nested_counted_definitions_executed_via_outer": 2,
+  "property_removal": {
+    "scope": "module.f",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-gaussian-independent.py",
+    "negative_gate_outcome": "FAIL",
+    "discriminator": "PASS",
+    "reason": "MC sign/counter capture shared"
+  },
+  "limits": "Actual capture AST executed after loop with isolated instrumentation sentinels; no product/served numerical backend authority and no full builder replay. Three API defaults are reviewed by criteria_r4."
+}

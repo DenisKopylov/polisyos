@@ -1,0 +1,12 @@
+id = "2026-10-07-posterior-ratio-law-v2"
+title = "Bind posterior summaries and sampling to one finite ratio law"
+type = "fixed"
+component = "ir-foundry-uncertainty"
+owner = "E-scoped-B201-B202"
+summary = "Profile2 uses exact normalized binary-weight ratios and finite-U bucket admission; multiple coordinates require supplied aligned draw IDs before evaluator construction."
+change_class = "persisted-artifact-format"
+surface_classification = "public_stable: polisyos.ir; scoped posterior profile version addition"
+compatibility = "The Profile1 DTO and literal decode/display/replay, generic unprofiled points and Envelope1.1 wire remain unchanged. New producers emit distinct profile id :2/version2.0. Old generated multi-coordinate profiles no longer qualify for stochastic joint-law admission."
+migration = "Use Profile2-aware readers for new exact-ratio functionals; stored ratio weights need not sum to one. All E sampling siblings use the common finite-U transform. Canonical generator owner must refresh ABI/public inventory projections; generated files are not edited by E."
+limitations = "Finite uniform-mesh draws discretize the continuous rational mass law. Supplied row alignment is not source provenance or posterior/causal authority; outputs stay non-gating."
+public_surface_inventory_reviewed = false

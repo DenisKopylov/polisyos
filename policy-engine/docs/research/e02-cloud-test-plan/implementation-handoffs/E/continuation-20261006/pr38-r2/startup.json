@@ -1,0 +1,21 @@
+{
+  "schema": "policyos.e02.continuation_startup.v1",
+  "previous_E_head": "be947056728a24d50432d32fbb9feabee7dfeffc",
+  "previous_E_tree": "51c67e8b4f400e6b22c28828bbe1e5aeb6abdd4d",
+  "fresh_main": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "fresh_main_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "main_anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "main_anchor_ancestor_check": "PASS",
+  "G_checkpoint_and_audit": "0346fc656a45ff2cd43d37126992d8ddbb739d10",
+  "G_tree": "206a7d82a0d7aac629cdd9607a60949fc753a341",
+  "append_only_merge": "028829629a9c30454e44d25e7bea7be3ea05b561",
+  "merge_tree": "a00c054928d7f9bafff6b46f2fb19e95697e6e9b",
+  "root_branch": "codex/e02-E-continuation-20261006",
+  "root_path": "/workspace/e02-E-continuation-20261006",
+  "admission_full_JSON": "admissions/*-resume.json",
+  "results_importer": "PASS (transfer/navigation only)",
+  "query_command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --unit E --failures-only --limit 30",
+  "no_new_checkout": true,
+  "no_reset_rebase_force_or_main_push": true,
+  "cleanup": "No native Trash. Preserve all code/docs/unique data; exact reusable fixture/overlay candidates in final receipt, no permanent deletion."
+}

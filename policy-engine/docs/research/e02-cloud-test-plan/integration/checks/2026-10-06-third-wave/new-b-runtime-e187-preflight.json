@@ -1,0 +1,65 @@
+{
+  "archive_root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/new-b-runtime-e187",
+  "candidate_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+  "candidate_tree": "edc05c3489f0e2e44c7c81ccbfb854539c9bdc50",
+  "env": {
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_MAX_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PATH": "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0IKaEzY:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+    "PYTEST_ADDOPTS": "",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/new-b-runtime-e187/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/new-b-runtime-e187/policy-engine",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "executable": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+  "imports": [
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/new-b-runtime-e187/policy-engine/src/polisyos/common/async_tools.py",
+      "module": "polisyos.common.async_tools",
+      "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+      "under_pinned_product": true
+    },
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/new-b-runtime-e187/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+      "module": "polisyos.scientist.orchestration.engine.retry",
+      "sha256": "79e0a1e01af4e8e46c760c00b33ca6f49e27c38e61b8c9dfd0e9a8a953dfa271",
+      "under_pinned_product": true
+    }
+  ],
+  "product_root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/new-b-runtime-e187/policy-engine",
+  "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+  "source_hashes": {
+    "src/polisyos/common/async_tools.py": {
+      "bytes": 11846,
+      "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+    },
+    "src/polisyos/scientist/orchestration/engine/retry.py": {
+      "bytes": 79312,
+      "sha256": "79e0a1e01af4e8e46c760c00b33ca6f49e27c38e61b8c9dfd0e9a8a953dfa271"
+    },
+    "tests/unit/common/test_async_tools.py": {
+      "bytes": 15730,
+      "sha256": "d93dbdd1b577c207e89520d2bfc2385fe738953743abab40bc75c1c24bbd7ca5"
+    },
+    "tests/unit/remediation/test_run_03.py": {
+      "bytes": 14399,
+      "sha256": "037753a3c4200bef8492b65e7e0ee0a96dd1aa09940e1e6e6b8e5b798ead835c"
+    },
+    "tests/unit/scientist/orchestration/engine/test_retry.py": {
+      "bytes": 79749,
+      "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139"
+    }
+  },
+  "versions": {
+    "anyio": "4.12.0",
+    "duckdb": "1.4.3",
+    "httpx": "0.28.1",
+    "jax": "0.8.2",
+    "numpy": "2.3.5",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "scipy": "1.16.3"
+  }
+}

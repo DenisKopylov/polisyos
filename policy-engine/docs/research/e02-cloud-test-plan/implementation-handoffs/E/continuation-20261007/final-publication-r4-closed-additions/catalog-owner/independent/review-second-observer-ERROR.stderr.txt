@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-native-catalog-packet-independent-64d/review_native_catalog_packet.py", line 103, in <module>
+    require(snapshot==transport['snapshot'] and rows==independent_rows and snapshot['data_schema_ref'] is None and schema==transport['schema'],'Native fresh typed receipt diverges from independent CAS bytes')
+  File "/tmp/e02-E-native-catalog-packet-independent-64d/review_native_catalog_packet.py", line 27, in require
+    if not value:raise ValueError(message)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Native fresh typed receipt diverges from independent CAS bytes

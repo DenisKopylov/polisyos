@@ -1,0 +1,1 @@
+{"output": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/empty-json-role-controls-64d.json", "controls": 16, "reference_rows": 40, "matched_files": 7}

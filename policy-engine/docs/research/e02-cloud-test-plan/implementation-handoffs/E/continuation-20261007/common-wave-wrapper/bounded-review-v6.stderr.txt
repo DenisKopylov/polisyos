@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/check_wrapper_preparation.py", line 196, in <module>
+    old_wrapper.load_planner(old_args)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/historical-v5-prepare_current_owner_wave.py.txt", line 39, in load_planner
+    expected = planner.git_bytes(args.repo, "show", args.candidate + ":" + PLANNER_PATH)
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v6/old_actual_planner_callback/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py", line 95, in git_bytes
+    result.check_returncode()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/subprocess.py", line 509, in check_returncode
+    raise CalledProcessError(self.returncode, self.args, self.stdout,
+                             self.stderr)
+subprocess.CalledProcessError: Command '['/usr/local/bin/git', '-C', '/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v6/old_actual_planner_callback', 'show', '8fa11f569ebb2c952948e09d4db5c1f37be84b83:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py']' returned non-zero exit status 128.

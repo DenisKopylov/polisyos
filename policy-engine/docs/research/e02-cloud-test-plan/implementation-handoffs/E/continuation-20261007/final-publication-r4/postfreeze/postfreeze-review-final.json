@@ -1,0 +1,308 @@
+{
+  "schema": "policyos.e02.postfreeze_import_architecture_static_review.v1",
+  "created_at": "2026-10-07T10:15:05.137480+00:00",
+  "candidate": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "comparison_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "source_changes": [],
+  "git_mutations": [],
+  "new_check_or_generator_execution": false,
+  "canonical_observations": {
+    "architecture": {
+      "outcome": "UNRUN",
+      "exit_code": 2,
+      "literal_wrapper_outcome": "FAIL",
+      "complete_verdict": false,
+      "partial_deep_import_edges": 151,
+      "partial_reported_source_paths": 79,
+      "public_inventory": "284\u2192287 scoped IR root DTO drift",
+      "required_families": {
+        "runtime-openapi-snapshot": "UNRUN184second owner validation timeout; no declared output observed",
+        "runtime-api-client": "PASS3 against committed schema",
+        "runtime-dashboard-api-types": "PASS1 against committed schema",
+        "trust-claim-posture-register": "FAIL actual generated mismatch"
+      }
+    },
+    "static_invocation": {
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "current_files": 5938,
+      "base_files": 5904,
+      "source_files": 2702,
+      "mechanisms": 13136,
+      "regressions": 20,
+      "new_unresolved": 91,
+      "all_unresolved": 9239,
+      "unresolved_receiver_calls": 140187,
+      "lost_paths": 0,
+      "runtime_invocation_established": false,
+      "complete_exceptional_rows": 111,
+      "complete_input_mapping_reconciliation": "PASS against independent pre-wave source census"
+    }
+  },
+  "independent_analysis_controls": {
+    "validator": "PASS healthy actual complete111row/check/graph/input receipt",
+    "negative_controls": "8PASS integrity-valid corrupt fields refused",
+    "property_removal": "Expected independent negative assertionFAIL when complete-row comparator removed; discriminatorPASS",
+    "scope": "Receipt/attribution integrity only, not inference/runtime/property finding closure"
+  },
+  "actual_IR_callers": {
+    "helpers": 8,
+    "source_calls": 23,
+    "source_inputs": 5,
+    "native_binding_review": "Existing immutable700 independent identity/removal review reused after exact bytes equal64d; no source self-review of Core539 bodies. No runtime/global gate rerun.",
+    "model_limit": "Lazy curated facade metadata not resolved by direct-call static model; source existence and previous native witnesses remain independently scoped"
+  },
+  "owner_attribution_correction": {
+    "initial_review": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-output-review-initial-64d.json",
+      "bytes": 473359,
+      "sha256": "dad1a6b4b50f8c1b3d0b2459d58cbf0528a3cd61328871e4ba1cf78d379ce29e"
+    },
+    "initial_stdout": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-output-review.stdout",
+      "bytes": 5032,
+      "sha256": "eb38a66b1ee0d99c8234c81acdf7f5bc62b171bd5a422137384e18072553dbde"
+    },
+    "current_review": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-output-review-64d.json",
+      "bytes": 473959,
+      "sha256": "a18b81c397cc7bb4cb5764f4081b59463c1709ff894b72104fb405a6f48c192d"
+    },
+    "correction": "Initial path relevance classifier omitted nine scoped IR symbols and one Welfare consumer. Corrected relevance68\u219278 from actual final700 footprint and tracked a0ac10/cdaea lease, not inferred generalIRauthority. Underlying111records/counts/check/graph bytes unchanged. Initial review reconstructed and independently matched previously delivered SHA dad1a6\u2026; initial stdout preserved.",
+    "initial_literal_observer": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/inspect_static_output.initial.py.txt",
+      "bytes": 7158,
+      "sha256": "c75797a00cff185e49282de8785ba08d1722d0dfd3cffdb1cfd0942a955ff1b2"
+    },
+    "current_literal_observer": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/inspect_static_output.py.txt",
+      "bytes": 7624,
+      "sha256": "d99e2b7b7e4a901274f7d73bb0b0dcccb1a8a0372bee3ed4ad1f5e8cf41daa5c"
+    }
+  },
+  "required_next_owners": [
+    "IRAPI + architecture/public inventory generator owners: apply current scoped IR schema/inventory/replay companion packet through canonical generator, preserve allold ABI/module keys",
+    "IRAPI owner: admit missing existing forecast serializer identity aliases; minimum bridge-only and recommended native producer+reader patches applicabilityPASS, UNAPPLIED; testsUNRUN pending API admission",
+    "Foundry.execute API owner: admit existing native snapshot threecallable bindings for real BKT replay; outside historical12edge denominator",
+    "CoreAPI owner: decide native test-only IRadapter seam admission, no dynamic import workaround or exceptionbaseline change",
+    "A/runtime governed projection + B confidence ledger owner validator/input + canonical generator owner throughG: diagnose exact184second worker timeout before affected generator rerun; no timeout/authority weakening",
+    "Architecture trust-posture generator and each changed source/claim owner: recompute complete152source/375claim projection, no hand-edit generated JSON",
+    "E DDM/Calibration/BKT/FRC/scopedIR owners and native/default consumers: handle complete111static exceptions using actual persisted caller/property witnesses or exact unmeasured boundary, never dummy calls/deferrals/baseline waivers",
+    "D default Search consumer owner: analysis artifact/reopen/ranking edge remains separate fromB100 transform/sampler/roundtrip criterion"
+  ],
+  "P41": "not_established: every global red retains exact canonical source/current output; sourceASTbase presence and current-tool base graph are not exact full slice-base command/input/environment replay. No inherited waiver.",
+  "finding_ledger": "No owner finding decisions or historical ledger changed by this helper. Code acceptance, finding closure and individual check outcome remain separate.",
+  "moderate_publication_files": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/exact-wave-gate-jobs.json",
+      "bytes": 2076,
+      "sha256": "d069b1664066740a5bcf182ad749b32eda98f035ba67602f78dc443b42d1ee5d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/architecture-row-attribution-64d.json",
+      "bytes": 285319,
+      "sha256": "7870e168f980057377f335d6cc97a2ed632410eaab58e392b00b68a0a9ca9a69"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/architecture-baseline-delta.json",
+      "bytes": 52513,
+      "sha256": "cc5e461428a4abc8df98e96816c9bfc646d175d76826834527950b720aaaa27a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/architecture-output-review.stdout",
+      "bytes": 4760,
+      "sha256": "13993cd38f0572386ea3243800c98ef7d6379b3acdb3510372f79b7f77eec8b0"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/architecture-output-review.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture-receipt.json",
+      "bytes": 14534,
+      "sha256": "d19556e7bdd8682113e7f5cdbbbeae38964adb7461aba69b10114afcd36a1ea4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/index.json",
+      "bytes": 12016,
+      "sha256": "288ad55ece85e895dcbddc953b13c796cd1c823e5a4726ce7ecfdd61aef393ee"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture.stdout",
+      "bytes": 238,
+      "sha256": "12afabaf61e25bbde0f2158f7e7d7c7b305fbba929b1e742d4f77852531b81c2"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/trust-posture-complete-keyed-census.json",
+      "bytes": 71904,
+      "sha256": "86a45b02603f7567dfe678b580d654d1d4862138350b195c5637ba48c36dcc02"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/packet.json",
+      "bytes": 15298,
+      "sha256": "1fdc4277f810fc826a052d46ed35fdf06fc8abc71109b4bfdd7157fa5763b57f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/historical-edge-loader-only.patch",
+      "bytes": 1257,
+      "sha256": "b9941f66776a7f4fd99f7bdd41fd5f6092c5fec0b016368ef2ee1899b65b5a2a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/producer-reader-pair.patch",
+      "bytes": 1928,
+      "sha256": "329965955e276b201c53929b1a09694ac49b3f23369d691a5c58c120ff38a508"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/test_forecast_serializer_exports.py.txt",
+      "bytes": 2367,
+      "sha256": "61005cb6c5fe5e96b699b350e0bea810cf645ce8cdd3f8bcac0dde22eec86f21"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/test-packet.json",
+      "bytes": 1731,
+      "sha256": "93f60ad738a232162566e599c8b2c15bb318b127e7c35dffcdf0f4ae5a902b2c"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-output-review-64d.json",
+      "bytes": 473959,
+      "sha256": "a18b81c397cc7bb4cb5764f4081b59463c1709ff894b72104fb405a6f48c192d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-output-review-final.stdout",
+      "bytes": 5032,
+      "sha256": "73b3b8385d62f565f50e7290bbd5ee1e3bf47e819f9cca282c09cb313d8c571a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-output-review-final.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-review-validator-controls.json",
+      "bytes": 4067,
+      "sha256": "b854b5c3a2486027d74512b7476a9fdf506d58ed5149efa1038d1d5337414346"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-review-validator.stdout",
+      "bytes": 4067,
+      "sha256": "b854b5c3a2486027d74512b7476a9fdf506d58ed5149efa1038d1d5337414346"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-review-validator.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-actual-caller-owner-packet.json",
+      "bytes": 21036,
+      "sha256": "b669673b1fb851ec86e85015adf60eff742a6422ec36823b22395ac8e9fe72b5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-lazy-callers-final.stdout",
+      "bytes": 15104,
+      "sha256": "ff46e5cf59cc46313cdd1a6ac07302d29e85569b5b76eda09f0671e6e8a1360b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-lazy-callers-final.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/architecture-attribution-observers.json",
+      "bytes": 5057,
+      "sha256": "0e8abb7dda20d2978ce9f7f9e34837e81c7d4cf13b5dc10846f048f444ebbe4f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/postfreeze-architecture-final.json",
+      "bytes": 13461,
+      "sha256": "e3a8beec1a366ffc70445f477b0691771427dcaf2bfc10f11bbfc18b6f7fd845"
+    }
+  ],
+  "literal_archived_observers": [
+    {
+      "executed_source_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/inspect_static_output.py",
+      "portable_source": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/inspect_static_output.py.txt",
+        "bytes": 7624,
+        "sha256": "d99e2b7b7e4a901274f7d73bb0b0dcccb1a8a0372bee3ed4ad1f5e8cf41daa5c"
+      },
+      "bytes_preserved": true
+    },
+    {
+      "executed_source_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/validate_static_review.py",
+      "portable_source": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/validate_static_review.py.txt",
+        "bytes": 5850,
+        "sha256": "d65a6634ebced096043db98796510c6f1efd1311deb1117b91cb8461bd28b267"
+      },
+      "bytes_preserved": true
+    },
+    {
+      "executed_source_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/trace_static_lazy_callers.py",
+      "portable_source": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/trace_static_lazy_callers.py.txt",
+        "bytes": 6754,
+        "sha256": "594ebe9a9f9886d6768a30c85d8e7514c39fc756d208c8b4875205731724ed92"
+      },
+      "bytes_preserved": true
+    },
+    {
+      "executed_source_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/prepare_postfreeze_architecture_publication.py",
+      "portable_source": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/prepare_postfreeze_architecture_publication.py.txt",
+        "bytes": 9229,
+        "sha256": "ca0f7fd0301a35489e716a38b33bcf26713e46ce4b8bb5ecb0a68a89026be9fb"
+      },
+      "bytes_preserved": true
+    }
+  ],
+  "full_input_census": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-input-census-64d.json",
+    "bytes": 2497315,
+    "sha256": "80d5c703b559e77f2901b295f683315c1721ad953434f3550ab65202732e5492"
+  },
+  "raw_graph_ref": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/raw/production-invocation.raw.json",
+    "sha256": "2db8bd7e6e2517bc18b8f0e53d4f79617802b15fdf24e8e0ba1a9b64b895a3b9",
+    "bytes": 171816130
+  },
+  "raw_graph_publication": "Hash/source/input refs only;171816130byte raw graph remains ignored, no duplicate Git dump",
+  "generated_output_capture": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture-receipt.json",
+    "bytes": 14534,
+    "sha256": "d19556e7bdd8682113e7f5cdbbbeae38964adb7461aba69b10114afcd36a1ea4"
+  },
+  "capture_limit": "Five declared outputs observed; runtime OpenAPI absent. Periodic stable byte capture is not proof of final producer authority. Canonical default TemporaryDirectory cleanup observed; observer copied noenvironment/source and cleaned nothing.",
+  "failed_observer_history": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/failed-harness/trace_static_lazy_callers.initial.py.txt",
+      "bytes": 6756,
+      "sha256": "fc5d98abd1fecbe032914270df02a619b44c862968230ada304cf10faa760ebc"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/failed-harness/static-lazy-callers.initial.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/failed-harness/static-lazy-callers.initial.stderr",
+      "bytes": 212,
+      "sha256": "c9e780ff0776d78e78417c5b62ebe123c6743887e808e114ef54824c8d08aafd"
+    }
+  ],
+  "failed_observer_note": "Read-only AST helper initially used incorrect metadata map name and refused before output; corrected to actual ANALYTICS_FACADE_EXPORTS, then23actualcallsite censusPASS. It was not a product/gate failure.",
+  "observer_environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+  },
+  "current_deciding_file_bytes": 1007724,
+  "limitations": "Bounded placement/import/static evidence does not confer production history, fit/noise, current feed, institution authority, law-dependent computation or closure. Missing actual inputs/consumer authority preserve corresponding held/limited/open owner decisions."
+}

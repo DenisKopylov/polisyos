@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final/review_assembly_delta.py", line 315, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final/review_assembly_delta.py", line 203, in main
+    assert not unassigned and all(path in tree(FINAL) for path in flat)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

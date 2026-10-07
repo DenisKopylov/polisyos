@@ -1,0 +1,1 @@
+{"candidate_sha": "5e3e3727685132f270a3a07b9f63dd962a88cd96", "collection_state": "COMPLETE_BOUND", "expected_job_count_from_complete_plan": 15, "job_receipt_count": 15, "numeric_counts": {"cases": 1440, "passed": 1086, "failed": 3, "errors": 351, "skipped": 0}, "numeric_outcome_counts": {"FAIL": 7}, "non_numeric_outcome_counts": {"PASS": 1, "FAIL": 7}}

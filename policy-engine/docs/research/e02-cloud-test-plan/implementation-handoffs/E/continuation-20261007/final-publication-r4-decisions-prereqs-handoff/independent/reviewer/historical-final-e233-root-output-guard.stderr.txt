@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-decisions-prereqs-custody-independent/review_final_e233.py", line 157, in <module>
+    after=state(ROOT);require(before==after,'ROOT narrow source guard stable');require(state(R)==leaf,'immutable author guard stable')
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-decisions-prereqs-custody-independent/review_final_e233.py", line 19, in require
+    if not c: raise ValueError(m)
+              ^^^^^^^^^^^^^^^^^^^
+ValueError: ROOT narrow source guard stable

@@ -1,0 +1,46 @@
+{
+  "schema": "policyos.e02.E.final_owner_companion_handoff.v1",
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "source_handoff": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/handoff.json",
+    "bytes": 22539,
+    "sha256": "f678318a3fd0b4726a955faa1614699116bfc528d696a07fbbdaa5796acd59a2"
+  },
+  "prior_published_E_topic_head": "2b6146377fc084e6289a83c9fac3e818b79d8b55",
+  "copy_index": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/final-companions/copy-index.json",
+    "bytes": 18704,
+    "sha256": "d9b0f4766099aeaa93331f20306c803938f6a5b8f0215f4395d7f488edb49be2"
+  },
+  "qualified_canonical_projection": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/final-companions/generator-3932cded/qualified-owner-projection-packet.json",
+    "bytes": 7773,
+    "sha256": "4e072a6c180495a39bce0341625ed7a6253403852e5c8111a08a073cdb2469d3"
+  },
+  "direct_tracked_final3932_patch": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/final-companions/generator-3932cded/canonical-generated-full-final3932.patch",
+    "bytes": 44060,
+    "sha256": "0afd7b4720f1d92d83524dcd10d7b08de47f7b6254667be1d707a6107e78d69e"
+  },
+  "complete103_schema_equality": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/final-companions/generator-3932cded/complete103-model-schema-equality.json",
+    "bytes": 44382,
+    "sha256": "3a9b9a66147eb0b8be2418c10eff169bdc6bb793ccb386bfc2b78d43e6c10e6a"
+  },
+  "individual_original_row_decisions": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/final-companions/criteria-r4/sparse-original-row-decisions-3932.json",
+    "bytes": 57381,
+    "sha256": "9acba4ad109ffa6c3033cc89f83580951e245bb0f49b73677216c5d40ca85cde"
+  },
+  "scope": "The final directtracked9-path patch supersedes the prior two-step projection instructions; git apply --check0, unapplied. Source3932/root64d/old ledger and topic owner proposals remain separately pinned.",
+  "historical_ledger": "49partial/4held/1closed unchanged",
+  "ROOT64d_current": "41closed/9limited/2held/2open current source layer afterG855 remains unchanged until source intake",
+  "topic3932_current": "43closed/9limited/2held bounded individual E proposals after explicit appointed owner decision, separate from historical ledger/G intake",
+  "G_formal_intake_or_ROOT_source_merge_claimed": false,
+  "capability_state": "surface_missing",
+  "global_gate_PASS": false,
+  "next_owner": "G/canonical generator applies final directtracked patch through normal generator workflow; root merges E topic only after current protected backend boundary, then freezes combined source for available final defining/gate checks. C/F/A consumers and generic CanonSpec/test-facade seams keep their own owners.",
+  "code_unchanged": "No product/test/generated path changes after3932; this evidence commit is DOC-only and does not self-reference its futureSHA.",
+  "owner_validator_scope": "Historical owner19-control result is preserved as executed. Peer found four summary-admission escapes; it is not full summary-admission GO. Class-wide source/raw primitive corrective validator is a separate pending owner DOC layer. Actual projection/current four-row decision bytes and source3932 remain correct."
+}

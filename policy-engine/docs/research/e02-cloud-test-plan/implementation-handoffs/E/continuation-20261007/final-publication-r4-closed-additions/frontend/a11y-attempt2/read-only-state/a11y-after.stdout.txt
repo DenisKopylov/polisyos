@@ -1,0 +1,36 @@
+
+> @polisyos/runtime-dashboard@0.1.0 test:a11y
+> corepack pnpm run a11y:contrast && corepack pnpm run a11y:motion && corepack pnpm run a11y:color-blind && corepack pnpm run test:a11y:components && corepack pnpm run test:a11y:pages
+
+
+> @polisyos/runtime-dashboard@0.1.0 a11y:contrast /workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard
+> node --experimental-strip-types ../../tools/design/check-contrast.ts
+
+Contrast checks passed.
+
+> @polisyos/runtime-dashboard@0.1.0 a11y:motion /workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard
+> node --experimental-strip-types ../../tools/design/check-reduced-motion.ts
+
+Reduced-motion checks passed.
+
+> @polisyos/runtime-dashboard@0.1.0 a11y:color-blind /workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard
+> node --experimental-strip-types ../../tools/design/check-color-blind.ts
+
+Color-blind checks passed.
+
+> @polisyos/runtime-dashboard@0.1.0 test:a11y:components /workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard
+> vitest run --config vitest.a11y.config.ts
+
+
+ RUN  v4.1.5 /workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard
+
+
+ Test Files  87 passed (87)
+      Tests  161 passed (161)
+   Start at  10:58:02
+   Duration  200.85s (transform 11.92s, setup 49.94s, import 154.42s, tests 254.09s, environment 78.19s)
+
+
+> @polisyos/runtime-dashboard@0.1.0 test:a11y:pages /workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard
+> PLAYWRIGHT_INCLUDE_BOUND_RUN_PAPER_FIXTURE=1 playwright test e2e/a11y --project=chromium
+

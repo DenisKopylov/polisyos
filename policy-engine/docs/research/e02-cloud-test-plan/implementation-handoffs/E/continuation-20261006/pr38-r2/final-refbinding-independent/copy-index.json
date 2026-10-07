@@ -1,0 +1,52 @@
+{
+  "schema": "policyos.e02.moderate-copy-index.v1",
+  "files": [
+    {
+      "path": "READY.json",
+      "bytes": 891,
+      "sha256": "4cb5fde11ea320359ade9220834873e4d910e8534ca8806c0c333d984a6ba7dd"
+    },
+    {
+      "path": "copy-index-corrupt-controls.json",
+      "bytes": 302,
+      "sha256": "b1b4df321042aec7109ed214d5c7932837eaa37c0c4d51d99edbdcda5a801b9d"
+    },
+    {
+      "path": "freeze_index.py.txt",
+      "bytes": 3160,
+      "sha256": "29944481a6e494a6eeb8a4e1cb13497dac0df0a9dd7af45d64b78625e67871ad"
+    },
+    {
+      "path": "input-snapshot.json",
+      "bytes": 38700,
+      "sha256": "f48f6552c36c46ca3f05b605fd2eba8aa7b5eae82bd57762c2315f0ded1a5417"
+    },
+    {
+      "path": "review.json",
+      "bytes": 13832,
+      "sha256": "16499fd2a8670fbd83cc49d69bd454fa8b3841cfa39ee63579b0d5dde03e124e"
+    },
+    {
+      "path": "review.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "review.stdout",
+      "bytes": 333,
+      "sha256": "55f9829a38c705da5705eba73ae727b8cb03e642d7310c39bb6cf3fb2a170d15"
+    },
+    {
+      "path": "review_refbinding.py.txt",
+      "bytes": 15749,
+      "sha256": "e81cca783cea9b6c2838747a51986358db95e4763a8dbd3a05d53f869fbf4c12"
+    },
+    {
+      "path": "verified-67-copies.json",
+      "bytes": 28309,
+      "sha256": "60713323dec582cb941601564d2ce68074fdb44e3550bc4edce983b66df1ad58"
+    }
+  ],
+  "file_count": 9,
+  "total_bytes": 101276
+}

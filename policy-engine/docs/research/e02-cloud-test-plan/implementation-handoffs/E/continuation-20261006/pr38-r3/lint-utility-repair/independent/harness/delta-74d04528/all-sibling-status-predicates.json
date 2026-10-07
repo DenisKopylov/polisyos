@@ -1,0 +1,477 @@
+[
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-author/_external/common-wave-publication-prep/collect_wave_v3_final.py",
+    "kind": "collector_command_status_guard",
+    "truth_table": [
+      {
+        "outcome": "SKIP",
+        "exit": 7,
+        "refuses": true
+      },
+      {
+        "outcome": "SKIP",
+        "exit": 0,
+        "refuses": false
+      },
+      {
+        "outcome": "PASS",
+        "exit": 7,
+        "refuses": true
+      },
+      {
+        "outcome": "PASS",
+        "exit": 0,
+        "refuses": false
+      },
+      {
+        "outcome": "FAIL",
+        "exit": 7,
+        "refuses": false
+      },
+      {
+        "outcome": "UNRUN",
+        "exit": 127,
+        "refuses": false
+      }
+    ],
+    "guard": "BoolOp(op=And(), values=[Compare(left=Subscript(value=Name(id='receipt', ctx=Load()), slice=Constant(value='outcome'), ctx=Load()), ops=[In()], comparators=[Set(elts=[Constant(value='PASS'), Constant(value='SKIP')])]), Compare(left=Subscript(value=Name(id='receipt', ctx=Load()), slice=Constant(value='exit_code'), ctx=Load()), ops=[NotEq()], comparators=[Constant(value=0)])])"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/_external/common-wave-publication-prep/collect_wave_v4.py",
+    "kind": "collector_command_status_guard",
+    "truth_table": [
+      {
+        "outcome": "SKIP",
+        "exit": 7,
+        "refuses": true
+      },
+      {
+        "outcome": "SKIP",
+        "exit": 0,
+        "refuses": false
+      },
+      {
+        "outcome": "PASS",
+        "exit": 7,
+        "refuses": true
+      },
+      {
+        "outcome": "PASS",
+        "exit": 0,
+        "refuses": false
+      },
+      {
+        "outcome": "FAIL",
+        "exit": 7,
+        "refuses": false
+      },
+      {
+        "outcome": "UNRUN",
+        "exit": 127,
+        "refuses": false
+      }
+    ],
+    "guard": "BoolOp(op=And(), values=[Compare(left=Subscript(value=Name(id='receipt', ctx=Load()), slice=Constant(value='outcome'), ctx=Load()), ops=[In()], comparators=[Set(elts=[Constant(value='PASS'), Constant(value='SKIP')])]), Compare(left=Subscript(value=Name(id='receipt', ctx=Load()), slice=Constant(value='exit_code'), ctx=Load()), ops=[NotEq()], comparators=[Constant(value=0)])])"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave.py",
+    "kind": "collector_command_status_guard",
+    "truth_table": [
+      {
+        "outcome": "SKIP",
+        "exit": 7,
+        "refuses": true
+      },
+      {
+        "outcome": "SKIP",
+        "exit": 0,
+        "refuses": false
+      },
+      {
+        "outcome": "PASS",
+        "exit": 7,
+        "refuses": true
+      },
+      {
+        "outcome": "PASS",
+        "exit": 0,
+        "refuses": false
+      },
+      {
+        "outcome": "FAIL",
+        "exit": 7,
+        "refuses": false
+      },
+      {
+        "outcome": "UNRUN",
+        "exit": 127,
+        "refuses": false
+      }
+    ],
+    "guard": "BoolOp(op=And(), values=[Compare(left=Subscript(value=Name(id='receipt', ctx=Load()), slice=Constant(value='outcome'), ctx=Load()), ops=[In()], comparators=[Set(elts=[Constant(value='PASS'), Constant(value='SKIP')])]), Compare(left=Subscript(value=Name(id='receipt', ctx=Load()), slice=Constant(value='exit_code'), ctx=Load()), ops=[NotEq()], comparators=[Constant(value=0)])])"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave_v2.py",
+    "kind": "collector_command_status_guard",
+    "truth_table": [
+      {
+        "outcome": "SKIP",
+        "exit": 7,
+        "refuses": true
+      },
+      {
+        "outcome": "SKIP",
+        "exit": 0,
+        "refuses": false
+      },
+      {
+        "outcome": "PASS",
+        "exit": 7,
+        "refuses": true
+      },
+      {
+        "outcome": "PASS",
+        "exit": 0,
+        "refuses": false
+      },
+      {
+        "outcome": "FAIL",
+        "exit": 7,
+        "refuses": false
+      },
+      {
+        "outcome": "UNRUN",
+        "exit": 127,
+        "refuses": false
+      }
+    ],
+    "guard": "BoolOp(op=And(), values=[Compare(left=Subscript(value=Name(id='receipt', ctx=Load()), slice=Constant(value='outcome'), ctx=Load()), ops=[In()], comparators=[Set(elts=[Constant(value='PASS'), Constant(value='SKIP')])]), Compare(left=Subscript(value=Name(id='receipt', ctx=Load()), slice=Constant(value='exit_code'), ctx=Load()), ops=[NotEq()], comparators=[Constant(value=0)])])"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/run_check.py",
+    "kind": "runner_SKIP_guard",
+    "truth_table": [
+      {
+        "exit": 0,
+        "immutable": true,
+        "counts": {
+          "cases": 2,
+          "skipped": 2
+        },
+        "allows_SKIP": true
+      },
+      {
+        "exit": 7,
+        "immutable": true,
+        "counts": {
+          "cases": 2,
+          "skipped": 2
+        },
+        "allows_SKIP": false
+      },
+      {
+        "exit": 0,
+        "immutable": false,
+        "counts": {
+          "cases": 2,
+          "skipped": 2
+        },
+        "allows_SKIP": false
+      },
+      {
+        "exit": 0,
+        "immutable": true,
+        "counts": {
+          "cases": 2,
+          "skipped": 1
+        },
+        "allows_SKIP": false
+      },
+      {
+        "exit": 0,
+        "immutable": true,
+        "counts": {
+          "cases": 0,
+          "skipped": 0
+        },
+        "allows_SKIP": false
+      },
+      {
+        "exit": 0,
+        "immutable": true,
+        "counts": null,
+        "allows_SKIP": false
+      }
+    ],
+    "guard": "BoolOp(op=And(), values=[Compare(left=Name(id='exit_code', ctx=Load()), ops=[Eq()], comparators=[Constant(value=0)]), Name(id='immutable', ctx=Load()), Compare(left=Name(id='counts', ctx=Load()), ops=[IsNot()], comparators=[Constant(value=None)]), Subscript(value=Name(id='counts', ctx=Load()), slice=Constant(value='cases'), ctx=Load()), Compare(left=Subscript(value=Name(id='counts', ctx=Load()), slice=Constant(value='skipped'), ctx=Load()), ops=[Eq()], comparators=[Subscript(value=Name(id='counts', ctx=Load()), slice=Constant(value='cases'), ctx=Load())])])"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/old-exact/run_check.py",
+    "kind": "runner_SKIP_guard",
+    "truth_table": [
+      {
+        "exit": 0,
+        "immutable": true,
+        "counts": {
+          "cases": 2,
+          "skipped": 2
+        },
+        "allows_SKIP": true
+      },
+      {
+        "exit": 7,
+        "immutable": true,
+        "counts": {
+          "cases": 2,
+          "skipped": 2
+        },
+        "allows_SKIP": false
+      },
+      {
+        "exit": 0,
+        "immutable": false,
+        "counts": {
+          "cases": 2,
+          "skipped": 2
+        },
+        "allows_SKIP": false
+      },
+      {
+        "exit": 0,
+        "immutable": true,
+        "counts": {
+          "cases": 2,
+          "skipped": 1
+        },
+        "allows_SKIP": false
+      },
+      {
+        "exit": 0,
+        "immutable": true,
+        "counts": {
+          "cases": 0,
+          "skipped": 0
+        },
+        "allows_SKIP": false
+      },
+      {
+        "exit": 0,
+        "immutable": true,
+        "counts": null,
+        "allows_SKIP": false
+      }
+    ],
+    "guard": "BoolOp(op=And(), values=[Compare(left=Name(id='exit_code', ctx=Load()), ops=[Eq()], comparators=[Constant(value=0)]), Name(id='immutable', ctx=Load()), Compare(left=Name(id='counts', ctx=Load()), ops=[IsNot()], comparators=[Constant(value=None)]), Subscript(value=Name(id='counts', ctx=Load()), slice=Constant(value='cases'), ctx=Load()), Compare(left=Subscript(value=Name(id='counts', ctx=Load()), slice=Constant(value='skipped'), ctx=Load()), ops=[Eq()], comparators=[Subscript(value=Name(id='counts', ctx=Load()), slice=Constant(value='cases'), ctx=Load())])])"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/run_check.py",
+    "kind": "runner_SKIP_guard",
+    "truth_table": [
+      {
+        "exit": 0,
+        "immutable": true,
+        "counts": {
+          "cases": 2,
+          "skipped": 2
+        },
+        "allows_SKIP": true
+      },
+      {
+        "exit": 7,
+        "immutable": true,
+        "counts": {
+          "cases": 2,
+          "skipped": 2
+        },
+        "allows_SKIP": false
+      },
+      {
+        "exit": 0,
+        "immutable": false,
+        "counts": {
+          "cases": 2,
+          "skipped": 2
+        },
+        "allows_SKIP": false
+      },
+      {
+        "exit": 0,
+        "immutable": true,
+        "counts": {
+          "cases": 2,
+          "skipped": 1
+        },
+        "allows_SKIP": false
+      },
+      {
+        "exit": 0,
+        "immutable": true,
+        "counts": {
+          "cases": 0,
+          "skipped": 0
+        },
+        "allows_SKIP": false
+      },
+      {
+        "exit": 0,
+        "immutable": true,
+        "counts": null,
+        "allows_SKIP": false
+      }
+    ],
+    "guard": "BoolOp(op=And(), values=[Compare(left=Name(id='exit_code', ctx=Load()), ops=[Eq()], comparators=[Constant(value=0)]), Name(id='immutable', ctx=Load()), Compare(left=Name(id='counts', ctx=Load()), ops=[IsNot()], comparators=[Constant(value=None)]), Subscript(value=Name(id='counts', ctx=Load()), slice=Constant(value='cases'), ctx=Load()), Compare(left=Subscript(value=Name(id='counts', ctx=Load()), slice=Constant(value='skipped'), ctx=Load()), ops=[Eq()], comparators=[Subscript(value=Name(id='counts', ctx=Load()), slice=Constant(value='cases'), ctx=Load())])])"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/run_check.py",
+    "kind": "runner_SKIP_guard",
+    "truth_table": [
+      {
+        "exit": 0,
+        "immutable": true,
+        "counts": {
+          "cases": 2,
+          "skipped": 2
+        },
+        "allows_SKIP": true
+      },
+      {
+        "exit": 7,
+        "immutable": true,
+        "counts": {
+          "cases": 2,
+          "skipped": 2
+        },
+        "allows_SKIP": false
+      },
+      {
+        "exit": 0,
+        "immutable": false,
+        "counts": {
+          "cases": 2,
+          "skipped": 2
+        },
+        "allows_SKIP": false
+      },
+      {
+        "exit": 0,
+        "immutable": true,
+        "counts": {
+          "cases": 2,
+          "skipped": 1
+        },
+        "allows_SKIP": false
+      },
+      {
+        "exit": 0,
+        "immutable": true,
+        "counts": {
+          "cases": 0,
+          "skipped": 0
+        },
+        "allows_SKIP": false
+      },
+      {
+        "exit": 0,
+        "immutable": true,
+        "counts": null,
+        "allows_SKIP": false
+      }
+    ],
+    "guard": "BoolOp(op=And(), values=[Compare(left=Name(id='exit_code', ctx=Load()), ops=[Eq()], comparators=[Constant(value=0)]), Name(id='immutable', ctx=Load()), Compare(left=Name(id='counts', ctx=Load()), ops=[IsNot()], comparators=[Constant(value=None)]), Subscript(value=Name(id='counts', ctx=Load()), slice=Constant(value='cases'), ctx=Load()), Compare(left=Subscript(value=Name(id='counts', ctx=Load()), slice=Constant(value='skipped'), ctx=Load()), ops=[Eq()], comparators=[Subscript(value=Name(id='counts', ctx=Load()), slice=Constant(value='cases'), ctx=Load())])])"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+    "kind": "collector_command_status_guard",
+    "truth_table": [
+      {
+        "outcome": "SKIP",
+        "exit": 7,
+        "refuses": true
+      },
+      {
+        "outcome": "SKIP",
+        "exit": 0,
+        "refuses": false
+      },
+      {
+        "outcome": "PASS",
+        "exit": 7,
+        "refuses": true
+      },
+      {
+        "outcome": "PASS",
+        "exit": 0,
+        "refuses": false
+      },
+      {
+        "outcome": "FAIL",
+        "exit": 7,
+        "refuses": false
+      },
+      {
+        "outcome": "UNRUN",
+        "exit": 127,
+        "refuses": false
+      }
+    ],
+    "guard": "BoolOp(op=And(), values=[Compare(left=Subscript(value=Name(id='receipt', ctx=Load()), slice=Constant(value='outcome'), ctx=Load()), ops=[In()], comparators=[Set(elts=[Constant(value='PASS'), Constant(value='SKIP')])]), Compare(left=Subscript(value=Name(id='receipt', ctx=Load()), slice=Constant(value='exit_code'), ctx=Load()), ops=[NotEq()], comparators=[Constant(value=0)])])"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "kind": "runner_SKIP_guard",
+    "truth_table": [
+      {
+        "exit": 0,
+        "immutable": true,
+        "counts": {
+          "cases": 2,
+          "skipped": 2
+        },
+        "allows_SKIP": true
+      },
+      {
+        "exit": 7,
+        "immutable": true,
+        "counts": {
+          "cases": 2,
+          "skipped": 2
+        },
+        "allows_SKIP": false
+      },
+      {
+        "exit": 0,
+        "immutable": false,
+        "counts": {
+          "cases": 2,
+          "skipped": 2
+        },
+        "allows_SKIP": false
+      },
+      {
+        "exit": 0,
+        "immutable": true,
+        "counts": {
+          "cases": 2,
+          "skipped": 1
+        },
+        "allows_SKIP": false
+      },
+      {
+        "exit": 0,
+        "immutable": true,
+        "counts": {
+          "cases": 0,
+          "skipped": 0
+        },
+        "allows_SKIP": false
+      },
+      {
+        "exit": 0,
+        "immutable": true,
+        "counts": null,
+        "allows_SKIP": false
+      }
+    ],
+    "guard": "BoolOp(op=And(), values=[Compare(left=Name(id='exit_code', ctx=Load()), ops=[Eq()], comparators=[Constant(value=0)]), Name(id='immutable', ctx=Load()), Compare(left=Name(id='counts', ctx=Load()), ops=[IsNot()], comparators=[Constant(value=None)]), Subscript(value=Name(id='counts', ctx=Load()), slice=Constant(value='cases'), ctx=Load()), Compare(left=Subscript(value=Name(id='counts', ctx=Load()), slice=Constant(value='skipped'), ctx=Load()), ops=[Eq()], comparators=[Subscript(value=Name(id='counts', ctx=Load()), slice=Constant(value='cases'), ctx=Load())])])"
+  }
+]

@@ -1,0 +1,28 @@
+{
+  "source_sha": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33",
+  "outputs": [
+    {
+      "path": "generated-bf3/generated-artifacts.md",
+      "size_bytes": 267092,
+      "sha256": "6f9afe13f3b7f06df95df8ab4f07b23443838f177b5ab4873603231d3ecf304f"
+    },
+    {
+      "path": "generated-bf3/inventory.json",
+      "size_bytes": 222690,
+      "sha256": "21ab22cf9431660fd6318bca0ba8aa768ee01be9a5ca6ced1ae3b718211b26fe"
+    },
+    {
+      "path": "generated-bf3/public-surface.md",
+      "size_bytes": 154051,
+      "sha256": "e8d56d319be16d52227050263451ef523fdbe4b9a2e0e0c7c69fc08f4283528e"
+    },
+    {
+      "path": "generated-bf3/sync.stdout",
+      "size_bytes": 44,
+      "sha256": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8"
+    }
+  ],
+  "command": "UV_NO_SYNC=1 .venv/bin/python tools/devx/architecture/guardrails.py sync --skip-deep-import-baseline --public-json /workspace/e02-E-pr38-r2-receipts/public-surface-packet-r5/generated-bf3/inventory.json --public-md /workspace/e02-E-pr38-r2-receipts/public-surface-packet-r5/generated-bf3/public-surface.md --generated-md /workspace/e02-E-pr38-r2-receipts/public-surface-packet-r5/generated-bf3/generated-artifacts.md",
+  "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+  "status": "PASS; canonicalwholeoutput hashesrecorded, decidingownedpatches andselectedentrypoint delta inmoderateGitpacket"
+}

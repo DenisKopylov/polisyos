@@ -1,0 +1,30 @@
+"""Read all original XML traces to verify classwide observation scope only."""
+from pathlib import Path
+import collections
+import hashlib
+import json
+import xml.etree.ElementTree as ET
+
+base=Path('/tmp/e02-E-http-error-independent-64d')
+junit=Path('/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/pytest.xml')
+checks=collections.Counter()
+for case in ET.parse(junit).getroot().iter('testcase'):
+    for tag in ('failure','error'):
+        element=case.find(tag)
+        if element is None:
+            continue
+        message,trace=element.get('message',''),element.text or ''
+        if 'catalog_fetch_source_unreadable' in message:
+            checks['catalog_total']+=1
+            checks['catalog_is_file_guard']+='if not path.is_file()' in trace
+            checks['catalog_exact_default_db']+='production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb' in trace
+        if 'could not create numbered dir' in message:
+            checks['numbered_total']+=1
+            checks['numbered_no_direct_cause']+='direct cause' not in trace
+            checks['numbered_no_errno']+='[Errno' not in trace
+expected=dict(catalog_total=413,catalog_is_file_guard=413,catalog_exact_default_db=413,numbered_total=437,numbered_no_direct_cause=437,numbered_no_errno=437)
+if dict(checks)!=expected:
+    raise ValueError('Class observation differs; do not propagate representative cause')
+value=dict(schema='policyos.e02.http_trace_class_consistency.v1',source='64d7444a18c55df7b88b71b7699a2f1b25ca24bd',tree='aef23574d3162abb19bf5a1c67d02624ff9d4d1d',junit=dict(path=str(junit),bytes=junit.stat().st_size,sha256=hashlib.sha256(junit.read_bytes()).hexdigest()),actual_trace_counts=dict(checks),conclusion='All413catalog traces identify the same absent configured DB/is_file guard; all437numbered-dir traces omit underlying errno/direct cause. No ENOSPC propagation across either class.',P41='not_established',finding_closure=False,no_native_test_rerun=True)
+(base/'trace-class-consistency.json').write_text(json.dumps(value,indent=2)+'\n')
+print(json.dumps(value,indent=2))

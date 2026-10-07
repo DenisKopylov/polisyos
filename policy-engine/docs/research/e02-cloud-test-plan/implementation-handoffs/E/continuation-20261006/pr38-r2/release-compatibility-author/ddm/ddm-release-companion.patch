@@ -1,0 +1,32 @@
+--- a/policy-engine/release-fragments/unreleased/2026-10-06-e02-ddm-source-binding.toml
++++ b/policy-engine/release-fragments/unreleased/2026-10-06-e02-ddm-source-binding.toml
+@@ -2,12 +2,26 @@
+ title = "Reconcile DDM registry sources and preserve readiness validity time"
+ type = "fixed"
+ component = "ddm"
+-owner = "E"
++owner = "team-scientist"
+ summary = "DDM compares all shared calibration and metric-policy fields, recomputes finite degradation budgets through their canonical owner, persists source digests and readiness time roles, and requires exact source rebind after JSON reload."
+-evidence = ["tests/unit/remediation/test_ddm_02.py", "tests/unit/ddm/test_full_acceptance.py"]
++evidence = ["tests/unit/remediation/test_ddm_02.py", "tests/unit/ddm/test_full_acceptance.py", "tests/unit/ddm/test_registry_schema_compatibility.py", "src/polisyos/ddm/integration/model_registry_gate.md"]
+ compatibility = "Directional: original unversioned v1 records remain readable and serialize in v1 form; current v2 output is incompatible with the old strict reader. The original closed schema/$id is preserved in model_registry_record.v1.schema.json, while the current producer emits schema_version=2 under a distinct v2 $id. Read or migration alone grants no checker authority."
+-change_class = "internal"
++change_class = "persisted-artifact-format"
+ surface_classification = "internal: polisyos.ddm; owner team-scientist; existing facade contract unchanged"
+ migration = "Migration owner: team-scientist DDM registry adapter/consumer. Upgrade readers before served v2 emission. Preserve historical bytes; explicitly migrate prerelease unversioned enriched records with migrate_unversioned_source_record, or rebuild legacy v1 from sources. Retain original readiness event, metric budget, ordered shifts and degradation event for exact fresh rebind. See ddm/integration/model_registry_gate.md."
+ limitations = "The standalone registry gate does not establish external owner-signoff authority, observation-feed completeness, or a served deployment integration."
+ generated_client_compatibility = "not_applicable"
++migration_docs = ["src/polisyos/ddm/integration/model_registry_gate.md"]
++
++[[compatibility_change]]
++id = "ddm-registry-record-v2-reader-migration"
++change_class = "persisted-artifact-format"
++impact = "compatible_with_migration"
++surface = "internal: polisyos.ddm persisted ModelRegistryReadinessRecord v1/v2; existing 17-export facade unchanged"
++owner = "team-scientist"
++version_owner = "team-scientist"
++deprecation_window = "Historical unversioned v1 records remain readable; upgrade served readers before v2 emission. No v1 removal date is declared."
++release_note = "DDM preserves original strict v1 bytes/schema identity and introduces distinct v2 registry records. New v2 output requires an upgraded reader; prerelease enriched records require explicit migration and fresh source rebind. Reading or migration does not grant promotion authority."
++generated_client_compatibility = "not_applicable"
++migration_docs = ["src/polisyos/ddm/integration/model_registry_gate.md"]
++runbook_docs = []

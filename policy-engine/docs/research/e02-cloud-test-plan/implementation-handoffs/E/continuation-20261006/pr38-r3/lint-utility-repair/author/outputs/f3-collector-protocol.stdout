@@ -1,0 +1,105 @@
+{
+  "candidate": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+  "positive": {
+    "collection_state": "CONTROL_COMPLETE_BOUND",
+    "job_receipt_count": 1,
+    "numeric_counts": {
+      "cases": 0,
+      "passed": 0,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "finding_closure": false,
+    "numeric_results_are_new_candidate_only": false
+  },
+  "negative_controls": [
+    {
+      "field": "candidate_sha",
+      "outcome": "REFUSED_COMPLETE_BINDING",
+      "collection_state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+      "issues": [
+        {
+          "job": "results-import",
+          "reason": "binding/input drift",
+          "predicates": {
+            "candidate": false,
+            "tree": true,
+            "ending_head": true,
+            "command": true,
+            "cwd": true,
+            "source_frames_equal": true,
+            "source_immutable": true,
+            "config_stable": true,
+            "config_hashes_equal": true,
+            "declared_inputs_bound_to_candidate_git": true,
+            "tracked_path_count": true,
+            "started_after_wave_start": true
+          }
+        }
+      ]
+    },
+    {
+      "field": "stdout_sha256",
+      "outcome": "REFUSED_COMPLETE_BINDING",
+      "collection_state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+      "issues": [
+        {
+          "job": "results-import",
+          "reason": "stdout custody mismatch"
+        }
+      ]
+    },
+    {
+      "field": "source_immutable",
+      "outcome": "REFUSED_COMPLETE_BINDING",
+      "collection_state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+      "issues": [
+        {
+          "job": "results-import",
+          "reason": "binding/input drift",
+          "predicates": {
+            "candidate": true,
+            "tree": true,
+            "ending_head": true,
+            "command": true,
+            "cwd": true,
+            "source_frames_equal": true,
+            "source_immutable": false,
+            "config_stable": true,
+            "config_hashes_equal": true,
+            "declared_inputs_bound_to_candidate_git": true,
+            "tracked_path_count": true,
+            "started_after_wave_start": true
+          }
+        }
+      ]
+    },
+    {
+      "field": "command",
+      "outcome": "REFUSED_COMPLETE_BINDING",
+      "collection_state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+      "issues": [
+        {
+          "job": "results-import",
+          "reason": "binding/input drift",
+          "predicates": {
+            "candidate": true,
+            "tree": true,
+            "ending_head": true,
+            "command": false,
+            "cwd": true,
+            "source_frames_equal": true,
+            "source_immutable": true,
+            "config_stable": true,
+            "config_hashes_equal": true,
+            "declared_inputs_bound_to_candidate_git": true,
+            "tracked_path_count": true,
+            "started_after_wave_start": true
+          }
+        }
+      ]
+    }
+  ],
+  "scope": "Actual importer custody in a synthetic collector protocol plan, no numerical/backend evidence."
+}

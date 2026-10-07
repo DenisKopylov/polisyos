@@ -1,0 +1,19 @@
+{
+  "schema": "policyos.e02.review_execution_caveat.v1",
+  "reason": "Author finite-objective source edits occurred while review jobs used shared author lane; HEAD alone did not identify loaded source bytes. These observations cannot be immutable f660c1f evidence.",
+  "affected": [
+    {
+      "path": "focused-resolved-receipt.json",
+      "outcome": "PASS",
+      "source_identity": "not_established; provisional 249 body assertions; superseded for acceptance by later frozen checkpoints and common wave"
+    },
+    {
+      "path": "oracles-receipt.json",
+      "outcome": "mixed-source",
+      "source_identity": "hardcoded f660c1f label invalid; finite-objective fields prove later author source was loaded"
+    }
+  ],
+  "superseding_deciding_receipt": "oracles-34788febbbee-receipt.json",
+  "independent_frozen_target": "34788febbbee4a9c45e14fd4245e719038680881",
+  "raw_preserved": true
+}

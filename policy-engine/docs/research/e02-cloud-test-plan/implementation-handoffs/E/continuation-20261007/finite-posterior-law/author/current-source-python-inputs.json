@@ -1,0 +1,14 @@
+[
+  "tests/unit/ir/test_posterior_ratio_law.py",
+  "src/polisyos/foundry/calibration/uncertainty_adapter.py",
+  "src/polisyos/foundry/uncertainty/monte_carlo.py",
+  "src/polisyos/foundry/uncertainty/sampling_admission.py",
+  "src/polisyos/ir/__init__.py",
+  "src/polisyos/ir/analytics/posterior_summary.py",
+  "src/polisyos/ir/api.py",
+  "src/polisyos/schemas/abi_models.py",
+  "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+  "tests/unit/foundry/uncertainty/test_finite_empirical_law.py",
+  "tests/unit/ir/test_posterior_summary.py",
+  "tests/unit/scientist/nodes/test_propagate_uncertainty_node.py"
+]

@@ -1,0 +1,23 @@
+{
+  "target_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission-checks/removal_probe.py",
+    "--mode",
+    "cas",
+    "-q",
+    "tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_requested_replays_are_actual_calls_and_keep_rows_after_cas_readback[1]",
+    "-o",
+    "cache_dir=/workspace/e02-E-20261006-receipts/backtest-final-cas-cache",
+    "--basetemp=/workspace/e02-E-20261006-receipts/backtest-final-cas-002"
+  ],
+  "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+  "returncode": 1,
+  "wall_s": 34.52849733400217,
+  "rss_kib_direct_and_children": 532784,
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "output": "final-cas-removal.log"
+}

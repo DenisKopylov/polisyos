@@ -1,0 +1,244 @@
+from __future__ import annotations
+
+import argparse
+import ast
+import copy
+import difflib
+import hashlib
+import importlib.util
+import json
+import re
+import subprocess
+from pathlib import Path
+
+SOURCE = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+TREE = "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+REPO = Path("/workspace/e02-E-continuation-20261006")
+HELPER = "policy-engine/tests/_helpers/runtime_http.py"
+OLD_VALIDATOR_HASH = "558ea2ebbc183da3d2e1bd6981f9671585931c6ebae7f290c5ba9511e3d44052"
+RECEIPT_PINS = {
+    "native_positive": "4cd0b778d7045c8d5c14b380ae4bf29e950e0213a237d120aea2a67fd7ccd493",
+    "missing_native_startup": "7403fca7c842b6b8dcd2c1cebf23405aa8cb20d5482a1af06426d0570411e723",
+    "owner_overlay_healthy": "0d6f87b11c00cff8a0db60b08e224e74de6c7e2488e2604da3f2ddc37cf74aea",
+    "owner_overlay_removed_route": "b46984ec83dc4536cb71174630ae4ef0914e92f16cb16b0d71d123a87f02836c",
+    "owner_overlay_fake_producer": "059326e448c4c37fdf4aef1f537c1d0e14db089895c7359c5c6b48c1b584b413",
+}
+HTTP_PINS = {
+    "native_receipt": "90d0c3c172507dfc8079522f930adcd5f238ff3ee27b4e182db7d9974d9ee2c0",
+    "native_stdout": "eabc9cab8ea803353f1c7287c11bbb466f6b6a2e305adb5abfb3dc03c3a64a9e",
+    "native_junit": "b94c3b86ca8edb3b059714e68492faaf31cc2a05297006279201a62dac202c30",
+    "independent_attribution_ref": "24bd1839a71410277c9b3a212f645cc2fb44ce86c9ddac40d02b5cdb72bc0fe7",
+}
+
+
+def require(value: object, message: str) -> None:
+    if not value:
+        raise ValueError(message)
+
+
+def typed_equal(actual: object, expected: object) -> bool:
+    """Preserve JSON count/flag types as well as the full row/field denominator."""
+    if type(actual) is not type(expected):
+        return False
+    if isinstance(actual, dict):
+        return actual.keys() == expected.keys() and all(
+            typed_equal(actual[key], expected[key]) for key in actual
+        )
+    if isinstance(actual, list):
+        return len(actual) == len(expected) and all(
+            typed_equal(left, right) for left, right in zip(actual, expected, strict=True)
+        )
+    return actual == expected
+
+
+def json_bytes(raw: bytes) -> object:
+    def invalid_constant(value: str) -> None:
+        raise ValueError(f"nonfinite_JSON:{value}")
+    return json.loads(raw, parse_constant=invalid_constant)
+
+
+def read_record(base: Path, record: dict[str, object], *, absolute: bool = False) -> bytes:
+    require(type(record) is dict and set(record) == {"path", "bytes", "sha256"}, "record_shape_invalid")
+    path, size, digest = record["path"], record["bytes"], record["sha256"]
+    require(type(path) is str and bool(path) and Path(path).parts and ".." not in Path(path).parts, "record_path_invalid")
+    require(Path(path).is_absolute() is absolute, "record_path_role_invalid")
+    require(type(size) is int and size >= 0, "record_size_type_invalid")
+    require(type(digest) is str and re.fullmatch(r"[0-9a-f]{64}", digest) is not None, "record_digest_invalid")
+    raw = (Path(path) if absolute else base / path).read_bytes()
+    require(len(raw) == size and hashlib.sha256(raw).hexdigest() == digest, "record_byte_binding_invalid")
+    return raw
+
+
+def old_validate(base: Path, packet: dict[str, object]) -> None:
+    path = base / "validate_closed_catalog_packet.py"
+    require(hashlib.sha256(path.read_bytes()).hexdigest() == OLD_VALIDATOR_HASH, "historical_validator_changed")
+    spec = importlib.util.spec_from_file_location("historical_catalog_packet_validator", path)
+    require(spec is not None and spec.loader is not None, "historical_validator_missing")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    module.validate(base, packet)
+
+
+def admit_summary_claims(base: Path, packet: dict[str, object]) -> dict[str, object]:
+    """Bind every structured current numeric/ref/footprint summary to closed inputs.
+
+    Narrative ownership/concurrency limits remain manual owner statements; they
+    are not converted into inference or signoff predicates by prose matching.
+    """
+    refs = packet["receipts"]
+    require(type(refs) is dict and refs.keys() == RECEIPT_PINS.keys(), "native_receipt_denominator_changed")
+    receipts = {}
+    for key, record in refs.items():
+        require(record["sha256"] == RECEIPT_PINS[key], "native_closed_input_replaced")
+        receipts[key] = json_bytes(read_record(base, record))
+    native = receipts["native_positive"]
+    claims = []
+    def claim(path: str, actual: object, expected: object) -> None:
+        require(typed_equal(actual, expected), f"summary_mismatch:{path}")
+        claims.append(path)
+
+    claim("source_sha", packet["source_sha"], native["source_sha"])
+    claim("tree_sha", packet["tree_sha"], native["tree_sha"])
+    claim("source_guard_inputs", packet["source_guard_inputs"], native["source_inputs"])
+    claim("actual_environment", packet["actual_environment"], native["environment"])
+    for key, receipt in receipts.items():
+        claim(f"receipts.{key}.source_sha", receipt["source_sha"], SOURCE)
+        claim(f"receipts.{key}.tree_sha", receipt["tree_sha"], TREE)
+        claim(f"receipts.{key}.source_immutable", receipt["source_immutable"], True)
+        claim(f"receipts.{key}.source_inputs", receipt["source_inputs"], native["source_inputs"])
+    claim("minimum_fixture_inputs.actual_catalog_counts", packet["minimum_fixture_inputs"]["actual_catalog_counts"], native["fixture_catalog"]["counts"])
+    claim("minimum_fixture_inputs.actual_schema_and_profile_ref", packet["minimum_fixture_inputs"]["actual_schema_and_profile_ref"], refs["native_positive"])
+    consumed = native["controls"]["native_dashboard_fixture_startup"]
+    configured = packet["configured_input"]
+    claim("configured_input.source_root", configured["source_root"], consumed["source_root"])
+    claim("configured_input.path", configured["path"], native["configured_baseline"]["path"])
+    claim("configured_input.is_file", configured["is_file"], native["configured_baseline"]["is_file"])
+    claim("configured_input.actual_default_overlay_path", configured["actual_default_overlay_path"], consumed["binding"]["overlay_path"])
+
+    summary = packet["native_full_HTTP"]
+    inputs = {}
+    for name, digest in HTTP_PINS.items():
+        record = summary[name]
+        require(record["sha256"] == digest, "HTTP_closed_input_replaced")
+        inputs[name] = read_record(base, record, absolute=True)
+    http = json_bytes(inputs["native_receipt"])
+    attribution = json_bytes(inputs["independent_attribution_ref"])
+    claim("HTTP.native_source", http["candidate_sha"], SOURCE)
+    claim("HTTP.native_tree", http["candidate_tree_sha"], TREE)
+    claim("HTTP.native_immutable", http["source_immutable"], True)
+    claim("HTTP.attribution_source", attribution["source"], SOURCE)
+    claim("HTTP.attribution_tree", attribution["tree"], TREE)
+    claim("native_full_HTTP.full_original_counts", summary["full_original_counts"], http["counts"])
+    claim("HTTP.attribution_counts", attribution["counts"], http["counts"])
+    claim("native_full_HTTP.original_outcome", summary["original_outcome"], http["outcome"])
+    claim("HTTP.attribution_outcome", attribution["native_outcome"], http["outcome"])
+    claim("native_full_HTTP.native_exit_code", summary["native_exit_code"], http["exit_code"])
+    claim("HTTP.attribution_exit_code", attribution["native_exit_code"], http["exit_code"])
+    for name in ("native_receipt", "native_stdout", "native_junit"):
+        claim(f"HTTP.attribution_{name}", summary[name], attribution[name])
+    claim("HTTP.stdout_path", summary["native_stdout"]["path"], http["stdout_path"])
+    claim("HTTP.stdout_bytes", summary["native_stdout"]["bytes"], http["stdout_bytes"])
+    claim("HTTP.stdout_sha256", summary["native_stdout"]["sha256"], http["stdout_sha256"])
+    claim("HTTP.junit_path", summary["native_junit"]["path"], http["junit"])
+    group = attribution["groups"]["catalog_fetch_source_unreadable"]
+    claim("native_full_HTTP.catalog_error_count", summary["catalog_error_count"], group["count"])
+    claim("native_full_HTTP.statuses", summary["statuses"], group["statuses"])
+    claim("native_full_HTTP.literal_errno28_trace_count", summary["literal_errno28_trace_count"], group["literal_errno28_trace_count"])
+    claim("native_full_HTTP.cause_ENOSPC_established", summary["cause_ENOSPC_established"], group["causal_ENOSPC_established"])
+    claim("native_full_HTTP.P41", summary["P41"], attribution["P41"])
+
+    patch = read_record(base, packet["intended_owner_patch"])
+    overlay = read_record(base, packet["literal_patched_fixture_source"])
+    measured = receipts["owner_overlay_healthy"]["overlay"]
+    claim("overlay.sha256", hashlib.sha256(overlay).hexdigest(), measured["source_sha256"])
+    claim("overlay.size", len(overlay), measured["source_size"])
+    claim("overlay.is_committed_candidate", measured["is_committed_candidate"], False)
+    for key in ("owner_overlay_removed_route", "owner_overlay_fake_producer"):
+        claim(f"{key}.literal_overlay_sha256", receipts[key]["overlay"]["source_sha256"], measured["source_sha256"])
+        claim(f"{key}.literal_overlay_size", receipts[key]["overlay"]["source_size"], measured["source_size"])
+        claim(f"{key}.is_committed_candidate", receipts[key]["overlay"]["is_committed_candidate"], False)
+    # Git object and path are admitted constants. No JSON ref becomes a Git option.
+    original = subprocess.check_output(["git", "-C", str(REPO), "show", f"{SOURCE}:{HELPER}"])
+    expected_patch = "".join(difflib.unified_diff(original.decode().splitlines(keepends=True), overlay.decode().splitlines(keepends=True), fromfile=f"a/{HELPER}", tofile=f"b/{HELPER}")).encode()
+    require(patch == expected_patch, "proposal_patch_not_bound_to_literal_source")
+    numstat = subprocess.check_output(["git", "-C", str(REPO), "apply", "--numstat", "-"], input=patch).decode()
+    rows = [row.split("\t") for row in numstat.splitlines()]
+    require(all(len(row) == 3 and row[0].isdigit() and row[1].isdigit() for row in rows), "patch_numstat_invalid")
+    paths = [row[2] for row in rows]
+    require(paths == [HELPER], "actual_proposal_scope_not_fixture_helper")
+    before_ast, after_ast = ast.parse(original), ast.parse(overlay)
+    def public_signatures(module):
+        return {node.name: ast.dump(node.args, include_attributes=False) for node in module.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and not node.name.startswith("_")}
+    require(typed_equal(public_signatures(before_ast), public_signatures(after_ast)), "fixture_public_signature_changed")
+    footprint = {
+        "tracked_native_source_changes": [],
+        "unapplied_proposal_paths": paths,
+        "affected_real_caller_companions": [
+            "policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py",
+            "policy-engine/apps/runtime-dashboard/playwright.config.ts",
+            "policy-engine/tests/unit/runtime/http/test_human_decision_api.py",
+            "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+        ],
+        "product_runtime_or_DataForge_edits": [],
+        "new_runtime_API": False,
+        "generated_files_edited": False,
+    }
+    claim("source_footprint", packet["source_footprint"], footprint)
+    claim("observer_provenance.native_sources_unchanged", packet["observer_provenance"]["native_sources_unchanged"], True)
+    claim("observer_provenance.owner_overlay_not_a_Git_candidate", packet["observer_provenance"]["owner_overlay_not_a_Git_candidate"], True)
+    return {"structured_claims": claims, "claim_count": len(claims), "patch_numstat": numstat, "public_signatures_preserved": True, "narrative_concurrency_and_owner_limits": "manual owner assertions; not inferred authority"}
+
+
+def validate(base: Path, packet: dict[str, object]) -> dict[str, object]:
+    old_validate(base, packet)
+    summary_receipt = {}
+    return summary_receipt
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--base", type=Path, required=True)
+    parser.add_argument("--packet", type=Path, required=True)
+    args = parser.parse_args()
+    base = args.base.resolve()
+    packet = json_bytes(args.packet.read_bytes())
+    basis = validate(base, packet)
+    results = [{"name": "healthy_class_bound_packet", "outcome": "PASS"}]
+    mutations = {
+        "full_HTTP_summary_1PASS_markers_intact": lambda p: p["native_full_HTTP"].update(full_original_counts={"cases": 1, "passed": 1, "failed": 0, "errors": 0, "skipped": 0}),
+        "catalog_observations_100_markers_intact": lambda p: p["minimum_fixture_inputs"]["actual_catalog_counts"].update(ds_observations=100),
+        "extra_product_path_markers_intact": lambda p: p["source_footprint"]["unapplied_proposal_paths"].append("policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py"),
+        "bool_observations_rejected": lambda p: p["minimum_fixture_inputs"]["actual_catalog_counts"].update(ds_observations=False),
+        "missing_catalog_table": lambda p: p["minimum_fixture_inputs"]["actual_catalog_counts"].pop("ds_alignment_hints"),
+        "extra_catalog_table": lambda p: p["minimum_fixture_inputs"]["actual_catalog_counts"].update(fake_count=0),
+        "bool_HTTP_count_rejected": lambda p: p["native_full_HTTP"]["full_original_counts"].update(skipped=True),
+        "omitted_HTTP_count": lambda p: p["native_full_HTTP"]["full_original_counts"].pop("errors"),
+        "HTTP_exit_code_mutation": lambda p: p["native_full_HTTP"].update(native_exit_code=0),
+        "replaced_schema_ref": lambda p: p["minimum_fixture_inputs"].update(actual_schema_and_profile_ref=p["receipts"]["missing_native_startup"]),
+        "configured_path_mutation": lambda p: p["configured_input"].update(path="/tmp/other-source.duckdb"),
+        "configured_presence_flag_mutation": lambda p: p["configured_input"].update(is_file=True),
+        "source_input_denominator_mutation": lambda p: p["source_guard_inputs"].pop(),
+        "environment_denominator_mutation": lambda p: p["actual_environment"]["packages"].pop(),
+        "runtime_edit_claim": lambda p: p["source_footprint"]["product_runtime_or_DataForge_edits"].append("policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py"),
+        "generated_edit_claim": lambda p: p["source_footprint"].update(generated_files_edited=True),
+        "new_API_claim": lambda p: p["source_footprint"].update(new_runtime_API=True),
+        "bool_footprint_claim": lambda p: p["source_footprint"].update(new_runtime_API=0),
+        "footprint_companion_omission": lambda p: p["source_footprint"]["affected_real_caller_companions"].pop(),
+        "extra_footprint_field": lambda p: p["source_footprint"].update(fake_authority=True),
+    }
+    for name, mutate in mutations.items():
+        corrupt = copy.deepcopy(packet)
+        mutate(corrupt)
+        # All new controls preserve the native PASS/ref hash and denied authority markers.
+        require(corrupt["receipts"] == packet["receipts"] and corrupt["finding_closure"] is False and corrupt["browser_cases_executed"] is False and corrupt["overlay_is_committed_implementation"] is False, "control_changed_authority_or_native_ref_markers")
+        try:
+            validate(base, corrupt)
+        except ValueError as exc:
+            results.append({"name": name, "outcome": "PASS", "refusal": str(exc)})
+        else:
+            raise ValueError(f"corrupt_summary_accepted:{name}")
+    print(json.dumps({"outcome": "PASS", "checks": len(results), "controls": results, "summary_admission_basis": basis, "native_selectors_repeated": False, "original_validator_sha256": OLD_VALIDATOR_HASH}, indent=2))
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,110 @@
+"""Validate moderate frozen-wave publication data without executing checks."""
+import argparse
+import copy
+import hashlib
+import json
+import subprocess
+from pathlib import Path
+from defusedxml import ElementTree
+
+parser=argparse.ArgumentParser()
+parser.add_argument('--packet',type=Path,required=True)
+parser.add_argument('--repo',type=Path,required=True)
+parser.add_argument('--controls',action='store_true')
+args=parser.parse_args()
+packet=args.packet
+index=json.loads((packet/'copy-index.json').read_text())
+handoff=json.loads((packet/'implementation-handoff.json').read_text())
+collector=json.loads((packet/'independent/recomputed-wave.json').read_text())
+receipts={p.parent.name:json.loads(p.read_text()) for p in (packet/'wave/checks').glob('*/*.json')}
+cal_path='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/checks/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.json'
+cal=json.loads(subprocess.check_output(['git','-C',str(args.repo),'show','3eafb85617738c9b398fe67c70d58b3d0d05a5a9:'+cal_path]))
+xml_path=cal_path.rsplit('/',1)[0]+'/pytest.xml'
+cal_xml=subprocess.check_output(['git','-C',str(args.repo),'show','3eafb85617738c9b398fe67c70d58b3d0d05a5a9:'+xml_path])
+
+def require(condition,message):
+    if not condition:raise ValueError(message)
+
+def integer(value):
+    return type(value) is int and value>=0
+
+def counts(data):
+    value={'cases':0,'passed':0,'failed':0,'errors':0,'skipped':0}
+    for case in ElementTree.fromstring(data,forbid_dtd=True).iter('testcase'):
+        value['cases']+=1
+        key='failed' if case.find('failure') is not None else 'errors' if case.find('error') is not None else 'skipped' if case.find('skipped') is not None else 'passed'
+        value[key]+=1
+    return value
+
+actual_counts={p.parent.name:counts(p.read_bytes()) for p in (packet/'wave/checks').glob('*/pytest.xml')}
+actual_counts['cal-and-welfare-consumer-retry']=counts(cal_xml)
+
+
+def validate(i,h,c,r):
+    rows=i['copies']
+    require(integer(i['copied_files']) and len(rows)==i['copied_files']==h['copied_files'],'copy file denominator')
+    require(integer(i['copied_bytes']) and sum(x['bytes'] for x in rows)==i['copied_bytes']==h['copied_bytes'],'copy byte denominator')
+    paths=[]
+    for row in rows:
+        path=Path(row['portable_path'])
+        require(not path.is_absolute() and '..' not in path.parts and path.as_posix()==row['portable_path'],'portable copy path')
+        paths.append(path.as_posix())
+        data=(packet/path).read_bytes()
+        require(len(data)==row['bytes'] and hashlib.sha256(data).hexdigest()==row['sha256'],'literal copy hash/size')
+    require(len(paths)==len(set(paths)),'duplicate portable path')
+    actual_paths=sorted(p.relative_to(args.repo).as_posix() for p in packet.rglob('*') if p.is_file())
+    require(actual_paths==h['changed_paths'] and len(actual_paths)==h['path_count'],'complete publication footprint')
+    require(sum(p.endswith('.py') for p in actual_paths)==h['active_python_path_count']==0,'no active Python')
+    require(h['candidate_sha']==i['verification_candidate_sha']==c['source']=='64d7444a18c55df7b88b71b7699a2f1b25ca24bd','source identity')
+    require(h['candidate_tree_sha']==i['verification_candidate_tree_sha']==c['tree']=='aef23574d3162abb19bf5a1c67d02624ff9d4d1d','source tree identity')
+    require(len(r)==h['primary_job_count']==c['job_denominator']==c['plan_job_denominator']==15,'primary job denominator')
+    require(len(actual_counts)==7,'six original completed JUnit plus separate CAL retry')
+    total={'cases':0,'passed':0,'failed':0,'errors':0,'skipped':0}
+    for name,parsed in actual_counts.items():
+        declared=cal['counts'] if name.endswith('-retry') else r[name]['counts']
+        require(parsed==declared,'parsed JUnit count agreement')
+        for key,value in parsed.items():total[key]+=value
+    require(h['actual_case_count_including_distinct_CAL_retry']==c['case_denominator']==total['cases']==1549,'actual case denominator')
+    outcomes={'PASS':total['passed'],'FAIL':total['failed']}
+    require(h['actual_case_outcomes']==c['case_outcome_counts']==outcomes=={'PASS':1541,'FAIL':8},'actual parsed outcomes')
+    require(total['errors']==total['skipped']==0,'preserve errors/skips')
+    require(h['known_current_A_failure_count']==c['known_A_current_binding_denominator']==total['failed']==8,'known current A denominator')
+    require(r['cal-and-welfare-consumer']['exit_code']==-9 and r['cal-and-welfare-consumer']['counts'] is None,'original CAL interruption not fabricated')
+    require(h['original_CAL']['exit_code']==-9 and h['original_CAL']['counts'] is None,'original CAL summary interruption')
+    require(cal['exit_code']==0 and cal['source_immutable'] and cal['counts']==actual_counts['cal-and-welfare-consumer-retry'],'distinct actual bounded retry')
+    require(h['separate_CAL_retry']['outcome']=='PASS' and h['separate_CAL_retry']['cases']==324,'distinct CAL retry summary')
+    for name,record in r.items():
+        require(record['candidate_sha']==h['candidate_sha'] and record['candidate_tree_sha']==h['candidate_tree_sha'],'receipt source/tree')
+        require(record['source_immutable'] and record['source_identity_before']==record['source_identity_after'],'receipt source stability')
+    for name,record in h['original_global_gate_outcomes'].items():
+        require(record['exit_code']==r[name]['exit_code'] and record['check_outcome']==r[name]['outcome']=='FAIL','original gate FAIL preserved')
+    require(h['selected_output_count']==i['fixed_selected_outputs']==76 and h['selected_output_bytes']==i['fixed_selected_output_bytes']==5549441,'fixed deciding selection denominator')
+    return total
+
+result=validate(index,handoff,collector,receipts)
+negatives=[]
+if args.controls:
+    for name in ('copy_count','copy_bytes','path_count','active_python','summary_case_count','summary_pass_count','primary_jobs','known_A_count','source_sha','copy_hash','portable_escape','collector_case_count','collector_pass_count','fake_original_CAL_counts','fake_original_gate_PASS','retry_case_count','selected_count','selected_bytes'):
+        i,h,c,r=copy.deepcopy((index,handoff,collector,receipts))
+        if name=='copy_count':i['copied_files']+=1
+        elif name=='copy_bytes':i['copied_bytes']+=1
+        elif name=='path_count':h['path_count']+=1
+        elif name=='active_python':h['active_python_path_count']+=1
+        elif name=='summary_case_count':h['actual_case_count_including_distinct_CAL_retry']+=1
+        elif name=='summary_pass_count':h['actual_case_outcomes']['PASS']+=1
+        elif name=='primary_jobs':h['primary_job_count']+=1
+        elif name=='known_A_count':h['known_current_A_failure_count']+=1
+        elif name=='source_sha':h['candidate_sha']='0'*40
+        elif name=='copy_hash':i['copies'][0]['sha256']='0'*64
+        elif name=='portable_escape':i['copies'][0]['portable_path']='../escape.json'
+        elif name=='collector_case_count':c['case_denominator']+=1
+        elif name=='collector_pass_count':c['case_outcome_counts']['PASS']+=1
+        elif name=='fake_original_CAL_counts':r['cal-and-welfare-consumer']['counts']=cal['counts']
+        elif name=='fake_original_gate_PASS':h['original_global_gate_outcomes']['architecture']['check_outcome']='PASS'
+        elif name=='retry_case_count':h['separate_CAL_retry']['cases']+=1
+        elif name=='selected_count':h['selected_output_count']+=1
+        else:h['selected_output_bytes']+=1
+        try:validate(i,h,c,r)
+        except ValueError:negatives.append({'mutation':name,'outcome':'REFUSED'})
+        else:raise ValueError('corrupt publication accepted: '+name)
+print(json.dumps({'schema':'policyos.e02.frozen_wave_publication_recomputation.v1','source':handoff['candidate_sha'],'tree':handoff['candidate_tree_sha'],'positive':'PASS','copied_files_at_execution':index['copied_files'],'copied_bytes_at_execution':index['copied_bytes'],'path_count_at_execution':handoff['path_count'],'primary_jobs':15,'actual_counts':result,'negative_controls':negatives,'numerical_gate_test_execution':False,'scope':'Literal custody and parsed receipts/JUnit; successor selectors outside original15-job carrier remain excluded'},indent=2))

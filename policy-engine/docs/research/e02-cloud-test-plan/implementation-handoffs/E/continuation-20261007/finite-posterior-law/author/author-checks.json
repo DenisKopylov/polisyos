@@ -1,0 +1,224 @@
+{
+  "schema": "policyos.e02.E.finite_law_author_checks.v1",
+  "base": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "pre_code_decision": "55422d4f179f56d796794938be66bcb0741b13ed",
+  "candidate": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+  "tree": "237320d4c5db41330b3d61ff6611f0de8e64549f",
+  "source_clean": true,
+  "footprint": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/source-footprint.json",
+    "bytes": 7708,
+    "sha256": "c77d8fcb7d70ac3e0919543a0ff2016e3fc0c8984b3a158bbc3890b29984bd9d"
+  },
+  "environment": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/runtime-environment-public-bindings.json",
+    "bytes": 19826,
+    "sha256": "23152b9a9c46dc1d6ac1f9430c1261ec22242760ef9c0584628cc9c4f52c1f42"
+  },
+  "checks": [
+    {
+      "name": "ruff-final",
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "tests/unit/ir/test_posterior_ratio_law.py",
+        "src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "src/polisyos/foundry/uncertainty/monte_carlo.py",
+        "src/polisyos/foundry/uncertainty/sampling_admission.py",
+        "src/polisyos/ir/__init__.py",
+        "src/polisyos/ir/analytics/posterior_summary.py",
+        "src/polisyos/ir/api.py",
+        "src/polisyos/schemas/abi_models.py",
+        "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "tests/unit/foundry/uncertainty/test_finite_empirical_law.py",
+        "tests/unit/ir/test_posterior_summary.py",
+        "tests/unit/scientist/nodes/test_propagate_uncertainty_node.py"
+      ],
+      "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+      "exit_code": 0,
+      "complete_inputs": [
+        "tests/unit/ir/test_posterior_ratio_law.py",
+        "src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "src/polisyos/foundry/uncertainty/monte_carlo.py",
+        "src/polisyos/foundry/uncertainty/sampling_admission.py",
+        "src/polisyos/ir/__init__.py",
+        "src/polisyos/ir/analytics/posterior_summary.py",
+        "src/polisyos/ir/api.py",
+        "src/polisyos/schemas/abi_models.py",
+        "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "tests/unit/foundry/uncertainty/test_finite_empirical_law.py",
+        "tests/unit/ir/test_posterior_summary.py",
+        "tests/unit/scientist/nodes/test_propagate_uncertainty_node.py"
+      ],
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/ruff-final.stdout.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/ruff-final.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "format-final",
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "tests/unit/ir/test_posterior_ratio_law.py",
+        "src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "src/polisyos/foundry/uncertainty/monte_carlo.py",
+        "src/polisyos/foundry/uncertainty/sampling_admission.py",
+        "src/polisyos/ir/__init__.py",
+        "src/polisyos/ir/analytics/posterior_summary.py",
+        "src/polisyos/ir/api.py",
+        "src/polisyos/schemas/abi_models.py",
+        "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "tests/unit/foundry/uncertainty/test_finite_empirical_law.py",
+        "tests/unit/ir/test_posterior_summary.py",
+        "tests/unit/scientist/nodes/test_propagate_uncertainty_node.py"
+      ],
+      "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+      "exit_code": 0,
+      "complete_inputs": [
+        "tests/unit/ir/test_posterior_ratio_law.py",
+        "src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "src/polisyos/foundry/uncertainty/monte_carlo.py",
+        "src/polisyos/foundry/uncertainty/sampling_admission.py",
+        "src/polisyos/ir/__init__.py",
+        "src/polisyos/ir/analytics/posterior_summary.py",
+        "src/polisyos/ir/api.py",
+        "src/polisyos/schemas/abi_models.py",
+        "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "tests/unit/foundry/uncertainty/test_finite_empirical_law.py",
+        "tests/unit/ir/test_posterior_summary.py",
+        "tests/unit/scientist/nodes/test_propagate_uncertainty_node.py"
+      ],
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/format-final.stdout.txt",
+        "bytes": 27,
+        "sha256": "cfe5c6461b42a90595a492aed11f2c8e6eb98b7c4caf2cc9f47e3333185e3f33"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/format-final.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "immutable-candidate-affected-family",
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/ir/test_posterior_ratio_law.py",
+        "tests/unit/ir/test_posterior_summary.py",
+        "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "tests/unit/foundry/uncertainty",
+        "tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+        "--junitxml=/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/immutable-candidate-family.xml"
+      ],
+      "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/workspace/e02-E-mc-20261006/policy-engine/src"
+      },
+      "exit_code": 0,
+      "counts": {
+        "testcases": 414,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/immutable-candidate-family.stdout.txt",
+        "bytes": 1122,
+        "sha256": "b98fcd61a42842d128bf57d39719715d47fc903744939cede0b81e832dc0bbaa"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/immutable-candidate-family.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "junit": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/immutable-candidate-family.xml",
+        "bytes": 70209,
+        "sha256": "4b65b1181b54ac151196e2cbbf32379e72d1b521992a12a139ccaf6c9c0e8bcb"
+      }
+    }
+  ],
+  "prior_observations": {
+    "old_actual_falsifiers": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/old-source-falsifiers/actual-conditions-counterexamples.json",
+      "bytes": 18878,
+      "sha256": "cf96bf9961e034ab2835d31e8624ba77367575d570d8a3e50d35e980cdc39856"
+    },
+    "old_actual_stdout": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/old-source-falsifiers/stdout.txt",
+      "bytes": 539,
+      "sha256": "35df241a38a26641f1f0d31c09f88a7d7150b9ebef0161941fd3a358d74d51e6"
+    },
+    "old_literal_observer": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/old-source-falsifiers/probe_actual_conditions_mc.py.txt",
+      "bytes": 9812,
+      "sha256": "0be171cb9f304d0a3aa8811a8667acb7fdc2f2924bf5dda2726bd19c2725028e"
+    },
+    "iterations": [
+      "affected-first",
+      "affected-second",
+      "affected-third",
+      "affected-family",
+      "affected-family-final",
+      "final-delta"
+    ],
+    "classification": "Unfrozen iterations and old red are retained observations, not PASS on immutable final candidate; final fresh414 suite above is deciding."
+  },
+  "independent_review": "Pending separate oracle immutable-source review; this author receipt is not independent review or finding closure.",
+  "admission": {
+    "attempt_empty_mc_environment": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/admission-before-64d.stderr.txt",
+      "bytes": 153,
+      "sha256": "76b893ebbe623f33034ccc71ac3ed319a125cf9bb6f5165e77dd001098194fa5"
+    },
+    "existing_DOE_environment_before": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/admission-before-64d-DOE-existing.json",
+      "bytes": 123115,
+      "sha256": "15b57bdfe2f43b66d1a908f7a8c6e93d0a2110e4cfa2749864a9b89d50cee4ee"
+    },
+    "existing_DOE_environment_after": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/admission-after-64d-DOE-existing.json",
+      "bytes": 123115,
+      "sha256": "6bb1dc5806d4e2cd186e9a8ac17fb3cded5cbb658708a346f9154a291fa1d89e"
+    },
+    "actual_empty_env_creation": "UV created a fresh empty MC .venv on failed tool-spawn before reusable DOE184 resume; no populated environment install. Empty MC environment retained for later inactive cleanup; DOE184 active review environment retained."
+  },
+  "architecture": {
+    "selected_product_collector": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/selected-architecture/architecture-controls.json",
+      "bytes": 10370,
+      "sha256": "94fb5e8b285f79bde0fc7776bc656f68beb638a9508fd5351ced9322b1d8a492"
+    },
+    "complete_source_test_companion_census": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/author-import-census.json",
+      "bytes": 1100289,
+      "sha256": "93afd35c910a7f03257c6cad802584989a715f1edee1007ef38ff72716c8140d"
+    },
+    "scope": "Actual selected canonical collector7productPython, same3deepedges/no new; healthy+fake+removal discriminator. AST fullchanged12Python source/test/companion census is author evidence, not independent review or full architecture/P41 PASS."
+  },
+  "limitations": [
+    "No production source-law/history or custody authority",
+    "Supplied multi-coordinate alignment is non-gating consumer-asserted input, not provenance",
+    "Finite uniform mesh approximates continuous exact-ratio masses",
+    "B194/B197 source/evaluator/fit external holds unchanged",
+    "Generator/public inventory/release owner reviews remain separate",
+    "Root64d backend and root207 environment untouched by these explicit MC-source/DOE184 commands"
+  ]
+}

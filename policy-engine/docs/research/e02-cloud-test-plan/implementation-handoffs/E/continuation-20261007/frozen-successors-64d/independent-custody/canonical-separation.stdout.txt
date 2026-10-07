@@ -1,0 +1,5 @@
+{
+  "path": "/workspace/e02-E-pr38-r3-receipts/successors-independent-r4/canonical-umbrella-separation.json",
+  "bytes": 3930,
+  "sha256": "88b73772478d3509783b53e46c6e98ac3a00ac1cd2272cb4403ea9e485dc97b7"
+}

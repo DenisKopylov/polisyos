@@ -1,0 +1,322 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "welfare-empirical-law-r2",
+  "closure_ids": [
+    "B192",
+    "B194"
+  ],
+  "bundle_ids": [
+    "UQP-02",
+    "UQP-03"
+  ],
+  "slice_base_sha": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+  "slice_base_tree_sha": "ba48381b0cf671c316e2cffa4be6568fd945011a",
+  "implementation_commits": [
+    "5250d86f16400a1675dc1d1e269dfbfea49ff0c5",
+    "ae9279c65fe8f476f5c79ae5f64a4a5df5e55daf",
+    "884681db485b7466b183a206f83bbe0635f86ca3"
+  ],
+  "required_facade_companion": {
+    "sha": "1e0eb2f6c589b74c6adae850b27af6d720dfa5ea",
+    "scope": "Three existing pure finite-law helpers exported through canonical Foundry uncertainty facade; helpers unchanged",
+    "owner": "E root / Foundry facade owner"
+  },
+  "ordinary_facade_merge_sha": "f539fe499cbca04a1f21958b8140777080a67f5d",
+  "candidate_sha": "884681db485b7466b183a206f83bbe0635f86ca3",
+  "candidate_tree_sha": "b9cdce22cd8af3bee3cda176207242a8381cbe1b",
+  "branch": "codex/e02-E-backtest-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/51",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-empirical-law.toml",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/README.md",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py"
+  ],
+  "ancestor_companion_diff_paths": [
+    "policy-engine/architecture/public_surface/inventory.json",
+    "policy-engine/docs/reference/public-surface.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/reviewed-backtest-assembly.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/root-merge-backtest.stdout.txt",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-finite-law-admission-facade.toml",
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+    "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+    "policy-engine/tests/unit/calibration/test_evidence_facades.py"
+  ],
+  "base_code_provenance": {
+    "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+    "base_sha256": "f9421a672185153e7a55e1f0944f25a30e1a7950b3c978ac332fae12091625e8",
+    "loaded_exact_base_overlay": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/exact-base-replay.py.txt",
+    "no_new_checkout_or_environment": true
+  },
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "cpu_count": 5,
+    "packages": {
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2"
+    }
+  },
+  "environment_management": {
+    "shared_environment": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+    "fresh_pythonpath": "/workspace/e02-E-backtest-20261006/policy-engine/src",
+    "artificial_cpu_process_worker_caps": false,
+    "serialized_resources": "Each check owns a separate CAS/test directory; no shared mutable fixture",
+    "admission": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/worktree-resume.json"
+  },
+  "input_identity": {
+    "source": "bounded synthetic mathematical law, not production evidence",
+    "target": "configured native linearized_ge_io response",
+    "sample_axis": "fixture_row",
+    "row_identity_basis": "content-bound carrier position",
+    "atoms": [
+      0,
+      1
+    ],
+    "weights": [
+      3,
+      1
+    ],
+    "seed": 31415,
+    "requested": 128,
+    "GE_operator": "numpy.linalg.inv(I-A)",
+    "base_response": 2,
+    "social_weight": 1,
+    "nominal_A": 0.25,
+    "envelope_ref": {
+      "artifact_id": "sha256:ba08433809de85da5860a4c7c9cc99d31da84ab75e6423eb2aef269c132bf056",
+      "kind": "ir.uncertainty_envelope",
+      "media_type": "application/json"
+    }
+  },
+  "baseline_cells": [
+    {
+      "cell": "F01-P028",
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "source_state": "PASS",
+      "source": "results/received/F01.txt:145",
+      "environment": "Linux6.18.44 x86_64 glibc2.41 Python3.14.2, JAXCPU",
+      "input_identity": "selected synthetic test fixtures, original full raw VM archive not transferred",
+      "grade": "historical source-reported compact navigation, not candidate property evidence"
+    },
+    {
+      "cell": "F01-P047",
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "source_state": "FAILED",
+      "source": "results/received/F01.txt:164",
+      "grade": "historical navigation; no inherited-red attribution or closure claim"
+    }
+  ],
+  "checks": [
+    {
+      "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check",
+      "target_sha": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+      "outcome": "PASS",
+      "output": "{\"ok\":true,\"files\":[\"cells.tsv\",\"properties.tsv\",\"events.jsonl\",\"gates.json\",\"routes.tsv\",\"verification.json\"]}"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-E-backtest-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-pr38-r2-receipts/measure-command.py /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m pytest -q tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py --junitxml=/workspace/e02-E-pr38-r2-receipts/welfare-native-884.xml",
+      "target_sha": "884681db485b7466b183a206f83bbe0635f86ca3",
+      "outcome": "PASS",
+      "tests": 10,
+      "measurement": {
+        "exit_code": 0,
+        "wall_seconds": 21.72987374199147,
+        "user_seconds": 21.13556,
+        "system_seconds": 1.119707,
+        "max_rss_kib": 647056
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/native.stdout.txt",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/native.junit.xml",
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-E-backtest-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-pr38-r2-receipts/measure-command.py /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m pytest -q tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py --junitxml=/workspace/e02-E-pr38-r2-receipts/welfare-affected-884.xml",
+      "target_sha": "884681db485b7466b183a206f83bbe0635f86ca3",
+      "outcome": "PASS",
+      "tests": 45,
+      "measurement": {
+        "exit_code": 0,
+        "wall_seconds": 79.40156447299523,
+        "user_seconds": 103.904744,
+        "system_seconds": 4.511058,
+        "max_rss_kib": 1220532
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/affected.stdout.txt",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/affected.junit.xml",
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-E-backtest-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-pr38-r2-receipts/welfare-native-receipt.py",
+      "target_sha": "884681db485b7466b183a206f83bbe0635f86ca3",
+      "outcome": "PASS",
+      "property": "Actual native GE A atoms0,1:128 attempted,92 success,36 LinAlgError failures; exact independently reconstructed seeded row axis; success2; no unconditional mean/credible/robust interval",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/native-deciding.json",
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-E-backtest-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-pr38-r2-receipts/welfare-old5d-replay.py",
+      "target_sha": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+      "outcome": "FAIL",
+      "expected_negative": true,
+      "property": "128/128 Normal draws outside declared atoms,failed0/supportcompleteTrue, bogus credible interval and nominal outer bound",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/exact-base-deciding.json",
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-E-backtest-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-pr38-r2-receipts/welfare-reader-removal.py",
+      "target_sha": "884681db485b7466b183a206f83bbe0635f86ca3",
+      "outcome": "PASS",
+      "negative_outcome": "FAIL_expected_forged_weights_accepted_after_property_removal",
+      "property": "Hash-valid forged weights refused with exact marker/native outcomes intact; removing only actual carrier/row reconciliation admits forgery",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/reader-removal.stdout.txt",
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine"
+    },
+    {
+      "command": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m ruff check policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+      "target_sha": "884681db485b7466b183a206f83bbe0635f86ca3",
+      "outcome": "PASS",
+      "outputs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/ruff.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/format.stdout.txt"
+      ],
+      "commands": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m ruff check policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m ruff format --check policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py"
+      ],
+      "cwd": "/workspace/e02-E-backtest-20261006"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-E-backtest-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-pr38-r2-receipts/welfare-malformed-preflight.py",
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+      "target_sha": "884681db485b7466b183a206f83bbe0635f86ca3",
+      "outcome": "PASS",
+      "property": "Hash-valid complex-object/string carrier values reject in existing IR load before any nominal or stochastic callback; malformed values are not silently truncated to real values",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/malformed-preflight.stdout.txt",
+      "limits": "Existing IR float normalization admits a Boolean as float1 before Welfare sees it. This probe is not a strict original-wire-type admission claim; all128 A1 draws then fail genuinely with complete outcome receipt."
+    }
+  ],
+  "property": {
+    "statement": "A supported one-dimensional finite empirical input law reaches the native Welfare GE evaluator without a Normal substitution. Every requested draw has a terminal outcome; successful-only values are conditional and missing support cannot produce unconditional intervals.",
+    "runtime_path": [
+      "persisted existing UncertaintyEnvelope v1.1 / PosteriorSamplesCarrier",
+      "default registered PropagateWelfareNode / collector",
+      "common finite weights/CDF admission before nominal response callback",
+      "native np.linalg.inv(I-A) configured GE function",
+      "CAS content-bound draw outcomes + conditional WelfareSampleBundle + WelfarePropagationReport",
+      "fresh verified carrier-row/output reader",
+      "WelfareBundle / updated SimulationResult diagnostic consumer"
+    ],
+    "surface": "Existing internal numerical diagnostic and persisted artifacts; served evaluator / authority surface explicitly outside this slice",
+    "proxy_divergence": "Same point/CI previously forced BOOTSTRAP to Normal: A={0,1} loses singular1 exactly, reports support_complete true. Separately, a point GE inverse was used as an outer bound for varying technical coefficients without bounds input.",
+    "negative_controls": [
+      "unsupported BOOTSTRAP without carrier",
+      "unsupported quantile-only carrier",
+      "all-zero weights",
+      "positive category collapse in finite CDF",
+      "hash-valid changed row index/weights/axis/digest/removed row",
+      "same markers after actual property removal",
+      "unknown two-parameter dependence makes0 attempted/128 unattempted",
+      "empty uncertainty noop"
+    ],
+    "supported_scope": "Existing one-parameter PosteriorSamplesCarrier and supported typed Normal/Uniform laws. Multi-parameter empirical law remains unknown; covariance/projection Gaussian path and its singular nullspace are preserved by the affected suite.",
+    "precision": "Input weights, CDF categories and samples admitted with float64 common machinery. Explicit existing DECIMAL_EXACT fixture preserves1e-15 and1e40 end-to-end through actual NumPy GE; collapsed positive CDF category is rejected before nominal/stochastic callback. No post-hoc finite-count substitution.",
+    "row_identity": "Original carrier ordered position bound to exact carrier content digest and CAS source envelope. No invented production draw IDs or joint-law semantics."
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_by_property": {
+    "typed_law_weights_atoms_axis": "recomputed from resolved CAS payload",
+    "carrier_row_to_sampled_value": "recomputed, content-bound ordered position",
+    "native_GE_success_and_failure": "independently reconciled by analytic A0\u21922/A1\u2192singular oracle and exact seeded atom row law",
+    "joint_independence": "not_established, multi-input gate withheld",
+    "unconditional_result_on_failed_support": "not_established, mean and credible interval withheld",
+    "varying_GE_outer_bounds": "not_established unless separate existing multiplier bounds supplied; nominal inverse is not the bound",
+    "production_source_law_served_evaluator_retry_profile": "not_established"
+  },
+  "capability_state_or_finding_state": {
+    "code": "bounded implementation candidate; independent acceptance separate",
+    "B192": {
+      "recorded_ledger_status": "partial",
+      "final_verdict": "limited",
+      "formal_closure_owner": "E/G finding adjudication",
+      "basis": "Welfare sibling now preserves admitted one-dimensional empirical law; broader backend/source routes keep their separate criteria"
+    },
+    "B194": {
+      "recorded_ledger_status": "held",
+      "final_verdict": "held",
+      "formal_closure_owner": "Welfare source/evaluator/profile owner and E/G finding adjudication",
+      "basis": "Native GE generic numerical witness established; source law, actual served evaluator and permitted missing-support/retry profile are not ratified by code"
+    }
+  },
+  "independent_review": {
+    "state": "pending",
+    "requested_to": "E root / independent CAL helper",
+    "source_sha": "884681db485b7466b183a206f83bbe0635f86ca3"
+  },
+  "pattern_pass": {
+    "P01_P02": "Real registered node, typed existing input, native GE evaluator, persisted result and fresh reader exercised",
+    "P05_P14": "Fixture mathematical law is non-gating and is not production or served authority",
+    "P27_P31": "Canonical common finite helpers reused; no copied Foundry sampler or executor",
+    "P29_P32_P33": "Fresh CAS semantic joins and marker-preserving guard-removal falsifier",
+    "P37_P38": "Numeric predicates freeze as recomputed; point/CI/metadata are not a source law or outer bound",
+    "P40": "Same source-law/scope class widened to random/quantile inlet and GE outer-bound emission; unsupported joint laws explicitly withheld",
+    "P41": "Exact slice-base blob replay performed for the new defining property; old F01 failures are navigation only, no unrelated/inherited-red exclusion"
+  },
+  "limitations_and_next_owner": [
+    "B194 remains held. Source/evaluator/profile owner must supply exact production envelope/CAS refs, GE model/configuration scope, validity time and admitted missing-support/retry policy; this fixture supplies none of that authority.",
+    "General content-bound empirical joint inputs are not admitted by this Welfare path; existing unknown/non-gating multi-parameter guard remains. Joint-law owner must authorize a matching carrier/profile before widening.",
+    "A varying technical-coefficient GE outer bound requires the existing independently materialized multiplier-bound producer; otherwise robust_interval is absent with a named limitation.",
+    "The node keeps terminal exceptions under the existing taxonomy and does not invent transient retries. If a profile authorizes retry, exact same draw identity and bounded retries require that separate owner input.",
+    "Public/architecture aggregate gates and final common numerical wave are E root-owned after independent acceptance; this receipt does not relabel absent gates or old red as inherited.",
+    "Existing IR numeric canonicalization coerces Boolean carrier values to floats and owns original-wire-type semantics. Malformed complex values reject before callbacks; no new IR/schema or strict original-type claim is introduced by this Welfare slice."
+  ],
+  "local_G_reproduce_recipe": {
+    "candidate_sha": "884681db485b7466b183a206f83bbe0635f86ca3",
+    "generic_check": "Fetch codex/e02-E-backtest-20261006 at exact candidate, use declared Python3.14 research/numeric extras and run the two exact affected pytest commands from stdout. No production dataset required for this mathematical property.",
+    "production_check_needed_only_for": "Owner-admitted source law / served evaluator / missing-support profile, not the generic mechanism claim",
+    "required_minimal_inputs": [
+      "existing SimulationResult/metrics refs admitted for the exact evaluator scope",
+      "persisted source UncertaintyEnvelope/PosteriorSamplesCarrier refs with exact atoms/weights/numeric_policy/sample axis or Gaussian calibration report projection refs",
+      "welfare_config target order/base responses/weights/GE model source+entry map and temporal validity purpose",
+      "propagation_config requested budget/seed and profile-declared missing-support/retry handling"
+    ],
+    "read_only_steps": [
+      "Build ExecutionContext with local configured CAS; do not copy production history to cloud",
+      "Execute the registered PropagateWelfareNode on the exact candidate and owner-provided ExperimentState",
+      "Fresh CAS load WelfareBundle then reconcile draw outcomes and samples; compare original source carrier rows/weights and all requested success/failure/unattempted IDs",
+      "Independently recompute GE outputs for retained sampled inputs; preserve conditional diagnostics and withhold unsupported unconditional functional",
+      "Write local receipt with exact implementation/input/schema/profile/model/rule/time refs, original source law and owner disposition; G adjudicates finding closure separately"
+    ],
+    "generic_commands": [
+      "(cd policy-engine && uv run --no-sync python -m pytest -q tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py)"
+    ]
+  },
+  "cleanup": {
+    "native_trash_available": false,
+    "action": "No permanent deletion; preserve deciding outputs and list repeatable candidates for Trash-only cleanup",
+    "candidates": [
+      "/workspace/e02-E-pr38-r2-receipts/welfare-native-cas",
+      "/workspace/e02-E-pr38-r2-receipts/welfare-old5d-cas",
+      "/workspace/e02-E-pr38-r2-receipts/welfare-reader-removal-cas",
+      "/tmp/pytest-of-agent/pytest-211",
+      "/tmp/pytest-of-agent/pytest-212",
+      "/workspace/e02-E-pr38-r2-receipts/welfare-malformed-preflight-cas"
+    ],
+    "preserved": [
+      "tracked source/documentation/tests/deciding receipts",
+      "shared root .venv used by other jobs",
+      "unique native CAS until independent review no longer needs it",
+      "all production data"
+    ]
+  }
+}

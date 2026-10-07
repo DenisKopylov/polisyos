@@ -1,0 +1,16 @@
+id = "2026-10-06-e02-current-handler-publication"
+title = "Fence every bound control-handler SQL publication"
+type = "fixed"
+component = "runtime"
+owner = "team-policyos-runtime"
+summary = "Every bound handler SQL mutation admits its actual source job owner, attempt and live lease inside the publication transaction. Internal terminal state, progress, history and outbox publication remains atomic."
+evidence = ["src/polisyos/runtime/http/services/control_plane_store.py", "tests/unit/remediation/test_dur_02_process.py"]
+compatibility = "The existing completed-proof owner purpose and unbound administrative projections remain available. Stale or expired bound handlers now receive ControlJobLeaseLostError instead of publishing sibling or child-job effects. Lease renewal retains False on a lost owner."
+change_class = "internal"
+surface_classification = "internal: internal-only"
+migration = "Keep handler writes inside the actual worker execution fence. Use the existing completed proof API for the exact completed attempt; completing a job does not permit generic later writes from the retained handler context."
+limitations = "Actual process controls exercise temporary SQLite and FileSystemCAS. PostgreSQL source paths share admission but require separate live-backend verification. No multi-host or physical power-loss guarantee or universal store authorization is asserted."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []

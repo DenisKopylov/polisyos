@@ -1,0 +1,75 @@
+{
+  "schema": "policyos.e02.E.independent_successor_publication_selection.v1",
+  "candidate": "c8054bb2f055fae5f94012773ab4d2efad8cfab7",
+  "tree": "ad4563952e75e3a4ab6b094283ef8007594533df",
+  "files": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/successors-independent-r4/independent-publication-review-c8054bb2.json",
+      "bytes": 9048,
+      "sha256": "6936d7200c404a7533b8b132c7dd61def989adb728b5e77c05dbaf5b68f85d08"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/successors-independent-r4/review-successor-publication.py.txt",
+      "bytes": 17372,
+      "sha256": "9bcc6558c30b5eda9113978941fea2a3665f8350a6ef0700a5c3bfbc5b8aad39"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/successors-independent-r4/review-canonical-umbrella-separation.py.txt",
+      "bytes": 3031,
+      "sha256": "a8c4dea43089e574528527c8eab25bc86d8a70e032adb029a7b7fdbb1fb08d59"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/successors-independent-r4/removed-digest-validator.py.txt",
+      "bytes": 4867,
+      "sha256": "7b2634bf5459d73f094f0badc320bfe132a0a4bd2db6c47acedf709b85b453b4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/successors-independent-r4/independent-publication-review-c8054bb2-normal.json",
+      "bytes": 7779,
+      "sha256": "05ba025f5325eb4f32a8d6205d1eab63ddc9d32f7d1fbe77bf343887555c3378"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/successors-independent-r4/independent-publication-review-c8054bb2-optimized.json",
+      "bytes": 7779,
+      "sha256": "05ba025f5325eb4f32a8d6205d1eab63ddc9d32f7d1fbe77bf343887555c3378"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/successors-independent-r4/review-normal.stdout.txt",
+      "bytes": 225,
+      "sha256": "e18667a7a48b49ffbd41a4e27200621f0851b2ca44e462f2b973531ce76a7010"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/successors-independent-r4/review-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/successors-independent-r4/review-optimized.stdout.txt",
+      "bytes": 228,
+      "sha256": "7ef3abb1bb13a30bce0ee66f2b1cd12cb37cdf66ee9997b2b6038fb1e17d4762"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/successors-independent-r4/review-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/successors-independent-r4/canonical-umbrella-separation.json",
+      "bytes": 3930,
+      "sha256": "88b73772478d3509783b53e46c6e98ac3a00ac1cd2272cb4403ea9e485dc97b7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/successors-independent-r4/canonical-separation.stdout.txt",
+      "bytes": 208,
+      "sha256": "6085fc70fbbaf5b3cdab8457e6047eceac46fffafab8ac57e5ecb55dd73a0b10"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/successors-independent-r4/canonical-separation.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "file_count": 13,
+  "total_bytes": 54467,
+  "excluded": "All168 native copied assets stay at immutable c805 Git refs; no duplicate raw inventories, environments or product/source outputs."
+}

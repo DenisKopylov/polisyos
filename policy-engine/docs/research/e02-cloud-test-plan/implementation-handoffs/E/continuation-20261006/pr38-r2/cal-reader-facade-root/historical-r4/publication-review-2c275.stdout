@@ -1,0 +1,55 @@
+{
+  "companion_sha": "2c275dc69a5b544704256ee0ccd37649ae7e8ea4",
+  "companion_tree": "0381b528217d6cd30fad1107f8d8e81fac405d0a",
+  "source_sha": "43c443b6f1015d57cf624598531ef99c22a296e6",
+  "footprint": [
+    "policy-engine/architecture/public_surface/inventory.json",
+    "policy-engine/docs/reference/public-surface.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-finite-law-admission-facade.toml",
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md"
+  ],
+  "source_python_unchanged": true,
+  "canonical_generator_byte_equal": true,
+  "counts": {
+    "calibration": 29,
+    "foundry_uncertainty": 19
+  },
+  "classification": {
+    "calibration": "public_experimental",
+    "foundry_uncertainty": "public_stable"
+  },
+  "property_paths": {
+    "policy-engine/architecture/public_surface/inventory.json": "0b56c91be33b4689f1623a88ba0add2e619959e04d6ceb68a523b8eecd30428c",
+    "policy-engine/docs/reference/public-surface.md": "a569221ff59012507c50d3851053bb195f1364a00b4d945afc55184c7ea28be1",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml": "1dc9068ec7d27b90a3967fece18f3a5381bb312547c5dc7d33cfc22aff63c377",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-finite-law-admission-facade.toml": "dc6a918461eba46872cf296289deb74f76425d820e3fa14cdecfd44a878a0c81",
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md": "62e298d38d040996821135900da1c01c8acfbdd9dec609a83032841e31074587"
+  },
+  "before_after_equal": true,
+  "corrupt_field_controls": [
+    {
+      "case": "stale-calibration-count",
+      "outcome": "REJECTED"
+    },
+    {
+      "case": "omitted-reader-export-count-retained",
+      "outcome": "REJECTED"
+    },
+    {
+      "case": "fake-lazy-mode",
+      "outcome": "REJECTED"
+    },
+    {
+      "case": "stale-uncertainty-readme-count",
+      "outcome": "REJECTED"
+    },
+    {
+      "case": "false-stable-calibration-classification",
+      "outcome": "REJECTED"
+    }
+  ],
+  "verdict": "GO-bounded-owned-publication-companion",
+  "architecture_limit": "New Cal facade\u2192Foundry report private module edge remains subject to separate free E routing fix or precise API owner admission; no global architecture PASS asserted. Core/IR/execute owner packets remain unratified.",
+  "finding_closure": false
+}

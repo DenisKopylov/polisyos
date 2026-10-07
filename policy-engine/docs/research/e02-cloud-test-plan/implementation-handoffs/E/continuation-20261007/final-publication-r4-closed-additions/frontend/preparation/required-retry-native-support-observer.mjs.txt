@@ -1,0 +1,6 @@
+import{pathToFileURL}from'node:url';import{readFileSync}from'node:fs';import path from'node:path';
+const{p:parseCLI}=await import(pathToFileURL(process.argv[1]).href);const original=JSON.parse(process.argv[2]);const parsed=parseCLI([...original]);
+const source=readFileSync(process.argv[3],'utf8');const start=source.indexOf('function resolveScreenshotPath(');const end=source.indexOf('\nasync function getBrowserProvider(',start);if(start<0||end<0)throw Error('actual native resolver missing');
+const literal=source.slice(start,end);const native=new Function('dirname','basename','resolve','relative',literal+';return resolveScreenshotPath;')(path.dirname,path.basename,path.resolve,path.relative);
+const target=parsed.options.browser.screenshotDirectory;const test='/native/source/src/exact.test.ts';const file=native(test,'control.png',{root:'/native/source',browser:{screenshotDirectory:target}});const without=native(test,'control.png',{root:'/native/source',browser:{}});
+console.log(JSON.stringify({parsed,native_resolver_literal:literal,external:file,without_override:without,external_expected:path.resolve(target,'src','exact.test.ts','control.png'),effectively_removed_override_diverges:file!==without}));

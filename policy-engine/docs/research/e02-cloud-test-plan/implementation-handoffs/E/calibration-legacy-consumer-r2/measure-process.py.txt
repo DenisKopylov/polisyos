@@ -1,0 +1,10 @@
+import json, os, subprocess, sys, time
+from pathlib import Path
+resource_path=Path(sys.argv[1])
+start=time.time()
+proc=subprocess.Popen(sys.argv[2:])
+_,status,rss=os.wait4(proc.pid,0)
+code=os.waitstatus_to_exitcode(status)
+proc.returncode=code
+resource_path.write_text(json.dumps({"wall_seconds":time.time()-start,"max_rss_kib":rss.ru_maxrss,"user_cpu_seconds":rss.ru_utime,"system_cpu_seconds":rss.ru_stime,"exit_code":code},indent=2)+"\n")
+raise SystemExit(code)

@@ -1,0 +1,84 @@
+{
+  "BKT": {
+    "path": [
+      "HistoricalValidationPlan SCI n_simulation_runs \u2192 scalar K plans with distinct SeedSequence-derived actual seeds/runIDs",
+      "prepare_native_replay: exact original DataSnapshot/data rows/Trinity/registry \u2192 immutable admitted history prefix and matching masked Trinity child",
+      "scientist_default \u2192 BindFoundryInputsNode \u2192 compile/link \u2192 RunSimulationNode actual FoundryExecConfig.seed \u2192 DefaultFoundryPort.execute at every horizon step",
+      "SimulationResult + consumed bindings/post-state snapshots \u2192 NativeForecastTrajectory registered target slot/unit/reduction observations",
+      "load_native_forecast: request + actual config + initial binding anchor + chronological native clock/previous-state chain + exec_plan\u2192program/LoweredIR\u2192Trinity join + observed values",
+      "BacktestOrchestrator consumes verified native values, evaluates held outcomes, persists BacktestReport in configured CAS",
+      "fresh public BacktestReport reader retains typed counts/seed/ref metadata; local G independently reopens each native ref and recomputes reported pairs/errors/counts"
+    ],
+    "defining_quantity": "Registered native state observable trajectory at declared future time/horizon; counters/effects/scalars never substitute for forecasts. No native failure fallback: scientist_unavailable + preserved attempt/failure counts.",
+    "denominators": {
+      "backend_replays": "requested7/attempted7/completed7/failed0/unobserved0",
+      "metric_time_cells": "requested14/eligible14/observed14",
+      "per_replica": "two compared future target-time cells"
+    },
+    "law_limit": "Distinct actual seeds and runs prove dispatch/config use; deterministic [1.5,1] repeated values do not establish IID draws, independence, covariance law, interval calibration or grade neutrality.",
+    "current_reader_limit": "Public load_backtest_report is typed payload readback, not a fresh native provenance verifier. Strong native reader is consumed before aggregation and separately available for local independent replay.",
+    "minimum_local_production_inputs": [
+      "Exact immutable production DataSnapshot/data refs, row_ids/time_index and declared history columns; original source authority/version remains local",
+      "Original Trinity ModelSpec binding that same source snapshot and registry, no unscoped network/time-series refs; declared model/feature/world/calibration assumptions",
+      "Prefix-only Foundry input-binding rules, registered target slot/unit/reduction; predictive_simulation purpose/origin/future coordinates",
+      "Actual cutoff/horizon/ground_truth_outcomes kept separate from masked inputs; requested K and seed and configured CAS identity"
+    ],
+    "local_procedure": "On exact published candidate source, derive prefix/Trinity via existing producer, execute existing scientist_default, fresh-read report and every NativeForecastTrajectory/request/config/bindings/state, independently join actual original history/model/rows/times/target values/seeds/counts. Reject changed recipe SHA, leaked future rows, substituted Trinity/trajectory order, wrong target/unit/horizon. Keep source/history local.",
+    "owner_boundaries": [
+      "G + model/history/input-binding owner supplies source-bound local inputs if production criterion requires; generic native dispatch/trajectory positivity already established",
+      "Scientist trust-profile owner must declare versioned purpose/profile and meaningful-bias margin/equivalence interval for B172/B173; p>alpha/zeroRMSE never implies GradeA",
+      "Canonical Foundry execution/Core/IR API owners own remaining helper/entrypoint admission packets; this trace grants no API or global guard waiver"
+    ],
+    "status": "B166/B169/B170 technical native mechanism bounded accepted independently; historical partial and owner adjudication unchanged. B169 trajectory, B170 K seed/dispatch, B171 micro/macro, B174 standalone CV positivity not universally production-dependent."
+  },
+  "PCL": {
+    "path": [
+      "Configured graph CAS injected as local artifact_store service into actual MethodDispatcher",
+      "NumpyRunner preserves explicit store across PanelData extraction/validated params",
+      "NonstationaryGARCHEstimator.pure_step persisted panel source \u2192 segment summary, overall summary, scenario summary sites",
+      "_summarize_interval_diagnostics \u2192 evaluate_continuous \u2192 persist_continuous_evaluation exact ordered pairs + diagnostic/receipt \u2192 immediate load_continuous_evaluation",
+      "MethodResult.artifact_refs \u2192 ExecuteArtifacts.derived_artifacts standard refs \u2192 new configured FileSystemCAS \u2192 independently recomputed pairs/report/TruthfulnessReceipt"
+    ],
+    "counts": "Three distinct source call sites, five actual invocations/five diagnostics refs/six derived roles in independent native panel. Proposed-profile alias shares overall artifact and is not an extra independent estimate.",
+    "time_rows_units": "Source PanelData entity/time mapping, evaluated_rows carry original positions/entity/time/train/evaluation/horizon semantics; target/unit caller declarations preserved in source_binding. Independent fixture entity7/12,160panel rows,30training+50holdout per entity; backend seed688080168. Requested/eligible/observed defined per requested outcome-level pair, separate from row count.",
+    "readback_properties": "Persisted pair digest and full numeric report/TruthfulnessReceipt recompute; zero/missing pairs not_evaluated; missing level200requested/100eligible/200observed not perfect; raw report cannot assert paired receipt; bootstrap requires explicit replay seed/defined statistic.",
+    "minimum_local_production_inputs": [
+      "Immutable admitted PanelData source + target/unit/entity/time mapping and exact intervals/held outcomes/level semantics",
+      "Real production caller input materialization/binding and same configured CAS identity; source/split/horizon/evaluated_row mapping",
+      "Owner-declared purpose/admission/profile for any calibration authority claim, explicit bootstrap seed/statistic if requested"
+    ],
+    "local_procedure": "Same actual graph\u2192NumPy method caller, retain original source/derived refs; fresh pairs+diagnostics readback recomputes counts/hits/statistics and reconciles evaluated row/time bindings. No production data transfer or invented authority.",
+    "owner_boundaries": [
+      "Foundry workflow/input materializer/source owner + G local checker for source-bound production claim",
+      "Calibration/Scientist alias migration owner retains actual compatibility inventory/window decisions LA053; shim identity alone does not decide migration",
+      "A served/HTTP caller and real production GlobalState/Trinity materialization are not established by generic native panel fixture"
+    ],
+    "status": "LA052/LA053 historical partial; bounded configured method/CAS consumer code GO reused, no formal finding closure."
+  },
+  "FRC": {
+    "path": [
+      "Strict ForecastOwnerRequestv2: admitted observed DataSnapshot + canonical DataSchema/target_unit/source_native coordinate binding + explicit contiguous train/holdout/horizon/method/rule/report/seed/six times",
+      "ForecastOwner.run resolves actual registered ETS method, dispatcher NumPy on training series only with same configured artifact_store/seed",
+      "Typed uncertainty bundle/points and explicit heldout rows persist training slice/observed outcomes/BacktestReport separately",
+      "forecast_bridge produce/persist separate EmpiricalCalibrationEvidence + content-bound ForecastCandidateReceipt",
+      "fresh load_forecast_candidate_receipt recomputes original source indices/rowIDs/pairs/split/horizon/schema units/threshold/profile/times/counts",
+      "ForecastOwnerResult.to_s10_input_fields fresh candidate adapter retains predictive-only denials; A resolver/default/HTTP/verifier remains external acceptance path"
+    ],
+    "native_method": "forecasting.univariate.exponential_smoothing@1.0.0; declared NumPy backend; at least8training observations and holdout length exactlyhorizon. ETS sibling is separate from required BKT default native Scientist forecast; neither substitutes for other.",
+    "denominator_time_profile": "Exact requested heldout horizon/complete observed pairs/interval hits; six distinct timezone-aware roles data_valid_time, calibration_window_start,end, policy_effective_time,prediction_time,observation_time; predictive_interval_coverage and explicit configured threshold/profile bind estimand and scope. Method labels/hash/role/credible flag do not prove issuer/verifier authority.",
+    "minimum_local_production_inputs": [
+      "Immutable issued numeric DataSnapshot/data + canonical DataSchema mapping target field/unit/decimal storage scale; declared source-native values",
+      "Exact issuer/model/rule/profile versions + owner admitted predictive calibration threshold, method params/seed/report identity",
+      "Contiguous >=8training prefix and distinct actual holdout rows/time positions, explicit horizon, original forecast/outcome history and six actual temporal roles; optional model/policy refs only as complete distinct pair",
+      "Trusted A runtime verifier composition/profile admission and configured CAS identity for any served/gating acceptance; E payload supplies no such authority"
+    ],
+    "local_procedure": "G performs read-only exact candidate source/history joins on local original data, invokes same E producer/fresh candidate reader, independently recomputes source/split/ordered pairs/hits/counts/threshold/time/units/purpose; corrupt late outcomes/scope/ref as negatives. A default/HTTP branch must invoke strict producer before retained terminal causal refusal and independently emit/replay verifier provenance on fresh served read.",
+    "owner_boundaries": [
+      "A actual default-generation/HTTP lifecycle, trusted verifier and status/S6 reason projections; current generation_cycle blob unchanged from independent8486 two historical A-owned reason failures",
+      "D/source/input-materialization owners supply production source/schema/unit/issuer/time context when required; this E trace does not measure their served integration or ratify source law",
+      "G + local source owner supplies original production history; generic ETS math/producer positive is already established",
+      "Causal-effect/treatment-assignment/policy purpose authority stays denied, and B201/B202 IR semantics remain separate held decisions"
+    ],
+    "status": "B32/LA051 accountable-owner closure separate from bounded ETS producer/reader code GO; no default/served or institutional authority claimed."
+  }
+}

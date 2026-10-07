@@ -16,6 +16,25 @@ output metric uncertainty in Foundry simulations.
 - **Monte Carlo** - sampling-based propagation when analytic assumptions fail.
 - **Aggregation** - envelope merging for multi-strategy or multi-run outputs.
 - **Config-driven fallback** - strategy choice is explicit and inspectable.
+- **Sampling admission** - `sampling_admission.py` rejects unsupported numeric
+  ranges before any sampler/evaluator; missing multi-input dependence is unknown.
+  Full Gaussian covariance preserves null spaces. Paired empirical laws require
+  content-bound coordinate order and ordered row identity.
+- **Mean planning** - `bounded_iid_mean` admits the canonical bounded indicator
+  response over an explicit Uniform[0,1] law, uses independent pilot/main streams,
+  and freezes a Bernstein main budget. Its numerical certificate is replayed from
+  persisted law/response/seed bytes; it does not verify production source authority.
+  Opaque callbacks cannot self-certify. Legacy adaptive settings execute the fixed
+  maximum without optional peeking at predictive spread.
+- **RQMC** - Sobol rounds to complete power-of-two nets per scramble. Mean error
+  uses replicate mean variation; predictive output spread remains separate.
+
+The Scientist node can configure the narrow indicator response with
+`bounded_iid_mean.response_threshold`. It persists/reloads the result and
+reconciles complete draw outcomes before publishing the candidate simulation.
+General served simulation-evaluator and production-law custody remain separate
+owner tasks. Uncertainty v1.1 read/replay and its wire schema are unchanged;
+independent point/interval functionals and v2 law storage require IR ratification.
 
 ## Public API
 
@@ -35,5 +54,44 @@ output metric uncertainty in Foundry simulations.
 ## Current State
 
 - Last updated: 2026-09-28
-- Files: 12 Python files in this package
-- Exports: 12 names declared in `__all__`
+- Files: 13 Python files in this package
+- Exports: 25 names declared in `__all__`
+# Sampling consumer entrypoints
+
+Scientist consumes `BoundedIndicatorResponse`, `reconcile_draw_outcomes`,
+`sampling_content_digest` and `verify_mean_certificate` through the package
+facade. These exports preserve the canonical sampling owner objects and its
+recomputed denominator/certificate refusals. They do not establish a served
+evaluator or institutional authority.
+
+`admit_empirical_weights`, `empirical_cdf` and `admit_unit_uniform` expose the
+same finite law admission used by sampling producers. Positive categories must
+retain distinct representable CDF intervals, and inverse transforms use finite
+coordinates in `[0, 1)`. These functions supply no joint law or source authority.
+The common numerical inlet requires real numeric values before float64
+conversion. Complex arrays, including complex values stored in object arrays,
+refuse instead of projecting away their imaginary components. The same inlet
+protects backend range admission and independent-pilot budget calculations.
+Nonzero real values that become zero during float64 conversion also refuse;
+canonicalization cannot silently delete a positive category or covariance.
+
+`load_foundry_calibration_report` exposes the canonical report reader for
+uncertainty consumers. The legacy uncertainty Node imports this entrypoint
+directly. It retains exact Foundry CAS kind/schema/payload validation and grants
+no fit authority; Calibration does not re-export it.
+
+Welfare consumes `build_covariance_matrix`,
+`calibration_covariance_blocks_agree_v1`, `preserve_singular_covariance` and
+the two `CALIBRATION_COVARIANCE_RECONCILIATION_*_V1` tolerances through this
+facade. Lazy resolution preserves the canonical covariance objects without
+adding an eager covariance import; requesting them retains genuine missing
+numeric-dependency errors. Their
+existing covariance axes, calibrated projection and null-space semantics are
+unchanged; these entrypoints grant no source-law or calibration authority.
+
+`admit_empirical_weights` now returns canonical binary ratio weights (maximum
+in [0.5,1)), not floating probabilities summing to one. The shared IR-owned
+exact-ratio law preserves every admitted positive finite-U bucket or refuses
+before nominal/evaluator callbacks. Random, Sobol and Halton use the same
+uniform-to-bucket transform. This exact classification of supplied finite U
+is distinct from the finite uniform-mesh approximation to continuous masses.

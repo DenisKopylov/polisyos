@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-closed-additions-publication-r4-stage/build-handoff.py.txt", line 13, in <module>
+    if DEST.exists(): raise ValueError('new handoff destination must not exist')
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: new handoff destination must not exist

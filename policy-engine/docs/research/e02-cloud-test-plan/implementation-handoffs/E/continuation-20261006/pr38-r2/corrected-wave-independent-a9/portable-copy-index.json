@@ -1,0 +1,178 @@
+{
+  "schema": "e02.E.portable-review-copy-index.v1",
+  "source_candidate_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "source_candidate_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "source_index": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/copy-index.json",
+    "bytes": 4952,
+    "sha256": "46383a4d706356a594017db4a580940bcda755e41184477f1d5046213b865976"
+  },
+  "files": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/README.md",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/README.md",
+      "bytes": 1947,
+      "sha256": "c4bd848df0658b1496bdb1c95f56bf07fdca740f1ff1792c1f5b5efcf9247825"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/READY.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/READY.json",
+      "bytes": 1668,
+      "sha256": "bd00a387547e0d71b29cb436dd9b9934b8338033de7ece4c621fd98977ff53eb"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/actual-check-assets-a9f78817c.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/actual-check-assets-a9f78817c.json",
+      "bytes": 9715,
+      "sha256": "50356cfbd3c8c74e73864c90ec1c959395568eeeda75dee05b0f1cf269e89679"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/actual-owner-attribution-and-scratch-a9f78817c.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/actual-owner-attribution-and-scratch-a9f78817c.json",
+      "bytes": 4611048,
+      "sha256": "5f54c971acb44ba13bc715b662a75c6f97c2b757ae25bd32801ae38d2e2cdb88"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/audit_inputs.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/audit_inputs.py",
+      "bytes": 10716,
+      "sha256": "195fa0eca278e735deaa4f63d711bffa2c02acb27b768f062cab94b9dbfa8131"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/audit_outputs.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/audit_outputs.py",
+      "bytes": 15299,
+      "sha256": "30105f6181137ff63206274a7f4e19adcfce5bf1018423822a685f12e8efc516"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/audit_owner_cases.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/audit_owner_cases.py",
+      "bytes": 6114,
+      "sha256": "79d58fe159c1e8faccccc11ab1e31c46d0a73d1aa42baeb2588286fcdfcd1677"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/audit_quantities.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/audit_quantities.py",
+      "bytes": 3781,
+      "sha256": "49c821972559d2adbeb89b43d2753876d00aaaefa4384499e82d2fb3b021cfd4"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/copy-index-corrupt-controls.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/copy-index-corrupt-controls.json",
+      "bytes": 232,
+      "sha256": "19364edb656f1125ab00ba85fd4c5177f6ebc0bd2fa02491b4c82647e492ea02"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/finalization.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/finalization.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/finalization.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/finalization.stdout.txt",
+      "bytes": 781,
+      "sha256": "6c79d7121ecc5ee64ad113aaef3152041076d765f03aa03885c22feb104992d6"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/finalize_review.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/finalize_review.py.txt",
+      "bytes": 12568,
+      "sha256": "1fb2f08e2d3a7794d543d1d08f0c5b139c4a732d8ad4ef6417abbc6a96eb0ce4"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/independent-wave-review-a9f78817c.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/independent-wave-review-a9f78817c.json",
+      "bytes": 199695,
+      "sha256": "624103ca6fb8889fcb2285fff17a499741eaa12530f7eed3703434a006ce76f9"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/input-audit-a9f78817c.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/input-audit-a9f78817c.json",
+      "bytes": 48071,
+      "sha256": "09d2de26f7373a36ab01660d97a9f0cf83663aa451b6273b15c77e5b0359b67c"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/input-audit.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/input-audit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/input-audit.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/input-audit.stdout.txt",
+      "bytes": 513,
+      "sha256": "2c2a59524ec5b36387502bb437a864995424c3d3c079144a31922568d83cead0"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/junit-independent-a9f78817c.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/junit-independent-a9f78817c.json",
+      "bytes": 376178,
+      "sha256": "48b8073022d2ed809b336b23aeaa008dee4b13f8f48b5b4ab9b9d8b4fba97d1a"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/original-source-freeze-a9f78817c.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/original-source-freeze-a9f78817c.json",
+      "bytes": 6358,
+      "sha256": "f90129331279070984ccd9cd93da217633c9f734086c3a6213e6b4d7ca9311c4"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/output-audit.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/output-audit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/output-audit.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/output-audit.stdout.txt",
+      "bytes": 936,
+      "sha256": "8081b973e73dad29836f441bf69d2e4c8ea15f3b8362b1bc1956cbb4ae3dfa90"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/owner-audit.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/owner-audit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/owner-audit.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/owner-audit.stdout.txt",
+      "bytes": 690,
+      "sha256": "def27247f1456055f533b31e33736b33780c419e015510545842899f1e263738"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/publication-freeze-a9f78817c-v3.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/publication-freeze-a9f78817c-v3.json",
+      "bytes": 7951,
+      "sha256": "c3cfeb2a9df29d1eb5f2e73da1a8eba940d1ff93569201dfb5a6fa671eae950d"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/publication-role-adapter-independent-copy-index.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/publication-role-adapter-independent-copy-index.json",
+      "bytes": 2311,
+      "sha256": "875be63037d48dec4d81ab5f48b044d6363d71f361343f4af4f541586ffb998f"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/publication-role-adapter-independent-review.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/publication-role-adapter-independent-review.json",
+      "bytes": 12224,
+      "sha256": "c20ef95fe54162cb9f779f37cb84869816a335e009df8edc1c1fd519ca268f12"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/publication-role-binding-controls.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/publication-role-binding-controls.json",
+      "bytes": 264,
+      "sha256": "565d3cfd28d55680b0d2a4589be2d06dfc94b8efc18bf7dfc8edcfde0c0fb848"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/copy-index.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/copy-index.json",
+      "bytes": 4952,
+      "sha256": "46383a4d706356a594017db4a580940bcda755e41184477f1d5046213b865976"
+    }
+  ],
+  "file_count": 27,
+  "total_bytes": 5334012,
+  "publication": "Exact moderate original bytes; source/evidence publication commits kept distinct; raw/private/production inputs not copied",
+  "finding_closure": false
+}

@@ -1,0 +1,312 @@
+{
+  "schema": "e02.E.independent.mutable_plan_budget_review.v1",
+  "reviewer": "root/cal_uq_r3; independent from DoE author; read-only; no children",
+  "source": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+  "tree": "3e654b07a3228d1b3d2d0bb2a3a91ae792068090",
+  "base": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+  "base_tree": "b7dc087f12e08f388a73f582bf4888cda7500be8",
+  "lane": "/workspace/e02-E-doe-20261006",
+  "observed_documentation_head": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+  "verdict": "GO_bounded_runtime_plan_admission",
+  "blocking_findings": [],
+  "immutable_footprint": [
+    {
+      "status": "A",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-doe-runtime-plan-admission.toml",
+      "git_blob": "b361c01f5dc710aada5b67b81ee3e338b498fbe0",
+      "sha256": "c1d826699a41827b9f6070992185a33a68b5b9319cec0289e844147b1c7d4b53",
+      "bytes": 1159
+    },
+    {
+      "status": "M",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+      "git_blob": "d1305a7eb8d9fd94a74117d73302c392c565ae31",
+      "sha256": "3a7772d33735eb262ed49896e3c8b36605b766a085a8d3d6824a4b8bca40e6b9",
+      "bytes": 8171
+    },
+    {
+      "status": "M",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "git_blob": "d8a97a0995175a651edf81d7324ec7fea670a558",
+      "sha256": "65dc3871e65eeaab30e1210efafc8dc184450783751d4ec2c9b9c584b5b92350",
+      "bytes": 3834
+    },
+    {
+      "status": "M",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/adaptive.py",
+      "git_blob": "b86c9df1447b8621f6f9b776eeb33ba59674d31a",
+      "sha256": "fee7bcdd5ee5d980f89437a4f252d1c7f9e378cb0a3cc40848e56d88728b73e7",
+      "bytes": 7649
+    },
+    {
+      "status": "M",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "git_blob": "964c3c5910956a59f053fdd7b73af628a1f13e9d",
+      "sha256": "41ed0c540fd4b304455112261bded3797e2407bfc911d69ddf77ec152abafe60",
+      "bytes": 19431
+    },
+    {
+      "status": "M",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "git_blob": "3596f6b96d37dd2d256b43f11c980f23279f2043",
+      "sha256": "983304e49dda38688ea1f87e44775f67129fcf9337444c8458ef95ebaf04513c",
+      "bytes": 15037
+    },
+    {
+      "status": "M",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/multi_output.py",
+      "git_blob": "eebd843dc9be7678b1ec5fc2b5276225b2e9dd61",
+      "sha256": "cc98dd394851a25da2c7b52855b9860c780b9cb5ff7886ed8dae23191549d19f",
+      "bytes": 9345
+    },
+    {
+      "status": "M",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "git_blob": "a6487dd0f7d36d7c989ae916705a4db75952dc0a",
+      "sha256": "863384fc13da74d72d9bb7b5c4285c2103b2fc7f2a3895b6b6b383324515d574",
+      "bytes": 4019
+    },
+    {
+      "status": "M",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+      "git_blob": "6d28ba31e9df39ef21be5ba2514c6116b29bed3d",
+      "sha256": "9f4c83b406703b9267973a88e1f3a9705481074e6357b01603632fe120c3cd32",
+      "bytes": 6454
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/tests/unit/scientist/methods/doe/test_plan_runtime_admission.py",
+      "git_blob": "6cdb769e374597f5fefc8c3ceeded814d611241d",
+      "sha256": "e9608408a848341413def274d255da61b1c45cebe6fce6f38facd78ec27eeaa7",
+      "bytes": 6732
+    }
+  ],
+  "property": "Construction admission is not admission of a later mutable or model-copy state. Every native/materialization caller re-admits a canonical deep snapshot using existing constructor structural/cap predicate, then uses the captured plan.",
+  "common_mechanism": "designs._admit_sensitivity_plan = SensitivityPlan.model_validate(plan.model_dump(mode=python)); no copied validator and no public helper/facade added",
+  "caller_denominator": [
+    "generate_sensitivity_samples",
+    "_build_salib_problem",
+    "_analysis_identity",
+    "_prepare_analysis_inputs",
+    "analyze_sensitivity",
+    "_persist_analysis",
+    "AdaptiveSampler.run",
+    "MultiOutputAnalyzer.analyze",
+    "RankingStabilityChecker.check"
+  ],
+  "independent_checks": {
+    "pytest": "66PASS,9warnings",
+    "warnings": "Only deliberate model_construct nested dict serializer warnings; all mutated objects re-admitted and refused before native work",
+    "mutations": [
+      "N",
+      "nested dimension list append",
+      "method",
+      "cap lowering",
+      "model_copy(update)",
+      "model_construct"
+    ],
+    "nine_boundaries_each": true,
+    "refusal_count": 54,
+    "refusal_counts": {
+      "SALib": 0,
+      "evaluator": 0,
+      "CAS_write": 0
+    },
+    "three_method_overcap_inlets": "Morris/Sobol/FAST each refuses before sample call",
+    "native_sampler_positives": [
+      "MorrisN2,k2,6rows",
+      "SobolN2,k2,12rows",
+      "FASTN65,k2,130rows"
+    ],
+    "native_denominator_oracle": "Morris N(k+1); Sobol N(2k+2); FAST Nk, independently derived from design definitions",
+    "declared_override": "allow_large_run=true N3Morris cap6 retains9rows and unchangeddeclaredcap",
+    "callback_mutation": "original N/nested specs/seed/units changes during sampler and identity regeneration do not change captured effective profile/design identity",
+    "adaptive": "Late original allow_large_run=true/cap100/N99/bounds100 is ignored; one6-row evaluator call then max_estimated_runs_exceeded at capturedcap6",
+    "analytic_native_CAS": "Morris y=x+2z gives \u03bcstar1,2/rankingz,x;12rows requested=successful; actualpersist\u2192freshFileSystemCAS\u2192reproduced result exact",
+    "forged_CAS_profile": "Same valid kind/schema/content integrity, n4\u21925 overcap12; freshreader refuses with0SALib calls",
+    "marker_preserving_removal": "All public names/constructor/schema retained. Remove only shared snapshot/re-admission at actual callers; mutatedN3 cap6 again reachesrealSALib sample inlet once."
+  },
+  "fresh_old_falsifier": {
+    "source": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+    "tree": "b7dc087f12e08f388a73f582bf4888cda7500be8",
+    "all_sources_exact_Git": true,
+    "tracked_source_count": 2915,
+    "source_before_after_equal": true,
+    "cases": [
+      {
+        "method": "morris",
+        "path": "generate",
+        "admitted_N": 2,
+        "mutated_N": 3,
+        "declared_cap": 6,
+        "actual_estimated": 9,
+        "backend_calls": [
+          {
+            "N": 3,
+            "num_vars": 2
+          }
+        ],
+        "evaluator_calls": 0,
+        "outcome": "BACKEND_REACHED_before_budget_refusal",
+        "property_outcome": "FAIL_expected_escape"
+      },
+      {
+        "method": "morris",
+        "path": "identity",
+        "admitted_N": 2,
+        "mutated_N": 3,
+        "declared_cap": 6,
+        "actual_estimated": 9,
+        "backend_calls": [],
+        "evaluator_calls": 0,
+        "outcome": "ACCEPTED_identity_without_budget_admission",
+        "property_outcome": "FAIL_expected_escape"
+      },
+      {
+        "method": "sobol",
+        "path": "generate",
+        "admitted_N": 2,
+        "mutated_N": 3,
+        "declared_cap": 12,
+        "actual_estimated": 18,
+        "backend_calls": [
+          {
+            "N": 3,
+            "num_vars": 2
+          }
+        ],
+        "evaluator_calls": 0,
+        "outcome": "BACKEND_REACHED_before_budget_refusal",
+        "property_outcome": "FAIL_expected_escape"
+      },
+      {
+        "method": "sobol",
+        "path": "identity",
+        "admitted_N": 2,
+        "mutated_N": 3,
+        "declared_cap": 12,
+        "actual_estimated": 18,
+        "backend_calls": [
+          {
+            "N": 3,
+            "num_vars": 2
+          }
+        ],
+        "evaluator_calls": 0,
+        "outcome": "BACKEND_REACHED_before_budget_refusal",
+        "property_outcome": "FAIL_expected_escape"
+      },
+      {
+        "method": "fast",
+        "path": "generate",
+        "admitted_N": 65,
+        "mutated_N": 66,
+        "declared_cap": 130,
+        "actual_estimated": 132,
+        "backend_calls": [
+          {
+            "N": 66,
+            "num_vars": 2
+          }
+        ],
+        "evaluator_calls": 0,
+        "outcome": "BACKEND_REACHED_before_budget_refusal",
+        "property_outcome": "FAIL_expected_escape"
+      },
+      {
+        "method": "fast",
+        "path": "identity",
+        "admitted_N": 65,
+        "mutated_N": 66,
+        "declared_cap": 130,
+        "actual_estimated": 132,
+        "backend_calls": [],
+        "evaluator_calls": 0,
+        "outcome": "ACCEPTED_identity_without_budget_admission",
+        "property_outcome": "FAIL_expected_escape"
+      }
+    ],
+    "backend_scope": "Actual current generate/identity caller reaches counted real SALib function inlet; old sampler body replaced by spy to avoid allocation. No old numerical-estimator result or inherited PASS claimed."
+  },
+  "source_identity": {
+    "all_module_origins_exact": true,
+    "imported_module_count": 77,
+    "module_hashes": {
+      "polisyos.scientist.methods.doe.uncertainty": "af3fdab52ebf687adf326134f9f31f407896c7bcf0f26159183acef4db3033b1",
+      "polisyos.scientist.methods.doe.designs": "983304e49dda38688ea1f87e44775f67129fcf9337444c8458ef95ebaf04513c",
+      "polisyos.scientist.methods.doe.morris_geometry": "c10fa072989243cd6352aac4db867d34b17b4cbb68fad175571d0ce93df99a6e",
+      "polisyos.scientist.methods.doe.sampling": "863384fc13da74d72d9bb7b5c4285c2103b2fc7f2a3895b6b6b383324515d574",
+      "polisyos.scientist.methods.doe.analysis": "41ed0c540fd4b304455112261bded3797e2407bfc911d69ddf77ec152abafe60",
+      "polisyos.scientist.methods.doe.sensitivity_benchmark": "c4ffd36f8a23a0b6ab8c08832a0f97c018952d6eb65eb5ef21d8bc01ce9c17d6",
+      "polisyos.scientist.methods.doe.stress_report": "f6a76e683ef4fa3519d9af056e5b1466e2a26f2a8da4126d0353d9aa2b70bd17",
+      "polisyos.scientist.methods.doe": "ed880fe654d655f4a4bc849f614f3d09daded7cfef268de99885d35623cfcd37",
+      "polisyos.scientist.methods.doe._receipt": "65dc3871e65eeaab30e1210efafc8dc184450783751d4ec2c9b9c584b5b92350",
+      "polisyos.scientist.methods.doe.adaptive": "fee7bcdd5ee5d980f89437a4f252d1c7f9e378cb0a3cc40848e56d88728b73e7",
+      "polisyos.scientist.methods.doe.multi_output": "cc98dd394851a25da2c7b52855b9860c780b9cb5ff7886ed8dae23191549d19f",
+      "polisyos.scientist.methods.doe.stability": "9f4c83b406703b9267973a88e1f3a9705481074e6357b01603632fe120c3cd32"
+    },
+    "tracked_count": 2915,
+    "aggregate_before": "f0c8d7b233dc683477e3d0c6ea837d6d9ec1c8ed97aaf6aca6655de1dc00e64b",
+    "aggregate_after": "f0c8d7b233dc683477e3d0c6ea837d6d9ec1c8ed97aaf6aca6655de1dc00e64b",
+    "all_runs_source_unchanged": true
+  },
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "numpy": "2.3.5",
+    "SALib": "1.5.2",
+    "backend": "native SALib sampler/analyzer plus counted inlet controls",
+    "no_artificial_caps": true
+  },
+  "style": {
+    "configuredRuff": "PASS8files",
+    "configuredformat": "PASS8files"
+  },
+  "unchanged_properties_proof": {
+    "SensitivityPlan_fields_config_and_constructor_AST": true,
+    "ParameterSpec_AST": true,
+    "persisted_AnalysisReceipt_format_AST": true,
+    "fresh_load_implementation_AST": true,
+    "Sobol_complete_block_validator_AST": true,
+    "Morris_geometry_bytes": true,
+    "uncertainty_methods_bytes": true,
+    "DOE_facade_bytes": true,
+    "benchmark_bytes": true,
+    "compatibility": "Existing mutable public object/API preserved; construction fields and persisted wire unchanged. Explicit per-design override remains supported. This is not an inferred global cumulative budget."
+  },
+  "independent_evidence_reuse": "Earlier f07 analytic interaction/Saltelli whole-block/recomputedS2/20\u00d73Morris geometry review is retained only for unchanged mechanism portions; this new70c4 runtime admission delta is separately executed. No new collective B97-B105 closure or old123 suite relabeling.",
+  "P37": {
+    "budget": "Caller-declared max_estimated_runs and explicit allow_large_run, evaluated on canonical current plan at each materialization; no automatic authority",
+    "boundary": "Unsupported/overcap before SALib/evaluator/CAS; structural serializer itself may process existing input fields",
+    "snapshot": "Native result/identity uses captured admissible operands even when original object changes during callback",
+    "authority": "population_law_status/evaluator_provenance remainnot_established; experimental independentinput law is consumer_asserted"
+  },
+  "P40": "Same-class deeper post-construction escape widened to the shared constructor predicate through every materialization inlet, including nested/copy bypass and callback mutation; one canonical mechanism rather than only visible generator wrapper.",
+  "P41": "Exact olda267 source/root loaded modules and new70c4 source/module origins/fullstdout saved; only measured bounded property outcomes reported. No global guard or unchanged full numericalwave run.",
+  "remaining_owners": {
+    "D": "DefaultSearch typed_sensitivity carrier/codec\u2192analysis_ref\u2192ranking packet stillconsumer_missing/bridge_missing; no D source changed",
+    "G": "Exactaggregatefreeze/commonwave and criterion-specific production history/source-law checks remain separate/localread-only where required",
+    "IR": "Semantic/carrier/source-law ratification not part of cap guard;B201/B202held",
+    "E_root": "Merge reviewedsource+10companions, update exactsourceassembly delta thenfreeze; never transfer currentPASS to changedcode"
+  },
+  "finding_status": "Ledger unchanged; codeGO distinct from finding closure. B97-B105 not collectively closed, B194/B197/B201/B202held and B198 regression retained by existingledger.",
+  "run_receipts": {
+    "independent-native": "independent-native-receipt.json",
+    "style": "style-receipt.json",
+    "format": "format-receipt.json"
+  },
+  "deciding_artifacts": "fresh-cas-deciding-artifacts.json",
+  "cleanup": {
+    "performed": "none; nativeTrash unavailable",
+    "preserve": "all code/documentation/deciding receipts/stdout/exportedCASpayloads",
+    "exact_repeatable_candidates": [
+      "/tmp/pytest-of-agent/pytest-217"
+    ],
+    "instruction": "onlyTrash after decidingoutputs/noactiveusers; no permanentdeletion; shared interpreter remainsactive"
+  },
+  "numeric_global_wave": "UNRUN, rootfreeze pending",
+  "new_environment_or_worktree": false,
+  "source_writes": false,
+  "reviewed_at_utc": "2026-10-06T16:04:47Z"
+}

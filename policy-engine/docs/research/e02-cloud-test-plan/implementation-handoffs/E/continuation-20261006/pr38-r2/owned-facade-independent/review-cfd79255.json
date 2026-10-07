@@ -1,0 +1,685 @@
+{
+  "schema": "policyos.e02.independent-owned-facade-route-review.v1",
+  "reviewer": "/root/ddm_r2",
+  "review_scope": "Independent Welfare covariance facade and legacy Foundry reader route delta; no authored DDM implementation self-review",
+  "disposition": "GO_bounded_code_and_companions",
+  "base_sha": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "base_tree": "3b63e778d5b6d17b2e9edc3b4bf91af079b32eb0",
+  "candidate_sha": "cfd79255aab85544082fcf24f93db894202fbfa2",
+  "candidate_tree": "8b5fea530b22e5402f3e3bf31d0c5a54e4117be7",
+  "implementation_parent": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+  "tested_source_representation": {
+    "patch_sha256": "ed474d8a61cc5edeff3f195044cd9d095282b72d51b56e1eb0fb74e48ef572b7",
+    "patch_bytes": 27897,
+    "exact12_postimages": [
+      {
+        "path": "policy-engine/architecture/public_surface/inventory.json",
+        "new_file": false,
+        "base_git_blob": "2750df9fbf0e5b483ad7678aa59198aa1b9c2b54",
+        "before_sha256": "21ab22cf9431660fd6318bca0ba8aa768ee01be9a5ca6ced1ae3b718211b26fe",
+        "after_sha256": "63a4ed665331cb937ec4ec5968e72ba5659914c147ed23eb447f7183c5a37fd1",
+        "bytes": 222856
+      },
+      {
+        "path": "policy-engine/docs/reference/public-surface.md",
+        "new_file": false,
+        "base_git_blob": "2f7c1139a076177051d5214031a3747bb3548a6b",
+        "before_sha256": "e8d56d319be16d52227050263451ef523fdbe4b9a2e0e0c7c69fc08f4283528e",
+        "after_sha256": "99b655871e2e68c0577cd6f6e18358dfea9a5aac7e216bcbb3a6aed7d2fd56ed",
+        "bytes": 154167
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+        "new_file": false,
+        "base_git_blob": "dd18e0111e5d19b3db6dc0044ea63f5a2e9c5abf",
+        "before_sha256": "0b456ba68cd4eeac86e31753fa3d9a787f95d6cea36d38a80b693c389fa6b09f",
+        "after_sha256": "ed5f4cc351d274de679e9ee91c39f55438daf10b921b17c3924b480fbcc2eee5",
+        "bytes": 1914
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-covariance-facade.toml",
+        "new_file": true,
+        "base_git_blob": null,
+        "before_sha256": null,
+        "after_sha256": "9fc124328372a37e28d7e413f38312e721ac0af23dfe59ac9c101eb0430ec43e",
+        "bytes": 2105
+      },
+      {
+        "path": "policy-engine/src/polisyos/calibration/README.md",
+        "new_file": false,
+        "base_git_blob": "f0fc340c5f85ac92bb1cbe178a5aa9455edb8cce",
+        "before_sha256": "1a15a4d19123aee3706d27a37b77d36dcd5dee80f2c3d34256e7a34af3d53a18",
+        "after_sha256": "c09461f8058513803099d107beeb942407e7f349c87dac05d1a2a27e76d729de",
+        "bytes": 4536
+      },
+      {
+        "path": "policy-engine/src/polisyos/calibration/__init__.py",
+        "new_file": false,
+        "base_git_blob": "941e326c19c3823a82756fb9053746b8aed05510",
+        "before_sha256": "90956911642839c4e79dc6ef30d4d581de88ccb02aa60894eaef0fe68d71a8b6",
+        "after_sha256": "42d6b4c46672c228d067b14a03f79db2b702d0325558d4cd89b615d7c025bbfc",
+        "bytes": 2217
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+        "new_file": false,
+        "base_git_blob": "25cb4c4885e00fb80c8703b24febc4cea8c3cea9",
+        "before_sha256": "8300a2ef7d851900a36a5615ab082ae41ceea9e3cf38a96a294200cf9b9c5c5f",
+        "after_sha256": "653ec2ef3463e5d910725e2eb5b836e36cf415cad1a72bc9180a8982fa67eb2c",
+        "bytes": 5379
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+        "new_file": false,
+        "base_git_blob": "5a122baf833cf6e12c45aa5333e682ff35bfd5cf",
+        "before_sha256": "339831fa41ff9e46842184fa01bbf2530db7317522bc2139c59343332f94d1ea",
+        "after_sha256": "068f0f1bd0bc2fcbd59884331f98d3c89bb0e6e67567ff3d8949055f5a6d2fd4",
+        "bytes": 3397
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "new_file": false,
+        "base_git_blob": "d2f5007480c55186ac8293da659ebcda69b35966",
+        "before_sha256": "7a6d17749a9012e8b470a87310615c526453e5b7a7eb17628838a55810e86d98",
+        "after_sha256": "04a95dc4d969d95ec056d789057d7384bdf3cd4b1e7fd90e3e5b919f567559bd",
+        "bytes": 20616
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+        "new_file": false,
+        "base_git_blob": "6d55aad4d5b25d1851fd626d863718ee7fefc9b7",
+        "before_sha256": "457623e5b861c3bf8089d1460fe22f15b7175e8be72088f6673b5584d153225f",
+        "after_sha256": "8050f1a81d593d14363efaf91cf0e2088bc685a8e0e48b7c35cbd8f29c1f9def",
+        "bytes": 192619
+      },
+      {
+        "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+        "new_file": false,
+        "base_git_blob": "e9ee6f8cbb1b155c370f0c9d5841795f1341c1dd",
+        "before_sha256": "2c1adc93937312772e66ae86662393a531cb779ce657caa1bf5c075445b57f14",
+        "after_sha256": "b8a793867ae61d5d249d47e108fab66874951cda7644f5dd5a32b81b18de51b8",
+        "bytes": 5641
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py",
+        "new_file": true,
+        "base_git_blob": null,
+        "before_sha256": null,
+        "after_sha256": "463dc5b879e0edf4a6f898e50715b1902faadc9182550dff1786a37db427b938",
+        "bytes": 5316
+      }
+    ],
+    "numeric_frame": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa plus immutable4module overlays; no cfd numerical reexecution",
+    "all12_committed_bytes_match_tested_proposals": true,
+    "all830_loaded_product_modules_match_cfd_Git": true
+  },
+  "full_footprint": [
+    "policy-engine/architecture/public_surface/inventory.json",
+    "policy-engine/docs/reference/public-surface.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-covariance-facade.toml",
+    "policy-engine/src/polisyos/calibration/README.md",
+    "policy-engine/src/polisyos/calibration/__init__.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+    "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+    "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py"
+  ],
+  "checks": {
+    "independent_native": {
+      "PASS": 9,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "selectors": [
+        "test_both_real_consumer_globals_are_owner_objects_and_count_metadata_matches",
+        "test_optional_jax_refuses_required_lookup_but_preserves_base_facade_import",
+        "test_present_numeric_proxy_preserves_values_but_fails_owner_identity",
+        "test_actual_tied_calibrator_v2_reaches_fresh_legacy_node",
+        "test_legacy_node_refuses_same_bytes_wrong_cas_profile_before_dispatch[foundry.funnel_calibration_report-polisyos.foundry.CalibrationReport-2.0]",
+        "test_legacy_node_refuses_same_bytes_wrong_cas_profile_before_dispatch[foundry.calibration_report-polisyos.foundry.FunnelCalibrationReport-2.0]",
+        "test_legacy_node_refuses_same_bytes_wrong_cas_profile_before_dispatch[foundry.calibration_report-polisyos.foundry.CalibrationReport-1.0]",
+        "test_native_ge_preserves_empirical_atoms_failed_support_and_conditional_values",
+        "test_calibrator_tied_report_reaches_delta_and_monte_carlo_welfare"
+      ],
+      "commands_environment_input_identity_ref": {
+        "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/native-receipt.json",
+        "bytes": 4324,
+        "sha256": "306773da4b257709a999fd0473aaec0c71311a45b790753c8bef1b40d8023ccb"
+      },
+      "imported_source_origins": 830,
+      "source_mismatches": 0,
+      "backend": {
+        "jax_version": "0.8.2",
+        "devices": [
+          "TFRT_CPU_0"
+        ],
+        "platforms": [
+          "cpu"
+        ],
+        "jax_enable_x64": false
+      },
+      "no_artificial_caps": true
+    },
+    "selected_actual_architecture": {
+      "module_count": 4,
+      "complete_module_bodies": {
+        "polisyos.calibration": "policy-engine/src/polisyos/calibration/__init__.py",
+        "polisyos.foundry.uncertainty": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+        "polisyos.scientist.nodes.builtins.simulate.propagate_welfare": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+        "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py"
+      },
+      "all_other_generator_source_reads_exact_base": 40,
+      "only_removed_deep_edge": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.foundry.uncertainty.covariance",
+      "added_private_edges": [],
+      "actual_import_policy": "Canonical main/rule loop; cache disabled; four-module iterator bound and full paths declared",
+      "old_exact5e": "FAIL_one_Calibration_ARCH001",
+      "proposed": "PASS_zero_selected_violations",
+      "restored_import_negative": "FAIL_ARCH001 even Cal__all__28",
+      "old_private_route_negative": "FAIL_actualcollector even public__all__25"
+    },
+    "canonical_inventory": "Regenerated full source/inventory/ref bytes exactly equal frozen proposed artifacts; only Calibration and Foundry uncertainty facade values change",
+    "actual_counts": {
+      "Calibration": 28,
+      "Foundry_uncertainty": 25,
+      "DDM": 17
+    },
+    "optional_jax": "Base facade import survives; actual covariance owner lookup raises genuine ImportError with missing dependency; no eager covariance import",
+    "canonical_identity": "All5 actual covariance exports/real Welfare globals are owner objects. Actual legacy Node reader equals Foundry owner; removed Cal alias absent",
+    "identity_proxy_negative": "Same exported name and same numeric value via replacement proxy fails canonical is-identity control",
+    "structured_release": "Both actual release parser rows accepted; canonical surface/note owners scientist/polisyos and version reviewer team-architecture; inventory flag basis independently recomputed",
+    "quality": "Actual postimage6Pythonfiles have exact12 lint/format PASS author receipts; own publication helper RuffPASS after cosmetic source preservation/correction"
+  },
+  "fresh_native_readback": {
+    "schema": "policyos.e02.independent-facade-fresh-CAS-summary.v1",
+    "base_sha": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+    "patch_sha256": "ed474d8a61cc5edeff3f195044cd9d095282b72d51b56e1eb0fb74e48ef572b7",
+    "case_store": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/native-basetemp/test_native_ge_preserves_empir0",
+    "fresh_store_and_actual_reader": true,
+    "oracle": {
+      "source_atoms": [
+        0,
+        1
+      ],
+      "masses": [
+        3,
+        1
+      ],
+      "seed": 31415,
+      "N": 128,
+      "row_rule": "U<.75 ->0, otherwise1",
+      "native_welfare": "2/(1-A); A=1 singular",
+      "row_indices": [
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ]
+    },
+    "recomputed_counts": {
+      "requested": 128,
+      "attempted": 128,
+      "successful": 92,
+      "failed": 36,
+      "unattempted": 0
+    },
+    "failed_ids": [
+      2,
+      3,
+      5,
+      8,
+      16,
+      18,
+      21,
+      26,
+      29,
+      30,
+      37,
+      46,
+      47,
+      50,
+      53,
+      59,
+      64,
+      69,
+      70,
+      83,
+      90,
+      92,
+      94,
+      95,
+      100,
+      103,
+      104,
+      105,
+      106,
+      109,
+      110,
+      115,
+      117,
+      118,
+      120,
+      124
+    ],
+    "all_terminal_ids_preserved": true,
+    "conditional_mean": 2.0,
+    "unconditional_result": "undefined absent completion rule",
+    "credible_interval": null,
+    "robust_interval": null,
+    "support_complete": false,
+    "gate_eligible": false,
+    "source_artifact_refs": [
+      {
+        "artifact_id": "sha256:11d64d61b6dd35545ca0cf499eee676b6f82685890b38b845b94dd11296ac7e7",
+        "kind": "foundry.welfare_draw_outcomes",
+        "schema": {
+          "name": "polisyos.foundry.WelfareDrawOutcomes",
+          "version": "1.0"
+        },
+        "inputs": [
+          {
+            "artifact_id": "sha256:df386975b61e2f3c398e84cbed449e89f0a4a1e31b089cbc4b4a1503034f5102",
+            "role": "method_config"
+          },
+          {
+            "artifact_id": "sha256:ba08433809de85da5860a4c7c9cc99d31da84ab75e6423eb2aef269c132bf056",
+            "role": "empirical_law:A"
+          }
+        ],
+        "payload_bytes": 81796,
+        "payload_sha256": "11d64d61b6dd35545ca0cf499eee676b6f82685890b38b845b94dd11296ac7e7",
+        "manifest_sha256": "9e653fee4b96f06c2acdb7d6d3e431df8bb4f069378196a7551a9195ffca386f",
+        "CAS_integrity": "PASS"
+      },
+      {
+        "artifact_id": "sha256:38f67f84f4003581229dedb5d725e1716834aac200857740fcc104cb808ca12f",
+        "kind": "ir.welfare_bundle",
+        "schema": {
+          "name": "ir.welfare_bundle",
+          "version": "1.0"
+        },
+        "inputs": [
+          {
+            "artifact_id": "sha256:f100f1df9ebb175fd851ad373d144135d9ba341e887b561ed8517104bab54e81",
+            "role": "simulation_result"
+          },
+          {
+            "artifact_id": "sha256:f0e1987790c051536cc1538b46dbb7f5d8103e1b6bfdef1c2a4bd936a51efed8",
+            "role": "metrics"
+          },
+          {
+            "artifact_id": "sha256:df386975b61e2f3c398e84cbed449e89f0a4a1e31b089cbc4b4a1503034f5102",
+            "role": "method_config"
+          },
+          {
+            "artifact_id": "sha256:d6edee3d85af188f67eeef4a95b133fa4f200d13fd386359e18429fa543ffd08",
+            "role": "propagation_report"
+          },
+          {
+            "artifact_id": "sha256:e7c8fc2c5ed05a7548c426391100b64284ce6722cc5d6551fff3cee208a006c6",
+            "role": "sample_bundle"
+          },
+          {
+            "artifact_id": "sha256:a40ad3151adf479c363611f2786d822b1c0a5efb804034ee3bf1614ab8d59bad",
+            "role": "sensitivity_diagnostics"
+          }
+        ],
+        "payload_bytes": 3396,
+        "payload_sha256": "38f67f84f4003581229dedb5d725e1716834aac200857740fcc104cb808ca12f",
+        "manifest_sha256": "6051b6103808a0fc5db8e582b48de38bdfc6009505fbee5757caa512c6e9d685",
+        "CAS_integrity": "PASS"
+      },
+      {
+        "artifact_id": "sha256:ba08433809de85da5860a4c7c9cc99d31da84ab75e6423eb2aef269c132bf056",
+        "kind": "ir.uncertainty_envelope",
+        "schema": {
+          "name": "ir.uncertainty_envelope",
+          "version": "1.1"
+        },
+        "inputs": [],
+        "payload_bytes": 800,
+        "payload_sha256": "ba08433809de85da5860a4c7c9cc99d31da84ab75e6423eb2aef269c132bf056",
+        "manifest_sha256": "b09d93d3bd1baa86fc79f6db61d2e588e5b04149e987d90a233ec15e37c580d9",
+        "CAS_integrity": "PASS"
+      },
+      {
+        "artifact_id": "sha256:d6edee3d85af188f67eeef4a95b133fa4f200d13fd386359e18429fa543ffd08",
+        "kind": "foundry.welfare_propagation_report",
+        "schema": {
+          "name": "polisyos.foundry.WelfarePropagationReport",
+          "version": "1.0"
+        },
+        "inputs": [
+          {
+            "artifact_id": "sha256:e7c8fc2c5ed05a7548c426391100b64284ce6722cc5d6551fff3cee208a006c6",
+            "role": "sample_bundle"
+          },
+          {
+            "artifact_id": "sha256:11d64d61b6dd35545ca0cf499eee676b6f82685890b38b845b94dd11296ac7e7",
+            "role": "draw_outcomes"
+          }
+        ],
+        "payload_bytes": 1309,
+        "payload_sha256": "d6edee3d85af188f67eeef4a95b133fa4f200d13fd386359e18429fa543ffd08",
+        "manifest_sha256": "9a854ec7eeae28a80bc7d82f2ad534e374730fe257f7a87e873c61d3732ce24c",
+        "CAS_integrity": "PASS"
+      },
+      {
+        "artifact_id": "sha256:e7c8fc2c5ed05a7548c426391100b64284ce6722cc5d6551fff3cee208a006c6",
+        "kind": "ir.welfare_sample_bundle",
+        "schema": {
+          "name": "ir.welfare_sample_bundle",
+          "version": "1.0"
+        },
+        "inputs": [
+          {
+            "artifact_id": "sha256:11d64d61b6dd35545ca0cf499eee676b6f82685890b38b845b94dd11296ac7e7",
+            "role": "draw_outcomes"
+          }
+        ],
+        "payload_bytes": 8602,
+        "payload_sha256": "e7c8fc2c5ed05a7548c426391100b64284ce6722cc5d6551fff3cee208a006c6",
+        "manifest_sha256": "604bd3caebac1f1f9b892a3544070fc2233d2420d3c4c57c6c4fb586626eb02e",
+        "CAS_integrity": "PASS"
+      }
+    ],
+    "evidence_scope": "Fresh readback of our actual9PASS native frame; synthetic mathematical input, no production/source-law authority or finding closure"
+  },
+  "unchanged_math_review_reuse": {
+    "exact_prior_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/welfare-independent-review-884681.json@5e3e3727685132f270a3a07b9f63dd962a88cd96",
+    "bytes": 17274,
+    "sha256": "fbc90699b4135f4fb6df07e2bfdcf06e5cb163755fe97ae739b9fd52d1ec25c9",
+    "prior_candidate": "884681db485b7466b183a206f83bbe0635f86ca3",
+    "prior_disposition": "GO_bounded_code",
+    "Welfare_and_covariance_wholebytes_equal_884_at_base5e": true,
+    "Welfare_and_legacy_both_nonimport_AST_unchanged_in_new_delta": true,
+    "covariance_wholebytes_unchanged_in_delta": true,
+    "limits": "Reuse existing source-law/nullspace/backend oracles only on unchanged defining bodies; new actual consumer/object-route native frame is separately run and recorded."
+  },
+  "predicate_basis": {
+    "recomputed": [
+      "Exact admitted entrypoint import edges from canonical collectors",
+      "Exact export lists/counts and generated inventory/reference output",
+      "Canonical exported object/actual consumer global identity",
+      "Optional JAX import versus required numeric lookup",
+      "CAS draw IDs/row ordering/source atoms/weights and per-draw counts on real fresh reader",
+      "Git source origin/file-byte equality and READY digest/size availability"
+    ],
+    "consumer_asserted": [
+      "Synthetic single-input empirical law profile and fixture evaluator purpose"
+    ],
+    "not_established": [
+      "Production source law, actual serving authority or broad joint/input independence",
+      "Core/IR foreign facade admission",
+      "All-current-global architecture or workspace-verify PASS",
+      "Institutional calibration/DDM promotion authority or finding closure"
+    ]
+  },
+  "P40": "Fix both owned boundary classes at actual facade/caller routes; do not hide edges via baseline/policy/exceptions. Metadata remains while negative restores real forbidden route and is detected.",
+  "P41": {
+    "actual_full5e_architecture": "FAIL; immutable15179trackedsource/inputdenominator, exactstdout/receipt in queued provenance and author READY original fullguard outputs",
+    "actual_full5e_workspace": "FAIL_lintimports;22ARCHrows/18paths;1ownedCalibrationrow and21unadjudicatedotherrows;fail-fast laterstagesUNRUN",
+    "historical58corrective_summary": "Separate21rows/17paths; not transferred to current5e",
+    "import_births": {
+      "covariance_private_edge": "28ea3bb56bc4e751bf1303615d79219b56d7a24c",
+      "Cal_rootalias": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33"
+    },
+    "old_full_guard_replay": "not_established; Git history or selected scanner is not a full prior command replay",
+    "full_postfix_global_commands": "UNRUN in this review; root exact next frozen wave required"
+  },
+  "READY_and_publication": {
+    "author_READY_snapshot": "author-READY-inputs",
+    "indexed_payloads": 104,
+    "indexed_bytes": 1779539,
+    "local_index_primary_digest_checks": "PASS",
+    "negative_controls": [
+      "CorruptREADYbytecount",
+      "CorruptREADYdigest",
+      "Corruptcandidateblobdigest",
+      "Newsourcepathabsentorigin/main"
+    ],
+    "source_Git_current12": "PASS_cfd_exactpostimages",
+    "author_and_independent_evidence_companion_Git_publication": "pending root committed packets; no Git availability claimed for localonly READY"
+  },
+  "finding_status": "Preserved ledger49partial4held1closed; code GO doesnot adjudicate32 partial proposals,17 historical residuals or held B194/B197/B201/B202. B198 retained closed regression.",
+  "next_owners": [
+    "Root publishes moderate author/independent companions and exact source/evidence Git readback; freeze composed source after all independent reviews, then one commonwave",
+    "team-architecture reviews public surface/inventory/version contracts; team-polisyos owns Foundry uncertainty, team-scientist owns Calibration reader boundary",
+    "Foreign canonical Core/IR/API owners/G resolve remaining private edge packets and unadjudicated globalrows; no policy/baseline exception here",
+    "Actual source/evaluator owners provide immutable production/local read-only inputs only where original criterion needs them; no synthetic authority upgrade"
+  ],
+  "checks_and_complete_outputs": [
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/snapshot-index.json",
+      "bytes": 8254,
+      "sha256": "5308e1f1ab6d9108b60594bb334f89941935bfafaafcdf49d98a2a979f11b696"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/selected-routes-review.json",
+      "bytes": 15592,
+      "sha256": "9c866e206da8740315daf837fee107f1123fee928c1a50bada75eefd0e8bfd5f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/selected-routes.stdout",
+      "bytes": 363,
+      "sha256": "0de3c1f7bf167625ae35c33b1e488b2e07f5453e527799d8fa23657b2defec16"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/native-receipt.json",
+      "bytes": 4324,
+      "sha256": "306773da4b257709a999fd0473aaec0c71311a45b790753c8bef1b40d8023ccb"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/native.xml",
+      "bytes": 1875,
+      "sha256": "068553a2d8b8757a1341d8bd6699e92e3a1c3c4685d11ac2beb481265f499673"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/native.stdout",
+      "bytes": 80,
+      "sha256": "585ba42829657b9e2d56f8614be6c3365a8405474eed008559511ab50f2ffcfb"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/native.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/independent-native-origins.json",
+      "bytes": 351429,
+      "sha256": "cbcbf3f061ea8bc5c7d3bb8a8ed8fa0b2318f3d95224e52e1158924b9301e788"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/native-origins-cfd-Git-binding.json",
+      "bytes": 266247,
+      "sha256": "6b8cd52fcac74c25d6cb16cd399abdc98f59fd2f86b8c351c91802b29f6bf484"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/native-CAS-deciding.json",
+      "bytes": 7009,
+      "sha256": "ee49dae71b743b2e8a4566829549de93e22525f8710e077d63185e1af133fadc"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/CAS-export.stdout",
+      "bytes": 99,
+      "sha256": "6abde76e1bd5f8bb5fb4f484b8e93dac2b29e5b1c2dfd4b4c0e60fe6551a41e2"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/CAS-export.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/release-metadata-review.json",
+      "bytes": 2858,
+      "sha256": "ba610c656b22fb733ecb4ee8701cd1b0acbd7139c71473b5511bfb2769936bbf"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/READY-and-Git-binding-review.json",
+      "bytes": 5154,
+      "sha256": "59115e25254fcd293bfca364452d7db1155f2c5b39627ab8d5299b478e5ca6a1"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/executed-helper-index.json",
+      "bytes": 1917,
+      "sha256": "dbbe5a22890cf5680ccfe0624f038361e6db8181641350109a83613182c51070"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/reviewer-ruff.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/reviewer-format.stdout",
+      "bytes": 20,
+      "sha256": "779cd08be038ac289c50927416d74769a286b3d89191260af669534feb28cf68"
+    }
+  ],
+  "helper_source_publication_correction": {
+    "exact_executed_sources_preserved": "executed-helper-source/ + index",
+    "change": "Only helper formatting and E731 proxy lambda→equivalent def. Recorded9PASS belongs to exact preserved source; current formatted helper is for repeatable publication, no new numericresult inferred."
+  },
+  "cleanup": {
+    "performed": "none; native Trash unavailable",
+    "candidates_only_after_receipts_no_active_users": [
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/native-basetemp",
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/native-cache",
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/native-benchmark",
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/old-cache",
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/new-cache",
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/old-alias-negative-cache"
+    ],
+    "preserve": [
+      "Unique deciding scripts/source snapshots/receipts/fullstdout/CAS summaries",
+      "Useful source/docs and production data",
+      "AuthorREADY and rootexisting environments in active use"
+    ],
+    "permanent_delete": false
+  }
+}

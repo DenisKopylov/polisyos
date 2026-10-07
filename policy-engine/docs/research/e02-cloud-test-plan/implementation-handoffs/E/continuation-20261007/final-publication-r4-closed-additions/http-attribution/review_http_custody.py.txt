@@ -1,0 +1,329 @@
+"""Independent stdlib-only readback of terminal HTTP failures and cleanup custody.
+No root interpreter imports, test execution, source mutation, archive decompression,
+package mutation, or filesystem removal occurs in this reviewer.
+"""
+from __future__ import annotations
+
+import ast
+import collections
+import copy
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+import time
+import xml.etree.ElementTree as ET
+
+OUT = Path('/tmp/e02-E-http-error-independent-64d')
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+PKG = ROOT / 'policy-engine'
+CLEAN = Path('/tmp/e02-E-capacity-cleanup-20261007-doe')
+NATIVE = Path('/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02')
+SHA = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE = 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+EXPECTED_COUNTS = dict(cases=1585, passed=675, failed=81, errors=827, skipped=2)
+
+
+def identity(path: Path) -> dict:
+    digest = hashlib.sha256()
+    count = 0
+    with path.open('rb') as handle:
+        while block := handle.read(1024 * 1024):
+            digest.update(block)
+            count += len(block)
+    return dict(path=str(path), bytes=count, sha256=digest.hexdigest())
+
+
+def require_ref(row: dict, path_key: str = 'path') -> dict:
+    actual = identity(Path(row[path_key]))
+    if actual['sha256'] != row['sha256'] or actual['bytes'] != row['bytes']:
+        raise ValueError('Content identity mismatch: ' + row[path_key])
+    return actual
+
+
+def dump(name: str, value: object) -> dict:
+    path = OUT / name
+    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n')
+    return identity(path)
+
+
+def git(*args: str) -> str:
+    return subprocess.check_output(['git', '-C', str(ROOT), *args], text=True).strip()
+
+
+def classify(message: str) -> str:
+    if 'catalog_fetch_source_unreadable' in message:
+        return 'catalog_fetch_source_unreadable'
+    if 'l6_control_artifact_missing' in message:
+        return 'l6_control_artifact_missing'
+    if 'could not create numbered dir' in message:
+        return 'numbered_dir_creation_without_underlying_errno'
+    if '[Errno 28]' in message:
+        return 'literal_ENOSPC'
+    if 'No space left on device' in message:
+        return 'literal_mktemp_no_space'
+    if 'DID NOT RAISE' in message:
+        return 'run_paper_manifest_negative_did_not_raise'
+    if 'StopIteration' in message:
+        return 'lex_completed_diagnostic_missing'
+    if message == 'SystemExit: 1':
+        return 'cycle_board_ortools_preflight'
+    if 'ArtifactOwnershipError' in message:
+        return 'epoch_provenance_owner_read_mismatch'
+    if 'DependencyDiscriminantOwnerBinding' in message:
+        return 'value_gate_received_companion_unresolved'
+    if 'promotion_source_unresolved' in message:
+        return 'evaluation_safety_completed_source_fixture'
+    raise ValueError('Unclassified actual failure: ' + message)
+
+
+def validate_native_summary(value: dict, expected_case_frame: str) -> None:
+    if value['source'] != SHA or value['tree'] != TREE:
+        raise ValueError('Wrong frozen source')
+    if value['counts'] != EXPECTED_COUNTS or value['native_outcome'] != 'FAIL':
+        raise ValueError('Native observation rewritten')
+    if value['nonpassing_case_frame_sha256'] != expected_case_frame:
+        raise ValueError('Exact observed case denominator altered')
+    if value['P41'] != 'not_established' or value['finding_closure'] is not False:
+        raise ValueError('Unsupported causal/closure attribution')
+    numbered = value['groups']['numbered_dir_creation_without_underlying_errno']
+    if numbered['causal_ENOSPC_established'] is not False:
+        raise ValueError('Numbered-dir exception does not establish the hidden errno')
+
+
+def fresh_process_scan(prefixes: list[str]) -> dict:
+    """Independent agent-UID scope, not a privileged host-wide process assertion."""
+    observations, exclusions, unreadable, active = [], [], [], []
+    for proc in sorted(Path('/proc').iterdir(), key=lambda p: p.name):
+        if not proc.name.isdecimal():
+            continue
+        try:
+            lines = (proc / 'status').read_text().splitlines()
+            uid = int(next(s for s in lines if s.startswith('Uid:')).split()[1])
+            state = next(s for s in lines if s.startswith('State:')).split()[1]
+            if state == 'Z':
+                continue
+            if uid != os.getuid():
+                exclusions.append(dict(pid=int(proc.name), uid=uid, reason='Outside complete live agent UID read scope; no host-wide visibility asserted.'))
+                continue
+            argv = (proc / 'cmdline').read_bytes().split(b'\0')
+            cwd = os.readlink(proc / 'cwd')
+            matches = []
+            for prefix in prefixes:
+                if cwd == prefix or cwd.startswith(prefix + '/'):
+                    matches.append(dict(kind='cwd', candidate=prefix))
+                if any(prefix.encode() in arg for arg in argv):
+                    matches.append(dict(kind='argv', candidate=prefix))
+                for item in (proc / 'environ').read_bytes().split(b'\0'):
+                    if item.startswith((b'VIRTUAL_ENV=', b'UV_PROJECT_ENVIRONMENT=', b'PYTHONPATH=')) and prefix.encode() in item:
+                        matches.append(dict(kind='selected_environment', candidate=prefix))
+                if any(prefix + '/' in line for line in (proc / 'maps').read_text().splitlines()):
+                    matches.append(dict(kind='mapped_file', candidate=prefix))
+                for descriptor in (proc / 'fd').iterdir():
+                    try:
+                        target = os.readlink(descriptor)
+                    except FileNotFoundError:
+                        continue
+                    if target == prefix or target.startswith(prefix + '/'):
+                        matches.append(dict(kind='open_file', candidate=prefix))
+            row = dict(pid=int(proc.name), uid=uid, target_matches=matches)
+            observations.append(row)
+            if matches:
+                active.append(row)
+        except (FileNotFoundError, ProcessLookupError):
+            continue
+        except PermissionError as error:
+            unreadable.append(dict(pid=int(proc.name), error=str(error)))
+    return dict(observed_unix=time.time(), agent_uid=os.getuid(), exact_candidate_prefixes=prefixes, live_agent_process_count=len(observations), observations=observations, active_users=active, unreadable_agent_processes=unreadable, outside_agent_scope=exclusions)
+
+
+def assert_pre_action_proof(proof: dict, candidate: str, started: float) -> None:
+    if candidate not in proof['candidate_prefixes']:
+        raise ValueError('Immediate scanner did not cover exact candidate')
+    if proof['active_users'] or proof['unreadable_agent_processes']:
+        raise ValueError('Unknown or active agent process')
+    if proof['observed_unix'] > started or started - proof['observed_unix'] > 5:
+        raise ValueError('Immediate process proof is not pre-action/fresh')
+
+
+head_before, tree_before = git('rev-parse', 'HEAD'), git('rev-parse', 'HEAD^{tree}')
+if (head_before, tree_before) != (SHA, TREE):
+    raise ValueError('Review requires exact immutable root')
+tracked_before = git('status', '--porcelain', '--untracked-files=no')
+if tracked_before:
+    raise ValueError('Tracked root was not clean')
+
+receipt_ref = identity(NATIVE / 'standalone-ci-02.json')
+receipt = json.loads((NATIVE / 'standalone-ci-02.json').read_text())
+if receipt['candidate_sha'] != SHA or receipt['candidate_tree_sha'] != TREE or not receipt['source_immutable'] or receipt['source_identity_before'] != receipt['source_identity_after'] or receipt['outcome'] != 'FAIL' or receipt['exit_code'] != 1:
+    raise ValueError('Terminal native source/status receipt changed')
+stdout_ref = identity(Path(receipt['stdout_path']))
+if stdout_ref['sha256'] != receipt['stdout_sha256'] or stdout_ref['bytes'] != receipt['stdout_bytes']:
+    raise ValueError('Native stdout identity mismatch')
+junit_ref = identity(Path(receipt['junit']))
+counts = collections.Counter()
+groups = collections.defaultdict(list)
+all_cases = []
+for ordinal, case in enumerate(ET.parse(receipt['junit']).getroot().iter('testcase')):
+    tags = [tag for tag in ('failure', 'error', 'skipped') if case.find(tag) is not None]
+    if len(tags) > 1:
+        raise ValueError('Ambiguous case status')
+    status = {'failure':'failed', 'error':'errors', 'skipped':'skipped'}.get(tags[0], 'passed') if tags else 'passed'
+    counts[status] += 1
+    row = dict(ordinal=ordinal, classname=case.get('classname'), name=case.get('name'), status=status)
+    if tags and tags[0] != 'skipped':
+        element = case.find(tags[0])
+        message, trace = element.get('message', ''), element.text or ''
+        row.update(category=classify(message), message=message, traceback_sha256=hashlib.sha256(trace.encode()).hexdigest(), traceback_bytes=len(trace.encode()), literal_errno28_in_trace='[Errno 28]' in trace, literal_no_space_in_trace='No space left on device' in trace, directly_chained='direct cause' in trace or 'During handling of the above exception' in trace)
+        groups[row['category']].append((row, trace))
+    all_cases.append(row)
+actual_counts = dict(cases=len(all_cases), **{k:counts[k] for k in ('passed','failed','errors','skipped')})
+if actual_counts != EXPECTED_COUNTS or receipt['counts'] != actual_counts:
+    raise ValueError('Exact native JUnit denominator mismatch')
+nonpassing = [row for row in all_cases if row['status'] in ('failed','errors')]
+frame = hashlib.sha256(json.dumps(nonpassing, sort_keys=True, separators=(',',':')).encode()).hexdigest()
+case_index = dump('exact-native-case-index.json', dict(source=SHA, tree=TREE, junit=junit_ref, counts=actual_counts, cases=all_cases, no_test_rerun=True))
+
+owner_packets = {
+'catalog_fetch_source_unreadable': dict(owner='A native HTTP fixture/configuration writer + canonical DataForge catalog source/API owner; G for exact local production input', actual_property='Actual DatasetCatalogStore._fetch_source_identities raises because configured dataset_catalog.duckdb is not a file, before opening the read session.', minimal_input='Exact configured DB content identity and any configured existing overlay; index only when selected route requires it. Do not recreate the absent production path or infer signoff. Generic HTTP wiring may use a separately declared native catalogue fixture via its canonical configurable API; factual production checks remain local read-only.', next_result='Admitted native configured catalogue read/session identity + source-ref/content swap refusal, then affected named route selectors. Preserve missing-source refusal.', source_paths=['tests/_helpers/runtime_http.py','src/polisyos/runtime/http/services/control/run_lifecycle.py','src/polisyos/data_forge/domains/catalog/knowledge/store.py']),
+'l6_control_artifact_missing': dict(owner='A controlled native simulation fixture/InterventionSubstrate writer; canonical L6 artifact owner, G for local read-only bundle', actual_property='load_l6_intervention_substrate finds missing intervention_knob_dictionary, lex_intervention_map and observation_to_contract_manifest under declared production bundle path.', minimal_input='Exact immutable three required JSON refs/schema/content hashes and their owner bindings; any further actually required role must be admitted by that existing loader. Do not substitute boolean or synthetic institutional signoff.', next_result='Owner-admitted loader result and fresh native controlled candidate worker; unresolved/malformed/wrong-owner role refusals retained, then test_control_service_di affected names.', source_paths=['tests/_helpers/controlled_candidate_profile.py','tests/unit/runtime/http/test_control_service_di.py','src/polisyos/runtime/quality/intervention_substrate.py']),
+'numbered_dir_creation_without_underlying_errno': dict(owner='E root cloud executor/capacity owner', actual_property='Pytest failed to allocate a numbered child directory after 10 tries; native trace does not expose underlying errno.', minimal_input='Fresh admitted writable scratch basetemp with actual free bytes/inodes and no concurrent users; exact source/backend/package identity and exact 437 current affected cases.', next_result='Separate bounded affected-selector retry with fresh temp receipt; retain original 437 ERROR outcomes. Final canonical full HTTP selector remains separate if required by gate; affected subset cannot rewrite original 1585-case receipt.', source_paths=[]),
+'literal_ENOSPC': dict(owner='E root cloud executor/capacity owner; A only if genuine mechanism red remains on retry', actual_property='Two setup cases have explicit OSError Errno28. One is wrapped by BlockingDependencyGuard as RuntimeDependencyUnavailableError from the actual OSError.', minimal_input='Fresh admitted scratch/capacity/source/env receipt after cleanup.', next_result='Two exact affected setup selectors plus healthy actual CAS fixture read, retaining exact before/after outputs.', source_paths=['tests/_helpers/runtime_http.py','src/polisyos/core/artifacts/store.py','src/polisyos/runtime/http/resilience.py']),
+'literal_mktemp_no_space': dict(owner='E root cloud executor + canonical runtime client generator owner', actual_property='Actual package generate subprocess mktemp returned1 with literal No space left on device, not a proved client schema defect.', minimal_input='Writable scratch TMPDIR and actual required node/corepack dependencies; exact source/schema/generator inputs.', next_result='test_client_package_entrypoints_generate_only_in_scratch actual generator run with source immutability and no generated hand edits.', source_paths=['tests/unit/runtime/http/test_runtime_api_contract_hardening.py']),
+'run_paper_manifest_negative_did_not_raise': dict(owner='A RunPaper/terminal Core adapter/test writer; Core ArtifactRef API owner for compatibility review', actual_property='Seven current negative fixtures do not cause RunPaperSourceError. Six manifest faults and one substituting byte read compare str(artifact_id) target to str(received argument); terminal adapter invokes verify/get_manifest/get_bytes with full ArtifactRef. Static source makes target mismatch plausible/precise; original native trace does not instrument actual argument or read count, so exact dynamic attribution awaits corrected spy.', minimal_input='Existing healthy _build_bound_case_run native producer; wrappers must normalize accepted ArtifactRef/ArtifactID argument before target comparison and independently record actual intercepted call.', next_result='Healthy unique terminal source + manifest single-read/hash check + all4 roles x6 faults (24 negatives), retaining symlink/owner/terminal-fact controls. Do not weaken strict manifest binding to repair an ineffective spy.', source_paths=['tests/unit/runtime/http/test_run_paper_api.py','src/polisyos/runtime/http/services/run_paper_case_record.py','src/polisyos/runtime/http/services/adapters/core_run.py']),
+'evaluation_safety_completed_source_fixture': dict(owner='A EvaluationSafety/ControlJob/Core terminal source and test writer', actual_property='Completed stop positive produces unresolved ValueError reason. Current fixture returns SimpleNamespace(payload_ref, progress) and patches lower terminal loader; current higher reader requires full completed ControlJobRecord lease/attempt/run/scope and persisted manifest/compiled refs.', minimal_input='Actual current typed completed ControlJobRecord and corresponding attempt Core trace/manifest/compiled ref in same CAS; scheduler stop vs blocked source retained.', next_result='Healthy native persisted completed scheduler-stop accepted, blocked/missing terminal/forged lease/owner selection denied before promotion receipt parse. Original helper bypass cannot substitute new source admission.', source_paths=['tests/unit/runtime/http/services/test_evaluation_safety.py','src/polisyos/runtime/http/services/control/evaluation_safety.py','src/polisyos/runtime/http/services/adapters/core_run.py']),
+'lex_completed_diagnostic_missing': dict(owner='A Lex worker/diagnostic event writer; B durable event/ControlPlaneStore reader companion', actual_property='Job is completed but list_diagnostic_events has no phase lex_pipeline/state_after completed record. Actual LexPipelineMixin calls _emit_runtime_diagnostic_event; cause beyond missing observed record is not established by captured trace.', minimal_input='Actual job admission scope + emitted event outcome/id + same durable store fresh read; capture event/log append failure detail rather than swallowing diagnostic evidence.', next_result='Healthy completed native Lex worker emits persist/reopen tenant/cell diagnostic; incomplete scope and append failure get typed limited/error cases without falsely granting authority.', source_paths=['tests/unit/runtime/http/test_control_job_execution_intent.py','src/polisyos/runtime/http/services/control/lex_pipeline.py','src/polisyos/runtime/http/services/control/run_lifecycle.py','src/polisyos/runtime/http/services/control_plane_store.py']),
+'cycle_board_ortools_preflight': dict(owner='E root executor for already declared optional backend + A/G canonical CycleBoard/live-owner validator writer', actual_property='Actual chain is ortools_cp_sat ModuleNotFoundError -> CgSubstrateUnavailableError -> SystemExit1 during validator import, before live owner recomputation/corruption assertion.', minimal_input='Already approved repository-declared backend/extras installed on exact source; actual canonical backend availability status, no fallback or dummy invocation.', next_result='Rerun exact live owner recompute selector and its corrupt-projection control; then required successors. Existing required backend refusal is preserved.', source_paths=['tests/unit/runtime/http/test_cycle_board_projection_fact_owners.py','tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py','tools/quality/validation/universality_preflight.py','src/polisyos/runtime/quality/credal_reference.py']),
+'epoch_provenance_owner_read_mismatch': dict(owner='A CanonicalEpochTransitionVerifier producer + canonical Core CAS ownership/ref-profile owner', actual_property='Tenant/cell reader denied get_manifest during provenance get_bytes despite printed owner labels matching. Printed labels do not establish precise ownership/ref-profile equality; actual mismatch cause requires owner-index/source receipt.', minimal_input='Exact provenance ArtifactRef/ref profile and owner-index record before outside-scope constructor, in-scope re-persist/verify, and fresh reader; resolve manifest ownership rather than loosen guard.', next_result='Healthy startup/in-tenant provenance fresh readable with matching canonical profile, cross-tenant/cell/ref-profile mismatch denial controls; same-source failure attribution remains not_established.', source_paths=['tests/unit/runtime/http/test_epoch_issuance_composition.py','src/polisyos/runtime/quality/epoch_transition_verification.py','src/polisyos/core/artifacts/store.py','src/polisyos/core/artifacts/ownership.py']),
+'value_gate_received_companion_unresolved': dict(owner='A GovernedProjectionService/test writer + G/canonical Foundry dependency-discriminant companion owner', actual_property='VALUE_GATE test copies only primary source but received diagnostic requires resolved companion content hash; _related_artifact_bindings constructs strict owner binding with resolved_artifact_content_hash=None.', minimal_input='Exact declared architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json companion bytes/ref or a honestly non-received state selected by canonical producer, not an arbitrary status flag.', next_result='Primary + content-bound received companion fresh projection healthy; absent/corrupt/semantic-hash-swapped companion denied or typed limited at intended boundary, no exception baseline widening.', source_paths=['tests/unit/runtime/http/test_governed_projection_service.py','src/polisyos/runtime/http/services/governed_projections.py','architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json']),
+}
+category_results = {}
+traces = []
+for category, members in groups.items():
+    member_counts = collections.Counter(row['status'] for row, _ in members)
+    category_results[category] = dict(count=len(members), statuses=dict(member_counts), selectors=[{'ordinal':r['ordinal'],'classname':r['classname'],'name':r['name']} for r,_ in members], literal_errno28_trace_count=sum(r['literal_errno28_in_trace'] for r,_ in members), literal_no_space_trace_count=sum(r['literal_no_space_in_trace'] for r,_ in members), causal_ENOSPC_established=category in ('literal_ENOSPC','literal_mktemp_no_space'), current_boundary=owner_packets[category])
+    # Complete trace for each distinct mechanism; separate setup/failure catalog/L6,
+    # both explicit errno cases, and all seven ineffective RunPaper controls.
+    chosen = members if category in ('literal_ENOSPC','run_paper_manifest_negative_did_not_raise') else [members[0]]
+    if category in ('catalog_fetch_source_unreadable','l6_control_artifact_missing'):
+        chosen = [next(v for v in members if v[0]['status']==s) for s in ('errors','failed')]
+    for row, trace in chosen:
+        traces.append(dict(category=category, case=row, complete_original_junit_trace=trace))
+trace_ref = dump('complete-deciding-trace-excerpts.json', dict(source=SHA, tree=TREE, junit=junit_ref, complete_selected_traces=traces, unselected_traces_retained_in_original_junit=True))
+analysis_path = Path('/tmp/e02-E-http-error-analysis-64d/native-error-groups.json')
+analysis = json.loads(analysis_path.read_text())
+original_group_cases = []
+for group in analysis['failure_error_groups']:
+    # Reconciliation below uses exact original analysis groups denominator regardless
+    # of key spelling; this analysis remains navigation, not native proof.
+    original_group_cases.append(group)
+
+source_paths = sorted({p for packet in owner_packets.values() for p in packet['source_paths']})
+source_refs = []
+for relative in source_paths:
+    path = PKG / relative
+    if path.exists():
+        row = identity(path)
+        blob = subprocess.check_output(['git','-C',str(ROOT),'show',SHA+':policy-engine/'+relative])
+        if hashlib.sha256(blob).hexdigest()!=row['sha256']:
+            raise ValueError('Native path is not frozen Git source: '+relative)
+        source_refs.append({**row,'git_object':SHA+':policy-engine/'+relative})
+    else:
+        source_refs.append(dict(path=str(path), exists=False, explicit_missing_input=True))
+# A bounded unchanged-source check does not establish inherited red/P41 causation.
+comparison_base='6c80d1ac520e78a7b79d02402031c5a1673a6161'
+comparison_paths=['policy-engine/'+p for p in source_paths if (PKG/p).exists()]
+path_delta=git('diff','--name-status',comparison_base,SHA,'--',*comparison_paths)
+http_summary=dict(schema='policyos.e02.independent_http_failure_review.v1',source=SHA,tree=TREE,reviewer='oracle_r4/read-only',native_receipt=receipt_ref,native_stdout=stdout_ref,native_junit=junit_ref,command=receipt['command'],cwd=receipt['cwd'],environment=receipt['environment'],actual_numeric_backend=receipt['actual_numeric_backend'],native_outcome='FAIL',native_exit_code=1,counts=actual_counts,nonpassing_case_frame_sha256=frame,groups=category_results,exact_case_index=case_index,complete_deciding_trace_excerpts=trace_ref,source_paths=source_refs,bounded_source_comparison=dict(base=comparison_base,candidate=SHA,complete_input_paths=comparison_paths,name_status_delta=path_delta,scope='Only these actual caller/source/companion paths; no full-base command replay and no red-cause attribution'),navigation_analysis_ref=identity(analysis_path),navigation_group_count=len(original_group_cases),P41='not_established',finding_closure=False,next_execution='Use bounded exact affected selectors for iteration after their prerequisite/owner fix. The canonical CI02 full HTTP denominator is a separate final required selector and cannot be declared PASS from a subset; production/L6 inputs stay local read-only unless canonical generic fixture explicitly binds a different purpose.',no_test_rerun=True)
+validate_native_summary(http_summary,frame)
+negatives=[]
+for name, mutate in [('native_counts',lambda x:x['counts'].update(passed=1585)),('source_identity',lambda x:x.update(source='0'*40)),('case_denominator',lambda x:x.update(nonpassing_case_frame_sha256='0'*64)),('unsupported_causal_attribution',lambda x:x['groups']['numbered_dir_creation_without_underlying_errno'].update(causal_ENOSPC_established=True)),('closure_by_pass',lambda x:x.update(finding_closure=True))]:
+    forged=copy.deepcopy(http_summary);mutate(forged)
+    try:validate_native_summary(forged,frame)
+    except ValueError as error:negatives.append(dict(control=name,outcome='rejected',reason=str(error)))
+    else:raise ValueError('Corrupt summary survived: '+name)
+http_summary['corrupt_summary_controls']=negatives
+http_ref=dump('http-failure-attribution.json',http_summary)
+
+selection=json.loads((CLEAN/'publication-selection.json').read_text())
+moderate=[require_ref(row) for row in selection['assets']]
+if len(moderate)!=selection['count'] or sum(x['bytes'] for x in moderate)!=selection['total_bytes']:
+    raise ValueError('Complete cleanup publication denominator mismatch')
+cleanup_summary=json.loads((CLEAN/'cleanup-summary.json').read_text())
+large=[require_ref(row) for row in cleanup_summary['large_complete_ignored_inputs_and_retained_fixture_archive']]
+results=[json.loads(Path(row['path']).read_text()) for row in cleanup_summary['full_deciding_results']]
+for row in cleanup_summary['full_deciding_results']:require_ref(row)
+ci_admission=json.loads((CLEAN/'closed-ci02-fixtures/cleanup-admission.json').read_text())
+ci_result=results[2]
+ci_inventory=ci_admission['complete_hash_inode_inventory']
+if len(ci_inventory)!=ci_result['verified_archive_member_count'] or len({x['relative_path'] for x in ci_inventory})!=len(ci_inventory):
+    raise ValueError('Actual archived member/full inventory denominator mismatch')
+if ci_admission['native_full_command_environment_input_refs']!=receipt or ci_admission['independently_recomputed_counts']!=actual_counts:
+    raise ValueError('Cleanup archived wrong native source/input observation')
+archive_ref=require_ref(ci_result['all_fixture_bytes_preserved_in_archive'])
+ci_script=ast.parse((CLEAN/'closed_ci02_fixture_cleanup.py').read_text())
+# Source review is explicit: script creates expected/actual archive member maps,
+# verifies exact member keys/types/links and every regular member hash/size BEFORE
+# immediate process proof and shutil.rmtree. We do not decompress that archive again.
+ci_script_text=(CLEAN/'closed_ci02_fixture_cleanup.py').read_text()
+if not all(marker in ci_script_text for marker in ['actual.keys() != expected_members.keys()',"digest.hexdigest() != row['sha256']",'member.linkname != row[\'target\']','verified.append(name)','immediate = proc_scan()','shutil.rmtree(candidate)']):
+    raise ValueError('Recorded actual per-member verifier property absent')
+retained_ci=[]
+for row in ci_admission['saved_three_closed_deciding_outputs']:
+    retained_ci.extend([require_ref(row),require_ref(row,'saved_path')])
+old_admission=json.loads((CLEAN/'cleanup-admission.json').read_text())
+arch_admission=json.loads((CLEAN/'closed-architecture/cleanup-admission.json').read_text())
+saved_metadata=[]
+for manifest in old_admission['candidates']:
+    if manifest['package_count']!=len(manifest['packages']):raise ValueError('Old package denominator drift')
+    for row in manifest['reproduce_source_inputs']:saved_metadata.extend([require_ref(row),require_ref(row,'saved_path')])
+    for dist in manifest['packages']:
+        for row in dist['complete_metadata_files']:saved_metadata.append(require_ref(row,'saved_path'))
+    cfg=manifest['pyvenv_cfg']; saved_metadata.append(require_ref({**cfg,'saved_path':str(CLEAN/Path(manifest['leaf_preserved']).name/'pyvenv.cfg')},'saved_path'))
+for row in old_admission['saved_deciding_receipts']:saved_metadata.extend([require_ref(row),require_ref(row,'saved_path')])
+for manifest in arch_admission['candidates']:
+    if manifest['package_count']!=len(manifest['packages']):raise ValueError('Architecture package denominator drift')
+    for row in manifest['source_input_copies']:saved_metadata.extend([require_ref(row),require_ref(row,'saved_path')])
+    saved_metadata.append(require_ref(manifest['pyvenv_cfg'],'saved_path'))
+    for dist in manifest['packages']:
+        for row in dist['metadata_files']:saved_metadata.append(require_ref(row,'saved_path'))
+    for row in manifest['complete_preserved_output_identity']:saved_metadata.append(require_ref(row))
+    if not Path(manifest['source_clone_preserved']).is_dir() or not Path(manifest['outputs_preserved']).is_dir():raise ValueError('Source/outputs missing after cleanup')
+proof_rows=[]
+actions=results[0]['actions']+results[1]['actions']+[dict(exact_deleted_path=ci_result['exact_original_removed'],started_unix=ci_result['started_unix'],ended_unix=ci_result['ended_unix'],absent_after=ci_result['absent_after'])]
+proof_paths=[CLEAN/'immediate-e02-E-cal-20261006.json',CLEAN/'immediate-e02-E-ddm-20261006.json',CLEAN/'closed-architecture/immediate-full-architecture-retained.json',CLEAN/'closed-architecture/immediate-architecture-retained.json',CLEAN/'closed-ci02-fixtures/immediate-process-proof.json']
+for action,proof_path in zip(actions,proof_paths,strict=True):
+    candidate=action['exact_deleted_path'];proof=json.loads(proof_path.read_text())
+    assert_pre_action_proof(proof,candidate,action['started_unix'])
+    if not action['absent_after'] or Path(candidate).exists() or Path(candidate).is_symlink():raise ValueError('Candidate removal/ref scope differs')
+    proof_rows.append(dict(candidate=candidate,proof=identity(proof_path),proof_age_seconds=action['started_unix']-proof['observed_unix'],active_users=[],unreadable_agent_processes=[],agent_uid=proof['agent_uid'],live_agent_process_count=proof['live_agent_process_count'],privileged_infrastructure_exclusions=proof['privileged_infrastructure_exclusions'],currently_absent=True))
+if [a['exact_deleted_path'] for a in actions]!=cleanup_summary['removed_exact_children']:raise ValueError('Five exact action footprint mismatch')
+fresh=fresh_process_scan(cleanup_summary['removed_exact_children'])
+if fresh['active_users'] or fresh['unreadable_agent_processes']:raise ValueError('Fresh independent scoped process refusal')
+fresh_ref=dump('fresh-agent-process-readback.json',fresh)
+controls=[]
+baseproof=json.loads(proof_paths[-1].read_text())
+for name,mutate in [('active_user',lambda x:x['active_users'].append(dict(pid=-1))),('unknown_agent_process',lambda x:x['unreadable_agent_processes'].append(dict(pid=-1))),('late_proof',lambda x:x.update(observed_unix=ci_result['started_unix']+1)),('uncovered_candidate',lambda x:x.update(candidate_prefixes=[]))]:
+    value=copy.deepcopy(baseproof);mutate(value)
+    try:assert_pre_action_proof(value,ci_result['exact_original_removed'],ci_result['started_unix'])
+    except ValueError as error:controls.append(dict(control=name,outcome='rejected',reason=str(error)))
+    else:raise ValueError('Corrupt cleanup proof survived: '+name)
+for name,key,value in [('retained_archive_digest','sha256','0'*64),('retained_archive_size','bytes',archive_ref['bytes']+1)]:
+    forged=dict(archive_ref);forged[key]=value
+    # Check against already independently streamed digest rather than reread92MB.
+    try:
+        if (forged['sha256'],forged['bytes'])!=(archive_ref['sha256'],archive_ref['bytes']):raise ValueError('Retained compressed archive byte identity mismatch')
+    except ValueError as error:controls.append(dict(control=name,outcome='rejected',reason=str(error)))
+    else:raise ValueError('Corrupt archive ref survived')
+metadata_frame=hashlib.sha256(json.dumps(saved_metadata,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+custody=dict(schema='policyos.e02.independent_cleanup_custody_review.v1',source=SHA,tree=TREE,reviewer='oracle_r4/read-only',decision='GO bounded custody',authorization='Latest root/user explicitly authorized permanent cloud cleanup; reviewer only reads, never removes.',publication_selection=identity(CLEAN/'publication-selection.json'),complete_moderate_assets=moderate,moderate_count=len(moderate),moderate_bytes=sum(x['bytes'] for x in moderate),large_retained_inputs_verified=large,exact_five_deleted_children=cleanup_summary['removed_exact_children'],immediate_fresh_pre_action_proofs=proof_rows,fresh_independent_agent_scope_readback=fresh_ref,original_http_outputs_and_saved_copies=retained_ci,original_http_counts_unchanged=actual_counts,original_http_outcome_unchanged='FAIL',retained_archive=archive_ref,archive_member_inventory=dict(admission=identity(CLEAN/'closed-ci02-fixtures/cleanup-admission.json'),count=len(ci_inventory),kinds=dict(collections.Counter(x['kind'] for x in ci_inventory)),regular_file_logical_bytes=sum(x.get('bytes',0) for x in ci_inventory)),actual_pre_deletion_member_verification=dict(source=identity(CLEAN/'closed_ci02_fixture_cleanup.py'),recorded_result=identity(CLEAN/'closed-ci02-fixtures/cleanup-result.json'),exact_count_match=True,property='Actual retained archive verifier checks exact member denominator, member kinds/symlink targets, every regular member byte count and SHA before deletion. Reviewer independently streamed retained compressed hash and admission; intentionally did not decompress/reverify3.65GB again.'),saved_repeatability_and_generated_output_checks=dict(checked_refs=len(saved_metadata),checked_bytes=sum(x['bytes'] for x in saved_metadata),complete_checked_ref_frame_sha256=metadata_frame,package_denominators=[x['package_count'] for x in old_admission['candidates']]+[x['package_count'] for x in arch_admission['candidates']],retained=True),filesystem_observation=cleanup_summary['actual_filesystem'],filesystem_scope='Observed statvfs per-action delta; concurrent writes and hardlink effects prevent exclusive recovered-capacity attribution.',protected_metadata_scope='Original cleanup pre/post metadata equality recorded by actual action. Current protected packages may have subsequent explicitly authorized installs; no current snapshot is misrepresented as original action equivalence.',no_host_wide_process_visibility_claim=True,no_test_gate_rerun=True,no_source_interpreter_package_mutation=True,no_archive_decompression=True,corrupt_controls=controls,P41='not_established',finding_closure=False)
+custody_ref=dump('cleanup-custody-review.json',custody)
+
+head_after,tree_after=git('rev-parse','HEAD'),git('rev-parse','HEAD^{tree}')
+if (head_after,tree_after)!=(SHA,TREE) or git('status','--porcelain','--untracked-files=no')!=tracked_before:raise ValueError('Root source changed during independent readback')
+environment=dict(interpreter=sys.executable,python=sys.version,uid=os.getuid(),stdlib_only=True,root_interpreter_not_invoked=True,selected_private_git_config_not_read=True,source_before=dict(sha=head_before,tree=tree_before,tracked_status=tracked_before),source_after=dict(sha=head_after,tree=tree_after,tracked_status=tracked_before))
+dump('review-environment-source-guard.json',environment)
+print(json.dumps(dict(review='HTTP failure attribution + cleanup custody',source=SHA,tree=TREE,native_counts=actual_counts,native_outcome='FAIL',categories={k:{'count':v['count'],'statuses':v['statuses'],'literal_errno28_trace_count':v['literal_errno28_trace_count']} for k,v in category_results.items()},http_receipt=http_ref,cleanup_custody=custody_ref,cleanup_publication_assets=len(moderate),cleanup_publication_bytes=sum(x['bytes'] for x in moderate),retained_archive=archive_ref,actual_member_inventory_count=len(ci_inventory),retained_repeatability_refs_checked=len(saved_metadata),fresh_active_users=fresh['active_users'],fresh_unreadable_agent_processes=fresh['unreadable_agent_processes'],all11_corrupt_summary_custody_controls_rejected=len(negatives)+len(controls),source_immutable=True,P41='not_established',finding_closure=False),ensure_ascii=False,indent=2))

@@ -36,7 +36,7 @@ def _high_variance_sim(**params: float) -> dict[str, float]:
 
 
 class TestAdaptiveStopping:
-    def test_adaptive_stops_early_on_convergence(self) -> None:
+    def test_unadmitted_predictive_spread_cannot_stop_early(self) -> None:
         config = PropagationConfig(
             mc_n_samples=200,
             adaptive_stopping=AdaptiveStoppingConfig(
@@ -57,8 +57,8 @@ class TestAdaptiveStopping:
         )
         assert len(results) == 1
         diag = results[0].diagnostics
-        assert diag["stopped_early"] is True
-        assert diag["n_samples"] < 5000
+        assert diag["stopped_early"] is False
+        assert diag["n_samples"] == 5000
 
     def test_adaptive_respects_min_samples(self) -> None:
         config = PropagationConfig(

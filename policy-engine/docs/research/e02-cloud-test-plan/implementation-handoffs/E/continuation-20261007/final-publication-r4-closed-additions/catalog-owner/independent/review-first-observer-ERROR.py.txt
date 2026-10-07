@@ -1,0 +1,114 @@
+"""Immutable owner-packet readback only: stdlib/Git, no root application execution."""
+from __future__ import annotations
+import ast
+import csv
+import hashlib
+import io
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+BASE=Path('/tmp/e02-E-native-catalog-fixture-packet-64d-20261007')
+OUT=Path('/tmp/e02-E-native-catalog-packet-independent-64d')
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+PKG=ROOT/'policy-engine'
+SHA='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE='aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+
+def identity(path):
+ d=hashlib.sha256();size=0
+ with Path(path).open('rb') as handle:
+  while block:=handle.read(1024*1024):d.update(block);size+=len(block)
+ return dict(path=str(path),bytes=size,sha256=d.hexdigest())
+def dump(name,value):
+ p=OUT/name;p.write_text(json.dumps(value,ensure_ascii=False,indent=2)+'\n');return identity(p)
+def require(value,message):
+ if not value:raise ValueError(message)
+def git(*args):return subprocess.check_output(['git','-C',str(ROOT),*args])
+def check_source(row):
+ relative=row['path'];data=(ROOT/relative).read_bytes();blob=git('show',SHA+':'+relative)
+ require(data==blob and len(data)==row.get('size',row.get('bytes')) and hashlib.sha256(data).hexdigest()==row['sha256'],'Exact source mismatch: '+relative)
+ return dict(path=relative,bytes=len(data),sha256=hashlib.sha256(data).hexdigest(),git_object=SHA+':'+relative)
+
+require(git('rev-parse','HEAD').decode().strip()==SHA and git('rev-parse','HEAD^{tree}').decode().strip()==TREE,'Frozen root identity changed')
+selection=json.loads((BASE/'publication-selection.json').read_text());packet=json.loads((BASE/'owner-ready-catalog-fixture-packet.json').read_text())
+require(identity(BASE/'publication-selection.json')['sha256']=='e441715f8effb36bc3197fde4f7f21c2cdcbfa1ac4ec03329a2bc382fe3a1ddd','Original selector changed')
+require(identity(BASE/'owner-ready-catalog-fixture-packet.json')['sha256']=='5feed21c81a8e01a68c074571d46182fe3eda1f5fea7f6007db8f06fafa12b80','Original packet changed')
+unique={};logical=[]
+for row in selection['assets']:
+ current=identity(row['source_path']);require((current['bytes'],current['sha256'])==(row['bytes'],row['sha256']),'Selected original bytes changed')
+ destination=Path(row['destination']);require(not destination.is_absolute() and '..' not in destination.parts and destination.as_posix()==row['destination'],'Invalid moderate publication path')
+ logical.append(current)
+ if row['copy_to'] is not None:
+  require(row['copy_to']==row['destination']==row['stored_at'] and row['copy_to'] not in unique,'Duplicate unique copy path')
+  unique[row['copy_to']]=current
+for row in selection['assets']:
+ target=unique[row['stored_at']];require((target['bytes'],target['sha256'])==(row['bytes'],row['sha256']),'Dedup alias bytes mismatch')
+require(len(logical)==selection['logical_assets']==50 and len(unique)==selection['unique_assets']==42 and sum(r['bytes'] for r in unique.values())==selection['unique_bytes']==510011,'Complete moderate denominator changed')
+receipts={}
+for key,row in packet['receipts'].items():
+ p=BASE/row['path'];current=identity(p);require((current['bytes'],current['sha256'])==(row['bytes'],row['sha256']),'Closed native receipt bytes changed')
+ j=json.loads(p.read_text());require(j['source_sha']==SHA and j['tree_sha']==TREE and j['source_immutable'] is True,'Native source identity absent');receipts[key]=j
+native=receipts['native_positive'];source_refs=[check_source(row) for row in native['source_inputs']]
+require(len(source_refs)==15,'Source guard denominator differs')
+for j in receipts.values():require(j['source_inputs']==native['source_inputs'],'Different native/overlay companion source observed')
+patch_path=BASE/'owner-only-runtime-catalog-fixture.patch';patch=patch_path.read_text();patch_scope=subprocess.check_output(['git','-C',str(ROOT),'apply','--numstat',str(patch_path)],text=True).strip()
+subprocess.run(['git','-C',str(ROOT),'apply','--check',str(patch_path)],check=True)
+require(patch_scope=='43\t0\tpolicy-engine/tests/_helpers/runtime_http.py','Proposal exceeds one fixture-only path')
+require(packet['source_footprint']['unapplied_proposal_paths']==['policy-engine/tests/_helpers/runtime_http.py'] and not packet['source_footprint']['tracked_native_source_changes'] and not packet['source_footprint']['product_runtime_or_DataForge_edits'] and packet['source_footprint']['new_runtime_API'] is False and packet['source_footprint']['generated_files_edited'] is False,'Packet footprint differs from actual proposal')
+original_text=(PKG/'tests/_helpers/runtime_http.py').read_text();overlay_text=(BASE/'runtime_http.owner-overlay.py.txt').read_text();old_module=ast.parse(original_text);new_module=ast.parse(overlay_text)
+old_fn=next(n for n in old_module.body if isinstance(n,ast.FunctionDef) and n.name=='build_runtime_api_env');wrapper=next(n for n in new_module.body if isinstance(n,ast.FunctionDef) and n.name=='build_runtime_api_env');inner=next(n for n in new_module.body if isinstance(n,ast.FunctionDef) and n.name=='_build_runtime_api_env_with_current_inputs')
+require(ast.dump(old_fn.args)==ast.dump(wrapper.args)==ast.dump(inner.args),'Existing caller signature changed')
+old_fn.name=inner.name;require(ast.dump(old_fn)==ast.dump(inner),'Original native factory body changed')
+# Normalize only the rename/wrapper addition; all remaining helper ASTs must match.
+old_ast=ast.parse(original_text);new_ast=ast.parse(overlay_text)
+for n in old_ast.body:
+ if isinstance(n,ast.FunctionDef) and n.name=='build_runtime_api_env':n.name='_build_runtime_api_env_with_current_inputs'
+new_ast.body=[n for n in new_ast.body if not(isinstance(n,ast.FunctionDef) and n.name=='build_runtime_api_env')]
+require(ast.dump(old_ast)==ast.dump(new_ast),'Patch changed unrelated helper mechanism')
+old_driver=ast.parse((BASE/'probe_owner_patch_overlay.fake-attempt1-ERROR.py.txt').read_text());new_driver=ast.parse((BASE/'probe_owner_patch_overlay.py').read_text())
+class RemoveFakeFunction(ast.NodeTransformer):
+ def visit_FunctionDef(self,node):
+  if node.name=='fake_builder':return None
+  return self.generic_visit(node)
+require(ast.dump(RemoveFakeFunction().visit(old_driver))==ast.dump(RemoveFakeFunction().visit(new_driver)),'Healthy/removal driver changed with corrected fake control')
+
+catalog_counts=native['fixture_catalog']['counts'];require(packet['minimum_fixture_inputs']['actual_catalog_counts']==catalog_counts,'Main catalog denominator mismatch')
+require({k:catalog_counts[k] for k in ['ds_datasets','ds_distributions','ds_metric_bindings','ds_schema_profiles','ds_observations']}==dict(ds_datasets=9,ds_distributions=9,ds_metric_bindings=13,ds_schema_profiles=6,ds_observations=0),'Actual fixture observations/metadata differ')
+catalog_ref=identity(native['fixture_catalog']['path']);require((catalog_ref['bytes'],catalog_ref['sha256'])==(native['fixture_catalog']['size'],native['fixture_catalog']['sha256']),'Original fixture DB differs')
+http=native['controls']['native_dashboard_fixture_startup'];require(http['health']['status_code']==http['runs_surface']['status_code']==200 and http['bound_run_id']=='R_run_paper_bound_001','Native HTTP/caller positive absent')
+require(http['binding']['baseline']['content_sha256']=='sha256:'+catalog_ref['sha256'] and http['binding']['baseline']['byte_size']==catalog_ref['bytes'],'Consumer did not bind same actual fixture bytes')
+healthy=receipts['owner_overlay_healthy'];require(healthy['mode']=='healthy' and healthy['positive']['health_status']==healthy['positive']['runs_status']==200 and healthy['positive']['bound_run_id']=='R_run_paper_bound_001','Actual proposed patch positive absent')
+healthy_db=identity(healthy['positive']['catalog_binding']['baseline']['source_path']);require(healthy['positive']['catalog_binding']['baseline']['content_sha256']=='sha256:'+healthy_db['sha256'],'Actual overlay consumer DB hash mismatch')
+for key,mode in [('owner_overlay_removed_route','removed-route'),('owner_overlay_fake_producer','fake-producer')]:
+ r=receipts[key];require(r['mode']==mode and r['positive'] is None and r['refusal']==dict(type='ValueError',reason='catalog_fetch_source_unreadable'),'Effective route/fake control absent')
+ require(r['overlay']['source_sha256']==identity(BASE/'runtime_http.owner-overlay.py.txt')['sha256'],'Negative removed overlay identity entirely')
+require(receipts['owner_overlay_fake_producer']['fake_callbacks']==[str(BASE/'owner-overlay-fake-producer-r2/native-api/retrieval-catalog'),'fake_close'],'Fake producer did not reach exact root and close')
+removed_db=BASE/'owner-overlay-removed-route/native-api/retrieval-catalog/catalog.duckdb';require(removed_db.is_file() and removed_db.stat().st_size==healthy_db['bytes'],'Removal lost producer/component presence')
+require(not (BASE/'owner-overlay-fake-producer-r2/native-api/retrieval-catalog/catalog.duckdb').exists(),'Fake producer unexpectedly supplied native DB')
+require(healthy['positive']['default_path_restored']==packet['configured_input']['path'],'Global path seam not restored after healthy fixture call')
+missing=receipts['missing_native_startup']['control'];require(missing['native_startup_outcome']=='refused' and missing['reason']=='catalog_fetch_source_unreadable' and missing['path_is_file'] is False,'Actual unpatched native source refusal absent')
+for name,reason in [('missing_source_native_reader','catalog_fetch_source_unreadable'),('wrong_profile_refusal','catalog_fetch_target_not_admitted'),('wrong_dataset_refusal','catalog_fetch_target_not_admitted'),('changed_source_stale_session_refusal','catalog_fetch_read_session_stale'),('changed_source_old_binding_refusal','catalog_fetch_binding_mismatch')]:require(native['controls'][name]['reason']==reason and native['controls'][name]['outcome']=='PASS','Actual native source discriminator absent')
+
+csv_bytes=(BASE/'native-attempt1/source-rows.csv').read_bytes();independent_rows=[{**r,'year':int(r['year']),'value':int(r['value'])} for r in csv.DictReader(io.StringIO(csv_bytes.decode()))]
+transport=native['controls']['native_csv_snapshot_fresh_readback'];require(transport['rows']==independent_rows and len(independent_rows)==3 and transport['request_calls']==[dict(method='GET',path='/source-rows.csv')],'Independent local CSV rows/request do not match')
+cas=BASE/'native-attempt1/materializer-cas/artifacts/sha256'
+def read_cas(ref):
+ aid=ref['artifact_id'];require(aid.startswith('sha256:') and len(aid)==71,'Malformed selected CAS identity');digest=aid[7:];p=cas/digest[:2]/digest[2:4]/(digest+'.blob');r=identity(p);require(r['sha256']==digest,'Content-valid CAS payload absent');return json.loads(p.read_text()),r
+snapshot,snapshot_ref=read_cas(transport['snapshot_ref']);rows,payload_ref=read_cas(snapshot['data_ref']);evidence,evidence_ref=read_cas(snapshot['evidence_ref']);quality,quality_ref=read_cas(snapshot['quality_report_ref']);schema,schema_ref=read_cas(transport['schema_ref'])
+require(snapshot==transport['snapshot'] and rows==independent_rows and snapshot['data_schema_ref'] is None and schema==transport['schema'],'Native fresh typed receipt diverges from independent CAS bytes')
+require(snapshot['data_ref']['artifact_id'] in [r['artifact_id'] for r in evidence['sources']],'Snapshot evidence lost its actual data reference')
+require(schema['schema_id']==transport['result_metadata']['schema_id'] and schema['version']==transport['result_metadata']['schema_version'],'Separately persisted schema identity changed')
+require(packet['finding_closure'] is False and packet['browser_cases_executed'] is False and packet['overlay_is_committed_implementation'] is False,'Authority/global gate uplift')
+old_http_path=Path(packet['native_full_HTTP']['native_receipt']['path']);old_http=json.loads(old_http_path.read_text());require(packet['native_full_HTTP']['full_original_counts']==old_http['counts'] and packet['native_full_HTTP']['original_outcome']==old_http['outcome']=='FAIL','Original full HTTP outcome/counts changed')
+commands=json.loads((BASE/'executed-commands.json').read_text());require([c['exit_code'] for c in commands]==[0,0,0,0,1,0],'Original fake observer error/actual controls changed')
+old_error=(BASE/'owner-overlay-fake-producer.stderr.txt').read_text();require('TypeError: main.<locals>.fake_builder() missing 1 required positional argument' in old_error and 'build_slice0_fixture_catalog_graph()' in old_error,'Historical unrelated-registry observer ERROR lost')
+# No root runtime imports; current canonical facade simply exposes existing factory.
+facade_text=(PKG/'src/polisyos/data_forge/read_api/catalog.py').read_text();require('"build_slice0_fixture_catalog_graph"' in facade_text and 'def build_slice0_fixture_catalog_graph(' in facade_text,'Proposed factory not existing canonical DataForge facade')
+require('process-global' in packet['scope_and_owner_review']['concurrency_limit'] and 'serialize' in packet['scope_and_owner_review']['concurrency_limit'],'Shared mutable path seam owner limit not disclosed')
+for row in native['source_inputs']:check_source(row)
+require(git('rev-parse','HEAD').decode().strip()==SHA and git('rev-parse','HEAD^{tree}').decode().strip()==TREE,'Source changed during packet readback')
+summary=dict(schema='policyos.e02.independent_native_catalog_owner_packet_review.v1',source=SHA,tree=TREE,native_mechanism_disposition='GO bounded owner-ready packet',evidence_validator_disposition='CHANGE_REQUIRED summary admission class',packet=identity(BASE/'owner-ready-catalog-fixture-packet.json'),selection=identity(BASE/'publication-selection.json'),complete_publication_denominator=dict(logical_assets=len(logical),unique_assets=len(unique),unique_bytes=sum(r['bytes'] for r in unique.values()),all_original_and_alias_hashes_match=True),source_guard_inputs=source_refs,patch_scope=patch_scope,patch=identity(patch_path),helper_compatibility=dict(public_signature_unchanged=True,old_native_body_and_all_other_helper_ASTs_unchanged=True,new_wrapper_only=True,canonical_DataForge_facade_existing=True),closed_native_receipts={k:identity(BASE/v['path']) for k,v in packet['receipts'].items()},observed_native_properties=dict(metadata_catalog_counts=catalog_counts,actual_native_dashboard_caller_health=200,actual_native_runs_surface=200,bound_run='R_run_paper_bound_001',consumer_catalog_source_content_bound=True,proposed_overlay_positive_health=200,proposed_overlay_positive_runs=200,unpatched_native_missing_source_refused=True,changed_source_session_and_old_binding_refused=True,wrong_dataset_and_profile_refused=True,route_predicate_removal_retains_native_producer_DB_but_refuses=True,fake_credible_gate_flags_producer_reached_twice_but_refused=True,path_seam_restored=True),independent_materializer_CAS_readback=dict(csv_input=identity(BASE/'native-attempt1/source-rows.csv'),literal_source_rows=independent_rows,snapshot=snapshot_ref,payload=payload_ref,evidence=evidence_ref,quality_report=quality_ref,separately_persisted_schema=schema_ref,snapshot_schema_ref=None,catalog_observations=0,source_join_not_invented=True),observer_error_preservation=dict(original_fake_error=identity(BASE/'owner-overlay-fake-producer.stderr.txt'),original_fake_driver=identity(BASE/'probe_owner_patch_overlay.fake-attempt1-ERROR.py.txt'),corrected_scoped_driver=identity(BASE/'probe_owner_patch_overlay.py'),only_fake_builder_AST_changed=True,old_error_not_control_PASS=True),process_global_seam_limit='Fixture factory mutates substrate_registry.default_substrate_catalog_paths only inside pytest.MonkeyPatch. Owner must serialize shared same-process fixture construction/use a dedicated native frontend fixture process, or admit typed DI before concurrent calls. No production override is authorized.',owner='A/runtime helper-composition writer with DataForge facade owner; A/G frontend fixture owner for actual native browser body; G integration only',next_measured_result='Owner reviews/applies one fixture-helper patch or typed equivalent in own topic; exact affected HTTP selectors then required full CI02/current a11y bodies on frozen source. This packet has no uvicorn/browser or full HTTP PASS.',original_full_HTTP=old_http['counts'],original_full_HTTP_outcome='FAIL',evidence_gap_probe=identity(OUT/'summary-corruption-probe.json'),no_source_package_root_interpreter_mutation=True,no_HTTP_browser_test_rerun=True,scientific_production_authority_not_granted=True,P41='not_established',finding_closure=False)
+ref=dump('native-owner-packet-review.json',summary)
+print(json.dumps(dict(source=SHA,tree=TREE,native_mechanism='GO bounded owner-ready packet',evidence_validator='CHANGE_REQUIRED summary class',complete_assets=dict(logical=50,unique=42,bytes=510011),patch_scope=patch_scope,actual_native_positive='health200/runs200/bound-run',effective_negatives=['missing_source','changed_source/session','old_binding','wrong_profile','wrong_dataset','native_route_removed_producer_still_present','fake_credible_gate_flags_reached_but_refused'],independent_CSV_CAS_rows=len(independent_rows),catalog_observations=0,original_observer_ERROR_preserved=True,original_HTTP_FAIL_preserved=True,source_guard_count=15,source_immutable=True,review=ref),indent=2))

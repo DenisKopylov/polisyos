@@ -1,0 +1,10 @@
+{
+  "healthy_new_output": "PASS",
+  "existing_output_collision": "PASS",
+  "actual_refusal": "FileExistsError",
+  "sentinel_unchanged": true,
+  "original_sha256": "024c0202a40fa8ae53189ca50bf506227dfba9a8dac8ab6bceb2ccc81495210d",
+  "current_sha256": "024c0202a40fa8ae53189ca50bf506227dfba9a8dac8ab6bceb2ccc81495210d",
+  "separate_corrective_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/exclusive-control-fresh-v1.txt",
+  "scope": "scratch receipt output custody; no generator/product source check PASS implied"
+}

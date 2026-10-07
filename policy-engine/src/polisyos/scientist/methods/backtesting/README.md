@@ -15,7 +15,7 @@ governance calibration и backtest matrix контуром.
 
 - **HistoricalValidationPlan** — сценарий проверки предсказаний на исторических данных.
 - **BacktestOrchestrator** — координирует одиночные и пакетные backtest runs.
-- **TrustScorer** — считает coverage-first trust score и grade.
+- **TrustScorer** — удерживает trust authority до admitted versioned purpose/profile.
 - **Adversarial suites** — challenge-наборы для strategic gaming и related failure modes.
 - **Temporal evaluation** — trajectory и safe-rejection checks для time-aware scenarios.
 - **Trust eligibility** — degraded paths остаются diagnostic, но не повышают trust profile.
@@ -30,6 +30,35 @@ governance calibration и backtest matrix контуром.
 
 Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
 
+## Configured predictive producer (internal)
+
+`ForecastOwner` executes the registered NumPy ETS method on the strict
+`ForecastOwnerRequest` training slice. `persist_forecast_owner_request` stores
+the exact request. Runtime composition may supply an `empirical_profile_ref`
+to the owner constructor: the referenced `ForecastCalibrationProfile` must
+bind that same request and an explicit coverage threshold. A changed request
+is rejected before the numerical callback.
+
+For this configured path, the owner emits source-position-bound outcome,
+prediction, design and lineage artifacts, then calls the canonical empirical
+evidence producer/persistence path. `ForecastOwnerResult.empirical_evidence_ref`
+and `.candidate_receipt_ref` refer to separate CAS artifacts; neither is a
+cast of the owner result or a verifier admission. Without configuration the
+existing predictive-only, bridge-pending result remains available.
+
+The ForecastOwner execution request v2 requires explicit `target_unit`,
+`target_scale=source_native` and a resolved canonical DataSchema reference for
+the source. Legacy v1 artifacts retain their replay contract. This configured
+ETS producer is separate from the native Scientist/Foundry trajectory producer
+described below; neither contract grants new forecast, causal or trust authority.
+
+Row identity is the source snapshot digest, metric and zero-based source
+position. The bounded producer consumes one contiguous training/holdout split
+and one univariate ETS method. Declared temporal roles are preserved; source
+profile admission, real-world history validity and independent A verifier
+provenance remain separate obligations. All paths retain causal and treatment
+authority denial, and the default runtime bridge remains owned by A.
+
 ## Текущее состояние
 
 - Последнее обновление: 2026-04-03
@@ -37,3 +66,50 @@ governance calibration и backtest matrix контуром.
 - Exports: 25
 - Недавний delta: пакет теперь является upstream для `BacktestMatrixRunner`
   в `scientist.governance`
+
+## Replay and authority admission
+
+Scientist `n_simulation_runs=K` expands into K scalar backend replays with
+separate requested seeds/run identities, row-preserving scenarios and persisted requested,
+attempted, completed and failed counts. PROVIDED trajectories execute once;
+their original replica parameter is retained without asserting K external runs.
+Micro errors pool metric/time cells per replay; equal-scenario macro RMSE stays
+separate. Finite observed truths and eligible prediction/truth pairs have
+separate denominators; empty comparisons are `not_evaluated`.
+
+Trust grades and the matrix promotion score remain unavailable until the
+Scientist trust-profile owner admits a versioned purpose, sampling assumptions
+and any meaningful-bias margin/equivalence rule. Non-significant Student t tests
+and perfect observed agreement alone do not supply that policy. Per-kind matrix
+scores remain explicitly descriptive. Bootstrap accepts a one-dimensional
+sample and a scalar statistic; a custom callable label remains
+`consumer_asserted`, never verified functional provenance.
+
+The native Scientist facade receives the same configured core CAS. The opt-in
+`params.backtest_native_forecast` profile declares `purpose=predictive_simulation`,
+future `origin`/`time_index`, source `history_columns` and target
+`metric`/registered `slot_id`/`unit_id`/`reduction`. The bounded default-workflow
+adapter verifies the original source/Trinity/registry identities, persists an
+immutable historical prefix with row IDs and times, and derives a Trinity whose
+ModelSpec binds that exact snapshot. Explicit input-binding rules may consume
+only declared prefix positions. Prebound state, hidden parameters and unscoped
+model time-series/network dependencies are refused before backend execution.
+
+Each counted replay invokes the existing default Scientist workflow and native
+Foundry executor with its actual `ExecConfig.seed`. Each future step consumes the
+previous native state, advances the declared clock and resolves the registered
+target state slot. The persisted typed trajectory preserves all execution
+bindings, SimulationResults, state snapshots and configuration refs; the
+backtest consumer reopens CAS and independently recomputes the target values.
+It also resolves the executed program/LoweredIR to the declared Trinity/model,
+anchors the initial materialized binding, and checks the native clock and exact
+previous/post-state lineage for every future coordinate.
+Counters, scalar effects and pooled uncertainty outputs cannot substitute for
+these observations. Failed native execution produces an unavailable result with
+no naive forecast fallback. This path emits no inferred prediction interval.
+
+The profile expresses predictive simulation of the declared model. It does not
+establish a calibrated production source law, independent stochastic worlds,
+causal authority, a trust grade or historical finding closure. Model/history
+owners still supply the exact production model, rows, temporal meaning and
+feature lineage when a criterion requires production evidence.

@@ -1,0 +1,211 @@
+#!/usr/bin/env python3
+"""Read immutable tracked E inputs and emit navigation/callsite evidence only."""
+from __future__ import annotations
+import argparse
+import ast
+import csv
+import hashlib
+import io
+import json
+from pathlib import Path
+import re
+import shlex
+import subprocess
+from collections import defaultdict
+from datetime import UTC, datetime
+
+BASE = '198076863e143dea9f89f02734b13d50dae3eed5'
+E02 = 'policy-engine/docs/research/e02-cloud-test-plan/'
+PACKAGE = 'policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/'
+SYMBOLS = {
+    'BacktestOrchestrator', 'persist_backtest_report', 'load_backtest_report',
+    'ForecastOwner', 'run_forecast_owner', 'persist_forecast_owner_request',
+    'produce_empirical_calibration_evidence', 'persist_empirical_calibration_evidence',
+    'load_empirical_calibration_evidence', 'load_forecast_calibration_profile',
+    'persist_forecast_candidate_receipt', 'load_forecast_candidate_receipt',
+    'persist_continuous_evaluation', 'load_continuous_evaluation',
+    '_summarize_interval_diagnostics', 'DriftAndDegradationMonitor',
+    'evaluate_window', 'build_model_registry_record', 'rebind_calibration_validity',
+    'evaluate_registry_gate', 'SensitivityBridge', 'analyze_search_space',
+    'SensitivityAwareCandidateGenerator', 'from_artifact', '_persist_analysis', '_load_analysis',
+}
+KEY_PATHS = [
+    'policy-engine/src/polisyos/scientist/methods/backtesting/cli.py',
+    'policy-engine/src/polisyos/scientist/governance/backtest_matrix.py',
+    'policy-engine/src/polisyos/scientist/api.py',
+    'policy-engine/src/polisyos/scientist/orchestration/workflows/default.py',
+    'policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py',
+    'policy-engine/src/polisyos/ddm/calibration/audit.py',
+    'policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py',
+    'policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py',
+    'policy-engine/src/polisyos/calibration/forecast_bridge.py',
+    'policy-engine/src/polisyos/calibration/continuous.py',
+    'policy-engine/src/polisyos/calibration/curve.py',
+    'policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py',
+    'policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py',
+    'policy-engine/src/polisyos/ddm/integration/model_registry.py',
+    'policy-engine/src/polisyos/ddm/integration/monitor.py',
+    'policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py',
+    'policy-engine/src/polisyos/scientist/methods/doe/_receipt.py',
+    'policy-engine/src/polisyos/scientist/methods/doe/analysis.py',
+    'policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py',
+    'policy-engine/src/polisyos/runtime/quality/generation_cycle.py',
+    'policy-engine/src/polisyos/ir/analytics/backtest.py',
+    'policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py',
+]
+PROPOSED_EQUIVALENTS = {
+    'policy-engine/tests/unit/remediation/test_bkt_01.py': [
+        'policy-engine/tests/unit/scientist/methods/backtesting/test_replay_admission.py',
+        'policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py',
+    ],
+    'policy-engine/tests/unit/remediation/test_bkt_04.py': [
+        'policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py',
+        'policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py',
+    ],
+    'policy-engine/tests/unit/remediation/test_ddm_01.py': [
+        'policy-engine/tests/unit/ddm/test_facade.py',
+        'policy-engine/tests/unit/ddm/mirror_contracts/test_events.py',
+    ],
+    'policy-engine/tests/unit/remediation/test_pcl_01.py': [
+        'policy-engine/tests/unit/calibration/test_curve.py',
+        'policy-engine/tests/unit/calibration/test_continuous.py',
+        'policy-engine/tests/unit/calibration/test_continuous_persistence.py',
+        'policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py',
+    ],
+}
+CAL05_EQUIVALENTS = [
+    'policy-engine/tests/unit/foundry/calibration/test_pure_executor_batch.py',
+    'policy-engine/tests/unit/foundry/calibration/test_calibrator_batch.py',
+]
+
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument('--repo', type=Path, required=True)
+    p.add_argument('--ref', required=True)
+    p.add_argument('--output', type=Path, required=True)
+    args = p.parse_args()
+    def git(*cmd):
+        return subprocess.check_output(['git', '-C', str(args.repo), *cmd])
+    sha = git('rev-parse', f'{args.ref}^{{commit}}').decode().strip()
+    tree = git('rev-parse', f'{sha}^{{tree}}').decode().strip()
+    files = git('ls-tree', '-r', '--name-only', sha).decode().splitlines()
+    all_files = set(files)
+    def read(path):
+        return git('show', f'{sha}:{path}').decode()
+    def rows(path):
+        return list(csv.DictReader(io.StringIO(read(path)), delimiter='\t'))
+    owners = rows(E02 + 'execution-organization/bundle-owners.tsv')
+    finding_owners = rows(E02 + 'execution-organization/finding-owners.tsv')
+    e_owners = [r for r in owners if r['unit'] == 'E']
+    e_findings = [r for r in finding_owners if r['unit'] == 'E']
+    e_ids = {r['bundle_id'] for r in e_owners}
+    manifest = json.loads(read(PACKAGE + 'bundle_manifest.json'))
+    bundles = [b for b in manifest['bundles'] if b['id'] in e_ids]
+    links = {(b['id'], fid) for b in bundles for fid in b['findings'] + b.get('legacy_cards', [])}
+    assert len(bundles) == 22 and len(e_findings) == 54 and len(links) == 55
+    all_fids = {f for _, f in links}
+    assert all_fids == {r['finding_id'] for r in e_findings}
+    cells = {r['id']: r for r in rows(E02 + 'results/cells.tsv')}
+    e_routes = [r for r in rows(E02 + 'results/routes.tsv') if r['unit'] == 'E']
+    routed_cells = sorted({r['cell_id'] for r in e_routes})
+    path_sources = defaultdict(list)
+    bundle_tests = {}
+    for b in bundles:
+        bp = PACKAGE + b['artifact_path']
+        text = read(bp)
+        candidates = set(b.get('test_paths', [])) | set(b.get('source_test_refs', []))
+        candidates |= set(re.findall(r'policy-engine/tests/[A-Za-z0-9_./-]+\.py', text))
+        bundle_tests[b['id']] = sorted(candidates)
+        for path in candidates:
+            path_sources[path].append({'kind': 'original_bundle', 'bundle': b['id'], 'source': bp})
+    for cid in routed_cells:
+        path_sources[cells[cid]['path']].append({'kind': 'results_cell', 'cell_id': cid, 'source_sha': cells[cid]['source_sha'], 'state': cells[cid]['state']})
+    changed = git('diff', '--name-only', BASE, sha).decode().splitlines()
+    for path in changed:
+        if path.startswith('policy-engine/tests/') and path.endswith('.py'):
+            path_sources[path].append({'kind': 'fresh_E_changed_test', 'base': BASE})
+    # Include all existing mirrored native suites of these mechanisms. This is
+    # explicit integration scope, not a claim that each is a criterion witness.
+    native_prefixes = (
+        'policy-engine/tests/unit/foundry/calibration/',
+        'policy-engine/tests/unit/foundry/uncertainty/',
+        'policy-engine/tests/unit/scientist/methods/backtesting/',
+        'policy-engine/tests/unit/scientist/methods/doe/',
+        'policy-engine/tests/unit/calibration/',
+        'policy-engine/tests/unit/ddm/',
+    )
+    for path in files:
+        if path.endswith('.py') and Path(path).name.startswith('test_') and path.startswith(native_prefixes):
+            path_sources[path].append({'kind': 'affected_native_suite'})
+    consumer_tests = [
+        'policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py',
+        'policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py',
+        'policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py',
+        'policy-engine/tests/unit/scientist/governance/test_backtest_matrix.py',
+    ]
+    for path in consumer_tests:
+        path_sources[path].append({'kind': 'actual_downstream_consumer_suite'})
+    for proposed, equivalents in PROPOSED_EQUIVALENTS.items():
+        for path in equivalents:
+            path_sources[path].append({'kind': 'proposed_path_native_equivalent', 'replaces_proposed': proposed})
+    for path in CAL05_EQUIVALENTS:
+        path_sources[path].append({'kind': 'CAL-05_explicit_native_equivalent', 'replaces_proposed': 'policy-engine/tests/unit/remediation/test_cal_05.py'})
+    test_records = [{'path': path, 'exists_at_target': path in all_files, 'sources': sources} for path, sources in sorted(path_sources.items())]
+    existing = [r['path'] for r in test_records if r['exists_at_target']]
+    missing = [r for r in test_records if not r['exists_at_target']]
+    # One immutable blob batch avoids a mutable-checkout race and walks the full
+    # Python source denominator. Only named AST callsites are classified.
+    pyfiles = [p for p in files if p.startswith('policy-engine/src/') and p.endswith('.py')]
+    req = ''.join(f'{sha}:{p}\n' for p in pyfiles).encode()
+    batch = subprocess.check_output(['git','-C',str(args.repo),'cat-file','--batch'],input=req)
+    pos=0
+    calls=[]; defs=[]; parse_errors=[]; source_blobs={}
+    for path in pyfiles:
+        end=batch.index(b'\n',pos); head=batch[pos:end].decode().split(); size=int(head[2]); start=end+1
+        blob=batch[start:start+size]; pos=start+size+1
+        if path in KEY_PATHS:
+            source_blobs[path]={'git_blob_sha':head[0], 'sha256':hashlib.sha256(blob).hexdigest()}
+        try:
+            module=ast.parse(blob.decode(),filename=path)
+        except SyntaxError as exc:
+            parse_errors.append({'path':path,'error':str(exc)}); continue
+        aliases={}
+        for node in ast.walk(module):
+            if isinstance(node,ast.ImportFrom):
+                for alias in node.names:
+                    aliases[alias.asname or alias.name]=alias.name
+        lines=blob.decode().splitlines()
+        class Visitor(ast.NodeVisitor):
+            def __init__(self): self.stack=[]
+            def visit_FunctionDef(self,node):
+                if node.name in SYMBOLS: defs.append({'symbol':node.name,'path':path,'line':node.lineno})
+                self.stack.append(node.name); self.generic_visit(node); self.stack.pop()
+            visit_AsyncFunctionDef=visit_FunctionDef
+            def visit_ClassDef(self,node):
+                if node.name in SYMBOLS: defs.append({'symbol':node.name,'path':path,'line':node.lineno})
+                self.stack.append(node.name); self.generic_visit(node); self.stack.pop()
+            def visit_Call(self,node):
+                called=node.func.id if isinstance(node.func,ast.Name) else node.func.attr if isinstance(node.func,ast.Attribute) else None
+                canonical=aliases.get(called,called)
+                if canonical in SYMBOLS:
+                    calls.append({'symbol':canonical,'spelling':called,'path':path,'line':node.lineno,'end_line':node.end_lineno,'owner':'.'.join(self.stack),'expression':ast.unparse(node),'keywords':[k.arg for k in node.keywords]})
+                self.generic_visit(node)
+        Visitor().visit(module)
+    assert pos==len(batch)
+    out={
+        'schema':'policyos.e02.consumer_path_audit.v1','auditor':'/root/consumer_trace_r4','executed_at_utc':datetime.now(UTC).isoformat(),
+        'target_sha':sha,'target_tree_sha':tree,'comparison_base_sha':BASE,
+        'scope':{'tracked_file_denominator':len(files),'python_source_path_denominator':len(pyfiles),'file_type_denominator':['.py under policy-engine/src/'],'selection':'All tracked Python source blobs at exact target; named call AST including imported rename aliases. All 22 E original bundles and manifest; all E routes and referenced cells; changed and affected native tests.', 'unresolved_by_construction':['Dynamic getattr/registry/reflection or higher-order calls without matching statically bound names','External composition or installed plugins absent from tracked source','Successful production executions; this receipt is read-only static navigation, not numerical PASS','Non-Python or generated invocation semantics'], 'control':'Known BacktestOrchestrator and PCL helper calls are positive controls; source-removal/fake-artifact controls are author/reviewer runtime receipts, not this static census.'},
+        'inventory':{'bundle_count':len(bundles),'finding_count':len(e_findings),'id_to_bundle_links':len(links),'historical_statuses':dict((s,sum(r['source_status']==s for r in e_findings)) for s in sorted({r['source_status'] for r in e_findings})),'bundle_ids':sorted(e_ids)},
+        'source_blobs':source_blobs,'named_definitions':defs,'named_call_sites':calls,'parse_errors':parse_errors,
+        'test_wave':{'bundle_test_paths':bundle_tests,'all_path_records':test_records,'existing_unique_count':len(existing),'existing_unique_paths':existing,'missing_paths':missing,'routed_cell_count':len(routed_cells),'routed_unique_path_count':len({cells[c]['path'] for c in routed_cells}),'CAL05_equivalents':CAL05_EQUIVALENTS,'proposed_native_equivalents':PROPOSED_EQUIVALENTS,'pytest_argv':['-m','pytest','-q','-p','no:cacheprovider',*[p.removeprefix('policy-engine/') for p in existing]],'cwd':'policy-engine'},
+        'baseline_states_are_navigation_only':True,'read_only':True,
+    }
+    args.output.mkdir(parents=True,exist_ok=True)
+    (args.output/'audit.json').write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n')
+    (args.output/'existing-e-tests.txt').write_text(''.join(p.removeprefix('policy-engine/')+'\n' for p in existing))
+    summary={'target_sha':sha,'tree':tree,'inventory':out['inventory'],'source_python_files':len(pyfiles),'parse_errors':len(parse_errors),'named_calls':len(calls),'criterion_and_native_tests_existing':len(existing),'missing_test_paths':[r['path'] for r in missing],'baseline_cells':len(routed_cells),'baseline_unique_test_paths':out['test_wave']['routed_unique_path_count']}
+    (args.output/'summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n')
+    print(json.dumps(summary,ensure_ascii=False,indent=2))
+
+if __name__=='__main__': main()

@@ -1,0 +1,135 @@
+{
+  "schema": "e02.portable-evidence-copy.v1",
+  "records": [
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/README.md",
+      "bytes": 875,
+      "sha256": "a95a5d8587a03a834ad2b96bba08946975e727109d2d66970556254ad5205dfb"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/configured-checks-v2.json",
+      "bytes": 4164,
+      "sha256": "c4f935f0360cd51432a70baec3efb86836b48f639136a430dc4992cf404296f2"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/git-apply-check.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/historical-configured-preflight/diagnostics.json",
+      "bytes": 22018,
+      "sha256": "1e026be606eb7526b0eba709b8d1c82a959f651c0d0a0ea69019bb86ab3f8bb9"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/historical-configured-preflight/receipt.json",
+      "bytes": 1847,
+      "sha256": "257e6ef37f03b4c2aab926004ce7b6a51fb1ebc14f74f990f319c56b0eebe513"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/historical-configured-preflight/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/original-wave-groups.json",
+      "bytes": 9604,
+      "sha256": "a5578a4dd8bc8e622603e5b538a412594eafb507ca640518bf527d8c0c5168af"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/plan_wave.py",
+      "bytes": 23015,
+      "sha256": "9adde423ab2cbfc841a8a2de41fc1c03906e3429b176fa17412fd22c09c47e87"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/preservation-controls/existing-basetemp/sentinel.txt",
+      "bytes": 39,
+      "sha256": "0f0fec308ebc2185b1fadf11703e0cb84ac4dbef51066037a8040c6e87486229"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/preservation-controls/existing-output/sentinel.txt",
+      "bytes": 39,
+      "sha256": "0f0fec308ebc2185b1fadf11703e0cb84ac4dbef51066037a8040c6e87486229"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/preservation-controls.json",
+      "bytes": 1328,
+      "sha256": "a0089d727f994a2de8e31572d4fae0fff6b2da44069d409e2ff1cd856bceea2b"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/proposal.json",
+      "bytes": 2477,
+      "sha256": "183a0cd6b4fc8364ae086d1a5e921a7b06b09a241a1041359be855261125cf63"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/repair-packet.json",
+      "bytes": 4705,
+      "sha256": "d30fd76f9c19a5ba7e89b8f3e671fe5e35530c1922eba6c83e9a5132ccf8e12e"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/ruff-check.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/ruff-format-check.stdout.txt",
+      "bytes": 26,
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/run_check.py",
+      "bytes": 11192,
+      "sha256": "9d59c0e66658bae5b8ab22ae4770335462a167af6ecd640356978f8402a2fce6"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/uncapped_umbrella.py",
+      "bytes": 7225,
+      "sha256": "c809e5503ba23afacb8ad0f3f4da81e7cdca0ea6184d6eb346bfc82ddeae5173"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/wave-controls-configured-repair-v2.patch",
+      "bytes": 23717,
+      "sha256": "935428d3f81693dd80a3f9f89f0b1d1ff21a1c689666950c7ef59c00624cadbb"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/copy-index.json",
+      "bytes": 3026,
+      "sha256": "925705dfb8ba3c1b885da66ebd5a0350788952732690b1431c0306c84a732751"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/historical-v1/input-source.json",
+      "bytes": 639,
+      "sha256": "ec83d8123dc482f5b9f992cd56e3baa6db57be7068e0f08e524868a6743ab2e6"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/historical-v1/final-configured-checks.json",
+      "bytes": 3899,
+      "sha256": "39b43bad3ff4163115e89dc5713a7fd1a158727377e65deeaa2b69695517a0c3"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/historical-v1/final-metadata-plan-control.json",
+      "bytes": 33197,
+      "sha256": "bcfc2fb108b468e559c7c1d27a17b77035ded49290505427c492e3e1a0419e9d"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/historical-v1/final-helper-behavior-controls.json",
+      "bytes": 747,
+      "sha256": "446556b28b09d5a0bb531d16b249f154e91d4edf8b069aca68c20b6a23ed0694"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/historical-v1/metadata-plan-equivalence.json",
+      "bytes": 2219,
+      "sha256": "1856ea2179e64dff7ffc9780ae3e7c1e126bd2e21888863476b9d8f8da71ac9a"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/historical-v1/syntax-results.json",
+      "bytes": 1318,
+      "sha256": "105af3f8b1829f1c6794c7b7a0fea8c9a24738f149a6c3db99d93319f14f037d"
+    }
+  ],
+  "total_files": 25,
+  "total_bytes": 157335,
+  "implementation_sha": "4758d495abb81aa51fea8e28cd071ca9ff989155",
+  "implementation_tree": "c10843f74311d6973ccefea609cd7bf34bc828fe",
+  "scope": "author-only harness classrepair; actualsource/harness independentreview required; no commonwave executed"
+}

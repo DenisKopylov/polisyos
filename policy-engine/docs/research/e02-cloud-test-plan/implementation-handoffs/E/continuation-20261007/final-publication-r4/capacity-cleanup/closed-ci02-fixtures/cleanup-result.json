@@ -1,0 +1,36 @@
+{
+  "schema": "policyos.e02.closed_test_fixture_cleanup_result.v1",
+  "admission": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures/cleanup-admission.json",
+    "bytes": 78150245,
+    "sha256": "db8a2dd371e619d29c2f24d4cf276c4c5c9f3d62dc0714ddc9f1f714f7513375"
+  },
+  "exact_original_removed": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/pytest-base",
+  "absent_after": true,
+  "all_fixture_bytes_preserved_in_archive": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures/closed-ci02-pytest-base.tar.gz",
+    "bytes": 92547993,
+    "sha256": "56b94b6379b4c08c91f458c6df6fae269c16c4503574d5567383e6d4fa702d09"
+  },
+  "verified_archive_member_count": 192219,
+  "filesystem_before_deletion": {
+    "observed_unix": 1791370625.753086,
+    "total_bytes": 33770192896,
+    "free_bytes": 1862901760,
+    "available_bytes": 128139264
+  },
+  "filesystem_after": {
+    "observed_unix": 1791370631.7467825,
+    "total_bytes": 33770192896,
+    "free_bytes": 5687611392,
+    "available_bytes": 3952848896
+  },
+  "observed_free_delta_bytes": 3824709632,
+  "observed_available_delta_bytes": 3824709632,
+  "started_unix": 1791370625.7530918,
+  "ended_unix": 1791370632.22792,
+  "native_deciding_three_outputs_unchanged": true,
+  "other_CI02_children_preserved": true,
+  "root_tracked_status_unchanged": true,
+  "no_authority_or_finding_outcome_changed": true
+}

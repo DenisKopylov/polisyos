@@ -1,0 +1,13 @@
+--- a/policy-engine/src/polisyos/ir/api.py
++++ b/policy-engine/src/polisyos/ir/api.py
+@@ -185,6 +185,10 @@
+ }
+ 
+ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
++    "PosteriorSamplesCarrier": ("polisyos.ir.analytics.uncertainty", "PosteriorSamplesCarrier"),
++    "ParametricFitCarrier": ("polisyos.ir.analytics.uncertainty", "ParametricFitCarrier"),
++    "load_forecasting_uncertainty_bundle": ("polisyos.ir.analytics.forecasting_uncertainty", "load_forecasting_uncertainty_bundle"),
++    "persist_forecasting_uncertainty_bundle": ("polisyos.ir.analytics.forecasting_uncertainty", "persist_forecasting_uncertainty_bundle"),
+     "AccessTier": ("polisyos.ir.analytics.data_views", "AccessTier"),
+     "AdmittedClaimAdjudicationBatch": (
+         "polisyos.ir.analytics.literature",

@@ -1,0 +1,139 @@
+{
+  "schema": "policyos.e02.worktree_admissions.v1",
+  "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "executor": "/root; serialized commissioning",
+  "root_full_outputs": [
+    "../root-create.json",
+    "../root-resume.json"
+  ],
+  "receipts": [
+    {
+      "slice": "cal",
+      "mode": "create",
+      "branch": "codex/e02-E-cal-20261006",
+      "absolute_worktree_root": "/workspace/e02-E-cal-20261006",
+      "full_json": "admissions/cal-create.json",
+      "sha256": "bd1ec667242d7d59cba5861ac1d25fa4abdd57f3d48648af15d9afb010d528aa"
+    },
+    {
+      "slice": "cal",
+      "mode": "resume",
+      "branch": "codex/e02-E-cal-20261006",
+      "absolute_worktree_root": "/workspace/e02-E-cal-20261006",
+      "full_json": "admissions/cal-resume.json",
+      "sha256": "6f1d4d0c36ea8c567d25a3a554b12405fb647bb1b859ad51b5331600bdfb5ea1"
+    },
+    {
+      "slice": "cal05",
+      "mode": "create",
+      "branch": "codex/e02-E-cal05-20261006",
+      "absolute_worktree_root": "/workspace/e02-E-cal05-20261006",
+      "full_json": "admissions/cal05-create.json",
+      "sha256": "d355e9e214f78d7232e5dfbf2cdd7a1687e2e19d0ac322e0d6e7d350ba12a0f0"
+    },
+    {
+      "slice": "cal05",
+      "mode": "resume",
+      "branch": "codex/e02-E-cal05-20261006",
+      "absolute_worktree_root": "/workspace/e02-E-cal05-20261006",
+      "full_json": "admissions/cal05-resume.json",
+      "sha256": "b3cadba00620a3ee15d1e531f8b13fcf641ebe4c7c3004fda1b5b000b308a0cf"
+    },
+    {
+      "slice": "backtest",
+      "mode": "create",
+      "branch": "codex/e02-E-backtest-20261006",
+      "absolute_worktree_root": "/workspace/e02-E-backtest-20261006",
+      "full_json": "admissions/backtest-create.json",
+      "sha256": "8048bf0dc364a47708c877d32c7530d3205a60c8787f70bb5603499d3daa8672"
+    },
+    {
+      "slice": "backtest",
+      "mode": "resume",
+      "branch": "codex/e02-E-backtest-20261006",
+      "absolute_worktree_root": "/workspace/e02-E-backtest-20261006",
+      "full_json": "admissions/backtest-resume.json",
+      "sha256": "f500c820f28212a0d468684ac57cb4485b410287d47cf91ae9d2ce2e3f412cd0"
+    },
+    {
+      "slice": "ddm",
+      "mode": "create",
+      "branch": "codex/e02-E-ddm-20261006",
+      "absolute_worktree_root": "/workspace/e02-E-ddm-20261006",
+      "full_json": "admissions/ddm-create.json",
+      "sha256": "27490d3f1db567b88be105b4fa1a7454220d365fcc3cd0321f083ac4df6ed8f1"
+    },
+    {
+      "slice": "ddm",
+      "mode": "resume",
+      "branch": "codex/e02-E-ddm-20261006",
+      "absolute_worktree_root": "/workspace/e02-E-ddm-20261006",
+      "full_json": "admissions/ddm-resume.json",
+      "sha256": "536f145dbb1683bb8ee2971f70c97626b5bf1decb49cd2853a66c54228193d71"
+    },
+    {
+      "slice": "doe",
+      "mode": "create",
+      "branch": "codex/e02-E-doe-20261006",
+      "absolute_worktree_root": "/workspace/e02-E-doe-20261006",
+      "full_json": "admissions/doe-create.json",
+      "sha256": "7d17b29c381cb50c920ac833aed1fbc8949d8390e41d5b5b71253a772eefc6d4"
+    },
+    {
+      "slice": "doe",
+      "mode": "resume",
+      "branch": "codex/e02-E-doe-20261006",
+      "absolute_worktree_root": "/workspace/e02-E-doe-20261006",
+      "full_json": "admissions/doe-resume.json",
+      "sha256": "1ac36f5c0c11f865fdc73732478a918e9b86036858986e2e5fcb19ae93e4cbe9"
+    },
+    {
+      "slice": "frc",
+      "mode": "create",
+      "branch": "codex/e02-E-frc-20261006",
+      "absolute_worktree_root": "/workspace/e02-E-frc-20261006",
+      "full_json": "admissions/frc-create.json",
+      "sha256": "76e2b010f028eb54b30d526e004f97ed4d660d7fd2f5446998b8c8aec2e50baa"
+    },
+    {
+      "slice": "frc",
+      "mode": "resume",
+      "branch": "codex/e02-E-frc-20261006",
+      "absolute_worktree_root": "/workspace/e02-E-frc-20261006",
+      "full_json": "admissions/frc-resume.json",
+      "sha256": "e658273bc294fbef229f39140cdc85378b6ba052af7307170570c34917f618c6"
+    },
+    {
+      "slice": "mc",
+      "mode": "create",
+      "branch": "codex/e02-E-mc-20261006",
+      "absolute_worktree_root": "/workspace/e02-E-mc-20261006",
+      "full_json": "admissions/mc-create.json",
+      "sha256": "0b6294481fa7c82c26d77db52d3f2fbbc564a6221bcbb303a49c3d027bf427e2"
+    },
+    {
+      "slice": "mc",
+      "mode": "resume",
+      "branch": "codex/e02-E-mc-20261006",
+      "absolute_worktree_root": "/workspace/e02-E-mc-20261006",
+      "full_json": "admissions/mc-resume.json",
+      "sha256": "83390b621830e5c3c61d6ae89aba911d6af3a99663b816d02189c74fb18366de"
+    },
+    {
+      "slice": "pcl",
+      "mode": "create",
+      "branch": "codex/e02-E-pcl-20261006",
+      "absolute_worktree_root": "/workspace/e02-E-pcl-20261006",
+      "full_json": "admissions/pcl-create.json",
+      "sha256": "aff96a00d1ae6ba8056f6a8bdf8adf10843b20159d4817a7efebc0b1da3dc0f7"
+    },
+    {
+      "slice": "pcl",
+      "mode": "resume",
+      "branch": "codex/e02-E-pcl-20261006",
+      "absolute_worktree_root": "/workspace/e02-E-pcl-20261006",
+      "full_json": "admissions/pcl-resume.json",
+      "sha256": "1f1836ec279043627fc874dcb7f3ce8a4070e23dd961f3ba0174946ccee6e7d7"
+    }
+  ]
+}

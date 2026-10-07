@@ -1,0 +1,83 @@
+{
+  "schema": "policyos.e02.E.corrective_publication_receipt.v1",
+  "source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "source_unchanged": true,
+  "prior_publication": "2b6146377fc084e6289a83c9fac3e818b79d8b55",
+  "old_refs_preserved": [
+    {
+      "source_Git_ref": "2b6146377fc084e6289a83c9fac3e818b79d8b55:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/handoff.json",
+      "portable_path": "history/published-2b614637/handoff.json",
+      "bytes": 22387,
+      "sha256": "2eb43bc77067d899c1f38c0b05dfd5205d9dc6ebbb9f2dc2fcc020d268483239"
+    },
+    {
+      "source_Git_ref": "2b6146377fc084e6289a83c9fac3e818b79d8b55:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/README.md",
+      "portable_path": "history/published-2b614637/README.md",
+      "bytes": 2752,
+      "sha256": "934ca28e8ad1b4c0164bdf735a8d9ac61441571f7e4538962400e8b74068de17"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/validate-final-companions.py.txt",
+      "portable_path": "history/573-component-correction/validate-final-companions.py.txt",
+      "bytes": 5136,
+      "sha256": "b147a304e2965a9598bb4aa8a35fe43b3a4460c5b553be50fd39f81a795383e5",
+      "scope": "Actual old validator/refusal before correction; no output JSON was created because runtime count mismatch refused."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/final-companion-validation-normal.stdout.txt",
+      "portable_path": "history/573-component-correction/final-companion-validation-normal.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Actual old validator/refusal before correction; no output JSON was created because runtime count mismatch refused."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/final-companion-validation-normal.stderr.txt",
+      "portable_path": "history/573-component-correction/final-companion-validation-normal.stderr.txt",
+      "bytes": 1316,
+      "sha256": "fad73d81981f01fd034fa4343a3038ee918d80b6e5e4eee928116efd503f56a4",
+      "scope": "Actual old validator/refusal before correction; no output JSON was created because runtime count mismatch refused."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/final-companion-validation-optimized.stdout.txt",
+      "portable_path": "history/573-component-correction/final-companion-validation-optimized.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Actual old validator/refusal before correction; no output JSON was created because runtime count mismatch refused."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/final-companion-validation-optimized.stderr.txt",
+      "portable_path": "history/573-component-correction/final-companion-validation-optimized.stderr.txt",
+      "bytes": 1316,
+      "sha256": "fad73d81981f01fd034fa4343a3038ee918d80b6e5e4eee928116efd503f56a4",
+      "scope": "Actual old validator/refusal before correction; no output JSON was created because runtime count mismatch refused."
+    }
+  ],
+  "mistake": "Published summary used confidence_dependency_count1494 as runtime_schema_components. Native canonical receipts had actual573 schema components; the final companion validator refused both normal/-O before summary/index creation.",
+  "current_actual_counts": {
+    "runtime_schema_components": 573,
+    "runtime_confidence_dependencies": 1494,
+    "complete_ABI_MODELS": 103,
+    "IR_ABI_MODELS": 101
+  },
+  "deciding_native_receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/owner-generator/generator-3932cded/runtime-delta-receipt.json",
+    "bytes": 41949,
+    "sha256": "ab52fc0067553452862218d640165c2158f459b62a53e3aaf52cdbf8de2ae228"
+  },
+  "independent_owner_qualified_packet": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/final-companions/generator-3932cded/qualified-owner-projection-packet.json",
+    "bytes": 7773,
+    "sha256": "4e072a6c180495a39bce0341625ed7a6253403852e5c8111a08a073cdb2469d3"
+  },
+  "corrected_current_summary": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/handoff.json",
+    "bytes": 22539,
+    "sha256": "f678318a3fd0b4726a955faa1614699116bfc528d696a07fbbdaa5796acd59a2"
+  },
+  "corrected_current_readme": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/README.md",
+    "bytes": 3598,
+    "sha256": "2ebcc29d4fc775460f90f7bd9420a994eaa9490b5256e5cd7e03754a895d1de5"
+  },
+  "limits": "Only DOC summary/ref correction; no generator/source/test/numeric rerun, historical deciding stdout unchanged, no global/finding PASS inference."
+}

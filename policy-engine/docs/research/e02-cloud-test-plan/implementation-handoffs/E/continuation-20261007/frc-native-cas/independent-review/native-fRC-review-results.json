@@ -1,0 +1,319 @@
+{
+  "schema": "policyos.e02.independent_oracle.v1",
+  "candidate_sha": "1eba9f9e47a82cca1db341314a748b4980e015fc",
+  "candidate_tree": "0b79095f9293a04ca263356b24d22478b46e6688",
+  "complete_cases": [
+    {
+      "case": "healthy",
+      "outcome": "PASS",
+      "expected_points": [
+        31.0,
+        32.0,
+        33.0,
+        34.0
+      ],
+      "actual_source_holdout": [
+        31.0,
+        32.0,
+        33.0,
+        34.0
+      ],
+      "issued_intervals": [
+        [
+          31.0,
+          31.0
+        ],
+        [
+          32.0,
+          32.0
+        ],
+        [
+          33.0,
+          33.0
+        ],
+        [
+          34.0,
+          34.0
+        ]
+      ],
+      "manual_hits": 4,
+      "denominator": 4,
+      "candidate_ref": {
+        "artifact_id": "sha256:2592a156800c62dabfdaaf037c19f6e0cb5129f286292f73e8e98d8aacd82b6a",
+        "kind": "ir.forecast_candidate_receipt",
+        "media_type": "application/json"
+      },
+      "empirical_ref": {
+        "artifact_id": "sha256:944958f8cc7164970de4a7e63ea0bf8ae6dc083e4f4860a3395a74607f685e95",
+        "kind": "ir.empirical_calibration_evidence",
+        "media_type": "application/json"
+      },
+      "six_roles": {
+        "data_valid_time": "2026-01-01T00:00:00Z",
+        "calibration_window_start": "2026-01-02T00:00:00Z",
+        "calibration_window_end": "2026-01-03T00:00:00Z",
+        "policy_effective_time": "2026-01-04T00:00:00Z",
+        "prediction_time": "2026-01-05T00:00:00Z",
+        "observation_time": "2026-01-06T00:00:00Z"
+      },
+      "unit": {
+        "schema_ref": {
+          "artifact_id": "sha256:48f43b6dd6c6f5bbe06e928be399d0b5d7aa6517d69c13ed19242a97d2ec04d2",
+          "kind": "fabric.data_schema",
+          "media_type": "application/json"
+        },
+        "schema_id": "test.forecast",
+        "schema_version": "1.0.0",
+        "target_metric": "metric",
+        "field_id": "metric",
+        "unit_id": "count",
+        "scale": "source_native",
+        "data_type": "float64",
+        "decimal_storage_scale": null
+      },
+      "consumer_tier": "observable_calibrated",
+      "consumer_limitations": [],
+      "consumer_disposition_reason": "persisted predictive interval observations were recomputed from held-out data",
+      "producer_failure_codes": [],
+      "default_HTTP_verified": false
+    },
+    {
+      "case": "floor_limited",
+      "outcome": "PASS",
+      "expected_points": [
+        31.0,
+        32.0,
+        33.0,
+        34.0
+      ],
+      "actual_source_holdout": [
+        1000.0,
+        1000.0,
+        1000.0,
+        1000.0
+      ],
+      "issued_intervals": [
+        [
+          31.0,
+          31.0
+        ],
+        [
+          32.0,
+          32.0
+        ],
+        [
+          33.0,
+          33.0
+        ],
+        [
+          34.0,
+          34.0
+        ]
+      ],
+      "manual_hits": 0,
+      "denominator": 4,
+      "candidate_ref": {
+        "artifact_id": "sha256:4f9babc81daa2fbe02fedde6aee66e43d591f9ca52e615754ca99ff6b2b113d3",
+        "kind": "ir.forecast_candidate_receipt",
+        "media_type": "application/json"
+      },
+      "empirical_ref": {
+        "artifact_id": "sha256:6e59c20094ed8e861f3336d4b4fecab45826c687993bc1645a89ee5139551764",
+        "kind": "ir.empirical_calibration_evidence",
+        "media_type": "application/json"
+      },
+      "six_roles": {
+        "data_valid_time": "2026-01-01T00:00:00Z",
+        "calibration_window_start": "2026-01-02T00:00:00Z",
+        "calibration_window_end": "2026-01-03T00:00:00Z",
+        "policy_effective_time": "2026-01-04T00:00:00Z",
+        "prediction_time": "2026-01-05T00:00:00Z",
+        "observation_time": "2026-01-06T00:00:00Z"
+      },
+      "unit": {
+        "schema_ref": {
+          "artifact_id": "sha256:48f43b6dd6c6f5bbe06e928be399d0b5d7aa6517d69c13ed19242a97d2ec04d2",
+          "kind": "fabric.data_schema",
+          "media_type": "application/json"
+        },
+        "schema_id": "test.forecast",
+        "schema_version": "1.0.0",
+        "target_metric": "metric",
+        "field_id": "metric",
+        "unit_id": "count",
+        "scale": "source_native",
+        "data_type": "float64",
+        "decimal_storage_scale": null
+      },
+      "consumer_tier": "blocked",
+      "consumer_limitations": [
+        "s10://calibration/insufficient-history"
+      ],
+      "consumer_disposition_reason": "empirical calibration evidence is limited: calibration_floor_not_met",
+      "producer_failure_codes": [
+        "calibration_floor_not_met"
+      ],
+      "default_HTTP_verified": false
+    },
+    {
+      "case": "missing_ref",
+      "outcome": "PASS",
+      "record": null,
+      "tier": "blocked",
+      "reason": "empirical_evidence_ref_missing",
+      "S6": [
+        "s10://calibration/fail-closed/empirical_evidence_ref_missing"
+      ],
+      "disposition_reason": "S10 owner refused value because the Foundry report was missing."
+    },
+    {
+      "case": "unresolved_ref",
+      "outcome": "PASS",
+      "record": null,
+      "tier": "blocked",
+      "reason": "empirical_evidence_ref_unresolved",
+      "S6": [
+        "s10://calibration/fail-closed/empirical_evidence_ref_unresolved"
+      ],
+      "disposition_reason": "S10 owner refused value because the Foundry report was missing."
+    },
+    {
+      "case": "wrong_kind",
+      "outcome": "PASS",
+      "record": null,
+      "tier": "blocked",
+      "reason": "empirical_evidence_ref_kind_mismatch",
+      "S6": [
+        "s10://calibration/fail-closed/empirical_evidence_ref_kind_mismatch"
+      ],
+      "disposition_reason": "S10 owner refused value because the Foundry report was missing."
+    },
+    {
+      "case": "wrong_time",
+      "outcome": "PASS",
+      "record": null,
+      "tier": "blocked",
+      "reason": "empirical_evidence_time_mismatch",
+      "S6": [
+        "s10://calibration/fail-closed/empirical_evidence_time_mismatch"
+      ],
+      "disposition_reason": "S10 owner refused value because the Foundry report was missing."
+    },
+    {
+      "case": "wrong_rule",
+      "outcome": "PASS",
+      "record": null,
+      "tier": "blocked",
+      "reason": "empirical_evidence_rule_mismatch",
+      "S6": [
+        "s10://calibration/fail-closed/empirical_evidence_rule_mismatch"
+      ],
+      "disposition_reason": "S10 owner refused value because the Foundry report was missing."
+    }
+  ],
+  "case_count": 7,
+  "property_removal": {
+    "outcome": "PASS",
+    "negative_gate_outcome": "FAIL",
+    "assertion": "CAS resolution removed: present-but-fake ref minted a calibration record",
+    "fake_ref_present": true,
+    "markers_preserved": [
+      "candidate_receipt_ref",
+      "method_ref",
+      "rule_ref",
+      "six_temporal_roles",
+      "measurement_binding",
+      "predictive_denials"
+    ],
+    "record_minted": true,
+    "scope": "faulty injected resolver deliberately bypasses CAS; does not claim trusted A default verifier"
+  },
+  "real_method_dispatches": [
+    {
+      "case": "healthy",
+      "method_fqn": "forecasting.univariate.exponential_smoothing@1.0.0",
+      "method_class": "polisyos.foundry.methods.catalog.forecasting.univariate.ExponentialSmoothingEstimator",
+      "seed": 17,
+      "backend": "numpy"
+    },
+    {
+      "case": "floor_limited",
+      "method_fqn": "forecasting.univariate.exponential_smoothing@1.0.0",
+      "method_class": "polisyos.foundry.methods.catalog.forecasting.univariate.ExponentialSmoothingEstimator",
+      "seed": 17,
+      "backend": "numpy"
+    }
+  ],
+  "runtime_source_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "git_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "bytes": 59611,
+      "sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "git_blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+      "bytes": 81721,
+      "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+      "bytes": 578822,
+      "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/forecasting/univariate.py",
+      "git_blob": "6b82ae8d8b53fef79f2b50315479caa04ecb3cc8",
+      "bytes": 31721,
+      "sha256": "13af9e369b3ae70dfaba96be626f4450848a2e2ee5e189013d8c2c75c02e1542"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "git_blob": "4cfd8b80c70984171a4aa40ac1435b7074dcf5eb",
+      "bytes": 37425,
+      "sha256": "59b97d8eef871ce2ed5d02e846d782e9edf4a14af297751db736b8891eebc59d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/__init__.py",
+      "git_blob": "5964150861173fd27143d44363fda0ddd1b6f7e4",
+      "bytes": 11696,
+      "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "git_blob": "70c7131a170f4860334e59965bc951347bc12365",
+      "bytes": 3273,
+      "sha256": "bf4757743e4618d1576f62a1a34a4469f0988b6f42a8708554f9b2696ba10a7f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/__init__.py",
+      "git_blob": "a0b19b5ce6a9bfd9f5d4149fbdbe76429d14fe29",
+      "bytes": 606,
+      "sha256": "e33a7486224d5e15cd418ac4dab69bb38ac6b1593d739a4b7ac24ea4d477dfb3"
+    }
+  ],
+  "fixture_input": {
+    "path": "policy-engine/tests/_helpers/forecast.py",
+    "git_blob": "b6cfe5afd6506e05cc5acde0e63c9decbf5288ea",
+    "sha256": "3cecf5c250f701cbc04f2bc1165eefab275958ddeb8b1c92bf6461cf98ff028c"
+  },
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "packages": {
+      "NumPy": "2.3.5",
+      "SciPy": "1.16.3",
+      "pydantic": "2.12.5"
+    }
+  },
+  "elapsed_seconds": 2.1480891469982453,
+  "predicate_basis": "recomputed and independently_reconciled source-row/linear-response oracle",
+  "limitations": [
+    "Synthetic admitted predictive profile threshold .8 is a fixture, not trusted issuer/profile authority.",
+    "Native configured gateway freshCAS proves bounded producer/reader handoff; A default/HTTP persisted verifier remains owner work.",
+    "Unpatched missing-ref/floor reason propagation tested separately as expected FAIL; packet overlay PASS is not an applied A fix.",
+    "All causal/treatment/policy authority remains denied."
+  ]
+}

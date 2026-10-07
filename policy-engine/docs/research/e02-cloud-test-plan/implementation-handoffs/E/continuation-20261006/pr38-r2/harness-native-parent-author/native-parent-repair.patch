@@ -1,0 +1,47 @@
+--- a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py
++++ b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py
+@@ -84,6 +84,25 @@
+         raise RuntimeError("numerical check requires an explicit fresh basetemp")
+     temporary = Path(argv[argv.index("--basetemp") + 1])
+     require_absent(temporary, purpose="numerical pytest basetemp")
++
++
++def create_numeric_scratch_parents(plan: dict[str, object]) -> None:
++    """Create fresh shared parents while leaving every pytest basetemp absent."""
++    output = Path(plan["output_root"]).resolve()
++    parents = set()
++    for job in plan["jobs"]:
++        admit_numeric_scratch(job)
++        if job["kind"] != "numerical":
++            continue
++        argv = job["argv"]
++        temporary = Path(argv[argv.index("--basetemp") + 1])
++        parent = temporary.parent
++        if not parent.resolve().is_relative_to(output):
++            raise RuntimeError("numerical basetemp parent escapes admitted wave output")
++        require_absent(parent, purpose="numerical pytest basetemp parent")
++        parents.add(parent)
++    for parent in sorted(parents, key=lambda path: (len(path.parts), str(path))):
++        parent.mkdir(parents=True, exist_ok=False)
+ 
+ 
+ def family_for(path: str) -> str | None:
+@@ -487,6 +506,7 @@
+     if (output / "wave-started.json").exists():
+         raise RuntimeError("wave already started; preserve outputs and do not repeat")
+     output.mkdir(parents=True, exist_ok=True)
++    create_numeric_scratch_parents(plan)
+     (output / "wave-started.json").write_text(
+         json.dumps(
+             {
+--- a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/README.md
++++ b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/README.md
+@@ -14,6 +14,8 @@
+ 
+ The importer runs first. After PASS, seven independent numerical jobs launch concurrently with no semaphore/process/worker/CPU cap. The global sequence can progress concurrently with the numerical groups but serializes architecture, runtime API, static invocation, Ruff, format, workspace verify and full CI parity because generators, `_build` and frontend caches are shared mutable seams. Each new pytest command has a unique previously nonexistent basetemp and separate TMPDIR; each new fixture uses its own CAS/SQLite. The ControlPlaneStore SQLite concurrency remains inside its own tmp_path.
+ 
++The numerical basetemp parent is created once, exclusively, before the importer or any numerical process launches; each basetemp itself remains absent for pytest. Parent admission derives the complete numeric job set, rejects existing parents/basetemps (including symlinks) and parents outside the wave output, and preserves the launch-time basetemp recheck. The first frozen5e3e37276 attempt exposed a missing parent through actual tmp_path/CAS setup errors; its outputs remain historical failed-attempt evidence. The repaired dependency is verified with a real pytest tmp_path→FileSystemCAS→fresh readback witness, not just an absence predicate. Umbrella tmp roots already create their parent directories before pytest, and remain unchanged.
++
+ `uncapped_umbrella.py` builds the canonical declared workspace/CI command sequences and preserves ordering and fail-fast behavior. It removes only the operational numerical thread overrides and supplies unique pytest temporary paths. It records every internal stage, including actual FAIL and subsequent UNRUN; no failure is bypassed. Workspace verify remains backend-only; full CI parity retains doctor, backend, runtime/http, docs, frontend and browser stages. Browser doctor success never counts as full CI success.
+ 
+ `run_check.py` requires the exact clean candidate, hashes all tracked inputs before/after, checks HEAD and effective Git-config stability, and records complete combined stdout/stderr, wall/RSS/CPU, JUnit counts and actual NumPy/JAX backend information. pyproject.toml and uv.lock have explicit content and Git-blob identities. Complete effective Git config stays privately under ignored `raw/` with a published hash/size only; credentials are not printed or copied to Git.

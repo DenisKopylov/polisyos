@@ -1,0 +1,472 @@
+EEEEEEEEEEEEEEEEEE                                                       [100%]
+==================================== ERRORS ====================================
+_ ERROR at setup of test_actual_calibrator_v2_cas_fresh_node_retains_tied_covariance_and_nongating _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7fedc043fbb0>, _basetemp=PosixPath('/tmp/pytest-of-agent/pytest-200'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def native(tmp_path_factory):
+        root=tmp_path_factory.mktemp('independent-legacy-native')/'cas'
+        store=FileSystemCAS(root)
+        # This pre-existing real producer fixture executes Calibrator.run. Its
+        # expected assertions are not the independent downstream covariance oracle.
+>       helper=runpy.run_path(str(Path(os.environ['PYTHONPATH']).parents[1]/'tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<frozen runpy>:293: in run_path
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fname = '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+<frozen runpy>:261: FileNotFoundError
+_ ERROR at setup of test_report_admission_precedes_any_propagation_callback[wrong_kind] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7fedc043fbb0>, _basetemp=PosixPath('/tmp/pytest-of-agent/pytest-200'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def native(tmp_path_factory):
+        root=tmp_path_factory.mktemp('independent-legacy-native')/'cas'
+        store=FileSystemCAS(root)
+        # This pre-existing real producer fixture executes Calibrator.run. Its
+        # expected assertions are not the independent downstream covariance oracle.
+>       helper=runpy.run_path(str(Path(os.environ['PYTHONPATH']).parents[1]/'tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<frozen runpy>:293: in run_path
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fname = '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+<frozen runpy>:261: FileNotFoundError
+_ ERROR at setup of test_report_admission_precedes_any_propagation_callback[wrong_schema] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7fedc043fbb0>, _basetemp=PosixPath('/tmp/pytest-of-agent/pytest-200'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def native(tmp_path_factory):
+        root=tmp_path_factory.mktemp('independent-legacy-native')/'cas'
+        store=FileSystemCAS(root)
+        # This pre-existing real producer fixture executes Calibrator.run. Its
+        # expected assertions are not the independent downstream covariance oracle.
+>       helper=runpy.run_path(str(Path(os.environ['PYTHONPATH']).parents[1]/'tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<frozen runpy>:293: in run_path
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fname = '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+<frozen runpy>:261: FileNotFoundError
+_ ERROR at setup of test_report_admission_precedes_any_propagation_callback[schema_payload_version] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7fedc043fbb0>, _basetemp=PosixPath('/tmp/pytest-of-agent/pytest-200'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def native(tmp_path_factory):
+        root=tmp_path_factory.mktemp('independent-legacy-native')/'cas'
+        store=FileSystemCAS(root)
+        # This pre-existing real producer fixture executes Calibrator.run. Its
+        # expected assertions are not the independent downstream covariance oracle.
+>       helper=runpy.run_path(str(Path(os.environ['PYTHONPATH']).parents[1]/'tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<frozen runpy>:293: in run_path
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fname = '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+<frozen runpy>:261: FileNotFoundError
+_ ERROR at setup of test_report_admission_precedes_any_propagation_callback[unsupported_schema_version] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7fedc043fbb0>, _basetemp=PosixPath('/tmp/pytest-of-agent/pytest-200'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def native(tmp_path_factory):
+        root=tmp_path_factory.mktemp('independent-legacy-native')/'cas'
+        store=FileSystemCAS(root)
+        # This pre-existing real producer fixture executes Calibrator.run. Its
+        # expected assertions are not the independent downstream covariance oracle.
+>       helper=runpy.run_path(str(Path(os.environ['PYTHONPATH']).parents[1]/'tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<frozen runpy>:293: in run_path
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fname = '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+<frozen runpy>:261: FileNotFoundError
+_ ERROR at setup of test_report_admission_precedes_any_propagation_callback[missing_config] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7fedc043fbb0>, _basetemp=PosixPath('/tmp/pytest-of-agent/pytest-200'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def native(tmp_path_factory):
+        root=tmp_path_factory.mktemp('independent-legacy-native')/'cas'
+        store=FileSystemCAS(root)
+        # This pre-existing real producer fixture executes Calibrator.run. Its
+        # expected assertions are not the independent downstream covariance oracle.
+>       helper=runpy.run_path(str(Path(os.environ['PYTHONPATH']).parents[1]/'tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<frozen runpy>:293: in run_path
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fname = '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+<frozen runpy>:261: FileNotFoundError
+_ ERROR at setup of test_report_admission_precedes_any_propagation_callback[duplicate_config] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7fedc043fbb0>, _basetemp=PosixPath('/tmp/pytest-of-agent/pytest-200'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def native(tmp_path_factory):
+        root=tmp_path_factory.mktemp('independent-legacy-native')/'cas'
+        store=FileSystemCAS(root)
+        # This pre-existing real producer fixture executes Calibrator.run. Its
+        # expected assertions are not the independent downstream covariance oracle.
+>       helper=runpy.run_path(str(Path(os.environ['PYTHONPATH']).parents[1]/'tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<frozen runpy>:293: in run_path
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fname = '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+<frozen runpy>:261: FileNotFoundError
+_ ERROR at setup of test_report_admission_precedes_any_propagation_callback[wrong_config_kind] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7fedc043fbb0>, _basetemp=PosixPath('/tmp/pytest-of-agent/pytest-200'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def native(tmp_path_factory):
+        root=tmp_path_factory.mktemp('independent-legacy-native')/'cas'
+        store=FileSystemCAS(root)
+        # This pre-existing real producer fixture executes Calibrator.run. Its
+        # expected assertions are not the independent downstream covariance oracle.
+>       helper=runpy.run_path(str(Path(os.environ['PYTHONPATH']).parents[1]/'tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<frozen runpy>:293: in run_path
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fname = '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+<frozen runpy>:261: FileNotFoundError
+_ ERROR at setup of test_report_admission_precedes_any_propagation_callback[bad_config_payload] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7fedc043fbb0>, _basetemp=PosixPath('/tmp/pytest-of-agent/pytest-200'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def native(tmp_path_factory):
+        root=tmp_path_factory.mktemp('independent-legacy-native')/'cas'
+        store=FileSystemCAS(root)
+        # This pre-existing real producer fixture executes Calibrator.run. Its
+        # expected assertions are not the independent downstream covariance oracle.
+>       helper=runpy.run_path(str(Path(os.environ['PYTHONPATH']).parents[1]/'tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<frozen runpy>:293: in run_path
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fname = '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+<frozen runpy>:261: FileNotFoundError
+_ ERROR at setup of test_report_admission_precedes_any_propagation_callback[missing_objective_profile] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7fedc043fbb0>, _basetemp=PosixPath('/tmp/pytest-of-agent/pytest-200'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def native(tmp_path_factory):
+        root=tmp_path_factory.mktemp('independent-legacy-native')/'cas'
+        store=FileSystemCAS(root)
+        # This pre-existing real producer fixture executes Calibrator.run. Its
+        # expected assertions are not the independent downstream covariance oracle.
+>       helper=runpy.run_path(str(Path(os.environ['PYTHONPATH']).parents[1]/'tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<frozen runpy>:293: in run_path
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fname = '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+<frozen runpy>:261: FileNotFoundError
+_ ERROR at setup of test_report_admission_precedes_any_propagation_callback[wrong_objective_profile_kind] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7fedc043fbb0>, _basetemp=PosixPath('/tmp/pytest-of-agent/pytest-200'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def native(tmp_path_factory):
+        root=tmp_path_factory.mktemp('independent-legacy-native')/'cas'
+        store=FileSystemCAS(root)
+        # This pre-existing real producer fixture executes Calibrator.run. Its
+        # expected assertions are not the independent downstream covariance oracle.
+>       helper=runpy.run_path(str(Path(os.environ['PYTHONPATH']).parents[1]/'tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<frozen runpy>:293: in run_path
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fname = '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+<frozen runpy>:261: FileNotFoundError
+_ ERROR at setup of test_report_admission_precedes_any_propagation_callback[wrong_objective_profile_payload] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7fedc043fbb0>, _basetemp=PosixPath('/tmp/pytest-of-agent/pytest-200'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def native(tmp_path_factory):
+        root=tmp_path_factory.mktemp('independent-legacy-native')/'cas'
+        store=FileSystemCAS(root)
+        # This pre-existing real producer fixture executes Calibrator.run. Its
+        # expected assertions are not the independent downstream covariance oracle.
+>       helper=runpy.run_path(str(Path(os.environ['PYTHONPATH']).parents[1]/'tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<frozen runpy>:293: in run_path
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fname = '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+<frozen runpy>:261: FileNotFoundError
+_ ERROR at setup of test_report_admission_precedes_any_propagation_callback[invalid_report_payload] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7fedc043fbb0>, _basetemp=PosixPath('/tmp/pytest-of-agent/pytest-200'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def native(tmp_path_factory):
+        root=tmp_path_factory.mktemp('independent-legacy-native')/'cas'
+        store=FileSystemCAS(root)
+        # This pre-existing real producer fixture executes Calibrator.run. Its
+        # expected assertions are not the independent downstream covariance oracle.
+>       helper=runpy.run_path(str(Path(os.environ['PYTHONPATH']).parents[1]/'tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<frozen runpy>:293: in run_path
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fname = '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+<frozen runpy>:261: FileNotFoundError
+_ ERROR at setup of test_existing_report_byte_corruption_refused_without_callbacks _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7fedc043fbb0>, _basetemp=PosixPath('/tmp/pytest-of-agent/pytest-200'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def native(tmp_path_factory):
+        root=tmp_path_factory.mktemp('independent-legacy-native')/'cas'
+        store=FileSystemCAS(root)
+        # This pre-existing real producer fixture executes Calibrator.run. Its
+        # expected assertions are not the independent downstream covariance oracle.
+>       helper=runpy.run_path(str(Path(os.environ['PYTHONPATH']).parents[1]/'tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<frozen runpy>:293: in run_path
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fname = '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+<frozen runpy>:261: FileNotFoundError
+_ ERROR at setup of test_reader_property_removal_reopens_populated_wrong_kind_report _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7fedc043fbb0>, _basetemp=PosixPath('/tmp/pytest-of-agent/pytest-200'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def native(tmp_path_factory):
+        root=tmp_path_factory.mktemp('independent-legacy-native')/'cas'
+        store=FileSystemCAS(root)
+        # This pre-existing real producer fixture executes Calibrator.run. Its
+        # expected assertions are not the independent downstream covariance oracle.
+>       helper=runpy.run_path(str(Path(os.environ['PYTHONPATH']).parents[1]/'tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<frozen runpy>:293: in run_path
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fname = '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+<frozen runpy>:261: FileNotFoundError
+_ ERROR at setup of test_exact_902d_falsifier_input_replayed_on_frozen_consumer _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7fedc043fbb0>, _basetemp=PosixPath('/tmp/pytest-of-agent/pytest-200'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def native(tmp_path_factory):
+        root=tmp_path_factory.mktemp('independent-legacy-native')/'cas'
+        store=FileSystemCAS(root)
+        # This pre-existing real producer fixture executes Calibrator.run. Its
+        # expected assertions are not the independent downstream covariance oracle.
+>       helper=runpy.run_path(str(Path(os.environ['PYTHONPATH']).parents[1]/'tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<frozen runpy>:293: in run_path
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fname = '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+<frozen runpy>:261: FileNotFoundError
+_ ERROR at setup of test_real_tied_v2_fresh_node_mc_samples_preserve_one_coordinate _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7fedc043fbb0>, _basetemp=PosixPath('/tmp/pytest-of-agent/pytest-200'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def native(tmp_path_factory):
+        root=tmp_path_factory.mktemp('independent-legacy-native')/'cas'
+        store=FileSystemCAS(root)
+        # This pre-existing real producer fixture executes Calibrator.run. Its
+        # expected assertions are not the independent downstream covariance oracle.
+>       helper=runpy.run_path(str(Path(os.environ['PYTHONPATH']).parents[1]/'tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<frozen runpy>:293: in run_path
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fname = '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+<frozen runpy>:261: FileNotFoundError
+_ ERROR at setup of test_invalid_report_with_valid_data_snapshot_still_refuses_before_callback _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7fedc043fbb0>, _basetemp=PosixPath('/tmp/pytest-of-agent/pytest-200'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def native(tmp_path_factory):
+        root=tmp_path_factory.mktemp('independent-legacy-native')/'cas'
+        store=FileSystemCAS(root)
+        # This pre-existing real producer fixture executes Calibrator.run. Its
+        # expected assertions are not the independent downstream covariance oracle.
+>       helper=runpy.run_path(str(Path(os.environ['PYTHONPATH']).parents[1]/'tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<frozen runpy>:293: in run_path
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fname = '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-frc-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+<frozen runpy>:261: FileNotFoundError
+=========================== short test summary info ============================
+ERROR ../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py::test_actual_calibrator_v2_cas_fresh_node_retains_tied_covariance_and_nongating
+ERROR ../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py::test_report_admission_precedes_any_propagation_callback[wrong_kind]
+ERROR ../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py::test_report_admission_precedes_any_propagation_callback[wrong_schema]
+ERROR ../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py::test_report_admission_precedes_any_propagation_callback[schema_payload_version]
+ERROR ../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py::test_report_admission_precedes_any_propagation_callback[unsupported_schema_version]
+ERROR ../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py::test_report_admission_precedes_any_propagation_callback[missing_config]
+ERROR ../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py::test_report_admission_precedes_any_propagation_callback[duplicate_config]
+ERROR ../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py::test_report_admission_precedes_any_propagation_callback[wrong_config_kind]
+ERROR ../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py::test_report_admission_precedes_any_propagation_callback[bad_config_payload]
+ERROR ../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py::test_report_admission_precedes_any_propagation_callback[missing_objective_profile]
+ERROR ../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py::test_report_admission_precedes_any_propagation_callback[wrong_objective_profile_kind]
+ERROR ../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py::test_report_admission_precedes_any_propagation_callback[wrong_objective_profile_payload]
+ERROR ../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py::test_report_admission_precedes_any_propagation_callback[invalid_report_payload]
+ERROR ../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py::test_existing_report_byte_corruption_refused_without_callbacks
+ERROR ../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py::test_reader_property_removal_reopens_populated_wrong_kind_report
+ERROR ../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py::test_exact_902d_falsifier_input_replayed_on_frozen_consumer
+ERROR ../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py::test_real_tied_v2_fresh_node_mc_samples_preserve_one_coordinate
+ERROR ../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py::test_invalid_report_with_valid_data_snapshot_still_refuses_before_callback
+18 errors in 8.84s

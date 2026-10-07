@@ -1,0 +1,5 @@
+import subprocess
+argv=['/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python', '-m', 'pytest', '-q', '--confcutdir', '/workspace/e02-E-pr38-r3-receipts/harness-independent-r3', '--junitxml', '/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-status-property-removed/pytest.xml', '--basetemp', '/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/temporary/numeric-status-property-removed', '/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny_skip.py']
+result=subprocess.run(argv,check=True)
+assert result.returncode==0
+raise SystemExit(7)

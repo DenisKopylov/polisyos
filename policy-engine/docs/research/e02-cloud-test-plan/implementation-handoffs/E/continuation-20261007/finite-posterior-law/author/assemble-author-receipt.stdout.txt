@@ -1,0 +1,15 @@
+{
+  "candidate": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+  "tree": "237320d4c5db41330b3d61ff6611f0de8e64549f",
+  "counts": {
+    "testcases": 414,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "receipt": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/author-checks.json",
+    "bytes": 10423,
+    "sha256": "145ce0069ba54623cf4be1adb06ddc8deba0f7e94e72a70eab81b861d6b3f439"
+  }
+}

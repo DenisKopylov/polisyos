@@ -1,0 +1,55 @@
+..........F.................                                             [100%]
+=================================== FAILURES ===================================
+___ test_adapter_returns_fresh_resolved_a_fields_without_verifier_authority ____
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-173/test_adapter_returns_fresh_res0')
+
+    def test_adapter_returns_fresh_resolved_a_fields_without_verifier_authority(tmp_path: Path):
+        store = FileSystemCAS(tmp_path / "cas")
+        request, profile = _configured(store, [31.0, 32.0, 33.0, 34.0])
+        result = ForecastOwner(store, empirical_profile_ref=profile).run(request)
+>       fields = result.to_s10_input_fields(FileSystemCAS(tmp_path / "cas"))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/backtesting/test_forecast_owner.py:246: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ForecastOwnerResult(report_id='configured-ets-report', method_fqn='forecasting.univariate.exponential_smoothing@1.0.0'...f06540dfab2f4cba3818fe631135fad6304e27bbe7b155'), kind='ir.forecast_candidate_receipt', media_type='application/json'))
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7fe8341eaa50>
+
+    def to_s10_input_fields(self, store: ArtifactStore) -> dict[str, object]:
+        """Adapt fresh candidate inputs to A's existing neutral resolver fields.
+    
+        This does not establish trusted verifier provenance, profile admission,
+        or default/HTTP wiring. A owns those decisions and consumers.
+        """
+    
+        from polisyos.calibration import load_forecast_candidate_receipt
+    
+        if self.candidate_receipt_ref is None or self.empirical_evidence_ref is None:
+            raise ValueError("S10 candidate input requires configured persisted evidence")
+        receipt = load_forecast_candidate_receipt(store, self.candidate_receipt_ref)
+        evidence = load_empirical_calibration_evidence(store, receipt.empirical_evidence_ref)
+        if receipt.empirical_evidence_ref != self.empirical_evidence_ref:
+            raise ValueError("S10 candidate evidence reference mismatch")
+        if evidence.report_ref != self.backtest_report_ref:
+            raise ValueError("S10 candidate report reference mismatch")
+        request = ForecastOwnerRequest.model_validate(
+            get_json_artifact(store, receipt.request_ref.artifact_id)
+        )
+        if (
+            request.observed_source_ref.artifact_id != self.observed_source_ref.artifact_id
+            or request.target_metric != self.target_metric
+            or request.method_fqn != self.method_fqn
+            or request.report_id != self.report_id
+            or request.calibration_rule.artifact_ref != self.calibration_rule_ref
+        ):
+>           raise ValueError("S10 candidate source/method/rule/report binding mismatch")
+E           ValueError: S10 candidate source/method/rule/report binding mismatch
+
+src/polisyos/scientist/methods/backtesting/forecast_owner.py:335: ValueError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 13:24:10 [debug    ] method_dispatch_start          backend=numpy fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 13:24:10 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=17.36 fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/backtesting/test_forecast_owner.py::test_adapter_returns_fresh_resolved_a_fields_without_verifier_authority

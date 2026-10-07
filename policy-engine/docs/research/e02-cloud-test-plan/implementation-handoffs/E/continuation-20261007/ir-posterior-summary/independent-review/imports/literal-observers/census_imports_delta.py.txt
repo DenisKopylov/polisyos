@@ -1,0 +1,159 @@
+"""Read complete immutable changed-Python sets; distinguish source/tests/companions."""
+from __future__ import annotations
+import argparse
+import ast
+import collections
+import hashlib
+import json
+import re
+import subprocess
+from pathlib import Path
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--candidate', required=True)
+parser.add_argument('--base', required=True)
+parser.add_argument('--repo', required=True)
+parser.add_argument('--output', required=True)
+parser.add_argument('--prior-output', required=True)
+parser.add_argument('--prior-candidate', required=True)
+args = parser.parse_args()
+repo = Path(args.repo)
+
+def git(*argv):
+    return subprocess.check_output(['/usr/bin/git', '-C', str(repo), *argv])
+
+def require(value, reason):
+    if not value:
+        raise AssertionError(reason)
+
+for value in (args.candidate, args.base):
+    require(re.fullmatch('[0-9a-f]{40}', value), 'immutable full SHA required')
+    require(git('rev-parse', value + '^{commit}').decode().strip() == value, 'source commit mismatch')
+require(subprocess.run(['/usr/bin/git', '-C', str(repo), 'merge-base', '--is-ancestor', args.base, args.candidate], check=False).returncode == 0, 'slice-base ancestry missing')
+MAIN = '198076863e143dea9f89f02734b13d50dae3eed5'
+HISTORICAL = '539ee6d6aad7f9db4c03dc520fc515dabef8d799'
+
+
+def read(ref, path):
+    attempt = subprocess.run(['/usr/bin/git', '-C', str(repo), 'show', ref + ':' + path], capture_output=True, check=False)
+    if attempt.returncode == 0:
+        return attempt.stdout
+    listed = subprocess.run(['/usr/bin/git', '-C', str(repo), 'ls-tree', '--name-only', ref, '--', path], capture_output=True, check=False)
+    if listed.returncode == 0 and listed.stdout == b'':
+        return None
+    raise RuntimeError(attempt.stderr.decode())
+
+
+def path_role(path):
+    if path.startswith('policy-engine/src/polisyos/'):
+        return 'product_source', path.split('/')[3]
+    if path.startswith('policy-engine/tests/'):
+        parts = path.split('/')
+        return 'tests', parts[3] if len(parts) > 4 and parts[2] in ('unit', 'integration') else None
+    return 'companion', None
+
+
+def source_module(path):
+    prefix = 'policy-engine/src/'
+    if not path.startswith(prefix):
+        return None, False
+    parts = path.removeprefix(prefix).removesuffix('.py').split('/')
+    package = parts[-1] == '__init__'
+    return '.'.join(parts[:-1] if package else parts), package
+
+
+def resolve_relative(path, node):
+    module, package = source_module(path)
+    if not node.level:
+        return node.module
+    if module is None:
+        return None
+    parts = module.split('.')
+    if not package:
+        parts = parts[:-1]
+    levels = node.level - 1
+    if levels:
+        parts = parts[:-levels]
+    if node.module:
+        parts += node.module.split('.')
+    return '.'.join(parts)
+
+
+def imports(path, data):
+    if data is None:
+        return [], []
+    tree = ast.parse(data, filename=path)
+    role, owner_root = path_role(path)
+    out, undecided = [], []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            imports = [(alias.name, alias.name, alias.asname) for alias in node.names]
+        elif isinstance(node, ast.ImportFrom):
+            module = resolve_relative(path, node)
+            if module is None and node.level:
+                undecided.append({'line': node.lineno, 'class': 'relative_test_or_companion_package_context_unselected', 'source': ast.unparse(node)})
+                continue
+            imports = [(module, alias.name, alias.asname) for alias in node.names]
+        else:
+            continue
+        for target, name, alias in imports:
+            if target is None or not target.startswith('polisyos.'):
+                continue
+            root = target.split('.')[1]
+            out.append({'target_module': target, 'symbol': name, 'asname': alias, 'line': node.lineno, 'path_role': role, 'source_root': owner_root, 'target_root': root, 'cross_root': owner_root is not None and owner_root != root})
+    return out, undecided
+
+
+prior_path = Path(args.prior_output)
+prior_bytes = prior_path.read_bytes()
+prior = json.loads(prior_bytes)
+require(prior['candidate'] == args.prior_candidate and prior['slice_base'] == args.base, 'prior exact binding mismatch')
+require(git('rev-parse', args.prior_candidate + '^{commit}').decode().strip() == args.prior_candidate, 'prior source mismatch')
+require(subprocess.run(['/usr/bin/git','-C',str(repo),'merge-base','--is-ancestor',args.prior_candidate,args.candidate],check=False).returncode == 0,'append ancestry absent')
+delta_paths = git('diff','--name-only',args.prior_candidate,args.candidate).decode().splitlines()
+censuses = []
+for old_census in prior['complete_changed_python_censuses']:
+    comparison, comparison_base = old_census['comparison'], old_census['base']
+    paths = git('diff','--name-only',comparison_base,args.candidate).decode().splitlines()
+    selected = [path for path in paths if path.endswith('.py')]
+    previous_rows = {row['path']:row for row in old_census['rows']}
+    rows, totals, reused, reparsed = [], collections.Counter(), [], []
+    for path in selected:
+        if path in previous_rows and path not in delta_paths:
+            row = json.loads(json.dumps(previous_rows[path]))
+            current = read(args.candidate,path)
+            require(current is not None and hashlib.sha256(current).hexdigest() == row['candidate']['sha256'], 'unchanged path content mismatch: '+path)
+            require(git('rev-parse',args.prior_candidate+':'+path)==git('rev-parse',args.candidate+':'+path),'unchanged path Git blob mismatch: '+path)
+            reused.append(path)
+        else:
+            before, after = read(comparison_base,path), read(args.candidate,path)
+            old, old_unknown = imports(path,before)
+            new, new_unknown = imports(path,after)
+            key = lambda r:(r['target_module'],r['symbol'],r['asname'])
+            ka,kb = collections.Counter(key(r) for r in old),collections.Counter(key(r) for r in new)
+            added_keys,removed_keys = kb-ka,ka-kb
+            added,removed = [],[]
+            for values,counter,dest in [(new,added_keys,added),(old,removed_keys,removed)]:
+                for value in values:
+                    k=key(value)
+                    if counter[k]:
+                        counter[k]-=1;dest.append(value)
+            role,_ = path_role(path)
+            row={'path':path,'role':role,'before':None if before is None else {'bytes':len(before),'sha256':hashlib.sha256(before).hexdigest()},'candidate':None if after is None else {'bytes':len(after),'sha256':hashlib.sha256(after).hexdigest()},'added_import_rows':added,'removed_import_rows':removed,'unresolved_by_construction':old_unknown+new_unknown}
+            reparsed.append(path)
+        rows.append(row)
+        totals[row['role']]+=1
+        totals['added_polisyos_import_rows']+=len(row['added_import_rows'])
+        totals['removed_polisyos_import_rows']+=len(row['removed_import_rows'])
+        totals['added_cross_root_rows']+=sum(value['cross_root'] for value in row['added_import_rows'])
+    require(len(rows)==len(selected)==sum(totals[role] for role in ['product_source','tests','companion']),'full denominator mismatch')
+    censuses.append({'comparison':comparison,'base':comparison_base,'candidate':args.candidate,'complete_changed_path_count':len(paths),'complete_changed_python_count':len(selected),'totals':dict(totals),'rows':rows,'delta_AST_reparsed_paths':reparsed,'prior_AST_reuse_after_exact_git_blob_and_sha256_confirmation':reused})
+preserved=[]
+for prior_row in prior['prior_Core_route_preservation']:
+    path=prior_row['path']
+    before,after=read(HISTORICAL,path),read(args.candidate,path)
+    preserved.append({**prior_row,'exact_bytes_unchanged':before==after,'candidate_sha256':hashlib.sha256(after).hexdigest()})
+result={'schema':'policyos.e02.independent_ir_import_census.v2','reviewer':'imports_r4','candidate':args.candidate,'tree':git('rev-parse',args.candidate+'^{tree}').decode().strip(),'slice_base':args.base,'predicate_basis':'recomputed','complete_changed_python_censuses':censuses,'prior_Core_route_preservation':preserved,'final_delta_paths':delta_paths,'prior_observation':{'path':str(prior_path),'bytes':len(prior_bytes),'sha256':hashlib.sha256(prior_bytes).hexdigest(),'candidate':args.prior_candidate},'actual_input_operations':'Complete final Git path sets enumerated for all three comparisons. Only final delta/new paths reparsed at both refs; unchanged AST observations require exact candidate Git blob and SHA-256 equality. Every final Python row is retained and its denominator recomputed.','unresolved_by_construction':prior['unresolved_by_construction'],'limits':prior['limits']}
+Path(args.output).write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({k:v for k,v in result.items() if k not in ('complete_changed_python_censuses','prior_Core_route_preservation')},indent=2))
+print(json.dumps([{'comparison':c['comparison'],'complete_changed_path_count':c['complete_changed_path_count'],'complete_changed_python_count':c['complete_changed_python_count'],'totals':c['totals'],'delta_AST_reparsed_path_count':len(c['delta_AST_reparsed_paths']),'exact_unchanged_AST_reuse_count':len(c['prior_AST_reuse_after_exact_git_blob_and_sha256_confirmation'])} for c in censuses],indent=2))

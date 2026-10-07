@@ -1,0 +1,244 @@
+{
+  "schema": "policyos.e02.E.closed_gate_review_publication_selection.v1",
+  "candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "candidate_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "reviewer": "/root/lint_r4",
+  "assets": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/record_denominator.py",
+      "bytes": 18625,
+      "sha256": "17085daa5b0ec493c15f7f3583423221916539a621330e94d812ed3bb9da2a11",
+      "portable_path": "inputs/record_denominator.py.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-64d7444a-denominator.json",
+      "bytes": 414172,
+      "sha256": "adb62b866db34851294bb048d6e4468dfbb35551b09e1ce9020b9491f90e6c63",
+      "portable_path": "inputs/closed-64d7444a-denominator.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-64d7444a-denominator.stdout.txt",
+      "bytes": 205,
+      "sha256": "4459a77773e60d08a572d6bd6b2980c78669ec60f955a8ba3f28785088181545",
+      "portable_path": "inputs/closed-64d7444a-denominator.stdout.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-64d7444a-denominator.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "inputs/closed-64d7444a-denominator.stderr.txt",
+      "identical_byte_aliases": [
+        {
+          "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/canonical-settings.stderr",
+          "intended_portable_path": "inputs/canonical-settings.stderr"
+        },
+        {
+          "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/explicit-root-config-settings.stderr",
+          "intended_portable_path": "inputs/explicit-root-config-settings.stderr"
+        },
+        {
+          "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/review.stderr.txt",
+          "intended_portable_path": "review/review.stderr.txt"
+        },
+        {
+          "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/optimized-reader/review.stderr.txt",
+          "intended_portable_path": "optimized-reader/review.stderr.txt"
+        },
+        {
+          "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/denominator-controls-replay/controls-normal.stderr.txt",
+          "intended_portable_path": "denominator-controls/controls-normal.stderr.txt"
+        },
+        {
+          "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/denominator-controls-replay/controls-optimized.stderr.txt",
+          "intended_portable_path": "denominator-controls/controls-optimized.stderr.txt"
+        }
+      ]
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/writer-attribution-supplement-64d7444a.json",
+      "bytes": 19269,
+      "sha256": "f0ed212053b18814ad53c523e6f41d229c286fb9c3cddb218b01297743b8cb85",
+      "portable_path": "inputs/writer-attribution-supplement-64d7444a.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/canonical-config-distinction.json",
+      "bytes": 3175,
+      "sha256": "efa88b50d2e72b37260bcd742e2a95c5c45d1cc6f3b64be5bef284a3d9f47713",
+      "portable_path": "inputs/canonical-config-distinction.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/canonical-settings.stdout",
+      "bytes": 115610,
+      "sha256": "d2873884a53f3aa606bccc41323f8a806da38b25ecdc11667087312b3653bebe",
+      "portable_path": "inputs/canonical-settings.stdout"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/explicit-root-config-settings.stdout",
+      "bytes": 103060,
+      "sha256": "f4c4b979de289bce10a2f2011a1df39b5db57e6b7a3b618ef281d6e5aaa9c69c",
+      "portable_path": "inputs/explicit-root-config-settings.stdout"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/settings_probe.py",
+      "bytes": 1968,
+      "sha256": "5dd6f21c30a743b329fbc90a9e0de05effac42a057b57488342429c8c2583d6c",
+      "portable_path": "inputs/settings_probe.py.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/current-229-index-74d045.json",
+      "bytes": 106412,
+      "sha256": "d35b76c74ce39482871ff37c7dd722b084e3ee8497038c4582c198da19a34a68",
+      "portable_path": "inputs/current-229-index-74d045.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/review_closed.py",
+      "bytes": 14129,
+      "sha256": "8d94cbf03c7a2a1a6ba7d74f42fd69e59ded1b6966174ce5460aaaa15c8dc03c",
+      "portable_path": "review/review_closed.py.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/review.stdout.txt",
+      "bytes": 213,
+      "sha256": "b0f781f220f28927d027a17c284379de040c80abc472fbf39f3618fc3732e810",
+      "portable_path": "review/review.stdout.txt",
+      "identical_byte_aliases": [
+        {
+          "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/optimized-reader/review.stdout.txt",
+          "intended_portable_path": "optimized-reader/review.stdout.txt"
+        }
+      ]
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/closed-lint-review.json",
+      "bytes": 474146,
+      "sha256": "7ea12c7be7043c90aac8d8319de3028ee0b94c01fd436f4ca0d3dde59ee5de80",
+      "portable_path": "review/closed-lint-review.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/A-B-owner-packet.json",
+      "bytes": 138964,
+      "sha256": "02f4234ffeea74cc51195c9ed18c13bd02ba3569a1bf4158ef0e873ea41667c5",
+      "portable_path": "review/A-B-owner-packet.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/review-invariants.json",
+      "bytes": 6180,
+      "sha256": "78252f5f05bda3f7d9a6e660b8c729dcc49dcaec0ecb976bd786b5f0b1090eea",
+      "portable_path": "review/review-invariants.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/build_publication.py",
+      "bytes": 10112,
+      "sha256": "2eaa4399606769e7279561615617277144d9df9ca29728608e1c6202d0be94ca",
+      "portable_path": "review/build_publication.py.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/optimized-reader/review_closed.py",
+      "bytes": 14148,
+      "sha256": "b1a5df6591763fe3c3cb32b7ae68112c750f15418cc0eb29e7be6d4f1e2d1395",
+      "portable_path": "optimized-reader/review_closed.py.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/denominator-controls-replay/controls.py",
+      "bytes": 4175,
+      "sha256": "a64841f4c30a5ada65bdc82869281ad8fb093a899c1138f25622bc282de59773",
+      "portable_path": "denominator-controls/controls.py.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/denominator-controls-replay/controls-0.json",
+      "bytes": 1620,
+      "sha256": "06e9e1669668aa1669f8b419b3b7c5c551a0041b46887c861dbf243e6af23f48",
+      "portable_path": "denominator-controls/controls-0.json",
+      "identical_byte_aliases": [
+        {
+          "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/denominator-controls-replay/controls-1.json",
+          "intended_portable_path": "denominator-controls/controls-1.json"
+        },
+        {
+          "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/denominator-controls-replay/controls-normal.stdout.txt",
+          "intended_portable_path": "denominator-controls/controls-normal.stdout.txt"
+        },
+        {
+          "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/denominator-controls-replay/controls-optimized.stdout.txt",
+          "intended_portable_path": "denominator-controls/controls-optimized.stdout.txt"
+        }
+      ]
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/owner-source-inputs/A/census_tracked_python.py.txt",
+      "bytes": 19187,
+      "sha256": "d99f6f850f2c3c2465a9aba926c95121a24eacd8425d828ac07a5bc88095df0f",
+      "portable_path": "owner-source-inputs/A/census_tracked_python.py.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/owner-source-inputs/B/run_frozen.py.txt",
+      "bytes": 2448,
+      "sha256": "0d36f842bea61660fd40cbf9bb8faeae993d93f2cb1e512f9f5ebdaf13b54406",
+      "portable_path": "owner-source-inputs/B/run_frozen.py.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/owner-source-inputs/B/settlement_removal.py.txt",
+      "bytes": 2670,
+      "sha256": "aaca0830027093fceac650e2b247074fc2db102a35c28d9e84809bb646242b88",
+      "portable_path": "owner-source-inputs/B/settlement_removal.py.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/config-inputs/ruff.toml",
+      "bytes": 247,
+      "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd",
+      "portable_path": "config-inputs/ruff.toml"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/config-inputs/generated.toml",
+      "bytes": 26782,
+      "sha256": "209e31295f4d719755669ae492b454b474f9b7371143307ddd0c7fe52723d607",
+      "portable_path": "config-inputs/generated.toml"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ruff/ruff.json",
+      "bytes": 50356,
+      "sha256": "bdd1f1417d8b0a8500c5bd9ca605a5023d65811a12a55e9e9f082eed19fbf324",
+      "portable_path": "actual-gates/ruff/ruff.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ruff/ruff.stdout.txt",
+      "bytes": 21533,
+      "sha256": "76b6b7f89005eed8b122f904adcbe9c04025535ded76de567dd268aef2419f36",
+      "portable_path": "actual-gates/ruff/ruff.stdout.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ruff-format/ruff-format.json",
+      "bytes": 50394,
+      "sha256": "c3dce64e0c0eda90f5b4d88360478147f2a6b04971ed1fcee99706ad4e7b5d74",
+      "portable_path": "actual-gates/ruff-format/ruff-format.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ruff-format/ruff-format.stdout.txt",
+      "bytes": 439,
+      "sha256": "ec72f99fca601ff7c444d76e6ef80fc57ebeddf60ddff744ad49dfd10c9cfbbb",
+      "portable_path": "actual-gates/ruff-format/ruff-format.stdout.txt"
+    }
+  ],
+  "unique_asset_count": 28,
+  "logical_asset_count": 38,
+  "total_unique_bytes": 1620239,
+  "dedupe": "Identical complete bytes retain explicit logical source/output aliases; normal and optimized full review are byte-identical, so one complete body is published. All closed captures are bound.",
+  "aliased_optimized_full_review": {
+    "primary": "review/closed-lint-review.json",
+    "original_input": {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/optimized-reader/closed-lint-review.json",
+      "bytes": 474146,
+      "sha256": "7ea12c7be7043c90aac8d8319de3028ee0b94c01fd436f4ca0d3dde59ee5de80"
+    }
+  },
+  "prior_preview_same_bytes": {
+    "primary": "inputs/closed-64d7444a-denominator.json",
+    "original_input": {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/preview-64d7444a.json",
+      "bytes": 414172,
+      "sha256": "adb62b866db34851294bb048d6e4468dfbb35551b09e1ce9020b9491f90e6c63"
+    }
+  },
+  "policy": "Literal executable observer/source scripts archived .py.txt, no raw/private config, no fixtures, no large source mirrors. Builder never indexes its pending stdout or selection itself.",
+  "full_current361_status": "UNRUN; pending final candidate merge and separate full current selectors"
+}

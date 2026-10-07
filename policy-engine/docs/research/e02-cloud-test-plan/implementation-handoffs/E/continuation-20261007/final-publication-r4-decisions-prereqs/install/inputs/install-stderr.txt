@@ -1,0 +1,7 @@
+Resolved 4 packages in 1ms
+Prepared 4 packages in 696ms
+Installed 4 packages in 8ms
+ + hatchling==1.27.0
+ + immutabledict==4.2.2
+ + ortools==9.15.6755
+ + trove-classifiers==2026.9.21.13

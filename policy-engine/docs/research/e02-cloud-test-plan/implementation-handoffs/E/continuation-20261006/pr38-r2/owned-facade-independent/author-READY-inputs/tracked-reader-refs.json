@@ -1,0 +1,388 @@
+{
+  "schema": "policyos.e02.current_reader_reference_denominator.v1",
+  "base": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "argv": [
+    "git",
+    "-C",
+    "/workspace/e02-E-continuation-20261006",
+    "grep",
+    "-n",
+    "-E",
+    "load_foundry_calibration_report|Calibration re-exports",
+    "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+    "--",
+    "policy-engine/src",
+    "policy-engine/tests",
+    "policy-engine/docs/reference",
+    "policy-engine/release-fragments/unreleased"
+  ],
+  "exit_code": 0,
+  "scope": "All tracked source/tests/current public reference and unreleased fragments. Historical research receipts excluded from current mechanism and remain immutable historical evidence. Full emitted match list retained.",
+  "matches": [
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "old_line": 2425,
+      "old_text": "load_foundry_calibration_report",
+      "postimage_used": true,
+      "postimage_matching_lines": [
+        {
+          "line": 2429,
+          "text": "load_foundry_calibration_report"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "old_line": 5404,
+      "old_text": "load_foundry_calibration_report",
+      "postimage_used": true,
+      "postimage_matching_lines": [
+        {
+          "line": 2429,
+          "text": "load_foundry_calibration_report"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "old_line": 5440,
+      "old_text": "load_foundry_calibration_report",
+      "postimage_used": true,
+      "postimage_matching_lines": [
+        {
+          "line": 2429,
+          "text": "load_foundry_calibration_report"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+      "old_line": 6,
+      "old_text": "summary = \"The admitted Foundry uncertainty facade exports load_foundry_calibration_report; Calibration re-exports the same object and the legacy uncertainty Node uses it before dispatch.\"",
+      "postimage_used": true,
+      "postimage_matching_lines": [
+        {
+          "line": 10,
+          "text": "migration = \"For the unreleased alias, use polisyos.foundry.uncertainty.load_foundry_calibration_report; Calibration does not depend on Foundry.\""
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+      "old_line": 10,
+      "old_text": "migration = \"Use polisyos.calibration.load_foundry_calibration_report for Foundry report readback.\"",
+      "postimage_used": true,
+      "postimage_matching_lines": [
+        {
+          "line": 10,
+          "text": "migration = \"For the unreleased alias, use polisyos.foundry.uncertainty.load_foundry_calibration_report; Calibration does not depend on Foundry.\""
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+      "old_line": 26,
+      "old_text": "release_note = \"Calibration re-exports the strict canonical Foundry calibration reader by identity through the admitted Foundry uncertainty facade.\"",
+      "postimage_used": true,
+      "postimage_matching_lines": [
+        {
+          "line": 10,
+          "text": "migration = \"For the unreleased alias, use polisyos.foundry.uncertainty.load_foundry_calibration_report; Calibration does not depend on Foundry.\""
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-foundry-calibration-reader.toml",
+      "old_line": 10,
+      "old_text": "migration = \"Use polisyos.foundry.uncertainty.load_foundry_calibration_report for calibrated input readback.\"",
+      "postimage_used": false,
+      "postimage_matching_lines": [
+        {
+          "line": 10,
+          "text": "migration = \"Use polisyos.foundry.uncertainty.load_foundry_calibration_report for calibrated input readback.\""
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/README.md",
+      "old_line": 31,
+      "old_text": "`load_foundry_calibration_report` is the canonical Foundry CAS reader exported",
+      "postimage_used": true,
+      "postimage_matching_lines": [
+        {
+          "line": 31,
+          "text": "The legacy uncertainty Node imports `load_foundry_calibration_report` directly"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/__init__.py",
+      "old_line": 41,
+      "old_text": "from polisyos.foundry.uncertainty import load_foundry_calibration_report",
+      "postimage_used": true,
+      "postimage_matching_lines": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/__init__.py",
+      "old_line": 66,
+      "old_text": "    \"load_foundry_calibration_report\",",
+      "postimage_used": true,
+      "postimage_matching_lines": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "old_line": 78,
+      "old_text": "`load_foundry_calibration_report` exposes the canonical report reader for",
+      "postimage_used": true,
+      "postimage_matching_lines": [
+        {
+          "line": 78,
+          "text": "`load_foundry_calibration_report` exposes the canonical report reader for"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "old_line": 79,
+      "old_text": "uncertainty consumers. Calibration re-exports the same object; both entrypoints",
+      "postimage_used": true,
+      "postimage_matching_lines": [
+        {
+          "line": 78,
+          "text": "`load_foundry_calibration_report` exposes the canonical report reader for"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "old_line": 5,
+      "old_text": "from ..calibration.report import load_calibration_report as load_foundry_calibration_report",
+      "postimage_used": true,
+      "postimage_matching_lines": [
+        {
+          "line": 8,
+          "text": "from ..calibration.report import load_calibration_report as load_foundry_calibration_report"
+        },
+        {
+          "line": 91,
+          "text": "    \"load_foundry_calibration_report\","
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "old_line": 56,
+      "old_text": "    \"load_foundry_calibration_report\",",
+      "postimage_used": true,
+      "postimage_matching_lines": [
+        {
+          "line": 8,
+          "text": "from ..calibration.report import load_calibration_report as load_foundry_calibration_report"
+        },
+        {
+          "line": 91,
+          "text": "    \"load_foundry_calibration_report\","
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "old_line": 12,
+      "old_text": "from polisyos.calibration import load_foundry_calibration_report",
+      "postimage_used": true,
+      "postimage_matching_lines": [
+        {
+          "line": 21,
+          "text": "    load_foundry_calibration_report,"
+        },
+        {
+          "line": 336,
+          "text": "        report = load_foundry_calibration_report(ctx.store, calibration_ref)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "old_line": 336,
+      "old_text": "        report = load_foundry_calibration_report(ctx.store, calibration_ref)",
+      "postimage_used": true,
+      "postimage_matching_lines": [
+        {
+          "line": 21,
+          "text": "    load_foundry_calibration_report,"
+        },
+        {
+          "line": 336,
+          "text": "        report = load_foundry_calibration_report(ctx.store, calibration_ref)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "old_line": 18,
+      "old_text": "    assert calibration.load_foundry_calibration_report is owner.load_calibration_report",
+      "postimage_used": true,
+      "postimage_matching_lines": [
+        {
+          "line": 21,
+          "text": "    assert uncertainty.load_foundry_calibration_report is owner.load_calibration_report"
+        },
+        {
+          "line": 22,
+          "text": "    assert node.load_foundry_calibration_report is owner.load_calibration_report"
+        },
+        {
+          "line": 23,
+          "text": "    assert \"load_foundry_calibration_report\" in uncertainty.__all__"
+        },
+        {
+          "line": 24,
+          "text": "    assert \"load_foundry_calibration_report\" not in calibration.__all__"
+        },
+        {
+          "line": 26,
+          "text": "        _ = calibration.load_foundry_calibration_report"
+        },
+        {
+          "line": 33,
+          "text": "        uncertainty.load_foundry_calibration_report(store, wrong)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "old_line": 19,
+      "old_text": "    assert uncertainty.load_foundry_calibration_report is owner.load_calibration_report",
+      "postimage_used": true,
+      "postimage_matching_lines": [
+        {
+          "line": 21,
+          "text": "    assert uncertainty.load_foundry_calibration_report is owner.load_calibration_report"
+        },
+        {
+          "line": 22,
+          "text": "    assert node.load_foundry_calibration_report is owner.load_calibration_report"
+        },
+        {
+          "line": 23,
+          "text": "    assert \"load_foundry_calibration_report\" in uncertainty.__all__"
+        },
+        {
+          "line": 24,
+          "text": "    assert \"load_foundry_calibration_report\" not in calibration.__all__"
+        },
+        {
+          "line": 26,
+          "text": "        _ = calibration.load_foundry_calibration_report"
+        },
+        {
+          "line": 33,
+          "text": "        uncertainty.load_foundry_calibration_report(store, wrong)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "old_line": 20,
+      "old_text": "    assert \"load_foundry_calibration_report\" in uncertainty.__all__",
+      "postimage_used": true,
+      "postimage_matching_lines": [
+        {
+          "line": 21,
+          "text": "    assert uncertainty.load_foundry_calibration_report is owner.load_calibration_report"
+        },
+        {
+          "line": 22,
+          "text": "    assert node.load_foundry_calibration_report is owner.load_calibration_report"
+        },
+        {
+          "line": 23,
+          "text": "    assert \"load_foundry_calibration_report\" in uncertainty.__all__"
+        },
+        {
+          "line": 24,
+          "text": "    assert \"load_foundry_calibration_report\" not in calibration.__all__"
+        },
+        {
+          "line": 26,
+          "text": "        _ = calibration.load_foundry_calibration_report"
+        },
+        {
+          "line": 33,
+          "text": "        uncertainty.load_foundry_calibration_report(store, wrong)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "old_line": 21,
+      "old_text": "    assert \"load_foundry_calibration_report\" in calibration.__all__",
+      "postimage_used": true,
+      "postimage_matching_lines": [
+        {
+          "line": 21,
+          "text": "    assert uncertainty.load_foundry_calibration_report is owner.load_calibration_report"
+        },
+        {
+          "line": 22,
+          "text": "    assert node.load_foundry_calibration_report is owner.load_calibration_report"
+        },
+        {
+          "line": 23,
+          "text": "    assert \"load_foundry_calibration_report\" in uncertainty.__all__"
+        },
+        {
+          "line": 24,
+          "text": "    assert \"load_foundry_calibration_report\" not in calibration.__all__"
+        },
+        {
+          "line": 26,
+          "text": "        _ = calibration.load_foundry_calibration_report"
+        },
+        {
+          "line": 33,
+          "text": "        uncertainty.load_foundry_calibration_report(store, wrong)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "old_line": 28,
+      "old_text": "        calibration.load_foundry_calibration_report(store, wrong)",
+      "postimage_used": true,
+      "postimage_matching_lines": [
+        {
+          "line": 21,
+          "text": "    assert uncertainty.load_foundry_calibration_report is owner.load_calibration_report"
+        },
+        {
+          "line": 22,
+          "text": "    assert node.load_foundry_calibration_report is owner.load_calibration_report"
+        },
+        {
+          "line": 23,
+          "text": "    assert \"load_foundry_calibration_report\" in uncertainty.__all__"
+        },
+        {
+          "line": 24,
+          "text": "    assert \"load_foundry_calibration_report\" not in calibration.__all__"
+        },
+        {
+          "line": 26,
+          "text": "        _ = calibration.load_foundry_calibration_report"
+        },
+        {
+          "line": 33,
+          "text": "        uncertainty.load_foundry_calibration_report(store, wrong)"
+        }
+      ]
+    }
+  ],
+  "current_production_callers": [
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty._collect_input_envelopes"
+  ],
+  "migration": "Only tracked current legacy caller imports the same canonical Foundry uncertainty reader directly; unreleased E-topic alias removed, no previous main-publication compatibility inferred. Root owner statement: alias was not published to main.",
+  "old_calibration_alias_remaining_runtime_imports": 0,
+  "other_calibration_exports": 28,
+  "reader_authority": "Kind/schema/payload validation only; B197 held source/evaluator authority unchanged."
+}

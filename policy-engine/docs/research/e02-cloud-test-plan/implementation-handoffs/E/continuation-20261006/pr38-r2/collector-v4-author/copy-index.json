@@ -1,0 +1,99 @@
+{
+  "scope": "Frozen v4 narrow author delta; no independent selfGO",
+  "primary": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/repair-receipt-v4.json",
+  "files": [
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/actual-standalone-admission.json",
+      "bytes": 764,
+      "sha256": "606ac27249893164a2c3c2ed8ec1a812d74d3e0d61849631e9cd350b1390fdcf"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/configured-collector-format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/configured-collector-format.stdout.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/configured-collector-ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/configured-collector-ruff.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/freeze-controls.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/freeze-controls.stdout.txt",
+      "bytes": 1698,
+      "sha256": "f99f4edd217dc3f1bc7834a9939a269f0cdef292b8634957ee541a57b6449d9f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/freeze-role-probe.json",
+      "bytes": 1698,
+      "sha256": "f99f4edd217dc3f1bc7834a9939a269f0cdef292b8634957ee541a57b6449d9f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/freeze_role_probe_v4.py.txt",
+      "bytes": 3195,
+      "sha256": "74483fef3259bd8326994cfc021e283af3f3850aeb8e6491808f94399fc6df8a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/full_source_role_guard_removed.py.txt",
+      "bytes": 38152,
+      "sha256": "a6399cc46cbfe25b103fa210259eff2be9483f582ae7cba773632f079f7194ec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/removal-controls.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/removal-controls.stdout.txt",
+      "bytes": 1061,
+      "sha256": "2a75e42dceca67c88c38163f106e3821a0986d2d6d4e13b8b53a51fd62c720ec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/repair-receipt-v4.json",
+      "bytes": 7092,
+      "sha256": "4148d146935dc11ac2cfecda6759c83efcdcc0d9690cb8674c91a635cb12b91d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/role-removal-probe.json",
+      "bytes": 1061,
+      "sha256": "2a75e42dceca67c88c38163f106e3821a0986d2d6d4e13b8b53a51fd62c720ec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/role_removal_probe_v4.py.txt",
+      "bytes": 3168,
+      "sha256": "78eb020c52d4d095e81e885517317e289d8bb56e6cf5f45afffb9d3576a896ed"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/syntax.stdout.txt",
+      "bytes": 101,
+      "sha256": "20a2a54a2ae55c7a0ad5c2e66df16e6a2c14ba87e22a07c2f974ec72a4f67202"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/v3-to-v4.diff.txt",
+      "bytes": 771,
+      "sha256": "b732069d44a93669eb889d5e63c9a71a6466662f3ebc63428b8c3dfdd97990e8"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v4.py",
+      "bytes": 38197,
+      "sha256": "faecae68f9eecc741e12ae1469fcd57faad11a9facb747f2430762da1758f9fc"
+    }
+  ],
+  "file_count": 18,
+  "total_bytes": 97002,
+  "index_self_excluded": true
+}

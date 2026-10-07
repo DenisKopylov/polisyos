@@ -1,0 +1,22 @@
+id = "2026-10-06-e02-budget-ledger-admission"
+title = "Require complete budget ledgers and durable producer settlement acknowledgments"
+type = "fixed"
+component = "scientist-engine"
+owner = "team-policyos-runtime"
+summary = "FileBudgetLedger requires explicit bootstrap and complete known wire records, atomically links producer event IDs to one charge and durable receipt, and refuses conflicting event reuse. Missing acknowledgment remains unknown and resolvable by the same event ID."
+evidence = [
+  "src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+  "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+  "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+  "src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+  "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+]
+compatibility = "Complete known schema 1.0 writer snapshots remain readable, including legally omitted nullable fields, and upgrade atomically to schema 1.1 on explicit bootstrap or mutation. Schema 1.1 requires its receipt index and complete receipts. Sparse, malformed and unsupported contract records fail without rewriting bytes."
+change_class = "python-public-api"
+surface_classification = "public_experimental: scientist.orchestration.engine FileBudgetLedger"
+migration = "Call load_or_bootstrap with an explicit BudgetState before public reads or mutations. BudgetMiddleware already supplies this configuration. For producer settlement, use settle_spend_safe with an immutable event ID and payload SHA256, retain unknown outcomes and resolve_spend_safe or retry the same identity. Memory-only middleware cannot issue a durable receipt."
+limitations = "Receipts attest local recorded accounting, not external billing authority or permission for new work. The receipt index is retained independently of bounded mutation history; retirement requires a separate agreed identity-retention contract. POSIX process controls do not establish power loss, forged-file authenticity or multi-host filesystem semantics."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []

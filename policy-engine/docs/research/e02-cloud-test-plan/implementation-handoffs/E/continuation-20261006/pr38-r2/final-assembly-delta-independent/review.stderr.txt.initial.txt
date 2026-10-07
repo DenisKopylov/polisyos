@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/final-assembly-delta-94d3/review_assembly.py", line 190, in <module>
+    row = next(x for x in inventory['packages'] if x['module'] == module)
+StopIteration

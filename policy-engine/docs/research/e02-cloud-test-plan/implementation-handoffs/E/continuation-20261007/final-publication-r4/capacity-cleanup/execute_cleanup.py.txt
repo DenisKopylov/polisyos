@@ -1,0 +1,106 @@
+"""Delete exactly admitted repeatable old venv children, preserving source/receipts."""
+from __future__ import annotations
+import ast
+import hashlib
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import time
+
+OUTPUT = Path('/tmp/e02-E-capacity-cleanup-20261007-doe')
+CANDIDATES = [Path('/workspace/e02-E-cal-20261006/policy-engine/.venv'), Path('/workspace/e02-E-ddm-20261006/policy-engine/.venv')]
+PROTECTED = [Path('/workspace/e02-E-continuation-20261006/policy-engine/.venv'), Path('/workspace/e02-E-doe-20261006/policy-engine/.venv'), Path('/workspace/.polisyos-environment')]
+
+def identity(path):
+    value = path.read_bytes()
+    return {'path': str(path), 'bytes': len(value), 'sha256': hashlib.sha256(value).hexdigest()}
+
+def same_saved(row):
+    source = Path(row['path'])
+    saved = Path(row['saved_path'])
+    if identity(source)['sha256'] != row['sha256'] or identity(saved)['sha256'] != row['sha256'] or source.stat().st_size != row['bytes'] or saved.stat().st_size != row['bytes']:
+        raise ValueError('Saved original custody mismatch: ' + str(source))
+
+def filesystem():
+    value = os.statvfs('/workspace')
+    return {'observed_unix': time.time(), 'total_bytes': value.f_blocks * value.f_frsize, 'free_bytes': value.f_bfree * value.f_frsize, 'available_bytes': value.f_bavail * value.f_frsize}
+
+def write(path, value):
+    with path.open('x') as handle:
+        handle.write(json.dumps(value, ensure_ascii=False, indent=2) + '\n')
+
+def protected_metadata():
+    rows = []
+    for prefix in PROTECTED:
+        for source in sorted(prefix.glob('lib/python*/site-packages/*.dist-info/*')):
+            if source.is_file():
+                rows.append(identity(source))
+    return rows
+
+prepare_path = OUTPUT / 'prepare_cleanup.py'
+prepare_ast = ast.parse(prepare_path.read_text())
+function = next(node for node in prepare_ast.body if isinstance(node, ast.FunctionDef) and node.name == 'proc_scan')
+exec(compile(ast.Module(body=[function], type_ignores=[]), str(prepare_path) + ':proc_scan', 'exec'), globals())
+admission_path = OUTPUT / 'cleanup-admission.json'
+admission = json.loads(admission_path.read_text())
+if admission['readiness'] != 'ADMITTED exact two old .venv directories only; no deletion executed yet' or [row['candidate'] for row in admission['candidates']] != [str(p) for p in CANDIDATES]:
+    raise ValueError('Exact old environment admission required')
+for candidate in CANDIDATES:
+    if candidate.is_symlink() or not candidate.is_dir() or candidate.resolve() != candidate or candidate.name != '.venv':
+        raise ValueError('Actual immutable path guard refused')
+    if any(candidate == p or candidate.is_relative_to(p) or p.is_relative_to(candidate) for p in PROTECTED):
+        raise ValueError('Protected prefix overlap')
+for row in admission['saved_deciding_receipts']:
+    same_saved(row)
+for manifest in admission['candidates']:
+    candidate = Path(manifest['candidate'])
+    leaf = candidate.parent.parent
+    for row in manifest['reproduce_source_inputs']:
+        same_saved(row)
+    if subprocess.check_output(['git', '-C', str(leaf), 'rev-parse', 'HEAD'], text=True).strip() != manifest['source_HEAD']:
+        raise ValueError('Old leaf source HEAD changed')
+    if subprocess.check_output(['git', '-C', str(leaf), 'rev-parse', 'HEAD^{tree}'], text=True).strip() != manifest['source_tree']:
+        raise ValueError('Old leaf tree changed')
+    for dist in manifest['packages']:
+        for row in dist['complete_metadata_files']:
+            same_saved(row)
+    if candidate.joinpath('pyvenv.cfg').read_bytes() != OUTPUT.joinpath(leaf.name, 'pyvenv.cfg').read_bytes():
+        raise ValueError('Saved pyvenv config mismatch')
+    expected = {r['relative_path']: r for r in manifest['complete_path_inventory']}
+    actual = {str(p.relative_to(candidate)): p for p in candidate.rglob('*')}
+    if actual.keys() != expected.keys():
+        raise ValueError('Environment inventory changed since admission')
+    for name, path in actual.items():
+        stat = path.lstat()
+        row = expected[name]
+        if (stat.st_ino, stat.st_dev, stat.st_size, stat.st_mode) != (row['inode'], row['device'], row['size'], row['mode']):
+            raise ValueError('Environment child identity changed: ' + str(path))
+        if path.is_symlink() and os.readlink(path) != row['symlink_target']:
+            raise ValueError('Environment symlink changed')
+protected_before = protected_metadata()
+scan = proc_scan()
+preflight = {'admission': identity(admission_path), 'preparation_source': identity(prepare_path), 'deletion_source': identity(Path(__file__)), 'filesystem_before': filesystem(), 'fresh_process_scan': scan, 'protected_metadata_before': protected_before, 'exact_old_paths': [str(p) for p in CANDIDATES], 'custody_and_full_inode_inventory_preflight': 'PASS', 'deleted': False}
+write(OUTPUT / 'delete-preflight.json', preflight)
+if scan['active_users'] or scan['unreadable_agent_processes']:
+    raise ValueError('Fresh process admission refused deletion')
+actions = []
+for candidate in CANDIDATES:
+    immediate = proc_scan()
+    write(OUTPUT / ('immediate-' + candidate.parent.parent.name + '.json'), immediate)
+    if immediate['active_users'] or immediate['unreadable_agent_processes']:
+        raise ValueError('Immediate process admission refused')
+    before = filesystem()
+    started = time.time()
+    shutil.rmtree(candidate)
+    after = filesystem()
+    action = {'exact_deleted_path': str(candidate), 'kind': 'unused repeatable old installed environment only', 'started_unix': started, 'ended_unix': time.time(), 'absent_after': not candidate.exists(), 'leaf_and_git_registration_preserved': candidate.parent.parent.is_dir() and (candidate.parent.parent / '.git').exists(), 'filesystem_before': before, 'filesystem_after': after, 'observed_free_delta_bytes': after['free_bytes'] - before['free_bytes'], 'observed_available_delta_bytes': after['available_bytes'] - before['available_bytes']}
+    write(OUTPUT / ('deletion-' + candidate.parent.parent.name + '.json'), action)
+    actions.append(action)
+protected_after = protected_metadata()
+if protected_after != protected_before:
+    raise ValueError('Protected current environment metadata changed externally; report instead of claiming unchanged')
+final = {'schema': 'policyos.e02.cloud_reproducible_environment_cleanup_result.v1', 'authorization': admission['authorization'], 'admission': identity(admission_path), 'preflight': identity(OUTPUT / 'delete-preflight.json'), 'actions': actions, 'filesystem_before': preflight['filesystem_before'], 'filesystem_after': filesystem(), 'observed_free_delta_bytes': filesystem()['free_bytes'] - preflight['filesystem_before']['free_bytes'], 'observed_available_delta_bytes': filesystem()['available_bytes'] - preflight['filesystem_before']['available_bytes'], 'protected_current_metadata_byte_identical': True, 'preserved': admission['never_delete'], 'no_source_history_or_registration_removed': True, 'no_deciding_receipt_or_unique_input_removed': True, 'root_DoE_envs_preserved': True, 'complete_recorded_metadata_and_repeatability': identity(admission_path)}
+write(OUTPUT / 'cleanup-result.json', final)
+print(json.dumps({'result': str(OUTPUT / 'cleanup-result.json'), 'exact_deleted_paths': [a['exact_deleted_path'] for a in actions], 'filesystem_after': final['filesystem_after'], 'observed_free_delta_bytes': final['observed_free_delta_bytes'], 'observed_available_delta_bytes': final['observed_available_delta_bytes'], 'protected_current_metadata_byte_identical': True}, indent=2))

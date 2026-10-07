@@ -1,0 +1,699 @@
+{
+  "schema": "policyos.e02.independent_ir_architecture_controls.v1",
+  "candidate": "c87f532e6ce6ab2507d937c10eb6eff8153c1699",
+  "base": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "candidate_tree": "26a191ee37da336faf5f6f84f14bc54a883bb90b",
+  "actual_runtime_path": [
+    "guardrails.collect_deep_import_edges",
+    "guardrails._check_deep_import_creep"
+  ],
+  "predicate_basis": "recomputed",
+  "selected_complete_product_source_denominator": 8,
+  "source_receipts": [
+    {
+      "role": "base",
+      "sha": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+      "source_path_count": 7,
+      "source_files": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+          "bytes": 15902,
+          "sha256": "cdc50d6d70045fd904d257ab823135802343f7e81449a67cf143a51044fa4945"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+          "bytes": 11478,
+          "sha256": "76a4961b9c32f4a8a021796617d84bbc68420d4ef11548c5f21bf39d21291841"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/__init__.py",
+          "bytes": 38827,
+          "sha256": "7758c7b1b07ceb5906fa322a83bd156dadb4b33dfce8e2653198d3f961606e3c"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/api.py",
+          "bytes": 47862,
+          "sha256": "50eef6b0cb043705d1bd03069e6e1ecd5cfe995575faedb2c5af1fd4e544e384"
+        },
+        {
+          "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+          "bytes": 27101,
+          "sha256": "651884b092b690b868c8501e7a5cc34d19f7d68cad2b65cd1180ae928b50c835"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "bytes": 20616,
+          "sha256": "04a95dc4d969d95ec056d789057d7384bdf3cd4b1e7fd90e3e5b919f567559bd"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "bytes": 192619,
+          "sha256": "8050f1a81d593d14363efaf91cf0e2088bc685a8e0e48b7c35cbd8f29c1f9def"
+        }
+      ],
+      "contract_bindings": [
+        {
+          "path": "policy-engine/pyproject.toml",
+          "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "bytes": 11007
+        },
+        {
+          "path": "policy-engine/tools/devx/architecture/guardrails.py",
+          "git_blob": "6a2784631e836a35dc09e0034e02d86bf21ed14e",
+          "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a",
+          "bytes": 103077
+        },
+        {
+          "path": "policy-engine/architecture/public_surface/contract.toml",
+          "git_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+          "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+          "bytes": 19715
+        },
+        {
+          "path": "policy-engine/architecture/baselines/imports/deep_import.json",
+          "git_blob": "4ba9adfe8327ee020efd91ad1621d447ef271a95",
+          "sha256": "da9b5c9bdaccc4efcdabcd3512f451850e072f24a381d31ad18b16376e8543a7",
+          "bytes": 947189
+        }
+      ],
+      "complete_edges": [
+        {
+          "source_module": "polisyos.foundry.calibration.report",
+          "source_root": "foundry",
+          "source_file": "src/polisyos/foundry/calibration/report.py",
+          "target_module": "polisyos.core.artifacts.manifest",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.foundry.calibration.report",
+          "source_root": "foundry",
+          "source_file": "src/polisyos/foundry/calibration/report.py",
+          "target_module": "polisyos.core.artifacts.protocol",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.foundry.calibration.report",
+          "source_root": "foundry",
+          "source_file": "src/polisyos/foundry/calibration/report.py",
+          "target_module": "polisyos.core.artifacts.store",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.foundry.calibration.report",
+          "source_root": "foundry",
+          "source_file": "src/polisyos/foundry/calibration/report.py",
+          "target_module": "polisyos.core.canon",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.foundry.calibration.report",
+          "source_root": "foundry",
+          "source_file": "src/polisyos/foundry/calibration/report.py",
+          "target_module": "polisyos.core.contracts.uncertainty",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.foundry.calibration.report",
+          "source_root": "foundry",
+          "source_file": "src/polisyos/foundry/calibration/report.py",
+          "target_module": "polisyos.ir.analytics.calibration",
+          "target_root": "ir"
+        },
+        {
+          "source_module": "polisyos.foundry.calibration.report",
+          "source_root": "foundry",
+          "source_file": "src/polisyos/foundry/calibration/report.py",
+          "target_module": "polisyos.ir.analytics.uncertainty",
+          "target_root": "ir"
+        },
+        {
+          "source_module": "polisyos.foundry.calibration.uncertainty_adapter",
+          "source_root": "foundry",
+          "source_file": "src/polisyos/foundry/calibration/uncertainty_adapter.py",
+          "target_module": "polisyos.ir.analytics.uncertainty",
+          "target_root": "ir"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.common.logger",
+          "target_root": "common"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.core.artifacts.manifest",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.core.artifacts.store",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.core.canon",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.core.components",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.core.contracts.fabric",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.core.contracts.foundry",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.foundry.uncertainty.config",
+          "target_root": "foundry"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.foundry.uncertainty.dispatcher",
+          "target_root": "foundry"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.foundry.uncertainty.protocol",
+          "target_root": "foundry"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.ir.analytics.uncertainty",
+          "target_root": "ir"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.common.logger",
+          "target_root": "common"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.core.artifacts.manifest",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.core.artifacts.store",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.core.canon",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.core.components",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.core.contracts.fabric",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.core.contracts.foundry",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.foundry.calibration.report",
+          "target_root": "foundry"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.foundry.uncertainty.config",
+          "target_root": "foundry"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.ir.analytics.dependence_structure",
+          "target_root": "ir"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.ir.analytics.phase4_dynamics",
+          "target_root": "ir"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.ir.analytics.uncertainty",
+          "target_root": "ir"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.ir.analytics.welfare",
+          "target_root": "ir"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.ir.observation.bundles",
+          "target_root": "ir"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.ir.registry.refs",
+          "target_root": "ir"
+        }
+      ],
+      "complete_violations": [
+        {
+          "check": "deep_import",
+          "subject": "polisyos.foundry.calibration.report",
+          "message": "New deep-import creep detected: polisyos.foundry.calibration.report -> polisyos.core.artifacts.protocol (src/polisyos/foundry/calibration/report.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+          "detail": "polisyos.core.artifacts.protocol",
+          "source_module": "polisyos.foundry.calibration.report",
+          "target_module": "polisyos.core.artifacts.protocol"
+        }
+      ]
+    },
+    {
+      "role": "candidate",
+      "sha": "c87f532e6ce6ab2507d937c10eb6eff8153c1699",
+      "source_path_count": 8,
+      "source_files": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+          "bytes": 16254,
+          "sha256": "96f1faeebd490ca28ee562e4b33e09fd5160832b76cb2d49b04276ceaf79df6c"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+          "bytes": 16684,
+          "sha256": "931e36225e64b5fd07cbddcc2697e36262170f8da56dbd9c17a0f3f2d3c117f0"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/__init__.py",
+          "bytes": 39304,
+          "sha256": "15f06972034343d4a341f0a126a3f566c03b6daee0366f5350505dfaf3db155c"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+          "bytes": 16412,
+          "sha256": "fd7242dce6aa8d78e9b7736999284ee01a078a002f2938e61a2903d7d187b65b"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/api.py",
+          "bytes": 49160,
+          "sha256": "43ea26727ee86c218fe3e101d0ede453ed2e9545b6f9f39a78ed1c934f4b5ca9"
+        },
+        {
+          "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+          "bytes": 27404,
+          "sha256": "ef435c7f9665279057dda175451f7f8ccabba8948fd7d6b7cd7452c31ee1d6f3"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "bytes": 20801,
+          "sha256": "bddb15f403e47e8caef8b4d1e698ae4d6cf65d1269619486e165a925f9037559"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "bytes": 193039,
+          "sha256": "0c699925060ce1fc102cd9e3c3062a33d785bf0920732b1b0a780e3527c8d270"
+        }
+      ],
+      "contract_bindings": [
+        {
+          "path": "policy-engine/pyproject.toml",
+          "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "bytes": 11007
+        },
+        {
+          "path": "policy-engine/tools/devx/architecture/guardrails.py",
+          "git_blob": "6a2784631e836a35dc09e0034e02d86bf21ed14e",
+          "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a",
+          "bytes": 103077
+        },
+        {
+          "path": "policy-engine/architecture/public_surface/contract.toml",
+          "git_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+          "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+          "bytes": 19715
+        },
+        {
+          "path": "policy-engine/architecture/baselines/imports/deep_import.json",
+          "git_blob": "4ba9adfe8327ee020efd91ad1621d447ef271a95",
+          "sha256": "da9b5c9bdaccc4efcdabcd3512f451850e072f24a381d31ad18b16376e8543a7",
+          "bytes": 947189
+        }
+      ],
+      "complete_edges": [
+        {
+          "source_module": "polisyos.foundry.calibration.report",
+          "source_root": "foundry",
+          "source_file": "src/polisyos/foundry/calibration/report.py",
+          "target_module": "polisyos.core.artifacts.manifest",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.foundry.calibration.report",
+          "source_root": "foundry",
+          "source_file": "src/polisyos/foundry/calibration/report.py",
+          "target_module": "polisyos.core.artifacts.protocol",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.foundry.calibration.report",
+          "source_root": "foundry",
+          "source_file": "src/polisyos/foundry/calibration/report.py",
+          "target_module": "polisyos.core.artifacts.store",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.foundry.calibration.report",
+          "source_root": "foundry",
+          "source_file": "src/polisyos/foundry/calibration/report.py",
+          "target_module": "polisyos.core.canon",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.foundry.calibration.report",
+          "source_root": "foundry",
+          "source_file": "src/polisyos/foundry/calibration/report.py",
+          "target_module": "polisyos.core.contracts.uncertainty",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.foundry.calibration.report",
+          "source_root": "foundry",
+          "source_file": "src/polisyos/foundry/calibration/report.py",
+          "target_module": "polisyos.ir.analytics.calibration",
+          "target_root": "ir"
+        },
+        {
+          "source_module": "polisyos.foundry.calibration.report",
+          "source_root": "foundry",
+          "source_file": "src/polisyos/foundry/calibration/report.py",
+          "target_module": "polisyos.ir.analytics.uncertainty",
+          "target_root": "ir"
+        },
+        {
+          "source_module": "polisyos.foundry.calibration.uncertainty_adapter",
+          "source_root": "foundry",
+          "source_file": "src/polisyos/foundry/calibration/uncertainty_adapter.py",
+          "target_module": "polisyos.ir.analytics.uncertainty",
+          "target_root": "ir"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.common.logger",
+          "target_root": "common"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.core.artifacts.manifest",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.core.artifacts.store",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.core.canon",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.core.components",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.core.contracts.fabric",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.core.contracts.foundry",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.foundry.uncertainty.config",
+          "target_root": "foundry"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.foundry.uncertainty.dispatcher",
+          "target_root": "foundry"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.foundry.uncertainty.protocol",
+          "target_root": "foundry"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.ir.analytics.uncertainty",
+          "target_root": "ir"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.common.logger",
+          "target_root": "common"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.core.artifacts.manifest",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.core.artifacts.store",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.core.canon",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.core.components",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.core.contracts.fabric",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.core.contracts.foundry",
+          "target_root": "core"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.foundry.calibration.report",
+          "target_root": "foundry"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.foundry.uncertainty.config",
+          "target_root": "foundry"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.ir.analytics.dependence_structure",
+          "target_root": "ir"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.ir.analytics.phase4_dynamics",
+          "target_root": "ir"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.ir.analytics.uncertainty",
+          "target_root": "ir"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.ir.analytics.welfare",
+          "target_root": "ir"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.ir.observation.bundles",
+          "target_root": "ir"
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.ir.registry.refs",
+          "target_root": "ir"
+        }
+      ],
+      "complete_violations": [
+        {
+          "check": "deep_import",
+          "subject": "polisyos.foundry.calibration.report",
+          "message": "New deep-import creep detected: polisyos.foundry.calibration.report -> polisyos.core.artifacts.protocol (src/polisyos/foundry/calibration/report.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+          "detail": "polisyos.core.artifacts.protocol",
+          "source_module": "polisyos.foundry.calibration.report",
+          "target_module": "polisyos.core.artifacts.protocol"
+        }
+      ]
+    }
+  ],
+  "new_actual_deep_edges": [],
+  "removed_actual_deep_edges": [],
+  "controls": [
+    {
+      "case": "healthy_declared_analytics_facade",
+      "outcome": "PASS",
+      "source_sha256": "57f4bc4ef289a38add94a2646b0d9bc66b5bcd92bc3ed806a88494c3facaa278",
+      "probe_violation_count": 0,
+      "probe_violations": [],
+      "total_selected_source_violation_count": 1
+    },
+    {
+      "case": "present_but_fake_deep_facade",
+      "outcome": "PASS",
+      "source_sha256": "c144f83d06773da85893c580320797abd00a043d6376ca4a2c88954cdd11d8a9",
+      "probe_violation_count": 1,
+      "probe_violations": [
+        {
+          "check": "deep_import",
+          "subject": "polisyos.scientist.nodes.builtins.simulate.profile_facade_probe",
+          "message": "New deep-import creep detected: polisyos.scientist.nodes.builtins.simulate.profile_facade_probe -> polisyos.ir.analytics.posterior_summary (src/polisyos/scientist/nodes/builtins/simulate/profile_facade_probe.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+          "detail": "polisyos.ir.analytics.posterior_summary",
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.profile_facade_probe",
+          "target_module": "polisyos.ir.analytics.posterior_summary"
+        }
+      ],
+      "total_selected_source_violation_count": 2
+    }
+  ],
+  "property_removal": {
+    "discriminator": "PASS",
+    "required_negative_gate": "FAIL",
+    "reason": "actual collector property removed while public markers survive",
+    "actual_edge_count": 0,
+    "actual_violation_count": 0
+  },
+  "baseline_unchanged": true,
+  "contract_unchanged": true,
+  "proxy_divergence": "PublicPosteriorMean alias/comment remains identical while actual AST module changes from supported analytics entrypoint to a private deep module.",
+  "unresolved_by_construction": [
+    "Tests/docs/ABI companions are outside the canonical product-source collector; full changed-Python import census records them separately.",
+    "These complete selected-source checks do not run full global architecture workflow or establish export identity or lawful runtime content."
+  ],
+  "limits": "Selected immutable product-source blobs copied only into scratch fixtures; no author/source/checkouts changed, no baseline/exception expansion. Existing selected deep violations are retained; no P41 inherited attribution or full architecture PASS is claimed."
+}

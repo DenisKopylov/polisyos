@@ -1,0 +1,1395 @@
+{
+  "schema": "policyos.e02.independent_harness_review.v2",
+  "reviewer": "doe_r4",
+  "author": "lint_r4",
+  "candidate_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+  "candidate_tree": "a4e4793be4d1aec6adea623b930a65304ab42d64",
+  "comparison_source": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+  "initial_slice_base": "8047bfdbb1a7e8c4b031384acf6b45e302591620",
+  "spec_verdict": "GO",
+  "engineering_verdict": "GO",
+  "bounded_scope": "The current four wave-control modules and their exact11-path corrective status/selector delta. This is not full229-utility, broad numerical or global CI approval.",
+  "scope": {
+    "read_only": true,
+    "source_writes": false,
+    "Git_mutations": false,
+    "new_checkouts": false,
+    "child_agents": false,
+    "actual_common_plan_execute": false,
+    "actual_full_verify_or_CI": false,
+    "actual_plan_prepare_only": true,
+    "reviewed_modules": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py"
+    ],
+    "corrective_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-author/_external/common-wave-publication-prep/collect_wave_v3_final.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/_external/common-wave-publication-prep/collect_wave_v4.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave_v2.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/run_check.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/old-exact/run_check.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/run_check.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/run_check.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py"
+    ]
+  },
+  "checks": {
+    "reused_f3ec_defining_controls": 36,
+    "current_native_or_AST_defining_controls": 10,
+    "current_pure_selector_controls": 2,
+    "unexpected_product_failures": 0,
+    "intentional_property_removal_discriminator": "FAIL expected/observed when the property is weakened while receipt/helper/store markers remain. These are not product PASS evidence.",
+    "native_numerical_family_suite_cases": "UNRUN in this task; root runs the single actual broad wave after all reviews and source freeze."
+  },
+  "source_bindings": {
+    "candidate": "74d0452848a7461d82ea7f150f126631d9fc8399",
+    "tree": "a4e4793be4d1aec6adea623b930a65304ab42d64",
+    "baseline": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+    "rows": [
+      {
+        "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+        "git_blob": "ad35e3b7cce69e2e1baf316ef99ea74f28187638",
+        "bytes": 25922,
+        "sha256": "3e1367f35392c8334a849da655035113c543066425d2bdb67643468a5b8038e4",
+        "materialized": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/plan_wave.py"
+      },
+      {
+        "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+        "git_blob": "423b1ba6187047fd852be570dde28bd63ddcdd57",
+        "bytes": 12609,
+        "sha256": "16caf0aecfe2c247b211f5a7611e9ce423f238dc2506e72dc99de16802ce8fec",
+        "materialized": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/run_check.py"
+      },
+      {
+        "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+        "git_blob": "008ade1c13a250c7cb14c78333ec32501f426a84",
+        "bytes": 41358,
+        "sha256": "3e80760446ed4a6fda0f46dde07b0efbb8aa4da29a28d2779a8a6737b63450ac",
+        "materialized": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collect_wave.py"
+      },
+      {
+        "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+        "git_blob": "06de7485b52139234316419370e899e95f29d6f2",
+        "bytes": 7221,
+        "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e",
+        "materialized": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/uncapped_umbrella.py"
+      },
+      {
+        "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-author/_external/common-wave-publication-prep/collect_wave_v3_final.py",
+        "git_blob": "d505b8892d392554bcec5b8d3790c2e560fb7d29",
+        "bytes": 41313,
+        "sha256": "9373eae465c903b17b2cdbc0ff6862f53981c4d94b1f451ab880b5294cedb6e8"
+      },
+      {
+        "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/_external/common-wave-publication-prep/collect_wave_v4.py",
+        "git_blob": "008ade1c13a250c7cb14c78333ec32501f426a84",
+        "bytes": 41358,
+        "sha256": "3e80760446ed4a6fda0f46dde07b0efbb8aa4da29a28d2779a8a6737b63450ac"
+      },
+      {
+        "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave.py",
+        "git_blob": "19b7b0a086e1b7ec38b784006a1f926f010d7c12",
+        "bytes": 34283,
+        "sha256": "43cc25506b3fc2eb770d95d062860223fac345ff2f6695f33dd888713b9d72e2"
+      },
+      {
+        "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave_v2.py",
+        "git_blob": "e5492342f58bed40974fd4961da2d6f8f463bd68",
+        "bytes": 35751,
+        "sha256": "1d3ba8a67f6823f561145e30c2d02e352cebf065f62dbaff32c58718752dea15"
+      },
+      {
+        "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/run_check.py",
+        "git_blob": "8450e572e8f792c43326c33ad9e691c51fe93fc1",
+        "bytes": 12576,
+        "sha256": "2e20e4d3b9ee8639d6826781baf679188752afaa176f279136e8acc6dc87e7d7"
+      },
+      {
+        "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/old-exact/run_check.py",
+        "git_blob": "8450e572e8f792c43326c33ad9e691c51fe93fc1",
+        "bytes": 12576,
+        "sha256": "2e20e4d3b9ee8639d6826781baf679188752afaa176f279136e8acc6dc87e7d7"
+      },
+      {
+        "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/run_check.py",
+        "git_blob": "8450e572e8f792c43326c33ad9e691c51fe93fc1",
+        "bytes": 12576,
+        "sha256": "2e20e4d3b9ee8639d6826781baf679188752afaa176f279136e8acc6dc87e7d7"
+      },
+      {
+        "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/run_check.py",
+        "git_blob": "8450e572e8f792c43326c33ad9e691c51fe93fc1",
+        "bytes": 12576,
+        "sha256": "2e20e4d3b9ee8639d6826781baf679188752afaa176f279136e8acc6dc87e7d7"
+      },
+      {
+        "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+        "git_blob": "008ade1c13a250c7cb14c78333ec32501f426a84",
+        "bytes": 41358,
+        "sha256": "3e80760446ed4a6fda0f46dde07b0efbb8aa4da29a28d2779a8a6737b63450ac"
+      },
+      {
+        "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+        "git_blob": "ad35e3b7cce69e2e1baf316ef99ea74f28187638",
+        "bytes": 25922,
+        "sha256": "3e1367f35392c8334a849da655035113c543066425d2bdb67643468a5b8038e4"
+      },
+      {
+        "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+        "git_blob": "423b1ba6187047fd852be570dde28bd63ddcdd57",
+        "bytes": 12609,
+        "sha256": "16caf0aecfe2c247b211f5a7611e9ce423f238dc2506e72dc99de16802ce8fec"
+      }
+    ]
+  },
+  "reuse_delta_basis": [
+    {
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "old_sha256": "02c5412b012f34e69e24abddb8530b25e66c1076529c9ce9630329aa1fe8024c",
+      "new_sha256": "3e1367f35392c8334a849da655035113c543066425d2bdb67643468a5b8038e4",
+      "whole_file_equal": false,
+      "delta": "only exact prospective IR test family route added"
+    },
+    {
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "old_sha256": "c729c909ee6ec31daef9750b786e4515d38e078153031e6e08a299ae7fffa503",
+      "new_sha256": "16caf0aecfe2c247b211f5a7611e9ce423f238dc2506e72dc99de16802ce8fec",
+      "whole_file_equal": false,
+      "delta": "only all-skip classification requires zero exit and immutable source"
+    },
+    {
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+      "old_sha256": "c9ece35b694a91e5cbdf4d0212eaab3345689c5301c0707d566fd5d9df9e7aba",
+      "new_sha256": "3e80760446ed4a6fda0f46dde07b0efbb8aa4da29a28d2779a8a6737b63450ac",
+      "whole_file_equal": false,
+      "delta": "only PASS/SKIP classification now independently refuses nonzero exit"
+    },
+    {
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "old_sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e",
+      "new_sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e",
+      "whole_file_equal": true,
+      "delta": "unchanged"
+    }
+  ],
+  "resolved_findings": [
+    {
+      "id": "HARN-SKIP-NONZERO",
+      "historical_source": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+      "historical_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip-nonzero-admitted-property-result.json",
+        "bytes": 4405,
+        "sha256": "14a247255dc32163a93f609e948dcbb2020094474307f6300d61dbc6eadde93f"
+      },
+      "historical_result": "Actual exit7 preserved but incorrectly classifiedSKIP; collector accepted contradictory classification.",
+      "current_source": "74d0452848a7461d82ea7f150f126631d9fc8399",
+      "current_result": "Actual exit0 all-skips remainsSKIP; actual exit7 after-skips isFAIL with individual2 SKIPs retained; collector refuses forgedSKIP/nonzero; effective runner and collector status-predicate removal restores defect.",
+      "correction_scope": "All5 runner and5 collector siblings have identical exact AST guards;60 independent truth-table rows plus current native subprocess/persisted receipt/fresh collection controls verify the bounded class.",
+      "complete_current_evidence": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/corrective-review-results.json",
+        "bytes": 3711,
+        "sha256": "e50a761bbb896c0aa646b3f05f48ec354dab387c9babcaa6c93733104c78ea0b"
+      }
+    }
+  ],
+  "trace_matrix": [
+    {
+      "property": "Exact source/output custody and complete current denominator; prepare never executes wave",
+      "evidence": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/source-index.json",
+          "bytes": 10054,
+          "sha256": "2704a15dd79aa2b6501bc660a8765db624e1ec2dbee39961316e67296fe37a34"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-results-part1.json",
+          "bytes": 6241,
+          "sha256": "bd21b80886b97e0cab18c6f2b74f0dccca7e6dc46cd28e8af5d24f30e80b23c5"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/actual-prepare-plan.json",
+          "bytes": 194173,
+          "sha256": "18bc2153351d11abb4ec3ea79385796c06dca9b5b04d052516701fa707cc0291"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/source-bindings.json",
+          "bytes": 6832,
+          "sha256": "b6263d406d76c5b54794e4bf6139b924452885d2d1a975470ef1d951d1845cbc"
+        }
+      ],
+      "actual_final_lane_prepare": {
+        "native_files": 122,
+        "owner_packets": 2,
+        "changed_python_paths": 340,
+        "common_output_created": false
+      }
+    },
+    {
+      "property": "Actual mixed native failures/errors/skips and unavailable command outcomes",
+      "evidence": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-run-results.json",
+          "bytes": 6927,
+          "sha256": "a794a49b7fd0494193a4a8f0c89346113b66c504f22847419be0dffab2b9e7de"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-results-part1.json",
+          "bytes": 6241,
+          "sha256": "bd21b80886b97e0cab18c6f2b74f0dccca7e6dc46cd28e8af5d24f30e80b23c5"
+        }
+      ],
+      "observed": "Mixed pytest1 PASS/1 FAIL/1 ERROR/1 SKIP; all-skip selector2 SKIP; missing executableUNRUN127. Exact source frames, stdout/XML/config hash/size pinned."
+    },
+    {
+      "property": "Collector recomputes native counts and refuses present-but-forged counts/PASS/tree/hash/quota",
+      "evidence": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-results-part1.json",
+          "bytes": 6241,
+          "sha256": "bd21b80886b97e0cab18c6f2b74f0dccca7e6dc46cd28e8af5d24f30e80b23c5"
+        }
+      ],
+      "controls": "Each corrupted receipt retains markers/XML/store; actual count-predicate removal accepts a contradictoryPASS, so independent discriminatorFAIL."
+    },
+    {
+      "property": "Numeric-only active metrics PORT0, no inherited numeric caps, ordered/nested failfast",
+      "evidence": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-results-part1.json",
+          "bytes": 6241,
+          "sha256": "bd21b80886b97e0cab18c6f2b74f0dccca7e6dc46cd28e8af5d24f30e80b23c5"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-results-part2.json",
+          "bytes": 4851,
+          "sha256": "6fa5c12efdff4f7bb76cdecb3148a241fdb41555e6717434a7849a7af1aad382"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-native-subprocess-results.json",
+          "bytes": 7525,
+          "sha256": "dc27bcc812a64e501102ead7472831e8f34a087e271b6361712826fc4e2c7403"
+        }
+      ],
+      "observed": "Numeric job receiptsPORT0 and no listed caps; nonnumeric receiptsPORT absent. Actual native uncapped child succeeds, deliberate exit7 stops ordered successorsUNRUN. Nested CI\u2192verify preserves both UNRUN sets. Healthy all-step path executes successor. Remove operational uncapping or failfast while markers remain => discriminatorFAIL.",
+      "scope_limit": "Tiny synthetic factories retain actual canonical CommandSpec/run_command/umbrella recorder seams; they do not assert complete14/23 stage outcomes."
+    },
+    {
+      "property": "Pure source admission precedes Git callback/copy; removal is effective",
+      "evidence": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-results-part1.json",
+          "bytes": 6241,
+          "sha256": "bd21b80886b97e0cab18c6f2b74f0dccca7e6dc46cd28e8af5d24f30e80b23c5"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-results-part2.json",
+          "bytes": 4851,
+          "sha256": "6fa5c12efdff4f7bb76cdecb3148a241fdb41555e6717434a7849a7af1aad382"
+        }
+      ],
+      "observed": "Malformed refs/source paths refuse with callback_count0/publication absent. Operational preflight removal reaches callback_count1 with helpers/markers intact."
+    },
+    {
+      "property": "Failed native command cannot becomeSKIP because its JUnit cases skip",
+      "evidence": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/corrective-review-results.json",
+          "bytes": 3711,
+          "sha256": "e50a761bbb896c0aa646b3f05f48ec354dab387c9babcaa6c93733104c78ea0b"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-subprocess-results.json",
+          "bytes": 7399,
+          "sha256": "8d505f553d3b2fa806d960b9402631ed1214d7af1ab39c2ff7f10e77ae0bbe12"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/all-sibling-status-predicates.json",
+          "bytes": 14729,
+          "sha256": "b2ce2ace76a9c79ddff594507fb029558ebf3251c96917f9d873fe1195762024"
+        }
+      ],
+      "observed": "Healthy exit0 all-skipsSKIP, actual exit7 after-skipsFAIL, forgedSKIP/nonzero refused. Effective runner/collector removals restore contradictory classification with fields and complete artifacts retained."
+    },
+    {
+      "property": "Exact prospective IR file route without inventing a native file",
+      "evidence": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/selector-correction-results.json",
+          "bytes": 2394,
+          "sha256": "9357d8bfc4feb4b9d110a11541980a0d759a563ef946d1fadca42a758ff33f19"
+        }
+      ],
+      "observed": "Pure family_for exactpath\u2192MC family; remove exact mapping while helper names remain\u2192discriminatorFAIL. Actual prepared inclusionUNRUN until genuine owner source exists and is merged."
+    }
+  ],
+  "current_cases": [
+    {
+      "case": "prepare_current_full_denominator_and_numeric_only_PORT0",
+      "outcome": "PASS",
+      "observed": {
+        "native_files": 122,
+        "owner_packets": 2,
+        "python_paths": 340,
+        "missing": []
+      }
+    },
+    {
+      "case": "all_five_runner_and_five_collector_siblings_same_real_predicate",
+      "outcome": "PASS",
+      "observed": {
+        "runner_count": 5,
+        "collector_count": 5,
+        "identical_AST_guards": true,
+        "truth_table_rows": 60
+      }
+    },
+    {
+      "case": "actual_healthy_exit0_all_skip_remains_SKIP",
+      "outcome": "PASS",
+      "observed": true
+    },
+    {
+      "case": "actual_exit7_after_all_skip_is_FAIL_with_individual_skips_retained",
+      "outcome": "PASS",
+      "observed": true
+    },
+    {
+      "case": "remove_runner_status_guard_keeps_markers_but_wrong_SKIP_restored",
+      "outcome": "PASS",
+      "observed": {
+        "negative_gate_outcome": "FAIL",
+        "observed_check_outcome": "SKIP",
+        "observed_exit": 7,
+        "all_individual_cases_skip": true
+      }
+    },
+    {
+      "case": "all_native_corrective_receipts_exact_source_and_numeric_PORT0",
+      "outcome": "PASS",
+      "observed": true
+    },
+    {
+      "case": "current_collector_retains_SKIP_and_process_FAIL_as_distinct_outcomes",
+      "outcome": "PASS",
+      "observed": true
+    },
+    {
+      "case": "current_collector_refuses_forged_SKIP_nonzero_before_authority",
+      "outcome": "PASS",
+      "observed": {
+        "collection_state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+        "issues": [
+          {
+            "job": "numeric-skip-exit7",
+            "reason": "SKIP conflicts with command failure"
+          }
+        ]
+      }
+    },
+    {
+      "case": "remove_collector_status_predicate_keeps_markers_but_accepts_contradictory_SKIP",
+      "outcome": "PASS",
+      "observed": {
+        "negative_gate_outcome": "FAIL",
+        "state": "CONTROL_COMPLETE_BOUND",
+        "numeric_outcomes": {
+          "SKIP": 2
+        }
+      }
+    },
+    {
+      "case": "final_candidate_HEAD_and_tracked_source_immutable",
+      "outcome": "PASS",
+      "observed": true
+    },
+    {
+      "case": "pure_exact_new_IR_test_route",
+      "outcome": "PASS",
+      "expected": "MC_joint_law_support_and_Scientist_consumer",
+      "observed": "MC_joint_law_support_and_Scientist_consumer",
+      "property_scope": "Pure existing family_for API only; does not claim that the future owner test file exists or was executed."
+    },
+    {
+      "case": "remove_exact_route_property_keeps_helpers_but_discriminator_FAIL",
+      "outcome": "PASS",
+      "negative_gate_outcome": "FAIL",
+      "observed": null,
+      "helper_names_preserved": true
+    }
+  ],
+  "historical_cases": {
+    "f3ec_part1": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-results-part1.json",
+      "bytes": 6241,
+      "sha256": "bd21b80886b97e0cab18c6f2b74f0dccca7e6dc46cd28e8af5d24f30e80b23c5"
+    },
+    "f3ec_part2": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-results-part2.json",
+      "bytes": 4851,
+      "sha256": "6fa5c12efdff4f7bb76cdecb3148a241fdb41555e6717434a7849a7af1aad382"
+    },
+    "blocked_f3ec_review": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-independent-review-f3ec.json",
+      "bytes": 107993,
+      "sha256": "1f36006094615c38b34178af72cd5b25cfbdfd9e30ecf323b545091f52f0976d"
+    }
+  },
+  "observer_errors_preserved": [
+    {
+      "evidence": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip-nonzero-observer-correction-complete.json",
+        "bytes": 1098,
+        "sha256": "e1538f75e7a1156fb9c6c1573eda7e756373fa78c118707f2d5cb8b5d25e4bec"
+      },
+      "classification": "ObserverERROR: first edge command omitted the collector-required literal basetemp. Its complete child stdout/receipt/JUnit and traceback remain. Four outer capture paths were reused in its admitted correction, so original first outer-wrapper custody is not claimed."
+    },
+    {
+      "evidence": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/selector-correction-results.json",
+        "bytes": 2394,
+        "sha256": "9357d8bfc4feb4b9d110a11541980a0d759a563ef946d1fadca42a758ff33f19"
+      },
+      "classification": "The first delta assertion expected an absent future native IR file; the associated removal could not be effective when both plans omit it. These two historical cases are excluded and replaced by pure exact mapping/removal; actual inclusion isUNRUN."
+    }
+  ],
+  "remaining_verification": [
+    {
+      "outcome": "UNRUN",
+      "selector": "Actual new IR native file inclusion in composed final plan",
+      "owner": "root after canonical IR source author merge",
+      "minimal_input": "Tracked native tests/unit/ir/test_posterior_summary.py in final frozen candidate",
+      "next_result": "Recomputed prepare must bind exact source bytes and include the actual test in the MC family before the singleexecute."
+    },
+    {
+      "outcome": "UNRUN",
+      "selector": "Broad E defining suite and actual full global workflow/successors",
+      "owner": "root",
+      "next_result": "After all independent source reviews and freeze, run actual current selectors once; retain fullstdout/JUnit/environment/source receipts and distinct failfastUNRUN versus standalone measured outcomes."
+    },
+    {
+      "outcome": "UNRUN",
+      "selector": "Criterion-dependent local real history/source-law recipes",
+      "owner": "G",
+      "next_result": "Read-only exact frozen candidate check on minimal immutable real inputs where original cards require them; no blanket production gate and no synthetic replacement."
+    }
+  ],
+  "limitations": [
+    "No finding closure or owner ratification is inferred from harness controls.",
+    "P41 inherited attribution isnot_established; there was no exact slice-base complete global command replay in this task.",
+    "The JAX/NumPy metadata in run_check is a post-command observer; it is not proof of in-child dtype/config/numerical law.",
+    "Global architecture/generator/static/Ruff/format/workspace verify/CI parity outcomes areUNRUN in this task.",
+    "Generic validator/history/publication byte proof and full import predicate equivalence remain the separate criteria_r4/imports_r4 review scopes.",
+    "No full source or conditional test denominator from an old broad observation was reused as current PASS.",
+    "Raw/private Git configurations are excluded from public assets even when integrity-valid; repeated raw dumps and reproducible temp data remain retained in ignored scratch."
+  ],
+  "complete_deciding_assets": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/source-index.json",
+      "bytes": 10054,
+      "sha256": "2704a15dd79aa2b6501bc660a8765db624e1ec2dbee39961316e67296fe37a34"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-results-part1.json",
+      "bytes": 6241,
+      "sha256": "bd21b80886b97e0cab18c6f2b74f0dccca7e6dc46cd28e8af5d24f30e80b23c5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-results-part2.json",
+      "bytes": 4851,
+      "sha256": "6fa5c12efdff4f7bb76cdecb3148a241fdb41555e6717434a7849a7af1aad382"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-harness.stdout.txt",
+      "bytes": 127,
+      "sha256": "2d7f3b8d68c59c6d625f3f3da129946645b6d93e4872f24841c079886c6420ac"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-harness.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-harness-part2.stdout.txt",
+      "bytes": 127,
+      "sha256": "e7c717c24d12c7aba5d5678361bc63a9c8a487b7dd4de2ec89b056052855a9d0"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-harness-part2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-run-results.json",
+      "bytes": 6927,
+      "sha256": "a794a49b7fd0494193a4a8f0c89346113b66c504f22847419be0dffab2b9e7de"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-native-subprocess-results.json",
+      "bytes": 7525,
+      "sha256": "dc27bcc812a64e501102ead7472831e8f34a087e271b6361712826fc4e2c7403"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-independent-review-f3ec.json",
+      "bytes": 107993,
+      "sha256": "1f36006094615c38b34178af72cd5b25cfbdfd9e30ecf323b545091f52f0976d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip-nonzero-admitted-property-result.json",
+      "bytes": 4405,
+      "sha256": "14a247255dc32163a93f609e948dcbb2020094474307f6300d61dbc6eadde93f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-skip-nonzero-admitted.stdout.txt",
+      "bytes": 4405,
+      "sha256": "14a247255dc32163a93f609e948dcbb2020094474307f6300d61dbc6eadde93f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-skip-nonzero-admitted.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip-nonzero-observer-correction-complete.json",
+      "bytes": 1098,
+      "sha256": "e1538f75e7a1156fb9c6c1573eda7e756373fa78c118707f2d5cb8b5d25e4bec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe_harness.py",
+      "bytes": 15151,
+      "sha256": "19c6bd9a174849bfb8f2206b6a7d76ad7165a0d9dcee852e0dc87b434d7120de"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe_harness_part2.py",
+      "bytes": 8996,
+      "sha256": "8ba505c3d05b7e8056b063f1cb1fd5cb11c7234ae22a0403a6447543484eadb4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella_tiny_driver.py",
+      "bytes": 4172,
+      "sha256": "d8f846511c963e9e4db61e4a38629aa06e140f36d4dedb0ef71b9b24f646bede"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny_uncapped_environment.py",
+      "bytes": 477,
+      "sha256": "1b25743ee608109fbf7a237270dfe85c9ecc91e19e5083cae079227065e94103"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny_cases.py",
+      "bytes": 347,
+      "sha256": "cf304a8469b7983465ce573b38e587df160f19f264d6293562a021550e566a2a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny_skip.py",
+      "bytes": 170,
+      "sha256": "3444e7c7e6745260de7b2731c3d9ffc5d2c024f10c106922379f5d12d76b15ca"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/load_cli.py",
+      "bytes": 205,
+      "sha256": "b1b0e256deed9bfe9c416f86e5a24cb99b7aca3e9687de92464824061610032f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/missing-backend/missing-backend.json",
+      "bytes": 8141,
+      "sha256": "b67a36c107cfa30345f33e4452d34b2181a4659aa239a016981c3185a3deb389"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/missing-backend/missing-backend.stdout.txt",
+      "bytes": 147,
+      "sha256": "dc0d57bdd65017c86999220330ea6e90d8b5d520ea103cd531b1d1f76d8cdff7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-mixed/numeric-mixed.json",
+      "bytes": 8636,
+      "sha256": "23dff58af495a1eef6e2ea21dc1917ce1cefc23644cdbf7e24f1fc7257492e2b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-mixed/numeric-mixed.stdout.txt",
+      "bytes": 1123,
+      "sha256": "7cee0919a233aaea4d59cece118ad26749af860abf37cfd6c798b66d73ce2d30"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-mixed/pytest.xml",
+      "bytes": 1484,
+      "sha256": "9dc8793c858585fc6445ef09bbc4851572cf3a67aaf19923580617f792ac7cbb"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8637,
+      "sha256": "c901b5144e486d7169016586caf5e31d242e6c1d631b89dded91400b9855e0d7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "971ac97e7227e2f799d27cd4761b0c767a64180e53a5967031c88593d341d1ec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "3e2d167849bde275fc387c5bac9ca7df22601d58f7bfbff992358e0f31871b70"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/results-importer/results-importer.json",
+      "bytes": 8070,
+      "sha256": "a746ad4b430edd2e3bb148079900cd4b2260a61e625de9a9fe922c28be224bd6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 23,
+      "sha256": "37f5c896f0d9fbe786a73d75fa985282a782d624220a6e6cc344ea46894c784b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "bytes": 8589,
+      "sha256": "63d49ee2148c67ea09f5936a546f12d53c489d2b7b120e3115bb8ee5a502febf"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "bytes": 99,
+      "sha256": "a15f94975fe14865cc97796f11d8d844e4807097f19574e5e271409e35b76daa"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/numeric-skip-exit7/pytest.xml",
+      "bytes": 834,
+      "sha256": "53be52cfa823b1beed7bbe02053a9f4efb4b2b243b14be816abe25c3081d3194"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/results-importer/results-importer.json",
+      "bytes": 8162,
+      "sha256": "000d51b6b234dd4ef44fc44514c28e6fc14e14394a22d4bc96d5a1a48fde07cd"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 28,
+      "sha256": "f5ea3f3a34a508a7ad41b6007eae92b2ef50749ba4d6bbf14a96d3e2f5bb2f9b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast.stdout.txt",
+      "bytes": 167,
+      "sha256": "2edc582a540eac342622d2778b124cd6b940d185d486d985b94a0d81d25c516b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast.stdout.txt",
+      "bytes": 167,
+      "sha256": "647541696005d7578d0bd7241adc27fa9235de1156ae759c0624950e7e56774e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property.stdout.txt",
+      "bytes": 1358,
+      "sha256": "70acf0adce950268b796984831707ad3cf925b7b1239863640b1e36598f7f595"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property.stdout.txt",
+      "bytes": 202,
+      "sha256": "cef9c69c0c4bca8ec9199e2f9920076a23fee14c031ae5625263cc4a072ab895"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success.stdout.txt",
+      "bytes": 202,
+      "sha256": "1ab518a8633ca735881dd8580c94a5eec6bb65020f31d41433ff9109a050faf9"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast/stages.json",
+      "bytes": 2925,
+      "sha256": "13b994cafb2ca5584f9544f4fe26e26cf0c786e91a8238dd09bebcad0a47cc03"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast/driver-receipt.json",
+      "bytes": 400,
+      "sha256": "b503c5d1376df706c28880e0d5acdb6276127136c2e3db4b5e2f8707a727df50"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast/executed-umbrella-source.py.txt",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast/observed-child-environment.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast/stages.json",
+      "bytes": 4488,
+      "sha256": "3faab4a0917b153edb3a55e2f6d805e9555426f39ca1aef2b73475afce2d9ea3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast/driver-receipt.json",
+      "bytes": 407,
+      "sha256": "939fee5991d04e51099bc1b84ec2fc847cb42aa62db1d02176869da1cbf8a950"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast/executed-umbrella-source.py.txt",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast/observed-child-environment.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property/stages.json",
+      "bytes": 3755,
+      "sha256": "295e4b44f495a5bf69bc0d4beffaddf80e55aa6ed1be10ec36dd2ec4c3eddade"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property/driver-receipt.json",
+      "bytes": 411,
+      "sha256": "5f3c65dc082875d7e335aa89966b3fcdd45f2d655cb7de3eb072b8286b523e27"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property/executed-umbrella-source.py.txt",
+      "bytes": 7261,
+      "sha256": "068026f94e01176ebeb8c01c4b0c24582445f428003fbf47387235528626e7b3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property/observed-child-environment.json",
+      "bytes": 176,
+      "sha256": "eadbfa60d71e0fc92f76210a5f30d27816950dd207e94dfaf0b94a0a4b75757a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/stages.json",
+      "bytes": 3073,
+      "sha256": "f401ad9256e17c1cb6b9175266b872b4fe1d43dca910ea168a420908a580a631"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/driver-receipt.json",
+      "bytes": 416,
+      "sha256": "3fa561ac02b16caee50fd42aa7b4cc7bca3579cbbc36e0a4d0f2d7d5d52e9805"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/executed-umbrella-source.py.txt",
+      "bytes": 7325,
+      "sha256": "8ebb3496a293d6206764ac6a99548e6815f7fce25fd02547fa9aac61edac8ec3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/observed-child-environment.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success/stages.json",
+      "bytes": 2773,
+      "sha256": "e87bc0c196307c097639988ad976ead02bf41dfa84d48a63e1886e947431d214"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success/driver-receipt.json",
+      "bytes": 399,
+      "sha256": "d75e4d0b7f6fa641833017d3d853291cba280d80d11cc3d474706d3429f12137"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success/executed-umbrella-source.py.txt",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success/observed-child-environment.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/actual-prepare-plan.json",
+      "bytes": 194173,
+      "sha256": "18bc2153351d11abb4ec3ea79385796c06dca9b5b04d052516701fa707cc0291"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/all-sibling-status-predicates.json",
+      "bytes": 14729,
+      "sha256": "b2ce2ace76a9c79ddff594507fb029558ebf3251c96917f9d873fe1195762024"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/build-final-review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/build-final-review.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/build_final_review.py",
+      "bytes": 13955,
+      "sha256": "7b6e0bce038f90f0a615ebfd5d451fb654626e1f3805c0f40607c15a6d4b054f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collect_wave-status-property-removed.py.txt",
+      "bytes": 41295,
+      "sha256": "32480e2382f397d1422df35854ffbabb3eef73300bfc2aeaa9714e60e74efdbc"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collect_wave.py",
+      "bytes": 41358,
+      "sha256": "3e80760446ed4a6fda0f46dde07b0efbb8aa4da29a28d2779a8a6737b63450ac"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8525,
+      "sha256": "9b1c0fd06575c4a29219fdfb48a13571abcf1111272f89fe7f6dfd96c84bb48a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "18f17401214f5aca68d1133e8722cc5030eacaed51c99154b1c5d3b163402069"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "d03d7cf2022cf86ead69d685fa709f46f9c00503d5ef81cc0354b6d3213edb81"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "bytes": 7084,
+      "sha256": "840f2e3d5fa7bec602b4ff3cd00dc71ae0b17df66c0b3eb54a9084aa8aefb185"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "bytes": 99,
+      "sha256": "b2414bff2c7e9edada036e1f3daad77219557d988a497443fd002c01aca313b9"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip-exit7/pytest.xml",
+      "bytes": 834,
+      "sha256": "bcdb8f21af0671c5aa25c37d0a70dade5ea6cda0c8378c7124229c70b9da27f3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/results-importer/results-importer.json",
+      "bytes": 8130,
+      "sha256": "b1fab5dd82fbf0817bd5f5b5990ed5ad89e61ba0f2253777e3671fe859915ca4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 34,
+      "sha256": "9c8858a55f13cdcaae3456207f0f881c6828538c39bbb290c602d4b6ff516119"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/cleanup-candidates.json",
+      "bytes": 1207,
+      "sha256": "c4c7c0b2dbc002a510554bc0bd263aba44af61cfd5c538d567b01fe1adc66e0d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/copy-index.json",
+      "bytes": 4335,
+      "sha256": "4e26bc331813535560b6f156894b165eeca3f8da77bf902fdc1c40f8435f4768"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/execution-complete.json",
+      "bytes": 155,
+      "sha256": "37f09d7a80bccf6dfad167a8eb7380849f452996a9cfd09b6cec6065a881abe6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/plan.json",
+      "bytes": 44079,
+      "sha256": "edc51effe5691ec6187d91a679b2b916d9c4115af2c953a6934f56958cf3813f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/publication-receipt.json",
+      "bytes": 26899,
+      "sha256": "4cac3234baba2fc21a6f119a9941a42ce13e0ea52d275690ba8e92a35803d540"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/raw-custody.json",
+      "bytes": 667,
+      "sha256": "fe1805d5ce1c6a8e581513f0fe9694cc9383c5f73c1574776e1fcf2575d8f751"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/wave-started.json",
+      "bytes": 104,
+      "sha256": "011bbb227f6ee6b43a649f97d3fa994eaf7f22f6242036a35864e3e95008d5d2"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8525,
+      "sha256": "9b1c0fd06575c4a29219fdfb48a13571abcf1111272f89fe7f6dfd96c84bb48a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "18f17401214f5aca68d1133e8722cc5030eacaed51c99154b1c5d3b163402069"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "d03d7cf2022cf86ead69d685fa709f46f9c00503d5ef81cc0354b6d3213edb81"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "bytes": 8557,
+      "sha256": "723e523170a47bd1e587d9633292a41f75ea7e8af1a90a7de63124fef62ee075"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "bytes": 99,
+      "sha256": "b2414bff2c7e9edada036e1f3daad77219557d988a497443fd002c01aca313b9"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/numeric-skip-exit7/pytest.xml",
+      "bytes": 834,
+      "sha256": "bcdb8f21af0671c5aa25c37d0a70dade5ea6cda0c8378c7124229c70b9da27f3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/results-importer/results-importer.json",
+      "bytes": 8130,
+      "sha256": "b1fab5dd82fbf0817bd5f5b5990ed5ad89e61ba0f2253777e3671fe859915ca4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 34,
+      "sha256": "9c8858a55f13cdcaae3456207f0f881c6828538c39bbb290c602d4b6ff516119"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/cleanup-candidates.json",
+      "bytes": 1207,
+      "sha256": "c4c7c0b2dbc002a510554bc0bd263aba44af61cfd5c538d567b01fe1adc66e0d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/copy-index.json",
+      "bytes": 4336,
+      "sha256": "bae49daf130e16476ba54b0c5b0cd34e6469b0879931672369f10b0de63b033e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/execution-complete.json",
+      "bytes": 155,
+      "sha256": "37f09d7a80bccf6dfad167a8eb7380849f452996a9cfd09b6cec6065a881abe6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/plan.json",
+      "bytes": 44079,
+      "sha256": "edc51effe5691ec6187d91a679b2b916d9c4115af2c953a6934f56958cf3813f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/publication-receipt.json",
+      "bytes": 26787,
+      "sha256": "aa4f25745acd2a9bc483acfb836ecd8a4195bf0f6392f7fdf79ce7927f04af77"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/raw-custody.json",
+      "bytes": 667,
+      "sha256": "fe1805d5ce1c6a8e581513f0fe9694cc9383c5f73c1574776e1fcf2575d8f751"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/wave-started.json",
+      "bytes": 104,
+      "sha256": "011bbb227f6ee6b43a649f97d3fa994eaf7f22f6242036a35864e3e95008d5d2"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8525,
+      "sha256": "9b1c0fd06575c4a29219fdfb48a13571abcf1111272f89fe7f6dfd96c84bb48a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "18f17401214f5aca68d1133e8722cc5030eacaed51c99154b1c5d3b163402069"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "d03d7cf2022cf86ead69d685fa709f46f9c00503d5ef81cc0354b6d3213edb81"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "bytes": 7084,
+      "sha256": "840f2e3d5fa7bec602b4ff3cd00dc71ae0b17df66c0b3eb54a9084aa8aefb185"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "bytes": 99,
+      "sha256": "b2414bff2c7e9edada036e1f3daad77219557d988a497443fd002c01aca313b9"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/numeric-skip-exit7/pytest.xml",
+      "bytes": 834,
+      "sha256": "bcdb8f21af0671c5aa25c37d0a70dade5ea6cda0c8378c7124229c70b9da27f3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/results-importer/results-importer.json",
+      "bytes": 8130,
+      "sha256": "b1fab5dd82fbf0817bd5f5b5990ed5ad89e61ba0f2253777e3671fe859915ca4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 34,
+      "sha256": "9c8858a55f13cdcaae3456207f0f881c6828538c39bbb290c602d4b6ff516119"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/cleanup-candidates.json",
+      "bytes": 1207,
+      "sha256": "c4c7c0b2dbc002a510554bc0bd263aba44af61cfd5c538d567b01fe1adc66e0d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/copy-index.json",
+      "bytes": 4335,
+      "sha256": "6afb9d98406661b52bd8474bdbc1b5a447966905fd02e5e38ced8f6334f00057"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/execution-complete.json",
+      "bytes": 155,
+      "sha256": "37f09d7a80bccf6dfad167a8eb7380849f452996a9cfd09b6cec6065a881abe6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/plan.json",
+      "bytes": 44079,
+      "sha256": "edc51effe5691ec6187d91a679b2b916d9c4115af2c953a6934f56958cf3813f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/publication-receipt.json",
+      "bytes": 26779,
+      "sha256": "dd95ded4bfea103f6a7c14f9129fe61f91b69561bb0d8d3310f315c4b0da56f4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/raw-custody.json",
+      "bytes": 667,
+      "sha256": "fe1805d5ce1c6a8e581513f0fe9694cc9383c5f73c1574776e1fcf2575d8f751"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/wave-started.json",
+      "bytes": 104,
+      "sha256": "011bbb227f6ee6b43a649f97d3fa994eaf7f22f6242036a35864e3e95008d5d2"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/corrective-review-results.json",
+      "bytes": 3711,
+      "sha256": "e50a761bbb896c0aa646b3f05f48ec354dab387c9babcaa6c93733104c78ea0b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/current-forged-SKIP-collector.json",
+      "bytes": 26899,
+      "sha256": "4cac3234baba2fc21a6f119a9941a42ce13e0ea52d275690ba8e92a35803d540"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/current-positive-collector.json",
+      "bytes": 26787,
+      "sha256": "aa4f25745acd2a9bc483acfb836ecd8a4195bf0f6392f7fdf79ce7927f04af77"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/full-source-delta.patch",
+      "bytes": 15062,
+      "sha256": "529dd0474b7433081ac3f3084ee634cf70cf9de285cc92326dd668ba13e94b6a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8525,
+      "sha256": "9b1c0fd06575c4a29219fdfb48a13571abcf1111272f89fe7f6dfd96c84bb48a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "18f17401214f5aca68d1133e8722cc5030eacaed51c99154b1c5d3b163402069"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "d03d7cf2022cf86ead69d685fa709f46f9c00503d5ef81cc0354b6d3213edb81"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "bytes": 8557,
+      "sha256": "723e523170a47bd1e587d9633292a41f75ea7e8af1a90a7de63124fef62ee075"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "bytes": 99,
+      "sha256": "b2414bff2c7e9edada036e1f3daad77219557d988a497443fd002c01aca313b9"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip-exit7/pytest.xml",
+      "bytes": 834,
+      "sha256": "bcdb8f21af0671c5aa25c37d0a70dade5ea6cda0c8378c7124229c70b9da27f3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-status-property-removed/numeric-status-property-removed.json",
+      "bytes": 8647,
+      "sha256": "f7bf8bc18f2f5b4594949a274af438b9186d72aa11c3861d04bf8a8c1cfc223d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-status-property-removed/numeric-status-property-removed.stdout.txt",
+      "bytes": 99,
+      "sha256": "2c96ffb446fdcf1b5d378a807a77b7c7149bc71a7d6deb716e9e3e05ad37e71b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-status-property-removed/pytest.xml",
+      "bytes": 834,
+      "sha256": "d005db15a33e15748b73bfce60d1ad956ebe8da00ce15f0c1834ee4cf87b2039"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/results-importer/results-importer.json",
+      "bytes": 8130,
+      "sha256": "b1fab5dd82fbf0817bd5f5b5990ed5ad89e61ba0f2253777e3671fe859915ca4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 34,
+      "sha256": "9c8858a55f13cdcaae3456207f0f881c6828538c39bbb290c602d4b6ff516119"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/execution-complete.json",
+      "bytes": 155,
+      "sha256": "37f09d7a80bccf6dfad167a8eb7380849f452996a9cfd09b6cec6065a881abe6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/plan.json",
+      "bytes": 44079,
+      "sha256": "edc51effe5691ec6187d91a679b2b916d9c4115af2c953a6934f56958cf3813f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/wave-started.json",
+      "bytes": 104,
+      "sha256": "011bbb227f6ee6b43a649f97d3fa994eaf7f22f6242036a35864e3e95008d5d2"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-subprocess-results.json",
+      "bytes": 7399,
+      "sha256": "8d505f553d3b2fa806d960b9402631ed1214d7af1ab39c2ff7f10e77ae0bbe12"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip-actual-driver.py",
+      "bytes": 633,
+      "sha256": "76df988f38dc6d14fac141c3e48b93cdc125359acf3c9f18375eab47a98ae909"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip-exit7-actual-driver.py",
+      "bytes": 645,
+      "sha256": "6c5983b31a9a93844c0a49d3c955eb342a1d4075c4d7684bdf8f41b002546180"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip-exit7.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip-exit7.capture.stdout.txt",
+      "bytes": 513,
+      "sha256": "052f721fb70337f0054f7a345e610f360c8c2758e4895375299d49328db1911d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip.capture.stdout.txt",
+      "bytes": 500,
+      "sha256": "bb34905b38cbda88b12f35e4c1261978c77f0a39e08f3f16ad105eeb3ae66693"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-status-property-removed-actual-driver.py",
+      "bytes": 671,
+      "sha256": "2139271f3aa25ea01d8486686d340eeee9c2ae4d7d54f0b51e5a710486a3d142"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-status-property-removed.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-status-property-removed.capture.stdout.txt",
+      "bytes": 538,
+      "sha256": "e13e4ea50e607c42156ef9cffd62a89af20ef5d32df0ff7ea67815f72cf6c761"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/plan_wave.py",
+      "bytes": 25922,
+      "sha256": "3e1367f35392c8334a849da655035113c543066425d2bdb67643468a5b8038e4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe-current-outcomes.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe-current-outcomes.stdout.txt",
+      "bytes": 146,
+      "sha256": "cfff54de60593afa64896e6721c1497742a79e1a93666ee91d290373f89d4acc"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe-selector-correction.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe-selector-correction.stdout.txt",
+      "bytes": 2394,
+      "sha256": "9357d8bfc4feb4b9d110a11541980a0d759a563ef946d1fadca42a758ff33f19"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe_current_outcomes.py",
+      "bytes": 13960,
+      "sha256": "5397d9a16f676f04cfcddc1a1d6f973e76a898eddb83c04fb53f31fde59f6084"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe_selector_correction.py",
+      "bytes": 3301,
+      "sha256": "b10e901217ae97a93bcd52a0612211ba27e8f6f438b7d428fe6475d5a722fcb0"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/removed-status-property-collector.json",
+      "bytes": 26779,
+      "sha256": "dd95ded4bfea103f6a7c14f9129fe61f91b69561bb0d8d3310f315c4b0da56f4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/results-importer.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/results-importer.capture.stdout.txt",
+      "bytes": 254,
+      "sha256": "6a6693ba4fcb88e0aa71b416a35678e2b5104ba5c37ea33aa9f0c50f51931f6a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/run_check-status-property-removed.py.txt",
+      "bytes": 12582,
+      "sha256": "03d6494617ec52f9cf9d1582634f1ab44494e4f36a57bcc052e156923cd77b9b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/run_check.py",
+      "bytes": 12609,
+      "sha256": "16caf0aecfe2c247b211f5a7611e9ce423f238dc2506e72dc99de16802ce8fec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/selector-correction-results.json",
+      "bytes": 2394,
+      "sha256": "9357d8bfc4feb4b9d110a11541980a0d759a563ef946d1fadca42a758ff33f19"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/source-bindings.json",
+      "bytes": 6832,
+      "sha256": "b6263d406d76c5b54794e4bf6139b924452885d2d1a975470ef1d951d1845cbc"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/uncapped_umbrella.py",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    }
+  ],
+  "environment_receipts": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/results-importer/results-importer.json",
+      "bytes": 8130,
+      "sha256": "b1fab5dd82fbf0817bd5f5b5990ed5ad89e61ba0f2253777e3671fe859915ca4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8525,
+      "sha256": "9b1c0fd06575c4a29219fdfb48a13571abcf1111272f89fe7f6dfd96c84bb48a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "bytes": 8557,
+      "sha256": "723e523170a47bd1e587d9633292a41f75ea7e8af1a90a7de63124fef62ee075"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-status-property-removed/numeric-status-property-removed.json",
+      "bytes": 8647,
+      "sha256": "f7bf8bc18f2f5b4594949a274af438b9186d72aa11c3861d04bf8a8c1cfc223d"
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe_current_outcomes.py"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006",
+      "exit_code": 1,
+      "classification": "10 valid current status/prepare controlsPASS; one assertion was observer mismatch involving an absent future IR source and the associated removal was ineffective. Both are superseded by the following correction, not by a product edit.",
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe-current-outcomes.stdout.txt",
+        "bytes": 146,
+        "sha256": "cfff54de60593afa64896e6721c1497742a79e1a93666ee91d290373f89d4acc"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe-current-outcomes.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe_selector_correction.py"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe-selector-correction.stdout.txt",
+        "bytes": 2394,
+        "sha256": "9357d8bfc4feb4b9d110a11541980a0d759a563ef946d1fadca42a758ff33f19"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe-selector-correction.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "final_source_readback": {
+    "HEAD": "74d0452848a7461d82ea7f150f126631d9fc8399",
+    "tree": "a4e4793be4d1aec6adea623b930a65304ab42d64",
+    "tracked_status": "",
+    "all11_changed_path_current_bytes_equal_Git": true
+  },
+  "next_owner": "root may proceed to source composition/freeze after all other independent reviews; lint_r4 publishes source+separatehandoff without changing reviewed code.",
+  "finding_closure": false,
+  "cleanup_performed": false,
+  "cleanup_candidates_only": [
+    "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/tmp-env",
+    "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-wave/tmp-env",
+    "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/tmp-env",
+    "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/tmp-env",
+    "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast/retained-pytest-scratch",
+    "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast/retained-pytest-scratch",
+    "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property/retained-pytest-scratch",
+    "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/retained-pytest-scratch",
+    "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success/retained-pytest-scratch"
+  ],
+  "cleanup_rule": "Native Trash is unavailable. Retain exact paths, do not delete permanently or clear Trash; code/useful docs/unique deciding receipts remain preserved."
+}

@@ -1,0 +1,44 @@
+{
+  "source_candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+  "source_tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+  "scope": "Independent publication-only review; no product edits or numerical rerun. Fixed source handoff/utility/index/README hashes are in the review receipt. This separate index has no future evidence SHA self-reference.",
+  "copies": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/ir-evidence-independent/ir-evidence-delta-review.json",
+      "portable_path": "publication-review/ir-evidence-delta-review.json",
+      "bytes": 12359,
+      "sha256": "27d056bcf240ab8aa9723879fa501bff272237dbe432b82ee81d72167e36fdce",
+      "custody": "exact independent delta bytes; outside fixed three-directory numerical deciding denominator"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/ir-evidence-independent/ir-evidence-delta-probe-corrected.json",
+      "portable_path": "publication-review/ir-evidence-delta-probe-corrected.json",
+      "bytes": 130586,
+      "sha256": "100911008c51f3bc38aaa44733822f27593e87e5f5621bf9976b8d82cb6884b1",
+      "custody": "exact independent delta bytes; outside fixed three-directory numerical deciding denominator"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/ir-evidence-independent/probe-corrected.stdout",
+      "portable_path": "publication-review/probe-corrected.stdout",
+      "bytes": 3172,
+      "sha256": "119a311de216d98af37179acf2677e3465ccb8ef4d02b4e556d8926847a1fed8",
+      "custody": "exact independent delta bytes; outside fixed three-directory numerical deciding denominator"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/ir-evidence-independent/probe-corrected.stderr",
+      "portable_path": "publication-review/probe-corrected.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "custody": "exact independent delta bytes; outside fixed three-directory numerical deciding denominator"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/ir-evidence-independent/probe_handoff_corrected.py",
+      "portable_path": "publication-review/probe_handoff_corrected.py.txt",
+      "bytes": 5943,
+      "sha256": "2d4caa315c25e12b319f4442b866badf96743d99ce6689f5390d6e35fae01238",
+      "custody": "exact independent delta bytes; outside fixed three-directory numerical deciding denominator"
+    }
+  ],
+  "files": 5,
+  "bytes": 152060
+}

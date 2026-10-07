@@ -1,0 +1,41 @@
+{
+  "source_sha": "f7b0ade5ce9d6c7a849c2f7445d40123eb86b7a7",
+  "source_tree": "0d1692ed4496870c6c1d5b28fe035c74895fcaba",
+  "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-ra",
+    "tests/unit/foundry/uncertainty/test_sampling_admission.py",
+    "tests/unit/foundry/uncertainty/test_covariance.py",
+    "tests/unit/foundry/uncertainty/test_delta.py",
+    "tests/unit/remediation/test_uqp_02.py",
+    "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+    "tests/unit/scientist/nodes/test_propagate_uncertainty_node.py"
+  ],
+  "PYTHONPATH": "src",
+  "process_or_worker_caps_added": false,
+  "environment_receipt": "mc-review-native.txt; same unchanged shared runtime, freshly resolved lane source"
+}
+
+........................................................................ [ 48%]
+........................................................................ [ 97%]
+...                                                                      [100%]
+=============================== warnings summary ===============================
+tests/unit/foundry/uncertainty/test_sampling_admission.py::test_covariance_optimization_flag_cannot_replace_declared_tied_law[delta-False]
+tests/unit/foundry/uncertainty/test_delta.py::TestDeltaMethodPropagator::test_delta_multi_output
+  /workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/api_util.py:83: DeprecationWarning: Passing arguments 'a', 'a_min' or 'a_max' to jax.numpy.clip is deprecated. Please use 'arr', 'min' or 'max' respectively instead.
+    ans = f(*py_args, **py_kwargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+147 passed, 2 warnings in 15.80s
+
+{
+  "exit_code": 0,
+  "wall_seconds": 22.20700252999086,
+  "children_maxrss_kib": 850048
+}

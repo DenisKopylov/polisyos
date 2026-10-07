@@ -1,0 +1,58 @@
+{
+  "schema": "policyos.e02.E.author_finite_law_import_census.v1",
+  "author": "imports_r4",
+  "candidate": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+  "tree": "237320d4c5db41330b3d61ff6611f0de8e64549f",
+  "slice_base": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "predicate_basis": "recomputed",
+  "actual_input_operations": "Git diff enumerates every changed path for each declared ref; every changed .py blob at both refs is read and parsed; missing/deleted blobs require a successful empty exact Git ls-tree lookup. AST failure aborts instead of returning a zero.",
+  "unresolved_by_construction": [
+    "Dynamic Python import dispatch not represented by Import/ImportFrom AST; actual selected public facade identities are checked separately.",
+    "Relative test/companion package context is not inferred as a product-root edge.",
+    "AST edges do not establish numerical law, persisted content authority or native consumer behavior."
+  ],
+  "limits": "Complete changed-Python syntax census including tests and companions; product-source canonical collector and public identities remain separate checks. This is not a full global architecture PASS or P41 inherited attribution."
+}
+[
+  {
+    "comparison": "slice-base",
+    "base": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "complete_changed_path_count": 24,
+    "complete_changed_python_count": 12,
+    "totals": {
+      "product_source": 7,
+      "added_polisyos_import_rows": 29,
+      "removed_polisyos_import_rows": 2,
+      "added_cross_root_rows": 15,
+      "tests": 5
+    }
+  },
+  {
+    "comparison": "published-main-198",
+    "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "complete_changed_path_count": 3450,
+    "complete_changed_python_count": 361,
+    "totals": {
+      "companion": 239,
+      "added_polisyos_import_rows": 1852,
+      "removed_polisyos_import_rows": 15,
+      "added_cross_root_rows": 405,
+      "product_source": 57,
+      "tests": 65
+    }
+  },
+  {
+    "comparison": "historical-Core-route-source-539",
+    "base": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+    "complete_changed_path_count": 902,
+    "complete_changed_python_count": 246,
+    "totals": {
+      "companion": 221,
+      "added_polisyos_import_rows": 132,
+      "removed_polisyos_import_rows": 24,
+      "added_cross_root_rows": 59,
+      "product_source": 15,
+      "tests": 10
+    }
+  }
+]

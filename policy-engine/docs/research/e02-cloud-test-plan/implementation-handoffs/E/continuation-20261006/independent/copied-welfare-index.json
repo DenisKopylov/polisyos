@@ -1,0 +1,83 @@
+{
+  "schema": "policyos.e02.evidence_copy.v1",
+  "files": [
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/review-welfare-9dde740f6c5e.json",
+      "committed_path": "independent/welfare/review-welfare-9dde740f6c5e.json",
+      "sha256": "33c9f884c2ae7ac0818d3c187b2f738d3a0a8bfed7f50ca50c44cdea9bbc3617",
+      "bytes": 10671
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/welfare_repaired_review.py",
+      "committed_path": "independent/welfare/welfare_repaired_review.py.txt",
+      "sha256": "56c8135cffcf0bd95058f2837cfb4e4889120bbba2681c6c85208bdcf306de9e",
+      "bytes": 25541
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/fresh_consumer_candidate.py",
+      "committed_path": "independent/welfare/fresh_consumer_candidate.py.txt",
+      "sha256": "e72e1ab4982fef2a30c1749948e49e5ea66e74b683b288e6baecd43c365c62d9",
+      "bytes": 5224
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/environment-9dde740f6c5e.json",
+      "committed_path": "independent/welfare/environment-9dde740f6c5e.json",
+      "sha256": "972331f253377d266ce4581ae2d3a3bbd7c2b926f2ef7d9caa4dce9622f58456",
+      "bytes": 741
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/welfare-repaired-9dde740f6c5e.log",
+      "committed_path": "independent/welfare/welfare-repaired-9dde740f6c5e.stdout.txt",
+      "sha256": "b5aec39a251016ab3dd87858b2032cd43a5eb80f4f7ced60ca36e2d3e58d4687",
+      "bytes": 12459
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/welfare-repaired-9dde740f6c5e-receipt.json",
+      "committed_path": "independent/welfare/welfare-repaired-9dde740f6c5e-receipt.json",
+      "sha256": "8a181193209bcb36b2388d30a2ca4a738c53457a52018f4f6ca961c3611af1bc",
+      "bytes": 18120
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/fresh-consumer-9dde740f6c5e.log",
+      "committed_path": "independent/welfare/fresh-consumer-9dde740f6c5e.stdout.txt",
+      "sha256": "c5587618fb5d953119eea4addd2f5fd0403599630fe1ce2da6bd75953badda2c",
+      "bytes": 4218
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/fresh-consumer-9dde740f6c5e-receipt.json",
+      "committed_path": "independent/welfare/fresh-consumer-9dde740f6c5e-receipt.json",
+      "sha256": "e6d45ffd22a07c4b30ddc4f6faeb706f61013a3cc93c969edcd9bea132c0bdaf",
+      "bytes": 3386
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/welfare-repaired-9dde740f6c5e-probe-serialization-error.log",
+      "committed_path": "independent/welfare/welfare-repaired-9dde740f6c5e-probe-serialization-error.stdout.txt",
+      "sha256": "aaf50168fc8280d5509ad2ffb6781230896d7549b3a280b3c97ec1abd47bc4a9",
+      "bytes": 2078
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/welfare-repaired-9dde740f6c5e-probe-invalid-metadata-fixture.log",
+      "committed_path": "independent/welfare/welfare-repaired-9dde740f6c5e-probe-invalid-metadata-fixture.stdout.txt",
+      "sha256": "41bbe1ab8c829358c7bb2d61e5b63b4c4bc96fe272ce6fb45767db40fcc1bd7e",
+      "bytes": 12434
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/welfare-repaired-9dde740f6c5e-probe-invalid-metadata-fixture-receipt.json",
+      "committed_path": "independent/welfare/welfare-repaired-9dde740f6c5e-probe-invalid-metadata-fixture-receipt.json",
+      "sha256": "1d45dd59f62b0cf43dfc0e153a1bd366fa788c9bcdb0d7ad30cf1d9cad3b48e6",
+      "bytes": 18037
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/fresh-consumer-0cb369b6ef73.log",
+      "committed_path": "independent/welfare/fresh-consumer-0cb369b6ef73.stdout.txt",
+      "sha256": "41cd1feec3b496517cc2e8a0727999d2b97a64fec7ec3bb014c4195b86875f60",
+      "bytes": 4219
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/fresh-consumer-0cb369b6ef73-receipt.json",
+      "committed_path": "independent/welfare/fresh-consumer-0cb369b6ef73-receipt.json",
+      "sha256": "50ee7468e15d9e4a898d9b34312c2bc94e6852598b52b4622f2eb5cc79990ad9",
+      "bytes": 3387
+    }
+  ]
+}

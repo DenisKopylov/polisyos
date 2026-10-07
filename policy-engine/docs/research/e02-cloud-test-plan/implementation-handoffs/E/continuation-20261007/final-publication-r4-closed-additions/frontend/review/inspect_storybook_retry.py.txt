@@ -1,0 +1,78 @@
+"""Independent JUnit/full-output interpretation; never execute frontend code."""
+from __future__ import annotations
+
+import copy
+import hashlib
+import json
+from pathlib import Path
+import re
+import subprocess
+import sys
+from defusedxml import ElementTree
+
+SOURCE = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE = 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+REPO = Path('/workspace/e02-E-continuation-20261006')
+ROOT = Path('/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook')
+OUT = Path('/tmp/e02-E-frontend-retry-analysis-64d')
+checks = []
+
+def check(name, value):
+    checks.append({'name': name, 'passed': bool(value)})
+    if not value:
+        raise ValueError(name)
+
+def bind(path):
+    body = path.read_bytes()
+    return {'source_path': str(path), 'bytes': len(body), 'sha256': hashlib.sha256(body).hexdigest()}
+
+def admitted_receipt(receipt, stdout):
+    if receipt['candidate_sha'] != SOURCE or receipt['candidate_tree_sha'] != TREE or receipt['source_immutable'] is not True or receipt['source_identity_before'] != receipt['source_identity_after']:
+        raise ValueError('Actual immutable candidate required')
+    if receipt['stdout_bytes'] != len(stdout) or receipt['stdout_sha256'] != hashlib.sha256(stdout).hexdigest():
+        raise ValueError('Complete native capture binding required')
+    return receipt['outcome'], receipt['exit_code']
+
+path = ROOT / 'checks/storybook-full-native-retry/storybook-full-native-retry.json'
+receipt = json.loads(path.read_bytes())
+stdout = Path(receipt['stdout_path']).read_bytes()
+outcome, code = admitted_receipt(receipt, stdout)
+check('actual_native_retry_FAIL1_no_interruption', outcome == 'FAIL' and code == 1)
+document = ElementTree.parse(ROOT / 'storybook.junit.xml', forbid_dtd=True).getroot()
+suites = []
+counts = {'cases': 0, 'passed': 0, 'failed': 0, 'errors': 0, 'skipped': 0}
+for suite in document.iter('testsuite'):
+    cases = []
+    for case in suite.iter('testcase'):
+        status = 'failed' if case.find('failure') is not None else 'errors' if case.find('error') is not None else 'skipped' if case.find('skipped') is not None else 'passed'
+        counts['cases'] += 1
+        counts[status] += 1
+        failure = case.find('failure')
+        cases.append({'attributes': dict(case.attrib), 'JUnit_status': status, 'failure_attributes': None if failure is None else dict(failure.attrib), 'failure_text': None if failure is None else failure.text, 'scope': 'JUnit import-failure synthetic row, no authored test-body assertion inferred' if failure is not None and case.attrib.get('name') == suite.attrib.get('name') else 'Actual native completed case row'})
+    suites.append({'attributes': dict(suite.attrib), 'case_count': len(cases), 'cases': cases, 'empty_suite_interpretation': 'No per-case completion evidence; do not infer PASS/SKIP from an empty suite' if not cases else None})
+check('independent_complete_JUnit_case_count_matches_native_reader', counts == receipt['counts'] == {'cases': 38, 'passed': 37, 'failed': 1, 'errors': 0, 'skipped': 0})
+check('complete_JUnit_suites_include_uncompleted_empty_rows', len(suites) == 45 and sum(row['case_count'] == 0 for row in suites) == 29)
+text = stdout.decode()
+file_match = re.search(r'Test Files\s+1 failed \| 15 passed \(45\)', text)
+check('reported_file_denominator_and_gap_are_literal', file_match is not None)
+check('two_distinct_failure_boundaries_preserved', 'Failed to import test file' in text and 'ProvenanceStrip.stories.tsx' in text and 'Cannot connect to the iframe.' in text)
+check('CSS_warning_not_sufficient_failure_cause', '[vite:css][postcss]' in text and '37 passed' in text)
+bad = copy.deepcopy(receipt)
+bad['stdout_sha256'] = '0' * 64
+try:
+    admitted_receipt(bad, stdout)
+except ValueError:
+    check('corrupt_bound_capture_refused', True)
+else:
+    check('corrupt_bound_capture_refused', False)
+check('count_only_proxy_diverges', counts['passed'] > 0 and outcome != 'PASS')
+check('empty_suite_addition_changes_scope_without_cases', len(suites) + 1 == 46 and counts['cases'] == 38)
+source_inputs = []
+for relative in ['policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/Quantity.stories.tsx', 'policy-engine/apps/runtime-dashboard/src/shared/ui/ProvenanceStrip.stories.tsx', 'policy-engine/apps/runtime-dashboard/.storybook/vitest.setup.ts', 'policy-engine/apps/runtime-dashboard/vitest.storybook.config.ts']:
+    blob = subprocess.check_output(['/usr/bin/git', 'show', SOURCE + ':' + relative], cwd=REPO)
+    check('exact_source_' + relative.rsplit('/', 1)[-1], blob == (REPO / relative).read_bytes())
+    source_inputs.append({'path': relative, 'source_sha': SOURCE, 'bytes': len(blob), 'sha256': hashlib.sha256(blob).hexdigest()})
+report = {'schema': 'policyos.e02.E.storybook_required_retry_native_review.v1', 'candidate_sha': SOURCE, 'candidate_tree_sha': TREE, 'checks': checks, 'environment': {'python': sys.version, 'executable': sys.executable}, 'native_inputs': [bind(path), bind(Path(receipt['stdout_path'])), bind(ROOT / 'storybook.junit.xml'), bind(ROOT / 'launch.json')], 'actual_counts': counts, 'complete_suites': suites, 'file_denominator': {'displayed': 45, 'explicit_passed': 15, 'explicit_failed': 1, 'unassigned_reported_status': 29, 'actual_empty_JUnit_suites': 29}, 'source_inputs': source_inputs, 'diagnosis': {'completed': 'Full unfiltered exact native Storybook body exited1 in25.333s;37 actual case PASS plus one failed-import suite row. Old4749sFAIL130 interruption is separate.', 'failed_boundaries': ['Quantity.stories setup-file dynamic module fetch failed before authored test body', 'ProvenanceStrip iframe connection/CORS produced separate unhandled error'], 'not_established': ['No causally proved ENOSPC/cache/collision/source defect attribution for these two failures', 'No original current JS wait/progress diagnosis follows from this faster changed-output retry', 'Empty/unassigned29 suites do not prove case PASS/SKIP']}, 'next_owner': 'Frontend/team-frontend/@UI through G, exact native setup-file fetch and iframe URL boundary with current source/config refs; parent capacity owner restores workspace before required full a11y.', 'finding_closure': False, 'browser_or_tests_executed_by_this_observer': False}
+target = OUT / ('storybook-retry-review-optimized.json' if sys.flags.optimize else 'storybook-retry-review-normal.json')
+target.write_text(json.dumps(report, indent=2) + '\n')
+print(json.dumps({'checks': len(checks), 'all_passed': all(row['passed'] for row in checks), 'counts': counts, 'suites': len(suites), 'empty_suites': 29, 'native_outcome': outcome, 'report': str(target)}))

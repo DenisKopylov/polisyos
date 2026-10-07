@@ -1,0 +1,10 @@
+Foundry ban list violations:
+- src/polisyos/foundry/data_plane/bindings.py:16 banned import (standard): pathlib
+- src/polisyos/foundry/data_plane/bindings.py:986 banned import (standard): pyarrow
+- src/polisyos/foundry/methods/catalog/causal/literature_prior.py:6 banned import (no_jax): pathlib
+- src/polisyos/foundry/methods/catalog/dependency_authority.py:13 banned import (mixed): os
+- src/polisyos/foundry/methods/catalog/dependency_authority.py:14 banned import (mixed): shutil
+- src/polisyos/foundry/methods/catalog/dependency_authority.py:16 banned import (mixed): subprocess
+- src/polisyos/foundry/methods/catalog/dependency_authority.py:24 banned import (mixed): pathlib
+- src/polisyos/foundry/methods/catalog/dependency_evidence.py:13 banned import (mixed): pathlib
+- src/polisyos/foundry/methods/catalog/dependency_profile.py:15 banned import (mixed): pathlib

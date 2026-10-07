@@ -1,0 +1,343 @@
+{
+  "schema": "policyos.e02.qualified_current_IR_companion_members.v1",
+  "selector": {
+    "portable_path": "current-IR/qualified-v2/publication-selection.json",
+    "bytes": 19554,
+    "sha256": "cda5627a0dfc5d28bfd97a7ef3374c04feaba64b897ec56117fb2a5076b502e1"
+  },
+  "logical_assets": 41,
+  "unique_assets": 26,
+  "unique_bytes": 167802,
+  "members": [
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/G855-E.md",
+      "logical_at": "current-IR/qualified-v2/original/G855-E.md",
+      "stored_at": "current-IR/qualified-v2/original/G855-E.md",
+      "role": "literal original native/Error/G response artifact",
+      "bytes": 3435,
+      "sha256": "3f60bdd90cc39bf335eea45163dc05ce26ecf8319f1fef294ce3e7b31203fdf7"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/G855-E-IR-decision.md",
+      "logical_at": "current-IR/qualified-v2/original/G855-E-IR-decision.md",
+      "stored_at": "current-IR/qualified-v2/original/G855-E-IR-decision.md",
+      "role": "literal original native/Error/G response artifact",
+      "bytes": 7381,
+      "sha256": "2f0b221653e13dbd27a44bd329af9fd56f894fba95f766ff508bffb8ed51d8ac"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/actual-conditions-counterexamples.json",
+      "logical_at": "current-IR/qualified-v2/original/actual-conditions-counterexamples.json",
+      "stored_at": "current-IR/qualified-v2/original/actual-conditions-counterexamples.json",
+      "role": "literal original native/Error/G response artifact",
+      "bytes": 18774,
+      "sha256": "d4827c252f4da22f69be8fb920dde6e6a5737553df43a199f886e115637b8042"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/independent-owner-response.json",
+      "logical_at": "current-IR/qualified-v2/original/independent-owner-response.json",
+      "stored_at": "current-IR/qualified-v2/original/independent-owner-response.json",
+      "role": "literal original native/Error/G response artifact",
+      "bytes": 11390,
+      "sha256": "f3878619073bf02ed4b66f89525958d0cb5c5d929cd1f860a9535a438e1ae5ca"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/probe_actual_conditions.py.txt",
+      "logical_at": "current-IR/qualified-v2/original/probe_actual_conditions.py.txt",
+      "stored_at": "current-IR/qualified-v2/original/probe_actual_conditions.py.txt",
+      "role": "literal original native/Error/G response artifact",
+      "bytes": 9796,
+      "sha256": "ee64e2e531923840ff7de62bdb56c88c9b4a8ebfab5cccd601a5276cf4cec5f0"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/probe.stdout.json",
+      "logical_at": "current-IR/qualified-v2/original/probe.stdout.json",
+      "stored_at": "current-IR/qualified-v2/original/probe.stdout.json",
+      "role": "literal original native/Error/G response artifact",
+      "bytes": 513,
+      "sha256": "d5eda9db1a0ac8df602726b75b1ebd1f9225d504ba8848240878ba0982ddc772"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/probe.stderr.txt",
+      "logical_at": "current-IR/qualified-v2/original/probe.stderr.txt",
+      "stored_at": "current-IR/qualified-v2/original/probe.stderr.txt",
+      "role": "literal original native/Error/G response artifact",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/probe-removed-helper-environment-ERROR.py.txt",
+      "logical_at": "current-IR/qualified-v2/original/probe-removed-helper-environment-ERROR.py.txt",
+      "stored_at": "current-IR/qualified-v2/original/probe_actual_conditions.py.txt",
+      "role": "literal original native/Error/G response artifact",
+      "bytes": 9796,
+      "sha256": "ee64e2e531923840ff7de62bdb56c88c9b4a8ebfab5cccd601a5276cf4cec5f0"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/probe-removed-helper-environment-ERROR.stdout.json",
+      "logical_at": "current-IR/qualified-v2/original/probe-removed-helper-environment-ERROR.stdout.txt",
+      "stored_at": "current-IR/qualified-v2/original/probe.stderr.txt",
+      "role": "literal original native/Error/G response artifact",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/probe-removed-helper-environment-ERROR.stderr.txt",
+      "logical_at": "current-IR/qualified-v2/original/probe-removed-helper-environment-ERROR.stderr.txt",
+      "stored_at": "current-IR/qualified-v2/original/probe-removed-helper-environment-ERROR.stderr.txt",
+      "role": "literal original native/Error/G response artifact",
+      "bytes": 207,
+      "sha256": "07b85bb3b63d4901da80bea57425a71dbf99409877c4fa757fd65be98c2ec3ec"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/publication-selection.json",
+      "logical_at": "current-IR/qualified-v2/history/publication-selection.json",
+      "stored_at": "current-IR/qualified-v2/history/publication-selection.json",
+      "role": "preserved original selector",
+      "bytes": 3201,
+      "sha256": "b001b5e01eebd0f23a7e51c92a95728d087bec7ae6413c2096a1fcafc31be048"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/exact-finite-oracle.json",
+      "logical_at": "current-IR/qualified-v2/gold/exact-finite-oracle.json",
+      "stored_at": "current-IR/qualified-v2/gold/exact-finite-oracle.json",
+      "role": "frozen gold/CAS refs; no repeat/authority",
+      "bytes": 6369,
+      "sha256": "9ecfbdb387d63e1db764bd6cec49b26edcddb38c3ffeac4e82cbd586b682bfdc"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/exact_finite_oracle.py",
+      "logical_at": "current-IR/qualified-v2/gold/exact_finite_oracle.py.txt",
+      "stored_at": "current-IR/qualified-v2/gold/exact_finite_oracle.py.txt",
+      "role": "frozen gold/CAS refs; no repeat/authority",
+      "bytes": 3926,
+      "sha256": "52f814918934cb2f55faa883a3a74086d997400368968d20aec74cee7e0ab851"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/exact-oracle.stdout.json",
+      "logical_at": "current-IR/qualified-v2/gold/exact-oracle.stdout.json",
+      "stored_at": "current-IR/qualified-v2/gold/exact-oracle.stdout.json",
+      "role": "frozen gold/CAS refs; no repeat/authority",
+      "bytes": 1481,
+      "sha256": "3bf24a8573964b22b78f68e2fe8549075e53e77116260167501f3792bed25b75"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/exact-oracle.stderr.txt",
+      "logical_at": "current-IR/qualified-v2/gold/exact-oracle.stderr.txt",
+      "stored_at": "current-IR/qualified-v2/original/probe.stderr.txt",
+      "role": "frozen gold/CAS refs; no repeat/authority",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/literal-legacy-profile700-fixture-index.json",
+      "logical_at": "current-IR/qualified-v2/CAS-ref-index/literal-legacy-profile700-fixture-index.json",
+      "stored_at": "current-IR/qualified-v2/CAS-ref-index/literal-legacy-profile700-fixture-index.json",
+      "role": "frozen gold/CAS refs; no repeat/authority",
+      "bytes": 8473,
+      "sha256": "2ca74a333bf836d2fbbbbfc0712bc38625a2241008c633b39104ab82351fb3fc"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/review_literal_custody.py",
+      "logical_at": "current-IR/qualified-v2/custody/review_literal_custody.py.txt",
+      "stored_at": "current-IR/qualified-v2/custody/review_literal_custody.py.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 16352,
+      "sha256": "3ad98134323f72239d0de784e03e8cfc201092b5ee46343e50d61a74e8fa9533"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/review_literal_custody.attempt1.py.txt",
+      "logical_at": "current-IR/qualified-v2/custody/review_literal_custody.attempt1.py.txt",
+      "stored_at": "current-IR/qualified-v2/custody/review_literal_custody.attempt1.py.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 15424,
+      "sha256": "3673ae05e15ade3755bb875a5a09a5ac0768cd9924cd6cd1c9ebea9c07511083"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/review_literal_custody.v2-used.py.txt",
+      "logical_at": "current-IR/qualified-v2/custody/review_literal_custody.v2-used.py.txt",
+      "stored_at": "current-IR/qualified-v2/custody/review_literal_custody.v2-used.py.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 15427,
+      "sha256": "ebe497d988400cb4e183efbc608e7d4d8e8f40328462c161208c675f0feeda4f"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/review_literal_custody.v3-ERROR.py.txt",
+      "logical_at": "current-IR/qualified-v2/custody/review_literal_custody.v3-ERROR.py.txt",
+      "stored_at": "current-IR/qualified-v2/custody/review_literal_custody.v3-ERROR.py.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 16339,
+      "sha256": "61d0485032e1213720668c32d83932e4ea2c26c4fabcfc33e002f480588ef76d"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/normal-v4-review.json",
+      "logical_at": "current-IR/qualified-v2/custody/normal-v4-review.json",
+      "stored_at": "current-IR/qualified-v2/custody/normal-v4-review.json",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 10227,
+      "sha256": "72ff2b147aa07077ddf210283109a765b4c336a4a57251223e423b87b9d20b0f"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/optimized-v4-review.json",
+      "logical_at": "current-IR/qualified-v2/custody/optimized-v4-review.json",
+      "stored_at": "current-IR/qualified-v2/custody/normal-v4-review.json",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 10227,
+      "sha256": "72ff2b147aa07077ddf210283109a765b4c336a4a57251223e423b87b9d20b0f"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/normal-v4.stdout.json",
+      "logical_at": "current-IR/qualified-v2/custody/normal-v4.stdout.json",
+      "stored_at": "current-IR/qualified-v2/custody/normal-v4.stdout.json",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 447,
+      "sha256": "0b611ba97f257f53b81f5faf26aaf4d9c002b85de4dfc237832a75465b88536c"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/normal-v4.stderr.txt",
+      "logical_at": "current-IR/qualified-v2/custody/normal-v4.stderr.txt",
+      "stored_at": "current-IR/qualified-v2/original/probe.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/optimized-v4.stdout.json",
+      "logical_at": "current-IR/qualified-v2/custody/optimized-v4.stdout.json",
+      "stored_at": "current-IR/qualified-v2/custody/optimized-v4.stdout.json",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 450,
+      "sha256": "1ff5015544e39a9c3c3db6abb27f792978e3731e1cf6e1d42cabec0adc64e493"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/optimized-v4.stderr.txt",
+      "logical_at": "current-IR/qualified-v2/custody/optimized-v4.stderr.txt",
+      "stored_at": "current-IR/qualified-v2/original/probe.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/normal.stdout.json",
+      "logical_at": "current-IR/qualified-v2/custody/normal.stdout.txt",
+      "stored_at": "current-IR/qualified-v2/original/probe.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/normal.stderr.txt",
+      "logical_at": "current-IR/qualified-v2/custody/normal.stderr.txt",
+      "stored_at": "current-IR/qualified-v2/custody/normal.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 1128,
+      "sha256": "945a27533e9752ff28b21c6ff18e89699308a56903b65ca6f17d330f9f8ae237"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/optimized.stdout.json",
+      "logical_at": "current-IR/qualified-v2/custody/optimized.stdout.txt",
+      "stored_at": "current-IR/qualified-v2/original/probe.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/optimized.stderr.txt",
+      "logical_at": "current-IR/qualified-v2/custody/optimized.stderr.txt",
+      "stored_at": "current-IR/qualified-v2/custody/normal.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 1128,
+      "sha256": "945a27533e9752ff28b21c6ff18e89699308a56903b65ca6f17d330f9f8ae237"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/normal-v2-review.json",
+      "logical_at": "current-IR/qualified-v2/custody/normal-v2-review.json",
+      "stored_at": "current-IR/qualified-v2/custody/normal-v2-review.json",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 9693,
+      "sha256": "10f709d011e1c0009c7f8da36218c03da67c1990be8bf4e8f590293005522a05"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/optimized-v2-review.json",
+      "logical_at": "current-IR/qualified-v2/custody/optimized-v2-review.json",
+      "stored_at": "current-IR/qualified-v2/custody/normal-v2-review.json",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 9693,
+      "sha256": "10f709d011e1c0009c7f8da36218c03da67c1990be8bf4e8f590293005522a05"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/normal-v2.stdout.json",
+      "logical_at": "current-IR/qualified-v2/custody/normal-v2.stdout.json",
+      "stored_at": "current-IR/qualified-v2/custody/normal-v2.stdout.json",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 446,
+      "sha256": "1f254d570a0807ed3e8af2eb6cf58e04b3b4f2e9abd90439304ca24ef64d624c"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/normal-v2.stderr.txt",
+      "logical_at": "current-IR/qualified-v2/custody/normal-v2.stderr.txt",
+      "stored_at": "current-IR/qualified-v2/original/probe.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/optimized-v2.stdout.json",
+      "logical_at": "current-IR/qualified-v2/custody/optimized-v2.stdout.json",
+      "stored_at": "current-IR/qualified-v2/custody/optimized-v2.stdout.json",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 449,
+      "sha256": "3872883b38ad09ffa7b14d27e9d40d934ba4c32e51b81fefd4ee80fba05ad10c"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/optimized-v2.stderr.txt",
+      "logical_at": "current-IR/qualified-v2/custody/optimized-v2.stderr.txt",
+      "stored_at": "current-IR/qualified-v2/original/probe.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/normal-v3.stdout.json",
+      "logical_at": "current-IR/qualified-v2/custody/normal-v3.stdout.txt",
+      "stored_at": "current-IR/qualified-v2/original/probe.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/normal-v3.stderr.txt",
+      "logical_at": "current-IR/qualified-v2/custody/normal-v3.stderr.txt",
+      "stored_at": "current-IR/qualified-v2/custody/normal-v3.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 860,
+      "sha256": "1279eadad1e2ac8cf498759d09ad5f71a4451744451741f55d9310442025634d"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/optimized-v3.stdout.json",
+      "logical_at": "current-IR/qualified-v2/custody/optimized-v3.stdout.txt",
+      "stored_at": "current-IR/qualified-v2/original/probe.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/optimized-v3.stderr.txt",
+      "logical_at": "current-IR/qualified-v2/custody/optimized-v3.stderr.txt",
+      "stored_at": "current-IR/qualified-v2/custody/normal-v3.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 860,
+      "sha256": "1279eadad1e2ac8cf498759d09ad5f71a4451744451741f55d9310442025634d"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/build_closed_selection.py",
+      "logical_at": "current-IR/qualified-v2/custody/build_closed_selection.py.txt",
+      "stored_at": "current-IR/qualified-v2/custody/build_closed_selection.py.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR",
+      "bytes": 5614,
+      "sha256": "96fbd82548b22a00d34d704f6fd3abc14085dd6b01503fcc9063b5b76926f031"
+    }
+  ],
+  "separate_from_implementation_six_selector_counter": true,
+  "finding_closure": false
+}

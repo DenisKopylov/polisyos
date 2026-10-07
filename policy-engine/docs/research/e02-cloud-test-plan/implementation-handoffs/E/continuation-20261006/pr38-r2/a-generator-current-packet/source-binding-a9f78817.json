@@ -1,0 +1,846 @@
+{
+  "schema": "e02.E.current-A-generator-source-bindings.v2",
+  "current_committed_source": {
+    "sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+    "parents": [
+      "c311546deb347c185b30a2652c2ee9a5e1535e95",
+      "127dc7ab8365d29eb656fe32c0c894f6cc971286"
+    ]
+  },
+  "actual_working_HEAD_initial": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "status_sb_read_only": "## codex/e02-E-continuation-20261006\n",
+  "old_wave_sha": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "old_packet_source_binding_file": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-5e3e37276/source-bindings.json",
+    "bytes": 40255,
+    "sha256": "8956402babe6354ce9af80b741a18dacbab21dbc18bfb6fdabcc152be4748ed1"
+  },
+  "selected_source_denominator": 29,
+  "unchanged_selected_source_denominator": 29,
+  "source_rows": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+        "bytes": 578822,
+        "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+        "bytes": 578822,
+        "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+        "bytes": 347497,
+        "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+        "bytes": 347497,
+        "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/governed_projections.py",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/src/polisyos/runtime/http/services/governed_projections.py",
+        "git_blob": "11e2b068fafa53361ba96ad847fa93da5e169b7e",
+        "bytes": 106265,
+        "sha256": "f697b9bd324cafd7d90ca0d3dd6e641d9c2db131b2a49d9d1af0ebb024e9668a"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/src/polisyos/runtime/http/services/governed_projections.py",
+        "git_blob": "11e2b068fafa53361ba96ad847fa93da5e169b7e",
+        "bytes": 106265,
+        "sha256": "f697b9bd324cafd7d90ca0d3dd6e641d9c2db131b2a49d9d1af0ebb024e9668a"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/confidence_ledger_risk_spend_projection.py",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/src/polisyos/runtime/http/services/confidence_ledger_risk_spend_projection.py",
+        "git_blob": "ada4d58b31b5460997fcebb1c97a4cece8b7f265",
+        "bytes": 21420,
+        "sha256": "ca826a3d68e0810d72e972a043264441511240a7bb6ef4dcd77c688c997ce1e8"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/src/polisyos/runtime/http/services/confidence_ledger_risk_spend_projection.py",
+        "git_blob": "ada4d58b31b5460997fcebb1c97a4cece8b7f265",
+        "bytes": 21420,
+        "sha256": "ca826a3d68e0810d72e972a043264441511240a7bb6ef4dcd77c688c997ce1e8"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py",
+        "git_blob": "c02e29a3d44552ba38ded8c14530f5a798e0c40f",
+        "bytes": 7934,
+        "sha256": "fdc36162cefd57c807e70026fca9d27608ecf540930cece436dcf6a75d4dc6aa"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py",
+        "git_blob": "c02e29a3d44552ba38ded8c14530f5a798e0c40f",
+        "bytes": 7934,
+        "sha256": "fdc36162cefd57c807e70026fca9d27608ecf540930cece436dcf6a75d4dc6aa"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py",
+        "git_blob": "ca4663b1c53fb05d966f39be2686de7112e59df3",
+        "bytes": 38045,
+        "sha256": "e913ddef94876b7a54eb524d4577c489c8ee79f3f5b87092a8232d7a33b70536"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py",
+        "git_blob": "ca4663b1c53fb05d966f39be2686de7112e59df3",
+        "bytes": 38045,
+        "sha256": "e913ddef94876b7a54eb524d4577c489c8ee79f3f5b87092a8232d7a33b70536"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+        "git_blob": "bfad9e36e2874e8a8f65ac524060e8f072e0cdb3",
+        "bytes": 43270,
+        "sha256": "ab0c9c125124c4273ba0d696c912c7434d77e3b987480bab456dd38d753846da"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+        "git_blob": "bfad9e36e2874e8a8f65ac524060e8f072e0cdb3",
+        "bytes": 43270,
+        "sha256": "ab0c9c125124c4273ba0d696c912c7434d77e3b987480bab456dd38d753846da"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+        "git_blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+        "bytes": 81721,
+        "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+        "git_blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+        "bytes": 81721,
+        "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+        "git_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+        "bytes": 59611,
+        "sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+        "git_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+        "bytes": 59611,
+        "sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+        "git_blob": "7f71808fa8c56e861c9ed359c22c5297d2b3613d",
+        "bytes": 17995,
+        "sha256": "0d0127d5784ea5a265fcf20fb7a0551bc773f748f84b1e01de6c27eeb09eaef1"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+        "git_blob": "7f71808fa8c56e861c9ed359c22c5297d2b3613d",
+        "bytes": 17995,
+        "sha256": "0d0127d5784ea5a265fcf20fb7a0551bc773f748f84b1e01de6c27eeb09eaef1"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+        "git_blob": "10af66233d02c2d7a6a04ef163d9241a760316a8",
+        "bytes": 9736,
+        "sha256": "dda7af5b05292d1a52f591c35eb2add28e45cb6e29a0891276fa48afcc55bbd9"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+        "git_blob": "10af66233d02c2d7a6a04ef163d9241a760316a8",
+        "bytes": 9736,
+        "sha256": "dda7af5b05292d1a52f591c35eb2add28e45cb6e29a0891276fa48afcc55bbd9"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/foundry.py",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/src/polisyos/core/contracts/foundry.py",
+        "git_blob": "bf726135da4552663c8e15e5be9fe341c85cf539",
+        "bytes": 61265,
+        "sha256": "02a038f9e8272fe168f5c5a3d9ea46919e1f4309fa308693bb8fe63d08c0438d"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/src/polisyos/core/contracts/foundry.py",
+        "git_blob": "bf726135da4552663c8e15e5be9fe341c85cf539",
+        "bytes": 61265,
+        "sha256": "02a038f9e8272fe168f5c5a3d9ea46919e1f4309fa308693bb8fe63d08c0438d"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+        "git_blob": "8aa65f3fb57aee60eecdcb8834737e4c74427bff",
+        "bytes": 27101,
+        "sha256": "651884b092b690b868c8501e7a5cc34d19f7d68cad2b65cd1180ae928b50c835"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+        "git_blob": "8aa65f3fb57aee60eecdcb8834737e4c74427bff",
+        "bytes": 27101,
+        "sha256": "651884b092b690b868c8501e7a5cc34d19f7d68cad2b65cd1180ae928b50c835"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/tools/quality/diagnostics/gen_schema.py",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/tools/quality/diagnostics/gen_schema.py",
+        "git_blob": "b4c79ac48ca420425b91cbf4c47ac794a37eaba8",
+        "bytes": 23635,
+        "sha256": "6d1b8f48e20853415dbd9109d0b0662f3d9ca199e2d15c36292823b2e7c1d72e"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/tools/quality/diagnostics/gen_schema.py",
+        "git_blob": "b4c79ac48ca420425b91cbf4c47ac794a37eaba8",
+        "bytes": 23635,
+        "sha256": "6d1b8f48e20853415dbd9109d0b0662f3d9ca199e2d15c36292823b2e7c1d72e"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/check_trust_claim_posture.py",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/tools/quality/validation/check_trust_claim_posture.py",
+        "git_blob": "10f480737d31baf3d0141bc529cb66e5ffabc2cb",
+        "bytes": 146612,
+        "sha256": "3cc47926a168f903a0dd6921eaa131b2d335ef850e8586e7cfbf2ae5837a5ac5"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/tools/quality/validation/check_trust_claim_posture.py",
+        "git_blob": "10f480737d31baf3d0141bc529cb66e5ffabc2cb",
+        "bytes": 146612,
+        "sha256": "3cc47926a168f903a0dd6921eaa131b2d335ef850e8586e7cfbf2ae5837a5ac5"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/trust_claim_posture_sources.py",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/tools/quality/validation/trust_claim_posture_sources.py",
+        "git_blob": "89ff6b82fe6097f9ed0a0fa5a6aa9c54d3b5f8be",
+        "bytes": 40006,
+        "sha256": "75ae37a1facb5dccdfd72437dea96cff26c460e5bda79186b46c3977b6fcf656"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/tools/quality/validation/trust_claim_posture_sources.py",
+        "git_blob": "89ff6b82fe6097f9ed0a0fa5a6aa9c54d3b5f8be",
+        "bytes": 40006,
+        "sha256": "75ae37a1facb5dccdfd72437dea96cff26c460e5bda79186b46c3977b6fcf656"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+        "git_blob": "37ceb13937e36ab6c237595a74e7be70ca987c8d",
+        "bytes": 7528,
+        "sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+        "git_blob": "37ceb13937e36ab6c237595a74e7be70ca987c8d",
+        "bytes": 7528,
+        "sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py",
+        "git_blob": "04416db33c86bd5610fd33893ad6867db7a9f22f",
+        "bytes": 1793,
+        "sha256": "daeff9a91f19662a9f21788f73bd002659059f2ca3804ac03a258294185255da"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py",
+        "git_blob": "04416db33c86bd5610fd33893ad6867db7a9f22f",
+        "bytes": 1793,
+        "sha256": "daeff9a91f19662a9f21788f73bd002659059f2ca3804ac03a258294185255da"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/architecture/generated_artifacts.toml",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/architecture/generated_artifacts.toml",
+        "git_blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+        "bytes": 253707,
+        "sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/architecture/generated_artifacts.toml",
+        "git_blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+        "bytes": 253707,
+        "sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/check_layer3_gy_confidence_ledger.py",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/tools/quality/validation/check_layer3_gy_confidence_ledger.py",
+        "git_blob": "f18726c6d7896450089c0a992d6fe701d2894fd6",
+        "bytes": 197019,
+        "sha256": "14a30d4b930e78af4b59e8e56b94405fe65051ce5ad375d355ebfa91e396ecd7"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/tools/quality/validation/check_layer3_gy_confidence_ledger.py",
+        "git_blob": "f18726c6d7896450089c0a992d6fe701d2894fd6",
+        "bytes": 197019,
+        "sha256": "14a30d4b930e78af4b59e8e56b94405fe65051ce5ad375d355ebfa91e396ecd7"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
+        "git_blob": "58a81301ba500bf2ff9c5aaed765a4d9365a17b3",
+        "bytes": 980647,
+        "sha256": "dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
+        "git_blob": "58a81301ba500bf2ff9c5aaed765a4d9365a17b3",
+        "bytes": 980647,
+        "sha256": "dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+        "git_blob": "f8a9dda954bc3bee4f9d4441311f2dcc9fe392e7",
+        "bytes": 2812414,
+        "sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+        "git_blob": "f8a9dda954bc3bee4f9d4441311f2dcc9fe392e7",
+        "bytes": 2812414,
+        "sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json",
+        "git_blob": "cea9bbf6dc36fbb3935c32cde0766560321bd821",
+        "bytes": 8853,
+        "sha256": "00d1fac4d9059783c0107cb3d39b772115bfab8847267fadafc80ca5c7d27b42"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json",
+        "git_blob": "cea9bbf6dc36fbb3935c32cde0766560321bd821",
+        "bytes": 8853,
+        "sha256": "00d1fac4d9059783c0107cb3d39b772115bfab8847267fadafc80ca5c7d27b42"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+        "git_blob": "69a0ec74a123c345d1c3248d36aab50cf50885cc",
+        "bytes": 52447,
+        "sha256": "b566b7f999f25d3aec2bb10184ed85c108ccbdfd8abad8f558259c037d9b2a27"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+        "git_blob": "69a0ec74a123c345d1c3248d36aab50cf50885cc",
+        "bytes": 52447,
+        "sha256": "b566b7f999f25d3aec2bb10184ed85c108ccbdfd8abad8f558259c037d9b2a27"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+        "git_blob": "38f8b0b40ca439aa5e52cf39b3c8cda894391db6",
+        "bytes": 2365635,
+        "sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+        "git_blob": "38f8b0b40ca439aa5e52cf39b3c8cda894391db6",
+        "bytes": 2365635,
+        "sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/pyproject.toml",
+        "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+        "bytes": 11007,
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/pyproject.toml",
+        "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+        "bytes": 11007,
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/uv.lock",
+        "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+        "bytes": 779204,
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/uv.lock",
+        "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+        "bytes": 779204,
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "AGENTS.md",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "AGENTS.md",
+        "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+        "bytes": 22656,
+        "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "AGENTS.md",
+        "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+        "bytes": 22656,
+        "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    },
+    {
+      "path": "policy-engine/CONTRIBUTING.md",
+      "current_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/CONTRIBUTING.md",
+        "git_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf",
+        "bytes": 10553,
+        "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783"
+      },
+      "same_as_failed5e_git_blob_and_bytes": true,
+      "failed5e_source": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/CONTRIBUTING.md",
+        "git_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf",
+        "bytes": 10553,
+        "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783"
+      },
+      "reuse_scope": "source/packet trace only, no replayed test PASS; P41 cause not established"
+    }
+  ],
+  "new_owner_action_and_carried_packet_refs": [
+    {
+      "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/A-delta-owner-actions-2026-10-06.md",
+      "git_blob": "30d3c87cc779be9801ea2262cbdeef007c5e7675",
+      "bytes": 6998,
+      "sha256": "08423a644550dbd4cb12e40e677c28071d3f4fdb4a9f388ab3c38669cba2a515"
+    },
+    {
+      "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-sixth-wave.md",
+      "git_blob": "db4f50467ae5efbaf33fc6b2ce9abab7059f41d8",
+      "bytes": 5359,
+      "sha256": "00db0fccec12441c2405aa68d22ded671fb78dd3c9e65e4ba2e37f6e574feb9e"
+    },
+    {
+      "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/E-delta-owner-actions-2026-10-06.md",
+      "git_blob": "3ec1bb52aba7776293556b58f55676dc62381332",
+      "bytes": 9133,
+      "sha256": "6f80789aa208e157d0194598a6cd957e05c4f587bf384b23e35719eb94e2e711"
+    },
+    {
+      "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checkpoint-11.json",
+      "git_blob": "31cedfdcffa2c151d024e2424c06721c31af0371",
+      "bytes": 3039,
+      "sha256": "b8b0e280e8c8d15ccef5382d6d0769f4c40b05640b609a9317330fba80996603"
+    },
+    {
+      "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/README.md",
+      "git_blob": "22823cbe96152b730ab2853b31db6c30490576dc",
+      "bytes": 4146,
+      "sha256": "9e93b9c5781475df7e866e5b7241ac3c60b04e2740ab06fdc8bb07b637c2d8dd"
+    },
+    {
+      "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/independent-review-decisions.json",
+      "git_blob": "e203edba48acc64ea4ee6344046dd849b0998bac",
+      "bytes": 2520,
+      "sha256": "6770d0254c8ad074ea7e91f8a173c2d23423dc7ad306315359dfcfcbc1a3a672"
+    },
+    {
+      "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/replay-4/run-result.json",
+      "git_blob": "ca9c3d95657eb89395672388b06dd8bd72b5f3a2",
+      "bytes": 4814,
+      "sha256": "5e2f3ad95ef11e3d9c0655160ab7585c7ff81427070129098de3b3bed076884d"
+    },
+    {
+      "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/replay-4/pytest.stdout.txt",
+      "git_blob": "d29ccf5e2f4665fd81d9a85f46b281d950986329",
+      "bytes": 616,
+      "sha256": "c2b3e1d2c45a4685f76d743dd0c565bf67a2af3b38b7a5dde4890d3be4089345"
+    },
+    {
+      "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/replay-4/pytest.stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/replay-4/installed-wheel.junit.xml",
+      "git_blob": "35d42247fb5eae8674cb5a67a23b30d5f366e3d0",
+      "bytes": 1080,
+      "sha256": "bdda798884e1c406c6e7a2170075e446d5242a84fc56b88c15f960ce205bcf9c"
+    },
+    {
+      "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-packet/dependency-packet.json",
+      "git_blob": "19b8c4342810770b0a837156582676a50a529fd1",
+      "bytes": 36018,
+      "sha256": "bccc0ceade3aa173de37dab538510f7fbdfe73fb044d8922156f51da427f4d72"
+    },
+    {
+      "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-packet/portable-copy-index.json",
+      "git_blob": "4481762f72a53abf787dcc6739522fd2a99d7d7e",
+      "bytes": 8994,
+      "sha256": "f41cfc8704f95f0ba8b93a2b1e5462092d18bf0b4ee03e9ab59f231eb5a683c5"
+    },
+    {
+      "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-independent/independent-review-eb035.json",
+      "git_blob": "68c88b9e6359cb1c44c2cd956e2fa4458d4d5e3a",
+      "bytes": 50814,
+      "sha256": "8beddb209f4af1fd5885a015c58c2b54f6f907d3affa151d3ebb78ffd01ea69e"
+    },
+    {
+      "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-independent/portable-copy-index.json",
+      "git_blob": "5fed1624f9f6d2f7ab5a5d046fc8a7f2a7d62ab0",
+      "bytes": 4297,
+      "sha256": "e89352667f431a7f931af97198f51816295af87c3bdba7b0b60d10f915b1747d"
+    },
+    {
+      "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-packet/prior-packet/a-cas-contract-tests.py.txt",
+      "git_blob": "79aef69c9303f480e31ab02be0fe015efc8af4f1",
+      "bytes": 4327,
+      "sha256": "39342a0f279a05d5787b93f817e9a5bcdab639cd044af257a57442d27fd754ac"
+    },
+    {
+      "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-packet/prior-packet/a-status-reason-tests.py.txt",
+      "git_blob": "7465ec3af54e082ce033df76f6e727a1822a00c8",
+      "bytes": 3114,
+      "sha256": "2e3a7c0a8931e66d14ec018d0392ea83c3a692210ae66271aaf0abe568ef63d4"
+    },
+    {
+      "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-packet/prior-packet/a-status-reason.patch.txt",
+      "git_blob": "3d6da36973c3cac1a941d3ac916bb4004d1d4512",
+      "bytes": 1039,
+      "sha256": "826e19c426272ded24f1223cd07060a51f226d1cf48934949c484fda6fa7c784"
+    },
+    {
+      "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+      "git_blob": "20331fa1cd85acd046f2a36cc5c563662ed0b9eb",
+      "bytes": 38197,
+      "sha256": "faecae68f9eecc741e12ae1469fcd57faad11a9facb747f2430762da1758f9fc"
+    },
+    {
+      "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-implementation.json",
+      "git_blob": "1b93e8706d82f49360292a05f81852b23919cd05",
+      "bytes": 4121,
+      "sha256": "bd0559d3f8eabb6955d0415ff2a6a6caf19ba9e67d688e97f66e4ce5a7005185"
+    },
+    {
+      "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-independent/review.json",
+      "git_blob": "a5b384106300aad68fed09134708267282f30242",
+      "bytes": 6065,
+      "sha256": "fa77f3ad5c84dff1da14b30bda53674c206d8f8c06d89eb71c98161f4f52a5c9"
+    }
+  ],
+  "actual_caller_coordinates": [
+    {
+      "name": "RealValueOwnerGateway",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "line": 4249,
+      "end_line": 4372,
+      "git_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+        "bytes": 578822,
+        "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+      },
+      "definition_sha256": "f02fc746216e300915aae3bfc5da9c15314a4155f371873e6d80280d2c789938",
+      "scope": "read-only actual caller/role/status trace; unchanged native source"
+    },
+    {
+      "name": "_s10_empirical_projection",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "line": 10746,
+      "end_line": 10849,
+      "git_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+        "bytes": 578822,
+        "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+      },
+      "definition_sha256": "db1224e00ec80ed79ed02b2a135de882706ad6c219207ae2c6b37a8d27b3b14f",
+      "scope": "read-only actual caller/role/status trace; unchanged native source"
+    },
+    {
+      "name": "_resolve_s10_empirical_evidence",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "line": 10871,
+      "end_line": 10928,
+      "git_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+        "bytes": 578822,
+        "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+      },
+      "definition_sha256": "771e561cb8e1f5c844b6a81b6743cc9f0ec371eb6215cf7f41730da9fc9835c3",
+      "scope": "read-only actual caller/role/status trace; unchanged native source"
+    },
+    {
+      "name": "_build_s10_forecast_inputs",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "line": 10931,
+      "end_line": 11105,
+      "git_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+        "bytes": 578822,
+        "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+      },
+      "definition_sha256": "37a8d727042545c7948c4f566ae5e509c8cdc858df54de12e0591d92ca5b4324",
+      "scope": "read-only actual caller/role/status trace; unchanged native source"
+    },
+    {
+      "name": "_build_real_s10_forecast_inputs",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "line": 11108,
+      "end_line": 11152,
+      "git_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+        "bytes": 578822,
+        "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+      },
+      "definition_sha256": "f5d5ef88edb787cd28044696f607ac868973976ab682d9570b46b751eea894cc",
+      "scope": "read-only actual caller/role/status trace; unchanged native source"
+    },
+    {
+      "name": "_bound_s10_temporal_roles",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "line": 11302,
+      "end_line": 11332,
+      "git_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+        "bytes": 578822,
+        "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+      },
+      "definition_sha256": "a6d18d9548c0189effb5db5f127da2706a6c2c09262c0a29fff20f80795aa8dc",
+      "scope": "read-only actual caller/role/status trace; unchanged native source"
+    },
+    {
+      "name": "_s10_limitation_refs",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "line": 11352,
+      "end_line": 11371,
+      "git_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+        "bytes": 578822,
+        "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+      },
+      "definition_sha256": "5e1ed29a9946bd80004c38769cdd81d6260c6ab5221332c3b6262c35e2653a1e",
+      "scope": "read-only actual caller/role/status trace; unchanged native source"
+    },
+    {
+      "name": "_s10_value_authority_boundary",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "line": 11374,
+      "end_line": 11411,
+      "git_source": {
+        "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+        "bytes": 578822,
+        "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+      },
+      "definition_sha256": "c6bf1b5e16bab6e9e4ec7710cb7c69b4abac0094515f8cb3c1cbbacc39d3bec6",
+      "scope": "read-only actual caller/role/status trace; unchanged native source"
+    }
+  ],
+  "canonical_collector_v4": {
+    "commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+    "git_blob": "20331fa1cd85acd046f2a36cc5c563662ed0b9eb",
+    "bytes": 38197,
+    "sha256": "faecae68f9eecc741e12ae1469fcd57faad11a9facb747f2430762da1758f9fc"
+  },
+  "scope": "All Git metadata/AST reads only. No numerical/native/generator/gate check, source edit, environment/worktree or cross-chat message. Exact29 source trace reuse does not establish new-candidate runtime PASS or P41 inherited cause."
+}

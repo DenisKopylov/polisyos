@@ -1,0 +1,172 @@
+{
+  "schema": "e02.E.implementation-handoff.v1",
+  "unit": "E",
+  "slice": "admitted-canonical-uncertainty-consumer-facades",
+  "base_sha": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+  "base_tree": "6b5f1bdd9292318007b529ef2310675a8ce798fd",
+  "author_comparison_base": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "candidate_sha": "cfd79255aab85544082fcf24f93db894202fbfa2",
+  "candidate_tree": "8b5fea530b22e5402f3e3bf31d0c5a54e4117be7",
+  "diff_paths": [
+    "policy-engine/architecture/public_surface/inventory.json",
+    "policy-engine/docs/reference/public-surface.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-covariance-facade.toml",
+    "policy-engine/src/polisyos/calibration/README.md",
+    "policy-engine/src/polisyos/calibration/__init__.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+    "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+    "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py"
+  ],
+  "full_source_postimage_records": [
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "new_file": false,
+      "base_git_blob": "2750df9fbf0e5b483ad7678aa59198aa1b9c2b54",
+      "before_sha256": "21ab22cf9431660fd6318bca0ba8aa768ee01be9a5ca6ced1ae3b718211b26fe",
+      "after_sha256": "63a4ed665331cb937ec4ec5968e72ba5659914c147ed23eb447f7183c5a37fd1",
+      "bytes": 222856
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "new_file": false,
+      "base_git_blob": "2f7c1139a076177051d5214031a3747bb3548a6b",
+      "before_sha256": "e8d56d319be16d52227050263451ef523fdbe4b9a2e0e0c7c69fc08f4283528e",
+      "after_sha256": "99b655871e2e68c0577cd6f6e18358dfea9a5aac7e216bcbb3a6aed7d2fd56ed",
+      "bytes": 154167
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+      "new_file": false,
+      "base_git_blob": "dd18e0111e5d19b3db6dc0044ea63f5a2e9c5abf",
+      "before_sha256": "0b456ba68cd4eeac86e31753fa3d9a787f95d6cea36d38a80b693c389fa6b09f",
+      "after_sha256": "ed5f4cc351d274de679e9ee91c39f55438daf10b921b17c3924b480fbcc2eee5",
+      "bytes": 1914
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-covariance-facade.toml",
+      "new_file": true,
+      "base_git_blob": null,
+      "before_sha256": null,
+      "after_sha256": "9fc124328372a37e28d7e413f38312e721ac0af23dfe59ac9c101eb0430ec43e",
+      "bytes": 2105
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/README.md",
+      "new_file": false,
+      "base_git_blob": "f0fc340c5f85ac92bb1cbe178a5aa9455edb8cce",
+      "before_sha256": "1a15a4d19123aee3706d27a37b77d36dcd5dee80f2c3d34256e7a34af3d53a18",
+      "after_sha256": "c09461f8058513803099d107beeb942407e7f349c87dac05d1a2a27e76d729de",
+      "bytes": 4536
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/__init__.py",
+      "new_file": false,
+      "base_git_blob": "941e326c19c3823a82756fb9053746b8aed05510",
+      "before_sha256": "90956911642839c4e79dc6ef30d4d581de88ccb02aa60894eaef0fe68d71a8b6",
+      "after_sha256": "42d6b4c46672c228d067b14a03f79db2b702d0325558d4cd89b615d7c025bbfc",
+      "bytes": 2217
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "new_file": false,
+      "base_git_blob": "25cb4c4885e00fb80c8703b24febc4cea8c3cea9",
+      "before_sha256": "8300a2ef7d851900a36a5615ab082ae41ceea9e3cf38a96a294200cf9b9c5c5f",
+      "after_sha256": "653ec2ef3463e5d910725e2eb5b836e36cf415cad1a72bc9180a8982fa67eb2c",
+      "bytes": 5379
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "new_file": false,
+      "base_git_blob": "5a122baf833cf6e12c45aa5333e682ff35bfd5cf",
+      "before_sha256": "339831fa41ff9e46842184fa01bbf2530db7317522bc2139c59343332f94d1ea",
+      "after_sha256": "068f0f1bd0bc2fcbd59884331f98d3c89bb0e6e67567ff3d8949055f5a6d2fd4",
+      "bytes": 3397
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "new_file": false,
+      "base_git_blob": "d2f5007480c55186ac8293da659ebcda69b35966",
+      "before_sha256": "7a6d17749a9012e8b470a87310615c526453e5b7a7eb17628838a55810e86d98",
+      "after_sha256": "04a95dc4d969d95ec056d789057d7384bdf3cd4b1e7fd90e3e5b919f567559bd",
+      "bytes": 20616
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "new_file": false,
+      "base_git_blob": "6d55aad4d5b25d1851fd626d863718ee7fefc9b7",
+      "before_sha256": "457623e5b861c3bf8089d1460fe22f15b7175e8be72088f6673b5584d153225f",
+      "after_sha256": "8050f1a81d593d14363efaf91cf0e2088bc685a8e0e48b7c35cbd8f29c1f9def",
+      "bytes": 192619
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "new_file": false,
+      "base_git_blob": "e9ee6f8cbb1b155c370f0c9d5841795f1341c1dd",
+      "before_sha256": "2c1adc93937312772e66ae86662393a531cb779ce657caa1bf5c075445b57f14",
+      "after_sha256": "b8a793867ae61d5d249d47e108fab66874951cda7644f5dd5a32b81b18de51b8",
+      "bytes": 5641
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py",
+      "new_file": true,
+      "base_git_blob": null,
+      "before_sha256": null,
+      "after_sha256": "463dc5b879e0edf4a6f898e50715b1902faadc9182550dff1786a37db427b938",
+      "bytes": 5316
+    }
+  ],
+  "companions": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/portable-copy-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-source-binding/portable-copy-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/portable-copy-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-packet/portable-copy-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-independent/portable-copy-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/lint-publication-independent/portable-copy-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v2-independent/portable-copy-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-independent/portable-copy-index.json"
+  ],
+  "property_path": "Actual PropagateWelfare imports five unchanged canonical covariance objects via Foundry uncertainty; actual legacy uncertainty Node imports strict Foundry CAS report reader directly from allowed uncertainty root; Calibration has no forbidden Foundry dependency.",
+  "independent_oracle": "Canonical object identity, optional-JAX import behavior, known covariance nullspace and tied Calibrator→persist→fresh consumer; real empirical GE128 outcomes independent freshCAS recomputation92 success/36LinAlgError, no unconditional interval/gating.",
+  "negative_controls": [
+    "exports present but old Welfare private route retained: native deep-import collector rejects",
+    "Calibration alias removed from __all__ but forbidden import restored: native import-policy rejects",
+    "wrong CAS kind/schema/version: actual callback_count=0",
+    "recompute source/ref/size/hash/Gitavailability controls reject corruption"
+  ],
+  "predicate_basis": "P37 frozen numerical body/covariance axes and full failed-support law preserved by exact AST/bytes; P40 common admitted public routes fix two scanner classes without policy/baseline/exception waiver.",
+  "commands_output_environment": {
+    "author": "owned-facade-author/author-receipt.json",
+    "independent": "owned-facade-independent/review-cfd79255.json",
+    "Git_loaded_origin_binding": "owned-facade-source-binding/source-checkpoint-binding.json",
+    "native_execution_source": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa plus immutable4source postimages",
+    "candidate_reconciliation": "all12 Git postimages and830 actual loaded product origins exact cfd, zero mismatch; no claim native rerun on cfd",
+    "author_tests": 17,
+    "independent_tests": 9,
+    "capability": "JAX0.8.2 actual CPU; observed x64=false qualified; no numerical worker/process/CPU cap",
+    "configured_own_source_lint_format": "PASS bounded commands in author receipt; no global lint PASS"
+  },
+  "canonical_exports": {
+    "Calibration": 28,
+    "Foundry_uncertainty": 25,
+    "DDM": 17
+  },
+  "code_review": "GO bounded independent DDM review; reviewer not author; DDM source itself not self-reviewed",
+  "finding_closure": "not ratified; formal49partial/4held/1closed unchanged",
+  "limitations": [
+    "Full global architecture/import gates are not PASS; remaining21 rows require actual final command and owner attribution.",
+    "Legacy source fit, served authority, production history, trust/equivalence/stopping/IR semantics stay separate.",
+    "Reusable collector v3 retains external freeze raw/private role HOLD; FRC v4 writer and independent DoE next review.",
+    "Global source-bound evidence lint/format debt remains FAIL; classified by independent PCL packet, no hiding/exclusion/waiver."
+  ],
+  "next_owner": {
+    "root_E": "Publish completed reviewed facade slice then freeze only after reviewed collector repair; one corrected common wave on new SHA",
+    "A_G_generators": "Apply independent owner-ready packet through canonical writers; no E edits of A/shared/generated files",
+    "Core_IR": "Admit reviewed necessary public facade exports/consumer route through canonical ownership",
+    "E_publication": "Preserve original evidence and prepare reviewed operational successors for lint debt; existing raw/stdout and declared gate scopes retained"
+  },
+  "cleanup": "No deletion/no nativeTrash; exact candidates preserved in author/review receipts, no active-user cleanup"
+}

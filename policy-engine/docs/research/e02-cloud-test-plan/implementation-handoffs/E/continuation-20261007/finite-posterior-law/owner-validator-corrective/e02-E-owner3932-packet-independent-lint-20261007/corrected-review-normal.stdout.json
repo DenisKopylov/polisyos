@@ -1,0 +1,122 @@
+{
+  "schema": "policyos.e02.independent_corrected_sparse_owner_projection_guard_review.v2",
+  "outcome": "GO bounded evidence-only correction",
+  "source": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/validate-owner3932-packets-v2.py.txt",
+    "bytes": 11275,
+    "sha256": "a7aa11f124f3b877f3d58ad9af7a2acfc61e51b6c4a8b421ba1fb46443021f45"
+  },
+  "mode": "normal",
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "healthy_complete_current_admission": true,
+  "independent_case_count": 11,
+  "cases": [
+    {
+      "case": "runtime_components_false_summary",
+      "outcome": "PASS",
+      "actual_refusal": "JSON field value mismatch at $/runtime_schema_components",
+      "markers_and_refs_preserved": true
+    },
+    {
+      "case": "generated_payload_digest_false_summary",
+      "outcome": "PASS",
+      "actual_refusal": "JSON field value mismatch at policy-engine/architecture/public_surface/inventory.json/projected_sha256",
+      "markers_and_refs_preserved": true
+    },
+    {
+      "case": "historical_ledger_bool_count",
+      "outcome": "PASS",
+      "actual_refusal": "JSON field type mismatch at $/frozen_E_owner_decision/historical_ledger_preserved/closed",
+      "markers_and_refs_preserved": true
+    },
+    {
+      "case": "source_consumer_digest_false_summary",
+      "outcome": "PASS",
+      "actual_refusal": "JSON field value mismatch at policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py/sha256",
+      "markers_and_refs_preserved": true
+    },
+    {
+      "case": "whole_ABI_float_count",
+      "outcome": "PASS",
+      "actual_refusal": "JSON field type mismatch at $/closed_projection_claims/canonical_full_ABI_count",
+      "markers_and_refs_preserved": true
+    },
+    {
+      "case": "public_package_float_count",
+      "outcome": "PASS",
+      "actual_refusal": "JSON field type mismatch at $/closed_projection_claims/full_public_packages",
+      "markers_and_refs_preserved": true
+    },
+    {
+      "case": "patch_exit_bool",
+      "outcome": "PASS",
+      "actual_refusal": "JSON field type mismatch at $/closed_projection_claims/patch_check/exit_code",
+      "markers_and_refs_preserved": true
+    },
+    {
+      "case": "effective_only_new_claim_admission_removal_runtime_components_false_summary",
+      "outcome": "PASS discriminator",
+      "required_summary_property": "FAIL: real false summary re-admitted",
+      "V1_validator_still_active": true,
+      "source_refs_and_PASS_preserved": true
+    },
+    {
+      "case": "effective_only_new_claim_admission_removal_generated_payload_digest_false_summary",
+      "outcome": "PASS discriminator",
+      "required_summary_property": "FAIL: real false summary re-admitted",
+      "V1_validator_still_active": true,
+      "source_refs_and_PASS_preserved": true
+    },
+    {
+      "case": "effective_only_new_claim_admission_removal_historical_ledger_bool_count",
+      "outcome": "PASS discriminator",
+      "required_summary_property": "FAIL: real false summary re-admitted",
+      "V1_validator_still_active": true,
+      "source_refs_and_PASS_preserved": true
+    },
+    {
+      "case": "effective_only_new_claim_admission_removal_source_consumer_digest_false_summary",
+      "outcome": "PASS discriminator",
+      "required_summary_property": "FAIL: real false summary re-admitted",
+      "V1_validator_still_active": true,
+      "source_refs_and_PASS_preserved": true
+    }
+  ],
+  "basis": "Actual closed raw runtime573, all nine projected/old Git bytes, source24/native6 and full original fragments rederived by real helper before strict typed deep record conservation. Normative owner prose is conserved as frozen owner record; it is not ratified scientifically by equality.",
+  "old_false_summary_observations_preserved": [
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-normal.stdout.json",
+      "bytes": 2498,
+      "sha256": "6c621c90ada61bf7fba51ae183aebde057cfb7ef2fe21d1b75d11f2564b8c4d1"
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-optimized.stdout.json",
+      "bytes": 2501,
+      "sha256": "5dee09f1bffcc06d3e1a4ef25e81c8ddefcb1c5ca7e71d66c554824a614f1b40"
+    }
+  ],
+  "literal_actual_custody_already_checked": [
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/literal-review-normal.stdout.json",
+      "bytes": 14122,
+      "sha256": "876415babde8b7fd5ff826db0dba723df6de0068076a0043d6023db987b1d48f"
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/literal-review-optimized.stdout.json",
+      "bytes": 14125,
+      "sha256": "6f7e93e561b6c714eb667e60c8e0bbb8f7b5bc93b1ebc472ad61354c8cc43094"
+    }
+  ],
+  "limits": [
+    "3932 E owner proposals remain separate from G formal intake and current ROOT64d statuses.",
+    "Current generated capability is surface_missing; global generation/backend outcome not supplied.",
+    "C/F reader and generic IR/Core public facade owner decisions remain external.",
+    "No numeric/native projection rerun, ROOT source/environment or generated files changed."
+  ],
+  "observer": {
+    "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/review_corrected_validator.py",
+    "bytes": 4656,
+    "sha256": "779ae1412575cecd4ffe16b21cba7753f27fb4efd047b3e3abd9d51ec16dc994"
+  }
+}

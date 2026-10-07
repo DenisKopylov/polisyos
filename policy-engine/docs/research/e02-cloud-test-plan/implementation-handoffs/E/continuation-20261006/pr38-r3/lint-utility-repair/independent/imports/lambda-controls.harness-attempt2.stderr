@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/lambda_controls.py", line 48, in <module>
+    (ROOT/'lambda-controls.json').write_text(json.dumps(out,indent=2)+'\n');sys.stdout.write(json.dumps({k:v for k,v in out.items() if k!='results'},indent=2)+'\n')
+                                             ~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/json/__init__.py", line 242, in dumps
+    **kw).encode(obj)
+          ~~~~~~^^^^^
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/json/encoder.py", line 202, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/json/encoder.py", line 263, in iterencode
+    return _iterencode(o, 0)
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/json/encoder.py", line 182, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+                    f'is not JSON serializable')
+TypeError: Object of type SimpleNamespace is not JSON serializable
+when serializing tuple item 0
+when serializing dict item 'args'
+when serializing list item 0
+when serializing dict item 'after_loop_outputs'
+when serializing list item 10
+when serializing dict item 'results'

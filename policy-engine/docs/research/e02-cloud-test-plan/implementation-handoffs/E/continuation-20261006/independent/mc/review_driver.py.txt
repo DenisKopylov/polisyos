@@ -1,0 +1,180 @@
+"""Replay bounded independent sections against an immutable admitted lane."""
+from __future__ import annotations
+
+import argparse
+import importlib.metadata
+import json
+import os
+import platform
+import sys
+import time
+
+import review_checks as r
+
+
+def budget_boundary():
+    outcomes = []
+    for maximum, replicas in ((1000, 4), (1000, 3), (100, 128)):
+        calls = []
+        config = r.PropagationConfig(
+            mc_sampling_method="sobol", mc_qmc_replicates=replicas,
+            compute_sensitivity=False,
+            adaptive_stopping=r.AdaptiveStoppingConfig(
+                enabled=True, min_samples=50, max_samples=maximum,
+            ),
+        )
+        try:
+            result = r.MonteCarloPropagator(config).propagate(
+                lambda **p: calls.append(p) or {"y": p["x"]},
+                {"x": 0.5}, {"x": r.uniform()}, ["y"],
+            )[0]
+        except ValueError as exc:
+            assert not calls, "incompatible budget was rejected after evaluator execution"
+            outcomes.append({"maximum": maximum, "replicas": replicas,
+                             "refusal_before_callbacks": str(exc)})
+            continue
+        if result.envelope.distribution_family is r.DistributionFamily.UNKNOWN:
+            assert not calls, "incompatible budget was refused after evaluator execution"
+            assert result.envelope.metadata["failure"] == "sampling_budget_not_admitted"
+            outcomes.append({"maximum": maximum, "replicas": replicas,
+                             "typed_refusal_before_callbacks": "sampling_budget_not_admitted"})
+            continue
+        count = result.envelope.metadata["mc_n_samples"]
+        assert count <= maximum, (maximum, replicas, count)
+        sizes = result.envelope.metadata["qmc_replicate_sizes"]
+        assert len(sizes) == replicas and len(set(sizes)) == 1
+        assert all(n > 0 and n & (n - 1) == 0 for n in sizes)
+        outcomes.append({"maximum": maximum, "replicas": replicas,
+                         "actual_draws": count, "full_net_sizes": sizes,
+                         "callbacks_including_nominal": len(calls)})
+    return {"cases": outcomes,
+            "predicate": "complete equal Sobol nets fit the explicit declared maximum, or refuse before callbacks"}
+
+
+def bounded_pilot_main_budget():
+    outcomes = []
+    original = r.BoundedIndicatorResponse.__call__
+    for maximum, expected_callbacks in ((200, 0), (655, 256), (664, 664)):
+        calls = []
+
+        def tracked(self, **params):
+            calls.append(params)
+            return original(self, **params)
+
+        config = r.PropagationConfig(
+            compute_sensitivity=False,
+            bounded_iid_mean=r.BoundedIIDMeanPlan(metric_id="y", response_threshold=.001),
+            adaptive_stopping=r.AdaptiveStoppingConfig(
+                enabled=True, min_samples=50, max_samples=maximum,
+            ),
+        )
+        with r.patch.object(r.BoundedIndicatorResponse, "__call__", new=tracked):
+            result = r.MonteCarloPropagator(config).propagate(
+                r.BoundedIndicatorResponse("x", "y", .001),
+                {"x": .5}, {"x": r.uniform()}, ["y"],
+            )[0]
+        assert len(calls) == expected_callbacks, (maximum, len(calls))
+        if maximum < 664:
+            assert result.envelope.distribution_family is r.DistributionFamily.UNKNOWN
+            assert "mean_estimator_certificate" not in result.envelope.metadata
+        else:
+            r.verify_mean_certificate(result.envelope)
+            budget = result.envelope.metadata["sampling_budget"]
+            assert budget["budget_scope"] == "pilot_and_main"
+            assert budget["pilot_draw_count"] == 256
+            assert budget["frozen_main_draw_count"] == 408
+            assert budget["total_stochastic_draw_count"] == 664
+            for field, fake in (
+                ("budget_scope", "main_only"),
+                ("pilot_draw_count", 0),
+                ("frozen_main_draw_count", 407),
+                ("total_stochastic_draw_count", 0),
+                ("declared_maximum", 665),
+                ("nominal_evaluator_calls", 1),
+            ):
+                metadata = r.copy.deepcopy(result.envelope.metadata)
+                metadata["sampling_budget"][field] = fake
+                r.rejected(lambda metadata=metadata: r.verify_mean_certificate(
+                    result.envelope.model_copy(update={"metadata": metadata})))
+            metadata = r.copy.deepcopy(result.envelope.metadata)
+            metadata["mean_estimator_certificate"]["declared_maximum"] = 655
+            metadata["sampling_budget"]["declared_maximum"] = 655
+            r.rejected(lambda: r.verify_mean_certificate(
+                result.envelope.model_copy(update={"metadata": metadata})))
+        outcomes.append({"maximum": maximum, "response_callbacks": len(calls),
+                         "family": result.envelope.distribution_family.value})
+    return {"cases": outcomes, "persisted_budget_fake_controls_refused": 7,
+            "predicate": "explicit computational maximum includes independent pilot and frozen main draws"}
+
+
+def random_effective_stream_display():
+    calls = []
+    result = r.MonteCarloPropagator(r.PropagationConfig(
+        mc_sampling_method="random", mc_qmc_replicates=4, mc_n_samples=128,
+        compute_sensitivity=False,
+    )).propagate(lambda **p: calls.append(p) or {"y": p["x"]},
+        {"x": .5}, {"x": r.uniform()}, ["y"])[0]
+    budget = result.envelope.metadata["sampling_budget"]
+    assert budget["replica_count"] == 1
+    assert budget["effective_draw_count"] == 128
+    assert budget["configured_requested_count"] == 128
+    assert budget["certificate"] is False
+    assert budget["authority_scope"] == "computational_intent_display_only"
+    assert len(calls) == 129
+    return {"configured_QMC_replica_knob": 4, "effective_random_streams": 1,
+        "attempted_draws": 128, "callbacks_including_nominal": 129,
+        "generic_budget_certificate": False}
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--expected-head", required=True)
+    parser.add_argument("--section", choices=("law-final", "recipe-final", "budget", "consumer", "coverage", "display"), required=True)
+    args = parser.parse_args()
+    start = time.perf_counter()
+    head = r.git("rev-parse", "HEAD")
+    dirty = r.git("status", "--porcelain")
+    assert head == args.expected_head and not dirty, (head, dirty)
+    print(json.dumps({"head": head, "tree": r.git("rev-parse", "HEAD^{tree}"),
+        "dirty": dirty, "section": args.section, "python": sys.version,
+        "platform": platform.platform(), "JAX_backend": r.jax.default_backend(),
+        "JAX_x64": r.jax.config.x64_enabled,
+        "versions": {n: importlib.metadata.version(n) for n in ["jax", "jaxlib", "numpy", "scipy", "pydantic"]},
+        "thread_controls": {n: os.environ.get(n) for n in ["OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "NUMEXPR_NUM_THREADS", "XLA_FLAGS", "JAX_PLATFORMS"]}}), flush=True)
+    if args.section == "law-final":
+        r.record("direct_supplied_covariance_full_law_quantity", r.direct_covariance_full_quantity)
+        r.record("axis_and_strategy_joint_law", r.axis_and_backend_law)
+        for method in ("random", "sobol", "halton"):
+            r.record(f"tied_and_independent_{method}", lambda method=method: r.singular_and_independent(method))
+        r.record("actual_JAX_underflow_boundary_and_true_zero", r.actual_backend_underflow_boundary)
+        r.record("full_canonical_recipe_discriminator_extra_and_missing_controls", r.full_recipe_controls)
+        r.record("actual_Scientist_producer_CAS_consumer_and_fake_content", r.actual_scientist_consumer)
+        r.record("source_law_property_removed_markers_retained", r.missing_law_property_removal)
+    if args.section == "recipe-final":
+        r.record("full_canonical_recipe_discriminator_extra_and_missing_controls", r.full_recipe_controls)
+        r.record("actual_Scientist_producer_CAS_consumer_and_fake_content", r.actual_scientist_consumer)
+        r.record("default_proxy_divergence_and_fixed_effective_inputs", r.default_proxy_divergence_and_fixed_inputs)
+        r.record("source_law_property_removed_markers_retained", r.missing_law_property_removal)
+        r.record("small_fixed_N_and_variance_bound_property_removal", r.small_fixed_N_and_variance_bound_removal)
+    if args.section == "budget":
+        r.record("adaptive_explicit_max_budget_full_net_boundary", budget_boundary)
+        r.record("bounded_pilot_and_main_explicit_maximum", bounded_pilot_main_budget)
+        r.record("RQMC_independent_replica_estimator_error", r.rqmc_estimator_error)
+        r.record("legacy_adaptive_fixed_budget", r.legacy_adaptive_no_peeking)
+    if args.section == "consumer":
+        r.record("actual_Scientist_producer_CAS_consumer_and_fake_content", r.actual_scientist_consumer)
+        r.record("default_proxy_divergence_and_fixed_effective_inputs", r.default_proxy_divergence_and_fixed_inputs)
+    if args.section == "coverage":
+        r.record("bounded_IID_mean_empirical_coverage", r.bounded_coverage)
+    if args.section == "display":
+        r.record("random_effective_stream_display_noncertificate", random_effective_stream_display)
+    final = r.git("rev-parse", "HEAD")
+    final_dirty = r.git("status", "--porcelain")
+    print(json.dumps({"head_at_end": final, "dirty_at_end": final_dirty,
+        "wall_seconds": time.perf_counter() - start, "case_count": len(r.CASES),
+        "PASS": sum(x["outcome"] == "PASS" for x in r.CASES)}), flush=True)
+    return 0 if head == final and not final_dirty and all(x["outcome"] == "PASS" for x in r.CASES) else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

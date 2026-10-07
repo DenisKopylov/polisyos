@@ -1,0 +1,54 @@
+{
+  "source": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+  "source_tree": "3e654b07a3228d1b3d2d0bb2a3a91ae792068090",
+  "interpreter": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "backend": {
+    "SALib": "1.5.2",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "ruff": "0.14.10"
+  },
+  "module_origins": {
+    "policy-engine/src/polisyos/scientist/methods/doe/designs.py": {
+      "path": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "sha256": "983304e49dda38688ea1f87e44775f67129fcf9337444c8458ef95ebaf04513c",
+      "bytes": 15037
+    },
+    "policy-engine/src/polisyos/scientist/methods/doe/sampling.py": {
+      "path": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "sha256": "863384fc13da74d72d9bb7b5c4285c2103b2fc7f2a3895b6b6b383324515d574",
+      "bytes": 4019
+    },
+    "policy-engine/src/polisyos/scientist/methods/doe/analysis.py": {
+      "path": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "sha256": "41ed0c540fd4b304455112261bded3797e2407bfc911d69ddf77ec152abafe60",
+      "bytes": 19431
+    },
+    "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py": {
+      "path": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "sha256": "65dc3871e65eeaab30e1210efafc8dc184450783751d4ec2c9b9c584b5b92350",
+      "bytes": 3834
+    },
+    "policy-engine/src/polisyos/scientist/methods/doe/adaptive.py": {
+      "path": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/scientist/methods/doe/adaptive.py",
+      "sha256": "fee7bcdd5ee5d980f89437a4f252d1c7f9e378cb0a3cc40848e56d88728b73e7",
+      "bytes": 7649
+    },
+    "policy-engine/src/polisyos/scientist/methods/doe/multi_output.py": {
+      "path": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/scientist/methods/doe/multi_output.py",
+      "sha256": "cc98dd394851a25da2c7b52855b9860c780b9cb5ff7886ed8dae23191549d19f",
+      "bytes": 9345
+    },
+    "policy-engine/src/polisyos/scientist/methods/doe/stability.py": {
+      "path": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+      "sha256": "9f4c83b406703b9267973a88e1f3a9705481074e6357b01603632fe120c3cd32",
+      "bytes": 6454
+    }
+  },
+  "no_artificial_process_thread_CPU_caps": true,
+  "purpose": "Native fixture math/admission, not production law or institutional authority"
+}

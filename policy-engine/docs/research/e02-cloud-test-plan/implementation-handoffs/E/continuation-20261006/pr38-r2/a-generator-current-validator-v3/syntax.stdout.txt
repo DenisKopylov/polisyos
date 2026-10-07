@@ -1,0 +1,1 @@
+syntax PASS: exact new validator/control/removal source; compile() only, no bytecode writes

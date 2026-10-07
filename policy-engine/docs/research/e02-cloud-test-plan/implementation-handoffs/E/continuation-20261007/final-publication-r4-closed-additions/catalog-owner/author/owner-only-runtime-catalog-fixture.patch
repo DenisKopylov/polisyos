@@ -1,0 +1,52 @@
+--- a/policy-engine/tests/_helpers/runtime_http.py
++++ b/policy-engine/tests/_helpers/runtime_http.py
+@@ -295,6 +295,49 @@
+ 
+ 
+ def build_runtime_api_env(
++    tmp_path: Path,
++    *,
++    include_test_client: bool = True,
++    include_run_paper_fixtures: bool = False,
++    run_paper_binding_factory: _RunPaperBindingFactory | None = None,
++    app_kwargs: dict[str, object] | None = None,
++):
++    """Provision the native catalog input for this explicit test fixture only.
++
++    This catalog is metadata for fixture API wiring. It confers no production
++    observation, acquisition, claim, policy, or decision authority. The scoped
++    path seam is already used by native HTTP tests; serialize concurrent calls
++    sharing this process-level seam, or replace it at the canonical DI owner.
++    """
++    from dataclasses import replace
++    from pathlib import Path
++
++    from polisyos.data_forge.read_api import catalog as catalog_api
++    from polisyos.runtime.quality import substrate_registry
++
++    catalog_root = tmp_path / "retrieval-catalog"
++    catalog_api.build_slice0_fixture_catalog_graph(catalog_root).close()
++    original_paths = substrate_registry.default_substrate_catalog_paths
++    fixture_source_root = Path(__file__).resolve().parents[2]
++
++    def fixture_paths(root: Path):
++        paths = original_paths(root)
++        if Path(root).resolve() == fixture_source_root:
++            return replace(paths, l1_dcat_path=catalog_root / "catalog.duckdb")
++        return paths
++
++    with pytest.MonkeyPatch.context() as patch:
++        patch.setattr(substrate_registry, "default_substrate_catalog_paths", fixture_paths)
++        return _build_runtime_api_env_with_current_inputs(
++            tmp_path,
++            include_test_client=include_test_client,
++            include_run_paper_fixtures=include_run_paper_fixtures,
++            run_paper_binding_factory=run_paper_binding_factory,
++            app_kwargs=app_kwargs,
++        )
++
++
++def _build_runtime_api_env_with_current_inputs(
+     tmp_path: Path,
+     *,
+     include_test_client: bool = True,

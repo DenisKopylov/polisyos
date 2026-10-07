@@ -1,0 +1,520 @@
+{
+  "source": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+  "oracle": "Morris Y=X+2Z; elementary effects exactly1,2, rankingZthenX",
+  "artifacts": {
+    "analysis_ref": {
+      "ref": {
+        "artifact_id": "sha256:c9203193760dbe8b94f64305d2f0ca6f8fc0a707d9a9778f25fcb0cff952e3f8",
+        "kind": "doe_sensitivity_analysis",
+        "media_type": "application/json"
+      },
+      "sha256": "c9203193760dbe8b94f64305d2f0ca6f8fc0a707d9a9778f25fcb0cff952e3f8",
+      "manifest": {
+        "manifest_schema_version": "v3",
+        "artifact_id": "sha256:c9203193760dbe8b94f64305d2f0ca6f8fc0a707d9a9778f25fcb0cff952e3f8",
+        "kind": "doe_sensitivity_analysis",
+        "media_type": "application/json",
+        "byte_size": 4574,
+        "created_at": "2026-10-06T16:01:11Z",
+        "artifact_schema": {
+          "name": "doe_sensitivity_analysis",
+          "version": "1.0"
+        },
+        "canon": {
+          "name": "polisyos.canon.json",
+          "version": "0.2.0",
+          "forbid_floats": false,
+          "forbid_nan_inf": true,
+          "exclude_none": true,
+          "max_depth": 128,
+          "sort_keys": true,
+          "separators": [
+            ",",
+            ":"
+          ],
+          "ensure_ascii": false
+        },
+        "inputs": [],
+        "producer": null,
+        "env": null,
+        "governance": null,
+        "tenant_context": null,
+        "same_input_closure": null,
+        "authority": null,
+        "integrity": {
+          "sha256": "c9203193760dbe8b94f64305d2f0ca6f8fc0a707d9a9778f25fcb0cff952e3f8",
+          "optional": null
+        },
+        "warnings": []
+      },
+      "content": {
+        "authority_purpose": "exploratory_parameter_experiment",
+        "evaluator_provenance": "not_established",
+        "outputs": [
+          1.3333333333333333,
+          0.0,
+          0.6666666666666666,
+          1.3333333333333333,
+          2.0,
+          0.6666666666666666,
+          2.3333333333333335,
+          3.0,
+          1.6666666666666667,
+          1.0,
+          2.333333333333333,
+          1.6666666666666665
+        ],
+        "plan": {
+          "allow_large_run": false,
+          "confidence_level": 0.95,
+          "input_law": "independent",
+          "max_estimated_runs": 12,
+          "max_wall_time_sec": null,
+          "method": "morris",
+          "min_success_rate": 0.9,
+          "n_trajectories": 4,
+          "parameter_specs": [
+            {
+              "baseline": null,
+              "description": "",
+              "distribution": "uniform",
+              "distribution_spec": null,
+              "lower_bound": 0.0,
+              "name": "x",
+              "num_levels": 4,
+              "unit": "normalized",
+              "upper_bound": 1.0
+            },
+            {
+              "baseline": null,
+              "description": "",
+              "distribution": "uniform",
+              "distribution_spec": null,
+              "lower_bound": 0.0,
+              "name": "z",
+              "num_levels": 4,
+              "unit": "normalized",
+              "upper_bound": 1.0
+            }
+          ],
+          "parameters": [],
+          "run_failure_policy": "fail_fast",
+          "seed": 29,
+          "uncertainty": {
+            "enabled": false,
+            "interval_types": [
+              "marginal",
+              "simultaneous"
+            ],
+            "level": 0.95,
+            "method": "auto",
+            "n_resamples": 1999,
+            "random_seed": null,
+            "rank_uncertainty": true,
+            "simulated_rank_draws": 1999,
+            "studentized_inner_resamples": 99,
+            "top_k": [
+              1,
+              3
+            ],
+            "uncertainty_scope": "sampling_only"
+          }
+        },
+        "population_law_status": "not_established",
+        "protocol": "doe-analysis-v1",
+        "result": {
+          "failed_runs": 0,
+          "metadata": {
+            "analysis_id": "fc4b0c6d1c130fc22290155c1c1f9b713d3c1afd8a2c450cdd3b3cc454d0ea80",
+            "analyzer": "SALib@1.5.2:morris",
+            "analyzer_seed": 360013957,
+            "authority_purpose": "exploratory_parameter_experiment",
+            "design_id": "d611bc2332807fbe7a9ace70044d37043cdd41cd2123356449fc0f0be27e480c",
+            "design_order_basis": "geometry_validated_provenance_not_established",
+            "distribution_mapping_fingerprint": "755c085c4c053e5b8e7a217dec6c67e6ff9737c43c7a565f1c803882f9da09cc",
+            "distribution_schema_version": "doe-distribution-v1",
+            "effective_run_count": 12,
+            "effective_trajectory_ids": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "estimated_runs": 12,
+            "failed_row_indices": [],
+            "failed_row_reasons": [],
+            "input_law": "independent",
+            "input_law_basis": "consumer_asserted",
+            "morris_trajectory_size": 3,
+            "n_trajectories": 4,
+            "ordered_outputs_sha256": "76126e8442bc2b62d163d479bd49ae580b0bdd21259146f4753abcea92fb2be4",
+            "ordered_parameter_names": [
+              "x",
+              "z"
+            ],
+            "ordered_samples_sha256": "4805b8430ead26c227aea6b0963a40724ef55fd3be62aec281c2321df560393e",
+            "original_total_runs": 12,
+            "original_trajectory_ids": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "parameter_units": {
+              "x": "normalized",
+              "z": "normalized"
+            },
+            "plan_seed": 29,
+            "point_effect_scale": "unit_coordinate_full_range",
+            "population_law_status": "not_established",
+            "run_failure_policy": "fail_fast",
+            "salib_backend": "SALib@1.5.2",
+            "uncertainty_status": "point_only_incomplete"
+          },
+          "method": "morris",
+          "mu_star": {
+            "x": 1.0,
+            "z": 2.0
+          },
+          "mu_star_conf": {
+            "x": [
+              1.8297415219182982e-16
+            ],
+            "z": [
+              2.868170383386507e-16
+            ]
+          },
+          "parameter_names": [
+            "x",
+            "z"
+          ],
+          "ranking": [
+            "z",
+            "x"
+          ],
+          "s1": {},
+          "s1_conf": {},
+          "s2": {},
+          "schema_version": "1.0",
+          "sigma": {
+            "x": 2.220446049250313e-16,
+            "z": 3.6259732146947156e-16
+          },
+          "st": {},
+          "st_conf": {},
+          "successful_runs": 12,
+          "top_interactions": [],
+          "total_runs": 12,
+          "uncertainty": null
+        },
+        "samples": [
+          [
+            0.0,
+            0.6666666666666666
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.6666666666666666,
+            0.0
+          ],
+          [
+            0.0,
+            0.6666666666666666
+          ],
+          [
+            0.6666666666666666,
+            0.6666666666666666
+          ],
+          [
+            0.6666666666666666,
+            0.0
+          ],
+          [
+            0.33333333333333337,
+            1.0
+          ],
+          [
+            1.0,
+            1.0
+          ],
+          [
+            1.0,
+            0.33333333333333337
+          ],
+          [
+            1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.6666666666666666
+          ],
+          [
+            0.33333333333333337,
+            0.6666666666666666
+          ]
+        ]
+      }
+    },
+    "corrupt_receipt_ref": {
+      "ref": {
+        "artifact_id": "sha256:8ef2cc767c955a36b0951325ef2548dbfc35106b3358a598192309ef22d0a992",
+        "kind": "doe_sensitivity_analysis",
+        "media_type": "application/json"
+      },
+      "sha256": "8ef2cc767c955a36b0951325ef2548dbfc35106b3358a598192309ef22d0a992",
+      "manifest": {
+        "manifest_schema_version": "v3",
+        "artifact_id": "sha256:8ef2cc767c955a36b0951325ef2548dbfc35106b3358a598192309ef22d0a992",
+        "kind": "doe_sensitivity_analysis",
+        "media_type": "application/json",
+        "byte_size": 4574,
+        "created_at": "2026-10-06T16:01:11Z",
+        "artifact_schema": {
+          "name": "doe_sensitivity_analysis",
+          "version": "1.0"
+        },
+        "canon": {
+          "name": "polisyos.canon.json",
+          "version": "0.2.0",
+          "forbid_floats": false,
+          "forbid_nan_inf": true,
+          "exclude_none": true,
+          "max_depth": 128,
+          "sort_keys": true,
+          "separators": [
+            ",",
+            ":"
+          ],
+          "ensure_ascii": false
+        },
+        "inputs": [],
+        "producer": null,
+        "env": null,
+        "governance": null,
+        "tenant_context": null,
+        "same_input_closure": null,
+        "authority": null,
+        "integrity": {
+          "sha256": "8ef2cc767c955a36b0951325ef2548dbfc35106b3358a598192309ef22d0a992",
+          "optional": null
+        },
+        "warnings": []
+      },
+      "content": {
+        "authority_purpose": "exploratory_parameter_experiment",
+        "evaluator_provenance": "not_established",
+        "outputs": [
+          1.3333333333333333,
+          0.0,
+          0.6666666666666666,
+          1.3333333333333333,
+          2.0,
+          0.6666666666666666,
+          2.3333333333333335,
+          3.0,
+          1.6666666666666667,
+          1.0,
+          2.333333333333333,
+          1.6666666666666665
+        ],
+        "plan": {
+          "allow_large_run": false,
+          "confidence_level": 0.95,
+          "input_law": "independent",
+          "max_estimated_runs": 12,
+          "max_wall_time_sec": null,
+          "method": "morris",
+          "min_success_rate": 0.9,
+          "n_trajectories": 5,
+          "parameter_specs": [
+            {
+              "baseline": null,
+              "description": "",
+              "distribution": "uniform",
+              "distribution_spec": null,
+              "lower_bound": 0.0,
+              "name": "x",
+              "num_levels": 4,
+              "unit": "normalized",
+              "upper_bound": 1.0
+            },
+            {
+              "baseline": null,
+              "description": "",
+              "distribution": "uniform",
+              "distribution_spec": null,
+              "lower_bound": 0.0,
+              "name": "z",
+              "num_levels": 4,
+              "unit": "normalized",
+              "upper_bound": 1.0
+            }
+          ],
+          "parameters": [],
+          "run_failure_policy": "fail_fast",
+          "seed": 29,
+          "uncertainty": {
+            "enabled": false,
+            "interval_types": [
+              "marginal",
+              "simultaneous"
+            ],
+            "level": 0.95,
+            "method": "auto",
+            "n_resamples": 1999,
+            "random_seed": null,
+            "rank_uncertainty": true,
+            "simulated_rank_draws": 1999,
+            "studentized_inner_resamples": 99,
+            "top_k": [
+              1,
+              3
+            ],
+            "uncertainty_scope": "sampling_only"
+          }
+        },
+        "population_law_status": "not_established",
+        "protocol": "doe-analysis-v1",
+        "result": {
+          "failed_runs": 0,
+          "metadata": {
+            "analysis_id": "fc4b0c6d1c130fc22290155c1c1f9b713d3c1afd8a2c450cdd3b3cc454d0ea80",
+            "analyzer": "SALib@1.5.2:morris",
+            "analyzer_seed": 360013957,
+            "authority_purpose": "exploratory_parameter_experiment",
+            "design_id": "d611bc2332807fbe7a9ace70044d37043cdd41cd2123356449fc0f0be27e480c",
+            "design_order_basis": "geometry_validated_provenance_not_established",
+            "distribution_mapping_fingerprint": "755c085c4c053e5b8e7a217dec6c67e6ff9737c43c7a565f1c803882f9da09cc",
+            "distribution_schema_version": "doe-distribution-v1",
+            "effective_run_count": 12,
+            "effective_trajectory_ids": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "estimated_runs": 12,
+            "failed_row_indices": [],
+            "failed_row_reasons": [],
+            "input_law": "independent",
+            "input_law_basis": "consumer_asserted",
+            "morris_trajectory_size": 3,
+            "n_trajectories": 4,
+            "ordered_outputs_sha256": "76126e8442bc2b62d163d479bd49ae580b0bdd21259146f4753abcea92fb2be4",
+            "ordered_parameter_names": [
+              "x",
+              "z"
+            ],
+            "ordered_samples_sha256": "4805b8430ead26c227aea6b0963a40724ef55fd3be62aec281c2321df560393e",
+            "original_total_runs": 12,
+            "original_trajectory_ids": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "parameter_units": {
+              "x": "normalized",
+              "z": "normalized"
+            },
+            "plan_seed": 29,
+            "point_effect_scale": "unit_coordinate_full_range",
+            "population_law_status": "not_established",
+            "run_failure_policy": "fail_fast",
+            "salib_backend": "SALib@1.5.2",
+            "uncertainty_status": "point_only_incomplete"
+          },
+          "method": "morris",
+          "mu_star": {
+            "x": 1.0,
+            "z": 2.0
+          },
+          "mu_star_conf": {
+            "x": [
+              1.8297415219182982e-16
+            ],
+            "z": [
+              2.868170383386507e-16
+            ]
+          },
+          "parameter_names": [
+            "x",
+            "z"
+          ],
+          "ranking": [
+            "z",
+            "x"
+          ],
+          "s1": {},
+          "s1_conf": {},
+          "s2": {},
+          "schema_version": "1.0",
+          "sigma": {
+            "x": 2.220446049250313e-16,
+            "z": 3.6259732146947156e-16
+          },
+          "st": {},
+          "st_conf": {},
+          "successful_runs": 12,
+          "top_interactions": [],
+          "total_runs": 12,
+          "uncertainty": null
+        },
+        "samples": [
+          [
+            0.0,
+            0.6666666666666666
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.6666666666666666,
+            0.0
+          ],
+          [
+            0.0,
+            0.6666666666666666
+          ],
+          [
+            0.6666666666666666,
+            0.6666666666666666
+          ],
+          [
+            0.6666666666666666,
+            0.0
+          ],
+          [
+            0.33333333333333337,
+            1.0
+          ],
+          [
+            1.0,
+            1.0
+          ],
+          [
+            1.0,
+            0.33333333333333337
+          ],
+          [
+            1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.6666666666666666
+          ],
+          [
+            0.33333333333333337,
+            0.6666666666666666
+          ]
+        ]
+      }
+    }
+  }
+}

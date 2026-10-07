@@ -1,0 +1,2 @@
+{"scope": "native harness IO only", "ref": "sha256:2113aba9dd971b5d1e494bb498b4164e02dd2d0b998fe3b7c14c20a1a935a79e", "tmp_path": "/workspace/e02-E-pr38-r2-receipts/harness-native-parent-repair-5e3e37276/native-checks-r2/new-parent-admission/temporary/native-case/test_real_tmp_path_cas_and_fre0", "manifest_kind": "tests.e02.native_harness", "fresh_cas_readback": true}
+.

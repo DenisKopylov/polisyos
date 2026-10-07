@@ -1,0 +1,25 @@
+"""Select closed moderate independent outputs; never indexes its pending stdout."""
+from pathlib import Path
+import hashlib
+import json
+
+ROOT=Path('/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent')
+HERE=ROOT/'1186ce5b'
+def binding(path):
+    body=path.read_bytes()
+    return {'source_path':str(path),'bytes':len(body),'sha256':hashlib.sha256(body).hexdigest()}
+
+attempt_note={'observer_only':'First inline publication-selector attempt used old capture suffix .stdout.txt instead of actual legacy .stdout; it raised FileNotFoundError before publishing any selection. This was an observer publication naming error, not source/native-control failure. The inline source was not separately snapshotted and is not represented as a reproducible code regression.','wrong_path':str(ROOT/'b4af26cf/review.stdout.txt'),'actual_closed_capture':str(ROOT/'b4af26cf/review.stdout'),'retained_review_source':'b4af26cf/review.py','review_decisions_unchanged':True}
+(HERE/'selection-attempt1-error.json').write_text(json.dumps(attempt_note,indent=2)+'\n')
+paths=[ROOT/'b4af26cf'/name for name in ['review.py','review.stdout','review.stderr','independent-review.json']]+[HERE/name for name in ['review.py','review.stdout.txt','review.stderr.txt','independent-review.json','optimization_controls.py','optimization-controls-0.json','optimization-controls-0.stdout.txt','optimization-controls-0.stderr.txt','optimization-controls-1.json','optimization-controls-1.stdout.txt','optimization-controls-1.stderr.txt','physical_guard_removed.py.txt','current-review-supplement.json','selection-attempt1-error.json','build_selection.py']]
+assets=[]
+for path in paths:
+    row=binding(path);relative=path.relative_to(ROOT).as_posix();row['portable_path']=relative+'.txt' if path.suffix=='.py' else relative;assets.append(row)
+if len({row['portable_path'] for row in assets})!=len(assets):
+    raise ValueError('duplicate portable asset')
+for asset in assets:
+    if asset != {**binding(Path(asset['source_path'])),'portable_path':asset['portable_path']}:
+        raise ValueError('publication input changed before close')
+selection={'schema':'policyos.e02.E.independent_publication_selection.v1','candidate_sha':'1186ce5bf60f11ceaafe395f626cee1096d0b878','candidate_tree_sha':'e580359680641ff27cb39344d240393b57e8852b','reviewer':'/root/lint_r4','assets':assets,'asset_count':len(assets),'total_bytes':sum(row['bytes'] for row in assets),'all_captures_closed':True,'policy':'Literal observer sources copied as .py.txt; historical b4 CHANGE_REQUIRED retained separately; no raw/fixtures/product edits; selection does not index itself or its builder pending stdout','custody':'Full commands/output/environment in current-review-supplement; exact source Git refs and complete rows in independent-review'}
+path=HERE/'publication-selection.json';path.write_text(json.dumps(selection,indent=2)+'\n')
+print(json.dumps({'selection':binding(path),'asset_count':len(assets),'total_bytes':selection['total_bytes']}))

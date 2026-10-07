@@ -1,0 +1,5 @@
+from pathlib import Path
+import sys
+blob, original, *args = sys.argv[1:]
+sys.argv = [original, *args]
+exec(compile(Path(blob).read_bytes(), original, "exec"), {"__name__":"__main__", "__file__":original})

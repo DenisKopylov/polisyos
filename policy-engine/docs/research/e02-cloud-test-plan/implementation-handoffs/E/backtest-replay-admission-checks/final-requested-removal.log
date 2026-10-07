@@ -1,0 +1,25 @@
+PROPERTY REMOVAL: requested; source files and result markers retained
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________ test_requested_denominator_survives_missing_terminal_scenario _________
+
+tmp_path = PosixPath('/workspace/e02-E-20261006-receipts/backtest-final-requested-002/test_requested_denominator_sur0')
+
+    def test_requested_denominator_survives_missing_terminal_scenario(tmp_path):
+        orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / "cas"))
+        plans = orchestrator._expand_replay_plans(_plan(tmp_path, count=3))
+        report = orchestrator._aggregate(
+            report_id="lost-outcome",
+            scenarios=[],
+            plans=plans,
+            metadata={},
+            prediction_mode_requested="scientist",
+            prediction_mode_effective=None,
+            degraded_reasons=[],
+        )
+>       assert report.metadata["comparison_denominator"]["requested"] == 6
+E       assert 0 == 6
+
+tests/unit/scientist/methods/backtesting/test_replay_admission.py:291: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_requested_denominator_survives_missing_terminal_scenario

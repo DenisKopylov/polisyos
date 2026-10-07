@@ -1,0 +1,37 @@
+import hashlib,json,os,subprocess
+from pathlib import Path
+STAGE=Path('/tmp/e02-E-decisions-prereqs-publication-r4-stage');REPO=Path('/workspace/e02-E-frc-20261006');ROOT=Path('/workspace/e02-E-continuation-20261006')
+BASE='737c9e3115abac3fefe76920b08c05e76a5bee17';BASE_TREE='a32e3762c3d969a4749650be7e34c8c0108a8a53'
+ns={'__name__':'data_only_custody_helper'};exec(compile((STAGE/'copy-decisions-prereqs.py.txt').read_bytes(),str(STAGE/'copy-decisions-prereqs.py.txt'),'exec'),ns)
+ENV=dict(os.environ,GIT_OPTIONAL_LOCKS='0')
+def git(repo,*a):return subprocess.check_output(['git',*a],cwd=repo,env=ENV).decode().strip()
+def root():return {'head':git(ROOT,'rev-parse','HEAD'),'tree':git(ROOT,'rev-parse','HEAD^{tree}'),'tracked_status':git(ROOT,'status','--porcelain','--untracked-files=no')}
+before=root()
+if before!={'head':ns['QUALIFICATION']['verification_source'],'tree':ns['QUALIFICATION']['verification_tree'],'tracked_status':''}:raise ValueError('ROOT freeze')
+if git(REPO,'rev-parse','HEAD')!=BASE or git(REPO,'status','--porcelain'):raise ValueError('clean existing leaf')
+rows=[];inputs=[];canonical=[];seen={}
+def add(row):
+ body=Path(row['source_path']).read_bytes();pair=(row['source_sha256'],row['source_bytes'])
+ if len(body)!=pair[1] or ns['sha'](body)!=pair[0]:raise ValueError('original content')
+ dest=seen.setdefault(pair,row['logical_destination']);row['canonical_destination']=dest;row['literal_alias']=row['logical_destination']!=dest;rows.append(row)
+ if not any(r['destination']==dest for r in canonical):
+  q=STAGE/'payload'/dest;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(body)
+  canonical.append({k:row[k] for k in ('source_path','source_bytes','source_sha256')}|{'destination':dest})
+for family,path,size,digest,kind in ns['EXPECTED']:
+ p=Path(path);body=p.read_bytes()
+ if len(body)!=size or ns['sha'](body)!=digest:raise ValueError('fixed selector')
+ d=json.loads(body);expanded=ns['expand'](family,path,d,kind)
+ inputs.append({'family':family,'selection_source_path':path,'bytes':size,'sha256':digest,'kind':kind,'selected_members':len(expanded)})
+ for row in expanded:add(row)
+ add({'family':family,'selection_source_path':path,'member_class':'selector','source_path':path,'source_bytes':size,'source_sha256':digest,'logical_destination':'selectors/'+family+'-selection.json','selected_record':None})
+for family,path,size,digest,name in ns['QUALIFIERS']:
+ body=Path(path).read_bytes()
+ if len(body)!=size or ns['sha'](body)!=digest:raise ValueError('qualifier')
+ add({'family':family,'selection_source_path':None,'member_class':'qualifier','source_path':path,'source_bytes':size,'source_sha256':digest,'logical_destination':ns['normalized'](family,name,body),'selected_record':None})
+manifest={'schema':'policyos.e02.closed_decisions_prereqs_selector_custody.v1','verification_source':ns['QUALIFICATION']['verification_source'],'verification_tree':ns['QUALIFICATION']['verification_tree'],'publication_base':BASE,'publication_base_tree':BASE_TREE,'proposed_git_prefix':ns['PREFIX'],'selection_inputs':inputs,'logical_count':len(rows),'logical_bytes':sum(r['source_bytes'] for r in rows),'unique_payload_files':len(canonical),'unique_payload_bytes':sum(r['source_bytes'] for r in canonical),'deduplicated_aliases':len(rows)-len(canonical),'logical_sources':rows,'canonical_copies':canonical,'qualification':ns['QUALIFICATION'],'ROOT_before':before,'ROOT_after':root(),'ROOT_source_env_locks_written':False,'source_tests_gate_numeric_execution':False,'private_raw_exclusions':['running ROOT backend61243 outputs','171MB static/raw graph','raw production histories/datasets','29MB ignored immutable wheel payloads','private Git configuration','source ca17 math selector/implementation files owned by imports_r4','future final global/backend/current361 outcomes'],'history_policy':'Original frozen54 proposed43/current pre-fix technical-open snapshot and old failures/UNRUN/custody errors retained literally; distinct future sourceca17 boundedGO does not imply finding closure.'}
+if manifest['ROOT_after']!=before:raise ValueError('ROOT changed')
+(STAGE/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
+(STAGE/'qualification.json').write_text(json.dumps(ns['QUALIFICATION'],ensure_ascii=False,indent=2)+'\n')
+ns['validate'](STAGE/'manifest.json',manifest)
+(STAGE/'README.md').write_text('''# Frozen decisions and declared prerequisites\n\nThis DOC-only carrier preserves five closed selector chains: installation/prerequisite evidence and its independent custody outputs; complete frozen54 criterion inputs/proposals; the unresolved CanonSpec public-route owner packet; and prior closed-additions postpublication custody/remote receipts. Two explicit current-IR qualifier/recorder companions are separate from the frozen54 proposals.\n\nThere are 237 logical rows:230 selected members, five literal selectors and two qualifier companions. All selected alias occurrences and raw fields remain bound to each selector. Global content deduplication retains168 carriers /8,218,180 bytes and69 aliases. Empty captured streams use passive `.txt` portable names; original selector/source declarations and hashes remain unchanged. `manifest.json` maps each logical occurrence to its actual carrier.\n\nFrozen54 records the prior43 closed proposals,9 limited and2 held; these are not current accepted finding closure. Historical ledger49 partial/4 held/1 closed is unchanged. G855 pre-fix source700/ROOT64d technical-open snapshot41/9/2/2 remains literal. Separate source ca17a489/treef2ce9f70 has narrow independent source-property GO; its author owns source/handoff publication, while schema companions, accountable original-row dispositions and G formal finding closure are separate. This DOC carrier neither changes ROOT64d nor closes the two findings automatically.\n\nInstall/preflight PASS is bounded to four admitted declared dependencies and the preserved203→207 metadata transition; the RUNNING full backend has no outcome here. Ignored immutable wheels are refs, not payload copies. The CanonSpec runtime-only Core route has two additional scoped type errors (33→35); its two-path IR export proposal is unapplied and the canonical API-owner edge remains open.\n\n`copy-decisions-prereqs.py.txt` reconstructs the complete selected-member Counter from staged immutable original selectors and checks all content/alias/claim denominators before any destination write. It uses only preserved content, so ignored scratch paths are provenance rather than required replay inputs. Root source/environment/locks and native/gate checks are untouched.\n''')
+print(json.dumps({'logical_count':len(rows),'logical_bytes':manifest['logical_bytes'],'unique_payload_files':len(canonical),'unique_payload_bytes':manifest['unique_payload_bytes'],'deduplicated_aliases':manifest['deduplicated_aliases'],'metadata_files':9,'implementation_paths':len(canonical)+9,'source':manifest['verification_source'],'source_numeric_gate_execution':False},indent=2))

@@ -1,0 +1,932 @@
+{
+  "actual_new_source_bindings": [
+    {
+      "bytes": 3516,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/technical-decision.json",
+      "role": "companion",
+      "sha256": "dfa1a25edc38517533ae04dd7c9affb81177092172ca8d6db0e20de029c15bb3",
+      "unchanged_from_ca17": true
+    },
+    {
+      "bytes": 1316,
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-law-v2.toml",
+      "role": "companion",
+      "sha256": "5cfbb8a2d2b6dcf32564a98454dea5b6110e56d01bf6227e41de55ae52be2b93",
+      "unchanged_from_ca17": true
+    },
+    {
+      "bytes": 17155,
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "role": "product_python",
+      "sha256": "0ca1f285756508e86ccfadd1ceba011a777dafd91ac2defdc843172985bf3e05",
+      "unchanged_from_ca17": true
+    },
+    {
+      "bytes": 5838,
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "role": "companion",
+      "sha256": "de85beb0c0fcf5475fd56bddcb69eec0b19369455bc69401c1339e4d2740c646",
+      "unchanged_from_ca17": true
+    },
+    {
+      "bytes": 71486,
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "role": "product_python",
+      "sha256": "4860382fe26db3ad6a29c206aada4b94123b7cd4d941ee79c58beae342f5c47f",
+      "unchanged_from_ca17": true
+    },
+    {
+      "bytes": 22618,
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "role": "product_python",
+      "sha256": "a29fff79a9d9d7cf47f66809f2fcfcc6188722af6f5f1617eb5a78ce5c5a0f4a",
+      "unchanged_from_ca17": true
+    },
+    {
+      "bytes": 39467,
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "role": "product_python",
+      "sha256": "f7ae4be784059917c8602267231896d0d53755636f04851f149f614faf68c0bc",
+      "unchanged_from_ca17": true
+    },
+    {
+      "bytes": 8091,
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "role": "companion",
+      "sha256": "f882de5d506b4c71cdd774742c5b3e6c41c4d47193f43b7afe795b8689782fe6",
+      "unchanged_from_ca17": true
+    },
+    {
+      "bytes": 30919,
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "role": "product_python",
+      "sha256": "737af1672db198c1465da8fcf009cd470f479ac342327e4699fb831b91dd0b24",
+      "unchanged_from_ca17": false
+    },
+    {
+      "bytes": 50093,
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "role": "product_python",
+      "sha256": "44200deaa78c8abc9707ebd67f730d10287c07c51d2d3b7246c080e82d11e486",
+      "unchanged_from_ca17": true
+    },
+    {
+      "bytes": 27715,
+      "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+      "role": "product_python",
+      "sha256": "5d4366804bc9fa2b0e9c1193d1b9412fb5a1408064ffc35c3d72f4025d82de84",
+      "unchanged_from_ca17": true
+    },
+    {
+      "bytes": 2633,
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112.json",
+      "role": "companion",
+      "sha256": "062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112",
+      "unchanged_from_ca17": true
+    },
+    {
+      "bytes": 2636,
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01.json",
+      "role": "companion",
+      "sha256": "6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01",
+      "unchanged_from_ca17": true
+    },
+    {
+      "bytes": 13717,
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5.json",
+      "role": "companion",
+      "sha256": "9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5",
+      "unchanged_from_ca17": true
+    },
+    {
+      "bytes": 2636,
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed.json",
+      "role": "companion",
+      "sha256": "a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed",
+      "unchanged_from_ca17": true
+    },
+    {
+      "bytes": 2633,
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704.json",
+      "role": "companion",
+      "sha256": "aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704",
+      "unchanged_from_ca17": true
+    },
+    {
+      "bytes": 2636,
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67.json",
+      "role": "companion",
+      "sha256": "b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67",
+      "unchanged_from_ca17": true
+    },
+    {
+      "bytes": 2636,
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48.json",
+      "role": "companion",
+      "sha256": "f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48",
+      "unchanged_from_ca17": true
+    },
+    {
+      "bytes": 7754,
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/index.json",
+      "role": "companion",
+      "sha256": "d48a6a2c4b823351bf121584d7c9ba10e2eec7d23827aa8b0fb69c28b597f23f",
+      "unchanged_from_ca17": true
+    },
+    {
+      "bytes": 9725,
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "role": "test_python",
+      "sha256": "f533dd8d0c7cd97bb3ffd8ef9bd8e820757f2658656a5319d9dd634e9d084fe5",
+      "unchanged_from_ca17": true
+    },
+    {
+      "bytes": 8500,
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_finite_empirical_law.py",
+      "role": "test_python",
+      "sha256": "ce5988c98b2377f21b50d124c1ab1181c9e9b63b1b55d88e7a42972acf3401fc",
+      "unchanged_from_ca17": true
+    },
+    {
+      "bytes": 11522,
+      "path": "policy-engine/tests/unit/ir/test_posterior_ratio_law.py",
+      "role": "test_python",
+      "sha256": "1335426176a93732e569d0c7c672bd99ed3b306af89c0ab6f43d4c69896669f6",
+      "unchanged_from_ca17": true
+    },
+    {
+      "bytes": 15759,
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "role": "test_python",
+      "sha256": "70cb3db1833afa669859b7dbefdee06265bfd001ce80194f71110431835ace64",
+      "unchanged_from_ca17": true
+    },
+    {
+      "bytes": 17065,
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "role": "test_python",
+      "sha256": "9956dcdf865ac06ccbeccff7faa29c18cf0b77b07fa724b04ba96b10da0b270a",
+      "unchanged_from_ca17": true
+    }
+  ],
+  "actual_scoped_typecheck": {
+    "base_errors": 1,
+    "basis": "Actual exact resolved-base/current command; no full-source typing PASS and no generic inherited P41 waiver.",
+    "ca17_errors": 3,
+    "current_errors": 1,
+    "exit_code": 1,
+    "inputs": [
+      {
+        "bytes": 3936,
+        "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/scoped-type-correction.json",
+        "sha256": "89a8a0c02a444f74bc4d2a7d97ef552d88617eb8ba9a9e38426850d56f5c58d2"
+      },
+      {
+        "bytes": 2390,
+        "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/candidate-type.stdout.json",
+        "sha256": "c123df6c3dd55ded5ff7e567faf4bc1c9758afc3cc50c468c67b52c8f9a3c153"
+      },
+      {
+        "bytes": 1487,
+        "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/typed3932-execution.json",
+        "sha256": "f954f176d9f348a85d8472ad0344cf222f39487265bbe7e9469d8f4460234efd"
+      },
+      {
+        "bytes": 813,
+        "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/typed3932.stdout.json",
+        "sha256": "60ea4dc121833cefbdb72dc76c73798aa5302660b57f29ebdd6e27c8d1b03acc"
+      },
+      {
+        "bytes": 844,
+        "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved-type.stdout.json",
+        "sha256": "3c2e733201331a4923c9175f5c6e4dc749165a3751300b829bf8dbc01fd2edba"
+      }
+    ],
+    "outcome": "FAIL",
+    "remaining_message": "\"model_dump\" is not a known attribute of \"None\"",
+    "remaining_rule": "reportOptionalMemberAccess",
+    "removed_NEW_diagnostics": 2
+  },
+  "architecture_dependency_reuse": {
+    "all12_source_and_test_AST_census": true,
+    "input": {
+      "bytes": 64959,
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/architecture-review.json",
+      "sha256": "3a57aec4e9eacb329cd9273829900690e0c474502c628dabe98382960480420e"
+    },
+    "native_product_edges": 3,
+    "new_product_edges": 0,
+    "reuse_basis": "Only DTO base/field declarations changed; all imports and guard sources unchanged. Native product collector excludes tests by canonical SRC_ROOT; two existing native test API boundaries retained separately."
+  },
+  "author_native_DTO_controls": {
+    "counts": {
+      "cases": 13,
+      "error": 0,
+      "failure": 0,
+      "skip": 0
+    },
+    "inputs": [
+      {
+        "bytes": 2333,
+        "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.xml",
+        "sha256": "46a70c6b02b7c6ee1f7ae8685c1430478376dec309d71c79a32853c0d725c83b"
+      },
+      {
+        "bytes": 901,
+        "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-delta-author-proof.json",
+        "sha256": "5096f5331c6471b50c4976fc88ecc9f7c68a3b9d8765a98420f39fc23b07fcb1"
+      }
+    ],
+    "provenance": "Existing author precommit working-source JUnit/source hash proof; not independently repeated native tests."
+  },
+  "base": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "complete_footprint": {
+    "paths": 24,
+    "product_python": 7,
+    "python": 12,
+    "test_python": 5
+  },
+  "environment": {
+    "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+    "executable": "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+    "package_versions": {
+      "SALib": "1.5.2",
+      "basedpyright": "1.39.0",
+      "jax": "0.8.2",
+      "numpy": "2.3.5",
+      "pydantic": "2.12.5",
+      "ruff": "0.14.10",
+      "scipy": "1.16.3"
+    },
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "profile_source": "/workspace/e02-E-mc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]"
+  },
+  "inputs": [
+    {
+      "bytes": 1301234,
+      "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-schemas-before.json",
+      "sha256": "ac9598f27e7e8b3ccfe8092bbe9e0aad1619c55b455e8d256ae928bd095699fd"
+    },
+    {
+      "bytes": 1301234,
+      "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-schemas-after.json",
+      "sha256": "ac9598f27e7e8b3ccfe8092bbe9e0aad1619c55b455e8d256ae928bd095699fd"
+    }
+  ],
+  "limitations": [
+    "G generator/public inventory review and actual runtime source_dependency_hash qualification remain separate.",
+    "Generic Core/IR CanonSpec public type lease remains separate and private forecast edge still open.",
+    "Current MC source is locally immutable but new source remote publication is not asserted.",
+    "No ROOT source/environment writes or global lint/numeric rerun."
+  ],
+  "literal_V1_fixtures": [
+    {
+      "bytes": 2636,
+      "equal_ca17_fixture": true,
+      "path": "6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01.json",
+      "sha256": "6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01"
+    },
+    {
+      "bytes": 2636,
+      "equal_ca17_fixture": true,
+      "path": "b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67.json",
+      "sha256": "b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67"
+    },
+    {
+      "bytes": 2636,
+      "equal_ca17_fixture": true,
+      "path": "a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed.json",
+      "sha256": "a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed"
+    },
+    {
+      "bytes": 2636,
+      "equal_ca17_fixture": true,
+      "path": "f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48.json",
+      "sha256": "f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48"
+    },
+    {
+      "bytes": 2633,
+      "equal_ca17_fixture": true,
+      "path": "062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112.json",
+      "sha256": "062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112"
+    },
+    {
+      "bytes": 2633,
+      "equal_ca17_fixture": true,
+      "path": "aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704.json",
+      "sha256": "aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704"
+    },
+    {
+      "bytes": 13717,
+      "equal_ca17_fixture": true,
+      "path": "9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5.json",
+      "sha256": "9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5"
+    }
+  ],
+  "native_test_API_owner_boundaries": [
+    {
+      "edge": "polisyos.foundry.calibration.uncertainty_adapter.summarize_bayesian_calibration_posterior",
+      "owner": "Calibration/Core API owner",
+      "state": "Requires public API admission; no extra export authored."
+    },
+    {
+      "edge": "polisyos.foundry.uncertainty.monte_carlo.MonteCarloPropagator",
+      "owner": "Foundry API owner",
+      "state": "Native internal testing seam retained, no facade widening."
+    }
+  ],
+  "outcome": "GO",
+  "parent": "ca17a489559eb574285bb1c7291cc3c56a9e29da",
+  "public_facade_bindings": [
+    {
+      "curated_facade_resolves_identical_object": true,
+      "module": "polisyos.ir.analytics.posterior_summary",
+      "name": "PosteriorSummaryProfileV2"
+    },
+    {
+      "curated_facade_resolves_identical_object": true,
+      "module": "polisyos.ir.analytics.posterior_summary",
+      "name": "canonicalize_posterior_weights"
+    },
+    {
+      "curated_facade_resolves_identical_object": true,
+      "module": "polisyos.ir.analytics.posterior_summary",
+      "name": "posterior_sampling_cdf"
+    },
+    {
+      "curated_facade_resolves_identical_object": true,
+      "module": "polisyos.ir.analytics.posterior_summary",
+      "name": "posterior_summary_functionals_v2"
+    },
+    {
+      "curated_facade_resolves_identical_object": true,
+      "module": "polisyos.ir.analytics.posterior_summary",
+      "name": "posterior_population_std_v2"
+    }
+  ],
+  "schema": "policyos.e02.E.independent_DTO_append_review.v1",
+  "schema_equality": {
+    "ABI_registry_count": 103,
+    "fresh_localized_models": [
+      {
+        "equals_complete_saved_schema": true,
+        "name": "PosteriorSummaryProfile",
+        "schema": {
+          "$defs": {
+            "ArtifactID": {
+              "description": "IR-local artifact ID model compatible with CAS interfaces.",
+              "title": "ArtifactID",
+              "type": "string"
+            },
+            "ArtifactRefModel": {
+              "additionalProperties": false,
+              "description": "Provide the common mapping-compatible base contract for artifact refs.",
+              "properties": {
+                "artifact_id": {
+                  "$ref": "#/$defs/ArtifactID"
+                },
+                "kind": {
+                  "title": "Kind",
+                  "type": "string"
+                },
+                "media_type": {
+                  "title": "Media Type",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "artifact_id",
+                "kind",
+                "media_type"
+              ],
+              "title": "ArtifactRefModel",
+              "type": "object"
+            },
+            "PosteriorParameterBinding": {
+              "additionalProperties": false,
+              "description": "Producer-declared identity; missing external lineage stays unknown.",
+              "properties": {
+                "estimand_id": {
+                  "minLength": 1,
+                  "title": "Estimand Id",
+                  "type": "string"
+                },
+                "scale": {
+                  "minLength": 1,
+                  "title": "Scale",
+                  "type": "string"
+                },
+                "unit": {
+                  "minLength": 1,
+                  "title": "Unit",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "estimand_id",
+                "unit",
+                "scale"
+              ],
+              "title": "PosteriorParameterBinding",
+              "type": "object"
+            },
+            "PosteriorSummaryContext": {
+              "additionalProperties": false,
+              "description": "Preserve supplied identity without assigning source or gate authority.",
+              "properties": {
+                "lineage_refs": {
+                  "additionalProperties": {
+                    "$ref": "#/$defs/ArtifactRefModel"
+                  },
+                  "title": "Lineage Refs",
+                  "type": "object"
+                },
+                "parameters": {
+                  "additionalProperties": {
+                    "$ref": "#/$defs/PosteriorParameterBinding"
+                  },
+                  "title": "Parameters",
+                  "type": "object"
+                },
+                "purpose": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Purpose"
+                },
+                "time_roles": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Time Roles",
+                  "type": "object"
+                }
+              },
+              "title": "PosteriorSummaryContext",
+              "type": "object"
+            }
+          },
+          "$id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+          "additionalProperties": false,
+          "description": "Named, independently readable functionals of an exact finite corpus.",
+          "properties": {
+            "binding": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/PosteriorParameterBinding"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "carrier_content_hash": {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "title": "Carrier Content Hash",
+              "type": "string"
+            },
+            "compression": {
+              "const": "none",
+              "default": "none",
+              "title": "Compression",
+              "type": "string"
+            },
+            "context": {
+              "$ref": "#/$defs/PosteriorSummaryContext"
+            },
+            "context_content_hash": {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "title": "Context Content Hash",
+              "type": "string"
+            },
+            "credible_mass": {
+              "exclusiveMaximum": 1,
+              "exclusiveMinimum": 0,
+              "title": "Credible Mass",
+              "type": "number"
+            },
+            "draw_ids": {
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "title": "Draw Ids",
+              "type": "array"
+            },
+            "gate_eligible": {
+              "const": false,
+              "default": false,
+              "title": "Gate Eligible",
+              "type": "boolean"
+            },
+            "interval_functional": {
+              "const": "equal_tail_inverse_cdf",
+              "default": "equal_tail_inverse_cdf",
+              "title": "Interval Functional",
+              "type": "string"
+            },
+            "joint_law_sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "title": "Joint Law Sha256",
+              "type": "string"
+            },
+            "mean_functional": {
+              "const": "weighted_arithmetic_mean",
+              "default": "weighted_arithmetic_mean",
+              "title": "Mean Functional",
+              "type": "string"
+            },
+            "numeric_representation": {
+              "const": "finite_float64",
+              "default": "finite_float64",
+              "title": "Numeric Representation",
+              "type": "string"
+            },
+            "parameter_name": {
+              "minLength": 1,
+              "title": "Parameter Name",
+              "type": "string"
+            },
+            "parameter_order": {
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "title": "Parameter Order",
+              "type": "array"
+            },
+            "point_functional": {
+              "const": "median",
+              "default": "median",
+              "title": "Point Functional",
+              "type": "string"
+            },
+            "posterior_mean": {
+              "title": "Posterior Mean",
+              "type": "number"
+            },
+            "probabilities": {
+              "items": {
+                "type": "number"
+              },
+              "minItems": 1,
+              "title": "Probabilities",
+              "type": "array"
+            },
+            "profile_id": {
+              "const": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+              "default": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+              "title": "Profile Id",
+              "type": "string"
+            },
+            "profile_version": {
+              "const": "1.0",
+              "default": "1.0",
+              "title": "Profile Version",
+              "type": "string"
+            },
+            "row_identity_basis": {
+              "enum": [
+                "producer_input_order",
+                "producer_supplied_ids"
+              ],
+              "title": "Row Identity Basis",
+              "type": "string"
+            },
+            "sample_axis": {
+              "minLength": 1,
+              "title": "Sample Axis",
+              "type": "string"
+            },
+            "thinning": {
+              "const": "none",
+              "default": "none",
+              "title": "Thinning",
+              "type": "string"
+            }
+          },
+          "required": [
+            "parameter_name",
+            "parameter_order",
+            "draw_ids",
+            "row_identity_basis",
+            "sample_axis",
+            "probabilities",
+            "posterior_mean",
+            "credible_mass",
+            "carrier_content_hash",
+            "joint_law_sha256",
+            "context_content_hash"
+          ],
+          "title": "PosteriorSummaryProfile",
+          "type": "object"
+        }
+      },
+      {
+        "equals_complete_saved_schema": true,
+        "name": "PosteriorSummaryProfileV2",
+        "schema": {
+          "$defs": {
+            "ArtifactID": {
+              "description": "IR-local artifact ID model compatible with CAS interfaces.",
+              "title": "ArtifactID",
+              "type": "string"
+            },
+            "ArtifactRefModel": {
+              "additionalProperties": false,
+              "description": "Provide the common mapping-compatible base contract for artifact refs.",
+              "properties": {
+                "artifact_id": {
+                  "$ref": "#/$defs/ArtifactID"
+                },
+                "kind": {
+                  "title": "Kind",
+                  "type": "string"
+                },
+                "media_type": {
+                  "title": "Media Type",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "artifact_id",
+                "kind",
+                "media_type"
+              ],
+              "title": "ArtifactRefModel",
+              "type": "object"
+            },
+            "PosteriorParameterBinding": {
+              "additionalProperties": false,
+              "description": "Producer-declared identity; missing external lineage stays unknown.",
+              "properties": {
+                "estimand_id": {
+                  "minLength": 1,
+                  "title": "Estimand Id",
+                  "type": "string"
+                },
+                "scale": {
+                  "minLength": 1,
+                  "title": "Scale",
+                  "type": "string"
+                },
+                "unit": {
+                  "minLength": 1,
+                  "title": "Unit",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "estimand_id",
+                "unit",
+                "scale"
+              ],
+              "title": "PosteriorParameterBinding",
+              "type": "object"
+            },
+            "PosteriorSummaryContext": {
+              "additionalProperties": false,
+              "description": "Preserve supplied identity without assigning source or gate authority.",
+              "properties": {
+                "lineage_refs": {
+                  "additionalProperties": {
+                    "$ref": "#/$defs/ArtifactRefModel"
+                  },
+                  "title": "Lineage Refs",
+                  "type": "object"
+                },
+                "parameters": {
+                  "additionalProperties": {
+                    "$ref": "#/$defs/PosteriorParameterBinding"
+                  },
+                  "title": "Parameters",
+                  "type": "object"
+                },
+                "purpose": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Purpose"
+                },
+                "time_roles": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Time Roles",
+                  "type": "object"
+                }
+              },
+              "title": "PosteriorSummaryContext",
+              "type": "object"
+            }
+          },
+          "$id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+          "additionalProperties": false,
+          "description": "Exact binary-weight ratios with explicit finite-grid sampling semantics.",
+          "properties": {
+            "binding": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/PosteriorParameterBinding"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "carrier_content_hash": {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "title": "Carrier Content Hash",
+              "type": "string"
+            },
+            "compression": {
+              "const": "none",
+              "default": "none",
+              "title": "Compression",
+              "type": "string"
+            },
+            "context": {
+              "$ref": "#/$defs/PosteriorSummaryContext"
+            },
+            "context_content_hash": {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "title": "Context Content Hash",
+              "type": "string"
+            },
+            "credible_mass": {
+              "exclusiveMaximum": 1,
+              "exclusiveMinimum": 0,
+              "title": "Credible Mass",
+              "type": "number"
+            },
+            "draw_ids": {
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "title": "Draw Ids",
+              "type": "array"
+            },
+            "gate_eligible": {
+              "const": false,
+              "default": false,
+              "title": "Gate Eligible",
+              "type": "boolean"
+            },
+            "interval_functional": {
+              "const": "equal_tail_inverse_cdf",
+              "default": "equal_tail_inverse_cdf",
+              "title": "Interval Functional",
+              "type": "string"
+            },
+            "joint_law_sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "title": "Joint Law Sha256",
+              "type": "string"
+            },
+            "mean_functional": {
+              "const": "weighted_arithmetic_mean",
+              "default": "weighted_arithmetic_mean",
+              "title": "Mean Functional",
+              "type": "string"
+            },
+            "numeric_representation": {
+              "const": "finite_float64",
+              "default": "finite_float64",
+              "title": "Numeric Representation",
+              "type": "string"
+            },
+            "parameter_name": {
+              "minLength": 1,
+              "title": "Parameter Name",
+              "type": "string"
+            },
+            "parameter_order": {
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "title": "Parameter Order",
+              "type": "array"
+            },
+            "point_functional": {
+              "const": "median",
+              "default": "median",
+              "title": "Point Functional",
+              "type": "string"
+            },
+            "posterior_mean": {
+              "title": "Posterior Mean",
+              "type": "number"
+            },
+            "probabilities": {
+              "description": "Canonical binary ratio weights; need not sum to one.",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 1,
+              "title": "Probabilities",
+              "type": "array"
+            },
+            "probability_convention": {
+              "const": "exact_binary_weight_ratios",
+              "default": "exact_binary_weight_ratios",
+              "title": "Probability Convention",
+              "type": "string"
+            },
+            "profile_id": {
+              "const": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+              "default": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+              "title": "Profile Id",
+              "type": "string"
+            },
+            "profile_version": {
+              "const": "2.0",
+              "default": "2.0",
+              "title": "Profile Version",
+              "type": "string"
+            },
+            "row_identity_basis": {
+              "enum": [
+                "producer_input_order",
+                "producer_supplied_ids"
+              ],
+              "title": "Row Identity Basis",
+              "type": "string"
+            },
+            "sample_axis": {
+              "minLength": 1,
+              "title": "Sample Axis",
+              "type": "string"
+            },
+            "sampling_approximation": {
+              "const": "finite_uniform_mesh_discretization",
+              "default": "finite_uniform_mesh_discretization",
+              "title": "Sampling Approximation",
+              "type": "string"
+            },
+            "thinning": {
+              "const": "none",
+              "default": "none",
+              "title": "Thinning",
+              "type": "string"
+            }
+          },
+          "required": [
+            "parameter_name",
+            "parameter_order",
+            "draw_ids",
+            "row_identity_basis",
+            "sample_axis",
+            "probabilities",
+            "posterior_mean",
+            "credible_mass",
+            "carrier_content_hash",
+            "joint_law_sha256",
+            "context_content_hash"
+          ],
+          "title": "PosteriorSummaryProfileV2",
+          "type": "object"
+        }
+      }
+    ],
+    "full_saved_arrays_equal": true,
+    "full_saved_schema_count": 103,
+    "saved_capture_context": "Author actual precommit working-source capture retained; independently compared complete arrays, final source/function proof and fresh two changed model schemas. No duplicate 103-model render.",
+    "saved_capture_heads": {
+      "after": "ca17a489559eb574285bb1c7291cc3c56a9e29da",
+      "before": "ca17a489559eb574285bb1c7291cc3c56a9e29da"
+    }
+  },
+  "scope": "Independent API/type/schema/source DTO delta only; no repeated finite-law numerical wave and no finding closure or global gate PASS.",
+  "single_append": {
+    "V2_direct_BaseModel": true,
+    "all_function_method_AST_equal": true,
+    "imports_AST_equal": true,
+    "new_sha256": "737af1672db198c1465da8fcf009cd470f479ac342327e4699fb831b91dd0b24",
+    "old_Profile1_AST_equal": true,
+    "old_sha256": "d5bc3c3351a53ce5da3f8c561bc44362108b8667f115bab5d1531eab6ebc3373",
+    "paths": [
+      "policy-engine/src/polisyos/ir/analytics/posterior_summary.py"
+    ]
+  },
+  "source_immutable": true,
+  "source_lane_git_status": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/README.md\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/author/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/copy-index.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/handoff.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/history/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/independent/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/observers/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/old-source/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/typed-delta/\n",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e"
+}

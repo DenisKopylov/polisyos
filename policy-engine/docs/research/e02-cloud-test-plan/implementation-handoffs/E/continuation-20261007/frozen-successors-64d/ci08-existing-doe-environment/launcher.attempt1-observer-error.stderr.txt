@@ -1,0 +1,14 @@
+fatal: path 'policy-engine/conftest.py' does not exist in '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/execute_ci08.py", line 47, in <module>
+    exact = git('show', SHA + ':' + path)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/execute_ci08.py", line 23, in git
+    return subprocess.check_output(['git', '-C', str(ROOT), *args])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '/workspace/e02-E-continuation-20261006', 'show', '64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/conftest.py']' returned non-zero exit status 128.

@@ -1,0 +1,10 @@
+id = "2026-10-06-e02-calibration-finite-objective"
+title = "Require a finite scalar objective before inverse information"
+type = "fixed"
+component = "foundry-calibration"
+owner = "team-foundry"
+surface_classification = "internal"
+summary = "Reject nonscalar objectives and withhold covariance when the objective is nonfinite even if exact gradients and Hessians are finite. Preserve raw curvature and finite-objective diagnostic fields in the calibration report."
+evidence = ["tests/unit/foundry/calibration/test_hessian.py", "tests/unit/foundry/calibration/test_calibrator_batch.py"]
+compatibility = "This strengthens numerical admission of the existing internal Hessian helper; existing finite scalar objectives retain their behavior."
+limitations = "Finite scalar values and positive curvature do not establish a likelihood law, model regularity, or producer authority."

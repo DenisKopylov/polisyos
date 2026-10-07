@@ -1,0 +1,75 @@
+{
+  "schema": "policyos.e02.canonical_facade_owner_packet.v2",
+  "unit": "E",
+  "source_sha": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+  "source_tree": "cee54ddfec357aedc96a8495b4a9fff5b5cec167",
+  "scope": "Identity-preserving admission of existing functions/classes; no new IR law semantics or authority",
+  "observed_runtime_export_probe": "public-export-probe.json",
+  "existing_reuse_completed": {
+    "owner": "team-polisyos Core API",
+    "existing_entrypoint": "polisyos.core",
+    "curated_module_exports": [
+      "artifacts",
+      "canon",
+      "registry"
+    ],
+    "caller_implementation_sha": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+    "property": "Real E producers/readers use the exported Core module objects; actual CAS readback and route-removal discrimination, no codec/store copies"
+  },
+  "owners": [
+    {
+      "canonical_writer": "team-polisyos IR API, team-architecture public-surface inventory review",
+      "write_paths": [
+        "policy-engine/src/polisyos/ir/api.py"
+      ],
+      "required_existing_exports": {
+        "PosteriorSamplesCarrier": "polisyos.ir.analytics.uncertainty.PosteriorSamplesCarrier",
+        "ParametricFitCarrier": "polisyos.ir.analytics.uncertainty.ParametricFitCarrier",
+        "load_uncertainty_envelope": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope",
+        "persist_uncertainty_envelope": "polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope",
+        "load_forecasting_uncertainty_bundle": "polisyos.ir.analytics.forecasting_uncertainty.load_forecasting_uncertainty_bundle",
+        "persist_forecasting_uncertainty_bundle": "polisyos.ir.analytics.forecasting_uncertainty.persist_forecasting_uncertainty_bundle"
+      },
+      "admitted_entrypoint": "polisyos.ir.analytics",
+      "affected_E_producers_consumers": [
+        "foundry.uncertainty.sampling_admission",
+        "calibration.forecast_bridge",
+        "scientist.nodes.builtins.simulate.propagate_welfare"
+      ],
+      "minimal_input": "Canonical owner accepts or adjusts the narrow export patch and tests identity + current strict artifact roundtrip; actual source definitions exist at the pinned source",
+      "next_verifiable_result": "Owner implementation/export commit plus generated inventory/docs/release companion; E then rewires exact caller imports and repeats stochastic/fresh CAS consumer controls",
+      "semantic_boundary": "B201/B202 remain held; adding aliases changes no $id, functional, carrier semantics or appointed authority"
+    },
+    {
+      "canonical_writer": "team-polisyos Foundry execute API, team-architecture public-surface inventory review",
+      "write_paths": [
+        "policy-engine/src/polisyos/foundry/execute/__init__.py"
+      ],
+      "required_existing_exports": {
+        "get_state_path": "polisyos.foundry.execute.executor.get_state_path",
+        "load_state_snapshot": "polisyos.foundry.execute.executor.load_state_snapshot",
+        "put_state_snapshot": "polisyos.foundry.execute.executor.put_state_snapshot"
+      },
+      "admitted_entrypoint": "polisyos.foundry.execute",
+      "affected_E_producers_consumers": [
+        "scientist.methods.backtesting.native_replay"
+      ],
+      "minimal_input": "Canonical owner exposes current executor helpers through existing execute facade, keeping identity and required strict snapshot/config behavior",
+      "next_verifiable_result": "Owner export commit and companions; E applies ready native-replay import patch and repeats actual K3 masked source/config/snapshot/persisted trajectory consumer with forged/removal controls"
+    }
+  ],
+  "applicable_patch_files": [
+    "canonical-owner-exports.patch",
+    "E-consumers-after-owner-exports.patch"
+  ],
+  "patch_state": "reviewable_not_applied",
+  "mandatory_companions": [
+    "Canonical facade behavioral tests, nearest README/release classification as required by CONTRIBUTING",
+    "Generate public-surface inventory/docs via tools/devx/architecture/guardrails.py sync --skip-deep-import-baseline; do not edit generated files or baseline exceptions",
+    "Rerun actual architecture checker and present-but-fake/property-removal discriminator"
+  ],
+  "capability_state": "surface_missing",
+  "transport": "Git packet for G and canonical owners; no cross-chat message authorized",
+  "P37": "Existing exported module membership and actual runtime route recomputed; ungranted public export admission not_established",
+  "P41": "not_established; remaining full architecture red is not called inherited"
+}

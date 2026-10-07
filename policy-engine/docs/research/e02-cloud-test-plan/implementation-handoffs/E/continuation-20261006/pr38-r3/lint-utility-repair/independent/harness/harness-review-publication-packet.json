@@ -1,0 +1,950 @@
+{
+  "schema": "policyos.e02.harness_review_publication_packet.v1",
+  "candidate": "74d0452848a7461d82ea7f150f126631d9fc8399",
+  "tree": "a4e4793be4d1aec6adea623b930a65304ab42d64",
+  "independent_review": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-independent-review-74d04528.json",
+    "bytes": 72341,
+    "sha256": "edbeecb795d9592a88c95834a7f935363d23cbc5666a34315f2914a6396cbe15"
+  },
+  "complete_deciding_assets": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/source-index.json",
+      "bytes": 10054,
+      "sha256": "2704a15dd79aa2b6501bc660a8765db624e1ec2dbee39961316e67296fe37a34"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-results-part1.json",
+      "bytes": 6241,
+      "sha256": "bd21b80886b97e0cab18c6f2b74f0dccca7e6dc46cd28e8af5d24f30e80b23c5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-results-part2.json",
+      "bytes": 4851,
+      "sha256": "6fa5c12efdff4f7bb76cdecb3148a241fdb41555e6717434a7849a7af1aad382"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-harness.stdout.txt",
+      "bytes": 127,
+      "sha256": "2d7f3b8d68c59c6d625f3f3da129946645b6d93e4872f24841c079886c6420ac"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-harness.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-harness-part2.stdout.txt",
+      "bytes": 127,
+      "sha256": "e7c717c24d12c7aba5d5678361bc63a9c8a487b7dd4de2ec89b056052855a9d0"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-harness-part2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-run-results.json",
+      "bytes": 6927,
+      "sha256": "a794a49b7fd0494193a4a8f0c89346113b66c504f22847419be0dffab2b9e7de"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-native-subprocess-results.json",
+      "bytes": 7525,
+      "sha256": "dc27bcc812a64e501102ead7472831e8f34a087e271b6361712826fc4e2c7403"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-independent-review-f3ec.json",
+      "bytes": 107993,
+      "sha256": "1f36006094615c38b34178af72cd5b25cfbdfd9e30ecf323b545091f52f0976d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip-nonzero-admitted-property-result.json",
+      "bytes": 4405,
+      "sha256": "14a247255dc32163a93f609e948dcbb2020094474307f6300d61dbc6eadde93f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-skip-nonzero-admitted.stdout.txt",
+      "bytes": 4405,
+      "sha256": "14a247255dc32163a93f609e948dcbb2020094474307f6300d61dbc6eadde93f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-skip-nonzero-admitted.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip-nonzero-observer-correction-complete.json",
+      "bytes": 1098,
+      "sha256": "e1538f75e7a1156fb9c6c1573eda7e756373fa78c118707f2d5cb8b5d25e4bec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe_harness.py",
+      "bytes": 15151,
+      "sha256": "19c6bd9a174849bfb8f2206b6a7d76ad7165a0d9dcee852e0dc87b434d7120de"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe_harness_part2.py",
+      "bytes": 8996,
+      "sha256": "8ba505c3d05b7e8056b063f1cb1fd5cb11c7234ae22a0403a6447543484eadb4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella_tiny_driver.py",
+      "bytes": 4172,
+      "sha256": "d8f846511c963e9e4db61e4a38629aa06e140f36d4dedb0ef71b9b24f646bede"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny_uncapped_environment.py",
+      "bytes": 477,
+      "sha256": "1b25743ee608109fbf7a237270dfe85c9ecc91e19e5083cae079227065e94103"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny_cases.py",
+      "bytes": 347,
+      "sha256": "cf304a8469b7983465ce573b38e587df160f19f264d6293562a021550e566a2a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny_skip.py",
+      "bytes": 170,
+      "sha256": "3444e7c7e6745260de7b2731c3d9ffc5d2c024f10c106922379f5d12d76b15ca"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/load_cli.py",
+      "bytes": 205,
+      "sha256": "b1b0e256deed9bfe9c416f86e5a24cb99b7aca3e9687de92464824061610032f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/missing-backend/missing-backend.json",
+      "bytes": 8141,
+      "sha256": "b67a36c107cfa30345f33e4452d34b2181a4659aa239a016981c3185a3deb389"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/missing-backend/missing-backend.stdout.txt",
+      "bytes": 147,
+      "sha256": "dc0d57bdd65017c86999220330ea6e90d8b5d520ea103cd531b1d1f76d8cdff7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-mixed/numeric-mixed.json",
+      "bytes": 8636,
+      "sha256": "23dff58af495a1eef6e2ea21dc1917ce1cefc23644cdbf7e24f1fc7257492e2b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-mixed/numeric-mixed.stdout.txt",
+      "bytes": 1123,
+      "sha256": "7cee0919a233aaea4d59cece118ad26749af860abf37cfd6c798b66d73ce2d30"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-mixed/pytest.xml",
+      "bytes": 1484,
+      "sha256": "9dc8793c858585fc6445ef09bbc4851572cf3a67aaf19923580617f792ac7cbb"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8637,
+      "sha256": "c901b5144e486d7169016586caf5e31d242e6c1d631b89dded91400b9855e0d7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "971ac97e7227e2f799d27cd4761b0c767a64180e53a5967031c88593d341d1ec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "3e2d167849bde275fc387c5bac9ca7df22601d58f7bfbff992358e0f31871b70"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/results-importer/results-importer.json",
+      "bytes": 8070,
+      "sha256": "a746ad4b430edd2e3bb148079900cd4b2260a61e625de9a9fe922c28be224bd6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 23,
+      "sha256": "37f5c896f0d9fbe786a73d75fa985282a782d624220a6e6cc344ea46894c784b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "bytes": 8589,
+      "sha256": "63d49ee2148c67ea09f5936a546f12d53c489d2b7b120e3115bb8ee5a502febf"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "bytes": 99,
+      "sha256": "a15f94975fe14865cc97796f11d8d844e4807097f19574e5e271409e35b76daa"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/numeric-skip-exit7/pytest.xml",
+      "bytes": 834,
+      "sha256": "53be52cfa823b1beed7bbe02053a9f4efb4b2b243b14be816abe25c3081d3194"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/results-importer/results-importer.json",
+      "bytes": 8162,
+      "sha256": "000d51b6b234dd4ef44fc44514c28e6fc14e14394a22d4bc96d5a1a48fde07cd"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 28,
+      "sha256": "f5ea3f3a34a508a7ad41b6007eae92b2ef50749ba4d6bbf14a96d3e2f5bb2f9b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast.stdout.txt",
+      "bytes": 167,
+      "sha256": "2edc582a540eac342622d2778b124cd6b940d185d486d985b94a0d81d25c516b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast.stdout.txt",
+      "bytes": 167,
+      "sha256": "647541696005d7578d0bd7241adc27fa9235de1156ae759c0624950e7e56774e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property.stdout.txt",
+      "bytes": 1358,
+      "sha256": "70acf0adce950268b796984831707ad3cf925b7b1239863640b1e36598f7f595"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property.stdout.txt",
+      "bytes": 202,
+      "sha256": "cef9c69c0c4bca8ec9199e2f9920076a23fee14c031ae5625263cc4a072ab895"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success.stdout.txt",
+      "bytes": 202,
+      "sha256": "1ab518a8633ca735881dd8580c94a5eec6bb65020f31d41433ff9109a050faf9"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast/stages.json",
+      "bytes": 2925,
+      "sha256": "13b994cafb2ca5584f9544f4fe26e26cf0c786e91a8238dd09bebcad0a47cc03"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast/driver-receipt.json",
+      "bytes": 400,
+      "sha256": "b503c5d1376df706c28880e0d5acdb6276127136c2e3db4b5e2f8707a727df50"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast/executed-umbrella-source.py.txt",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast/observed-child-environment.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast/stages.json",
+      "bytes": 4488,
+      "sha256": "3faab4a0917b153edb3a55e2f6d805e9555426f39ca1aef2b73475afce2d9ea3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast/driver-receipt.json",
+      "bytes": 407,
+      "sha256": "939fee5991d04e51099bc1b84ec2fc847cb42aa62db1d02176869da1cbf8a950"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast/executed-umbrella-source.py.txt",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast/observed-child-environment.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property/stages.json",
+      "bytes": 3755,
+      "sha256": "295e4b44f495a5bf69bc0d4beffaddf80e55aa6ed1be10ec36dd2ec4c3eddade"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property/driver-receipt.json",
+      "bytes": 411,
+      "sha256": "5f3c65dc082875d7e335aa89966b3fcdd45f2d655cb7de3eb072b8286b523e27"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property/executed-umbrella-source.py.txt",
+      "bytes": 7261,
+      "sha256": "068026f94e01176ebeb8c01c4b0c24582445f428003fbf47387235528626e7b3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property/observed-child-environment.json",
+      "bytes": 176,
+      "sha256": "eadbfa60d71e0fc92f76210a5f30d27816950dd207e94dfaf0b94a0a4b75757a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/stages.json",
+      "bytes": 3073,
+      "sha256": "f401ad9256e17c1cb6b9175266b872b4fe1d43dca910ea168a420908a580a631"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/driver-receipt.json",
+      "bytes": 416,
+      "sha256": "3fa561ac02b16caee50fd42aa7b4cc7bca3579cbbc36e0a4d0f2d7d5d52e9805"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/executed-umbrella-source.py.txt",
+      "bytes": 7325,
+      "sha256": "8ebb3496a293d6206764ac6a99548e6815f7fce25fd02547fa9aac61edac8ec3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/observed-child-environment.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success/stages.json",
+      "bytes": 2773,
+      "sha256": "e87bc0c196307c097639988ad976ead02bf41dfa84d48a63e1886e947431d214"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success/driver-receipt.json",
+      "bytes": 399,
+      "sha256": "d75e4d0b7f6fa641833017d3d853291cba280d80d11cc3d474706d3429f12137"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success/executed-umbrella-source.py.txt",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success/observed-child-environment.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/actual-prepare-plan.json",
+      "bytes": 194173,
+      "sha256": "18bc2153351d11abb4ec3ea79385796c06dca9b5b04d052516701fa707cc0291"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/all-sibling-status-predicates.json",
+      "bytes": 14729,
+      "sha256": "b2ce2ace76a9c79ddff594507fb029558ebf3251c96917f9d873fe1195762024"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/build-final-review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/build-final-review.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/build_final_review.py",
+      "bytes": 13955,
+      "sha256": "7b6e0bce038f90f0a615ebfd5d451fb654626e1f3805c0f40607c15a6d4b054f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collect_wave-status-property-removed.py.txt",
+      "bytes": 41295,
+      "sha256": "32480e2382f397d1422df35854ffbabb3eef73300bfc2aeaa9714e60e74efdbc"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collect_wave.py",
+      "bytes": 41358,
+      "sha256": "3e80760446ed4a6fda0f46dde07b0efbb8aa4da29a28d2779a8a6737b63450ac"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8525,
+      "sha256": "9b1c0fd06575c4a29219fdfb48a13571abcf1111272f89fe7f6dfd96c84bb48a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "18f17401214f5aca68d1133e8722cc5030eacaed51c99154b1c5d3b163402069"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "d03d7cf2022cf86ead69d685fa709f46f9c00503d5ef81cc0354b6d3213edb81"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "bytes": 7084,
+      "sha256": "840f2e3d5fa7bec602b4ff3cd00dc71ae0b17df66c0b3eb54a9084aa8aefb185"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "bytes": 99,
+      "sha256": "b2414bff2c7e9edada036e1f3daad77219557d988a497443fd002c01aca313b9"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip-exit7/pytest.xml",
+      "bytes": 834,
+      "sha256": "bcdb8f21af0671c5aa25c37d0a70dade5ea6cda0c8378c7124229c70b9da27f3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/results-importer/results-importer.json",
+      "bytes": 8130,
+      "sha256": "b1fab5dd82fbf0817bd5f5b5990ed5ad89e61ba0f2253777e3671fe859915ca4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 34,
+      "sha256": "9c8858a55f13cdcaae3456207f0f881c6828538c39bbb290c602d4b6ff516119"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/cleanup-candidates.json",
+      "bytes": 1207,
+      "sha256": "c4c7c0b2dbc002a510554bc0bd263aba44af61cfd5c538d567b01fe1adc66e0d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/copy-index.json",
+      "bytes": 4335,
+      "sha256": "4e26bc331813535560b6f156894b165eeca3f8da77bf902fdc1c40f8435f4768"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/execution-complete.json",
+      "bytes": 155,
+      "sha256": "37f09d7a80bccf6dfad167a8eb7380849f452996a9cfd09b6cec6065a881abe6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/plan.json",
+      "bytes": 44079,
+      "sha256": "edc51effe5691ec6187d91a679b2b916d9c4115af2c953a6934f56958cf3813f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/publication-receipt.json",
+      "bytes": 26899,
+      "sha256": "4cac3234baba2fc21a6f119a9941a42ce13e0ea52d275690ba8e92a35803d540"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/raw-custody.json",
+      "bytes": 667,
+      "sha256": "fe1805d5ce1c6a8e581513f0fe9694cc9383c5f73c1574776e1fcf2575d8f751"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/wave-started.json",
+      "bytes": 104,
+      "sha256": "011bbb227f6ee6b43a649f97d3fa994eaf7f22f6242036a35864e3e95008d5d2"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8525,
+      "sha256": "9b1c0fd06575c4a29219fdfb48a13571abcf1111272f89fe7f6dfd96c84bb48a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "18f17401214f5aca68d1133e8722cc5030eacaed51c99154b1c5d3b163402069"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "d03d7cf2022cf86ead69d685fa709f46f9c00503d5ef81cc0354b6d3213edb81"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "bytes": 8557,
+      "sha256": "723e523170a47bd1e587d9633292a41f75ea7e8af1a90a7de63124fef62ee075"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "bytes": 99,
+      "sha256": "b2414bff2c7e9edada036e1f3daad77219557d988a497443fd002c01aca313b9"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/numeric-skip-exit7/pytest.xml",
+      "bytes": 834,
+      "sha256": "bcdb8f21af0671c5aa25c37d0a70dade5ea6cda0c8378c7124229c70b9da27f3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/results-importer/results-importer.json",
+      "bytes": 8130,
+      "sha256": "b1fab5dd82fbf0817bd5f5b5990ed5ad89e61ba0f2253777e3671fe859915ca4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 34,
+      "sha256": "9c8858a55f13cdcaae3456207f0f881c6828538c39bbb290c602d4b6ff516119"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/cleanup-candidates.json",
+      "bytes": 1207,
+      "sha256": "c4c7c0b2dbc002a510554bc0bd263aba44af61cfd5c538d567b01fe1adc66e0d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/copy-index.json",
+      "bytes": 4336,
+      "sha256": "bae49daf130e16476ba54b0c5b0cd34e6469b0879931672369f10b0de63b033e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/execution-complete.json",
+      "bytes": 155,
+      "sha256": "37f09d7a80bccf6dfad167a8eb7380849f452996a9cfd09b6cec6065a881abe6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/plan.json",
+      "bytes": 44079,
+      "sha256": "edc51effe5691ec6187d91a679b2b916d9c4115af2c953a6934f56958cf3813f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/publication-receipt.json",
+      "bytes": 26787,
+      "sha256": "aa4f25745acd2a9bc483acfb836ecd8a4195bf0f6392f7fdf79ce7927f04af77"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/raw-custody.json",
+      "bytes": 667,
+      "sha256": "fe1805d5ce1c6a8e581513f0fe9694cc9383c5f73c1574776e1fcf2575d8f751"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/wave-started.json",
+      "bytes": 104,
+      "sha256": "011bbb227f6ee6b43a649f97d3fa994eaf7f22f6242036a35864e3e95008d5d2"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8525,
+      "sha256": "9b1c0fd06575c4a29219fdfb48a13571abcf1111272f89fe7f6dfd96c84bb48a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "18f17401214f5aca68d1133e8722cc5030eacaed51c99154b1c5d3b163402069"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "d03d7cf2022cf86ead69d685fa709f46f9c00503d5ef81cc0354b6d3213edb81"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "bytes": 7084,
+      "sha256": "840f2e3d5fa7bec602b4ff3cd00dc71ae0b17df66c0b3eb54a9084aa8aefb185"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "bytes": 99,
+      "sha256": "b2414bff2c7e9edada036e1f3daad77219557d988a497443fd002c01aca313b9"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/numeric-skip-exit7/pytest.xml",
+      "bytes": 834,
+      "sha256": "bcdb8f21af0671c5aa25c37d0a70dade5ea6cda0c8378c7124229c70b9da27f3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/results-importer/results-importer.json",
+      "bytes": 8130,
+      "sha256": "b1fab5dd82fbf0817bd5f5b5990ed5ad89e61ba0f2253777e3671fe859915ca4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 34,
+      "sha256": "9c8858a55f13cdcaae3456207f0f881c6828538c39bbb290c602d4b6ff516119"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/cleanup-candidates.json",
+      "bytes": 1207,
+      "sha256": "c4c7c0b2dbc002a510554bc0bd263aba44af61cfd5c538d567b01fe1adc66e0d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/copy-index.json",
+      "bytes": 4335,
+      "sha256": "6afb9d98406661b52bd8474bdbc1b5a447966905fd02e5e38ced8f6334f00057"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/execution-complete.json",
+      "bytes": 155,
+      "sha256": "37f09d7a80bccf6dfad167a8eb7380849f452996a9cfd09b6cec6065a881abe6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/plan.json",
+      "bytes": 44079,
+      "sha256": "edc51effe5691ec6187d91a679b2b916d9c4115af2c953a6934f56958cf3813f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/publication-receipt.json",
+      "bytes": 26779,
+      "sha256": "dd95ded4bfea103f6a7c14f9129fe61f91b69561bb0d8d3310f315c4b0da56f4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/raw-custody.json",
+      "bytes": 667,
+      "sha256": "fe1805d5ce1c6a8e581513f0fe9694cc9383c5f73c1574776e1fcf2575d8f751"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/wave-started.json",
+      "bytes": 104,
+      "sha256": "011bbb227f6ee6b43a649f97d3fa994eaf7f22f6242036a35864e3e95008d5d2"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/corrective-review-results.json",
+      "bytes": 3711,
+      "sha256": "e50a761bbb896c0aa646b3f05f48ec354dab387c9babcaa6c93733104c78ea0b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/current-forged-SKIP-collector.json",
+      "bytes": 26899,
+      "sha256": "4cac3234baba2fc21a6f119a9941a42ce13e0ea52d275690ba8e92a35803d540"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/current-positive-collector.json",
+      "bytes": 26787,
+      "sha256": "aa4f25745acd2a9bc483acfb836ecd8a4195bf0f6392f7fdf79ce7927f04af77"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/full-source-delta.patch",
+      "bytes": 15062,
+      "sha256": "529dd0474b7433081ac3f3084ee634cf70cf9de285cc92326dd668ba13e94b6a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8525,
+      "sha256": "9b1c0fd06575c4a29219fdfb48a13571abcf1111272f89fe7f6dfd96c84bb48a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "18f17401214f5aca68d1133e8722cc5030eacaed51c99154b1c5d3b163402069"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "d03d7cf2022cf86ead69d685fa709f46f9c00503d5ef81cc0354b6d3213edb81"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "bytes": 8557,
+      "sha256": "723e523170a47bd1e587d9633292a41f75ea7e8af1a90a7de63124fef62ee075"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "bytes": 99,
+      "sha256": "b2414bff2c7e9edada036e1f3daad77219557d988a497443fd002c01aca313b9"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip-exit7/pytest.xml",
+      "bytes": 834,
+      "sha256": "bcdb8f21af0671c5aa25c37d0a70dade5ea6cda0c8378c7124229c70b9da27f3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-status-property-removed/numeric-status-property-removed.json",
+      "bytes": 8647,
+      "sha256": "f7bf8bc18f2f5b4594949a274af438b9186d72aa11c3861d04bf8a8c1cfc223d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-status-property-removed/numeric-status-property-removed.stdout.txt",
+      "bytes": 99,
+      "sha256": "2c96ffb446fdcf1b5d378a807a77b7c7149bc71a7d6deb716e9e3e05ad37e71b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-status-property-removed/pytest.xml",
+      "bytes": 834,
+      "sha256": "d005db15a33e15748b73bfce60d1ad956ebe8da00ce15f0c1834ee4cf87b2039"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/results-importer/results-importer.json",
+      "bytes": 8130,
+      "sha256": "b1fab5dd82fbf0817bd5f5b5990ed5ad89e61ba0f2253777e3671fe859915ca4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 34,
+      "sha256": "9c8858a55f13cdcaae3456207f0f881c6828538c39bbb290c602d4b6ff516119"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/execution-complete.json",
+      "bytes": 155,
+      "sha256": "37f09d7a80bccf6dfad167a8eb7380849f452996a9cfd09b6cec6065a881abe6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/plan.json",
+      "bytes": 44079,
+      "sha256": "edc51effe5691ec6187d91a679b2b916d9c4115af2c953a6934f56958cf3813f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/wave-started.json",
+      "bytes": 104,
+      "sha256": "011bbb227f6ee6b43a649f97d3fa994eaf7f22f6242036a35864e3e95008d5d2"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-subprocess-results.json",
+      "bytes": 7399,
+      "sha256": "8d505f553d3b2fa806d960b9402631ed1214d7af1ab39c2ff7f10e77ae0bbe12"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip-actual-driver.py",
+      "bytes": 633,
+      "sha256": "76df988f38dc6d14fac141c3e48b93cdc125359acf3c9f18375eab47a98ae909"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip-exit7-actual-driver.py",
+      "bytes": 645,
+      "sha256": "6c5983b31a9a93844c0a49d3c955eb342a1d4075c4d7684bdf8f41b002546180"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip-exit7.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip-exit7.capture.stdout.txt",
+      "bytes": 513,
+      "sha256": "052f721fb70337f0054f7a345e610f360c8c2758e4895375299d49328db1911d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip.capture.stdout.txt",
+      "bytes": 500,
+      "sha256": "bb34905b38cbda88b12f35e4c1261978c77f0a39e08f3f16ad105eeb3ae66693"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-status-property-removed-actual-driver.py",
+      "bytes": 671,
+      "sha256": "2139271f3aa25ea01d8486686d340eeee9c2ae4d7d54f0b51e5a710486a3d142"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-status-property-removed.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-status-property-removed.capture.stdout.txt",
+      "bytes": 538,
+      "sha256": "e13e4ea50e607c42156ef9cffd62a89af20ef5d32df0ff7ea67815f72cf6c761"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/plan_wave.py",
+      "bytes": 25922,
+      "sha256": "3e1367f35392c8334a849da655035113c543066425d2bdb67643468a5b8038e4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe-current-outcomes.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe-current-outcomes.stdout.txt",
+      "bytes": 146,
+      "sha256": "cfff54de60593afa64896e6721c1497742a79e1a93666ee91d290373f89d4acc"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe-selector-correction.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe-selector-correction.stdout.txt",
+      "bytes": 2394,
+      "sha256": "9357d8bfc4feb4b9d110a11541980a0d759a563ef946d1fadca42a758ff33f19"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe_current_outcomes.py",
+      "bytes": 13960,
+      "sha256": "5397d9a16f676f04cfcddc1a1d6f973e76a898eddb83c04fb53f31fde59f6084"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe_selector_correction.py",
+      "bytes": 3301,
+      "sha256": "b10e901217ae97a93bcd52a0612211ba27e8f6f438b7d428fe6475d5a722fcb0"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/removed-status-property-collector.json",
+      "bytes": 26779,
+      "sha256": "dd95ded4bfea103f6a7c14f9129fe61f91b69561bb0d8d3310f315c4b0da56f4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/results-importer.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/results-importer.capture.stdout.txt",
+      "bytes": 254,
+      "sha256": "6a6693ba4fcb88e0aa71b416a35678e2b5104ba5c37ea33aa9f0c50f51931f6a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/run_check-status-property-removed.py.txt",
+      "bytes": 12582,
+      "sha256": "03d6494617ec52f9cf9d1582634f1ab44494e4f36a57bcc052e156923cd77b9b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/run_check.py",
+      "bytes": 12609,
+      "sha256": "16caf0aecfe2c247b211f5a7611e9ce423f238dc2506e72dc99de16802ce8fec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/selector-correction-results.json",
+      "bytes": 2394,
+      "sha256": "9357d8bfc4feb4b9d110a11541980a0d759a563ef946d1fadca42a758ff33f19"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/source-bindings.json",
+      "bytes": 6832,
+      "sha256": "b6263d406d76c5b54794e4bf6139b924452885d2d1a975470ef1d951d1845cbc"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/uncapped_umbrella.py",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    }
+  ],
+  "additional_complete_wrapper_captures_and_observer_error_sources": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/missing-backend.capture.stdout.txt",
+      "bytes": 220,
+      "sha256": "dd6cd9f332eecbe5d3e19a72cfede70cedffbb719658155d6131269c003835f7",
+      "custody_note": "Preserved complete original observer/native-control bytes",
+      "suggested_archive_suffix": ".txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/numeric-mixed.capture.stdout.txt",
+      "bytes": 670,
+      "sha256": "bd111988619f8f1ff0997356e19d089a09eea12382a079756472dbd1c1e931a0",
+      "custody_note": "Preserved complete original observer/native-control bytes",
+      "suggested_archive_suffix": ".txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/numeric-skip.capture.stdout.txt",
+      "bytes": 667,
+      "sha256": "d108d5df2aae4e7b20d521d195370e374eede4e68eaa4c3dc7272fe36380a665",
+      "custody_note": "Preserved complete original observer/native-control bytes",
+      "suggested_archive_suffix": ".txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/results-importer.capture.stdout.txt",
+      "bytes": 241,
+      "sha256": "9f7f6756a303cbb58315a7601fceb81f31a0d3c348352058cff786adbf9f0434",
+      "custody_note": "Preserved complete original observer/native-control bytes",
+      "suggested_archive_suffix": ".txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/missing-backend.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "custody_note": "Preserved complete original observer/native-control bytes",
+      "suggested_archive_suffix": ".txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/numeric-mixed.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "custody_note": "Preserved complete original observer/native-control bytes",
+      "suggested_archive_suffix": ".txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/numeric-skip.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "custody_note": "Preserved complete original observer/native-control bytes",
+      "suggested_archive_suffix": ".txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/results-importer.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "custody_note": "Preserved complete original observer/native-control bytes",
+      "suggested_archive_suffix": ".txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/edge-numeric-skip-exit7.stdout.txt",
+      "bytes": 500,
+      "sha256": "aaba3fc6d49c309ca4ea4bc012845713c3777a1fc30c440b2842e8502094df1b",
+      "custody_note": "Current admitted edge attempt only; the earlier outer capture was reused and is not claimed",
+      "suggested_archive_suffix": ".txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/edge-results-importer.stdout.txt",
+      "bytes": 248,
+      "sha256": "cb099e91946b908f69f5ea195306f317d73e9e204a95a10d69a37ae72400d2b3",
+      "custody_note": "Current admitted edge attempt only; the earlier outer capture was reused and is not claimed",
+      "suggested_archive_suffix": ".txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/edge-numeric-skip-exit7.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "custody_note": "Current admitted edge attempt only; the earlier outer capture was reused and is not claimed",
+      "suggested_archive_suffix": ".txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/edge-results-importer.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "custody_note": "Current admitted edge attempt only; the earlier outer capture was reused and is not claimed",
+      "suggested_archive_suffix": ".txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-skip-nonzero.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "custody_note": "Preserved complete original observer/native-control bytes",
+      "suggested_archive_suffix": ".txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-skip-nonzero.stderr.txt",
+      "bytes": 553,
+      "sha256": "2be039b3a686187d7e16af24443a9f3e239c6897e3ed659bbbe2cc56ce3ffe70",
+      "custody_note": "Preserved complete original observer/native-control bytes",
+      "suggested_archive_suffix": ".txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe_skip_nonzero.py",
+      "bytes": 4184,
+      "sha256": "eefcfa593564500baf7954c91c28d29e09fa6f5a337f94f62b3d037f263783c7",
+      "custody_note": "Preserved complete original observer/native-control bytes",
+      "suggested_archive_suffix": ".py.txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe_skip_nonzero_admitted.py",
+      "bytes": 4274,
+      "sha256": "d296e000bd05f9f4d92d8436010c48163ad7f8229f1d6ef94e9db7bb03e32936",
+      "custody_note": "Preserved complete original observer/native-control bytes",
+      "suggested_archive_suffix": ".py.txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip_then_exit7.py",
+      "bytes": 674,
+      "sha256": "47ced9d38e4f1cf8dad134f2549681982474efe2c62c296c7fbb7aeb3cd53315",
+      "custody_note": "Preserved complete original observer/native-control bytes",
+      "suggested_archive_suffix": ".py.txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip_then_exit7_admitted.py",
+      "bytes": 692,
+      "sha256": "2b2483069b43b9fe18d6ffb13f335aa36b5dabc8fa84b4a12e27c8610b88bd9a",
+      "custody_note": "Preserved complete original observer/native-control bytes",
+      "suggested_archive_suffix": ".py.txt"
+    }
+  ],
+  "publication_rule": "Keep exact bytes/hash/size. Archive external executed observer .py sources under .py.txt with source\u2192portable map, without adding active Python utilities or changing the lint denominator. Current implementation modules are already fetchable Git blobs. Exclude all raw/private Git configurations and retained temporary caches.",
+  "full_shared_scratch_retained": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3",
+  "canonical_source_unchanged": true,
+  "actual_common_wave_executed": false,
+  "finding_closure": false
+}

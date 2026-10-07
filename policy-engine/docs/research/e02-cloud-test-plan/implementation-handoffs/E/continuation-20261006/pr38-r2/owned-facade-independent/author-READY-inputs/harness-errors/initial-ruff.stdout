@@ -1,0 +1,652 @@
+TC002 Move third-party import `polisyos.ir.analytics.UncertaintyEnvelope` into a type-checking block
+ --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/foundry/uncertainty/__init__.py:6:35
+  |
+4 | from typing import TYPE_CHECKING
+5 |
+6 | from polisyos.ir.analytics import UncertaintyEnvelope
+  |                                   ^^^^^^^^^^^^^^^^^^^
+7 |
+8 | from ..calibration.report import load_calibration_report as load_foundry_calibration_report
+  |
+help: Move into type-checking block
+
+RUF022 [*] `__all__` is not sorted
+  --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/foundry/uncertainty/__init__.py:70:11
+   |
+70 |   __all__ = [
+   |  ___________^
+71 | |     "AdaptiveStoppingConfig",
+72 | |     "AggregationStrategy",
+73 | |     "BoundedIndicatorResponse",
+74 | |     "CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1",
+75 | |     "CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1",
+76 | |     "FabricUncertaintyContext",
+77 | |     "PropagationConfig",
+78 | |     "PropagationDispatcher",
+79 | |     "PropagationResult",
+80 | |     "PropagationStrategy",
+81 | |     "QuasiMCSampler",
+82 | |     "admit_empirical_weights",
+83 | |     "admit_unit_uniform",
+84 | |     "aggregate_envelopes",
+85 | |     "build_covariance_matrix",
+86 | |     "calibration_covariance_blocks_agree_v1",
+87 | |     "compute_first_order_indices",
+88 | |     "empirical_cdf",
+89 | |     "extract_std",
+90 | |     "fabric_uncertainty_context_from_decision_data",
+91 | |     "load_foundry_calibration_report",
+92 | |     "preserve_singular_covariance",
+93 | |     "reconcile_draw_outcomes",
+94 | |     "sampling_content_digest",
+95 | |     "verify_mean_certificate",
+96 | | ]
+   | |_^
+   |
+help: Apply an isort-style sorting to `__all__`
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:3:1
+   |
+ 1 |   """Public simulate propagate welfare module API."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import itertools
+ 6 | | import math
+ 7 | | from collections.abc import Mapping
+ 8 | | from dataclasses import dataclass
+ 9 | | from statistics import NormalDist
+10 | | from typing import Any, Literal
+11 | |
+12 | | import numpy as np
+13 | | from pydantic import ValidationError
+14 | |
+15 | | from polisyos.common.logger import get_logger
+16 | | from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+17 | | from polisyos.core.artifacts.store import PutOptions
+18 | | from polisyos.core.canon import CanonSpec, from_canonical_bytes
+19 | | from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+20 | | from polisyos.core.contracts.fabric import DataSnapshot
+21 | | from polisyos.core.contracts.foundry import (
+22 | |     EquilibriumMultiplicityReport,
+23 | |     FeedbackSolveResult,
+24 | |     Metrics,
+25 | |     SimulationResult,
+26 | |     SimulationResultRef,
+27 | | )
+28 | | from polisyos.foundry.calibration.report import (
+29 | |     CalibrationCoordinateProjection,
+30 | |     CalibrationReport,
+31 | |     load_calibration_report,
+32 | | )
+33 | | from polisyos.foundry.uncertainty import (
+34 | |     CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
+35 | |     CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1,
+36 | |     admit_empirical_weights,
+37 | |     admit_unit_uniform,
+38 | |     build_covariance_matrix,
+39 | |     calibration_covariance_blocks_agree_v1,
+40 | |     empirical_cdf,
+41 | |     preserve_singular_covariance,
+42 | |     reconcile_draw_outcomes,
+43 | |     sampling_content_digest,
+44 | | )
+45 | | from polisyos.foundry.uncertainty import extract_std as _extract_typed_std
+46 | | from polisyos.foundry.uncertainty.config import PropagationConfig
+47 | | from polisyos.ir.analytics.dependence_structure import (
+48 | |     DependenceStructure,
+49 | |     load_dependence_structure,
+50 | | )
+51 | | from polisyos.ir.analytics.phase4_dynamics import EquilibriumMultiplicityWelfareAnnotation
+52 | | from polisyos.ir.analytics.uncertainty import (
+53 | |     DistributionFamily,
+54 | |     ParametricFitCarrier,
+55 | |     PosteriorSamplesCarrier,
+56 | |     UncertaintyEnvelope,
+57 | |     load_uncertainty_envelope,
+58 | |     persist_uncertainty_envelope,
+59 | | )
+60 | | from polisyos.ir.analytics.welfare import (
+61 | |     ChannelDecompositionTargetKind,
+62 | |     GEUncertaintyBundle,
+63 | |     GEUncertaintyRepresentation,
+64 | |     WelfareBundle,
+65 | |     WelfareIntervalSemantics,
+66 | |     WelfareMethod,
+67 | |     WelfareSampleBundle,
+68 | |     WelfareStatus,
+69 | |     build_channel_decomposition_ref,
+70 | |     load_ge_uncertainty_bundle,
+71 | |     persist_ge_uncertainty_bundle,
+72 | |     persist_welfare_bundle,
+73 | | )
+74 | | from polisyos.ir.observation.bundles import LeontiefIOBundle
+75 | | from polisyos.ir.registry.refs import (
+76 | |     ArtifactRefModel,
+77 | |     DependenceStructureRef,
+78 | |     GEUncertaintyBundleRef,
+79 | |     UncertaintyEnvelopeRef,
+80 | |     WelfareSampleBundleRef,
+81 | | )
+82 | | from polisyos.scientist.nodes.builtins.state_keys import (
+83 | |     ARTIFACT_SIMULATION_RESULT_REF,
+84 | |     ARTIFACT_WELFARE_BUNDLE_REF,
+85 | |     INPUT_CALIBRATION_REPORT_REF,
+86 | |     INPUT_DATA_SNAPSHOT_REF,
+87 | | )
+88 | | from polisyos.scientist.orchestration.engine.context import ExecutionContext
+89 | | from polisyos.scientist.orchestration.engine.protocol import (
+90 | |     NodeError,
+91 | |     NodeEvent,
+92 | |     NodeOutcome,
+93 | |     NodeSpec,
+94 | | )
+95 | | from polisyos.scientist.orchestration.engine.state import ExperimentState
+96 | | from polisyos.scientist.orchestration.engine.state_branching import branch_state
+97 | | from polisyos.scientist.policy_design.phase3 import ensure_social_weight_manifest_artifact
+   | |__________________________________________________________________________________________^
+98 |
+99 |   logger = get_logger(__name__)
+   |
+help: Organize imports
+
+TC002 Move third-party import `polisyos.scientist.orchestration.engine.context.ExecutionContext` into a type-checking block
+  --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:88:61
+   |
+86 |     INPUT_DATA_SNAPSHOT_REF,
+87 | )
+88 | from polisyos.scientist.orchestration.engine.context import ExecutionContext
+   |                                                             ^^^^^^^^^^^^^^^^
+89 | from polisyos.scientist.orchestration.engine.protocol import (
+90 |     NodeError,
+   |
+help: Move into type-checking block
+
+TC002 Move third-party import `polisyos.scientist.orchestration.engine.state.ExperimentState` into a type-checking block
+  --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:95:59
+   |
+93 |     NodeSpec,
+94 | )
+95 | from polisyos.scientist.orchestration.engine.state import ExperimentState
+   |                                                           ^^^^^^^^^^^^^^^
+96 | from polisyos.scientist.orchestration.engine.state_branching import branch_state
+97 | from polisyos.scientist.policy_design.phase3 import ensure_social_weight_manifest_artifact
+   |
+help: Move into type-checking block
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `store`
+   --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:104:40
+    |
+104 | def _load_welfare_draw_outcomes(store: Any, ref: ArtifactRef | ArtifactRefModel) -> dict[str, Any]:
+    |                                        ^^^
+105 |     """Reconcile content-bound terminal records, sampled inputs, and outputs."""
+106 |     exact_ref = ArtifactRef.model_validate(ref.model_dump())
+    |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `store`
+   --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:198:12
+    |
+197 | def _reconcile_welfare_empirical_rows(
+198 |     store: Any, manifest: Any, receipt: Mapping[str, Any]
+    |            ^^^
+199 | ) -> None:
+200 |     """Resolve original carriers and recompute the admitted row/value joins."""
+    |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `manifest`
+   --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:198:27
+    |
+197 | def _reconcile_welfare_empirical_rows(
+198 |     store: Any, manifest: Any, receipt: Mapping[str, Any]
+    |                           ^^^
+199 | ) -> None:
+200 |     """Resolve original carriers and recompute the admitted row/value joins."""
+    |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `store`
+   --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:264:43
+    |
+264 | def _load_verified_welfare_samples(store: Any, ref: WelfareSampleBundleRef) -> WelfareSampleBundle:
+    |                                           ^^^
+265 |     """Read sample arrays only after reconciling their complete outcome lineage."""
+266 |     exact_ref = ArtifactRef.model_validate(ref.model_dump())
+    |
+
+N818 Exception name `_WelfareNodeFailure` should be named with an Error suffix
+   --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:563:7
+    |
+563 | class _WelfareNodeFailure(Exception):
+    |       ^^^^^^^^^^^^^^^^^^^
+564 |     def __init__(self, error: NodeError) -> None:
+565 |         super().__init__(error.message)
+    |
+
+ANN202 Missing return type annotation for private function `_load_model`
+   --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:890:5
+    |
+890 | def _load_model(ctx: ExecutionContext, ref: ArtifactRef, model_cls):
+    |     ^^^^^^^^^^^
+891 |     payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+892 |     return model_cls.model_validate(payload)
+    |
+help: Add return type annotation
+
+ANN001 Missing type annotation for function argument `model_cls`
+   --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:890:58
+    |
+890 | def _load_model(ctx: ExecutionContext, ref: ArtifactRef, model_cls):
+    |                                                          ^^^^^^^^^
+891 |     payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+892 |     return model_cls.model_validate(payload)
+    |
+
+E501 Line too long (110 > 100)
+    --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:1320:101
+     |
+1318 |             raise _fail_error(
+1319 |                 _ERROR_WELFARE_DIMENSION_MISMATCH,
+1320 |                 "welfare_weights keys must align with numeric simulation metrics when pe_response is omitted",
+     |                                                                                                     ^^^^^^^^^^
+1321 |                 details={"missing_metrics": missing},
+1322 |             )
+     |
+
+E501 Line too long (101 > 100)
+    --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:1354:101
+     |
+1352 |             raise _fail_error(
+1353 |                 _ERROR_WELFARE_DIMENSION_MISMATCH,
+1354 |                 "welfare_weights must be provided when aggregating more than one response component",
+     |                                                                                                     ^
+1355 |                 details={"labels": list(labels)},
+1356 |             )
+     |
+
+B007 Loop control variable `param_name` not used within loop body
+    --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:1757:13
+     |
+1755 |         and upper_multiplier is not None
+1756 |     ):
+1757 |         for param_name, (row_idx, col_idx) in ge_entry_map.items():
+     |             ^^^^^^^^^^
+1758 |             lower_multiplier[row_idx, col_idx] = lower_multiplier[row_idx, col_idx]
+1759 |             upper_multiplier[row_idx, col_idx] = upper_multiplier[row_idx, col_idx]
+     |
+help: Rename unused `param_name` to `_param_name`
+
+B007 Loop control variable `ref` not used within loop body
+    --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:1851:21
+     |
+1849 |         nominal_params[param_name] = float(env.point_estimate)
+1850 |
+1851 |     for param_name, ref in list(pe_refs.items()):
+     |                     ^^^
+1852 |         if param_name not in used_envelopes:
+1853 |             pe_refs.pop(param_name)
+     |
+help: Rename unused `ref` to `_ref`
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `**params`
+    --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:1883:23
+     |
+1881 |     ge_entry_map = context.ge_context.ge_entry_map
+1882 |
+1883 |     def _fn(**params: Any) -> dict[str, Any]:
+     |                       ^^^
+1884 |         response = np.array(base_response, copy=True)
+1885 |         for idx, label in enumerate(context.labels):
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `simulation_fn`
+    --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:1944:20
+     |
+1942 |     welfare_params: Mapping[str, Any],
+1943 |     context: _ResolvedWelfareContext,
+1944 |     simulation_fn: Any,
+     |                    ^^^
+1945 |     nominal_params: Mapping[str, float],
+1946 |     input_envelopes: Mapping[str, UncertaintyEnvelope],
+     |
+
+S101 Use of `assert` detected
+    --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:2144:9
+     |
+2142 |         calibration_coordinate_sampler = None
+2143 |     else:
+2144 |         assert calibration_resolution.matrix is not None
+     |         ^^^^^^
+2145 |         (
+2146 |             dependence_sampler,
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `simulation_fn`
+    --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:2540:20
+     |
+2538 |     config_ref: ArtifactRefModel,
+2539 |     context: _ResolvedWelfareContext,
+2540 |     simulation_fn: Any,
+     |                    ^^^
+2541 |     nominal_params: Mapping[str, float],
+2542 |     input_envelopes: Mapping[str, UncertaintyEnvelope],
+     |
+
+S101 Use of `assert` detected
+    --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:2597:9
+     |
+2595 |         )
+2596 |     else:
+2597 |         assert calibration_resolution.matrix is not None
+     |         ^^^^^^
+2598 |         covariance = calibration_resolution.matrix
+2599 |         dependence_applied = calibration_resolution.dependence_applied
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `simulation_fn`
+    --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:3329:20
+     |
+3327 |     *,
+3328 |     config_ref: ArtifactRefModel,
+3329 |     simulation_fn: Any,
+     |                    ^^^
+3330 |     nominal_params: Mapping[str, float],
+3331 |     input_envelopes: Mapping[str, UncertaintyEnvelope],
+     |
+
+S101 Use of `assert` detected
+    --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:3461:13
+     |
+3459 |                 tol=1e-10,
+3460 |             )
+3461 |             assert sampler.projection_pseudoinverse is not None
+     |             ^^^^^^
+3462 |             sampled_calibration_fields = joint_draw[list(sampler.calibration_indices)]
+3463 |             coordinate_draw = sampler.projection_pseudoinverse @ sampled_calibration_fields
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `simulation_fn`
+    --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:3558:20
+     |
+3556 | def _finite_difference_gradient(
+3557 |     *,
+3558 |     simulation_fn: Any,
+     |                    ^^^
+3559 |     nominal_params: Mapping[str, float],
+3560 |     input_envelopes: Mapping[str, UncertaintyEnvelope],
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `simulation_fn`
+    --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:3832:20
+     |
+3830 |     ctx: ExecutionContext,
+3831 |     *,
+3832 |     simulation_fn: Any,
+     |                    ^^^
+3833 |     nominal_params: Mapping[str, float],
+3834 |     input_envelopes: Mapping[str, UncertaintyEnvelope],
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `value`
+    --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:4115:33
+     |
+4115 | def _coerce_artifact_ref(value: Any) -> ArtifactRefModel | None:
+     |                                 ^^^
+4116 |     if value is None:
+4117 |         return None
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `value`
+    --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:4125:39
+     |
+4125 | def _coerce_ge_uncertainty_ref(value: Any) -> GEUncertaintyBundleRef | None:
+     |                                       ^^^
+4126 |     if value is None:
+4127 |         return None
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `value`
+    --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:4138:29
+     |
+4138 | def _coerce_str_list(value: Any) -> list[str] | None:
+     |                             ^^^
+4139 |     if value is None:
+4140 |         return None
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `value`
+    --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:4151:37
+     |
+4151 | def _coerce_numeric_sequence(value: Any, *, field_name: str) -> list[float] | None:
+     |                                     ^^^
+4152 |     if value is None:
+4153 |         return None
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `value`
+    --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:4175:25
+     |
+4175 | def _coerce_bool(value: Any) -> bool:
+     |                         ^^^
+4176 |     if isinstance(value, bool):
+4177 |         return value
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `value`
+    --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:4189:27
+     |
+4189 | def _coerce_matrix(value: Any) -> np.ndarray | None:
+     |                           ^^^
+4190 |     if value is None:
+4191 |         return None
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `value`
+    --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:4201:38
+     |
+4201 | def _coerce_dependence_matrix(value: Any) -> np.ndarray | None:
+     |                                      ^^^
+4202 |     if value is None:
+4203 |         return None
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `value`
+    --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:4237:30
+     |
+4237 | def _coerce_entry_map(value: Any) -> dict[str, tuple[int, int]]:
+     |                              ^^^
+4238 |     if not isinstance(value, dict):
+4239 |         return {}
+     |
+
+B905 `zip()` without an explicit `strict=` parameter
+    --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:4437:20
+     |
+4435 |     max_varying_entries: int,
+4436 | ) -> tuple[np.ndarray | None, np.ndarray | None, dict[str, Any]]:
+4437 |     varying = list(zip(*np.where(np.abs(lower_coefficients - upper_coefficients) > 0.0)))
+     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4438 |     if len(varying) > max_varying_entries:
+4439 |         return None, None, {"varying_entries": len(varying), "status": "skipped"}
+     |
+help: Add explicit value for parameter `strict=`
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py:3:1
+   |
+ 1 |   """Covariance consumers use the admitted facade and canonical numeric objects."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import importlib
+ 6 | | import json
+ 7 | | import subprocess
+ 8 | | import sys
+ 9 | | from pathlib import Path
+10 | |
+11 | | import numpy as np
+12 | | import pytest
+13 | |
+14 | | from polisyos.foundry import uncertainty
+15 | | from polisyos.ir.analytics.uncertainty import (
+16 | |     DistributionFamily,
+17 | |     IntervalSemantics,
+18 | |     ParametricFitCarrier,
+19 | |     UncertaintyEnvelope,
+20 | |     UncertaintySource,
+21 | | )
+   | |_^
+22 |
+23 |   _COVARIANCE_NAMES = (
+   |
+help: Organize imports
+
+E501 Line too long (101 > 100)
+  --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py:51:101
+   |
+49 | def test_covariance_facade_preserves_owner_and_actual_welfare_object_identity() -> None:
+50 |     owner = importlib.import_module("polisyos.foundry.uncertainty.covariance")
+51 |     welfare = importlib.import_module("polisyos.scientist.nodes.builtins.simulate.propagate_welfare")
+   |                                                                                                     ^
+52 |     for name in _COVARIANCE_NAMES:
+53 |         assert name in uncertainty.__all__
+   |
+
+S101 Use of `assert` detected
+  --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py:53:9
+   |
+51 |     welfare = importlib.import_module("polisyos.scientist.nodes.builtins.simulate.propagate_welfare")
+52 |     for name in _COVARIANCE_NAMES:
+53 |         assert name in uncertainty.__all__
+   |         ^^^^^^
+54 |         assert getattr(uncertainty, name) is getattr(owner, name)
+55 |         assert getattr(welfare, name) is getattr(uncertainty, name)
+   |
+
+S101 Use of `assert` detected
+  --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py:54:9
+   |
+52 |     for name in _COVARIANCE_NAMES:
+53 |         assert name in uncertainty.__all__
+54 |         assert getattr(uncertainty, name) is getattr(owner, name)
+   |         ^^^^^^
+55 |         assert getattr(welfare, name) is getattr(uncertainty, name)
+56 |     with pytest.raises(AttributeError):
+   |
+
+S101 Use of `assert` detected
+  --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py:55:9
+   |
+53 |         assert name in uncertainty.__all__
+54 |         assert getattr(uncertainty, name) is getattr(owner, name)
+55 |         assert getattr(welfare, name) is getattr(uncertainty, name)
+   |         ^^^^^^
+56 |     with pytest.raises(AttributeError):
+57 |         _ = uncertainty.nonexistent_covariance_authority
+   |
+
+S101 Use of `assert` detected
+  --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py:80:5
+   |
+78 |     matrix = uncertainty.preserve_singular_covariance([[0.0025, 0.0025], [0.0025, 0.0025]])
+79 |     np.testing.assert_array_equal(matrix @ [1.0, -1.0], [0.0, 0.0])
+80 |     assert float(np.array([1.0, -1.0]) @ matrix @ [1.0, -1.0]) == 0.0
+   |     ^^^^^^
+81 |     assert 0.0025 + 0.0025 == 0.005  # Independent marginals describe a different law.
+82 |     with pytest.raises(ValueError, match="positive semidefinite"):
+   |
+
+S101 Use of `assert` detected
+  --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py:81:5
+   |
+79 |     np.testing.assert_array_equal(matrix @ [1.0, -1.0], [0.0, 0.0])
+80 |     assert float(np.array([1.0, -1.0]) @ matrix @ [1.0, -1.0]) == 0.0
+81 |     assert 0.0025 + 0.0025 == 0.005  # Independent marginals describe a different law.
+   |     ^^^^^^
+82 |     with pytest.raises(ValueError, match="positive semidefinite"):
+83 |         uncertainty.preserve_singular_covariance([[1.0, 1.1], [1.1, 1.0]])
+   |
+
+S101 Use of `assert` detected
+  --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py:84:5
+   |
+82 |     with pytest.raises(ValueError, match="positive semidefinite"):
+83 |         uncertainty.preserve_singular_covariance([[1.0, 1.1], [1.1, 1.0]])
+84 |     assert uncertainty.calibration_covariance_blocks_agree_v1(matrix, matrix)
+   |     ^^^^^^
+85 |     assert not uncertainty.calibration_covariance_blocks_agree_v1(
+86 |         matrix, [[0.0025, 0.00250001], [0.0025, 0.0025]]
+   |
+
+S101 Use of `assert` detected
+  --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py:85:5
+   |
+83 |         uncertainty.preserve_singular_covariance([[1.0, 1.1], [1.1, 1.0]])
+84 |     assert uncertainty.calibration_covariance_blocks_agree_v1(matrix, matrix)
+85 |     assert not uncertainty.calibration_covariance_blocks_agree_v1(
+   |     ^^^^^^
+86 |         matrix, [[0.0025, 0.00250001], [0.0025, 0.0025]]
+87 |     )
+   |
+
+ANN001 Missing type annotation for function argument `monkeypatch`
+  --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py:90:68
+   |
+90 | def test_actual_welfare_covariance_route_is_a_supported_entrypoint(monkeypatch) -> None:
+   |                                                                    ^^^^^^^^^^^
+91 |     from tools.devx.architecture import guardrails
+   |
+
+E501 Line too long (101 > 100)
+  --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py:93:101
+   |
+91 |     from tools.devx.architecture import guardrails
+92 |
+93 |     welfare = importlib.import_module("polisyos.scientist.nodes.builtins.simulate.propagate_welfare")
+   |                                                                                                     ^
+94 |     welfare_source = Path(welfare.__file__).resolve()
+95 |     product = welfare_source.parents[6]
+   |
+
+S101 Use of `assert` detected
+   --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py:101:5
+    |
+ 99 |     policies = guardrails._parse_public_surface(guardrails.DEFAULT_PUBLIC_MANIFEST)
+100 |     edges = guardrails.collect_deep_import_edges(policies)
+101 |     assert not any(
+    |     ^^^^^^
+102 |         edge.target_module == "polisyos.foundry.uncertainty.covariance" for edge in edges
+103 |     )
+    |
+
+S603 `subprocess` call: check for execution of untrusted input
+   --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py:124:14
+    |
+122 |     raise AssertionError('missing numeric dependency was hidden')
+123 | """
+124 |     result = subprocess.run([sys.executable, "-c", command], capture_output=True, text=True)
+    |              ^^^^^^^^^^^^^^
+125 |     assert result.returncode == 0, result.stderr
+126 |     assert json.loads(result.stdout) == {"facade_import": "PASS", "numeric_request": "ImportError"}
+    |
+
+S101 Use of `assert` detected
+   --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py:125:5
+    |
+123 | """
+124 |     result = subprocess.run([sys.executable, "-c", command], capture_output=True, text=True)
+125 |     assert result.returncode == 0, result.stderr
+    |     ^^^^^^
+126 |     assert json.loads(result.stdout) == {"facade_import": "PASS", "numeric_request": "ImportError"}
+    |
+
+S101 Use of `assert` detected
+   --> e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py:126:5
+    |
+124 |     result = subprocess.run([sys.executable, "-c", command], capture_output=True, text=True)
+125 |     assert result.returncode == 0, result.stderr
+126 |     assert json.loads(result.stdout) == {"facade_import": "PASS", "numeric_request": "ImportError"}
+    |     ^^^^^^
+    |
+
+Found 49 errors.
+[*] 3 fixable with the `--fix` option (6 hidden fixes can be enabled with the `--unsafe-fixes` option).

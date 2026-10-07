@@ -1,0 +1,121 @@
+"""Invoke native tests after isolated removal of the defining admission property."""
+
+from __future__ import annotations
+
+import importlib.util
+import json
+import sys
+from collections.abc import Callable
+from pathlib import Path
+from types import ModuleType
+
+import numpy as np
+import pytest
+
+from polisyos.ir.analytics import posterior_summary
+from polisyos.scientist.nodes.builtins.simulate import propagate_uncertainty
+
+ROOT = Path.cwd()
+OUTPUT = Path("/workspace/e02-E-pr38-r3-receipts/ir-profile")
+
+
+def module_from(path: str, name: str) -> ModuleType:
+    spec = importlib.util.spec_from_file_location(name, ROOT / path)
+    if spec is None or spec.loader is None:
+        raise ValueError("native test module spec is missing")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+node_tests = module_from(
+    "tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+    "native_node_controls",
+)
+profile_tests = module_from(
+    "tests/unit/ir/test_posterior_summary.py", "profile_controls"
+)
+records = []
+
+
+def check(
+    name: str,
+    mutate: Callable[[pytest.MonkeyPatch], None],
+    callback: Callable[[pytest.MonkeyPatch], None],
+) -> None:
+    patch = pytest.MonkeyPatch()
+    try:
+        mutate(patch)
+        callback(patch)
+    except BaseException as error:
+        record = {
+            "property_removed": name,
+            "actual_native_test_detected_removal": True,
+            "exception_type": type(error).__name__,
+            "message": str(error),
+        }
+    else:
+        record = {
+            "property_removed": name,
+            "actual_native_test_detected_removal": False,
+        }
+    finally:
+        patch.undo()
+    records.append(record)
+    if not record["actual_native_test_detected_removal"]:
+        raise RuntimeError(record)
+
+
+nominal_path = OUTPUT / "removal-native-nominal-cas"
+nominal_path.mkdir(exist_ok=True)
+check(
+    "named posterior mean replaced by generic median point",
+    lambda patch: patch.setattr(
+        propagate_uncertainty,
+        "posterior_nominal_mean",
+        lambda env, **kwargs: env.point_estimate,
+    ),
+    lambda patch: node_tests.test_actual_node_reads_named_mean_instead_of_generic_median(
+        nominal_path
+    ),
+)
+
+
+def unchecked_cdf(probabilities: np.ndarray) -> np.ndarray:
+    cumulative = np.cumsum(probabilities, dtype=np.float64)
+    cumulative[np.flatnonzero(probabilities > 0)[-1] :] = 1
+    return cumulative
+
+
+check(
+    "sorted positive-CDF representability admission removed",
+    lambda patch: patch.setattr(posterior_summary, "_posterior_cdf", unchecked_cdf),
+    lambda patch: profile_tests.test_quantile_sort_cdf_collapse_refuses_even_healthy_draw_order_law(),
+)
+
+raw_path = OUTPUT / "removal-native-raw-cas"
+raw_path.mkdir(exist_ok=True)
+check(
+    "raw real/non-bool carrier admission removed before legacy decoder",
+    lambda patch: patch.setattr(
+        posterior_summary,
+        "validate_raw_posterior_summary_envelope",
+        lambda *args, **kwargs: None,
+    ),
+    lambda patch: node_tests.test_actual_node_refuses_forged_profile_before_evaluator(
+        raw_path, patch, "raw_bool"
+    ),
+)
+
+check(
+    "new named-functional declaration recognition removed",
+    lambda patch: patch.setattr(
+        posterior_summary, "_profile_declared", lambda metadata: False
+    ),
+    lambda patch: profile_tests.test_named_functional_markers_cannot_fall_back_when_profile_removed(
+        None
+    ),
+)
+
+(OUTPUT / "removal-controls.json").write_text(json.dumps(records, indent=2) + "\n")
+sys.stdout.write(json.dumps(records, indent=2) + "\n")

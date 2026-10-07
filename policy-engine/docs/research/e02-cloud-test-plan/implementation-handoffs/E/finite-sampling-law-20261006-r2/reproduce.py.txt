@@ -1,0 +1,56 @@
+"""Bounded numerical reproduction; PYTHONPATH selects an exact source tree."""
+import json
+import numpy as np
+
+from polisyos.foundry.uncertainty.config import PropagationConfig
+from polisyos.foundry.uncertainty.monte_carlo import (
+    MonteCarloPropagator, _build_empirical_joint_spec, _empirical_indices_from_uniform,
+)
+from polisyos.foundry.uncertainty.sampling_admission import joint_carrier_digest
+from polisyos.ir.analytics.uncertainty import (
+    DistributionFamily, IntervalSemantics, PosteriorSamplesCarrier,
+    PropagationMethod, UncertaintyEnvelope, UncertaintySource,
+)
+
+def envelope(samples=None, weights=None):
+    return UncertaintyEnvelope(
+        point_estimate=0.5, confidence_interval=(0, 5), confidence_level=None,
+        distribution_family=(DistributionFamily.BOOTSTRAP if samples else DistributionFamily.UNIFORM),
+        source=UncertaintySource.ENSEMBLE, propagation_method=PropagationMethod.NONE,
+        interval_semantics=IntervalSemantics.DETERMINISTIC_BOUNDS, gate_eligible=False,
+        distribution_payload=(PosteriorSamplesCarrier(samples=samples, weights=weights) if samples else None),
+    )
+
+def paired(weights_a, weights_b):
+    envs={"a":envelope((0,1), weights_a), "b":envelope((0,1), weights_b)}
+    ids=["r0","r1"]; names=["a","b"]
+    digest=joint_carrier_digest(names,envs,ids)
+    return {name:e.model_copy(update={"metadata": {
+        "joint_sample_id":"fixture", "joint_parameter_order":names,
+        "joint_draw_ids":ids, "joint_law_sha256":digest,
+    }}) for name,e in envs.items()}
+
+result={}
+spec,failure=_build_empirical_joint_spec(["a","b"],paired((.5,.5),(.5000000000005,.4999999999995)))
+result["unequal_weights"]={"admitted":spec is not None,"failure":failure}
+for tag,probs,uniforms in [
+    ("first",[5e-11,1-5e-11],[0,2.5e-11]),
+    ("interior",[.5,5e-11,.5-5e-11],[.5,.5+2.5e-11]),
+    ("last",[1-5e-11,5e-11],[1-2.5e-11,np.nextafter(1.,0.)]),
+    ("collapse",[.5,1e-20,.5],[.5]),
+]:
+    try: result[tag]={"indices":_empirical_indices_from_uniform(np.array(uniforms),np.array(probs)).tolist()}
+    except ValueError as exc: result[tag]={"refused":str(exc)}
+for method in ["random","sobol","halton"]:
+    calls=[]
+    envs={name:envelope().model_copy(update={
+        "confidence_interval":(0,1),
+        "metadata":{"std":float(np.sqrt(1/12)),"covariance_params":["a","b"],
+                    "covariance_row":([1/12,0] if name=="a" else [0,1/12])},
+    }) for name in ["a","b"]}
+    try:
+        out=MonteCarloPropagator(PropagationConfig(mc_n_samples=256,mc_sampling_method=method,compute_sensitivity=False)).propagate(
+            lambda **p:calls.append(p) or {"y":p["a"]+p["b"]}, {"a":.5,"b":.5}, envs,["y"])[0]
+        result[method]={"callbacks":len(calls),"failure":out.envelope.metadata.get("failure"),"gate":out.envelope.gate_eligible}
+    except ValueError as exc: result[method]={"callbacks":len(calls),"exception":str(exc)}
+print(json.dumps(result,indent=2,sort_keys=True))

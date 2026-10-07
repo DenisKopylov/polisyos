@@ -1,0 +1,5 @@
+import pytest
+@pytest.mark.skip(reason="both deliberately skipped")
+def test_skip_a(): pass
+@pytest.mark.skip(reason="both deliberately skipped")
+def test_skip_b(): pass

@@ -1,0 +1,10 @@
+{
+  "schema": "policyos.e02.proposed_subset_materialization.v1",
+  "destination": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/effective-membership-removal-admits-omission/destination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions",
+  "unique_literal_payload_files": 153,
+  "unique_literal_payload_bytes": 2320979,
+  "metadata_files": 6,
+  "active_python": 0,
+  "source_tests_gate_numeric_execution": false,
+  "scope": "Ready fixed subset only; RUNNING backend/final supplement/current361 are excluded"
+}

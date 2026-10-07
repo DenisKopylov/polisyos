@@ -1,0 +1,72 @@
+{
+  "source_base": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "ruff_config": "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+  "syntax_parse": {
+    "files": [
+      "plan_wave.py",
+      "run_check.py",
+      "uncapped_umbrella.py"
+    ],
+    "outcome": "PASS",
+    "bytecode_written": false
+  },
+  "commands": [
+    {
+      "name": "configured-ruff",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff",
+        "check",
+        "--config",
+        "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+        "/workspace/e02-E-pr38-r2-receipts/harness-native-parent-repair-5e3e37276/plan_wave.py",
+        "/workspace/e02-E-pr38-r2-receipts/harness-native-parent-repair-5e3e37276/run_check.py",
+        "/workspace/e02-E-pr38-r2-receipts/harness-native-parent-repair-5e3e37276/uncapped_umbrella.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "exit_code": 0,
+      "wall_seconds": 0.06697797775268555,
+      "stdout": "configured-ruff.stdout.txt",
+      "stderr": "configured-ruff.stderr.txt",
+      "scope": "Only three owned harness source files using actual repository ruff.toml; not full changed.py gate"
+    },
+    {
+      "name": "configured-format",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff",
+        "format",
+        "--check",
+        "--config",
+        "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+        "/workspace/e02-E-pr38-r2-receipts/harness-native-parent-repair-5e3e37276/plan_wave.py",
+        "/workspace/e02-E-pr38-r2-receipts/harness-native-parent-repair-5e3e37276/run_check.py",
+        "/workspace/e02-E-pr38-r2-receipts/harness-native-parent-repair-5e3e37276/uncapped_umbrella.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "exit_code": 0,
+      "wall_seconds": 0.03301525115966797,
+      "stdout": "configured-format.stdout.txt",
+      "stderr": "configured-format.stderr.txt",
+      "scope": "Only three owned harness source files using actual repository ruff.toml; not full changed.py gate"
+    },
+    {
+      "name": "read-only-patch-apply-check",
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-E-continuation-20261006",
+        "apply",
+        "--check",
+        "/workspace/e02-E-pr38-r2-receipts/harness-native-parent-repair-5e3e37276/native-parent-repair.patch"
+      ],
+      "exit_code": 0,
+      "stdout": "git-apply-check.stdout.txt",
+      "stderr": "git-apply-check.stderr.txt",
+      "mutation": false
+    }
+  ],
+  "patch": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/harness-native-parent-repair-5e3e37276/native-parent-repair.patch",
+    "sha256": "96ad896046aae355f9896db3fbca9cbe993bff551c6440b0ee2c1714f813bb8a",
+    "bytes": 4380
+  }
+}

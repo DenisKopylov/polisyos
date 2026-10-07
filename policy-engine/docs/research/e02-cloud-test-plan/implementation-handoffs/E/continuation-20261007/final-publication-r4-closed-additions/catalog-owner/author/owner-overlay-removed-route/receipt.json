@@ -1,0 +1,113 @@
+{
+  "outcome": "PASS",
+  "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "source_immutable": true,
+  "mode": "removed-route",
+  "overlay": {
+    "source_path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/runtime_http.owner-overlay.py.txt",
+    "source_size": 58250,
+    "source_sha256": "5d87c44b1eff48129afbc4bddb65aae982b853f1c5b43666e9e58bf1d93604cf",
+    "effective_sha256": "11f7d1fa69e948f6ca806ce9c7d27a7df9425176e6872a50799c939c4e045fef",
+    "is_committed_candidate": false
+  },
+  "source_inputs": [
+    {
+      "path": "policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 7457,
+      "sha256": "210a02646fc4bdade933ca85fa53ced9b91dcdea4ca49d62abd265b5d7826dce"
+    },
+    {
+      "path": "policy-engine/tests/_helpers/runtime_http.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 56431,
+      "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_human_decision_api.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 4174,
+      "sha256": "a78ce52aad1f1a043e3c47b6625e9e3d4f2219b9d597823f318e755852d22220"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 123424,
+      "sha256": "01278a3cecfc6d3ca20dca7c10b817adf16847cf1ed5c5d28e47d87fd5d3b821"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 347497,
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 79191,
+      "sha256": "a2a4f06452428a225b393941ae16cf3cb42043c01a38679bb725595818cb9f62"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 37677,
+      "sha256": "c175225c5e4f8eda08d784e0319b4a5c023fe97fd89fbe24e758f5530a9beb72"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/graph_builder.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 29776,
+      "sha256": "4831403a2d505773e75bf6572e0323464ea2f9e9b3312d1111ac1572dc328f9f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 42587,
+      "sha256": "ba5781f542b3cfb2477158a5d09205f6b559d96dd27c1ed9235912955689b710"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 29478,
+      "sha256": "eaebbe358294cb227faa417fa23cefc12b881b2e298137dd4abbded4099a1ab2"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 206555,
+      "sha256": "ed902ef5d990a9e352e70a196f4a1d13ac25f6778d46a79828252cc7a35674e5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/types.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 11620,
+      "sha256": "ed089faee129ba1ce9101f00e65a702b00af22582f07afd0c7a867674b7070ab"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/reference/static_csv.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 17327,
+      "sha256": "770558cf2c526fe1ee7a5af3d36197def4ae329fb3acb59ac74383f4ba647be9"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/orchestrator.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 29896,
+      "sha256": "ebb6e42109d9725a60bafda60a8744a0a4ee1b1ed1ef6378a2aa3f874cb1bab6"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/fabric.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 5421,
+      "sha256": "390415a884778be3f78415c6610db9ea51e26484466d246859a912076a557bf7"
+    }
+  ],
+  "positive": null,
+  "refusal": {
+    "type": "ValueError",
+    "reason": "catalog_fetch_source_unreadable"
+  },
+  "fake_callbacks": [],
+  "authority_limits": "Fixture startup/HTTP readback and source refusal only; no production/source-law/decision authority and no browser cases."
+}

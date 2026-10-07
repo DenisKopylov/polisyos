@@ -64,6 +64,14 @@ typed discovery, versioning, dispatch, and evidence.
 
 ## Internal Layout
 
+NumPy graph execution passes the graph's configured `artifact_store` as an
+execution service, outside the method's scientific parameter signature. The
+nonstationary GARCH producer uses that store for continuous calibration pairs,
+recomputed diagnostics and source-row bindings. Result diagnostics expose the
+refs, and graph execution forwards typed sidecar refs in `derived_artifacts`.
+These descriptive calibration artifacts remain `gate_eligible=false`; an
+execution without a store reports `store_missing` and emits no diagnostic ref.
+
 - `api.py` and `__init__.py` own the stable lazy facade. Treat `api.py` as the
   public-surface map; add exported names there instead of exposing loose
   implementation modules.

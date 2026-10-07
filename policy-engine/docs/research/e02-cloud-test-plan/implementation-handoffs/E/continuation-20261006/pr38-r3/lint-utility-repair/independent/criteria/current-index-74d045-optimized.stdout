@@ -1,0 +1,25 @@
+{
+  "candidate": "74d0452848a7461d82ea7f150f126631d9fc8399",
+  "tree": "a4e4793be4d1aec6adea623b930a65304ab42d64",
+  "optimized": 1,
+  "scope": "new complete current utility index; historical copied indexes remain unchanged",
+  "records": 229,
+  "current_and_git": "PASS",
+  "negative_controls": [
+    {
+      "name": "corrupt-last-digest",
+      "outcome": "REFUSED",
+      "reason": "Review digest mismatch: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/verify_receipt.py"
+    },
+    {
+      "name": "omitted-last-record",
+      "outcome": "REFUSED",
+      "reason": "complete current utility denominator"
+    },
+    {
+      "name": "duplicate-record",
+      "outcome": "REFUSED",
+      "reason": "complete exact current utility path set"
+    }
+  ]
+}

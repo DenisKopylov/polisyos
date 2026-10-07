@@ -1,0 +1,211 @@
+FF....F                                                                  [100%]
+=================================== FAILURES ===================================
+_ test_native_ge_preserves_empirical_atoms_failed_support_and_conditional_values _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-208/test_native_ge_preserves_empir0')
+
+    def test_native_ge_preserves_empirical_atoms_failed_support_and_conditional_values(tmp_path):
+>       _, bundle, receipt, samples, _ = _run_native(tmp_path)
+                                         ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py:119: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py:106: in _run_native
+    outcome = module.PropagateWelfareNode().execute(ctx, state)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:684: in execute
+    propagation = _propagate_credible_interval(
+src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:2311: in _propagate_credible_interval
+    receipt = _load_welfare_draw_outcomes(ctx.store, outcomes_ref)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:195: in _load_welfare_draw_outcomes
+    _reconcile_welfare_empirical_rows(store, manifest, receipt)
+src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:233: in _reconcile_welfare_empirical_rows
+    or not store.verify(ref).ok
+           ^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:384: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/ownership.py:239: in artifact_lease
+    existing = active.get(artifact_id.hex)
+                          ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = UncertaintyEnvelopeRef(artifact_id=ArtifactID(root='sha256:ba08433809de85da5860a4c7c9cc99d31da84ab75e6423eb2aef269c132bf056'), kind='ir.uncertainty_envelope', media_type='application/json')
+item = 'hex'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'UncertaintyEnvelopeRef' object has no attribute 'hex'
+
+../../e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:1026: AttributeError
+_ test_native_ge_preserves_tiny_and_zero_mass_atoms_and_complete_positive_law __
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-208/test_native_ge_preserves_tiny_0')
+
+    def test_native_ge_preserves_tiny_and_zero_mass_atoms_and_complete_positive_law(tmp_path):
+>       _, bundle, receipt, samples, _ = _run_native(
+            tmp_path, _envelope((0.0, 1e-15, 0.5), (1.0, 0.0, 3.0))
+        )
+
+tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py:143: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py:106: in _run_native
+    outcome = module.PropagateWelfareNode().execute(ctx, state)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:684: in execute
+    propagation = _propagate_credible_interval(
+src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:2311: in _propagate_credible_interval
+    receipt = _load_welfare_draw_outcomes(ctx.store, outcomes_ref)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:195: in _load_welfare_draw_outcomes
+    _reconcile_welfare_empirical_rows(store, manifest, receipt)
+src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:233: in _reconcile_welfare_empirical_rows
+    or not store.verify(ref).ok
+           ^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:384: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/ownership.py:239: in artifact_lease
+    existing = active.get(artifact_id.hex)
+                          ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = UncertaintyEnvelopeRef(artifact_id=ArtifactID(root='sha256:c1b91f2a1acd91b8b853e6d93ca004f1a9bea1c46c4a3060bda0cf36be8853ff'), kind='ir.uncertainty_envelope', media_type='application/json')
+item = 'hex'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'UncertaintyEnvelopeRef' object has no attribute 'hex'
+
+../../e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:1026: AttributeError
+_________ test_native_ge_receipt_binds_exact_carrier_rows_and_weights __________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-208/test_native_ge_receipt_binds_e0')
+
+    def test_native_ge_receipt_binds_exact_carrier_rows_and_weights(tmp_path):
+>       fresh, bundle, receipt, _, env_ref = _run_native(tmp_path)
+                                             ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py:191: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py:106: in _run_native
+    outcome = module.PropagateWelfareNode().execute(ctx, state)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:684: in execute
+    propagation = _propagate_credible_interval(
+src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:2311: in _propagate_credible_interval
+    receipt = _load_welfare_draw_outcomes(ctx.store, outcomes_ref)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:195: in _load_welfare_draw_outcomes
+    _reconcile_welfare_empirical_rows(store, manifest, receipt)
+src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:233: in _reconcile_welfare_empirical_rows
+    or not store.verify(ref).ok
+           ^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:384: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/ownership.py:239: in artifact_lease
+    existing = active.get(artifact_id.hex)
+                          ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = UncertaintyEnvelopeRef(artifact_id=ArtifactID(root='sha256:ba08433809de85da5860a4c7c9cc99d31da84ab75e6423eb2aef269c132bf056'), kind='ir.uncertainty_envelope', media_type='application/json')
+item = 'hex'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'UncertaintyEnvelopeRef' object has no attribute 'hex'
+
+../../e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:1026: AttributeError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py::test_native_ge_preserves_empirical_atoms_failed_support_and_conditional_values
+FAILED tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py::test_native_ge_preserves_tiny_and_zero_mass_atoms_and_complete_positive_law
+FAILED tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py::test_native_ge_receipt_binds_exact_carrier_rows_and_weights

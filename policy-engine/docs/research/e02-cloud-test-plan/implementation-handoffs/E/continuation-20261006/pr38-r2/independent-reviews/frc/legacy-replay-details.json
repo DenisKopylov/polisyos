@@ -1,0 +1,43 @@
+{
+  "producer_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "reader_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+  "archived_paths": [
+    "policy-engine/src",
+    "policy-engine/architecture",
+    "policy-engine/pyproject.toml",
+    "policy-engine/uv.lock",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py"
+  ],
+  "archive_sha256": "5cb3c7618b74d7aaeb173d01a3c5e129e907a5d1eac42e51247ef6df60251032",
+  "producer": {
+    "stage": "legacy-producer",
+    "request_version": "1.0",
+    "candidate_ref": {
+      "artifact_id": "sha256:ef261b4ac91e166425f054eb26a6dddc36c9c244c82fdbbf855f99e386a7fdf7",
+      "kind": "ir.forecast_candidate_receipt",
+      "media_type": "application/json"
+    },
+    "denominator": 4
+  },
+  "reader": {
+    "stage": "candidate-legacy-read",
+    "candidate_ref": {
+      "artifact_id": "sha256:ef261b4ac91e166425f054eb26a6dddc36c9c244c82fdbbf855f99e386a7fdf7",
+      "kind": "ir.forecast_candidate_receipt",
+      "media_type": "application/json"
+    },
+    "verifier_provenance": "not_established",
+    "authority_scope": "predictive_only",
+    "outcome": "PASS"
+  },
+  "cas_file_count": 89,
+  "cas_bytes_unchanged": true,
+  "cas_content_sha256": "6089d77f613c6f04867cb39a51a24957e8b64922f9bbf374b054611e94f5555d",
+  "old_PYTHONPATH": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/legacy-git-blob-overlay-58e2/policy-engine/src",
+  "new_PYTHONPATH": "/workspace/e02-E-frc-20261006/policy-engine/src",
+  "cleanup_candidates": [
+    "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/legacy-git-blob-overlay-58e2",
+    "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/legacy-native-cas-58e2"
+  ],
+  "no_production_inputs": true
+}

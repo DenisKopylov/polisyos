@@ -1,0 +1,33 @@
+from __future__ import annotations
+import ast,copy,hashlib,json,pathlib,runpy,sys
+W=pathlib.Path('/workspace/e02-E-pr38-r3-receipts');D=pathlib.Path('/tmp/e02-E-owner3932-packet-independent-lint-20261007');S=W/'ir-compat-independent/validate-owner3932-packets-v2.py.txt'
+def need(x,m):
+ if not x:raise ValueError(m)
+def ref(p):
+ b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+need(ref(S)['sha256']=='a7aa11f124f3b877f3d58ad9af7a2acfc61e51b6c4a8b421ba1fb46443021f45','exact corrected source')
+n=runpy.run_path(str(S),run_name='independent_corrected_summary_review');p=copy.deepcopy(n['CANONICAL_PROJECTION']);o=copy.deepcopy(n['CANONICAL_OWNER']);n['validate'](p,o)
+mutants=[('runtime_components_false_summary','projection',['runtime_schema_components'],1),('generated_payload_digest_false_summary','projection',['changed_generated_companions',0,'projected_sha256'],'0'*64),('historical_ledger_bool_count','owner',['historical_ledger_preserved','closed'],True),('source_consumer_digest_false_summary','owner',['property_paths_and_native_consumers',0,'sha256'],'0'*64),('whole_ABI_float_count','projection',['canonical_full_ABI_count'],103.0),('public_package_float_count','projection',['full_public_packages'],20.0),('patch_exit_bool','projection',['patch_check','exit_code'],False)]
+results=[]
+def mutate(kind,keys,v):
+ a,b=copy.deepcopy(p),copy.deepcopy(o);t=a if kind=='projection' else b
+ for k in keys[:-1]:t=t[k]
+ t[keys[-1]]=v
+ return a,b
+for name,kind,keys,v in mutants:
+ a,b=mutate(kind,keys,v)
+ try:n['validate'](a,b)
+ except (ValueError,TypeError) as e:reason=str(e)
+ else:raise ValueError('new admission accepts false summary '+name)
+ need(a['candidate']==p['candidate'] and a['tree']==p['tree'] and a['outcome']=='PASS' and a['new_affected_runtime_projection']==p['new_affected_runtime_projection'] and b['candidate']==o['candidate'],'source/authority markers must be preserved')
+ results.append({'case':name,'outcome':'PASS','actual_refusal':reason,'markers_and_refs_preserved':True})
+tree=ast.parse(S.read_bytes());target=[x for x in tree.body if isinstance(x,ast.FunctionDef) and x.name=='admit_current_claims'];need(len(target)==1,'single new claim admission class')
+legacy_call=next(x for x in tree.body if isinstance(x,ast.FunctionDef) and x.name=='validate');oldvalidate=ast.dump(legacy_call);target[0].body=[ast.Return(value=ast.Constant(value=None))];ast.fix_missing_locations(tree)
+space={'__name__':'independent_effective_summary_removal','__file__':str(S)};exec(compile(tree,str(S),'exec'),space)
+need(ast.dump(next(x for x in tree.body if isinstance(x,ast.FunctionDef) and x.name=='validate'))==oldvalidate,'removal modified legacy call path')
+for name,kind,keys,v in mutants[:4]:
+ a,b=mutate(kind,keys,v);space['validate'](a,b);need(a['outcome']=='PASS' and a['candidate']==p['candidate'] and b['candidate']==o['candidate'],'removal loses source markers')
+ results.append({'case':'effective_only_new_claim_admission_removal_'+name,'outcome':'PASS discriminator','required_summary_property':'FAIL: real false summary re-admitted','V1_validator_still_active':True,'source_refs_and_PASS_preserved':True})
+need(ref(S)['sha256']=='a7aa11f124f3b877f3d58ad9af7a2acfc61e51b6c4a8b421ba1fb46443021f45','source changed during review')
+result={'schema':'policyos.e02.independent_corrected_sparse_owner_projection_guard_review.v2','outcome':'GO bounded evidence-only correction','source':ref(S),'mode':'optimized' if sys.flags.optimize else 'normal','candidate':n['SOURCE'],'tree':n['TREE'],'healthy_complete_current_admission':True,'independent_case_count':len(results),'cases':results,'basis':'Actual closed raw runtime573, all nine projected/old Git bytes, source24/native6 and full original fragments rederived by real helper before strict typed deep record conservation. Normative owner prose is conserved as frozen owner record; it is not ratified scientifically by equality.','old_false_summary_observations_preserved':[ref(D/'summary-escape-normal.stdout.json'),ref(D/'summary-escape-optimized.stdout.json')],'literal_actual_custody_already_checked':[ref(D/'literal-review-normal.stdout.json'),ref(D/'literal-review-optimized.stdout.json')],'limits':['3932 E owner proposals remain separate from G formal intake and current ROOT64d statuses.','Current generated capability is surface_missing; global generation/backend outcome not supplied.','C/F reader and generic IR/Core public facade owner decisions remain external.','No numeric/native projection rerun, ROOT source/environment or generated files changed.'],'observer':ref(pathlib.Path(__file__))}
+print(json.dumps(result,indent=2))

@@ -1,0 +1,42 @@
+{
+  "command": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/check_architecture.py",
+    "--candidate",
+    "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+    "--base",
+    "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+    "--repo",
+    "/workspace/e02-E-frc-20261006",
+    "--destination",
+    "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/architecture-700"
+  ],
+  "cwd": "/workspace/e02-E-frc-20261006",
+  "started_utc": "2026-10-07T08:59:38.611846+00:00",
+  "ended_utc": "2026-10-07T08:59:40.485169+00:00",
+  "exit_code": 0,
+  "stdout": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/700-architecture.stdout",
+    "bytes": 3107,
+    "sha256": "67c83df43c0ede9932776263566ed45c394f5bd01425b7fe2e2e1423917f6e1f"
+  },
+  "stderr": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/700-architecture.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "literal_observer_source": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/check_architecture.py",
+      "bytes": 7652,
+      "sha256": "abb6f8d6ec979ae1c7815ab694da6e3204e9e6082c6d9d65627d2191e6f2cce4"
+    }
+  ],
+  "execution_environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "effective_executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "task_imposed_worker_process_thread_or_CPU_cap": false
+  },
+  "status": "PASS"
+}

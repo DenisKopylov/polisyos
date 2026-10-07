@@ -1,0 +1,42 @@
+{
+  "schema": "policyos.e02.retained_runtime_api_cli.v1",
+  "checker": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/retention-exit-7/synthetic_checker.py",
+  "checker_source_sha256": "9012ad5ebef50c0df497077a3d52eab4c71763af070224d4f4e4547e8f4f485b",
+  "original_cli_arguments": [
+    "7"
+  ],
+  "actual_checker_exit_code": 7,
+  "cwd": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/retention-exit-7",
+  "stage_TMPDIR": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/retention-exit-7/stage-tmp",
+  "canonical_json_capture_count": 1,
+  "openapi_captures_raw_only": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/retention-exit-7/stage-tmp/retained-runtime-openapi.raw.json",
+      "bytes": 13,
+      "sha256": "d2845dc512effd246121ce91282f517c489aa5473b935b036d00f1d3bb7fc90c"
+    }
+  ],
+  "temporary_directories_retained": [
+    "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/retention-exit-7/stage-tmp/runtime_client_contract_sbnytrx6"
+  ],
+  "complete_generated_client_outputs_raw_only": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/retention-exit-7/stage-tmp/runtime_client_contract_sbnytrx6/client.js",
+      "bytes": 20,
+      "sha256": "b89fc8e71c5d3daf10cdaefb05cbfaeca901e39bb9c79d37d9e45f86ba664b90"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/retention-exit-7/stage-tmp/runtime_client_contract_sbnytrx6/client.ts",
+      "bytes": 20,
+      "sha256": "0fa96747abc226437c019d7fa5d107a6fe652b8f8e0bd94bf863fe2720e3fcb8"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/retention-exit-7/stage-tmp/runtime_client_contract_sbnytrx6/types.ts",
+      "bytes": 19,
+      "sha256": "8879d361c0990b40f87e157411ddc3b0ce357429cf6ce02d0dca8a807a84ef63"
+    }
+  ],
+  "temporary_directory_operational_variant": "Original tempfile.TemporaryDirectory(delete=False); comparisons and returned canonical bytes unchanged",
+  "scope": "Actual canonical CLI main; no second emitter and no source/product contract edits",
+  "finding_closure": false
+}

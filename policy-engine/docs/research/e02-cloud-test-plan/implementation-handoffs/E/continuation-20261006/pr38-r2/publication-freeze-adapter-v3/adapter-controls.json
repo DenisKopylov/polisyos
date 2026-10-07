@@ -1,0 +1,94 @@
+{
+  "scope": "Author metadata-only adapter controls; no product/native/numeric/gate commands or private payload reads/copies",
+  "source_sha256": "b7decef4df3596751c69928f3ad55cedca91eb201aedc4e077046194a7c19f6b",
+  "original_freeze_unchanged": true,
+  "checks": [
+    {
+      "control": "original8 equals exact6Git plus2external complete reviews",
+      "outcome": "BOUND"
+    },
+    {
+      "control": "external review content digest corrupted",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "two external review records were changed or omitted"
+    },
+    {
+      "control": "external review content byte count corrupted",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "two external review records were changed or omitted"
+    },
+    {
+      "control": "external declared source pin replaced by valid historical5e",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "external review current source pin mismatch"
+    },
+    {
+      "control": "external original freeze digest corrupted",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "external carrier original freeze binding mismatch"
+    },
+    {
+      "control": "external review omitted",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "two external review records were changed or omitted"
+    },
+    {
+      "control": "candidate Git review omitted",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "six candidate Git review records were changed or omitted"
+    },
+    {
+      "control": "external role disguised as candidate Git",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "external review role mismatch"
+    },
+    {
+      "control": "external path aliases raw/private payload",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "two external review records were changed or omitted"
+    },
+    {
+      "control": "source frozen timestamp changed",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "source/env/wave/closure/timestamp fields changed"
+    },
+    {
+      "control": "closure upgraded by representation",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "source/env/wave/closure/timestamp fields changed"
+    },
+    {
+      "control": "external count metadata forged",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "typed representation role/count binding changed"
+    },
+    {
+      "control": "external declared source pin replaced by valid historical5e with only shared predicate removed",
+      "outcome": "REACCEPTED"
+    },
+    {
+      "control": "external original freeze digest corrupted with only shared predicate removed",
+      "outcome": "REACCEPTED"
+    },
+    {
+      "control": "full public role raw",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/synthetic-path-controls/raw/sentinel.json"
+    },
+    {
+      "control": "full public role PRIVATE",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/synthetic-path-controls/PRIVATE/sentinel.json"
+    },
+    {
+      "control": "full public role git-config-private",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/synthetic-path-controls/git-config-private/sentinel.json"
+    },
+    {
+      "control": "external public leaf symlink",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "symlink component is not admitted: /workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/synthetic-path-controls/leaf-alias.json"
+    }
+  ]
+}

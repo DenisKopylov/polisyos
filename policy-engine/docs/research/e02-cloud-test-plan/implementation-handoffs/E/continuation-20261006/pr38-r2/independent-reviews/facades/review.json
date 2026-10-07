@@ -1,0 +1,551 @@
+{
+  "schema": "policyos.e02.independent-review.v1",
+  "reviewer": "root/doe_r2, independent from the root facade source author and FRC/CAL/DDM authors. This review does not review my own DoE changes.",
+  "exact_base_sha": "8aaffa4b568d81b8e6889ea493e2afb86f195ed8",
+  "exact_candidate_sha": "14d6dd4c4f8e61857bc2216a270090aafb0cd72e",
+  "exact_candidate_tree": "3a3d2e153283f4494e8b6977f4c82d64e540012c",
+  "original_source_commits": [
+    "22998874b5f32434c462065baaca44a78e967f91",
+    "b0d4b0ea243bf9e01e3cf80a5544865c1115aad1",
+    "14d6dd4c4f8e61857bc2216a270090aafb0cd72e"
+  ],
+  "observed_head_receipt_only": "514824ca60913601b796d492e99b754368569d8e",
+  "source_test_arch_delta_to_receipt_head": [],
+  "write_scope": "Only scratch scripts, full inputs and deciding outputs were written outside Git. Repository source was read-only; the root working-tree owner packet was preserved.",
+  "families": {
+    "E_owned_facades": {
+      "code_verdict": "GO_bounded_API_and_consumer_rewire",
+      "specification_verdict": "PASS: canonical object identity, literal exports, declared eager mode and native consumers.",
+      "engineering_verdict": "GO for additive canonical re-exports; no API function copies or CAS/codec duplication.",
+      "blocking_code_findings": [],
+      "suite": {
+        "tests": 28,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "changed_paths": [
+        "policy-engine/release-fragments/unreleased/2026-10-06-e02-evidence-facades.toml",
+        "policy-engine/src/polisyos/calibration/README.md",
+        "policy-engine/src/polisyos/calibration/__init__.py",
+        "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+        "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+        "policy-engine/tests/unit/calibration/test_evidence_facades.py"
+      ]
+    }
+  },
+  "publication_acceptance": {
+    "verdict": "HOLD_required_generator_inventory_companion",
+    "basis": "Source exports differ from the committed generated inventory. Bounded API code acceptance is separate from publication companions and global checks.",
+    "actual_source_counts": {
+      "polisyos.calibration": 25,
+      "polisyos.foundry.uncertainty": 16
+    },
+    "committed_snapshot_counts": {
+      "polisyos.calibration": 10,
+      "polisyos.foundry.uncertainty": 12
+    },
+    "canonical_generator_readonly_drift": {
+      "polisyos.calibration": {
+        "actual_count": 25,
+        "missing_in_snapshot": [
+          "EmpiricalCalibrationContext",
+          "EmpiricalCalibrationEvidenceRef",
+          "EvidenceArtifactRef",
+          "ForecastCalibrationProfile",
+          "ForecastCandidateReceipt",
+          "ForecastCandidateReceiptRef",
+          "PREDICTIVE_AUTHORITY_DENIALS",
+          "REFERENCE_PROFILES",
+          "load_continuous_evaluation",
+          "load_empirical_calibration_evidence",
+          "load_forecast_calibration_profile",
+          "persist_continuous_evaluation",
+          "persist_empirical_calibration_evidence",
+          "persist_forecast_candidate_receipt",
+          "produce_empirical_calibration_evidence"
+        ],
+        "snapshot_count": 10
+      },
+      "polisyos.foundry.uncertainty": {
+        "actual_count": 16,
+        "missing_in_snapshot": [
+          "BoundedIndicatorResponse",
+          "reconcile_draw_outcomes",
+          "sampling_content_digest",
+          "verify_mean_certificate"
+        ],
+        "snapshot_count": 12
+      }
+    },
+    "required_paths": [
+      "policy-engine/architecture/public_surface/inventory.json",
+      "policy-engine/docs/reference/public-surface.md"
+    ],
+    "next_owner": "E root on its topic branch, with the canonical architecture generator writer and Calibration/Foundry public API owners. G accepts integration separately.",
+    "next_result": "Commit a separate canonical generator companion for the final admitted export set; review its exact diff and run the required guard without expanding baselines or exceptions.",
+    "exact_command": "(cd policy-engine && UV_NO_SYNC=1 uv run --no-sync python tools/devx/architecture/guardrails.py sync --skip-deep-import-baseline)",
+    "generator_not_executed_mutating": true,
+    "static_README_count": "The Foundry uncertainty README metadata still reports 12 exports; source now declares 16. Update this cosmetic count with the final export set."
+  },
+  "source_and_api_properties": {
+    "calibration": "Public experimental, team-scientist; declared eager mode retained. Literal __all__ has 25 names. All 13 ForecastOwner-required exports are the canonical forecast_bridge objects. Continuous persistence/readback exports reuse their canonical owner.",
+    "foundry_uncertainty": "Public stable entrypoint under Foundry/team-polisyos; eager mode retained. Literal __all__ has 16 names. Four new sampling exports are the canonical sampling_admission objects.",
+    "actual_callers": "ForecastOwner imports Calibration root exports. Scientist uncertainty and welfare consumers import Foundry uncertainty root exports.",
+    "copies_or_parallel_runtime": "No copies or second runtime were added. The pre-existing extract_std delegating wrapper is unchanged."
+  },
+  "runtime_witnesses": {
+    "forecast": {
+      "source_training": [
+        5.0,
+        7.0,
+        9.0,
+        11.0,
+        13.0,
+        15.0,
+        17.0,
+        19.0,
+        21.0,
+        23.0,
+        25.0,
+        27.0,
+        29.0,
+        31.0,
+        33.0,
+        35.0,
+        37.0,
+        39.0,
+        41.0,
+        43.0,
+        45.0,
+        47.0,
+        49.0,
+        51.0,
+        53.0,
+        55.0,
+        57.0,
+        59.0,
+        61.0,
+        63.0,
+        65.0,
+        67.0
+      ],
+      "source_holdout": [
+        69.0,
+        71.0,
+        73.0
+      ],
+      "seed": 41,
+      "actual_forecast": [
+        68.99999999999999,
+        70.99999999999999,
+        72.99999999999999
+      ],
+      "actual_predictive_intervals": [
+        [
+          69.0,
+          69.0
+        ],
+        [
+          71.0,
+          71.0
+        ],
+        [
+          73.0,
+          73.0
+        ]
+      ],
+      "source_to_interval_oracle": {
+        "numerator": 3,
+        "denominator": 3
+      },
+      "pipeline": "Actual ForecastOwner executes the NumPy ETS backend, persists the configured profile/request/candidate/evidence in the same CAS, then reopens through fresh CAS and canonical readers.",
+      "candidate_ref": {
+        "artifact_id": "sha256:95ffe9b469e43e44504364fd38a159cf63633c515b8d7ef60b8bb8d0a68c579f",
+        "kind": "ir.forecast_candidate_receipt",
+        "media_type": "application/json"
+      },
+      "evidence_ref": {
+        "artifact_id": "sha256:7d7e760540314db5e5757c497ee08fdf60bb3162716de3f7c5130371785313f6",
+        "kind": "ir.empirical_calibration_evidence",
+        "media_type": "application/json"
+      },
+      "verifier_provenance": "not_established",
+      "authority_scope": "predictive_only",
+      "bridge_status": "bridge_pending",
+      "negative": "A verified-provenance candidate refuses. A no-op public persistence export preserves its name but breaks the actual producer and typed receipt validation."
+    },
+    "uncertainty_node": {
+      "pipeline": "Actual PropagateUncertaintyNode.execute produces 128 MC draws and persists the report, envelopes and simulation result; a fresh CAS read checks the denominator.",
+      "requested_attempted_completed": 128,
+      "forgery": "The CAS-valid report keeps outcome_denominator_complete=True and 128 real records, but claims 129 requested draws. The actual node refuses through the canonical root export.",
+      "removal": "A no-op root reconcile export, installed before consumer import, lets the actual node publish the forged report and causes the independent assertion to fail."
+    },
+    "welfare": {
+      "pipeline": "The actual _propagate_credible_interval producer persists terminal receipts and samples. Fresh _load_verified_welfare_samples and _load_welfare_draw_outcomes consumers reopen them.",
+      "fixture_boundary": "A declared single Uniform[-1,1] law, explicit synthetic context and real partial callback. Full PropagateWelfareNode.execute and served runtime are not measured here.",
+      "requested_attempted": 128,
+      "successful": 71,
+      "failed": 57,
+      "oracle": "Inputs x>=0 define joint success. Count all actual callback inputs independently of the persisted receipt; verify reopened sample values match exactly those successful inputs. Preserve point_estimate=None, the conditional mean, and gate_eligible=False.",
+      "conditional_mean": 0.5493857786171227,
+      "full_input_values_ref": "facade-consumer-native-v3.stdout",
+      "gate_eligible": false
+    },
+    "mean_certificate_node": {
+      "pipeline": "The actual node uses the canonical indicator with threshold .001 on the declared IID U[0,1] law, independently samples pilot 256 and frozen main 408, persists the envelope, then invokes fresh certificate readback.",
+      "independent_oracle": "Independent Bernstein formula in independent-mean-oracle.json: all-zero pilot gives U=0.0995612819216314 and N=408. Pilot draws are excluded from the main estimate; stream IDs differ.",
+      "negative": "A CAS-valid certificate changes the main stream to the pilot stream. The actual node refuses on fresh reconciliation.",
+      "removal": "A no-op root verify export preserves its name but lets the actual node publish the forged certificate; the independent assertion fails.",
+      "authority_scope": "Declared mathematical input law only; no production source, unit or policy authority is established."
+    }
+  },
+  "checks": [
+    {
+      "name": "facade-affected-suite",
+      "scope": "four affected facade/actualcaller/consumer testfiles",
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "outcome": "PASS",
+      "command_metadata_ref": "facade-affected-suite.json",
+      "full_output_ref": "facade-affected-suite.stdout"
+    },
+    {
+      "name": "facade-forecast-native",
+      "scope": "actualETS\u2192CAS\u2192freshread viacanonicalroot",
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "outcome": "PASS",
+      "command_metadata_ref": "facade-forecast-native.json",
+      "full_output_ref": "facade-forecast-native.stdout"
+    },
+    {
+      "name": "facade-forecast-removal",
+      "scope": "exports retained/noop persistence breaksactualpositiveconsumer",
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "outcome": "EXPECTED_FAIL_property_removal_detected",
+      "command_metadata_ref": "facade-forecast-removal.json",
+      "full_output_ref": "facade-forecast-removal.stdout"
+    },
+    {
+      "name": "facade-consumer-native-v3",
+      "scope": "actualPropagateUncertaintyNode+realwelfareproducer/freshhelperreader+fakefull-denominator refusal",
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "outcome": "PASS",
+      "command_metadata_ref": "facade-consumer-native-v3.json",
+      "full_output_ref": "facade-consumer-native-v3.stdout"
+    },
+    {
+      "name": "facade-consumer-removal-v3",
+      "scope": "exports retained/noop reconcile permits forged denominatoractualnode, independentassert fails",
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "outcome": "EXPECTED_FAIL_property_removal_detected",
+      "command_metadata_ref": "facade-consumer-removal-v3.json",
+      "full_output_ref": "facade-consumer-removal-v3.stdout"
+    },
+    {
+      "name": "facade-certificate-native",
+      "scope": "actualnode canonical boundedIndicator producer\u2192CAS\u2192freshcertificate refusal",
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "outcome": "PASS",
+      "command_metadata_ref": "facade-certificate-native.json",
+      "full_output_ref": "facade-certificate-native.stdout"
+    },
+    {
+      "name": "facade-certificate-removal",
+      "scope": "exports retained/noop verify permits forgedequalpilot/mainstream actualnode, independentassert fails",
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "outcome": "EXPECTED_FAIL_property_removal_detected",
+      "command_metadata_ref": "facade-certificate-removal.json",
+      "full_output_ref": "facade-certificate-removal.stdout"
+    },
+    {
+      "name": "facade-canonical-generator-two-entrypoints",
+      "scope": "read-only canonicalgenerator onexacttwofacades; nofullguard/check/sync",
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "outcome": "PASS",
+      "command_metadata_ref": "facade-canonical-generator-two-entrypoints.json",
+      "full_output_ref": "facade-canonical-generator-two-entrypoints.stdout"
+    }
+  ],
+  "predicate_basis": {
+    "export_admission": "Declared contract mode/classification, literal export list and canonical identity of symbols required by actual callers. API labels do not confer runtime authority.",
+    "draw_denominator": "Recompute requested/attempted/unattempted counts and all draw indices/outcomes after CAS readback. The complete marker is insufficient.",
+    "mean_certificate": "Recompute the canonical law/evaluator recipe, content identity, independent stream IDs and pilot/main budget after readback. Predictive spread is not an estimator error bound.",
+    "forecast_evidence": "Immutable source holdout values are compared with actual persisted intervals and counts. Producer verifier provenance remains not_established; source units/scale/schema and served A verifier authority are outside this review."
+  },
+  "module_source_identity": {
+    "facade-forecast-native": {
+      "matching_source_modules": 877,
+      "source_sha": "14d6dd4c4f8e61857bc2216a270090aafb0cd72e"
+    },
+    "facade-consumer-native-v3": {
+      "matching_source_modules": 808,
+      "source_sha": "14d6dd4c4f8e61857bc2216a270090aafb0cd72e"
+    },
+    "facade-certificate-native": {
+      "matching_source_modules": 808,
+      "source_sha": "14d6dd4c4f8e61857bc2216a270090aafb0cd72e"
+    }
+  },
+  "before_after": "All 17 selected property/contract/generator paths retained their SHA256 and size. Imported modules matched exact candidate Git blobs. HEAD remained 514824c, and the existing dirty owner document was preserved.",
+  "non_deciding_reviewer_attempts": [
+    {
+      "jobs": [
+        "facade-consumer-native",
+        "facade-consumer-removal"
+      ],
+      "outcome": "ERROR_fixture_preflight",
+      "reason": "The initial fixture omitted confidence_level=None for heuristic interval semantics. It also specified an unsupported method key and a count below the admitted minimum. Preflight refused before the consumer property; raw errors are retained."
+    },
+    {
+      "jobs": [
+        "facade-consumer-native-v2",
+        "facade-consumer-removal-v2"
+      ],
+      "outcome": "ERROR_fixture_preflight",
+      "reason": "The second fixture corrected the config key/count but still omitted confidence_level=None. The final v3 fixture admits the profile and explicitly checks that effective config matches supplied config. These earlier errors are not property-removal evidence."
+    }
+  ],
+  "separate_owner_boundaries": [
+    {
+      "owner": "team-polisyos Core artifacts/canon and team-architecture",
+      "minimal_decision": "Admit existing core.artifacts/core.canon entrypoints or narrow canonical Core root exports. The exact seven-edge packet remains pending.",
+      "next_result": "Owner supplies the admission commit; E rewires exact callers and checks actual CAS consumers and architecture boundaries without widening the baseline."
+    },
+    {
+      "owner": "team-polisyos IR analytics/public API and team-architecture; separately appointed IR semantic owner for B201/B202",
+      "minimal_decision": "Admit canonical PosteriorSamplesCarrier and forecasting bundle load/persist exports at the IR analytics facade. This does not ratify wire semantics.",
+      "next_result": "Canonical owner commit and behavioral readback controls before E rewires callers. Held IR semantic decisions remain held."
+    },
+    {
+      "owner": "FRC writer on the separate leaf",
+      "boundary": "Three additional Calibration DTO/helper exports are a future delta, outside candidate14d.",
+      "next_result": "Review exact new source/consumer identities and regenerate inventory for the final combined exports."
+    },
+    {
+      "owner": "A/G runtime and verifier owners",
+      "boundary": "The synthetic ForecastOwner witness is predictive and bridge_pending. Source units/scale/schema, actual profile and A served verifier provenance are not established here.",
+      "next_result": "FRC supplies the source/unit packet; A independently resolves and recomputes configured CAS evidence, then verifies fresh default/HTTP reads. Causal/treatment/policy denial remains."
+    }
+  ],
+  "global_checks": "UNRUN in this review. No full global guard, static invocation or common wave was rerun. Root owns integrated checks on the final immutable candidate.",
+  "formal_ledger_change": false,
+  "finding_closure": "No finding is automatically closed by facade exports or PASS counts. Preserve current held/partial/open/closed statuses.",
+  "backend": "Actual shared root environment: Python3.14.7, JAX CPU with default x64=false, NumPy2.3.5 and SciPy1.16.3. Child command receipts capture UV_NO_SYNC=1 and no added CPU/thread caps.",
+  "output_refs": [
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/affected-suite.xml",
+      "bytes": 5495,
+      "sha256": "a8005939198c179f921eb203250ca171550738488ab12272ab2a01b880c11064"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/after.json",
+      "bytes": 3434,
+      "sha256": "34946923995637b1f00212d11969091fccee53528374bea44b2d2b589ab05847"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/before.json",
+      "bytes": 5984,
+      "sha256": "5fd587ea5fc6eb6d54e7ccc3fa38b00dc8d3b1ffddde0781b15edf3a81cf0857"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/certificate_probe.py",
+      "bytes": 6005,
+      "sha256": "2e921157c7ccbed6c756ef3104e57e1d72c763ec279ee6ce4fe8b2f551c98c08"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/consumer_probe.py",
+      "bytes": 7616,
+      "sha256": "defec037c9729417b90e995531f77bf5d90e1a76aaebb93bb930b3e945e50606"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/consumer_probe_v2.py",
+      "bytes": 7634,
+      "sha256": "691152b0c5ad9b4d87b5a232cbcb86f00173a4759ccda5b724dcc4dbf6c3f46e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/consumer_probe_v3.py",
+      "bytes": 7763,
+      "sha256": "b1c65c8ac82f1b5e9f80d567eac1fecb973652a730dcf1fe36d44d7b6324b269"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/execution-capture.py",
+      "bytes": 1367,
+      "sha256": "afaa4a494709d90bfda600cd6f59c4808c92d6e1f61f02d8944ea49786964232"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-affected-suite.json",
+      "bytes": 1538,
+      "sha256": "42fc837ac5d074e0fcd16e9bf89351e7297e93c643f880672528ccd231047b6d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-affected-suite.stdout",
+      "bytes": 655,
+      "sha256": "9e852ba8da888f02f3a7c7371ed5181daa0112ff5967c51eebbfb9f7ebff4616"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-canonical-generator-two-entrypoints.json",
+      "bytes": 1239,
+      "sha256": "0fd460cec217633c4f957a8c27cf04afd70c9d18d0f8363ce4917f05fc15fcd5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-canonical-generator-two-entrypoints.stdout",
+      "bytes": 3163,
+      "sha256": "fdfd2872656773019aaa0ed0ba2fc6bae10f8474bc960ab40b51d567fe3d6a43"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-certificate-native.json",
+      "bytes": 1395,
+      "sha256": "f84584835bbfc800bad0a1469af6c9552cbabc935bb7de7976b6d8318f3b2626"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-certificate-native.stdout",
+      "bytes": 123115,
+      "sha256": "1c05a8dd667416042a34ee872f72ab037ebe0a1699894d8cc44d873ecd8edbbe"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-certificate-removal.json",
+      "bytes": 1408,
+      "sha256": "ba096283ae61b50e2547195c6d9039ef9ac403afd1630c2b7c5979470958db43"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-certificate-removal.stdout",
+      "bytes": 1905,
+      "sha256": "0e611eb9add987dc59b0dff5988d90ee96a560ca5465848a4213cf2be5519ac6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-native-v2.json",
+      "bytes": 1393,
+      "sha256": "8cb9d0b6a1ea6ddf77530fe1eb90ef30b15f36b64d96993bb90bae4a91cfd3c6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-native-v2.stdout",
+      "bytes": 993,
+      "sha256": "52c861d7409129280c067e45aad936e19e326cfba3abedc7075ca26c73d8f705"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-native-v3.json",
+      "bytes": 1396,
+      "sha256": "b5c8cb238a2a3764dac88cb419809d74ab21900e9f0c939e2902391171788029"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-native-v3.stdout",
+      "bytes": 124303,
+      "sha256": "dbe63d5373f11f359a92b19ccaf71a8452607aaa3d608290b042881733cd9a45"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-native.json",
+      "bytes": 1383,
+      "sha256": "c6e40bead990079a920ab9a2d1494a8d5996fe9acd2635a4547fbb0f1fe611f3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-native.stdout",
+      "bytes": 990,
+      "sha256": "94fd35d371ecd697e8611a06db0b3de322f2f6d871108be14f3a759c9eaecf24"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-removal-v2.json",
+      "bytes": 1408,
+      "sha256": "93d9adaa714b0552d2565240a1d006195721f595d00ac8a3c77e2faf39be2d20"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-removal-v2.stdout",
+      "bytes": 993,
+      "sha256": "52c861d7409129280c067e45aad936e19e326cfba3abedc7075ca26c73d8f705"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-removal-v3.json",
+      "bytes": 1407,
+      "sha256": "1602e8509b56cab80a6473e2939a76bccc5b2aa292e39adfc7f0b63e23777249"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-removal-v3.stdout",
+      "bytes": 414,
+      "sha256": "d11f53f3c995c7e012937d781a2a80cf2dc37158afbb66d22827a1619980d0b3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-removal.json",
+      "bytes": 1399,
+      "sha256": "5c1f13de0ec067523ab64156d7c3161ee2411ddce13477f1a9c0955b69359f38"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-removal.stdout",
+      "bytes": 990,
+      "sha256": "94fd35d371ecd697e8611a06db0b3de322f2f6d871108be14f3a759c9eaecf24"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-forecast-native.json",
+      "bytes": 1391,
+      "sha256": "825293b7da10d6c338f5da66a9ef6b212b9f4a2238c767fc3cf2c387f0ea3fc6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-forecast-native.stdout",
+      "bytes": 137103,
+      "sha256": "5b179c60f91b6267ad15f71012e42c2aa9ca2e4831a011b65797d9c967b1d862"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-forecast-removal.json",
+      "bytes": 1404,
+      "sha256": "f2159de1d9f678e6d7d9ce584b77514b0f2cc48857082c741592f2471dfb0aaf"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-forecast-removal.stdout",
+      "bytes": 5078,
+      "sha256": "f0bc7f1d6ad329c01e250f3fcc61898e0800fb723866a60dca9a2a9d57063f09"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-source-and-inventory.json",
+      "bytes": 16334,
+      "sha256": "5eb37e39496d08c95dcac7e9450da90b1784a1640783338ed0afe71efac7f321"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/forecast_probe.py",
+      "bytes": 5983,
+      "sha256": "f65c2cffec7083861fd8d16d875d29935de76d1876f63f0460be93367e6462e7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/generator_probe.py",
+      "bytes": 1575,
+      "sha256": "f05363750f4bd93e0353470ebf594fdbda04b5a8ed8c9df1bb2f31df45433a19"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/independent-mean-oracle.json",
+      "bytes": 2152,
+      "sha256": "efc7b23a50a7643a2379946b73b9dffd03687785b9b9c48d5b2924e92121e51b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/module-source-bindings.json",
+      "bytes": 649721,
+      "sha256": "4feaf468004b1b953138796cdfe881bc927d07f31eae3d19ea88c648e6e56a74"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/output-copy-index.json",
+      "bytes": 8899,
+      "sha256": "dbb65b23a9b8995abaf25a8f5d00e5ee4af148afba96f2c590ccceb53cb627bf"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/validate_review.py",
+      "bytes": 884,
+      "sha256": "8d24981f597917091508fd886dd8e3aac43b49c285088ffe5a1a35a13bd93c29"
+    }
+  ],
+  "cleanup": {
+    "native_trash_available": false,
+    "permanent_deletion": false,
+    "preserve": "uniqueall scripts/fullinputs/logs/CASartifacts andraw commandpaths; rootsharedvenv andcode usefuldocs preserved",
+    "candidates_after_receipt_publication_and_noactiveusers": [
+      "syntheticCASfixturetrees underthisreviewdirectory; retainexactrefs/decidingoutputs before nativeTrash action, cloudnoTrash meanslistonly",
+      "rootpolicy-engine .pytest_cache fromfocused suite"
+    ]
+  }
+}

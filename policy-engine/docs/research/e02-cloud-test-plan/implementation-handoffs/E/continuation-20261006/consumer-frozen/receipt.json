@@ -1,0 +1,105 @@
+{
+  "schema": "policyos.e02.frozen_consumer_audit_receipt.v1",
+  "target_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "target_tree_sha": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+  "auditor": "/root/consumer_trace_r4",
+  "commands": [
+    [
+      "python3",
+      "/workspace/e02-E-20261006-receipts/consumer-trace-r4/audit_e_consumers.py",
+      "--repo",
+      "/workspace/e02-E-continuation-20261006",
+      "--ref",
+      "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "--output",
+      "/workspace/e02-E-20261006-receipts/consumer-trace-r4/frozen"
+    ],
+    [
+      "python3",
+      "/workspace/e02-E-20261006-receipts/consumer-trace-r4/plan_wave.py",
+      "--audit",
+      "/workspace/e02-E-20261006-receipts/consumer-trace-r4/frozen/audit.json",
+      "--output",
+      "/workspace/e02-E-20261006-receipts/consumer-trace-r4/frozen/wave-groups.json"
+    ],
+    [
+      "python3",
+      "/workspace/e02-E-20261006-receipts/consumer-trace-r4/write_trace.py",
+      "--audit",
+      "/workspace/e02-E-20261006-receipts/consumer-trace-r4/frozen/audit.json",
+      "--output",
+      "/workspace/e02-E-20261006-receipts/consumer-trace-r4/frozen/source-trace.json"
+    ]
+  ],
+  "outcome": "PASS for read-only immutable census and manifest consistency; no numerical/runtime acceptance performed by this helper",
+  "source_tests_delta_combined_to_frozen": [],
+  "path_denominator": {
+    "tracked_files": 13961,
+    "python_source_files": 2700,
+    "E_bundles": 22,
+    "E_finding_ids": 54,
+    "ID_bundle_links": 55,
+    "E_baseline_cells": 175,
+    "E_baseline_paths": 56,
+    "existing_common_wave_tests": 110
+  },
+  "negative_control": "Literal unresolvable tentative ref 16a26cd569ec3992b67e59e6787605e978e0d75 refused before reading any source; actual HEAD was resolved through git readback to e16a26cd569ec3992b67e59e6787605e978e0d75. Present-but-fake/property-removal runtime controls are independent receipts, not this census.",
+  "unresolved_by_construction": [
+    "Dynamic getattr/registry/reflection or higher-order calls without matching statically bound names",
+    "External composition or installed plugins absent from tracked source",
+    "Successful production executions; this receipt is read-only static navigation, not numerical PASS",
+    "Non-Python or generated invocation semantics"
+  ],
+  "actual_environment": {
+    "python": "Python 3.12.14",
+    "git": "git version 2.52.0"
+  },
+  "files": {
+    "audit_e_consumers.py": {
+      "bytes": 15073,
+      "sha256": "1c247f162031b7301f33e8928ca694b332966e46a0759eeab84125f44633b8f4"
+    },
+    "plan_wave.py": {
+      "bytes": 2721,
+      "sha256": "9faeef6bd32fa3e4e0260b74d3a0fef89c7a0449fc8cd9d6a81d70f76e36cea8"
+    },
+    "write_trace.py": {
+      "bytes": 31263,
+      "sha256": "d5ff19c1a5b921929524bc81eb7e0a7f364ebb5389925d0692b8d001a0a5e312"
+    },
+    "frozen.stdout.txt": {
+      "bytes": 1192,
+      "sha256": "0ddf9473e94404081c5bf61202ecffe7f42d3fd80867431727134ce053536093"
+    },
+    "frozen/audit.json": {
+      "bytes": 134925,
+      "sha256": "0b8258d4bd483926457cea8b3457c4f52c2cad7e47d48b64e2a9aac944ecfaa2"
+    },
+    "frozen/wave-groups.json": {
+      "bytes": 9604,
+      "sha256": "a5578a4dd8bc8e622603e5b538a412594eafb507ca640518bf527d8c0c5168af"
+    },
+    "frozen/wave-groups.stdout.txt": {
+      "bytes": 366,
+      "sha256": "c63885bba27f4a4b8cc3061fa3163b92900ce70aa4acdb409e211fc41e2ef0ab"
+    },
+    "frozen/source-trace.json": {
+      "bytes": 41280,
+      "sha256": "5fc41a4595338f1db9c9ac20f9949d24ddc5f07d1ad9f1b41b4bc350b24b9fb6"
+    },
+    "frozen/source-trace.stdout.txt": {
+      "bytes": 552,
+      "sha256": "057e17a4191d3c4fd85354f35417f1a7aac111f665fd1f52e105c62f1813deb5"
+    }
+  },
+  "cleanup_candidates": [
+    "/workspace/e02-E-20261006-receipts/consumer-trace-r4/frozen/summary.json",
+    "/workspace/e02-E-20261006-receipts/consumer-trace-r4/frozen/existing-e-tests.txt",
+    "/workspace/e02-E-20261006-receipts/consumer-trace-r4/combined-plan/summary.json",
+    "/workspace/e02-E-20261006-receipts/consumer-trace-r4/combined-plan/existing-e-tests.txt",
+    "/workspace/e02-E-20261006-receipts/consumer-trace-r4/pre-freeze/summary.json",
+    "/workspace/e02-E-20261006-receipts/consumer-trace-r4/pre-freeze/existing-e-tests.txt"
+  ],
+  "cleanup_policy": "No deletion performed. No standard cloud Trash used; list repeatable derived views only, preserve scripts and deciding evidence.",
+  "write_scope": "Only helper scratch files outside checkout; no root source/config/tests/Git writes."
+}

@@ -1,0 +1,91 @@
+{
+  "schema": "policyos.e02.static_review_validator_controls.v1",
+  "candidate": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "created_at": "2026-10-07T10:13:24.918167+00:00",
+  "property": "Exact complete111exceptional rows and actual static records/hash-bound canonical input mappings/check outputs. This validates analysis evidence, not runtime execution or finding closure.",
+  "healthy": "PASS",
+  "actual_rows": 111,
+  "corruption_controls": [
+    {
+      "name": "complete_input_denominator",
+      "outcome": "PASS negative refused",
+      "reason": "full_input_mapping_mismatch",
+      "forged_payload_sha256": "6918184fc839b7d0f6645102e6e72f9f0b4b864d2309d5ae01ad7bf6b2ae6b3a"
+    },
+    {
+      "name": "substituted_old_input_digest",
+      "outcome": "PASS negative refused",
+      "reason": "full_input_mapping_mismatch",
+      "forged_payload_sha256": "52d12755944d76050055ca48bcea941901f8a452e521489610087f7e88c08b19"
+    },
+    {
+      "name": "omitted_actual_exceptional_row_markers_counts_preserved",
+      "outcome": "PASS negative refused",
+      "reason": "exceptional_row_denominator_mismatch",
+      "forged_payload_sha256": "2350d6c15bdbae3a70a544afc7cd5fe78543a7cf820af4b8f6630726e110d14a"
+    },
+    {
+      "name": "forged_actual_caller_list",
+      "outcome": "PASS negative refused",
+      "reason": "actual_static_record_mismatch",
+      "forged_payload_sha256": "c1bc61b77f5ce5e0d6fa99ce08eab6457d8aa6ff85376ea9f34d147dae4b9fd3"
+    },
+    {
+      "name": "source_tree_mismatch",
+      "outcome": "PASS negative refused",
+      "reason": "tree_mismatch",
+      "forged_payload_sha256": "9f9b5edc4668e0534e7eae15b9c86090ebe13082e0a0df18c9eb0a7328e9e444"
+    },
+    {
+      "name": "proxy_promoted_to_runtime_authority",
+      "outcome": "PASS negative refused",
+      "reason": "static_proxy_runtime_authority_forbidden",
+      "forged_payload_sha256": "eda582615e482c538b09f2a6348c9a1a5f2977ba0644399c4b9efa3e431581d3"
+    },
+    {
+      "name": "failed_check_relabelled_pass",
+      "outcome": "PASS negative refused",
+      "reason": "actual_failure_outcome_mismatch",
+      "forged_payload_sha256": "fbdf853208792735812e6b4ab9d596e49bfa083f7d7fd1fecad80953fdabb273"
+    },
+    {
+      "name": "forged_graph_hash",
+      "outcome": "PASS negative refused",
+      "reason": "raw_graph_ref_mismatch",
+      "forged_payload_sha256": "e3beba849ae9ded3ff2227a9edddd21927fd20cbdcd5dae82e24bdcce7ec2f8c"
+    }
+  ],
+  "property_removal": {
+    "property": "complete exceptional rows and exact actual record comparison",
+    "outcome": "FAIL expected independent negative assertion; discriminator PASS",
+    "reason": "expected omitted-row refusal absent",
+    "metadata_names_markers_preserved": true,
+    "validator_property_disabled": true,
+    "other_checks_still_executed": true
+  },
+  "inputs": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-output-review-64d.json",
+      "sha256": "a18b81c397cc7bb4cb5764f4081b59463c1709ff894b72104fb405a6f48c192d",
+      "bytes": 473959
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/static-invocation/static-invocation.json",
+      "sha256": "58c3b82812c3c123343552c2ed53a4d746b49f1c96385f20e430e739f4eac5f3",
+      "bytes": 8422
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/static-invocation/static-invocation.stdout.txt",
+      "sha256": "651ac270c247d0e52b2d1c365a94bd563e035786078bffb7dce7a2912f6576cb",
+      "bytes": 10099
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/raw/production-invocation.raw.json",
+      "sha256": "2db8bd7e6e2517bc18b8f0e53d4f79617802b15fdf24e8e0ba1a9b64b895a3b9",
+      "bytes": 171816130
+    }
+  ],
+  "operation": "Existing complete canonical outputs only. No graph/checker rerun or source mutation. Forged cases exist only as in-memory fresh-integrity JSON, not product artifacts.",
+  "P41": "not_established"
+}

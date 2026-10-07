@@ -1,0 +1,17 @@
+[
+  {
+    "control": "byte-count",
+    "outcome": "REFUSED",
+    "reason": "denominator mismatch"
+  },
+  {
+    "control": "content-hash",
+    "outcome": "REFUSED",
+    "reason": "byte/hash mismatch"
+  },
+  {
+    "control": "denominator",
+    "outcome": "REFUSED",
+    "reason": "denominator mismatch"
+  }
+]

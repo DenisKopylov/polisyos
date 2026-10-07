@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-20261006-receipts/closure-independent/ddm01/identity-json-pickle-schema-consumer.py", line 69, in <module>
+    assert canonical.CalibrationAudit.model_validate(dict(samples["CalibrationAudit"], pass_=True)).pass_ is True
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py", line 716, in model_validate
+    return cls.__pydantic_validator__.validate_python(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        obj,
+        ^^^^
+    ...<5 lines>...
+        by_name=by_name,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for CalibrationAudit
+pass_
+  Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]
+    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden

@@ -1,0 +1,84 @@
+"""Independent current-source role predicate review; metadata only."""
+from pathlib import Path
+import ast
+import copy
+import hashlib
+import json
+import runpy
+import subprocess
+
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+OUT=Path(__file__).parent
+AUTHOR=Path('/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817-validator-v3')
+SCRIPT=AUTHOR/'validate_binding_v3.py'
+PIN='a9f78817c873be5b35a08155f2593b229d9fdbb6'
+TREE='c02e043c3e1c8222c28aa71187fa8db4e2fdeea7'
+OLD='5e3e3727685132f270a3a07b9f63dd962a88cd96'
+COLLECTOR='2f7e7e12516dd98678903c5b4a89553a28b08608'
+identity=lambda p:dict(bytes=p.stat().st_size,sha256=hashlib.sha256(p.read_bytes()).hexdigest())
+assert identity(SCRIPT)==dict(bytes=8016,sha256='0183743ead5d4b27ffc6f3265334b8f1329f72c482ab3612cd37e9a7c7b07cf4')
+assert identity(AUTHOR/'copy-index.json')['sha256']=='06e6c7696c4262878952f7fdb712705ab11ca83892e6bc906f9a3e1f295046e7'
+index=json.loads((AUTHOR/'copy-index.json').read_text())
+assert len(index['files'])==index['file_count']==16 and sum(r['bytes'] for r in index['files'])==index['total_bytes']==53648
+for row in index['files']:
+    assert identity(AUTHOR/row['path'])==dict(bytes=row['bytes'],sha256=row['sha256'])
+original=SCRIPT.read_bytes()
+module=runpy.run_path(str(SCRIPT),run_name='independent_metadata_validator_only')
+assert module['CURRENT_SHA']==PIN and module['CURRENT_TREE']==TREE
+binding,packet=module['load_original']()
+head_before=subprocess.check_output(['git','-C',str(ROOT),'rev-parse','HEAD','HEAD^{tree}'],text=True).splitlines()
+assert head_before==[PIN,TREE]
+module['validate'](binding,packet)
+row_collector=next(i for i,r in enumerate(binding['new_owner_action_and_carried_packet_refs']) if r['path'].endswith('/wave-controls/collect_wave.py'))
+tests=[
+ ('old5e-validbytes-current-source',lambda b,p:b['source_rows'][0]['current_source'].update(commit=OLD)),
+ ('old5e-validbytes-current-caller',lambda b,p:b['actual_caller_coordinates'][0]['git_source'].update(commit=OLD)),
+ ('old2f7-validbytes-current-Gref',lambda b,p:b['new_owner_action_and_carried_packet_refs'][row_collector].update(commit=COLLECTOR)),
+ ('old2f7-validbytes-binding-collector',lambda b,p:b['canonical_collector_v4'].update(commit=COLLECTOR)),
+ ('old2f7-validbytes-packet-collector',lambda b,p:p['canonical_collector_readiness']['current_source'].update(commit=COLLECTOR)),
+ ('wrong-current-top-binding',lambda b,p:b['current_committed_source'].update(sha=OLD)),
+ ('wrong-current-top-packet',lambda b,p:p['current_committed_source'].update(sha=OLD)),
+ ('wrong-current-tree',lambda b,p:b['current_committed_source'].update(tree='0'*40)),
+ ('wrong-current-parent',lambda b,p:p['current_committed_source'].update(parents=[OLD])),
+ ('counterfeit-computedblob',lambda b,p:b['source_rows'][0]['current_source'].update(git_blob='0'*40)),
+ ('counterfeit-contentdigest',lambda b,p:b['source_rows'][0]['current_source'].update(sha256='0'*64)),
+ ('wrong-sourcepath-role',lambda b,p:b['source_rows'][0]['current_source'].update(path=b['source_rows'][1]['path'])),
+ ('wrong-carried-original-source',lambda b,p:p['original_packet'].update(source=OLD)),
+ ('wrong-carried-review-source',lambda b,p:p['independent_original_packet_review'].update(source=OLD)),
+ ('missingref-reason-is-floor',lambda b,p:p['A_reason_scenarios'][0].update(expected_S6_reason='s10://calibration/calibration_floor_not_met')),
+ ('floor-reason-is-insufficienthistory',lambda b,p:p['A_reason_scenarios'][1].update(expected_S6_reason='s10://calibration/fail-closed/insufficient-history')),
+ ('old-generator-count-is-current',lambda b,p:p['generator_evidence_boundary'].update(current_generated_dependency_count=1493,current_generator_check_state='PASS')),
+ ('compiler-pass-is-FRC',lambda b,p:p['new_G_owner_result'].update(FRC_acceptance=True)),
+]
+rows=[]
+for name,mutate in tests:
+    b,p=copy.deepcopy(binding),copy.deepcopy(packet);mutate(b,p)
+    try:
+        module['validate'](b,p)
+        raise RuntimeError('forged metadata admitted')
+    except module['BindingAdmissionError'] as error:
+        rows.append(dict(name=name,outcome='TYPED_REFUSAL',reason=str(error),product_numeric_native_gate_commands=0))
+# Stronger positive confirms historical columns are preserved, never recast as current.
+assert all(r['failed5e_source']['commit']==OLD for r in binding['source_rows'])
+removed_tree=ast.parse(original)
+changed=0
+for node in ast.walk(removed_tree):
+    if isinstance(node,ast.If) and ast.unparse(node.test)=="ref['commit'] != expected_commit":
+        node.test=ast.Constant(False);changed+=1
+assert changed==1
+ast.fix_missing_locations(removed_tree)
+(OUT/'shared-current-commit-predicate-removed.py.txt').write_text(ast.unparse(removed_tree)+'\n')
+removed={'__name__':'independent_metadata_predicate_removed','__file__':str(SCRIPT)}
+exec(compile(removed_tree,str(SCRIPT)+'[only-current-commit-predicate-removed]','exec'),removed)
+removals=[]
+for name,mutate in [tests[0],tests[2]]:
+    b,p=copy.deepcopy(binding),copy.deepcopy(packet);mutate(b,p)
+    removed['validate'](b,p)
+    removals.append(dict(name=name,outcome='EXPECTED_REACCEPTANCE_WITH_SHARED_PREDICATE_REMOVED',protocol_names_fields_preserved=True,product_numeric_native_gate_commands=0))
+assert SCRIPT.read_bytes()==original
+for row in index['files']:
+    assert identity(AUTHOR/row['path'])==dict(bytes=row['bytes'],sha256=row['sha256'])
+assert head_before==subprocess.check_output(['git','-C',str(ROOT),'rev-parse','HEAD','HEAD^{tree}'],text=True).splitlines()
+review={'schema':'policyos.e02.independent-A-G-current-role-validator.v3','verdict':'GO-bounded-shared-current-candidate-role-validator','source':{'path':str(SCRIPT),**identity(SCRIPT)},'author_index':{'path':str(AUTHOR/'copy-index.json'),**identity(AUTHOR/'copy-index.json'),'assets':16,'asset_bytes':53648},'external_literal_source_authorization':[PIN,TREE],'runtime_property':'Common commit/path/computedblob/content inlet validates current29/20/8+collector refs against root-authorized exacta9; old5e only explicit historical columns. P40 class correction, not one-row substitution.','positive':'Exactcurrent packet and explicit old5e historical source columns accepted. Original10asset716c actualpacket remainsGO and unchanged.','independent_refusals':rows,'effective_property_removals':removals,'prior_HOLD':'Original14a helper validbyteswrongcurrentcandidate acceptance preserved in immutable independent-a-generator-packet-a9; successor doesnot rewrite it.','prior_actual_packet_custody_math_review':'Unchanged exact10asset/29source/20refs/8callers oldGO reused; no duplicate broadtrace/backend checks.','wave_evidence':'Preparation NOT_LAUNCHED is historicalsnapshot. Parent actualterminalwave results are separate and not read/reclassified by this validator review.','scope':'Metadata-only Git reads and predicates; no native/numeric/generator/globalgate/wheel/environment/root/config/ref/fetch writes.','new_measurements_or_findings_closed':False,'root_before_after':head_before,'next_owner':'Root append-only publish correctivemetadata packet; CAL terminalwave custody independent; A status/default/HTTP and canonicalgenerator decisions remain separatelyowned.'}
+(OUT/'review.json').write_text(json.dumps(review,indent=2)+'\n')
+print(json.dumps({'verdict':review['verdict'],'refusals':len(rows),'effective_removals':len(removals),'source':review['source'],'root_unchanged':head_before}))

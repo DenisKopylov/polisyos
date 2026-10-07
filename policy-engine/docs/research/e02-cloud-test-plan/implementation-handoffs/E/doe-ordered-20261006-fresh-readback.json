@@ -1,0 +1,16 @@
+{
+  "parent_mu_star": {
+    "x": 20.0,
+    "z": 3.0
+  },
+  "parent_total_runs": 48,
+  "artifact_ref": {
+    "artifact_id": "sha256:4017067e76ddaa52dd7c8446094a12609790df26d51d1508264af6cc8a5ad150",
+    "kind": "doe_sensitivity_analysis",
+    "media_type": "application/json"
+  },
+  "child_exit": 0,
+  "child_stdout": "{\"consumer\": \"SensitivityAwareCandidateGenerator.from_artifact\", \"fresh_process\": true, \"metadata\": {\"analysis_id\": \"a1841bbef09239346f7b2bb0111a55160bcb63f0cb865c38854a9a2a86c5af11\", \"analysis_ref\": {\"artifact_id\": \"sha256:4017067e76ddaa52dd7c8446094a12609790df26d51d1508264af6cc8a5ad150\", \"kind\": \"doe_sensitivity_analysis\", \"media_type\": \"application/json\"}, \"authority_purpose\": \"exploratory_parameter_experiment\", \"design_id\": \"f11c36a6891d4456e83cd4c93c88ce854a46442f766dd79bf1eb5ba5a219e721\", \"exploration_factor\": 1.5, \"focus_parameters\": [\"x\", \"z\"], \"method\": \"morris\", \"population_law_status\": \"not_established\", \"ranking\": [\"x\", \"z\"]}}\n",
+  "child_stderr": "",
+  "child_source": "import json,sys\nfrom pathlib import Path\nfrom polisyos.core.artifacts import ArtifactRef,FileSystemCAS\nfrom polisyos.scientist.methods.search.sensitivity_adapter import SensitivityAwareCandidateGenerator\nclass Base:\n def generate(self,history,current_best,context):return {\"x\":0.5}\nstore=FileSystemCAS(Path(sys.argv[1]))\nref=ArtifactRef.model_validate(json.loads(sys.argv[2]))\nreader=SensitivityAwareCandidateGenerator.from_artifact(Base(),store,ref)\nmetadata=reader.generate([],None,{})[\"_sensitivity\"]\nassert metadata[\"ranking\"]==[\"x\",\"z\"]\nassert metadata[\"population_law_status\"]==\"not_established\"\nassert metadata[\"analysis_ref\"]==ref.model_dump(mode=\"json\")\nprint(json.dumps({\"consumer\":\"SensitivityAwareCandidateGenerator.from_artifact\",\"metadata\":metadata,\"fresh_process\":True},sort_keys=True))\n"
+}

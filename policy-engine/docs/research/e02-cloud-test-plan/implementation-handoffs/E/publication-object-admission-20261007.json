@@ -1,0 +1,594 @@
+{
+  "slice": "publication-object-admission-20261007",
+  "slice_base_sha": "8fa11f569ebb2c952948e09d4db5c1f37be84b83",
+  "slice_base_tree_sha": "cf815e7dc87f7fbe7406f211feaf89ec1b71051b",
+  "implementation_commits": [
+    "ba0ec650b3308a4faa9893f645d2cb6c83041662"
+  ],
+  "candidate_sha": "ba0ec650b3308a4faa9893f645d2cb6c83041662",
+  "candidate_tree_sha": "418fa185348cc2c3a368025992f4df72f1c85e88",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/validate.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/full-python-delta.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py"
+  ],
+  "footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/validate.py",
+      "bytes": 7529,
+      "sha256": "a7d215655bc8edf75f6ca86df7901caf550f1d92974cf2ec9afa1d6a9042c06c",
+      "candidate_blob": "920cabd4ad1f4f9a5dff397c3fef7898e04bc397",
+      "base_blob": "46277b5539479f9ea10c57a590e91673813df448"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/full-python-delta.py",
+      "bytes": 7046,
+      "sha256": "a1cf574dd3ab885727651c52127924e32676bbb80e4176d71136cba5783697e9",
+      "candidate_blob": "fa27fd354259547be4f9a7da0ca68ee562d165c5",
+      "base_blob": "8dee5e6019b7ee2f668dc395fa8df67364a91435"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py",
+      "bytes": 6227,
+      "sha256": "6edb519a852d99eb9b3aed89b96a8a675c106247742b9c39c8c6081205199db0",
+      "candidate_blob": "a0a9915cd34b3b77f11227c8339e47ce472e62b3",
+      "base_blob": "fdd0481ad83fe7ac970329b1b6bc860733d82e5c"
+    }
+  ],
+  "canonical_writer": "E publication utility owner",
+  "original_ids": "Verification/publication companions; no automatic reclassification of any of54 findings",
+  "runtime_property": {
+    "inlet": "Complete metadata record/CLI source set is admitted before any dynamic Git child callback; valid refs are exact lowercase40 SHA, canonical relative paths, exact hashes and non-bool nonnegative sizes/counts. Historical copies and current copies are separate explicit modes.",
+    "consumer_paths": [
+      "core-import-route-r3.validate",
+      "frc-native-cas.validate",
+      "full-python-delta._imports/_resolve/build/main"
+    ],
+    "predicate_basis": "Metadata object identity only; neither numeric property nor finding closure authority"
+  },
+  "proxy_divergent_case": {
+    "base": "8fa11f569ebb2c952948e09d4db5c1f37be84b83",
+    "observation": "Option-like core candidate/base reaches3 Git callbacks; malformed last source path reaches2; legacy import helper option-like ref reaches1. shell=False alone did not admit dynamic Git objectrefs.",
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/preflight-baseline.json",
+      "bytes": 2805,
+      "sha256": "2da8bdb0b2366c1d343c3db34912677ce89d20ab8f352dcd798ef722217e3444",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/preflight-baseline.json"
+    }
+  },
+  "author_checks": {
+    "preflight_controls": 121,
+    "normal_and_python_O": "PASS on exact immutable candidate bytes",
+    "property_removal": "Core and import-helper actual admission removal causes callback1; required callback-zero predicate false",
+    "healthy_historical_copy_replay": {
+      "publication_sha": "8fa11f569ebb2c952948e09d4db5c1f37be84b83",
+      "status": "PASS",
+      "corrupt_field_negatives": 5
+    },
+    "current_copy_old_index": "REFUSED as required after helper-source delta; original copy-index not rewritten",
+    "frc_actual_receipt": "PASS normal and -O with four existing corrupt-field controls",
+    "real_builder_replay": "Actual current builder rereads Git inputs at historical candidate539ee6d6aad7f9db4c03dc520fc515dabef8d799 against resolved current origin/main, fetchedG and exact historical slice-base6c80d1ac;3 fresh JSON outputs. Old builders/raw outputs remain historical.",
+    "affected_lint_format": {
+      "denominator": 11,
+      "ruff_diagnostics": 0,
+      "format_already_formatted": 11,
+      "cwd": "canonical policy-engine, automatic config discovery",
+      "status": "PASS"
+    },
+    "commands_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/current-command-receipt-v2.json",
+      "bytes": 17921,
+      "sha256": "1aeee6791d4da3277e02c29360df54b799e6826bfd374529636f61122fc816d2",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/current-command-receipt-v2.json"
+    },
+    "check_input_bindings": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/validate.py",
+        "bytes": 7529,
+        "sha256": "a7d215655bc8edf75f6ca86df7901caf550f1d92974cf2ec9afa1d6a9042c06c",
+        "candidate_blob": "920cabd4ad1f4f9a5dff397c3fef7898e04bc397"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/core-route-removal.py",
+        "bytes": 1146,
+        "sha256": "9293f0b5e985489839c21711a47f51aa1dae0537b534d20a1708ec53abae7ee7",
+        "candidate_blob": "7ea20f00f8d3d1c97ac6604c3ee2ca2be280eb55"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/deep-import-collector.py",
+        "bytes": 1309,
+        "sha256": "3906586297575c611f02291ca1b6c9324fde1d08e710f319fac9490d9f1fe1ae",
+        "candidate_blob": "c3a888dc8de02f1daadc9955789298cf8e615cf3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/full-python-delta.py",
+        "bytes": 7046,
+        "sha256": "a1cf574dd3ab885727651c52127924e32676bbb80e4176d71136cba5783697e9",
+        "candidate_blob": "fa27fd354259547be4f9a7da0ca68ee562d165c5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/public-export-probe.py",
+        "bytes": 1639,
+        "sha256": "56fc91ac490f97fc273dae455295ac83867cb217586473d257aab16df493b8ff",
+        "candidate_blob": "35beb0a226329c877b4aef8ccc95a22cd8638863"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py",
+        "bytes": 6227,
+        "sha256": "6edb519a852d99eb9b3aed89b96a8a675c106247742b9c39c8c6081205199db0",
+        "candidate_blob": "a0a9915cd34b3b77f11227c8339e47ce472e62b3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+        "bytes": 5532,
+        "sha256": "0c7bda166798cadc7a9769fadae79d8f435cd4572d22b2c59d8c0c3db3427f0c",
+        "candidate_blob": "132b1a7626814c08efcdc7129b3d605cf81505cb"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/forecast.py",
+        "bytes": 4547,
+        "sha256": "3cecf5c250f701cbc04f2bc1165eefab275958ddeb8b1c92bf6461cf98ff028c",
+        "candidate_blob": "b6cfe5afd6506e05cc5acde0e63c9decbf5288ea"
+      },
+      {
+        "path": "policy-engine/tests/unit/calibration/test_core_artifact_routes.py",
+        "bytes": 3803,
+        "sha256": "7810ffa9d5e0ec31e3f9dd8df9dccb169007594a329a66ca69ff7555b6e23cb7",
+        "candidate_blob": "713794d9de160732e376315ffd715214dd2f4957"
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+        "bytes": 16018,
+        "sha256": "26339b905dd7cf1e00e13469644818fe8a25e602bfb30b803d073350bc0bb0a9",
+        "candidate_blob": "2e70c6bfc908ad4d15096eec9cf5bb0b2b091a80"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/doe/test_morris_analysis_admission.py",
+        "bytes": 7613,
+        "sha256": "4b87baf6ee95cd0d5d0f075c7838aaddf8692505e3f97999904735a3d9013e8d",
+        "candidate_blob": "42d8c236cb4ad714da61fc7c771f9c6435637a0d"
+      }
+    ],
+    "separate_from_independent_review": true
+  },
+  "historical_byte_policy": {
+    "base_to_source_full_git_diff": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/validate.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/full-python-delta.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py"
+    ],
+    "all_changed_paths_python": true,
+    "tracked_non_python_delta": [],
+    "historical_json_stdout_indices": "Byte-identical across exact base-to-source; no retrospective source/output/hash rewrite",
+    "earlier_author_observer_ERROR": "None was initially misclassified as malformed historical revision although None explicitly selects current copies; original normal/-O stderr retained. Corrected observer current121 controls is deciding.",
+    "earlier_working_observations": "Prior105 controls/current command receipt before final small ref-type admission are retained as historical author observations; exact current121 and source binding supersede them."
+  },
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "shared_environment": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+    "new_environment_created": false
+  },
+  "admission": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/admission-resume.json",
+    "bytes": 123202,
+    "sha256": "51a43e3785013f706b0df7b9b1f671c631a5049b4b20cfcfe8893d90001f055d",
+    "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/admission-resume.json"
+  },
+  "assets": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/admission-resume.json",
+      "bytes": 123202,
+      "sha256": "51a43e3785013f706b0df7b9b1f671c631a5049b4b20cfcfe8893d90001f055d",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/admission-resume.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/baseline-11-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/baseline-11-format.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/baseline-11-format.stdout",
+      "bytes": 27,
+      "sha256": "75b7030be9d7de96bf4e76e79b1f03f14af8899d169fd8d79564d59167d1ab80",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/baseline-11-format.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/baseline-11-receipt.json",
+      "bytes": 5130,
+      "sha256": "8cb5c1f7e83bd82e9212ca743728cb7a6c03c37f846dc57743d8c9ef84a99acf",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/baseline-11-receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/baseline-11-ruff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/baseline-11-ruff.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/baseline-11-ruff.stdout",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/baseline-11-ruff.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/core-current-old-index-refusal-v2.stderr",
+      "bytes": 782,
+      "sha256": "7e01f782c26e7c50ab8c49bc180170e1a2e814b22aae829fdf9c5fc1fbf8517c",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/core-current-old-index-refusal-v2.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/core-current-old-index-refusal-v2.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/core-current-old-index-refusal-v2.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/core-historical-normal-v2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/core-historical-normal-v2.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/core-historical-normal-v2.stdout",
+      "bytes": 326,
+      "sha256": "ae2d2c12bd8b41ce5d300cdf1629478ea8eb3d4ed2b4e599b573fbcdc9036896",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/core-historical-normal-v2.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/core-historical-optimized-v2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/core-historical-optimized-v2.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/core-historical-optimized-v2.stdout",
+      "bytes": 326,
+      "sha256": "ae2d2c12bd8b41ce5d300cdf1629478ea8eb3d4ed2b4e599b573fbcdc9036896",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/core-historical-optimized-v2.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/current-11-format-v2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/current-11-format-v2.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/current-11-format-v2.stdout",
+      "bytes": 27,
+      "sha256": "75b7030be9d7de96bf4e76e79b1f03f14af8899d169fd8d79564d59167d1ab80",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/current-11-format-v2.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/current-11-ruff-v2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/current-11-ruff-v2.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/current-11-ruff-v2.stdout",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/current-11-ruff-v2.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/current-command-receipt-v2.json",
+      "bytes": 17921,
+      "sha256": "1aeee6791d4da3277e02c29360df54b799e6826bfd374529636f61122fc816d2",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/current-command-receipt-v2.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/current-controls-normal-v2.json",
+      "bytes": 22986,
+      "sha256": "d9ec84df31ecbf6ca19a9366078960b5983f946a766a0f409cd24d6d5cf6cbd1",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/current-controls-normal-v2.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/current-controls-normal-v3.json",
+      "bytes": 22986,
+      "sha256": "e2ab9340be366260f230db1986750222446148f192413f7cc3176e6307b09111",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/current-controls-normal-v3.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/current-controls-normal-v4.json",
+      "bytes": 26210,
+      "sha256": "f29147d4251db41bcc917ef101310a3145fda02d5489cca9f3d188274a487034",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/current-controls-normal-v4.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/current-controls-normal-v4.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/current-controls-normal-v4.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/current-controls-normal.stderr",
+      "bytes": 698,
+      "sha256": "f2cef8290aed28a19297824514ef0bc894fea5cfa26b13550f4ae05169607b3e",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/current-controls-normal.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/current-controls-optimized-v2.json",
+      "bytes": 22985,
+      "sha256": "01848f4ae01a5a6991977d6c30a024bfb2262b3e34561bf5fff3c9ac8cfb6a23",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/current-controls-optimized-v2.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/current-controls-optimized-v3.json",
+      "bytes": 22985,
+      "sha256": "9c5432e44c1964234d727554a98e93e44cd58dcc97d5e81a080f2f5c1bc8f91a",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/current-controls-optimized-v3.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/current-controls-optimized-v4.json",
+      "bytes": 26209,
+      "sha256": "b8db20fcb3d351b8254a6d244c4ec8c4d89a173c3f362b1d7f1f230fb06a5d98",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/current-controls-optimized-v4.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/current-controls-optimized-v4.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/current-controls-optimized-v4.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/current-controls-optimized.stderr",
+      "bytes": 698,
+      "sha256": "f2cef8290aed28a19297824514ef0bc894fea5cfa26b13550f4ae05169607b3e",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/current-controls-optimized.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/current_controls.py.txt",
+      "bytes": 6298,
+      "sha256": "60ab17dd4a7c044b2ec63f0bf89797c2f83fe149de865d305b735f09f091700f",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/current_controls.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/frc-actual-normal-v2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/frc-actual-normal-v2.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/frc-actual-normal-v2.stdout",
+      "bytes": 316,
+      "sha256": "e450ff708081a367fabf702f5d330cb79cac7eee08d3c9f19f5b40576f68f4c6",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/frc-actual-normal-v2.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/frc-actual-optimized-v2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/frc-actual-optimized-v2.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/frc-actual-optimized-v2.stdout",
+      "bytes": 316,
+      "sha256": "e450ff708081a367fabf702f5d330cb79cac7eee08d3c9f19f5b40576f68f4c6",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/frc-actual-optimized-v2.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/fresh-actual-builder-v2/all-python-fetched-G.json",
+      "bytes": 278716,
+      "sha256": "15ada3499ccb8a664857ef810cfdf1c1cab17b898b01aebde7e1eca6dbb6bb51",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/fresh-actual-builder-v2/all-python-fetched-G.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/fresh-actual-builder-v2/all-python-main.json",
+      "bytes": 290493,
+      "sha256": "b2f120d2bf26e8f882354ef1765fdb84925eba5229d91bef11cb01b131d93bc9",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/fresh-actual-builder-v2/all-python-main.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/fresh-actual-builder-v2/all-python-slice-base.json",
+      "bytes": 6527,
+      "sha256": "08736f26cefe2331a80878b37ab32c42144e25b59a16b937c4a61a72efc0b855",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/fresh-actual-builder-v2/all-python-slice-base.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/fresh-actual-import-builder-v2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/fresh-actual-import-builder-v2.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/fresh-actual-import-builder-v2.stdout",
+      "bytes": 1417,
+      "sha256": "ca3f54c90e031978d5d447e057929a1f29f6f0ae8721657325b9482481bd2aee",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/fresh-actual-import-builder-v2.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/historical-author-controls-v3.py.txt",
+      "bytes": 6292,
+      "sha256": "6689c60837a0e935fd05715600e0423c07bd353bf2a4c5df6571e3a2ab8da5a6",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/historical-author-controls-v3.py.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/preflight-baseline.json",
+      "bytes": 2805,
+      "sha256": "2da8bdb0b2366c1d343c3db34912677ce89d20ab8f352dcd798ef722217e3444",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/preflight-baseline.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/preflight_baseline.py.txt",
+      "bytes": 2562,
+      "sha256": "2671b1323d40c0bdcaad091115e3fd6e7382d09d1ece8cdf98ca99fecfc0e2ba",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/preflight_baseline.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/run-current-commands-v2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/run-current-commands-v2.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/run-current-commands-v2.stdout",
+      "bytes": 89,
+      "sha256": "298cee64f728ad179c5aa74e897012f0a5d8a3972c7e82469d0c5a03eceb931e",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/run-current-commands-v2.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/run_current_commands.py.txt",
+      "bytes": 3274,
+      "sha256": "595e32fdff2e63ca10c5ddc824e39da107dfee86e297cae7e51ec45357b64427",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/run_current_commands.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/independent-root/8fa11f56-validate.py.txt",
+      "bytes": 3409,
+      "sha256": "8982a401b34835208600a31cea8c99257e66fd9479b262bbe685c8fe2a4badab",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/root-utility-independent/8fa11f56-validate.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/independent-root/ba0ec650-full-python-delta.py.txt",
+      "bytes": 7046,
+      "sha256": "a1cf574dd3ab885727651c52127924e32676bbb80e4176d71136cba5783697e9",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/root-utility-independent/ba0ec650-full-python-delta.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/independent-root/ba0ec650-validate.py.txt",
+      "bytes": 7529,
+      "sha256": "a7d215655bc8edf75f6ca86df7901caf550f1d92974cf2ec9afa1d6a9042c06c",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/root-utility-independent/ba0ec650-validate.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/independent-root/core-current-refusal.stderr",
+      "bytes": 782,
+      "sha256": "7e01f782c26e7c50ab8c49bc180170e1a2e814b22aae829fdf9c5fc1fbf8517c",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/root-utility-independent/core-current-refusal.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/independent-root/core-current-refusal.stderr.optimized",
+      "bytes": 782,
+      "sha256": "7e01f782c26e7c50ab8c49bc180170e1a2e814b22aae829fdf9c5fc1fbf8517c",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/root-utility-independent/core-current-refusal.stderr.optimized"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/independent-root/core-current-refusal.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/root-utility-independent/core-current-refusal.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/independent-root/core-current-refusal.stdout.optimized",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/root-utility-independent/core-current-refusal.stdout.optimized"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/independent-root/core-historical.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/root-utility-independent/core-historical.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/independent-root/core-historical.stderr.optimized",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/root-utility-independent/core-historical.stderr.optimized"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/independent-root/core-historical.stdout",
+      "bytes": 326,
+      "sha256": "ae2d2c12bd8b41ce5d300cdf1629478ea8eb3d4ed2b4e599b573fbcdc9036896",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/root-utility-independent/core-historical.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/independent-root/core-historical.stdout.optimized",
+      "bytes": 326,
+      "sha256": "ae2d2c12bd8b41ce5d300cdf1629478ea8eb3d4ed2b4e599b573fbcdc9036896",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/root-utility-independent/core-historical.stdout.optimized"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/independent-root/frc-current.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/root-utility-independent/frc-current.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/independent-root/frc-current.stderr.optimized",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/root-utility-independent/frc-current.stderr.optimized"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/independent-root/frc-current.stdout",
+      "bytes": 316,
+      "sha256": "e450ff708081a367fabf702f5d330cb79cac7eee08d3c9f19f5b40576f68f4c6",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/root-utility-independent/frc-current.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/independent-root/frc-current.stdout.optimized",
+      "bytes": 316,
+      "sha256": "e450ff708081a367fabf702f5d330cb79cac7eee08d3c9f19f5b40576f68f4c6",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/root-utility-independent/frc-current.stdout.optimized"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/independent-root/review-normal.json",
+      "bytes": 4622,
+      "sha256": "5d49df28f0e4f06c0f23638ba105423020f28c6c830cfcdedfc4532ef3206314",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/root-utility-independent/review-normal.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/independent-root/review-optimized.json",
+      "bytes": 4621,
+      "sha256": "fc29b6d97722bab623ccde0c1000a648b5e53cb6a6dd66c94f07015a320ff422",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/root-utility-independent/review-optimized.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/independent-root/review.py.txt",
+      "bytes": 5505,
+      "sha256": "b4226c5a0b28dc99bdaa7ed7134b25212f7155b6a80e76861b5fa9f251adfbf7",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/root-utility-independent/review.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/build_handoff.py.txt",
+      "bytes": 8144,
+      "sha256": "4a14502200eaf6f92d7028b98e3ebfc34c7461c0408b056868901e8eda2bd8cc",
+      "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/build_handoff.py",
+      "role": "Literal historical assembly observer; was run before root review supplement, not a current publisher command"
+    }
+  ],
+  "independent_review": {
+    "owner": "E root /root",
+    "status": "GO on bounded source property; finding closure and full final global gates separate",
+    "candidate_sha": "ba0ec650b3308a4faa9893f645d2cb6c83041662",
+    "candidate_tree_sha": "418fa185348cc2c3a368025992f4df72f1c85e88",
+    "checks": "8 controls plus3 native commands EACH normal/-O; exact old late footprint dot Gitcallbacks2, new0, effective preflight-removal2; late FRC bool/hash/count/candidate-option0 and complete builder last ref0; archived healthy/currentoldindex refusal/nativeFRC healthy",
+    "outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/independent-root/review-normal.json",
+        "bytes": 4622,
+        "sha256": "5d49df28f0e4f06c0f23638ba105423020f28c6c830cfcdedfc4532ef3206314",
+        "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/root-utility-independent/review-normal.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/publication-object-admission/independent-root/review-optimized.json",
+        "bytes": 4621,
+        "sha256": "fc29b6d97722bab623ccde0c1000a648b5e53cb6a6dd66c94f07015a320ff422",
+        "original_scratch_path": "/workspace/e02-E-pr38-r3-receipts/root-utility-independent/review-optimized.json"
+      }
+    ],
+    "source_input_extraction": "Extracted immutable8fa and ba0 utility blobs; no reviewed source edits by independent reviewer"
+  },
+  "limitations": [
+    "This is metadata/publication utility correctness; no source law, authority or finding closure is implied.",
+    "Full E numeric/global Ruff-format/gate wave is UNRUN here and remains root-owned after all independent source reviews.",
+    "Only3 of6 leased utilities changed; other3 have no dynamic JSON/CLI Git object input and canonical11 check is already green.",
+    "Core historical index includes changed full-python utility copy; callers wishing to replay archived published inputs must explicitly pin historical publication SHA."
+  ],
+  "next_owner": "E root code acceptance/source merge and final frozen full-denominator/global verification; per-finding accountable owners retain separate original criteria decisions",
+  "cleanup": {
+    "native_Trash_available": false,
+    "candidates": [
+      "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/fresh-actual-builder-v1",
+      "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/fresh-actual-builder-v2"
+    ],
+    "production_or_unique_data": "none",
+    "permanent_deletion": false
+  },
+  "capability_state": "limited",
+  "predicate_basis": "independently_reconciled"
+}

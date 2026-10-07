@@ -1,0 +1,135 @@
+{
+  "schema": "policyos.e02.independent-utility-review.v1",
+  "reviewer": "E root; not utility author",
+  "candidate": "ba0ec650b3308a4faa9893f645d2cb6c83041662",
+  "tree": "418fa185348cc2c3a368025992f4df72f1c85e88",
+  "base": "8fa11f569ebb2c952948e09d4db5c1f37be84b83",
+  "optimized": true,
+  "source_bindings": [
+    {
+      "commit": "8fa11f569ebb2c952948e09d4db5c1f37be84b83",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py",
+      "bytes": 3409,
+      "sha256": "8982a401b34835208600a31cea8c99257e66fd9479b262bbe685c8fe2a4badab"
+    },
+    {
+      "commit": "ba0ec650b3308a4faa9893f645d2cb6c83041662",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py",
+      "bytes": 6227,
+      "sha256": "6edb519a852d99eb9b3aed89b96a8a675c106247742b9c39c8c6081205199db0"
+    },
+    {
+      "commit": "ba0ec650b3308a4faa9893f645d2cb6c83041662",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/validate.py",
+      "bytes": 7529,
+      "sha256": "a7d215655bc8edf75f6ca86df7901caf550f1d92974cf2ec9afa1d6a9042c06c"
+    },
+    {
+      "commit": "ba0ec650b3308a4faa9893f645d2cb6c83041662",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/full-python-delta.py",
+      "bytes": 7046,
+      "sha256": "a1cf574dd3ab885727651c52127924e32676bbb80e4176d71136cba5783697e9"
+    }
+  ],
+  "controls": [
+    {
+      "case": "last-footprint-dot-old",
+      "git_callbacks": 2,
+      "error": "ValueError",
+      "PASS": true
+    },
+    {
+      "case": "last-footprint-dot-new",
+      "git_callbacks": 0,
+      "error": "ValueError",
+      "PASS": true
+    },
+    {
+      "case": "last-footprint-dot-removed",
+      "git_callbacks": 2,
+      "error": "ValueError",
+      "PASS": true
+    },
+    {
+      "case": "late-bool-size",
+      "git_callbacks": 0,
+      "error": "ValueError",
+      "PASS": true
+    },
+    {
+      "case": "late-bad-hash",
+      "git_callbacks": 0,
+      "error": "ValueError",
+      "PASS": true
+    },
+    {
+      "case": "forged-count",
+      "git_callbacks": 0,
+      "error": "ValueError",
+      "PASS": true
+    },
+    {
+      "case": "candidate-option",
+      "git_callbacks": 0,
+      "error": "ValueError",
+      "PASS": true
+    },
+    {
+      "case": "complete-ref-set-before-resolve",
+      "git_callbacks": 0,
+      "error": "ValueError",
+      "PASS": true
+    }
+  ],
+  "commands": [
+    {
+      "name": "core-historical",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py",
+        "--repo-root",
+        "/workspace/e02-E-cal05-20261006",
+        "--receipt",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3.json",
+        "--publication-revision",
+        "8fa11f569ebb2c952948e09d4db5c1f37be84b83"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006",
+      "exit": 0,
+      "expected": 0,
+      "PASS": true
+    },
+    {
+      "name": "core-current-refusal",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py",
+        "--repo-root",
+        "/workspace/e02-E-cal05-20261006",
+        "--receipt",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3.json"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006",
+      "exit": 1,
+      "expected": 1,
+      "PASS": true
+    },
+    {
+      "name": "frc-current",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/validate.py"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006",
+      "exit": 0,
+      "expected": 0,
+      "PASS": true
+    }
+  ],
+  "GO": true,
+  "finding_closure": false,
+  "limits": [
+    "No numeric/common wave; narrow 3 publication utilities only.",
+    "Existing publication history bytes unchanged; current changed helper is correctly refused by historical index."
+  ]
+}

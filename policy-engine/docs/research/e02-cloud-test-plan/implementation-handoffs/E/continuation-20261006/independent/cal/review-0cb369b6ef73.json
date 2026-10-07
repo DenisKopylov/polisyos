@@ -1,0 +1,628 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "E",
+  "reviewer": "/root/cal_independent_r3",
+  "source_mode": "read-only; no production or author-branch writes",
+  "slice": "calibration-curvature-identity-batch",
+  "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "candidate_sha": "0cb369b6ef73f2afd041515a5120eadcc9e1efb9",
+  "candidate_tree_sha": "bdda55333993ee5f734cb224e3d3b4299bd7fd84",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-curvature-admission.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-curvature-candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-curvature-environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-curvature-focused.txt",
+    "policy-engine/release-fragments/unreleased/2026-10-06-calibration-scalar-batch.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-curvature-admission.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-finite-objective.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-objective-binding.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibrator-batch-caller.toml",
+    "policy-engine/src/polisyos/foundry/calibration/README.md",
+    "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+    "policy-engine/src/polisyos/foundry/calibration/hessian.py",
+    "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+    "policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+    "policy-engine/src/polisyos/foundry/calibration/report.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+    "policy-engine/tests/unit/foundry/calibration/test_calibrator_batch.py",
+    "policy-engine/tests/unit/foundry/calibration/test_calibrator_mvp.py",
+    "policy-engine/tests/unit/foundry/calibration/test_hessian.py",
+    "policy-engine/tests/unit/foundry/calibration/test_pure_executor_batch.py",
+    "policy-engine/tests/unit/foundry/calibration/test_report.py",
+    "policy-engine/tests/unit/remediation/test_cal_04.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py"
+  ],
+  "specification_verdict": "GO for bounded numerical/calibration producer and consumer properties; no finding closure",
+  "engineering_verdict": "GO on scoped final source; separate welfare support sibling pending canonical writer repair",
+  "closure_false": true,
+  "independent_checks": [
+    {
+      "command": "/workspace/e02-E-cal-20261006/policy-engine/.venv/bin/python /workspace/e02-E-20261006-receipts/cal-independent/oracles.py",
+      "target_sha": "0cb369b6ef73f2afd041515a5120eadcc9e1efb9",
+      "outcome": "PASS",
+      "deciding_output": "oracles-0cb369b6ef73.log",
+      "receipt": "oracles-0cb369b6ef73-receipt.json",
+      "checks": 16,
+      "wall_seconds": 13.272408831995563
+    },
+    {
+      "command": "exact argv in final-targeted-0cb369b6ef73-receipt.json",
+      "target_sha": "0cb369b6ef73f2afd041515a5120eadcc9e1efb9",
+      "outcome": "PASS",
+      "deciding_output": "final-targeted-0cb369b6ef73.log",
+      "receipt": "final-targeted-0cb369b6ef73-receipt.json",
+      "test_bodies": 108,
+      "wall_seconds": 64.8512694890087,
+      "source_integrity": "all 2910 tracked src file bytes identical before/after"
+    },
+    {
+      "command": "/workspace/e02-E-cal-20261006/policy-engine/.venv/bin/python /workspace/e02-E-20261006-receipts/cal-independent/batch_oracles.py",
+      "target_sha": "34788febbbee4a9c45e14fd4245e719038680881",
+      "outcome": "PASS",
+      "deciding_output": "batch-oracles.log",
+      "receipt": "batch-oracles-receipt.json",
+      "checks": 5,
+      "source_delta_to_final": "pure_executor.py blob unchanged; actual Calibrator caller separately rerun on final"
+    }
+  ],
+  "property_basis": {
+    "raw_gradient_Hessian_and_spectrum": "recomputed",
+    "analytic_Gaussian_and_weighted_objective": "independently_reconciled against independently written equations",
+    "batch_state_time_key_execution": "recomputed, distinct keys do not establish sourceIID",
+    "CAS_kind_schema_payload_profile": "recomputed by actual persisted loader and welfare intake",
+    "Gaussian_source_sampling_assumptions": "consumer_asserted; non-gating",
+    "population_source_law_and_regular_identifiability": "not_established; non-gating"
+  },
+  "proxy_divergences": [
+    {
+      "property": "Finite stationary likelihood objective with positive raw information",
+      "old_proxy": "Finite gradients and Hessian",
+      "counterexample": "0.5*sum(x*x)+NaN/+Inf at zero has grad0 and H=I, previously finite covarianceI",
+      "disposition": "fixed34788; independent final controls refuse inverse information"
+    },
+    {
+      "property": "Exact effective objective identity",
+      "old_proxy": "Same config/model/observed values plus selected static operands",
+      "counterexample": "trust weights[1,.1]→[.1,1], loss568.1818→56.81818, rawH25454.54→74545.45 with identical olddigest",
+      "disposition": "fixed0cb with framed complete operand binding/frozen adapted quality; unsupported callback identities explicitlynot_established and reuse disabled"
+    },
+    {
+      "property": "Actual per-row execution",
+      "old_proxy": "Single scan or mapped cond carrying batch markers",
+      "counterexample": "inactive invalid row must execute zero numerical callbacks and derivative1 while active2 gives2+log2/grad1.5/H-.25",
+      "disposition": "realbatch and Calibratorcaller pass; marker-retaining scan proxy and vmap refusal controls exercised"
+    },
+    {
+      "property": "Foundry report CAS identity",
+      "old_proxy": "Payload fits CalibrationReport",
+      "counterexample": "same bytes in Funnel/wrongkind/profile/schema CAS view passed former payload-only loader",
+      "disposition": "canonical loader + actualwelfareintake nowreject"
+    }
+  ],
+  "findings": [
+    {
+      "id": "B176",
+      "bundles": [
+        "CAL-01"
+      ],
+      "retained_ledger_status": "partial",
+      "recommended_verdict": "limited",
+      "finding_status_unchanged": true,
+      "criterion_refs": [
+        {
+          "criterion_id": "B176",
+          "document": "B_r19",
+          "lines": [
+            4525,
+            4534
+          ],
+          "sha256": "96268eb1d68c65e1c1e45e9264d75166c955a5474900b6c4f6639a857dab246a",
+          "card": "CAL-01"
+        }
+      ],
+      "baseline_cells_navigation_only": [
+        "F01-P083",
+        "F02-P034",
+        "F02-P044",
+        "F09-P085",
+        "F15-P097"
+      ],
+      "next_owner": "G plus measurement/model source owner for any real-fit/source-law claim; E code numerical properties verified"
+    },
+    {
+      "id": "B177",
+      "bundles": [
+        "CAL-01"
+      ],
+      "retained_ledger_status": "partial",
+      "recommended_verdict": "limited",
+      "finding_status_unchanged": true,
+      "criterion_refs": [
+        {
+          "criterion_id": "B177",
+          "document": "B_r19",
+          "lines": [
+            4535,
+            4544
+          ],
+          "sha256": "da1d53d7bc4a80d64aa3799fd371ccbd8ccbdfd1217c636d7f722a1de5a203b9",
+          "card": "CAL-01"
+        }
+      ],
+      "baseline_cells_navigation_only": [
+        "F01-P083",
+        "F02-P034",
+        "F02-P044",
+        "F09-P085",
+        "F15-P097"
+      ],
+      "next_owner": "G plus measurement/model source owner for any real-fit/source-law claim; E code numerical properties verified"
+    },
+    {
+      "id": "B178",
+      "bundles": [
+        "CAL-01"
+      ],
+      "retained_ledger_status": "partial",
+      "recommended_verdict": "limited",
+      "finding_status_unchanged": true,
+      "criterion_refs": [
+        {
+          "criterion_id": "B178",
+          "document": "B_r19",
+          "lines": [
+            4545,
+            4554
+          ],
+          "sha256": "f47d17cc309c8f24d13326f20a1dc74e6e4fb92adb59f111b40e6918e7a745f9",
+          "card": "CAL-01"
+        }
+      ],
+      "baseline_cells_navigation_only": [
+        "F01-P083",
+        "F02-P034",
+        "F02-P044",
+        "F09-P085",
+        "F15-P097"
+      ],
+      "next_owner": "G plus measurement/model source owner for any real-fit/source-law claim; E code numerical properties verified"
+    },
+    {
+      "id": "B179",
+      "bundles": [
+        "CAL-02"
+      ],
+      "retained_ledger_status": "partial",
+      "recommended_verdict": "limited",
+      "finding_status_unchanged": true,
+      "criterion_refs": [
+        {
+          "criterion_id": "B179",
+          "document": "B_r19",
+          "lines": [
+            4555,
+            4564
+          ],
+          "sha256": "76883f0cc8436c9b0266ddc6ae870564a46bc98a036bc88b7e89dfda922f1508",
+          "card": "CAL-02"
+        }
+      ],
+      "baseline_cells_navigation_only": [
+        "F01-P033",
+        "F01-P039",
+        "F01-P100",
+        "F02-P044",
+        "F07-P094",
+        "F14-P118"
+      ],
+      "next_owner": "G plus measurement/model source owner for any real-fit/source-law claim; E code numerical properties verified"
+    },
+    {
+      "id": "B180",
+      "bundles": [
+        "CAL-02"
+      ],
+      "retained_ledger_status": "partial",
+      "recommended_verdict": "limited",
+      "finding_status_unchanged": true,
+      "criterion_refs": [
+        {
+          "criterion_id": "B180",
+          "document": "B_r19",
+          "lines": [
+            4565,
+            4574
+          ],
+          "sha256": "a5f7bb210e914b99904a1f5fec819651cb2c5db4174c44d856af48ed6471c421",
+          "card": "CAL-02"
+        }
+      ],
+      "baseline_cells_navigation_only": [
+        "F01-P033",
+        "F01-P039",
+        "F01-P100",
+        "F02-P044",
+        "F07-P094",
+        "F14-P118"
+      ],
+      "next_owner": "G plus measurement/model source owner for any real-fit/source-law claim; E code numerical properties verified"
+    },
+    {
+      "id": "B181",
+      "bundles": [
+        "CAL-02"
+      ],
+      "retained_ledger_status": "partial",
+      "recommended_verdict": "limited",
+      "finding_status_unchanged": true,
+      "criterion_refs": [
+        {
+          "criterion_id": "B181",
+          "document": "B_r19",
+          "lines": [
+            4575,
+            4584
+          ],
+          "sha256": "0a790655318188a0d9ca96c0e73c28e3ffdb17859f42a911e35784b021f85552",
+          "card": "CAL-02"
+        }
+      ],
+      "baseline_cells_navigation_only": [
+        "F01-P033",
+        "F01-P039",
+        "F01-P100",
+        "F02-P044",
+        "F07-P094",
+        "F14-P118"
+      ],
+      "next_owner": "G plus measurement/model source owner for any real-fit/source-law claim; E code numerical properties verified"
+    },
+    {
+      "id": "B182",
+      "bundles": [
+        "CAL-02"
+      ],
+      "retained_ledger_status": "partial",
+      "recommended_verdict": "limited",
+      "finding_status_unchanged": true,
+      "criterion_refs": [
+        {
+          "criterion_id": "B182",
+          "document": "B_r19",
+          "lines": [
+            4585,
+            4594
+          ],
+          "sha256": "672d5e7ad45cad5f78609268028702f80d4802c59b1dc17487622e4da9d6f07d",
+          "card": "CAL-02"
+        }
+      ],
+      "baseline_cells_navigation_only": [
+        "F01-P033",
+        "F01-P039",
+        "F01-P100",
+        "F02-P044",
+        "F07-P094",
+        "F14-P118"
+      ],
+      "next_owner": "G plus measurement/model source owner for any real-fit/source-law claim; E code numerical properties verified"
+    },
+    {
+      "id": "B183",
+      "bundles": [
+        "CAL-03"
+      ],
+      "retained_ledger_status": "partial",
+      "recommended_verdict": "limited",
+      "finding_status_unchanged": true,
+      "criterion_refs": [
+        {
+          "criterion_id": "B183",
+          "document": "B_r19",
+          "lines": [
+            4595,
+            4604
+          ],
+          "sha256": "036471c121686d6b68a603fde76ce9c015a1a374d090d47465b79abcbbc00c44",
+          "card": "CAL-03"
+        }
+      ],
+      "baseline_cells_navigation_only": [
+        "F02-P049",
+        "F02-P074",
+        "F03-P049",
+        "F07-P066",
+        "F15-P086"
+      ],
+      "next_owner": "G plus measurement/model source owner for any real-fit/source-law claim; E code numerical properties verified"
+    },
+    {
+      "id": "B184",
+      "bundles": [
+        "CAL-04"
+      ],
+      "retained_ledger_status": "partial",
+      "recommended_verdict": "limited",
+      "finding_status_unchanged": true,
+      "criterion_refs": [
+        {
+          "criterion_id": "B184",
+          "document": "B_r19",
+          "lines": [
+            4605,
+            4614
+          ],
+          "sha256": "0fc68424f39da383b748d9c3b20446065ef16c39173fa8875b0a5b4852843a00",
+          "card": "CAL-04"
+        }
+      ],
+      "baseline_cells_navigation_only": [
+        "F01-P073",
+        "F02-P049",
+        "F03-P049",
+        "F08-P075",
+        "F13-P085"
+      ],
+      "next_owner": "G plus measurement/model source owner for any real-fit/source-law claim; E code numerical properties verified"
+    },
+    {
+      "id": "B185",
+      "bundles": [
+        "CAL-05"
+      ],
+      "retained_ledger_status": "partial",
+      "recommended_verdict": "limited",
+      "finding_status_unchanged": true,
+      "criterion_refs": [
+        {
+          "criterion_id": "B185",
+          "document": "B_r19",
+          "lines": [
+            4702,
+            4711
+          ],
+          "sha256": "784336950cf2e3f1d11e577a321235819c6660d9a8218210ec05620e492988bc",
+          "card": "CAL-05"
+        }
+      ],
+      "baseline_cells_navigation_only": [
+        "F01-P034",
+        "F01-P048",
+        "F01-P058",
+        "F03-P019",
+        "F05-P036",
+        "F05-P055",
+        "F08-P041",
+        "F09-P027",
+        "F11-P027",
+        "F11-P042",
+        "F14-P023",
+        "F14-P042"
+      ],
+      "next_owner": "G plus measurement/model source owner for any real-fit/source-law claim; E code numerical properties verified"
+    },
+    {
+      "id": "B195",
+      "bundles": [
+        "CAL-03"
+      ],
+      "retained_ledger_status": "partial",
+      "recommended_verdict": "limited",
+      "finding_status_unchanged": true,
+      "criterion_refs": [
+        {
+          "criterion_id": "B195",
+          "document": "B_r19",
+          "lines": [
+            4894,
+            4907
+          ],
+          "sha256": "69b56d13bbee8d87f83987b09b991e08cf33eff2204302a3b938acef363de747",
+          "card": "CAL-03"
+        }
+      ],
+      "baseline_cells_navigation_only": [
+        "F02-P049",
+        "F02-P074",
+        "F03-P049",
+        "F07-P066",
+        "F15-P086"
+      ],
+      "next_owner": "G plus measurement/model source owner for any real-fit/source-law claim; E code numerical properties verified"
+    },
+    {
+      "id": "B196",
+      "bundles": [
+        "CAL-04"
+      ],
+      "retained_ledger_status": "partial",
+      "recommended_verdict": "limited",
+      "finding_status_unchanged": true,
+      "criterion_refs": [
+        {
+          "criterion_id": "B196",
+          "document": "B_r19",
+          "lines": [
+            4908,
+            4921
+          ],
+          "sha256": "e10dd58806c1c009f96344f117d7f7ecbb5f962191b966756a001fd388705fde",
+          "card": "CAL-04"
+        }
+      ],
+      "baseline_cells_navigation_only": [
+        "F01-P073",
+        "F02-P049",
+        "F03-P049",
+        "F08-P075",
+        "F13-P085"
+      ],
+      "next_owner": "G plus measurement/model source owner for any real-fit/source-law claim; E code numerical properties verified"
+    },
+    {
+      "id": "B197",
+      "bundles": [
+        "CAL-06"
+      ],
+      "retained_ledger_status": "held",
+      "recommended_verdict": "limited",
+      "finding_status_unchanged": true,
+      "criterion_refs": [
+        {
+          "criterion_id": "B197",
+          "document": "B_r19",
+          "lines": [
+            4922,
+            4935
+          ],
+          "sha256": "2f5e64ff7238ff5a340224382fa2875b57ea9e960e0e50bfea7f349c6a83ff3d",
+          "card": "CAL-06"
+        }
+      ],
+      "baseline_cells_navigation_only": [
+        "F01-P027",
+        "F03-P108",
+        "F04-P028",
+        "F05-P048",
+        "F06-P047",
+        "F07-P028",
+        "F07-P101",
+        "F08-P036",
+        "F11-P036",
+        "F11-P037",
+        "F14-P034",
+        "F14-P126",
+        "F15-P034"
+      ],
+      "next_owner": "G plus measurement/model source owner for any real-fit/source-law claim; E code numerical properties verified"
+    },
+    {
+      "id": "B198",
+      "bundles": [
+        "CAL-06"
+      ],
+      "retained_ledger_status": "closed",
+      "recommended_verdict": "closed",
+      "finding_status_unchanged": true,
+      "criterion_refs": [
+        {
+          "criterion_id": "B198",
+          "document": "B_r19",
+          "lines": [
+            4936,
+            4949
+          ],
+          "sha256": "2cbd889b85b881ae22f7f99c28e68c82200022c7dfa01cbb150ecf895a30672b",
+          "card": "CAL-06"
+        }
+      ],
+      "baseline_cells_navigation_only": [
+        "F01-P027",
+        "F03-P108",
+        "F04-P028",
+        "F05-P048",
+        "F06-P047",
+        "F07-P028",
+        "F07-P101",
+        "F08-P036",
+        "F11-P036",
+        "F11-P037",
+        "F14-P034",
+        "F14-P126",
+        "F15-P034"
+      ],
+      "next_owner": "G plus measurement/model source owner for any real-fit/source-law claim; E code numerical properties verified"
+    },
+    {
+      "id": "B203",
+      "bundles": [
+        "CAL-04"
+      ],
+      "retained_ledger_status": "partial",
+      "recommended_verdict": "limited",
+      "finding_status_unchanged": true,
+      "criterion_refs": [
+        {
+          "criterion_id": "B203",
+          "document": "B_r19",
+          "lines": [
+            5006,
+            5017
+          ],
+          "sha256": "d40176b9dfa62d140dc28251f63b63be54771ac3b145dd75ceaa4e51a63761ad",
+          "card": "CAL-04"
+        }
+      ],
+      "baseline_cells_navigation_only": [
+        "F01-P073",
+        "F02-P049",
+        "F03-P049",
+        "F08-P075",
+        "F13-P085"
+      ],
+      "next_owner": "G plus measurement/model source owner for any real-fit/source-law claim; E code numerical properties verified"
+    }
+  ],
+  "findings_denominator": {
+    "bundles": 6,
+    "unique_ids": 15
+  },
+  "remaining": [
+    {
+      "property": "Actual welfare consumer preserves all failed-support outcomes",
+      "state": "confirmed FAIL sibling; separate canonical writer assigned",
+      "owner": "CAL author under root coordinated welfare file lease",
+      "deciding_receipt": "welfare-failed-support-receipt.json",
+      "P40": "same failed-support class sibling; widen quantity once, not instance patch ladder"
+    },
+    {
+      "property": "Source law/regularity and actual production-fit quality",
+      "state": "not_established; no authority gate from numerical profile",
+      "owner": "G local read-only exact candidate + measurement/model source owner",
+      "required_inputs": "Actual configured graph/plan/model snapshot, ordered observation/split/source IDs, known Gaussian noise scales and owner-admitted independent row-law/regularity profile if inferential authority is sought"
+    },
+    {
+      "property": "B201/B202 point/interval source-law semantics",
+      "state": "held; outside this code acceptance",
+      "owner": "designated IR semantic owner; no v1.1 wire ratification by E"
+    }
+  ],
+  "P40_dispositions": {
+    "inverse_information_admission": "same class widened to finite real scalar objective + raw spectrum + stationary known objective; no eigenvalue repair",
+    "objective_identity": "new binding class widened to effective operand closure and explicit unsupported callback boundary"
+  },
+  "P41": "No inherited-red claim. Proposed missing selector initially ERROR; actual equivalent CAL05 selectors resolved. Shared-lane provisional runs expressly not immutable candidate evidence; see mixed-source-caveat.json.",
+  "environment": "CPython3.14.7,JAX/jaxlib0.8.2,NumPy2.3.5,CPU backend,float32 derivative,x64false,no orchestrator numerical/thread caps. Full env in independent oracle receipts.",
+  "deciding_output_refs": [
+    {
+      "path": "/workspace/e02-E-20261006-receipts/cal-independent/oracles-34788febbbee.log",
+      "sha256": "34801e3a308d6e9f5e7d17d4afa59db641183e401d828d86e8a237b5c8fb0cc5"
+    },
+    {
+      "path": "/workspace/e02-E-20261006-receipts/cal-independent/oracles-0cb369b6ef73.log",
+      "sha256": "2da0fe0f6c6458b2b9860003568f71b334687d9dd90385bdbd0c6bb6ca210ff0"
+    },
+    {
+      "path": "/workspace/e02-E-20261006-receipts/cal-independent/batch-oracles.log",
+      "sha256": "521abf4bfecece73ef98efad7c4d94a63ec996dd1a25b429efbb2f7a2ae1e947"
+    },
+    {
+      "path": "/workspace/e02-E-20261006-receipts/cal-independent/final-targeted-0cb369b6ef73.log",
+      "sha256": "a9d6c55ed9d807b32d5bf39b92352c1be384488db2b8135a515cc9266b970a29"
+    },
+    {
+      "path": "/workspace/e02-E-20261006-receipts/cal-independent/welfare-failed-support-cas-resolved.log",
+      "sha256": "9fbd9014cc2e82cf8ec84e2c99a8f9ccd1d13fbbbda90cba0f3482b3af5b10cf"
+    }
+  ],
+  "cleanup_candidates": [
+    "/workspace/e02-E-20261006-receipts/cal-independent/welfare-failed-support-cas",
+    "/workspace/e02-E-cal-20261006/policy-engine/.pytest_cache",
+    "/workspace/e02-E-cal-20261006/policy-engine/.venv"
+  ],
+  "reproduce": {
+    "portable_independent_oracle": "oracles.py accepts optional repository absolute root and output absolute root; imports must resolve inside selected repository and all source hashes are checked start/end",
+    "native_tests": "Exact argv retained in final-targeted receipt; relative selectors run from policy-engine directory after admitted candidate checkout/profile provision",
+    "fresh_store_consumer": "Actual B197 producer→CAS→welfare positive is committed native test_calibrator_tied_report_reaches_delta_and_monte_carlo_welfare; same-bytewrongprofile negatives in test_report.py"
+  }
+}

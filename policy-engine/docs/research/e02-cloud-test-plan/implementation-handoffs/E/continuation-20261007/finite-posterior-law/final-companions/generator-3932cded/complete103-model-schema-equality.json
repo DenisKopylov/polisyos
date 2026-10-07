@@ -1,0 +1,947 @@
+{
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "old_candidate": "ca17a489559eb574285bb1c7291cc3c56a9e29da",
+  "all_complete103_before_after_equal": true,
+  "all_projected103_model_schema_values_equal": true,
+  "models": [
+    {
+      "abi_key": "trinity_bundle",
+      "fqn": "polisyos.ir.trinity.TrinityBundle",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/trinity_bundle.schema.json",
+        "bytes": 141596,
+        "sha256": "769560eb1ce07457b3ef3caaf56030ce7ff775292c58f83b8499fada36b3a8d2"
+      }
+    },
+    {
+      "abi_key": "problem_frame",
+      "fqn": "polisyos.ir.governance.problem_frame.ProblemFrame",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/problem_frame.schema.json",
+        "bytes": 31082,
+        "sha256": "96b467f7ab948d6d474c489c4ec18568881f437af0f2466dab3d5c5c77e435de"
+      }
+    },
+    {
+      "abi_key": "policy_spec",
+      "fqn": "polisyos.ir.governance.policy_spec.PolicySpec",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/policy_spec.schema.json",
+        "bytes": 89987,
+        "sha256": "66074cf62e3a363db30bd9d819a096f232be34ee74a4b70ff03bf434f4135064"
+      }
+    },
+    {
+      "abi_key": "policy_portfolio",
+      "fqn": "polisyos.ir.loading.portfolio.PolicyPortfolio",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/policy_portfolio.schema.json",
+        "bytes": 97028,
+        "sha256": "cbb91f0e189e05fd7200fca98aed500f7006779e2045ebc7e79deb89575d9a20"
+      }
+    },
+    {
+      "abi_key": "model_spec",
+      "fqn": "polisyos.ir.model_layer.model_spec.ModelSpec",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/model_spec.schema.json",
+        "bytes": 20942,
+        "sha256": "3615ba4a99f756c856dcb64a3b7f0e17efae97d727b1f5fe143cdf3aba21fef4"
+      }
+    },
+    {
+      "abi_key": "norm_pack",
+      "fqn": "polisyos.ir.loading.norm_pack.NormPack",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/norm_pack.schema.json",
+        "bytes": 16114,
+        "sha256": "3a8a0fde1736c58659eccedf5da8131d29d7f177ee9eeeb51423643629a90098"
+      }
+    },
+    {
+      "abi_key": "norm_rule",
+      "fqn": "polisyos.ir.loading.norm_pack.NormRule",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/norm_rule.schema.json",
+        "bytes": 14816,
+        "sha256": "640c363d229e4a114dbfb20b5cad1f33b4f919da223202c20df00bb6f341d8aa"
+      }
+    },
+    {
+      "abi_key": "norm_ref",
+      "fqn": "polisyos.ir.loading.norm_pack.NormRef",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/norm_ref.schema.json",
+        "bytes": 7275,
+        "sha256": "200201aefe0bdfe2d8a16d6ae725bbd14476e6ef3ebe602454a17b46d65a6565"
+      }
+    },
+    {
+      "abi_key": "claim",
+      "fqn": "polisyos.ir.world.claim.Claim",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/claim.schema.json",
+        "bytes": 9723,
+        "sha256": "ecfb9a0318c83f247c42542f788acae3ea5135ee7ac866dd9362fafe03dd65de"
+      }
+    },
+    {
+      "abi_key": "conflict_set",
+      "fqn": "polisyos.ir.world.conflict.ConflictSet",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/conflict_set.schema.json",
+        "bytes": 2770,
+        "sha256": "f1037f6cf1b7cc0829889357af0d5abc9abcac754fd6bb2f9287dad928770c51"
+      }
+    },
+    {
+      "abi_key": "conflict_set_resolution",
+      "fqn": "polisyos.ir.world.conflict.ConflictSetResolution",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/conflict_set_resolution.schema.json",
+        "bytes": 1028,
+        "sha256": "6bb81ee9eb33449141833f5e3ce2efebf4748d5ed3629b0a1fe11eae49ab5978"
+      }
+    },
+    {
+      "abi_key": "conflict_resolution",
+      "fqn": "polisyos.ir.world.conflict.ConflictResolution",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/conflict_resolution.schema.json",
+        "bytes": 3128,
+        "sha256": "2092d62762376011df9111cd8551b044641c6913084b37ea4d1768ea1ef67870"
+      }
+    },
+    {
+      "abi_key": "world_event",
+      "fqn": "polisyos.ir.world.event.WorldEvent",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/world_event.schema.json",
+        "bytes": 6286,
+        "sha256": "3e244f579f23ee02d350da28fdad0280a95403fb51b1b53174df0ecd2ce4b04f"
+      }
+    },
+    {
+      "abi_key": "prov_activity",
+      "fqn": "polisyos.ir.world.event.ProvActivity",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/prov_activity.schema.json",
+        "bytes": 1526,
+        "sha256": "c5b6697d8d49f5d08037833fb9e142b933dc5b91ff3eecdc73a51dcc83b47dac"
+      }
+    },
+    {
+      "abi_key": "doc_fragment",
+      "fqn": "polisyos.ir.world.doc.DocFragment",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/doc_fragment.schema.json",
+        "bytes": 3351,
+        "sha256": "38550ffb063f8d75d68ae1155c3c659f3151a705b179fd4ceb507b93f80c470e"
+      }
+    },
+    {
+      "abi_key": "doc_meta",
+      "fqn": "polisyos.ir.world.doc.DocMeta",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/doc_meta.schema.json",
+        "bytes": 2675,
+        "sha256": "728f491cd0b14bf7c8b14af219dd824e236fb3eaf8894ec994473c546c84d21c"
+      }
+    },
+    {
+      "abi_key": "trust_assessment",
+      "fqn": "polisyos.ir.world.trust.TrustAssessment",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/trust_assessment.schema.json",
+        "bytes": 2089,
+        "sha256": "29ca7ef7eabfa5459ee1ffe28e98b41e510fb7cc8371375092bb3ef223ad56b2"
+      }
+    },
+    {
+      "abi_key": "quality_report",
+      "fqn": "polisyos.ir.world.quality.QualityReport",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/quality_report.schema.json",
+        "bytes": 2915,
+        "sha256": "f625f883d0723dec65b679027ad13fad54ccbe19d3ea30076af94be597cd1cbf"
+      }
+    },
+    {
+      "abi_key": "uncertainty_envelope",
+      "fqn": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/uncertainty_envelope.schema.json",
+        "bytes": 16415,
+        "sha256": "68ebca6a97310850be1eb777c044b0da3d2f941b1dc14b9a382df7373229949f"
+      }
+    },
+    {
+      "abi_key": "posterior_summary_profile_v2",
+      "fqn": "polisyos.ir.analytics.posterior_summary.PosteriorSummaryProfileV2",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/posterior_summary_profile_v2.schema.json",
+        "bytes": 6746,
+        "sha256": "d538fc5a5b9003afd015eb59213a9fd72f5dcf7ab2ec830418e94124f13613d2"
+      }
+    },
+    {
+      "abi_key": "posterior_summary_profile",
+      "fqn": "polisyos.ir.analytics.posterior_summary.PosteriorSummaryProfile",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/posterior_summary_profile.schema.json",
+        "bytes": 6257,
+        "sha256": "fb26ce985c4b99092bd1a9d75a2f9b3940415eff83cbb9383fbb63a89b2dccf6"
+      }
+    },
+    {
+      "abi_key": "causal_effect_report",
+      "fqn": "polisyos.ir.analytics.causal.CausalEffectReport",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/causal_effect_report.schema.json",
+        "bytes": 42341,
+        "sha256": "be2a79b4eb17dc03b4c29a810dd704a6269697a33fc47a3223db1e899a878ceb"
+      }
+    },
+    {
+      "abi_key": "abm_alignment_report",
+      "fqn": "polisyos.ir.analytics.abm_bridge.ABMAlignmentReport",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/abm_alignment_report.schema.json",
+        "bytes": 5608,
+        "sha256": "36fb1f1e3967037acf4933ccfced238299c2d3ab378902cee5b46e0091d2ec29"
+      }
+    },
+    {
+      "abi_key": "abm_result",
+      "fqn": "polisyos.ir.analytics.phase4_dynamics.ABMResult",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/abm_result.schema.json",
+        "bytes": 19783,
+        "sha256": "6fbaa1252ba7b9aaa0d85c4232a071884b24b36726c8abdede05e8898082d9a8"
+      }
+    },
+    {
+      "abi_key": "transportability_result",
+      "fqn": "polisyos.ir.analytics.transportability.TransportabilityResult",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/transportability_result.schema.json",
+        "bytes": 28538,
+        "sha256": "406e4a7785ebf8a6d34712be6480d563fd667f0a247060fbe8b086948b2a9b31"
+      }
+    },
+    {
+      "abi_key": "refutation_result",
+      "fqn": "polisyos.ir.analytics.causal.RefutationResult",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/refutation_result.schema.json",
+        "bytes": 1441,
+        "sha256": "92f28507db3edd57e0f6151529565a1dfc8132d6fb9b514e39e431a143fd7b6c"
+      }
+    },
+    {
+      "abi_key": "causal_graph_model",
+      "fqn": "polisyos.ir.analytics.causal_graph.CausalGraphModel",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/causal_graph_model.schema.json",
+        "bytes": 5743,
+        "sha256": "c3c5b3145a897ff91eb07043886f1c8436255c29d1659c26bf1301f98451619b"
+      }
+    },
+    {
+      "abi_key": "structural_causal_model_spec",
+      "fqn": "polisyos.ir.analytics.structural_causal_model.StructuralCausalModelSpec",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+        "bytes": 9788,
+        "sha256": "a034a936e3d8df3609aa562d337640f6f3e39f2581eb7f191c9deaa0101c1b4e"
+      }
+    },
+    {
+      "abi_key": "causal_query_result",
+      "fqn": "polisyos.ir.analytics.causal_queries.CausalQueryResult",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/causal_query_result.schema.json",
+        "bytes": 6973,
+        "sha256": "586979966deb2d5aa0b8f7cb327958d66e7f158fddb4d678af57806b7fad5613"
+      }
+    },
+    {
+      "abi_key": "causal_discovery_report",
+      "fqn": "polisyos.ir.analytics.causal_discovery.CausalDiscoveryReport",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/causal_discovery_report.schema.json",
+        "bytes": 26682,
+        "sha256": "620deac982be08a109d0f49332b160d01f07f09b438273c3d209a6412443f813"
+      }
+    },
+    {
+      "abi_key": "causal_model_ensemble",
+      "fqn": "polisyos.ir.analytics.causal_ensemble.CausalModelEnsemble",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/causal_model_ensemble.schema.json",
+        "bytes": 1838,
+        "sha256": "4f9a59a3a768df39c1be01a3a0db13db89512868855efb57f5289ef78292faa6"
+      }
+    },
+    {
+      "abi_key": "causal_sensitivity_result",
+      "fqn": "polisyos.ir.analytics.sensitivity.SensitivityResult",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/sensitivity_result.schema.json",
+        "bytes": 5633,
+        "sha256": "e5a2c593f29ab3ad03144bf2917c8a978d11a8c0c4b5f5dc1fa6b1691a597e31"
+      }
+    },
+    {
+      "abi_key": "distributional_report",
+      "fqn": "polisyos.ir.analytics.distributional.DistributionalReport",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/distributional_report.schema.json",
+        "bytes": 9334,
+        "sha256": "5c5f0954ca1968816354343ca911fa73db1d706d2273aa42074f8a2d5a1e7366"
+      }
+    },
+    {
+      "abi_key": "metric_validation_report",
+      "fqn": "polisyos.ir.analytics.metric_validation_report.MetricValidationReport",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/metric_validation_report.schema.json",
+        "bytes": 9742,
+        "sha256": "750d5f319860afc0195bb6a12c0e4d37ba17be38eaa32bfed9390df874a243dc"
+      }
+    },
+    {
+      "abi_key": "forecasting_uncertainty_bundle",
+      "fqn": "polisyos.ir.analytics.forecasting_uncertainty.ForecastingUncertaintyBundle",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/forecasting_uncertainty_bundle.schema.json",
+        "bytes": 14267,
+        "sha256": "2ae78adca9f754687ced7885fc726e94db65448989e516236f21bb1bd0662a66"
+      }
+    },
+    {
+      "abi_key": "regime_shift_forecast_bundle",
+      "fqn": "polisyos.ir.analytics.regime_shift_forecast.RegimeShiftForecastBundle",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/regime_shift_forecast_bundle.schema.json",
+        "bytes": 18623,
+        "sha256": "172562b5caa6a4305258c2136383bcd802f87a5266d913ccfafb32bfcad150ed"
+      }
+    },
+    {
+      "abi_key": "phase4_temporal_policy_gate_verdict",
+      "fqn": "polisyos.ir.analytics.phase4_dynamics.Phase4TemporalPolicyGateVerdict",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/phase4_temporal_policy_gate_verdict.schema.json",
+        "bytes": 2216,
+        "sha256": "f9238cf0a6575766760db80dd792d17a7c72f2492baba1d96acbd8e5aa99a25e"
+      }
+    },
+    {
+      "abi_key": "dynamic_microsim_validation_report",
+      "fqn": "polisyos.ir.analytics.phase4_dynamics.DynamicMicrosimValidationReport",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/dynamic_microsim_validation_report.schema.json",
+        "bytes": 3951,
+        "sha256": "87ebbd2477407f621dac62d11d3697114c488fa8112aed86e130b7ba7d66cc28"
+      }
+    },
+    {
+      "abi_key": "temporal_graph_causal_certificate",
+      "fqn": "polisyos.ir.analytics.phase4_dynamics.TemporalGraphCausalCertificate",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/temporal_graph_causal_certificate.schema.json",
+        "bytes": 3081,
+        "sha256": "3e1077df1845853e03078f016e095fabe872103c52dc1b3dc56698b5ccdf410a"
+      }
+    },
+    {
+      "abi_key": "space_time_causal_certificate",
+      "fqn": "polisyos.ir.analytics.phase4_dynamics.SpaceTimeCausalCertificate",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/space_time_causal_certificate.schema.json",
+        "bytes": 1587,
+        "sha256": "dad181fd0bcd4ffa5fc0ae900b5c80b2da5ff6efe1a07d51686ddb82f448de08"
+      }
+    },
+    {
+      "abi_key": "hte_result",
+      "fqn": "polisyos.ir.analytics.hte.HTEResult",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/hte_result.schema.json",
+        "bytes": 8803,
+        "sha256": "135d8dfda5c7b459d18634c78e5a9a2291735384840e116e876a0554b4370a09"
+      }
+    },
+    {
+      "abi_key": "policy_recommendation",
+      "fqn": "polisyos.ir.analytics.hte.PolicyRecommendation",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/policy_recommendation.schema.json",
+        "bytes": 4304,
+        "sha256": "4792b22405bc5525c27ac9caaf1e117800494c03ad7d2906a7f85ef1b162b50c"
+      }
+    },
+    {
+      "abi_key": "backtest_report",
+      "fqn": "polisyos.ir.analytics.backtest.BacktestReport",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/backtest_report.schema.json",
+        "bytes": 16028,
+        "sha256": "251851a2461e1064094b8e752ad760c9e553df39620a9e9037eb146dc8a77289"
+      }
+    },
+    {
+      "abi_key": "fact",
+      "fqn": "polisyos.ir.loading.fact_log.Fact",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/fact.schema.json",
+        "bytes": 8027,
+        "sha256": "010c7deb417d26cf3c53dfae2aaea9134727f81f5340a2c3b4fe13492b1845bf"
+      }
+    },
+    {
+      "abi_key": "fact_segment_manifest",
+      "fqn": "polisyos.ir.loading.fact_log.FactSegmentManifest",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/fact_segment_manifest.schema.json",
+        "bytes": 2041,
+        "sha256": "5984f0764c2cd62cac7703fa2d783bb201a8480b9ec59ef226510ee3ebd11aeb"
+      }
+    },
+    {
+      "abi_key": "calibration_config",
+      "fqn": "polisyos.ir.analytics.calibration.CalibrationConfig",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/calibration_config.schema.json",
+        "bytes": 28338,
+        "sha256": "58d09038b41c8491c488b6223dc272cbb6b33e7768afc4884dddbed99e216fb5"
+      }
+    },
+    {
+      "abi_key": "data_view_request",
+      "fqn": "polisyos.ir.analytics.data_views.DataViewRequest",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/data_view_request.schema.json",
+        "bytes": 3567,
+        "sha256": "2771d610747aec655025230b7a28237280ffbb44d85b35b1274ef252a1a62f44"
+      }
+    },
+    {
+      "abi_key": "article_extraction_result",
+      "fqn": "polisyos.ir.analytics.literature.ArticleExtractionResult",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/article_extraction_result.schema.json",
+        "bytes": 34532,
+        "sha256": "dd8d13491ac2c65419a745084b6221ff39c967263db755edd51419279d76ea96"
+      }
+    },
+    {
+      "abi_key": "literature_causal_prior",
+      "fqn": "polisyos.ir.analytics.literature.LiteratureCausalPrior",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/literature_causal_prior.schema.json",
+        "bytes": 6630,
+        "sha256": "508b2bf81fd8185f1fb24986ae7b4f28c32e72c5587b0e3d92854c262fc84e1f"
+      }
+    },
+    {
+      "abi_key": "context_adaptive_parameter_bundle",
+      "fqn": "polisyos.ir.analytics.parameters.ContextAdaptiveParameterBundle",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/context_adaptive_parameter_bundle.schema.json",
+        "bytes": 13573,
+        "sha256": "797a78b8709e7c332c522d3467772c247fd2317e3352c1a11860bfabc6be0b3c"
+      }
+    },
+    {
+      "abi_key": "causal_query",
+      "fqn": "polisyos.ir.analytics.causal_queries.CausalQuery",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/causal_query.schema.json",
+        "bytes": 5220,
+        "sha256": "60530ae43badc2351847c6a8fba40dbb6762dd86232ef63ec21e9ce0fd46c950"
+      }
+    },
+    {
+      "abi_key": "gate_context",
+      "fqn": "polisyos.ir.governance.gate.GateContext",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/gate_context.schema.json",
+        "bytes": 2581,
+        "sha256": "eba3222debbf96f7cfb7494c388008ac128e809362532a54f5766657290140e2"
+      }
+    },
+    {
+      "abi_key": "gate_request",
+      "fqn": "polisyos.ir.governance.gate.GateRequest",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/gate_request.schema.json",
+        "bytes": 4653,
+        "sha256": "174e4a38e31b392e27e540df9839e1e44e2ec91c00abd0864de97fb54401398e"
+      }
+    },
+    {
+      "abi_key": "gate_decision",
+      "fqn": "polisyos.ir.governance.gate.GateDecision",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/gate_decision.schema.json",
+        "bytes": 1551,
+        "sha256": "fa461b7ffd15bf7af82d92365fba4a7ac47786e4443ab954947f84a7a24e2b10"
+      }
+    },
+    {
+      "abi_key": "gate_event",
+      "fqn": "polisyos.ir.governance.gate.GateEvent",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/gate_event.schema.json",
+        "bytes": 1505,
+        "sha256": "2a903dd6042450100599c26075ee23b2e337a74826a8d6410d8e43662a7b7e98"
+      }
+    },
+    {
+      "abi_key": "partial_identification_result",
+      "fqn": "polisyos.ir.analytics.partial_identification.PartialIdentificationResult",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/partial_identification_result.schema.json",
+        "bytes": 6122,
+        "sha256": "316faba0ee344ff1f102e52c4f435aea9f918d96e8b3a6149dce33b5e14d6d4e"
+      }
+    },
+    {
+      "abi_key": "intervention_cost_manifold",
+      "fqn": "polisyos.ir.analytics.recourse_manifold.InterventionCostManifold",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/intervention_cost_manifold.schema.json",
+        "bytes": 9975,
+        "sha256": "0e235ad3c0889ee2200936925abb82fb90d2633bc038a112002254a9dddaa245"
+      }
+    },
+    {
+      "abi_key": "optimal_recourse_intervention_query",
+      "fqn": "polisyos.ir.analytics.recourse_manifold.OptimalRecourseInterventionQuery",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/optimal_recourse_intervention_query.schema.json",
+        "bytes": 4535,
+        "sha256": "179bb94f7427be30fd17498777024d760c77fbaffe6f4154d1c57497bd2d3cd5"
+      }
+    },
+    {
+      "abi_key": "recourse_proof_bundle",
+      "fqn": "polisyos.ir.analytics.recourse_manifold.RecourseProofBundle",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/recourse_proof_bundle.schema.json",
+        "bytes": 7301,
+        "sha256": "34bdef5d182ee2db5297ff8276a779b372ca8c0bb602b6ee84ff4a1c7f59f651"
+      }
+    },
+    {
+      "abi_key": "recourse_feasibility_certificate",
+      "fqn": "polisyos.ir.analytics.recourse_manifold.RecourseFeasibilityCertificate",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/recourse_feasibility_certificate.schema.json",
+        "bytes": 9761,
+        "sha256": "853312ff78be8c4af242b88c9fcd6a7d2a7f11f1a83bf532f8c4911aea6c40ed"
+      }
+    },
+    {
+      "abi_key": "optimal_recourse_intervention_bundle",
+      "fqn": "polisyos.ir.analytics.recourse_manifold.OptimalRecourseInterventionBundle",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/optimal_recourse_intervention_bundle.schema.json",
+        "bytes": 7072,
+        "sha256": "56cc58ab97407eb841728d9476ccef8fe9a531060a2359bba194edac7ca641e2"
+      }
+    },
+    {
+      "abi_key": "certification_result",
+      "fqn": "polisyos.ir.analytics.alignment_certification.CertificationResult",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/certification_result.schema.json",
+        "bytes": 807,
+        "sha256": "78fcfb8a1af3036d363d6489a6aa6d8878415c38bb08ad90f2b9337e32bd36f2"
+      }
+    },
+    {
+      "abi_key": "outer_search_result",
+      "fqn": "polisyos.ir.analytics.alignment_certification.OuterSearchResult",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/outer_search_result.schema.json",
+        "bytes": 3317,
+        "sha256": "08d7fcd9a51ab59fab460ddee66ed7f44267b1405879c932af9d95c769145e49"
+      }
+    },
+    {
+      "abi_key": "observation_record",
+      "fqn": "polisyos.ir.observation.contracts.ObservationRecord",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/observation_record.schema.json",
+        "bytes": 7835,
+        "sha256": "3a8d142d075676196feb9993f5a961aafa373d4ccab56220543a6ef6bf74faed"
+      }
+    },
+    {
+      "abi_key": "observation_panel",
+      "fqn": "polisyos.ir.observation.contracts.ObservationPanel",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/observation_panel.schema.json",
+        "bytes": 9811,
+        "sha256": "72bac763b6adb9aa02f3336f645fcd9a5b0974f4664a40fe4772d4068e9c4760"
+      }
+    },
+    {
+      "abi_key": "observation_family",
+      "fqn": "polisyos.ir.observation.contracts.ObservationFamily",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/observation_family.schema.json",
+        "bytes": 495,
+        "sha256": "f99ecbd54c26d7bca9a6bbf3ad74e6db11ab1ec844d4baae8bb289502a7df106"
+      }
+    },
+    {
+      "abi_key": "entity_scope",
+      "fqn": "polisyos.ir.observation.contracts.EntityScope",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/entity_scope.schema.json",
+        "bytes": 243,
+        "sha256": "5be72dc8a44a71defe7ab67ea863341152bc38580b2a55618db8255bc5c5c92b"
+      }
+    },
+    {
+      "abi_key": "identification_mode",
+      "fqn": "polisyos.ir.observation.contracts.IdentificationMode",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/identification_mode.schema.json",
+        "bytes": 278,
+        "sha256": "4162213cb416aee6a5f519b38d68cba246399d77d613c77721ca5c37f7135524"
+      }
+    },
+    {
+      "abi_key": "source_confidence_tier",
+      "fqn": "polisyos.ir.observation.contracts.SourceConfidenceTier",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/source_confidence_tier.schema.json",
+        "bytes": 191,
+        "sha256": "7776eb0edd372074b1eb2f8307b4ffd2e55790e4de59ccdd3f99be265eb5a490"
+      }
+    },
+    {
+      "abi_key": "multiplex_graph_layer_id",
+      "fqn": "polisyos.ir.observation.contracts.MultiplexGraphLayerId",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/multiplex_graph_layer_id.schema.json",
+        "bytes": 229,
+        "sha256": "58e301ed94df5619940c6c7eed78f0d711885bdd9c77403d7cebfe27c6b658ff"
+      }
+    },
+    {
+      "abi_key": "strategic_response_channel",
+      "fqn": "polisyos.ir.observation.contracts.StrategicResponseChannel",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/strategic_response_channel.schema.json",
+        "bytes": 300,
+        "sha256": "e9a2e05748a157df410017863feed57db93b5abb9e83c29248d04017adb42e7b"
+      }
+    },
+    {
+      "abi_key": "governance_pass_alias_status",
+      "fqn": "polisyos.ir.observation.governance.GovernancePassAliasStatus",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/governance_pass_alias_status.schema.json",
+        "bytes": 185,
+        "sha256": "2b6e8f2bd30dd66e8d4d45e8bcbaa7ce858774500f95e1a9236266120cf61ec1"
+      }
+    },
+    {
+      "abi_key": "governance_pass_alias",
+      "fqn": "polisyos.ir.observation.governance.GovernancePassAlias",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/governance_pass_alias.schema.json",
+        "bytes": 1496,
+        "sha256": "ec002eedf6867795cb472d4ea080403188a86b5b82901f22fac72e6348b93a5c"
+      }
+    },
+    {
+      "abi_key": "governance_pass_alias_registry",
+      "fqn": "polisyos.ir.observation.governance.GovernancePassAliasRegistry",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/governance_pass_alias_registry.schema.json",
+        "bytes": 2377,
+        "sha256": "58db7828c1e722d3218b20d634ce93ebc8159780e70526bd6b493a8af4dcc3be"
+      }
+    },
+    {
+      "abi_key": "observation_family_policy",
+      "fqn": "polisyos.ir.observation.governance.ObservationFamilyPolicy",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/observation_family_policy.schema.json",
+        "bytes": 3578,
+        "sha256": "2b684e7ec3c68e3da373dfd221bef88debcc039f82413826b610a33e2eaae627"
+      }
+    },
+    {
+      "abi_key": "observation_family_policy_registry",
+      "fqn": "polisyos.ir.observation.governance.ObservationFamilyPolicyRegistry",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/observation_family_policy_registry.schema.json",
+        "bytes": 4584,
+        "sha256": "4d14de1591d02f0d53bd2396dcf813eb084c994fe43c0cf03b81f7793f9f6f18"
+      }
+    },
+    {
+      "abi_key": "temporal_intervention_step",
+      "fqn": "polisyos.ir.governance.policy_spec.TemporalInterventionStep",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/temporal_intervention_step.schema.json",
+        "bytes": 1174,
+        "sha256": "4cab37902626431785eced328c2e2e7938d24667bc32dcd23e175ca9bb4686e9"
+      }
+    },
+    {
+      "abi_key": "temporal_intervention_sequence",
+      "fqn": "polisyos.ir.governance.policy_spec.TemporalInterventionSequence",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/temporal_intervention_sequence.schema.json",
+        "bytes": 4504,
+        "sha256": "6fa8125267bbd265707d9932c138a6fbce685d666c82a4eb33faf3f9672fc213"
+      }
+    },
+    {
+      "abi_key": "calibration_target_bundle_manifest",
+      "fqn": "polisyos.ir.observation.bundles.CalibrationTargetBundleManifest",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/calibration_target_bundle_manifest.schema.json",
+        "bytes": 6440,
+        "sha256": "14d9727e592f0f6c73ca2fee093c182ada8841b6229a477535ab88dab0104957"
+      }
+    },
+    {
+      "abi_key": "microsim_survey_contract_bundle",
+      "fqn": "polisyos.ir.observation.bundles.MicrosimSurveyContractBundle",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/microsim_survey_contract_bundle.schema.json",
+        "bytes": 2830,
+        "sha256": "9afc92648f24a37835847601fcab7924e3da9b0dbfffad29a2f6675f2b75b1cf"
+      }
+    },
+    {
+      "abi_key": "network_contract_bundle",
+      "fqn": "polisyos.ir.observation.bundles.NetworkContractBundle",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/network_contract_bundle.schema.json",
+        "bytes": 3504,
+        "sha256": "a72b931ea48fe2c4b476460de9e7c5ed11e4d6659614877fb3a67d9b139a1501"
+      }
+    },
+    {
+      "abi_key": "network_causal_contract_bundle",
+      "fqn": "polisyos.ir.observation.bundles.NetworkCausalContractBundle",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/network_causal_contract_bundle.schema.json",
+        "bytes": 2519,
+        "sha256": "50666f553a8195cf6ccaac02d041e0937b605d739dea17977f473669fa361e40"
+      }
+    },
+    {
+      "abi_key": "causal_panel_bundle_manifest",
+      "fqn": "polisyos.ir.observation.bundles.CausalPanelBundleManifest",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/causal_panel_bundle_manifest.schema.json",
+        "bytes": 5573,
+        "sha256": "e7c5fc29372b781e2d8d9eca3c13fa2a6f9dc5b922bfc58e1457f987fe9e3970"
+      }
+    },
+    {
+      "abi_key": "backtest_plan_bundle",
+      "fqn": "polisyos.ir.observation.bundles.BacktestPlanBundle",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/backtest_plan_bundle.schema.json",
+        "bytes": 2004,
+        "sha256": "2193c6f2bcdd4ebc966b2a88b581f5a6c5e63f0bd3c5d4ed649d332140e47134"
+      }
+    },
+    {
+      "abi_key": "observation_to_contract_manifest",
+      "fqn": "polisyos.ir.observation.bundles.ObservationToContractManifest",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/observation_to_contract_manifest.schema.json",
+        "bytes": 7363,
+        "sha256": "a97fb71f4efc47ceae7f60b399b557aaa50cf228c3121ccf689e25c916ff5803"
+      }
+    },
+    {
+      "abi_key": "bounds_estimation_bundle",
+      "fqn": "polisyos.ir.observation.bundles.BoundsEstimationBundle",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/bounds_estimation_bundle.schema.json",
+        "bytes": 2953,
+        "sha256": "a9a611df2497296dc5e47cfcd1bf909dcc066636a326ec4b834c9b5ce783fea2"
+      }
+    },
+    {
+      "abi_key": "proxy_identification_bundle",
+      "fqn": "polisyos.ir.observation.bundles.ProxyIdentificationBundle",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/proxy_identification_bundle.schema.json",
+        "bytes": 4706,
+        "sha256": "aa433487490a33a7bd4776754524f7f3d6d4cff253371fb59fdae4bc764cc606"
+      }
+    },
+    {
+      "abi_key": "dtr_treatment_sequence_bundle_manifest",
+      "fqn": "polisyos.ir.observation.bundles.DTRTreatmentSequenceBundleManifest",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/dtr_treatment_sequence_bundle_manifest.schema.json",
+        "bytes": 6406,
+        "sha256": "701d0ac9e85f4776643475925d5ae28384ce9d3db52e0bbdf3170eed1d21ed8e"
+      }
+    },
+    {
+      "abi_key": "panel_econometric_bundle_manifest",
+      "fqn": "polisyos.ir.observation.bundles.PanelEconometricBundleManifest",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/panel_econometric_bundle_manifest.schema.json",
+        "bytes": 5383,
+        "sha256": "0d07ff0162f0325b46f6c57a015ebe4f5beedcdbdd43b4ad262be3dcb0feb6c0"
+      }
+    },
+    {
+      "abi_key": "survival_data_bundle_manifest",
+      "fqn": "polisyos.ir.observation.bundles.SurvivalDataBundleManifest",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/survival_data_bundle_manifest.schema.json",
+        "bytes": 5369,
+        "sha256": "68cad9fe67c242ec4148954eed0b5b3dd95129eaf1b464ae86c08d61bdeeefcb"
+      }
+    },
+    {
+      "abi_key": "specification_curve_bundle",
+      "fqn": "polisyos.ir.observation.bundles.SpecificationCurveBundle",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/specification_curve_bundle.schema.json",
+        "bytes": 3418,
+        "sha256": "e3118865e013fd2398889a1fdcb71b85d4d74e3731398f6874de6a30a6e14a64"
+      }
+    },
+    {
+      "abi_key": "leontief_io_bundle",
+      "fqn": "polisyos.ir.observation.bundles.LeontiefIOBundle",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/leontief_io_bundle.schema.json",
+        "bytes": 2207,
+        "sha256": "7c329d39e2450b9ea96f0b31042ba32bc92ff25a4b8b9f4e47cf13ee5db5136b"
+      }
+    },
+    {
+      "abi_key": "strategic_response_specs_bundle",
+      "fqn": "polisyos.ir.observation.bundles.StrategicResponseSpecsBundle",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/strategic_response_specs_bundle.schema.json",
+        "bytes": 2636,
+        "sha256": "ae4ceecbaca4a65dbc39c02c175a62b23b67a33bb68c4d0f43617dbefe0a7432"
+      }
+    },
+    {
+      "abi_key": "governance_pass_mapping_bundle",
+      "fqn": "polisyos.ir.observation.bundles.GovernancePassMappingBundle",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/governance_pass_mapping_bundle.schema.json",
+        "bytes": 3562,
+        "sha256": "3f97982b5426e2ea0ddc71276b7d91ffafde588df3e60d323dd54c006ee4a6a0"
+      }
+    },
+    {
+      "abi_key": "lesson_registry_seed_bundle",
+      "fqn": "polisyos.ir.observation.bundles.LessonRegistrySeedBundle",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/lesson_registry_seed_bundle.schema.json",
+        "bytes": 2780,
+        "sha256": "48ceb03c7378707157c4b4aa1059988e985650d36c3319ef80f64cb5f89bebe6"
+      }
+    },
+    {
+      "abi_key": "measurement_aware_target",
+      "fqn": "polisyos.foundry.calibration.measurement.MeasurementAwareTarget",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/measurement_aware_target.schema.json",
+        "bytes": 4556,
+        "sha256": "bc7c86484ca08c92d90d4c42b894d55d9be579bca7cc300e55d91fd1b077f8e7"
+      }
+    },
+    {
+      "abi_key": "measurement_aware_loss_config",
+      "fqn": "polisyos.foundry.calibration.measurement.MeasurementAwareLossConfig",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/measurement_aware_loss_config.schema.json",
+        "bytes": 1357,
+        "sha256": "d6771e4e45722a2d3d75db071bafdcc7fb086e83b5fe52d28094062ff582f666"
+      }
+    },
+    {
+      "abi_key": "feedback_solver_config",
+      "fqn": "polisyos.core.contracts.foundry.FeedbackSolverConfig",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/feedback_solver_config.schema.json",
+        "bytes": 5547,
+        "sha256": "31bf51b6b07927beb8514174490b9efd10187c179059e4f9acfd3333926d2160"
+      }
+    },
+    {
+      "abi_key": "feedback_jacobian_diagnostics",
+      "fqn": "polisyos.core.contracts.foundry.FeedbackJacobianDiagnostics",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/feedback_jacobian_diagnostics.schema.json",
+        "bytes": 2106,
+        "sha256": "66f38524df8ef3b7c79bc3d82c0209089210c6fd8c174c14bb22bd2b4f4676cc"
+      }
+    },
+    {
+      "abi_key": "feedback_solve_result",
+      "fqn": "polisyos.core.contracts.foundry.FeedbackSolveResult",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/feedback_solve_result.schema.json",
+        "bytes": 10458,
+        "sha256": "27dad4e3ca52c016d9203c5d70b27299bfbb38698fc6f64f4e2bc7377d2045d3"
+      }
+    },
+    {
+      "abi_key": "equilibrium_multiplicity_report",
+      "fqn": "polisyos.core.contracts.foundry.EquilibriumMultiplicityReport",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/ir/equilibrium_multiplicity_report.schema.json",
+        "bytes": 19719,
+        "sha256": "8ffa4a28a4bb4c2ea4715ad337cce551190877f5f0e9f630fbc6b3a0563ae117"
+      }
+    },
+    {
+      "abi_key": "edge_kind",
+      "fqn": "polisyos.ir.world.abi.EdgeKind",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/fabric/edge_kind.schema.json",
+        "bytes": 460,
+        "sha256": "6315e666fe4519cbf072e8a3bf55595ddbde5d9665e7cbca3af346a217491b70"
+      }
+    },
+    {
+      "abi_key": "node_kind",
+      "fqn": "polisyos.ir.world.abi.NodeKind",
+      "projected": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/snapshots/fabric/node_kind.schema.json",
+        "bytes": 317,
+        "sha256": "4a04a1a37f61f8ab156b984208e265bd7c13cdde7b2394da2362ee3c213dadf3"
+      }
+    }
+  ],
+  "before": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-schemas-before.json",
+    "bytes": 1301234,
+    "sha256": "ac9598f27e7e8b3ccfe8092bbe9e0aad1619c55b455e8d256ae928bd095699fd"
+  },
+  "after": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-schemas-after.json",
+    "bytes": 1301234,
+    "sha256": "ac9598f27e7e8b3ccfe8092bbe9e0aad1619c55b455e8d256ae928bd095699fd"
+  },
+  "raw_header_note": "Both saved schema arrays retain historical precommit head ca17; final3932 physical class/hash binding is supplied by independent DTO review."
+}

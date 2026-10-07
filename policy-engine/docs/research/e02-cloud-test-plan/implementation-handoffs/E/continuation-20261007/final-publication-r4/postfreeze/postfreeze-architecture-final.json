@@ -1,0 +1,245 @@
+{
+  "schema": "policyos.e02.postfreeze_architecture_readiness.v1",
+  "created_at": "2026-10-07T10:01:09.156022+00:00",
+  "candidate": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "reviewer": "imports_r4; independent from frozen FRC/IR authors. Prior Core539 authored route bodies not self-reviewed; prior independent reviews reused after exact source comparison.",
+  "canonical_gate_receipt": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/architecture/architecture.json",
+    "bytes": 8146,
+    "sha256": "f2fb06dd561d9cb11503d8b70903e6864fe153286725bbc8ad6087754b4786cc"
+  },
+  "canonical_full_stdout": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/architecture/architecture.stdout.txt",
+    "bytes": 136159,
+    "sha256": "7e4b0d4c4115b56440e6498dae639fef1329b49960b38bc3371cf6e354b33682"
+  },
+  "overall": "UNRUN; required runtime OpenAPI generator unavailable, with separately completed FAIL findings and two measured PASS generator families",
+  "wrapper_literal": "Original wrapper reports FAIL at exit2; original bytes preserved, this receipt supplies canonical interpretation instead of rewriting it",
+  "defining_census": {
+    "source_python": 2702,
+    "declared_packages": 20,
+    "supported_entrypoints": 38,
+    "generated_families": 110,
+    "default_required_families": 4,
+    "deep_import_baseline": 3330,
+    "observed_expected_baseline": 3448,
+    "new_to_baseline_edges": 151,
+    "removed_from_baseline": 33,
+    "reported_source_paths": 79,
+    "source_AST_presence_vs_base198": {
+      "present": 149,
+      "new_target": 1,
+      "new_source": 1
+    },
+    "syntactic_presence_limit": "Not runtime invocation or exact P41 attribution"
+  },
+  "runtime_generator": {
+    "family": "runtime-openapi-snapshot",
+    "canonical_outcome": "UNRUN",
+    "generator_exit": 1,
+    "exception": "OwnerValidationTimeoutError(confidence-ledger-risk-spend,184seconds)",
+    "declared_OpenAPI_output_observed": false,
+    "owner": "A/runtime governed projections, B confidence-ledger validator/input and canonical runtime API generator owners through G",
+    "next_result": "Exact worker/request/denominator trace explaining timeout, then one affected retained-output generator/check on reviewed owner candidate; no weakened timeout or authority flags"
+  },
+  "measured_partial": {
+    "runtime_api_client": "PASS three committed-schema outputs",
+    "runtime_dashboard_types": "PASS one committed-schema output",
+    "trust_posture": "FAIL stable captured generated JSON mismatch;152source identities vs149committed, complete keyed delta preserved",
+    "IR_public_inventory": "FAIL284\u2192287; existing scoped IR generator/public companion packet must apply through canonical G/Core/IR owner lease",
+    "deep_import": "FAIL151new-to-committed-baseline edges; current routing owner census complete, no baseline expansion",
+    "worktree_probe": "FAIL observed parallel browser screenshot path change; shared-root collision, not established generator/source cause"
+  },
+  "remaining_E_import_queue": {
+    "historical12": {
+      "resolved": 11,
+      "pending": 1,
+      "pending_edge": "forecast_bridge\u2192ir.analytics.forecasting_uncertainty loader; canonical IR analytics/API narrow export missing",
+      "owner": "@ir-owners with architecture/public companion review; enforced @DenisKopylov",
+      "minimum_packet": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/historical-edge-loader-only.patch",
+        "bytes": 1257,
+        "sha256": "b9941f66776a7f4fd99f7bdd41fd5f6092c5fec0b016368ef2ee1899b65b5a2a"
+      },
+      "recommended_native_pair_packet": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/producer-reader-pair.patch",
+        "bytes": 1928,
+        "sha256": "329965955e276b201c53929b1a09694ac49b3f23369d691a5c58c120ff38a508"
+      },
+      "patch_applicability": "Both git apply --check PASS on64d, patches UNAPPLIED; API tests UNRUN pending admission",
+      "prior_witness": "Canonical real forecast producer/bridge native tests already reviewed on immutable upstream source; no generic artifact/mapping authority"
+    },
+    "outside_historical12": [
+      {
+        "edge": "native_replay\u2192foundry.execute.executor",
+        "names": [
+          "get_state_path",
+          "load_state_snapshot",
+          "put_state_snapshot"
+        ],
+        "owner": "@foundry-owners; existing nine-identity owner packet, current facade absent; actual native K replay reviewed separately",
+        "next_result": "Admit three existing callable identity aliases in Foundry.execute with public companions, route replay import, fresh native K/CAS and fake-alias removal controls"
+      },
+      {
+        "edge": "Welfare uncertainty serializers\u2192IR private module",
+        "owner": "@ir-owners; existing serializer identity packet; edge may be grandfathered baseline, still actual E consumer seam",
+        "next_result": "Admit existing load/persist uncertainty serializers; route native welfare reader preserving exact type/function identity and receipt corruption/refusal controls"
+      },
+      {
+        "edge": "native IR adapter fixture\u2192Core internal module",
+        "owner": "@core-owners; approved honest test-only seam, no public facade export currently",
+        "next_result": "Canonical Core owner decide existing subfacade admission versus narrow root export; no lazy import workaround"
+      }
+    ]
+  },
+  "P41": "not_established for every global red without exact slice-base complete canonical command/source/input/config/environment replay",
+  "static_invocation": "RUNNING at publication preparation; separate completed static output review will follow. No PASS from preparatory5938current/5904base input census.",
+  "raw_capture_policy": "Full stable five declared outputs retained in ignored capture blobs with hash-bound index. No temporary source/environment copied. Default TemporaryDirectory cleaned itself; observer performed no cleanup. New cloud cleanup authorization permits unused repeatable outputs after saved deciding evidence/no active users; production/code/unique data preserved.",
+  "moderate_publication_files": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/exact-wave-gate-jobs.json",
+      "bytes": 2076,
+      "sha256": "d069b1664066740a5bcf182ad749b32eda98f035ba67602f78dc443b42d1ee5d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/architecture-row-attribution-64d.json",
+      "bytes": 285319,
+      "sha256": "7870e168f980057377f335d6cc97a2ed632410eaab58e392b00b68a0a9ca9a69"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/architecture-baseline-delta.json",
+      "bytes": 52513,
+      "sha256": "cc5e461428a4abc8df98e96816c9bfc646d175d76826834527950b720aaaa27a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/architecture-output-review.stdout",
+      "bytes": 4760,
+      "sha256": "13993cd38f0572386ea3243800c98ef7d6379b3acdb3510372f79b7f77eec8b0"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/architecture-output-review.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture-receipt.json",
+      "bytes": 14534,
+      "sha256": "d19556e7bdd8682113e7f5cdbbbeae38964adb7461aba69b10114afcd36a1ea4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/index.json",
+      "bytes": 12016,
+      "sha256": "288ad55ece85e895dcbddc953b13c796cd1c823e5a4726ce7ecfdd61aef393ee"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture.stdout",
+      "bytes": 238,
+      "sha256": "12afabaf61e25bbde0f2158f7e7d7c7b305fbba929b1e742d4f77852531b81c2"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/trust-posture-complete-keyed-census.json",
+      "bytes": 71904,
+      "sha256": "86a45b02603f7567dfe678b580d654d1d4862138350b195c5637ba48c36dcc02"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/packet.json",
+      "bytes": 15298,
+      "sha256": "1fdc4277f810fc826a052d46ed35fdf06fc8abc71109b4bfdd7157fa5763b57f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/historical-edge-loader-only.patch",
+      "bytes": 1257,
+      "sha256": "b9941f66776a7f4fd99f7bdd41fd5f6092c5fec0b016368ef2ee1899b65b5a2a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/producer-reader-pair.patch",
+      "bytes": 1928,
+      "sha256": "329965955e276b201c53929b1a09694ac49b3f23369d691a5c58c120ff38a508"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/test_forecast_serializer_exports.py.txt",
+      "bytes": 2367,
+      "sha256": "61005cb6c5fe5e96b699b350e0bea810cf645ce8cdd3f8bcac0dde22eec86f21"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/test-packet.json",
+      "bytes": 1731,
+      "sha256": "93f60ad738a232162566e599c8b2c15bb318b127e7c35dffcdf0f4ae5a902b2c"
+    }
+  ],
+  "literal_observers": [
+    {
+      "executed_source_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/prepare_input_census.py",
+      "portable_archived_source": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/prepare_input_census.py.txt",
+        "bytes": 4126,
+        "sha256": "d71734041e1880d6df29e026d9226277ad01aeb8ab63d7ee89660e8ab86ea1a5"
+      },
+      "literal_bytes_unchanged": true
+    },
+    {
+      "executed_source_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/prepare_architecture_inputs_tree_bound.py",
+      "portable_archived_source": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/prepare_architecture_inputs_tree_bound.py.txt",
+        "bytes": 6543,
+        "sha256": "75e14b4760cf1eadc237e841890e5eed304cdffb7a1cfe0b27924673d08f6815"
+      },
+      "literal_bytes_unchanged": true
+    },
+    {
+      "executed_source_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/prepare_forecast_api_packet.py",
+      "portable_archived_source": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/prepare_forecast_api_packet.py.txt",
+        "bytes": 11292,
+        "sha256": "e69800f81c68a35ec2f84bf82b9180667f0597f6e51b701347b1bcda0fd007e6"
+      },
+      "literal_bytes_unchanged": true
+    },
+    {
+      "executed_source_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/capture_generated_outputs.py",
+      "portable_archived_source": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/capture_generated_outputs.py.txt",
+        "bytes": 2209,
+        "sha256": "c2c94d377c2afcdbfda8921a7b83325d0e028e833156a7d6d909267ab69f2d88"
+      },
+      "literal_bytes_unchanged": true
+    },
+    {
+      "executed_source_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/inspect_architecture_output.py",
+      "portable_archived_source": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/inspect_architecture_output.py.txt",
+        "bytes": 11927,
+        "sha256": "d56afd54c8b0ac5482633e32f42e474d5e8de0040f9f547ddd5381d13165463e"
+      },
+      "literal_bytes_unchanged": true
+    },
+    {
+      "executed_source_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/reconcile_captured_outputs.py",
+      "portable_archived_source": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/reconcile_captured_outputs.py.txt",
+        "bytes": 6143,
+        "sha256": "016c9b2f06a6c539ee3410466b599b0803f3a0c2c73490db6c8ec00d1c820488"
+      },
+      "literal_bytes_unchanged": true
+    },
+    {
+      "executed_source_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/inspect_trust_posture_keys.py",
+      "portable_archived_source": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/inspect_trust_posture_keys.py.txt",
+        "bytes": 2982,
+        "sha256": "ecb597c3a52d6f07485e4bfd41fe2a6afd3ad8b07a14683839f11316b734facf"
+      },
+      "literal_bytes_unchanged": true
+    }
+  ],
+  "no_source_edits": true,
+  "no_generator_or_gate_rerun": true,
+  "no_publication_git_writes": true,
+  "limitations": "Import/placement readiness does not confer law, covariance, confidence, production authority or finding closure. owner dispositions/ledger status remain independent. Public API admission pending owner review; no general IR authority inferred from scoped B201/B202 appointment."
+}

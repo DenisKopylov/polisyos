@@ -1,0 +1,127 @@
+{
+  "schema": "policyos.e02.E.independent_publication_selection.v1",
+  "candidate_sha": "1186ce5bf60f11ceaafe395f626cee1096d0b878",
+  "candidate_tree_sha": "e580359680641ff27cb39344d240393b57e8852b",
+  "reviewer": "/root/lint_r4",
+  "assets": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/b4af26cf/review.py",
+      "bytes": 11822,
+      "sha256": "af3d70379679c94fc952bb84f526174a732e05aff47b5297944d845b23b27f26",
+      "portable_path": "b4af26cf/review.py.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/b4af26cf/review.stdout",
+      "bytes": 257,
+      "sha256": "a7354ba3c19742396f6223880e547636117b616684e2152724229b29c540de90",
+      "portable_path": "b4af26cf/review.stdout"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/b4af26cf/review.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "b4af26cf/review.stderr"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/b4af26cf/independent-review.json",
+      "bytes": 140656,
+      "sha256": "feb98e550dc371331d70583eaaf9c157e37a82be2235ea6fcd3d5dd6a68286a9",
+      "portable_path": "b4af26cf/independent-review.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/review.py",
+      "bytes": 18539,
+      "sha256": "47c8ea8c0426a24a767518f5e921e150ae0878e47ddfb0a3964b6e5d7b6ccab7",
+      "portable_path": "1186ce5b/review.py.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/review.stdout.txt",
+      "bytes": 227,
+      "sha256": "4aa87e32b17ab75024864038577a5deb434fe39c69104328a3e68f152f9c74ac",
+      "portable_path": "1186ce5b/review.stdout.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "1186ce5b/review.stderr.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/independent-review.json",
+      "bytes": 242108,
+      "sha256": "42e87fe341bffc5eed7e9669a0c8707f253e2206f230819d046b25345dbc4196",
+      "portable_path": "1186ce5b/independent-review.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/optimization_controls.py",
+      "bytes": 5145,
+      "sha256": "312ffc0167c32af40d39a4dfdb188fb3a19dbcfeffcdb20c6eefa41845b8aac7",
+      "portable_path": "1186ce5b/optimization_controls.py.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/optimization-controls-0.json",
+      "bytes": 2203,
+      "sha256": "fc9b058cb3d8bb2b31ac33d4e242d9f6eec292a51fcae1cae8e5b21e4f0ff5ce",
+      "portable_path": "1186ce5b/optimization-controls-0.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/optimization-controls-0.stdout.txt",
+      "bytes": 52,
+      "sha256": "821e8c24e3986dba021afe660cdb20bbb2df56cce517d230c5c870273866a56f",
+      "portable_path": "1186ce5b/optimization-controls-0.stdout.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/optimization-controls-0.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "1186ce5b/optimization-controls-0.stderr.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/optimization-controls-1.json",
+      "bytes": 2203,
+      "sha256": "67f9a4859664d1a05363a9878068d7d805108ce10650b97ff3bef1396f1fd0f4",
+      "portable_path": "1186ce5b/optimization-controls-1.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/optimization-controls-1.stdout.txt",
+      "bytes": 52,
+      "sha256": "fea5c92f62e4e10d225fb151a6b105ea762d5906e6b12f77e02bcf513f3baddd",
+      "portable_path": "1186ce5b/optimization-controls-1.stdout.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/optimization-controls-1.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "1186ce5b/optimization-controls-1.stderr.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/physical_guard_removed.py.txt",
+      "bytes": 4853,
+      "sha256": "8d6c16777f0bceb3ba870c65e91001fd8afe1b06e0db6a9ccf36758db8eadff6",
+      "portable_path": "1186ce5b/physical_guard_removed.py.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/current-review-supplement.json",
+      "bytes": 6436,
+      "sha256": "ae93c84477d9fe08487ee5717f073632c6ad1a171a3682e2cb93e4b0d0fc4523",
+      "portable_path": "1186ce5b/current-review-supplement.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/selection-attempt1-error.json",
+      "bytes": 702,
+      "sha256": "f194eddac48389280c7f4a29e4514b8ade9b4f1c56f529990e88f1c5b8df9616",
+      "portable_path": "1186ce5b/selection-attempt1-error.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/build_selection.py",
+      "bytes": 2993,
+      "sha256": "446e37204baa5fda562a97ae4b343ae82d10b6cacf79b4a092125fbdc7b1920e",
+      "portable_path": "1186ce5b/build_selection.py.txt"
+    }
+  ],
+  "asset_count": 19,
+  "total_bytes": 438248,
+  "all_captures_closed": true,
+  "policy": "Literal observer sources copied as .py.txt; historical b4 CHANGE_REQUIRED retained separately; no raw/fixtures/product edits; selection does not index itself or its builder pending stdout",
+  "custody": "Full commands/output/environment in current-review-supplement; exact source Git refs and complete rows in independent-review"
+}

@@ -1,0 +1,157 @@
+{
+  "schema": "policyos.e02.independent-G-checkpoint11-delta.v1",
+  "reviewer": "doe_r2 read-only independent, no A-test/census authorship",
+  "base_sha": "c311546deb347c185b30a2652c2ee9a5e1535e95",
+  "base_tree": "510727ce245f30fccceb603acfa4bb413d2ff34b",
+  "candidate_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "candidate_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "delta_paths": 68,
+  "native_tests": 1,
+  "docs_evidence_companions": 67,
+  "production_source_config_release_surface_changes": 0,
+  "verdict": "GO-bounded-new-test-and-moderate-evidence-delta",
+  "collector_source_binding": {
+    "implementation_sha": "2f7e7e12516dd98678903c5b4a89553a28b08608",
+    "implementation_tree": "5e7aa365c72665bf2a6d5ab07fde86a72a85475f",
+    "merged_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "merged_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+    "git_blob": "20331fa1cd85acd046f2a36cc5c563662ed0b9eb",
+    "bytes": 38197,
+    "sha256": "faecae68f9eecc741e12ae1469fcd57faad11a9facb747f2430762da1758f9fc",
+    "bytes_equal_original_scratch_and_Git": true,
+    "independent_v4_review_reused_without_new_protocol_run": true
+  },
+  "A_candidate": "577521c6651bba048d6bdfdc13f36a383c8146c6",
+  "A_candidate_tree": "1e8820533c48ec88355f2a2fccba486f279c2a4b",
+  "A_original_commits_in_current_ancestry": [
+    "5650b7aed7991606d62cd8510b377698a778ce39",
+    "43644bb6d80831890f18bd696a560f23688867ab",
+    "577521c6651bba048d6bdfdc13f36a383c8146c6"
+  ],
+  "A_accepted_merge": "9c989f7877bd25fea38416cbd10d4c8b2511d10e",
+  "A_accepted_delta": {
+    "paths": 15,
+    "native_tests": 1,
+    "companions": 14,
+    "all15_blobs_equal_A_acceptance_currentE": true
+  },
+  "A_replay4_receipt_join": {
+    "selector_cases": 1,
+    "passed": 1,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "JUnit_seconds": 3.175,
+    "wall_seconds": 4.662,
+    "test_blob": "c05a7da95fffb1e4dc2550d11f7a33dfaab8ea89",
+    "test_sha256": "f69b4792064af8747114a2c7e65a39e03abfd181a63ad148fcec22dcf027b830",
+    "wheel_sha256": "c1d20a264ced1691f0cdfdf89c5727bc152269a989be40ba352357d9abab8f27",
+    "persisted_report": {
+      "bytes": 5198,
+      "sha256": "d1d31eef31ddf6c0781d601be7325144e3f36292142abac20e5dd4413fb481d2"
+    },
+    "predicate_basis": "Exact byte/Git/source/receipt joins, no fresh wheel execution."
+  },
+  "denominators": {
+    "reported_reconciled_A_wheel_python_entries": 3143,
+    "A_Git_src_py": 2698,
+    "A_Git_tools_py": 445,
+    "historical_A_loaded_modules": 144,
+    "current_A_installed_package_files": 2698,
+    "wheel_cases": 1,
+    "these_are_distinct_denominators": true
+  },
+  "historical_A_origin_four_source_joins": [
+    {
+      "module": "polisyos",
+      "source_path": "policy-engine/src/polisyos/__init__.py",
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "module": "polisyos.core.contracts.capability_resolution",
+      "source_path": "policy-engine/src/polisyos/core/contracts/capability_resolution.py",
+      "sha256": "0341d52dac599acb34dfb8e8c6cb68afbc89c5f42783ae867b5d1c0ef96b5d49"
+    },
+    {
+      "module": "polisyos.data_requirement",
+      "source_path": "policy-engine/src/polisyos/data_requirement/__init__.py",
+      "sha256": "af0efb545fcfa6bf2fc37fa174800127f27b081aa0766dbeb80f897fdb30a676"
+    },
+    {
+      "module": "polisyos.data_requirement.compiler",
+      "source_path": "policy-engine/src/polisyos/data_requirement/compiler.py",
+      "sha256": "61dc374072c15e127db6bf91daa3199e96fbf5e583c9f0415dd7b73ee60a9d71"
+    }
+  ],
+  "resolver_scope": "RecordingResolver fixture only; compiler query/binding/report persistence, not production source admission, no completeREQ01/LA045/LA046 closure. Unknown-family static assertion requires zero resolver queries/specs.",
+  "wheel_boundary": "Local wheel container/raw per-entry inventory unavailable in cloud;3143 is publisher reconciliation qualified by exactmoderate receipts and matching candidateGit denominator, not independently regenerated ZIP bytes. No fresh/composed E/G wheelPASS.",
+  "prior_prerequisite_harness_attempts": [
+    {
+      "attempt": "attempt-1",
+      "outcome": "UNRUN",
+      "classification": "execution_prerequisite_missing",
+      "runtime_property": "not reached, no transfer from wheel existence"
+    },
+    {
+      "attempt": "replay-2",
+      "outcome": "UNRUN",
+      "classification": "inspect-pytest-output",
+      "runtime_property": "not reached, no transfer from wheel existence"
+    },
+    {
+      "attempt": "replay-3",
+      "outcome": "UNRUN",
+      "classification": "harness_resource_error",
+      "runtime_property": "not reached, no transfer from wheel existence"
+    }
+  ],
+  "lossless_firstattempt_artifact_hashes_verified": true,
+  "cleanup_receipt": {
+    "native_Trash_only": true,
+    "actions": 5,
+    "allocated_bytes_moved": 410251264,
+    "physical_reclamation": "not claimed",
+    "local_device_inode_readback": "publisher evidence only, no cloudTrash action"
+  },
+  "scope_amendment": "G narrows B188 unknown-law requirement to zero unsupported stochastic propagation/callbacks; limited deterministic nominal/gradient diagnostics allowed where originalcriterion doesnot impose API-wide pre-callback refusal. Doesnot ratifyIRlaw/wire semantics.",
+  "pending_owners": {
+    "Core_IR_Foundry_execute_surface": "team-polisyos and team-architecture decide existing curated entrypoint/narrow export admission; no contract, inventory exceptions or root exports changed by thisGdelta. IRsemanticowner remains absent/unallocated until explicit appointment; B201/B202held.",
+    "A": "Defaultgeneration/HTTP/S10 reason/missing-ref and validboundpositivepacket remain A-owned; acceptedcompilerfixture neither supplies authenticL6inputs nor resolves E\u2192Aforecastbridge.",
+    "D": "CanonicalSearchLoopRunner analysis_ref\u2192ranking-dependent proposal\u2192freshreopen witness remains bridge_missing/consumer_missing; E DoE70c budgetfix is separate prior acceptedsource, not rerun or autoclosed here.",
+    "E": "Historical4758 compatibility/count/cap concerns are source-qualified; currentrootfacade/DoE fixes retain their separate independentGO, broadarchitecture/CI/currentcandidatewave await actualfreeze."
+  },
+  "P41": "No global inherited-red attribution from path intersection; no old/new fullglobalcommand here.",
+  "independent_corrupt_field_controls": [
+    {
+      "target": "run",
+      "field": "candidate_commit",
+      "outcome": "REFUSED"
+    },
+    {
+      "target": "run",
+      "field": "test_source_sha256",
+      "outcome": "REFUSED"
+    },
+    {
+      "target": "wheel",
+      "field": "wheel_sha256",
+      "outcome": "REFUSED"
+    },
+    {
+      "target": "wheel",
+      "field": "python_entry_denominator",
+      "outcome": "REFUSED"
+    }
+  ],
+  "commands_executed_scope": "Git read-only metadata/blob operations, JSON/AST/JUnit parsing/hash joins only; zero wheels/venvs/builds/product/numerical/globalgates",
+  "findings_closed": [],
+  "environment": {
+    "python": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "UV_NO_SYNC": "1",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "harness_history": "Shortc311 ambiguous against commit/tree/blob; preserved stderr and resolved exactcommitc311546de. Initialrg nonexistentintegration/checkpoints path was navigation error, corrected checkpoint-11.json. No product failure."
+}

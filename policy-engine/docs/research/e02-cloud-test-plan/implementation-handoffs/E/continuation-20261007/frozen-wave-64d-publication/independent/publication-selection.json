@@ -1,0 +1,66 @@
+{
+  "schema": "policyos.e02.independent_DOC_review_literal_publication_selection.v1",
+  "reviewed_publication_sha": "ac2682a66afd8fd5beef39d15fd82ec58e10dd6d",
+  "reviewed_publication_tree": "e332ae6113ee710e0e0bf7e09299bdcc1dcc573e",
+  "verification_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "verification_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "files": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/common-wave-publication-independent/immutable-publication-review.json",
+      "portable_path": "immutable-publication-review.json",
+      "bytes": 85526,
+      "sha256": "ab1f708eeb53676423601b54f44c9d4840dc4c53b16972665bf7945d89690c75"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/review_common_publication.py",
+      "portable_path": "review_common_publication.py.txt",
+      "bytes": 11006,
+      "sha256": "86477a63714e7f51dba5bf78590a0be5a3b7581d3f473df47d28d82156fc328a"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/common-wave-publication-review.stdout",
+      "portable_path": "review.stdout",
+      "bytes": 376,
+      "sha256": "fd191c7e722ab078af2fc8ad67a9d2355e7dc50548750c8c4d88d88b71929c8e"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/common-wave-publication-review.stderr",
+      "portable_path": "review.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/common-wave-publication-independent/executed-validator-v2.py.txt",
+      "portable_path": "executed-validator-v2.py.txt",
+      "bytes": 8814,
+      "sha256": "0118719cadfa06c3b4f207191f073186e452de264e33bbe7eb9e10cbbd990318"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/common-wave-publication-independent/validator-normal.stdout.json",
+      "portable_path": "validator-normal.stdout.json",
+      "bytes": 2221,
+      "sha256": "4fd53ee0bc4a53e2538214ee438173c5dbf731ccd548fe32387f588c92434b12"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/common-wave-publication-independent/validator-normal.stderr",
+      "portable_path": "validator-normal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/common-wave-publication-independent/validator-optimized.stdout.json",
+      "portable_path": "validator-optimized.stdout.json",
+      "bytes": 2221,
+      "sha256": "4fd53ee0bc4a53e2538214ee438173c5dbf731ccd548fe32387f588c92434b12"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/common-wave-publication-independent/validator-optimized.stderr",
+      "portable_path": "validator-optimized.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "file_count": 9,
+  "byte_count": 110164,
+  "scope": "New independent read-only DOC custody/archived-data-validator proof only; original76file selection immutable; no numerical/test/gate/source execution. Initial reviewer key mismatch remains scratch history separate, not artifact failure."
+}

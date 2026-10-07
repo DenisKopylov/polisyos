@@ -1,0 +1,15 @@
+command: git merge-tree --write-tree --name-only ebae80eaa25482d84bc6ad2e78721bc318bc0228 8236d9c368336a5ea20c1586f29aea7321db6536
+exit_code: 1
+stdout (complete):
+84519f3c56773f4f5f8f1fea3e61cc7c1a437116
+policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md
+policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md
+
+Auto-merging policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md
+CONFLICT (content): Merge conflict in policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md
+Auto-merging policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md
+CONFLICT (content): Merge conflict in policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md
+stderr (complete):
+<empty>
+
+This is a read-only merge calculation. G HEAD and checkout were not moved. The virtual merge tree is not an accepted implementation or runtime result.

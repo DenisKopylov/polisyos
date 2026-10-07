@@ -1,0 +1,134 @@
+{
+  "schema": "policyos.e02.independent-collector-review.v4",
+  "reviewer": "doe_r2 independent of FRC collector author",
+  "source": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v4.py",
+    "bytes": 38197,
+    "sha256": "faecae68f9eecc741e12ae1469fcd57faad11a9facb747f2430762da1758f9fc"
+  },
+  "root_metadata_at_review": {
+    "sha": "7dad1566e9bd289aa1385b149bfcb0bfaef60bf1",
+    "tree": "fa0ca51853325f98dc73714f48b80b7c238c7f20",
+    "unchanged_after": true
+  },
+  "reusable_collector_verdict": "GO-bounded-common-public-role-and-exact-owner-attribution-protocol",
+  "scope": "Independent narrow full-path public-role admission delta; zero product/numerical/global-gate commands. No new wave evidence or finding closure.",
+  "exact_source_delta": {
+    "only_changed_function": "public_evidence",
+    "all_other_module_AST_identical": true,
+    "runtime_property": "Full source path components retain raw/private external parent role before copying; canonical planned roles and exact owner labels unchanged."
+  },
+  "independent_controls": {
+    "full_collector_freeze_controls": 3,
+    "common_public_role_refusals": 25,
+    "external_leaf_and_parent_symlink_refusals": 2,
+    "standalone_pure_admission_positives": [
+      "synthetic",
+      "actual source-freeze-5e metadata only"
+    ],
+    "effective_single_predicate_removals": 2,
+    "refusal_before_publication_creation": true,
+    "zero_payloads_copied_on_refusal": true
+  },
+  "predicate_basis": "Independent exact a639 raw/private external-freeze falsifiers; common source path admission, not hash/integrity or field presence. Synthetic sentinel markers only; no actual private material touched.",
+  "historical_reuse": {
+    "v3_source": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v3_final.py",
+      "bytes": 38152,
+      "sha256": "a6399cc46cbfe25b103fa210259eff2be9483f582ae7cba773632f079f7194ec"
+    },
+    "index": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/copy-index.json",
+      "bytes": 6060,
+      "sha256": "cf178965f2f4c7548599c49cdddfe250764a4dd2535fc253f217c523896ffc03",
+      "assets": 22,
+      "asset_bytes": 189175
+    },
+    "unchanged_14_controls_and_actual5e_custody": "GO properties reused by exact unchanged AST/byte identities, historical reusable-v3 HOLD preserved. Same1440 cases1086PASS3FAIL351ERROR, native1433/A7. No reclassification."
+  },
+  "author_index_byte_verified": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/copy-index.json",
+    "bytes": 4308,
+    "sha256": "d380077d8e636ee33e92c8ed6343a9c59e938f0d1b350f4f1a99db976b751e42",
+    "assets": 18,
+    "asset_bytes": 97002
+  },
+  "configured_checks": {
+    "Ruff": "PASS-v4 collector source with actual repository ruff.toml",
+    "format": "PASS-same source/config",
+    "full_global_gate": "NOT_RUN",
+    "probe_helper_lint": "Not claimed; full-input artifacts are executable .py.txt evidence."
+  },
+  "commands": [
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/delta_controls.py"
+      ],
+      "cwd": "/workspace",
+      "exit_code": 0,
+      "published_full_input_path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/delta_controls.py.txt",
+      "full_input_identity": {
+        "bytes": 10723,
+        "sha256": "9ba4d2186ee1f546048ae10588a58dc636e1129d822be168cb7a10ea343ba994"
+      }
+    },
+    {
+      "argv": [
+        "ruff",
+        "check",
+        "--config",
+        "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v4.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "ruff",
+        "format",
+        "--check",
+        "--config",
+        "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v4.py"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "environment": {
+    "python": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "UV_NO_SYNC": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "cpu_caps": {
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null,
+      "BLIS_NUM_THREADS": null,
+      "POLISYOS_PYTEST_WORKERS": null
+    }
+  },
+  "source_and_historical_inputs_unchanged": true,
+  "finding_closure": false,
+  "next_owner": "E root copies exact faec source and moderate packets append-only, verifies Git/publication readback; independent source/custody claims remain separate from next common-wave outcome and finding decisions.",
+  "limitations": [
+    "COMPLETE_BOUND concerns custody, not numerical success.",
+    "No production law/history input moved; raw/private actual inputs remain hash/size custody only.",
+    "Full source-frame mechanism is independently under CAL review; source metadata alone does not establish full framed property.",
+    "Post-command backend observer does not establish test-child JAX state; P41 inherited-red remains not_established.",
+    "Full absolute raw/private ancestor refusal is intentional admission.",
+    "No deletion/Trash performed; preserve code/docs/unique deciding inputs."
+  ],
+  "cleanup_candidates": [
+    "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/synthetic-controls",
+    "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls"
+  ],
+  "cleanup_policy": "Only repeatable candidates after receipts and inactive-user check; no native Trash established, no permanent deletion.",
+  "index_validator_corrupt_controls": [
+    "bytes REFUSED",
+    "sha256 REFUSED"
+  ]
+}

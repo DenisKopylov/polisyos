@@ -1,0 +1,1091 @@
+{
+  "author_of_reviewed_PCL": false,
+  "cleanup": {
+    "action": "preserved, no permanent deletion",
+    "candidates_after_root_handoff_and_no_active_users": [
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/native/native-cas",
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/native_noclient/native-cas",
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/old_base/native-cas",
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/remove_graph_store/native-cas",
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/manual/analytic-cas",
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/remove_loader_recompute/analytic-cas"
+    ],
+    "native_trash_available": false,
+    "preserve": [
+      "review scripts/full stdout/XML/checks JSON/unique deciding artifact receipts",
+      "root shared .venv",
+      "other active worker data"
+    ]
+  },
+  "commands": [
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/pcl_probe.py",
+        "native"
+      ],
+      "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+      "env_overrides": {
+        "PYTHONPATH": "src",
+        "UV_NO_SYNC": "1"
+      },
+      "exit_code": 0,
+      "expected_exit": 0,
+      "expected_outcome": true,
+      "mode": "native",
+      "python": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "started_epoch": 1791293241.058131,
+      "stdout": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/native.attempt2.stdout",
+      "stdout_bytes": 5643,
+      "stdout_sha256": "e9b52a6c45aed583e86be27be020268aebb7d91ef5a8d6c2cda6c47262fc799e",
+      "wall_seconds": 64.13032984733582
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/pcl_probe.py",
+        "native_noclient"
+      ],
+      "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+      "env_overrides": {
+        "PYTHONPATH": "src",
+        "UV_NO_SYNC": "1"
+      },
+      "exit_code": 0,
+      "expected_exit": 0,
+      "expected_outcome": true,
+      "mode": "native_noclient",
+      "python": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "started_epoch": 1791293241.068406,
+      "stdout": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/native_noclient.attempt2.stdout",
+      "stdout_bytes": 5643,
+      "stdout_sha256": "6089f7f2cfcb4abadca5e5b6bfb98a27be06dfa16551dbcc894ce7f7f45bd4c2",
+      "wall_seconds": 60.435446977615356
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/pcl_probe.py",
+        "old_base"
+      ],
+      "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+      "env_overrides": {
+        "PYTHONPATH": "src",
+        "UV_NO_SYNC": "1"
+      },
+      "exit_code": 0,
+      "expected_exit": 0,
+      "expected_outcome": true,
+      "mode": "old_base",
+      "python": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "started_epoch": 1791293241.0701234,
+      "stdout": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/old_base.attempt2.stdout",
+      "stdout_bytes": 1949,
+      "stdout_sha256": "0e616845879eb9132dbb1e9db1945159d33f81ce7ebdda1054d7ef0a9171508b",
+      "wall_seconds": 38.869640588760376
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/pcl_probe.py",
+        "remove_graph_store"
+      ],
+      "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+      "env_overrides": {
+        "PYTHONPATH": "src",
+        "UV_NO_SYNC": "1"
+      },
+      "exit_code": 0,
+      "expected_exit": 0,
+      "expected_outcome": true,
+      "mode": "remove_graph_store",
+      "python": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "started_epoch": 1791293241.0724487,
+      "stdout": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/remove_graph_store.attempt2.stdout",
+      "stdout_bytes": 1582,
+      "stdout_sha256": "d6c297930f76d8cf3f43925e56e4a22e3b0f4aed8f3045937cfcdc7de2db5052",
+      "wall_seconds": 54.662189245224
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/pcl_probe.py",
+        "remove_loader_recompute"
+      ],
+      "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+      "env_overrides": {
+        "PYTHONPATH": "src",
+        "UV_NO_SYNC": "1"
+      },
+      "exit_code": 1,
+      "expected_exit": 1,
+      "expected_outcome": true,
+      "mode": "remove_loader_recompute",
+      "python": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "started_epoch": 1791293241.0730155,
+      "stdout": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/remove_loader_recompute.attempt2.stdout",
+      "stdout_bytes": 3273,
+      "stdout_sha256": "1d36cf35a42f4cf73c78772728335707960a3139209e40cb8d8a85693c113b6d",
+      "wall_seconds": 61.86373829841614
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/pcl_probe.attempt1.py",
+        "manual"
+      ],
+      "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+      "env_overrides": {
+        "PYTHONPATH": "src",
+        "UV_NO_SYNC": "1"
+      },
+      "exit_code": 0,
+      "full_output": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/manual.stdout",
+      "python": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python"
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py",
+        "tests/unit/calibration/test_continuous.py",
+        "tests/unit/calibration/test_continuous_persistence.py",
+        "tests/unit/calibration/test_curve.py",
+        "tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+        "-q",
+        "--junitxml=/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/focused.xml"
+      ],
+      "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+      "env_overrides": {
+        "PYTHONPATH": "src",
+        "UV_NO_SYNC": "1"
+      },
+      "exit_code": 0,
+      "full_output": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/focused.stdout",
+      "python": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "result": {
+        "errors": 0,
+        "failures": 0,
+        "skips": 0,
+        "tests": 80
+      }
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/methods/backends/test_backends.py::test_numpy_runner_executes",
+        "-q",
+        "--junitxml=/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backend.xml"
+      ],
+      "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+      "env_overrides": {
+        "PYTHONPATH": "src",
+        "UV_NO_SYNC": "1"
+      },
+      "exit_code": 0,
+      "full_output": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backend.stdout",
+      "python": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "result": {
+        "errors": 0,
+        "failures": 0,
+        "skips": 0,
+        "tests": 1
+      }
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/foundry/execute/_internal/graph/__init__.py",
+        "src/polisyos/foundry/methods/backends/numpy_runner.py",
+        "src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+        "tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py"
+      ],
+      "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+      "env_overrides": {
+        "PYTHONPATH": "src",
+        "UV_NO_SYNC": "1"
+      },
+      "exit_code": 0,
+      "full_output": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/ruff.stdout",
+      "python": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python"
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/foundry/execute/_internal/graph/__init__.py",
+        "src/polisyos/foundry/methods/backends/numpy_runner.py",
+        "src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+        "tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py"
+      ],
+      "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+      "env_overrides": {
+        "PYTHONPATH": "src",
+        "UV_NO_SYNC": "1"
+      },
+      "exit_code": 0,
+      "full_output": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/format.stdout",
+      "python": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python"
+    }
+  ],
+  "controls": {
+    "adversarial": [
+      "95/100 vs 0/100",
+      "zero pairs",
+      "missing level denominator 200/100/200",
+      "integrity-valid forged observed_pairs=99",
+      "reordered intervals",
+      "missing interval pair",
+      "missing content ref",
+      "integrity-valid forged receipt gate_eligible=true",
+      "reversed interval",
+      "raw report without bound pairs downgraded",
+      "three alias identity objects preserved"
+    ],
+    "class_scope": "shared graph inlet + NumPy execution parameter resolver + all three Advanced summary sites; no backend-local-only workaround",
+    "proxy_divergence": [
+      {
+        "module": "polisyos.foundry.methods.catalog.econometrics.advanced",
+        "name": "exact_base_blob",
+        "sha256": "0135c8acc19e8f213ae4bd5304eb0ce0272ba2232a95f9a47ec3cb6244688521"
+      },
+      {
+        "module": "polisyos.foundry.methods.backends.numpy_runner",
+        "name": "exact_base_blob",
+        "sha256": "a36c55d2996b178e2671fbd433e56f9e5d5cde327989907ad49f6fc59297c505"
+      },
+      {
+        "module": "polisyos.foundry.execute._internal.graph",
+        "name": "exact_base_blob",
+        "sha256": "beac46a425509e47d8f0ba364e06b9b105ee056e19b859d3d2c2d20c5bdb51c5"
+      },
+      {
+        "degraded": false,
+        "derived_roles": [],
+        "name": "actual_graph",
+        "summary_calls": [
+          {
+            "caller": "pure_step",
+            "ref": null,
+            "rows": 100,
+            "store_is_configured": false
+          },
+          {
+            "caller": "pure_step",
+            "ref": null,
+            "rows": 100,
+            "store_is_configured": false
+          },
+          {
+            "caller": "_evaluate_panel_volatility_scenario",
+            "ref": null,
+            "rows": 100,
+            "store_is_configured": false
+          },
+          {
+            "caller": "_evaluate_panel_volatility_scenario",
+            "ref": null,
+            "rows": 100,
+            "store_is_configured": false
+          },
+          {
+            "caller": "_evaluate_panel_volatility_scenario",
+            "ref": null,
+            "rows": 100,
+            "store_is_configured": false
+          }
+        ]
+      },
+      {
+        "configured_property_absent": true,
+        "name": "old_proxy_divergence",
+        "native_execution_completed": true,
+        "persisted_pair_refs": 0
+      }
+    ],
+    "removal": [
+      "configured graph store replaced with None while artifact_store field and projection code remain: native fit succeeds, 0 persisted refs",
+      "loader report/receipt comparisons disabled while all fields remain: independent forged-count rejection asserts FAIL because accepted"
+    ]
+  },
+  "decision": {
+    "code": "GO",
+    "engineering": "GO with bounded documentation companion",
+    "finding_closure": "not decided; historical LA-052 and LA-053 partial retained",
+    "specification": "PASS for bounded configured PCL persistence/default graph mechanism"
+  },
+  "environment": {
+    "env_overrides": {
+      "PYTHONPATH": "src",
+      "UV_NO_SYNC": "1"
+    },
+    "packages": {
+      "arch": "8.0.0",
+      "jax": "0.8.2",
+      "numpy": "2.3.5",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "ruff": "0.14.10",
+      "scipy": "1.16.3",
+      "statsmodels": "0.14.6"
+    },
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "python": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "python_version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]"
+  },
+  "evidence_validator": {
+    "corrupt_field_negative": "review index output hash deliberately substituted with 64 zeroes in in-memory copy; recomputing validator rejects it; original file unchanged",
+    "moderate_output_count": 22,
+    "output_index_recomputed": true
+  },
+  "historical_attempts": [
+    {
+      "classification": "review probe count mistake: expected 5 refs, actual 6 roles with shared overall alias; corrected expected roles without altering source; original stdout preserved",
+      "command": "native",
+      "exit_code": 1,
+      "probe_revision": "pcl_probe.attempt1.py"
+    },
+    {
+      "classification": "old exact source rejects new artifact_store client parameter; adjusted no-client-store baseline and current control to use same supported graph input; original stdout preserved",
+      "command": "old_base",
+      "exit_code": 1,
+      "probe_revision": "pcl_probe.attempt1.py"
+    }
+  ],
+  "independent_oracles": [
+    {
+      "counts": {
+        "eligible": 100,
+        "missing": 0,
+        "missing_outcomes": 0,
+        "n_comparisons": 1,
+        "observed": 100,
+        "observed_outcomes": 100,
+        "observed_pairs": 100,
+        "requested": 100,
+        "row_identity_basis": "ordered_position_only",
+        "status": "evaluated",
+        "unit": "requested_outcome_level"
+      },
+      "expected_hits": 95,
+      "gate_eligible": false,
+      "measured_coverage": 0.95,
+      "name": "manual_95_100",
+      "ref": {
+        "artifact_id": "sha256:eb14ede070c9a7cac4b42ed2636f304ed21d18670420b81a534e37cab5be96bb",
+        "kind": "continuous_calibration_diagnostics",
+        "media_type": "application/json"
+      },
+      "tier": "approximate_calibrated"
+    },
+    {
+      "counts": {
+        "eligible": 100,
+        "missing": 0,
+        "missing_outcomes": 0,
+        "n_comparisons": 1,
+        "observed": 100,
+        "observed_outcomes": 100,
+        "observed_pairs": 100,
+        "requested": 100,
+        "row_identity_basis": "ordered_position_only",
+        "status": "evaluated",
+        "unit": "requested_outcome_level"
+      },
+      "expected_hits": 0,
+      "gate_eligible": false,
+      "measured_coverage": 0.0,
+      "name": "manual_0_100",
+      "ref": {
+        "artifact_id": "sha256:db7f57f0e858954b3afdc792c4a92d0057b214c0430106e4511234fddf85425b",
+        "kind": "continuous_calibration_diagnostics",
+        "media_type": "application/json"
+      },
+      "tier": "unverified"
+    },
+    {
+      "counts": {
+        "eligible": 0,
+        "missing": 0,
+        "missing_outcomes": 0,
+        "n_comparisons": 0,
+        "observed": 0,
+        "observed_outcomes": 100,
+        "observed_pairs": 0,
+        "requested": 0,
+        "row_identity_basis": "ordered_position_only",
+        "status": "not_evaluated",
+        "unit": "requested_outcome_level"
+      },
+      "expected_denominator": [
+        0,
+        0,
+        0
+      ],
+      "name": "zero_pairs",
+      "tier": "unverified"
+    },
+    {
+      "counts": {
+        "eligible": 100,
+        "missing": 100,
+        "missing_outcomes": 0,
+        "n_comparisons": 1,
+        "observed": 200,
+        "observed_outcomes": 100,
+        "observed_pairs": 100,
+        "requested": 200,
+        "row_identity_basis": "ordered_position_only",
+        "status": "incomplete",
+        "unit": "requested_outcome_level"
+      },
+      "expected_denominator": [
+        200,
+        100,
+        200
+      ],
+      "name": "missing_level_pairs",
+      "tier": "unverified"
+    },
+    {
+      "exception": "ValueError",
+      "message": "Persisted continuous calibration report does not reproduce",
+      "name": "forged_counts",
+      "refused": true
+    },
+    {
+      "exception": "ValueError",
+      "message": "Persisted continuous calibration report does not reproduce",
+      "name": "reordered_intervals",
+      "refused": true
+    },
+    {
+      "exception": "ValueError",
+      "message": "each interval set must align with y_true length",
+      "name": "missing_pairs",
+      "refused": true
+    },
+    {
+      "exception": "FileNotFoundError",
+      "message": "[Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/manual/analytic-cas/artifacts/sha256/ff/ff/ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff.manifest.json'",
+      "name": "missing_ref",
+      "refused": true
+    },
+    {
+      "exception": "ValueError",
+      "message": "Persisted continuous calibration receipt does not reproduce",
+      "name": "forged_receipt",
+      "refused": true
+    },
+    {
+      "exception": "ValueError",
+      "message": "interval lower bound must not exceed upper bound",
+      "name": "failed_intervals",
+      "refused": true
+    },
+    {
+      "degradation_reasons": [
+        "interval_pairs_not_reconciled"
+      ],
+      "gate_eligible": false,
+      "name": "report_ref_never_seen",
+      "tier": "unverified"
+    },
+    {
+      "identical_objects": 3,
+      "lifecycle_window": "calibration + Scientist owners; not retired",
+      "name": "compatibility_alias"
+    },
+    {
+      "degraded": false,
+      "derived_roles": [
+        "independent-pcl:calibration.segment.review.0",
+        "independent-pcl:calibration.overall",
+        "independent-pcl:calibration.scenario.proposed_profile_break_garch",
+        "independent-pcl:calibration.scenario.pooled_stationary_garch",
+        "independent-pcl:calibration.scenario.group_specific_stationary_garch",
+        "independent-pcl:calibration.scenario.pooled_break_garch"
+      ],
+      "name": "actual_graph",
+      "summary_calls": [
+        {
+          "caller": "pure_step",
+          "ref": "sha256:352f59d3413a326fe1a2d13085fde94142b7849571bc5c76aa22c47361586eb9",
+          "rows": 100,
+          "store_is_configured": true
+        },
+        {
+          "caller": "pure_step",
+          "ref": "sha256:2ac4fe124c84f888c6550011dfa011aea86b4be48624a7ff68cd2af66ea6500b",
+          "rows": 100,
+          "store_is_configured": true
+        },
+        {
+          "caller": "_evaluate_panel_volatility_scenario",
+          "ref": "sha256:1f869d61bfb73db3cacced73a74b6c3ec993da350245c0dee89922220fafba31",
+          "rows": 100,
+          "store_is_configured": true
+        },
+        {
+          "caller": "_evaluate_panel_volatility_scenario",
+          "ref": "sha256:e9d30d58db0c05dd788c2c4616b5668a993ced18f454cc7b70dab1acc92cdbc4",
+          "rows": 100,
+          "store_is_configured": true
+        },
+        {
+          "caller": "_evaluate_panel_volatility_scenario",
+          "ref": "sha256:a57c72e7d37a1e7cbc44028b395293120e418ebae6a4c4a8cc1cebfa62e754ec",
+          "rows": 100,
+          "store_is_configured": true
+        }
+      ]
+    },
+    {
+      "authority": "not_established",
+      "eligible": 100,
+      "gate_eligible": false,
+      "independent_hits": 91,
+      "name": "fresh_native_read",
+      "observed": 100,
+      "pairs_ref": "continuous-calibration-pairs-v1:sha256:2deeeddf00378c1f50776e156795e0db5013ecccbfbf5934784aba40c63254a2",
+      "ref": "sha256:352f59d3413a326fe1a2d13085fde94142b7849571bc5c76aa22c47361586eb9",
+      "requested": 100,
+      "role": "independent-pcl:calibration.segment.review.0",
+      "rows": 100,
+      "source_ref": "sha256:5da647cb6084a87d1038df230752942bd5ca712e2031d7d9ca5399e597682b86",
+      "unique_keys": 100
+    },
+    {
+      "authority": "not_established",
+      "eligible": 100,
+      "gate_eligible": false,
+      "independent_hits": 91,
+      "name": "fresh_native_read",
+      "observed": 100,
+      "pairs_ref": "continuous-calibration-pairs-v1:sha256:2deeeddf00378c1f50776e156795e0db5013ecccbfbf5934784aba40c63254a2",
+      "ref": "sha256:2ac4fe124c84f888c6550011dfa011aea86b4be48624a7ff68cd2af66ea6500b",
+      "requested": 100,
+      "role": "independent-pcl:calibration.overall",
+      "rows": 100,
+      "source_ref": "sha256:5da647cb6084a87d1038df230752942bd5ca712e2031d7d9ca5399e597682b86",
+      "unique_keys": 100
+    },
+    {
+      "authority": "not_established",
+      "eligible": 100,
+      "gate_eligible": false,
+      "independent_hits": 91,
+      "name": "fresh_native_read",
+      "observed": 100,
+      "pairs_ref": "continuous-calibration-pairs-v1:sha256:2deeeddf00378c1f50776e156795e0db5013ecccbfbf5934784aba40c63254a2",
+      "ref": "sha256:2ac4fe124c84f888c6550011dfa011aea86b4be48624a7ff68cd2af66ea6500b",
+      "requested": 100,
+      "role": "independent-pcl:calibration.scenario.proposed_profile_break_garch",
+      "rows": 100,
+      "source_ref": "sha256:5da647cb6084a87d1038df230752942bd5ca712e2031d7d9ca5399e597682b86",
+      "unique_keys": 100
+    },
+    {
+      "authority": "not_established",
+      "eligible": 100,
+      "gate_eligible": false,
+      "independent_hits": 91,
+      "name": "fresh_native_read",
+      "observed": 100,
+      "pairs_ref": "continuous-calibration-pairs-v1:sha256:2deeeddf00378c1f50776e156795e0db5013ecccbfbf5934784aba40c63254a2",
+      "ref": "sha256:1f869d61bfb73db3cacced73a74b6c3ec993da350245c0dee89922220fafba31",
+      "requested": 100,
+      "role": "independent-pcl:calibration.scenario.pooled_stationary_garch",
+      "rows": 100,
+      "source_ref": "sha256:5da647cb6084a87d1038df230752942bd5ca712e2031d7d9ca5399e597682b86",
+      "unique_keys": 100
+    },
+    {
+      "authority": "not_established",
+      "eligible": 100,
+      "gate_eligible": false,
+      "independent_hits": 91,
+      "name": "fresh_native_read",
+      "observed": 100,
+      "pairs_ref": "continuous-calibration-pairs-v1:sha256:2deeeddf00378c1f50776e156795e0db5013ecccbfbf5934784aba40c63254a2",
+      "ref": "sha256:e9d30d58db0c05dd788c2c4616b5668a993ced18f454cc7b70dab1acc92cdbc4",
+      "requested": 100,
+      "role": "independent-pcl:calibration.scenario.group_specific_stationary_garch",
+      "rows": 100,
+      "source_ref": "sha256:5da647cb6084a87d1038df230752942bd5ca712e2031d7d9ca5399e597682b86",
+      "unique_keys": 100
+    },
+    {
+      "authority": "not_established",
+      "eligible": 100,
+      "gate_eligible": false,
+      "independent_hits": 91,
+      "name": "fresh_native_read",
+      "observed": 100,
+      "pairs_ref": "continuous-calibration-pairs-v1:sha256:2deeeddf00378c1f50776e156795e0db5013ecccbfbf5934784aba40c63254a2",
+      "ref": "sha256:a57c72e7d37a1e7cbc44028b395293120e418ebae6a4c4a8cc1cebfa62e754ec",
+      "requested": 100,
+      "role": "independent-pcl:calibration.scenario.pooled_break_garch",
+      "rows": 100,
+      "source_ref": "sha256:5da647cb6084a87d1038df230752942bd5ca712e2031d7d9ca5399e597682b86",
+      "unique_keys": 100
+    },
+    {
+      "client_metadata_unchanged": true,
+      "graph_service_overridden": true,
+      "name": "service_isolation",
+      "numpy_compile_cache": "not used; supports_jit=false",
+      "public_refs": 6,
+      "signature_stable_digest": "3c55a8ce14fcf201f340d1f028cad44deb4bddd75a9786ef8586b9cdacf977f3",
+      "source_state_unchanged": true,
+      "state_delta_ops": 0
+    }
+  ],
+  "instructions": [
+    "AGENTS.md",
+    "policy-engine/CONTRIBUTING.md",
+    "execution-prompts/HANDOFF.md",
+    "policy-design-case-failure-patterns.md",
+    "execution-organization/README.md",
+    "closure-decisions/E.md",
+    "closure-decisions/method-decisions.md#methods-e",
+    "closure-decisions/semantic-decisions.md",
+    "integration/reviews/E-pr38-continuation-audit-2026-10-06.md",
+    "original bundles/PCL-01.md"
+  ],
+  "mode": "read-only; no children; no commits or ledger edits",
+  "outputs": [
+    {
+      "bytes": 80,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backend.stdout",
+      "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+    },
+    {
+      "bytes": 369,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backend.xml",
+      "sha256": "fade17d6aa03e41bff9854755ac720645a03c8c22c700e71ce99fa8ace977166"
+    },
+    {
+      "bytes": 8332,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/checks.json",
+      "sha256": "c3da619b546faafcd10a79c842d38ab9ef90fe250ec97f4382e54a02f316daa8"
+    },
+    {
+      "bytes": 160,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/focused.stdout",
+      "sha256": "7aab9d03d5aad3ae7953c0ac55e01a47a25a852128e93ee579eb4dadf81d7df0"
+    },
+    {
+      "bytes": 12189,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/focused.xml",
+      "sha256": "bb480d54d3d3546fd28a47c943e8e448c3a3f716d64339cb184d51b8580a3c0f"
+    },
+    {
+      "bytes": 26,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/format.stdout",
+      "sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de"
+    },
+    {
+      "bytes": 3156,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/manual.stdout",
+      "sha256": "cad446d2598209cc2172c49e625be14f914d37d71366c9e6d13b91a30a9d77af"
+    },
+    {
+      "bytes": 2811,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/native.attempt1.stdout",
+      "sha256": "39c0d7218cc9cff99b44cb68b7310ba3fe8658c06c215f72ddb44e60095b88b5"
+    },
+    {
+      "bytes": 5643,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/native.attempt2.stdout",
+      "sha256": "e9b52a6c45aed583e86be27be020268aebb7d91ef5a8d6c2cda6c47262fc799e"
+    },
+    {
+      "bytes": 2811,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/native.stdout",
+      "sha256": "39c0d7218cc9cff99b44cb68b7310ba3fe8658c06c215f72ddb44e60095b88b5"
+    },
+    {
+      "bytes": 5643,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/native_noclient.attempt2.stdout",
+      "sha256": "6089f7f2cfcb4abadca5e5b6bfb98a27be06dfa16551dbcc894ce7f7f45bd4c2"
+    },
+    {
+      "bytes": 7880,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/old_base.attempt1.stdout",
+      "sha256": "2f52d0421a443a7ee4d437df09572c1db26c4ee9d4edec391e4530cf552db850"
+    },
+    {
+      "bytes": 1949,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/old_base.attempt2.stdout",
+      "sha256": "0e616845879eb9132dbb1e9db1945159d33f81ce7ebdda1054d7ef0a9171508b"
+    },
+    {
+      "bytes": 7880,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/old_base.stdout",
+      "sha256": "2f52d0421a443a7ee4d437df09572c1db26c4ee9d4edec391e4530cf552db850"
+    },
+    {
+      "bytes": 15139,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/pcl_probe.attempt1.py",
+      "sha256": "3ce05c7d551985cb50f25eeab258e66652318921b4d18d7e30c030fc18cf25bf"
+    },
+    {
+      "bytes": 16063,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/pcl_probe.py",
+      "sha256": "54d981ab1abd88620f103a230e6cfeae6c261daa5408af531a9236b7836f637d"
+    },
+    {
+      "bytes": 1582,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/remove_graph_store.attempt2.stdout",
+      "sha256": "d6c297930f76d8cf3f43925e56e4a22e3b0f4aed8f3045937cfcdc7de2db5052"
+    },
+    {
+      "bytes": 1582,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/remove_graph_store.stdout",
+      "sha256": "f3e8acf748c9b8c1cf7a7c184a2def2d16e111fc102287544a0e17effa4544b3"
+    },
+    {
+      "bytes": 3273,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/remove_loader_recompute.attempt2.stdout",
+      "sha256": "1d36cf35a42f4cf73c78772728335707960a3139209e40cb8d8a85693c113b6d"
+    },
+    {
+      "bytes": 19,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/ruff.stdout",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "bytes": 3146,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/run_checks.py",
+      "sha256": "1130ed1f4ad8f58c6c7014f9d8b92d2e24ca558b9875d37de12561fdc692f780"
+    },
+    {
+      "bytes": 3003,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/runner.stdout",
+      "sha256": "35248c7230d7ba9914bd7ed41644a639c19ca9c651558b25c8c517838e813122"
+    }
+  ],
+  "owners": {
+    "LA-052": "PCL-01 accountable; calibration owner",
+    "LA-053": "polisyos.calibration owner and Scientist backtesting alias migration/test owner"
+  },
+  "predicate_basis": [
+    {
+      "basis": "actual service identity observed by transparent delegating summary spy, plus persisted/read refs in fresh same CAS; client string ignored",
+      "predicate": "configured store is selected"
+    },
+    {
+      "basis": "fresh resolved ordered pairs + exact full report and receipt recomputation; independent manually stipulated 95/0 fixtures + fresh source-row comparisons",
+      "predicate": "calibration counts/coverage valid"
+    },
+    {
+      "basis": "graph checks actual manifest and CAS hash; semantic recomputation remains required by continuous reader",
+      "predicate": "sidecar available"
+    },
+    {
+      "basis": "content-bound actual synthetic panel payload and exact unique entity/time row join; caller asserted identity/target/unit only; not production authority",
+      "predicate": "source identity binding"
+    },
+    {
+      "basis": "closed literal False in persisted descriptive artifact and receipt; no external authority inferred",
+      "predicate": "gate eligibility"
+    },
+    {
+      "basis": "signature parameters lack artifact_store and stable ABI digest unchanged; NumPy does not use compile cache, supports_jit=false; persisted graph retains only original client string; state arrays unchanged and persisted state_delta.ops empty",
+      "predicate": "service excluded from scientific identity/cache/state"
+    }
+  ],
+  "protocol": "e02-independent-slice-review-v1",
+  "residuals": [
+    {
+      "issue": "old current method-runner does not supply store paragraph stale",
+      "next_owner": "FRC writer with root exact README lease",
+      "next_result": "bounded paragraph reflecting configured graph \u2192 NumPy \u2192 summaries \u2192 derived refs, nongating",
+      "path": "policy-engine/src/polisyos/calibration/README.md",
+      "state": "owner-ready companion",
+      "type": "documentation"
+    },
+    {
+      "issue": "native synthetic panel proves generic configured graph/arch wiring; normal production GlobalState/Trinity materialization, HTTP/served read and actual source authority not established by this fixture",
+      "minimum_inputs": [
+        "immutable admitted PanelData + target/unit/entity/time mapping",
+        "real caller binding and configured CAS identity",
+        "purpose/admission rules declared by owner"
+      ],
+      "next_owner": "Foundry workflow/input materializer/production source owner; G local checker if such source-bound claim is requested",
+      "next_result": "same source\u2192pairs\u2192fresh reader counts on exact real caller; keep descriptive gate false until separate authority decision",
+      "state": "not_established",
+      "type": "institutional/source authority"
+    },
+    {
+      "finding": "LA-053",
+      "minimum_inputs": [
+        "supported alias consumer inventory",
+        "agreed compatibility window/deprecation decision",
+        "public surface and distribution contracts"
+      ],
+      "next_owner": "polisyos.calibration owner AND Scientist backtesting alias migration/test owner",
+      "next_result": "individual acceptance of canonical test migration and preserved identity; alias retirement only after both owners establish window",
+      "state": "held owner decision",
+      "type": "compatibility lifecycle"
+    }
+  ],
+  "reviewer": "/root/ddm_r2",
+  "runtime_property": {
+    "actual_backend_seed": 688080168,
+    "admitted_training_rows_per_entity": 30,
+    "artifact_input_identity": [
+      {
+        "actual_backend_seed": 688080168,
+        "authority": "not_established",
+        "eligible": 100,
+        "gate_eligible": false,
+        "independent_hits": 91,
+        "name": "fresh_native_read",
+        "observed": 100,
+        "pairs_ref": "continuous-calibration-pairs-v1:sha256:2deeeddf00378c1f50776e156795e0db5013ecccbfbf5934784aba40c63254a2",
+        "ref": "sha256:352f59d3413a326fe1a2d13085fde94142b7849571bc5c76aa22c47361586eb9",
+        "requested": 100,
+        "role": "independent-pcl:calibration.segment.review.0",
+        "rows": 100,
+        "source_ref": "sha256:5da647cb6084a87d1038df230752942bd5ca712e2031d7d9ca5399e597682b86",
+        "unique_keys": 100
+      },
+      {
+        "actual_backend_seed": 688080168,
+        "authority": "not_established",
+        "eligible": 100,
+        "gate_eligible": false,
+        "independent_hits": 91,
+        "name": "fresh_native_read",
+        "observed": 100,
+        "pairs_ref": "continuous-calibration-pairs-v1:sha256:2deeeddf00378c1f50776e156795e0db5013ecccbfbf5934784aba40c63254a2",
+        "ref": "sha256:2ac4fe124c84f888c6550011dfa011aea86b4be48624a7ff68cd2af66ea6500b",
+        "requested": 100,
+        "role": "independent-pcl:calibration.overall",
+        "rows": 100,
+        "source_ref": "sha256:5da647cb6084a87d1038df230752942bd5ca712e2031d7d9ca5399e597682b86",
+        "unique_keys": 100
+      },
+      {
+        "actual_backend_seed": 688080168,
+        "authority": "not_established",
+        "eligible": 100,
+        "gate_eligible": false,
+        "independent_hits": 91,
+        "name": "fresh_native_read",
+        "observed": 100,
+        "pairs_ref": "continuous-calibration-pairs-v1:sha256:2deeeddf00378c1f50776e156795e0db5013ecccbfbf5934784aba40c63254a2",
+        "ref": "sha256:2ac4fe124c84f888c6550011dfa011aea86b4be48624a7ff68cd2af66ea6500b",
+        "requested": 100,
+        "role": "independent-pcl:calibration.scenario.proposed_profile_break_garch",
+        "rows": 100,
+        "source_ref": "sha256:5da647cb6084a87d1038df230752942bd5ca712e2031d7d9ca5399e597682b86",
+        "unique_keys": 100
+      },
+      {
+        "actual_backend_seed": 688080168,
+        "authority": "not_established",
+        "eligible": 100,
+        "gate_eligible": false,
+        "independent_hits": 91,
+        "name": "fresh_native_read",
+        "observed": 100,
+        "pairs_ref": "continuous-calibration-pairs-v1:sha256:2deeeddf00378c1f50776e156795e0db5013ecccbfbf5934784aba40c63254a2",
+        "ref": "sha256:1f869d61bfb73db3cacced73a74b6c3ec993da350245c0dee89922220fafba31",
+        "requested": 100,
+        "role": "independent-pcl:calibration.scenario.pooled_stationary_garch",
+        "rows": 100,
+        "source_ref": "sha256:5da647cb6084a87d1038df230752942bd5ca712e2031d7d9ca5399e597682b86",
+        "unique_keys": 100
+      },
+      {
+        "actual_backend_seed": 688080168,
+        "authority": "not_established",
+        "eligible": 100,
+        "gate_eligible": false,
+        "independent_hits": 91,
+        "name": "fresh_native_read",
+        "observed": 100,
+        "pairs_ref": "continuous-calibration-pairs-v1:sha256:2deeeddf00378c1f50776e156795e0db5013ecccbfbf5934784aba40c63254a2",
+        "ref": "sha256:e9d30d58db0c05dd788c2c4616b5668a993ced18f454cc7b70dab1acc92cdbc4",
+        "requested": 100,
+        "role": "independent-pcl:calibration.scenario.group_specific_stationary_garch",
+        "rows": 100,
+        "source_ref": "sha256:5da647cb6084a87d1038df230752942bd5ca712e2031d7d9ca5399e597682b86",
+        "unique_keys": 100
+      },
+      {
+        "actual_backend_seed": 688080168,
+        "authority": "not_established",
+        "eligible": 100,
+        "gate_eligible": false,
+        "independent_hits": 91,
+        "name": "fresh_native_read",
+        "observed": 100,
+        "pairs_ref": "continuous-calibration-pairs-v1:sha256:2deeeddf00378c1f50776e156795e0db5013ecccbfbf5934784aba40c63254a2",
+        "ref": "sha256:a57c72e7d37a1e7cbc44028b395293120e418ebae6a4c4a8cc1cebfa62e754ec",
+        "requested": 100,
+        "role": "independent-pcl:calibration.scenario.pooled_break_garch",
+        "rows": 100,
+        "source_ref": "sha256:5da647cb6084a87d1038df230752942bd5ca712e2031d7d9ca5399e597682b86",
+        "unique_keys": 100
+      }
+    ],
+    "chain": [
+      "configured graph FileSystemCAS",
+      "real ProgramGraph/ExecPlan artifacts",
+      "actual MethodDispatcher singleton",
+      "actual NumpyRunner and arch fit",
+      "Advanced segment + overall + scenario summaries",
+      "pairs + diagnostics persisted to same configured CAS",
+      "MethodResult.artifacts.artifact_refs",
+      "ExecuteArtifacts.derived_artifacts",
+      "_build_standard_derived_refs",
+      "new FileSystemCAS loader + full numerical report/receipt recomputation"
+    ],
+    "derived_roles": 6,
+    "distinct_diagnostics_refs": 5,
+    "distinct_summary_code_sites": 3,
+    "entities": [
+      7,
+      12
+    ],
+    "explanation": "proposed_profile_break_garch aliases overall; no double counting as independent computation",
+    "gate_eligible": false,
+    "graph_seed": 5907,
+    "holdout_rows_per_entity": 50,
+    "oracle": "independent y from reopened source dependent[source_row_index] and stored endpoints; 100 unique entity/time keys, actual blocked training 0..29 and observations 30..79, horizons 1..50 per entity; 91 hits/100",
+    "panel_rows": 160,
+    "source_authority": "not_established",
+    "source_seed": 840912,
+    "summary_calls": 5,
+    "target": "reviewer-synthetic-returns",
+    "unit": "dimensionless-return"
+  },
+  "target": {
+    "candidate_sha": "74b26eb067dea76d90b134641e66537759e4dc0f",
+    "candidate_tree": "dfd78fc6417f8659c8a981a82712bb0e07fcc940",
+    "companion_changed_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/all-54-closeout.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/closeout-artifact-index.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/copy-index.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/local-G-closeout-recipes.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/copy-index.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/summary.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/final-closeout-review/copy-index.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/final-closeout-review/review-58e2d97965c0.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/final-handoff.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/evidence-correction.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/evidence-validation.json",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-evidence-facades.toml",
+      "policy-engine/src/polisyos/calibration/README.md",
+      "policy-engine/src/polisyos/calibration/__init__.py",
+      "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "policy-engine/tests/unit/calibration/test_evidence_facades.py"
+    ],
+    "companion_review_limit": "Runtime review uses canonical Calibration root evaluate/persist/load exports supplied by 229988; other root evidence/facade edits are explicit companions and remain their canonical owner review responsibility. Bounded code GO covers the six own PCL implementation paths, not blanket approval of unrelated root companions.",
+    "complete_root_base_to_candidate_changed_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/all-54-closeout.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/closeout-artifact-index.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/copy-index.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/local-G-closeout-recipes.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/copy-index.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/summary.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/final-closeout-review/copy-index.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/final-closeout-review/review-58e2d97965c0.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/final-handoff.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/evidence-correction.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/evidence-validation.json",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-evidence-facades.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-pcl-configured-consumer.toml",
+      "policy-engine/src/polisyos/calibration/README.md",
+      "policy-engine/src/polisyos/calibration/__init__.py",
+      "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+      "policy-engine/src/polisyos/foundry/methods/README.md",
+      "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py",
+      "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+      "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py"
+    ],
+    "facade_companion": "22998874b5f32434c462065baaca44a78e967f91",
+    "full_footprint": [
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-pcl-configured-consumer.toml",
+      "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+      "policy-engine/src/polisyos/foundry/methods/README.md",
+      "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py",
+      "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py"
+    ],
+    "head_delta": "only reviewed test formatting; equal AST and production bytes",
+    "root_base": "028829629a9c30454e44d25e7bea7be3ea05b561",
+    "source_before_after": {
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-pcl-configured-consumer.toml": {
+        "bytes": 1364,
+        "git_target_sha256": "ef2c4f2d03b4bd2dcdf983739f1ae8d60ef890ad4218e0b310cce8dbb17501c9",
+        "sha256": "ef2c4f2d03b4bd2dcdf983739f1ae8d60ef890ad4218e0b310cce8dbb17501c9"
+      },
+      "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py": {
+        "bytes": 42347,
+        "git_target_sha256": "93f563291d569fbb22c36ca47cf9abb2b6478565bd81b390cb9c44d6521a76b8",
+        "sha256": "93f563291d569fbb22c36ca47cf9abb2b6478565bd81b390cb9c44d6521a76b8"
+      },
+      "policy-engine/src/polisyos/foundry/methods/README.md": {
+        "bytes": 9119,
+        "git_target_sha256": "fb0d14b9c3908fb37094f60d5de38399628d2674bd4b0aac6d45fba3d302aa50",
+        "sha256": "fb0d14b9c3908fb37094f60d5de38399628d2674bd4b0aac6d45fba3d302aa50"
+      },
+      "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py": {
+        "bytes": 5418,
+        "git_target_sha256": "e7fdf9ed774330ab9d89290370d1bb93ab604eeec3d69592c9906f1ac78f7e8e",
+        "sha256": "e7fdf9ed774330ab9d89290370d1bb93ab604eeec3d69592c9906f1ac78f7e8e"
+      },
+      "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py": {
+        "bytes": 90744,
+        "git_target_sha256": "66fc76228ba02f1469cae40b33f64ac504845d72451ad6d0668c27a3cdadf9c3",
+        "sha256": "66fc76228ba02f1469cae40b33f64ac504845d72451ad6d0668c27a3cdadf9c3"
+      },
+      "policy-engine/tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py": {
+        "bytes": 9343,
+        "git_target_sha256": "621d7aeced8c7efaf3ec078d8b30549f372601a78eed28618a4b63d0ad9ba1f8",
+        "sha256": "ad4c0101b0529b05011cde97a7b23d8d40ee2ffe443aa991556357ced0d4d3ea"
+      }
+    },
+    "tested_head": "ffd23ae3a3e71a4d2cf1fa305ec2015f513269e9",
+    "tested_head_tree": "bc60af14857dc90ce9317f3cd826a3455a9eb691",
+    "unchanged": true
+  },
+  "validation": {
+    "P41": "exact 229988 three-blob supported-input replay establishes local runtime divergence only, not global gate inheritance",
+    "all_probe_expected_outcomes": true,
+    "common_numeric_gate_wave": "UNRUN here: parent freezes candidate once after all reviews",
+    "error": 0,
+    "failed": 0,
+    "focused_and_backend_tests": 81,
+    "format": true,
+    "full_architecture_guard": "UNRUN here per parent no-duplicate instruction; no inherited-red classification made",
+    "production_bytes_match_source_sha": true,
+    "ruff": true,
+    "skip": 0,
+    "test_AST_matches_source_sha": true
+  }
+}

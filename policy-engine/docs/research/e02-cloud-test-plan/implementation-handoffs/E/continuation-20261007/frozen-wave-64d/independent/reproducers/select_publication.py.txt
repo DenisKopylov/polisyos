@@ -1,0 +1,212 @@
+"""Select complete moderate frozen-wave/independent deciding bytes for DOC copying."""
+
+import hashlib
+import json
+from pathlib import Path
+
+WAVE = Path("/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007")
+HERE = Path(__file__).parent
+SOURCE = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+TREE = "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+rows = []
+
+
+def add(path, portable, role):
+    raw = path.read_bytes()
+    rows.append(
+        {
+            "path": str(path),
+            "portable_path": portable,
+            "role": role,
+            "bytes": len(raw),
+            "sha256": hashlib.sha256(raw).hexdigest(),
+        }
+    )
+
+
+for name in ["plan.json", "wave-started.json", "execution-complete.json"]:
+    add(WAVE / name, "wave/" + name, "actual frozen driver plan/launch/completion")
+plan = json.loads((WAVE / "plan.json").read_text())
+for job in plan["jobs"]:
+    directory = Path(job["output"])
+    for suffix in [".json", ".stdout.txt"]:
+        path = directory / (job["name"] + suffix)
+        add(
+            path,
+            "wave/checks/" + job["name"] + "/" + path.name,
+            "original closed canonical check observation",
+        )
+    if job["junit"] and Path(job["junit"]).exists():
+        path = Path(job["junit"])
+        add(
+            path,
+            "wave/checks/" + job["name"] + "/" + path.name,
+            "complete actual JUnit; original interrupted CAL has no such artifact",
+        )
+    if job["name"] == "runtime-api-contract":
+        path = directory / "retained-runtime-catalog.json"
+        add(
+            path,
+            "wave/checks/runtime-api-contract/" + path.name,
+            "single canonical runtime emitter returned catalog metadata",
+        )
+packet = next(
+    Path(arg)
+    for job in plan["jobs"]
+    for arg in job["argv"]
+    if arg.endswith("test_a_frc_native_cas_status_reason.py")
+)
+add(
+    packet,
+    "wave/owner-packet/test_a_frc_native_cas_status_reason.py.txt",
+    "byte-identical selected seven-case A owner packet; no A source edit",
+)
+for name in [
+    "recomputed-wave.json",
+    "case-index.json",
+    "defining-current-case-index.json",
+]:
+    add(
+        HERE / "final-64d" / name,
+        "independent/" + name,
+        "current independent exact source/receipt/case navigation; owner findings separate",
+    )
+for name in [
+    "final-64d-corrected.stdout",
+    "final-64d-corrected.stderr",
+    "defining-current-case-index.stdout",
+    "defining-current-case-index.stderr",
+    "defining-assertion-source-index-64d.json",
+    "collector-controls-final.stdout",
+    "collector-controls-final.stderr",
+    "inventory-normal.stdout",
+    "inventory-normal.stderr",
+    "inventory-optimized.stdout",
+    "inventory-optimized.stderr",
+]:
+    add(
+        HERE / name,
+        "independent/" + name,
+        "complete moderate independent deciding output",
+    )
+add(
+    HERE / "collector-controls/results-current.json",
+    "independent/collector-controls/results-current.json",
+    "thirteen effective parser/environment corrupt controls",
+)
+add(
+    HERE / "final-64d/recomputed-wave.json.historical-before-A-empty-class-binding",
+    "independent/history/recomputed-before-A-empty-class-source-binding.json",
+    "original complete observer mapping; superseded because external JUnit omitted classnames, not a numeric rerun",
+)
+add(
+    HERE / "final-64d.stdout",
+    "independent/history/final-64d-initial.stdout",
+    "original observer stdout before exact omitted-classname binding correction",
+)
+add(
+    HERE / "final-64d.stderr",
+    "independent/history/final-64d-initial.stderr",
+    "original observer stderr before exact omitted-classname binding correction",
+)
+for name in [
+    "recompute_wave.py",
+    "join_defining_source.py",
+    "collector_controls.py",
+    "inventory_control.py",
+    "review_cal_retry.py",
+    "review_cal_publication.py",
+    "select_publication.py",
+]:
+    add(
+        HERE / name,
+        "independent/reproducers/" + name + ".txt",
+        "literal review/recompute source; archive only, not active publication Python",
+    )
+for name in [
+    "review.json",
+    "case-index.json",
+    "publication-review.json",
+    "committed-publication-review.json",
+]:
+    add(
+        HERE / "cal-retry-independent" / name,
+        "independent/cal-retry/" + name,
+        "separate interrupted-group retry current independent custody observation",
+    )
+for name in [
+    "cal-retry-independent-corrected.stdout",
+    "cal-retry-independent-corrected.stderr",
+    "cal-publication-review.stdout",
+    "cal-publication-review.stderr",
+]:
+    add(
+        HERE / name,
+        "independent/cal-retry/" + name,
+        "separate retry/review complete deciding stdout/stderr",
+    )
+for path, name in [
+    (
+        Path("/workspace/e02-E-pr38-r3-receipts/source-freeze-64d7444a.json"),
+        "source-freeze-64d7444a.json",
+    ),
+    (
+        Path(
+            "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-all-54-owner-dispositions.json"
+        ),
+        "current-prewave-all-54-owner-dispositions.json",
+    ),
+]:
+    add(
+        path,
+        "source-and-owner-inputs/" + name,
+        "frozen source/owner exact input; individual decisions not inferred from cases",
+    )
+if len({r["path"] for r in rows}) != len(rows) or len(
+    {r["portable_path"] for r in rows}
+) != len(rows):
+    raise ValueError("Publication selection duplicated source/portable identity")
+result = {
+    "schema": "policyos.e02.independent_complete_moderate_publication_selection.v1",
+    "source": SOURCE,
+    "tree": TREE,
+    "current_files": rows,
+    "deciding_output_count": len(rows),
+    "deciding_output_bytes": sum(r["bytes"] for r in rows),
+    "actual_primary_job_count": 15,
+    "actual_case_count_including_distinct_CAL_retry": 1549,
+    "actual_case_outcomes": {"PASS": 1541, "FAIL": 8},
+    "known_A_failures": 8,
+    "original_CAL": {
+        "outcome": "FAIL",
+        "exit_code": -9,
+        "counts": None,
+        "cause": "not_established",
+    },
+    "separate_CAL_retry": {"outcome": "PASS", "cases": 324},
+    "finding_outcomes_independent": True,
+    "excluded": [
+        "private raw *.git-config-private.nul",
+        "temporary/CAS/fixture/cache/environment trees",
+        "large original runtime generated OpenAPI/client/catalog raw inputs; source and original hash refs remain in canonical receipts",
+        "duplicate byte-identical historical case-index (SHA73a5974a... equals current case-index)",
+        "root successor selectors still pending outside original fifteen-job wave; do not invent outcomes",
+    ],
+    "previous_published_retry_carrier": {
+        "sha": "3eafb85617738c9b398fe67c70d58b3d0d05a5a9",
+        "tree": "a2981e42fb6a3b456c0ca2b8b08ffb5786dc8e84",
+        "scope": "separate complete original/retry provenance and literals; reused rather than erased",
+    },
+    "publication": "This fixed selection is review input only. Exact copied Git blobs and committed final carrier must be independently read back. This selector itself is excluded from counted outputs to avoid self-reference.",
+}
+(HERE / "moderate-publication-selection.json").write_text(
+    json.dumps(result, indent=2) + "\n"
+)
+print(
+    json.dumps(
+        {
+            "files": result["deciding_output_count"],
+            "bytes": result["deciding_output_bytes"],
+        }
+    )
+)

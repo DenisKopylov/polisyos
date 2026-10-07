@@ -1,0 +1,2583 @@
+{
+  "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "source_inputs": [
+    {
+      "path": "policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 7457,
+      "sha256": "210a02646fc4bdade933ca85fa53ced9b91dcdea4ca49d62abd265b5d7826dce"
+    },
+    {
+      "path": "policy-engine/tests/_helpers/runtime_http.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 56431,
+      "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_human_decision_api.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 4174,
+      "sha256": "a78ce52aad1f1a043e3c47b6625e9e3d4f2219b9d597823f318e755852d22220"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 123424,
+      "sha256": "01278a3cecfc6d3ca20dca7c10b817adf16847cf1ed5c5d28e47d87fd5d3b821"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 347497,
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 79191,
+      "sha256": "a2a4f06452428a225b393941ae16cf3cb42043c01a38679bb725595818cb9f62"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 37677,
+      "sha256": "c175225c5e4f8eda08d784e0319b4a5c023fe97fd89fbe24e758f5530a9beb72"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/graph_builder.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 29776,
+      "sha256": "4831403a2d505773e75bf6572e0323464ea2f9e9b3312d1111ac1572dc328f9f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 42587,
+      "sha256": "ba5781f542b3cfb2477158a5d09205f6b559d96dd27c1ed9235912955689b710"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 29478,
+      "sha256": "eaebbe358294cb227faa417fa23cefc12b881b2e298137dd4abbded4099a1ab2"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 206555,
+      "sha256": "ed902ef5d990a9e352e70a196f4a1d13ac25f6778d46a79828252cc7a35674e5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/types.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 11620,
+      "sha256": "ed089faee129ba1ce9101f00e65a702b00af22582f07afd0c7a867674b7070ab"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/reference/static_csv.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 17327,
+      "sha256": "770558cf2c526fe1ee7a5af3d36197def4ae329fb3acb59ac74383f4ba647be9"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/orchestrator.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 29896,
+      "sha256": "ebb6e42109d9725a60bafda60a8744a0a4ee1b1ed1ef6378a2aa3f874cb1bab6"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/fabric.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 5421,
+      "sha256": "390415a884778be3f78415c6610db9ea51e26484466d246859a912076a557bf7"
+    }
+  ],
+  "source_immutable": true,
+  "configured_baseline": {
+    "path": "/workspace/e02-E-continuation-20261006/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+    "is_file": false
+  },
+  "fixture_catalog": {
+    "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/native-attempt1/catalog/catalog.duckdb",
+    "sha256": "5c3f95237d9212b2eb2189280de683ef287857d6a50f49b67455ff34f58d70de",
+    "size": 6303744,
+    "counts": {
+      "ds_alignment_audit": 0,
+      "ds_alignment_hints": 0,
+      "ds_datasets": 9,
+      "ds_distributions": 9,
+      "ds_entity_mappings": 0,
+      "ds_metric_bindings": 13,
+      "ds_observations": 0,
+      "ds_registry_datasets": 0,
+      "ds_schema_profiles": 6,
+      "ds_variable_alignments": 0
+    },
+    "columns": {
+      "ds_alignment_audit": [
+        [
+          "audit_id",
+          "VARCHAR",
+          "NO",
+          "PRI",
+          null,
+          null
+        ],
+        [
+          "dataset_id",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "raw_variable",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "canonical_variable",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "method",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "raw_confidence",
+          "FLOAT",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "calibrated_confidence",
+          "FLOAT",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "alternatives_json",
+          "JSON",
+          "YES",
+          null,
+          "'[]'",
+          null
+        ],
+        [
+          "resolved_at",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "reviewed",
+          "BOOLEAN",
+          "YES",
+          null,
+          "CAST('f' AS BOOLEAN)",
+          null
+        ],
+        [
+          "reviewer_override",
+          "VARCHAR",
+          "YES",
+          null,
+          "NULL",
+          null
+        ]
+      ],
+      "ds_alignment_hints": [
+        [
+          "hint_id",
+          "VARCHAR",
+          "NO",
+          "PRI",
+          null,
+          null
+        ],
+        [
+          "dataset_id",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "canonical_var",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "hint_type",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "confidence",
+          "FLOAT",
+          "YES",
+          null,
+          "0.0",
+          null
+        ],
+        [
+          "evidence_json",
+          "JSON",
+          "YES",
+          null,
+          "'{}'",
+          null
+        ]
+      ],
+      "ds_datasets": [
+        [
+          "id",
+          "VARCHAR",
+          "NO",
+          "PRI",
+          null,
+          null
+        ],
+        [
+          "source",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "agency",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "dataset_id",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "source_dataset_id",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "dedup_key",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "title",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "description",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "publisher",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "spatial",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "temporal_start",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "temporal_end",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "license",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "source_portal",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "execution_tier",
+          "VARCHAR",
+          "YES",
+          null,
+          "'catalog'",
+          null
+        ],
+        [
+          "update_frequency",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "last_updated",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "polisyos_metrics",
+          "VARCHAR[]",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "keywords",
+          "VARCHAR[]",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "themes",
+          "VARCHAR[]",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "variables",
+          "VARCHAR[]",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "formats",
+          "VARCHAR[]",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "coverage_countries",
+          "VARCHAR[]",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "coverage_regions",
+          "VARCHAR[]",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "coverage_time_start",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "coverage_time_end",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "coverage_granularity",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "access_api_endpoint",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "access_bulk_download_url",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "access_license",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "access_auth_required",
+          "BOOLEAN",
+          "YES",
+          null,
+          "CAST('f' AS BOOLEAN)",
+          null
+        ],
+        [
+          "quality_description_score",
+          "FLOAT",
+          "YES",
+          null,
+          "0.0",
+          null
+        ],
+        [
+          "quality_machine_readable_score",
+          "FLOAT",
+          "YES",
+          null,
+          "0.0",
+          null
+        ],
+        [
+          "quality_parser_support_score",
+          "FLOAT",
+          "YES",
+          null,
+          "0.0",
+          null
+        ],
+        [
+          "quality_freshness_score",
+          "FLOAT",
+          "YES",
+          null,
+          "0.0",
+          null
+        ],
+        [
+          "quality_execution_readiness_score",
+          "FLOAT",
+          "YES",
+          null,
+          "0.0",
+          null
+        ],
+        [
+          "preferred_distribution_id",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "updated_at",
+          "TIMESTAMP",
+          "YES",
+          null,
+          "CURRENT_TIMESTAMP",
+          null
+        ]
+      ],
+      "ds_distributions": [
+        [
+          "id",
+          "VARCHAR",
+          "NO",
+          "PRI",
+          null,
+          null
+        ],
+        [
+          "dataset_id",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "url",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "format",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "name",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "connector_type",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "connector_params",
+          "JSON",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "source_locator",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "profile_id",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "media_type",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "machine_readable",
+          "BOOLEAN",
+          "YES",
+          null,
+          "CAST('f' AS BOOLEAN)",
+          null
+        ],
+        [
+          "parser_supported",
+          "BOOLEAN",
+          "YES",
+          null,
+          "CAST('f' AS BOOLEAN)",
+          null
+        ],
+        [
+          "size_estimate_bytes",
+          "BIGINT",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "checksum",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "default_filters",
+          "JSON",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "quality_score",
+          "FLOAT",
+          "YES",
+          null,
+          "0.0",
+          null
+        ]
+      ],
+      "ds_entity_mappings": [
+        [
+          "mapping_id",
+          "VARCHAR",
+          "NO",
+          "PRI",
+          null,
+          null
+        ],
+        [
+          "dataset_id",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "source",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "entity_id",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "entity_label",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "entity_type",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "external_id",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "alias_json",
+          "JSON",
+          "YES",
+          null,
+          "'[]'",
+          null
+        ]
+      ],
+      "ds_metric_bindings": [
+        [
+          "metric_id",
+          "VARCHAR",
+          "NO",
+          "PRI",
+          null,
+          null
+        ],
+        [
+          "dataset_id",
+          "VARCHAR",
+          "NO",
+          "PRI",
+          null,
+          null
+        ],
+        [
+          "distribution_id",
+          "VARCHAR",
+          "NO",
+          "PRI",
+          null,
+          null
+        ],
+        [
+          "connector_id",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "profile_id",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "request_dataset_id",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "confidence",
+          "FLOAT",
+          "YES",
+          null,
+          "0.0",
+          null
+        ],
+        [
+          "metric_inference_confidence",
+          "FLOAT",
+          "YES",
+          null,
+          "0.0",
+          null
+        ],
+        [
+          "default_filters",
+          "JSON",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "execution_tier",
+          "VARCHAR",
+          "YES",
+          null,
+          "'catalog'",
+          null
+        ],
+        [
+          "source",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ]
+      ],
+      "ds_observations": [
+        [
+          "observation_id",
+          "VARCHAR",
+          "NO",
+          "PRI",
+          null,
+          null
+        ],
+        [
+          "dataset_id",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "raw_variable",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "canonical_var",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "country_code",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "year",
+          "INTEGER",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "survey_year",
+          "INTEGER",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "wave",
+          "INTEGER",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "value",
+          "DOUBLE",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "condition_json",
+          "VARCHAR",
+          "YES",
+          null,
+          "'{}'",
+          null
+        ]
+      ],
+      "ds_registry_datasets": [
+        [
+          "dataset_id",
+          "VARCHAR",
+          "NO",
+          "PRI",
+          null,
+          null
+        ],
+        [
+          "provider",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "title",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "coverage_json",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "access_json",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "update_freq",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "last_updated",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ]
+      ],
+      "ds_schema_profiles": [
+        [
+          "distribution_id",
+          "VARCHAR",
+          "NO",
+          "PRI",
+          null,
+          null
+        ],
+        [
+          "dataset_id",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "columns_json",
+          "JSON",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "inferred_time_column",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "inferred_geography_column",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "inferred_value_columns",
+          "VARCHAR[]",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "sample_row_count",
+          "INTEGER",
+          "YES",
+          null,
+          "0",
+          null
+        ],
+        [
+          "preview_sample_hash",
+          "VARCHAR",
+          "YES",
+          null,
+          null,
+          null
+        ],
+        [
+          "inference_mode",
+          "VARCHAR",
+          "YES",
+          null,
+          "'metadata_only'",
+          null
+        ],
+        [
+          "parser_mode",
+          "VARCHAR",
+          "YES",
+          null,
+          "'metadata_only'",
+          null
+        ],
+        [
+          "format_notes_json",
+          "JSON",
+          "YES",
+          null,
+          "'{}'",
+          null
+        ]
+      ],
+      "ds_variable_alignments": [
+        [
+          "dataset_id",
+          "VARCHAR",
+          "NO",
+          "PRI",
+          null,
+          null
+        ],
+        [
+          "raw_variable",
+          "VARCHAR",
+          "NO",
+          "PRI",
+          null,
+          null
+        ],
+        [
+          "canonical_var",
+          "VARCHAR",
+          "NO",
+          "PRI",
+          null,
+          null
+        ],
+        [
+          "method",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "confidence",
+          "FLOAT",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "evidence",
+          "VARCHAR",
+          "NO",
+          null,
+          null,
+          null
+        ],
+        [
+          "is_proxy",
+          "BOOLEAN",
+          "YES",
+          null,
+          "CAST('f' AS BOOLEAN)",
+          null
+        ],
+        [
+          "proxy_penalty",
+          "FLOAT",
+          "YES",
+          null,
+          "0.0",
+          null
+        ]
+      ]
+    },
+    "profile_rows": [
+      {
+        "distribution_id": "dist-data-gov-ua-business-credit",
+        "dataset_id": "catalog://data-gov-ua/business-credit-registrations",
+        "columns_json": "[{\"inference_source\":\"metadata\",\"name\":\"edrpou\"},{\"inference_source\":\"metadata\",\"name\":\"program_id\"},{\"inference_source\":\"metadata\",\"name\":\"credit_status\"},{\"inference_source\":\"metadata\",\"name\":\"registration_status\"}]",
+        "inferred_time_column": null,
+        "inferred_geography_column": "country",
+        "inferred_value_columns": [
+          "edrpou",
+          "program_id",
+          "credit_status",
+          "registration_status"
+        ],
+        "sample_row_count": 0,
+        "preview_sample_hash": "82395ca84cd7237b",
+        "inference_mode": "metadata_only",
+        "parser_mode": "file_parser",
+        "format_notes_json": "{\"format\":\"\",\"machine_readable\":true,\"media_type\":\"\",\"parser_supported\":true,\"profile_id\":\"data_gov_ua\"}"
+      },
+      {
+        "distribution_id": "dist-ilo-ua-sme-credit",
+        "dataset_id": "catalog://ilo/sme-finance/ukraine-credit-constraints",
+        "columns_json": "[{\"inference_source\":\"metadata\",\"name\":\"country_code\"},{\"inference_source\":\"metadata\",\"name\":\"year\"},{\"inference_source\":\"metadata\",\"name\":\"credit_constraint\"},{\"inference_source\":\"metadata\",\"name\":\"employment\"}]",
+        "inferred_time_column": "year",
+        "inferred_geography_column": "country_code",
+        "inferred_value_columns": [
+          "credit_constraint",
+          "employment"
+        ],
+        "sample_row_count": 0,
+        "preview_sample_hash": "c1e4c6725265a5c4",
+        "inference_mode": "metadata_only",
+        "parser_mode": "api_tabular",
+        "format_notes_json": "{\"format\":\"\",\"machine_readable\":true,\"media_type\":\"\",\"parser_supported\":true,\"profile_id\":\"ilo\"}"
+      },
+      {
+        "distribution_id": "dist-unesco-ua-enrollment",
+        "dataset_id": "catalog://unesco/ukraine-school-enrollment",
+        "columns_json": "[{\"inference_source\":\"metadata\",\"name\":\"enrollment_rate\"},{\"inference_source\":\"metadata\",\"name\":\"grade\"}]",
+        "inferred_time_column": null,
+        "inferred_geography_column": "country",
+        "inferred_value_columns": [
+          "enrollment_rate",
+          "grade"
+        ],
+        "sample_row_count": 0,
+        "preview_sample_hash": "c88c7a8e881dcf2e",
+        "inference_mode": "metadata_only",
+        "parser_mode": "api_tabular",
+        "format_notes_json": "{\"format\":\"\",\"machine_readable\":true,\"media_type\":\"\",\"parser_supported\":true,\"profile_id\":\"unesco_uis\"}"
+      },
+      {
+        "distribution_id": "dist-who-ua-health-capacity",
+        "dataset_id": "catalog://who/ukraine-health-facility-capacity",
+        "columns_json": "[{\"inference_source\":\"metadata\",\"name\":\"hospital_beds\"},{\"inference_source\":\"metadata\",\"name\":\"facility_count\"}]",
+        "inferred_time_column": null,
+        "inferred_geography_column": "country",
+        "inferred_value_columns": [
+          "hospital_beds",
+          "facility_count"
+        ],
+        "sample_row_count": 0,
+        "preview_sample_hash": "a269123a6b55ceca",
+        "inference_mode": "metadata_only",
+        "parser_mode": "api_tabular",
+        "format_notes_json": "{\"format\":\"\",\"machine_readable\":true,\"media_type\":\"\",\"parser_supported\":true,\"profile_id\":\"who\"}"
+      },
+      {
+        "distribution_id": "dist-worldbank-ua-msme-credit",
+        "dataset_id": "catalog://worldbank/enterprise-surveys/ukraine/msme-credit-access",
+        "columns_json": "[{\"inference_source\":\"metadata\",\"name\":\"country_code\"},{\"inference_source\":\"metadata\",\"name\":\"year\"},{\"inference_source\":\"metadata\",\"name\":\"firm_size\"},{\"inference_source\":\"metadata\",\"name\":\"credit_access\"}]",
+        "inferred_time_column": "year",
+        "inferred_geography_column": "country_code",
+        "inferred_value_columns": [
+          "firm_size",
+          "credit_access"
+        ],
+        "sample_row_count": 0,
+        "preview_sample_hash": "50ef5a4f79fd28c2",
+        "inference_mode": "metadata_only",
+        "parser_mode": "api_tabular",
+        "format_notes_json": "{\"format\":\"\",\"machine_readable\":true,\"media_type\":\"\",\"parser_supported\":true,\"profile_id\":\"worldbank\"}"
+      },
+      {
+        "distribution_id": "dist-worldbank-ua-findex-credit",
+        "dataset_id": "catalog://worldbank/global-findex/ukraine-account-credit",
+        "columns_json": "[{\"inference_source\":\"metadata\",\"name\":\"country_code\"},{\"inference_source\":\"metadata\",\"name\":\"year\"},{\"inference_source\":\"metadata\",\"name\":\"formal_borrowing\"},{\"inference_source\":\"metadata\",\"name\":\"account_ownership\"}]",
+        "inferred_time_column": "year",
+        "inferred_geography_column": "country_code",
+        "inferred_value_columns": [
+          "formal_borrowing",
+          "account_ownership"
+        ],
+        "sample_row_count": 0,
+        "preview_sample_hash": "5791bba3d5fac342",
+        "inference_mode": "metadata_only",
+        "parser_mode": "api_tabular",
+        "format_notes_json": "{\"format\":\"\",\"machine_readable\":true,\"media_type\":\"\",\"parser_supported\":true,\"profile_id\":\"worldbank\"}"
+      }
+    ]
+  },
+  "controls": {
+    "missing_source_native_reader": {
+      "outcome": "PASS",
+      "type": "ValueError",
+      "reason": "catalog_fetch_source_unreadable"
+    },
+    "wrong_profile_refusal": {
+      "outcome": "PASS",
+      "type": "ValueError",
+      "reason": "catalog_fetch_target_not_admitted"
+    },
+    "wrong_dataset_refusal": {
+      "outcome": "PASS",
+      "type": "ValueError",
+      "reason": "catalog_fetch_target_not_admitted"
+    },
+    "fresh_resolver_binding": {
+      "outcome": "PASS",
+      "binding": {
+        "schema_version": "polisyos.data_forge.catalog_fetch_binding.v1",
+        "baseline": {
+          "source_path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/native-attempt1/catalog/catalog.duckdb",
+          "content_sha256": "sha256:5c3f95237d9212b2eb2189280de683ef287857d6a50f49b67455ff34f58d70de",
+          "byte_size": 6303744
+        },
+        "overlay_path": null,
+        "overlay": null,
+        "metric_id": "msme_credit_access",
+        "connector_id": "worldbank.wdi",
+        "request_dataset_id": "IC.FRM.ACCS.ZS",
+        "profile_id": "worldbank",
+        "requested_filters": {},
+        "binding": {
+          "metric_id": "msme_credit_access",
+          "catalog_dataset_id": "catalog://worldbank/enterprise-surveys/ukraine/msme-credit-access",
+          "distribution_id": "dist-worldbank-ua-msme-credit",
+          "connector_id": "worldbank.wdi",
+          "profile_id": "worldbank",
+          "request_dataset_id": "IC.FRM.ACCS.ZS",
+          "confidence": 0.9200000166893005,
+          "metric_inference_confidence": 0.0,
+          "default_filters": {},
+          "execution_tier": "transport_ready",
+          "source": "worldbank",
+          "title": "Ukraine MSME credit access World Bank firm measurement"
+        },
+        "target": {
+          "catalog_dataset_id": "catalog://worldbank/enterprise-surveys/ukraine/msme-credit-access",
+          "connector_id": "worldbank.wdi",
+          "profile_id": "worldbank",
+          "request_dataset_id": "IC.FRM.ACCS.ZS",
+          "distribution_id": "dist-worldbank-ua-msme-credit",
+          "connector_params": {},
+          "default_filters": {},
+          "machine_readable": true,
+          "parser_supported": true
+        },
+        "predicate_basis": "recomputed"
+      }
+    },
+    "changed_source_stale_session_refusal": {
+      "outcome": "PASS",
+      "type": "ValueError",
+      "reason": "catalog_fetch_read_session_stale"
+    },
+    "changed_source_old_binding_refusal": {
+      "outcome": "PASS",
+      "type": "ValueError",
+      "reason": "catalog_fetch_binding_mismatch"
+    },
+    "native_csv_snapshot_fresh_readback": {
+      "outcome": "PASS",
+      "rows": [
+        {
+          "row_id": "row_a",
+          "country_code": "UA",
+          "year": 2020,
+          "value": 1
+        },
+        {
+          "row_id": "row_b",
+          "country_code": "UA",
+          "year": 2021,
+          "value": 2
+        },
+        {
+          "row_id": "row_c",
+          "country_code": "UA",
+          "year": 2022,
+          "value": 4
+        }
+      ],
+      "request_calls": [
+        {
+          "method": "GET",
+          "path": "/source-rows.csv"
+        }
+      ],
+      "result_metadata": {
+        "row_count": 3,
+        "schema_id": "reference.static_csv.e02_catalog_fixture_rows",
+        "schema_version": "1.0.0",
+        "version": {
+          "strategy": "timestamp",
+          "value": "2026-10-07T11:14:35.486590+00:00",
+          "timestamp": "2026-10-07T11:14:35.486590Z",
+          "content_hash": "sha256:f293f797e3482aeab64b5fe823a8feb21bbd0b5edd7b0f21e079454ef2129d2a"
+        },
+        "fetched_at": "2026-10-07T11:14:35.486897Z",
+        "source_updated_at": null,
+        "evidence_ref": null,
+        "completeness": 1.0,
+        "quality_tier": 2,
+        "quality_flags": [],
+        "has_more": false,
+        "next_page_token": null,
+        "total_count": null,
+        "fetch_duration_ms": 3.36,
+        "bytes_transferred": 79,
+        "not_modified": false,
+        "resilience": null,
+        "pii_scan": null
+      },
+      "schema": {
+        "schema_id": "reference.static_csv.e02_catalog_fixture_rows",
+        "version": "1.0.0",
+        "fields": [
+          {
+            "name": "row_id",
+            "field_id": "row_id",
+            "data_type": "string",
+            "nullable": false,
+            "semantic_type": "identifier"
+          },
+          {
+            "name": "country_code",
+            "field_id": "country_code",
+            "data_type": "string",
+            "nullable": false,
+            "semantic_type": "code"
+          },
+          {
+            "name": "year",
+            "field_id": "year",
+            "data_type": "uint16",
+            "nullable": false,
+            "semantic_type": "temporal"
+          },
+          {
+            "name": "value",
+            "field_id": "value",
+            "data_type": "uint8",
+            "nullable": false,
+            "semantic_type": "percentage"
+          }
+        ]
+      },
+      "schema_ref": {
+        "artifact_id": "sha256:cf1c15dc337c3564aaa942d5e1afa95b6fffd2a3fcd68eac008603322c5df097",
+        "kind": "fabric.data_schema",
+        "media_type": "application/json"
+      },
+      "snapshot": {
+        "data_ref": {
+          "artifact_id": "sha256:5f9649d1de923451e4e293bdbb1dae79372aa921b55fde581faf02f110e94f87",
+          "kind": "fabric.data_payload",
+          "media_type": "application/json"
+        },
+        "data_schema_ref": null,
+        "evidence_ref": {
+          "artifact_id": "sha256:2ce85eb7f71c67364af17477a946a1846c75c77929f00c6d442ac75926c19173",
+          "kind": "fabric.evidence_bundle",
+          "media_type": "application/json"
+        },
+        "quality_report_ref": {
+          "artifact_id": "sha256:cf01178a6b229399a07c8230012314613a85ad0fc6bbe19ea1e765a4bb7348d0",
+          "kind": "fabric.quality_report",
+          "media_type": "application/json"
+        },
+        "uncertainty_ref": null,
+        "uncertainty_envelope_ref": null,
+        "warnings_ref": null,
+        "input_bindings_ref": null,
+        "pii_scan_summary": null,
+        "stats": {
+          "datasets_fetched": 1,
+          "source": "orchestrated_ingestion:e02_local_catalog_fixture"
+        },
+        "notes": [
+          "fabric.data_plane.orchestrator",
+          "datasets=1"
+        ]
+      },
+      "snapshot_ref": {
+        "artifact_id": "sha256:4cc7e7774009d27144e577bed831e8e4a52e97122c32c974ce52f105e9d550ab",
+        "kind": "fabric.data_snapshot",
+        "media_type": "application/json"
+      },
+      "limitation": "Existing snapshot producer does not attach data_schema_ref; separately persisted schema_ref is reported, not silently upgraded. Catalog fixture metadata and local CSV snapshot are separate fixture inputs, not joined production observations."
+    },
+    "native_dashboard_fixture_startup": {
+      "outcome": "PASS",
+      "source_root": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "configured_paths_calls": [
+        "/workspace/e02-E-continuation-20261006/policy-engine"
+      ],
+      "catalog_type": "polisyos.data_forge.domains.catalog.knowledge.search.DatasetCatalogGraph",
+      "binding": {
+        "schema_version": "polisyos.data_forge.catalog_fetch_binding.v1",
+        "baseline": {
+          "source_path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/native-attempt1/catalog/catalog.duckdb",
+          "content_sha256": "sha256:5c3f95237d9212b2eb2189280de683ef287857d6a50f49b67455ff34f58d70de",
+          "byte_size": 6303744
+        },
+        "overlay_path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_gy_acquisition_overlay.duckdb",
+        "overlay": null,
+        "metric_id": "msme_credit_access",
+        "connector_id": "worldbank.wdi",
+        "request_dataset_id": "IC.FRM.ACCS.ZS",
+        "profile_id": "worldbank",
+        "requested_filters": {},
+        "binding": {
+          "metric_id": "msme_credit_access",
+          "catalog_dataset_id": "catalog://worldbank/enterprise-surveys/ukraine/msme-credit-access",
+          "distribution_id": "dist-worldbank-ua-msme-credit",
+          "connector_id": "worldbank.wdi",
+          "profile_id": "worldbank",
+          "request_dataset_id": "IC.FRM.ACCS.ZS",
+          "confidence": 0.9200000166893005,
+          "metric_inference_confidence": 0.0,
+          "default_filters": {},
+          "execution_tier": "transport_ready",
+          "source": "worldbank",
+          "title": "Ukraine MSME credit access World Bank firm measurement"
+        },
+        "target": {
+          "catalog_dataset_id": "catalog://worldbank/enterprise-surveys/ukraine/msme-credit-access",
+          "connector_id": "worldbank.wdi",
+          "profile_id": "worldbank",
+          "request_dataset_id": "IC.FRM.ACCS.ZS",
+          "distribution_id": "dist-worldbank-ua-msme-credit",
+          "connector_params": {},
+          "default_filters": {},
+          "machine_readable": true,
+          "parser_supported": true
+        },
+        "predicate_basis": "recomputed"
+      },
+      "health": {
+        "status_code": 200,
+        "payload": {
+          "status": "ok",
+          "lifecycle": {
+            "status": "ready",
+            "started_at": "2026-10-07T11:14:40.005260+00:00",
+            "stopped_at": null,
+            "last_error": null,
+            "dependency_graph": {
+              "runtime_api_context": [
+                "artifact_store",
+                "run_index",
+                "timeline",
+                "debug",
+                "feedback",
+                "fabric",
+                "lineage",
+                "compare",
+                "temporal",
+                "scenarios",
+                "artifacts",
+                "analysis"
+              ],
+              "control_plane_service": [
+                "runtime_metrics",
+                "runtime_tracer"
+              ],
+              "human_decision_service": [
+                "control_plane_service",
+                "runtime_access_audit",
+                "deployment_security"
+              ],
+              "production_approval_resolver": [
+                "human_decision_service",
+                "deployment_security"
+              ],
+              "acquisition_action_service": [
+                "control_plane_service",
+                "human_decision_service",
+                "runtime_access_audit"
+              ],
+              "mutation_policy": [
+                "runtime_rate_limiter",
+                "runtime_idempotency_store",
+                "runtime_mutation_audit"
+              ],
+              "review_collaboration_hub": [],
+              "runtime_access_audit": []
+            },
+            "dependencies": {
+              "runtime_api_context": {
+                "status": "ready",
+                "type": "RuntimeApiContext"
+              },
+              "review_collaboration_hub": {
+                "status": "ready",
+                "type": "ReviewCollaborationHub"
+              },
+              "control_plane_service": {
+                "status": "ready",
+                "type": "ControlPlaneService"
+              },
+              "human_decision_service": {
+                "status": "unavailable",
+                "type": "HumanDecisionService",
+                "reason": "DS9-DECISION-PRODUCER-MISSING"
+              },
+              "acquisition_action_service": {
+                "status": "ready",
+                "type": "AcquisitionActionService"
+              },
+              "production_approval_resolver": {
+                "status": "ready",
+                "type": "ProductionApprovalPacketResolver"
+              },
+              "runtime_metrics": {
+                "status": "ready",
+                "type": "MetricsRegistry"
+              },
+              "runtime_tracer": {
+                "status": "ready",
+                "type": "PolicyOSTracer"
+              },
+              "runtime_access_audit": {
+                "status": "ready",
+                "type": "RuntimeDataAccessAuditTrail"
+              },
+              "runtime_rate_limiter": {
+                "status": "ready",
+                "type": "RuntimeRateLimiter"
+              },
+              "runtime_idempotency_store": {
+                "status": "ready",
+                "type": "RuntimeIdempotencyStore"
+              },
+              "runtime_mutation_audit": {
+                "status": "ready",
+                "type": "RuntimeMutationAuditTrail"
+              }
+            }
+          },
+          "observability": {
+            "metrics": {
+              "status": "ok",
+              "failures": []
+            }
+          }
+        }
+      },
+      "runs_surface": {
+        "status_code": 200,
+        "payload": {
+          "meta": {
+            "request_id": "06edaad4528348ba889215b337b541a4",
+            "generated_at": "2026-10-07T11:14:40.016243Z",
+            "source_kinds": [
+              "core_run"
+            ]
+          },
+          "page": {
+            "limit": 50,
+            "cursor": null,
+            "next_cursor": null,
+            "count": 5,
+            "total": 5
+          },
+          "runs": [
+            {
+              "run_id": "R_run_paper_bound_001",
+              "source_kind": "core_run",
+              "status": "ok",
+              "started_at": "2026-10-07T11:14:39Z",
+              "finished_at": "2026-10-07T11:14:39Z",
+              "duration_ms": 0,
+              "tenant_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              "cell_id": "cell-a",
+              "execution_profile": null,
+              "control_job_id": null,
+              "has_trace": true,
+              "run_terminality": "terminal",
+              "root_artifact_count": 3,
+              "has_workflow_report": false,
+              "warnings": [],
+              "decision_validity_status": null,
+              "decision_validity_checked_at": null,
+              "decision_review_required": false,
+              "decision_superseded_by_ref": null
+            },
+            {
+              "run_id": "R_run_paper_growth_001",
+              "source_kind": "core_run",
+              "status": "completed",
+              "started_at": "2026-01-01T00:00:00Z",
+              "finished_at": "2026-01-01T00:05:00Z",
+              "duration_ms": 300000,
+              "tenant_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              "cell_id": "cell-a",
+              "execution_profile": null,
+              "control_job_id": null,
+              "has_trace": true,
+              "run_terminality": "terminal",
+              "root_artifact_count": 67,
+              "has_workflow_report": false,
+              "warnings": [],
+              "decision_validity_status": null,
+              "decision_validity_checked_at": null,
+              "decision_review_required": false,
+              "decision_superseded_by_ref": null
+            },
+            {
+              "run_id": "R_run_paper_empty_001",
+              "source_kind": "core_run",
+              "status": "completed",
+              "started_at": "2026-01-01T00:00:00Z",
+              "finished_at": "2026-01-01T00:05:00Z",
+              "duration_ms": 300000,
+              "tenant_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              "cell_id": "cell-a",
+              "execution_profile": null,
+              "control_job_id": null,
+              "has_trace": true,
+              "run_terminality": "terminal",
+              "root_artifact_count": 3,
+              "has_workflow_report": false,
+              "warnings": [],
+              "decision_validity_status": null,
+              "decision_validity_checked_at": null,
+              "decision_review_required": false,
+              "decision_superseded_by_ref": null
+            },
+            {
+              "run_id": "R_core_api_002",
+              "source_kind": "core_run",
+              "status": "completed",
+              "started_at": "2026-10-07T11:14:37Z",
+              "finished_at": "2026-10-07T11:14:37Z",
+              "duration_ms": 0,
+              "tenant_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              "cell_id": "cell-a",
+              "execution_profile": null,
+              "control_job_id": null,
+              "has_trace": true,
+              "run_terminality": "terminal",
+              "root_artifact_count": 1,
+              "has_workflow_report": false,
+              "warnings": [],
+              "decision_validity_status": "warning",
+              "decision_validity_checked_at": "2026-10-07T11:14:39.852910Z",
+              "decision_review_required": false,
+              "decision_superseded_by_ref": null
+            },
+            {
+              "run_id": "R_core_api_001",
+              "source_kind": "core_run",
+              "status": "fail",
+              "started_at": "2026-10-07T11:14:37Z",
+              "finished_at": "2026-10-07T11:14:37Z",
+              "duration_ms": 0,
+              "tenant_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              "cell_id": "cell-a",
+              "execution_profile": "governed",
+              "control_job_id": "job_ctrl_fixture_001",
+              "has_trace": true,
+              "run_terminality": "terminal",
+              "root_artifact_count": 18,
+              "has_workflow_report": true,
+              "warnings": [],
+              "decision_validity_status": "warning",
+              "decision_validity_checked_at": "2026-10-07T11:14:39.842812Z",
+              "decision_review_required": false,
+              "decision_superseded_by_ref": null
+            }
+          ]
+        }
+      },
+      "bound_run_id": "R_run_paper_bound_001",
+      "limitation": "Startup/readback wiring witness only; fixture flags or counters establish no decision/production/history authority. Browser page/a11y cases were not run."
+    }
+  },
+  "environment": {
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "packages": [
+      {
+        "name": "about-time",
+        "version": "4.2.1"
+      },
+      {
+        "name": "absl-py",
+        "version": "2.3.1"
+      },
+      {
+        "name": "aiohappyeyeballs",
+        "version": "2.6.1"
+      },
+      {
+        "name": "aiohttp",
+        "version": "3.13.3"
+      },
+      {
+        "name": "aiosignal",
+        "version": "1.4.0"
+      },
+      {
+        "name": "alive-progress",
+        "version": "3.3.0"
+      },
+      {
+        "name": "annotated-doc",
+        "version": "0.0.4"
+      },
+      {
+        "name": "annotated-types",
+        "version": "0.7.0"
+      },
+      {
+        "name": "anyio",
+        "version": "4.12.0"
+      },
+      {
+        "name": "arch",
+        "version": "8.0.0"
+      },
+      {
+        "name": "arrow",
+        "version": "1.4.0"
+      },
+      {
+        "name": "attrs",
+        "version": "25.4.0"
+      },
+      {
+        "name": "autograd",
+        "version": "1.8.0"
+      },
+      {
+        "name": "autograd-gamma",
+        "version": "0.5.0"
+      },
+      {
+        "name": "babel",
+        "version": "2.17.0"
+      },
+      {
+        "name": "backrefs",
+        "version": "6.2"
+      },
+      {
+        "name": "basedpyright",
+        "version": "1.39.0"
+      },
+      {
+        "name": "certifi",
+        "version": "2025.11.12"
+      },
+      {
+        "name": "cffi",
+        "version": "2.0.0"
+      },
+      {
+        "name": "cfgv",
+        "version": "3.5.0"
+      },
+      {
+        "name": "charset-normalizer",
+        "version": "3.4.4"
+      },
+      {
+        "name": "chex",
+        "version": "0.1.91"
+      },
+      {
+        "name": "click",
+        "version": "8.3.1"
+      },
+      {
+        "name": "cma",
+        "version": "4.4.1"
+      },
+      {
+        "name": "colorama",
+        "version": "0.4.6"
+      },
+      {
+        "name": "contourpy",
+        "version": "1.3.3"
+      },
+      {
+        "name": "cryptography",
+        "version": "46.0.4"
+      },
+      {
+        "name": "cycler",
+        "version": "0.12.1"
+      },
+      {
+        "name": "defusedxml",
+        "version": "0.7.1"
+      },
+      {
+        "name": "Deprecated",
+        "version": "1.3.1"
+      },
+      {
+        "name": "diffrax",
+        "version": "0.7.0"
+      },
+      {
+        "name": "dill",
+        "version": "0.4.1"
+      },
+      {
+        "name": "distlib",
+        "version": "0.4.0"
+      },
+      {
+        "name": "distro",
+        "version": "1.9.0"
+      },
+      {
+        "name": "duckdb",
+        "version": "1.4.3"
+      },
+      {
+        "name": "equinox",
+        "version": "0.13.2"
+      },
+      {
+        "name": "et_xmlfile",
+        "version": "2.0.0"
+      },
+      {
+        "name": "execnet",
+        "version": "2.1.2"
+      },
+      {
+        "name": "fastapi",
+        "version": "0.128.6"
+      },
+      {
+        "name": "filelock",
+        "version": "3.20.2"
+      },
+      {
+        "name": "fonttools",
+        "version": "4.61.1"
+      },
+      {
+        "name": "formulaic",
+        "version": "1.2.1"
+      },
+      {
+        "name": "fqdn",
+        "version": "1.5.1"
+      },
+      {
+        "name": "frozenlist",
+        "version": "1.8.0"
+      },
+      {
+        "name": "ghp-import",
+        "version": "2.1.0"
+      },
+      {
+        "name": "googleapis-common-protos",
+        "version": "1.72.0"
+      },
+      {
+        "name": "graphemeu",
+        "version": "0.7.2"
+      },
+      {
+        "name": "griffelib",
+        "version": "2.0.2"
+      },
+      {
+        "name": "grpcio",
+        "version": "1.78.0"
+      },
+      {
+        "name": "h11",
+        "version": "0.16.0"
+      },
+      {
+        "name": "hatchling",
+        "version": "1.27.0"
+      },
+      {
+        "name": "httpcore",
+        "version": "1.0.9"
+      },
+      {
+        "name": "httptools",
+        "version": "0.7.1"
+      },
+      {
+        "name": "httpx",
+        "version": "0.28.1"
+      },
+      {
+        "name": "hypothesis",
+        "version": "6.151.2"
+      },
+      {
+        "name": "identify",
+        "version": "2.6.15"
+      },
+      {
+        "name": "idna",
+        "version": "3.11"
+      },
+      {
+        "name": "immutabledict",
+        "version": "4.2.2"
+      },
+      {
+        "name": "importlib_metadata",
+        "version": "8.7.1"
+      },
+      {
+        "name": "iniconfig",
+        "version": "2.3.0"
+      },
+      {
+        "name": "interface-meta",
+        "version": "1.3.0"
+      },
+      {
+        "name": "isoduration",
+        "version": "20.11.0"
+      },
+      {
+        "name": "jax",
+        "version": "0.8.2"
+      },
+      {
+        "name": "jaxlib",
+        "version": "0.8.2"
+      },
+      {
+        "name": "jaxtyping",
+        "version": "0.3.4"
+      },
+      {
+        "name": "Jinja2",
+        "version": "3.1.6"
+      },
+      {
+        "name": "jiter",
+        "version": "0.13.0"
+      },
+      {
+        "name": "joblib",
+        "version": "1.5.3"
+      },
+      {
+        "name": "jsonpatch",
+        "version": "1.33"
+      },
+      {
+        "name": "jsonpointer",
+        "version": "3.0.0"
+      },
+      {
+        "name": "jsonschema",
+        "version": "4.25.1"
+      },
+      {
+        "name": "jsonschema-specifications",
+        "version": "2025.9.1"
+      },
+      {
+        "name": "kiwisolver",
+        "version": "1.4.9"
+      },
+      {
+        "name": "langchain",
+        "version": "1.2.0"
+      },
+      {
+        "name": "langchain-core",
+        "version": "1.2.6"
+      },
+      {
+        "name": "langgraph",
+        "version": "1.0.5"
+      },
+      {
+        "name": "langgraph-checkpoint",
+        "version": "3.0.1"
+      },
+      {
+        "name": "langgraph-prebuilt",
+        "version": "1.0.5"
+      },
+      {
+        "name": "langgraph-sdk",
+        "version": "0.3.1"
+      },
+      {
+        "name": "langsmith",
+        "version": "0.6.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "libcst",
+        "version": "1.8.6"
+      },
+      {
+        "name": "librt",
+        "version": "0.7.7"
+      },
+      {
+        "name": "lifelines",
+        "version": "0.30.3"
+      },
+      {
+        "name": "linearmodels",
+        "version": "7.0"
+      },
+      {
+        "name": "lineax",
+        "version": "0.0.8"
+      },
+      {
+        "name": "loguru",
+        "version": "0.7.3"
+      },
+      {
+        "name": "MAPIE",
+        "version": "1.3.0"
+      },
+      {
+        "name": "Markdown",
+        "version": "3.10.2"
+      },
+      {
+        "name": "MarkupSafe",
+        "version": "3.0.3"
+      },
+      {
+        "name": "matplotlib",
+        "version": "3.10.8"
+      },
+      {
+        "name": "mergedeep",
+        "version": "1.3.4"
+      },
+      {
+        "name": "mkdocs",
+        "version": "1.6.1"
+      },
+      {
+        "name": "mkdocs-autorefs",
+        "version": "1.4.4"
+      },
+      {
+        "name": "mkdocs-get-deps",
+        "version": "0.2.2"
+      },
+      {
+        "name": "mkdocs-material",
+        "version": "9.7.6"
+      },
+      {
+        "name": "mkdocs-material-extensions",
+        "version": "1.3.1"
+      },
+      {
+        "name": "mkdocstrings",
+        "version": "1.0.3"
+      },
+      {
+        "name": "mkdocstrings-python",
+        "version": "2.0.3"
+      },
+      {
+        "name": "ml_dtypes",
+        "version": "0.5.4"
+      },
+      {
+        "name": "moocore",
+        "version": "0.1.10"
+      },
+      {
+        "name": "multidict",
+        "version": "6.7.1"
+      },
+      {
+        "name": "multiprocess",
+        "version": "0.70.19"
+      },
+      {
+        "name": "mypy",
+        "version": "1.19.1"
+      },
+      {
+        "name": "mypy_extensions",
+        "version": "1.1.0"
+      },
+      {
+        "name": "narwhals",
+        "version": "2.14.0"
+      },
+      {
+        "name": "nodeenv",
+        "version": "1.10.0"
+      },
+      {
+        "name": "nodejs-wheel-binaries",
+        "version": "24.14.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "odfpy",
+        "version": "1.4.1"
+      },
+      {
+        "name": "openai",
+        "version": "1.109.1"
+      },
+      {
+        "name": "openpyxl",
+        "version": "3.1.5"
+      },
+      {
+        "name": "opentelemetry-api",
+        "version": "1.39.1"
+      },
+      {
+        "name": "opentelemetry-exporter-otlp-proto-common",
+        "version": "1.39.1"
+      },
+      {
+        "name": "opentelemetry-exporter-otlp-proto-grpc",
+        "version": "1.39.1"
+      },
+      {
+        "name": "opentelemetry-exporter-prometheus",
+        "version": "0.60b1"
+      },
+      {
+        "name": "opentelemetry-proto",
+        "version": "1.39.1"
+      },
+      {
+        "name": "opentelemetry-sdk",
+        "version": "1.39.1"
+      },
+      {
+        "name": "opentelemetry-semantic-conventions",
+        "version": "0.60b1"
+      },
+      {
+        "name": "opt_einsum",
+        "version": "3.4.0"
+      },
+      {
+        "name": "optax",
+        "version": "0.2.6"
+      },
+      {
+        "name": "optimistix",
+        "version": "0.0.11"
+      },
+      {
+        "name": "orjson",
+        "version": "3.11.5"
+      },
+      {
+        "name": "ormsgpack",
+        "version": "1.12.1"
+      },
+      {
+        "name": "ortools",
+        "version": "9.15.6755"
+      },
+      {
+        "name": "packaging",
+        "version": "25.0"
+      },
+      {
+        "name": "paginate",
+        "version": "0.5.7"
+      },
+      {
+        "name": "pandas",
+        "version": "2.3.3"
+      },
+      {
+        "name": "pathspec",
+        "version": "0.12.1"
+      },
+      {
+        "name": "patsy",
+        "version": "1.0.2"
+      },
+      {
+        "name": "pillow",
+        "version": "12.3.0"
+      },
+      {
+        "name": "platformdirs",
+        "version": "4.5.1"
+      },
+      {
+        "name": "pluggy",
+        "version": "1.6.0"
+      },
+      {
+        "name": "policy-engine",
+        "version": "0.1.0"
+      },
+      {
+        "name": "pre_commit",
+        "version": "4.5.1"
+      },
+      {
+        "name": "prometheus_client",
+        "version": "0.23.1"
+      },
+      {
+        "name": "propcache",
+        "version": "0.4.1"
+      },
+      {
+        "name": "protobuf",
+        "version": "6.33.2"
+      },
+      {
+        "name": "py-cpuinfo",
+        "version": "9.0.0"
+      },
+      {
+        "name": "pyarrow",
+        "version": "22.0.0"
+      },
+      {
+        "name": "pycparser",
+        "version": "2.23"
+      },
+      {
+        "name": "pydantic",
+        "version": "2.12.5"
+      },
+      {
+        "name": "pydantic-settings",
+        "version": "2.12.0"
+      },
+      {
+        "name": "pydantic_core",
+        "version": "2.41.5"
+      },
+      {
+        "name": "Pygments",
+        "version": "2.19.2"
+      },
+      {
+        "name": "pyhdfe",
+        "version": "0.2.0"
+      },
+      {
+        "name": "PyJWT",
+        "version": "2.11.0"
+      },
+      {
+        "name": "pymdown-extensions",
+        "version": "10.21.2"
+      },
+      {
+        "name": "pymoo",
+        "version": "0.6.1.6"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.1"
+      },
+      {
+        "name": "pypdf",
+        "version": "6.7.4"
+      },
+      {
+        "name": "pytest",
+        "version": "9.0.2"
+      },
+      {
+        "name": "pytest-asyncio",
+        "version": "1.3.0"
+      },
+      {
+        "name": "pytest-benchmark",
+        "version": "5.2.3"
+      },
+      {
+        "name": "pytest-xdist",
+        "version": "3.8.0"
+      },
+      {
+        "name": "python-dateutil",
+        "version": "2.9.0.post0"
+      },
+      {
+        "name": "python-dotenv",
+        "version": "1.2.1"
+      },
+      {
+        "name": "pytz",
+        "version": "2025.2"
+      },
+      {
+        "name": "PyYAML",
+        "version": "6.0.3"
+      },
+      {
+        "name": "pyyaml_env_tag",
+        "version": "1.1"
+      },
+      {
+        "name": "rdflib",
+        "version": "7.6.0"
+      },
+      {
+        "name": "referencing",
+        "version": "0.37.0"
+      },
+      {
+        "name": "regex",
+        "version": "2026.9.3"
+      },
+      {
+        "name": "requests",
+        "version": "2.32.5"
+      },
+      {
+        "name": "requests-toolbelt",
+        "version": "1.0.0"
+      },
+      {
+        "name": "rfc3339-validator",
+        "version": "0.1.4"
+      },
+      {
+        "name": "rfc3986-validator",
+        "version": "0.1.1"
+      },
+      {
+        "name": "rfc3987-syntax",
+        "version": "1.1.0"
+      },
+      {
+        "name": "rpds-py",
+        "version": "0.30.0"
+      },
+      {
+        "name": "ruff",
+        "version": "0.14.10"
+      },
+      {
+        "name": "ruptures",
+        "version": "1.1.10"
+      },
+      {
+        "name": "SALib",
+        "version": "1.5.2"
+      },
+      {
+        "name": "scikit-learn",
+        "version": "1.8.0"
+      },
+      {
+        "name": "scipy",
+        "version": "1.16.3"
+      },
+      {
+        "name": "six",
+        "version": "1.17.0"
+      },
+      {
+        "name": "sniffio",
+        "version": "1.3.1"
+      },
+      {
+        "name": "sortedcontainers",
+        "version": "2.4.0"
+      },
+      {
+        "name": "starlette",
+        "version": "0.52.1"
+      },
+      {
+        "name": "statsmodels",
+        "version": "0.14.6"
+      },
+      {
+        "name": "structlog",
+        "version": "25.5.0"
+      },
+      {
+        "name": "tenacity",
+        "version": "9.1.2"
+      },
+      {
+        "name": "threadpoolctl",
+        "version": "3.6.0"
+      },
+      {
+        "name": "tiktoken",
+        "version": "0.12.0"
+      },
+      {
+        "name": "toolz",
+        "version": "1.1.0"
+      },
+      {
+        "name": "tqdm",
+        "version": "4.67.3"
+      },
+      {
+        "name": "trove-classifiers",
+        "version": "2026.9.21.13"
+      },
+      {
+        "name": "types-requests",
+        "version": "2.32.4.20250913"
+      },
+      {
+        "name": "typing-inspection",
+        "version": "0.4.2"
+      },
+      {
+        "name": "typing_extensions",
+        "version": "4.15.0"
+      },
+      {
+        "name": "tzdata",
+        "version": "2025.3"
+      },
+      {
+        "name": "uri-template",
+        "version": "1.3.0"
+      },
+      {
+        "name": "urllib3",
+        "version": "2.6.2"
+      },
+      {
+        "name": "uuid_utils",
+        "version": "0.12.0"
+      },
+      {
+        "name": "uvicorn",
+        "version": "0.40.0"
+      },
+      {
+        "name": "uvloop",
+        "version": "0.22.1"
+      },
+      {
+        "name": "virtualenv",
+        "version": "20.35.4"
+      },
+      {
+        "name": "wadler_lindig",
+        "version": "0.1.7"
+      },
+      {
+        "name": "watchdog",
+        "version": "6.0.0"
+      },
+      {
+        "name": "watchfiles",
+        "version": "1.1.1"
+      },
+      {
+        "name": "webcolors",
+        "version": "25.10.0"
+      },
+      {
+        "name": "websockets",
+        "version": "16.0"
+      },
+      {
+        "name": "wrapt",
+        "version": "2.0.1"
+      },
+      {
+        "name": "xlrd",
+        "version": "2.0.2"
+      },
+      {
+        "name": "xxhash",
+        "version": "3.6.0"
+      },
+      {
+        "name": "yarl",
+        "version": "1.22.0"
+      },
+      {
+        "name": "zipp",
+        "version": "3.23.0"
+      },
+      {
+        "name": "zstandard",
+        "version": "0.25.0"
+      }
+    ],
+    "overrides": {
+      "POLISYOS_CACHE_HOME": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/native-attempt1/cache",
+      "POLISYOS_METRICS_PORT": "0"
+    }
+  },
+  "result": "PASS",
+  "authority_limits": [
+    "No production dataset or source law copied",
+    "No strict store bypass/new API",
+    "No frontend/A/DataForge source changes",
+    "Standalone local CSV snapshot is not attached to existing catalog metadata as an invented source join",
+    "No finding closure or full frontend gate PASS claim"
+  ]
+}

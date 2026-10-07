@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git_controls.py", line 41, in <module>
+    ns,fn,prefix,child,data=prepare(row); healthy=fn(*prefix,'show',E9+':AGENTS.md');require(healthy in {b'fixture\n',b'fixture','fixture','fixture\n'} and len(child.calls)==1,'healthy argument routing:'+row['path']+':'+repr(healthy))
+                                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: cannot use 'types.SimpleNamespace' as a set element (unhashable type: 'types.SimpleNamespace')

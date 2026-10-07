@@ -1,0 +1,22 @@
+--- committed/ir/_manifest.json(content)
++++ actual-target-only/ir/_manifest.json(content)
+@@ -6,7 +6,7 @@
+     "release_fragment_change_class": "persisted-artifact-format",
+     "version_owner": "team-ir"
+   },
+-  "content_hash": "2d2db2e781510e085cd466d1721f30d5c0989d2f36f16340fc4af039a06fc5bb",
++  "content_hash": "9295c978d7e0fc1950707891ea6568fe0d5d82fede06dce30f9ab90b8771b3a0",
+   "generator_version": "1.0.0",
+   "models": {
+     "abm_alignment_report": {
+@@ -413,8 +413,8 @@
+       "priority": "p2",
+       "schema_file": "feedback_solve_result.schema.json",
+       "schema_version": "1.0",
+-      "sha256_full": "2eda896e68fe545c6d0d59285689d7dba9add644cb3fad8b39c3f4bb7e0cdc0a",
+-      "sha256_semantic": "609f10efec3694f01ed79e9230e6dab20a8b7eac8b531e5d61cb64262ffba55d",
++      "sha256_full": "ff7ee9d123bcd11e4f2d41c1c8c548b676b15df70eaa83e1b81103759ebd1a93",
++      "sha256_semantic": "155188bb3635d6e8e4ab2c3430223d512348924dc2c326c05fa54e37b25d42d7",
+       "version_field": "schema_version"
+     },
+     "feedback_solver_config": {

@@ -1,0 +1,122 @@
+"""Custody + inactivity admission and removal of two CLOSED retry environments only."""
+from __future__ import annotations
+import ast
+import hashlib
+import importlib.metadata as metadata
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import time
+
+OUTPUT = Path('/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture')
+BASE = Path('/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1')
+CANDIDATES = [BASE / 'full-architecture-retained/environment', BASE / 'architecture-retained/environment']
+PROTECTED = [Path('/workspace/e02-E-continuation-20261006/policy-engine/.venv'), Path('/workspace/e02-E-doe-20261006/policy-engine/.venv'), Path('/workspace/.polisyos-environment')]
+EXPECTED_SOURCE = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+EXPECTED_TREE = 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+
+def identity(path):
+    value = path.read_bytes()
+    return {'path': str(path), 'bytes': len(value), 'sha256': hashlib.sha256(value).hexdigest()}
+
+def copy(source, destination):
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    with destination.open('xb') as handle:
+        handle.write(source.read_bytes())
+    row = {**identity(source), 'saved_path': str(destination)}
+    if identity(destination)['sha256'] != row['sha256']:
+        raise ValueError('Byte-exact saved custody required')
+    return row
+
+def write(path, value):
+    with path.open('x') as handle:
+        handle.write(json.dumps(value, ensure_ascii=False, indent=2) + '\n')
+
+def filesystem():
+    stat = os.statvfs('/workspace')
+    return {'observed_unix': time.time(), 'total_bytes': stat.f_blocks * stat.f_frsize, 'free_bytes': stat.f_bfree * stat.f_frsize, 'available_bytes': stat.f_bavail * stat.f_frsize}
+
+def protected_metadata():
+    return [identity(source) for prefix in PROTECTED for source in sorted(prefix.glob('lib/python*/site-packages/*.dist-info/*')) if source.is_file()]
+
+function = next(node for node in ast.parse(Path('/tmp/e02-E-capacity-cleanup-20261007-doe/prepare_cleanup.py').read_text()).body if isinstance(node, ast.FunctionDef) and node.name == 'proc_scan')
+exec(compile(ast.Module(body=[function], type_ignores=[]), 'saved-prepare_cleanup.py:proc_scan', 'exec'), globals())
+OUTPUT.mkdir(mode=0o700, exist_ok=False)
+receipt_names = ['architecture-full-retry', 'narrow-runtime-family']
+receipts = []
+for name in receipt_names:
+    path = BASE / 'checks' / name / (name + '.json')
+    receipt = json.loads(path.read_text())
+    if receipt['candidate_sha'] != EXPECTED_SOURCE or receipt['candidate_tree_sha'] != EXPECTED_TREE or receipt['head_at_end'] != EXPECTED_SOURCE or receipt['source_immutable'] is not True or receipt['exit_code'] not in (0, 1) or receipt['outcome'] not in ('PASS', 'FAIL') or receipt['wall_seconds'] <= 0:
+        raise ValueError('Closed source-bound native selector required')
+    stdout = Path(receipt['stdout_path'])
+    if identity(stdout)['sha256'] != receipt['stdout_sha256'] or stdout.stat().st_size != receipt['stdout_bytes']:
+        raise ValueError('Closed deciding stdout custody mismatch')
+    receipts.extend([copy(path, OUTPUT / 'saved-deciding' / path.name), copy(stdout, OUTPUT / 'saved-deciding' / stdout.name)])
+    stderr = path.with_name(name + '.stderr.txt')
+    if stderr.is_file():
+        receipts.append(copy(stderr, OUTPUT / 'saved-deciding' / stderr.name))
+manifests = []
+for path in CANDIDATES:
+    if path.is_symlink() or not path.is_dir() or path.resolve() != path or path.name != 'environment' or path.parent.parent != BASE:
+        raise ValueError('Exact retained environment child required')
+    if any(path == protected or path.is_relative_to(protected) or protected.is_relative_to(path) for protected in PROTECTED):
+        raise ValueError('Protected prefix overlap')
+    sites = list((path / 'lib').glob('python*/site-packages'))
+    if len(sites) != 1:
+        raise ValueError('Unambiguous environment packages required')
+    packages = []
+    for dist in metadata.distributions(path=[str(sites[0])]):
+        info = Path(dist._path)
+        if not info.is_relative_to(path):
+            raise ValueError('Distribution info escapes exact environment')
+        files = [copy(source, OUTPUT / path.parent.name / 'distinfo-metadata' / info.name / source.relative_to(info)) for source in sorted(info.rglob('*')) if source.is_file()]
+        packages.append({'name': dist.metadata.get('Name'), 'version': dist.version, 'requires': dist.requires, 'entry_points': [{'name': entry.name, 'group': entry.group, 'value': entry.value} for entry in dist.entry_points], 'metadata_files': files})
+    inventory = []
+    allocated = unique = 0
+    for source in sorted(path.rglob('*')):
+        stat = source.lstat()
+        row = {'relative_path': str(source.relative_to(path)), 'device': stat.st_dev, 'inode': stat.st_ino, 'mode': stat.st_mode, 'size': stat.st_size, 'allocated_bytes': stat.st_blocks * 512, 'hardlink_count': stat.st_nlink}
+        if source.is_symlink():
+            row['symlink_target'] = os.readlink(source)
+        elif source.is_file():
+            allocated += stat.st_blocks * 512
+            if stat.st_nlink == 1:
+                unique += stat.st_blocks * 512
+        inventory.append(row)
+    source_inputs = [copy(path.parent / 'source' / name, OUTPUT / path.parent.name / name) for name in ('pyproject.toml', 'uv.lock')]
+    cfg = copy(path / 'pyvenv.cfg', OUTPUT / path.parent.name / 'pyvenv.cfg')
+    outputs = [identity(source) for source in sorted((path.parent / 'outputs').rglob('*')) if source.is_file()]
+    manifests.append({'candidate': str(path), 'kind': 'installed CLOSED canonical generated-freshness retry environment only', 'source_clone_preserved': str(path.parent / 'source'), 'outputs_preserved': str(path.parent / 'outputs'), 'source_SHA': EXPECTED_SOURCE, 'source_tree': EXPECTED_TREE, 'source_input_copies': source_inputs, 'pyvenv_cfg': cfg, 'packages': sorted(packages, key=lambda row: row['name'].casefold()), 'package_count': len(packages), 'complete_path_inventory': inventory, 'allocated_bytes_including_shared_hardlinks': allocated, 'unique_hardlink1_allocated_bytes_lower_bound': unique, 'complete_preserved_output_identity': outputs, 'reproduce': 'Canonical closed receipt command + retained source clone + exact copied pyproject/uv.lock + full installed distinfo metadata; shared configured uv cache is preserved.'})
+protected_before = protected_metadata()
+scan = proc_scan()
+admission = {'schema': 'policyos.e02.closed_generated_environment_cleanup_admission.v1', 'authorization': 'Root explicitly authorized removal of CLOSED architecture generator environment/cache after saved outputs/source bindings and no active users; only exact environment children selected. Shared runtime uv cache excluded.', 'source': EXPECTED_SOURCE, 'source_tree': EXPECTED_TREE, 'closed_deciding_receipts': receipts, 'candidates': manifests, 'process_scan': scan, 'filesystem_before': filesystem(), 'protected_metadata_before': protected_before, 'never_delete': ['source clones', 'outputs', 'raw deciding evidence', 'ROOT env', 'DoE env', 'shared runtime uv cache', 'Git/code/docs', 'active fixtures', 'unique inputs']}
+write(OUTPUT / 'cleanup-admission.json', admission)
+if scan['active_users'] or scan['unreadable_agent_processes']:
+    raise ValueError('Active or unknown agent user blocks cleanup')
+actions = []
+for manifest in manifests:
+    candidate = Path(manifest['candidate'])
+    for row in manifest['source_input_copies'] + [manifest['pyvenv_cfg']] + [row for dist in manifest['packages'] for row in dist['metadata_files']]:
+        if identity(Path(row['path']))['sha256'] != row['sha256'] or identity(Path(row['saved_path']))['sha256'] != row['sha256']:
+            raise ValueError('Current original/saved metadata custody mismatch')
+    immediate = proc_scan()
+    write(OUTPUT / ('immediate-' + candidate.parent.name + '.json'), immediate)
+    if immediate['active_users'] or immediate['unreadable_agent_processes']:
+        raise ValueError('Immediate process admission refused')
+    before = filesystem()
+    started = time.time()
+    shutil.rmtree(candidate)
+    after = filesystem()
+    action = {'exact_deleted_path': str(candidate), 'started_unix': started, 'ended_unix': time.time(), 'filesystem_before': before, 'filesystem_after': after, 'observed_free_delta_bytes': after['free_bytes'] - before['free_bytes'], 'observed_available_delta_bytes': after['available_bytes'] - before['available_bytes'], 'absent_after': not candidate.exists(), 'source_clone_and_outputs_preserved': (candidate.parent / 'source').is_dir() and (candidate.parent / 'outputs').is_dir()}
+    write(OUTPUT / ('deletion-' + candidate.parent.name + '.json'), action)
+    actions.append(action)
+    if [identity(Path(row['path'])) for row in manifest['complete_preserved_output_identity']] != manifest['complete_preserved_output_identity']:
+        raise ValueError('Preserved output identity changed externally')
+if protected_metadata() != protected_before:
+    raise ValueError('Protected current environment metadata changed externally')
+result = {'schema': 'policyos.e02.closed_generated_environment_cleanup_result.v1', 'admission': identity(OUTPUT / 'cleanup-admission.json'), 'actions': actions, 'filesystem_before': admission['filesystem_before'], 'filesystem_after': filesystem(), 'observed_free_delta_bytes': filesystem()['free_bytes'] - admission['filesystem_before']['free_bytes'], 'observed_available_delta_bytes': filesystem()['available_bytes'] - admission['filesystem_before']['available_bytes'], 'protected_metadata_byte_identical': True, 'all_retained_deciding_outputs_byte_identical': True, 'shared_uv_cache_untouched': True, 'source_clones_and_git_code_docs_preserved': True}
+write(OUTPUT / 'cleanup-result.json', result)
+print(json.dumps({'result': str(OUTPUT / 'cleanup-result.json'), 'exact_deleted_paths': [row['exact_deleted_path'] for row in actions], 'candidate_package_counts': [row['package_count'] for row in manifests], 'candidate_unique_allocated_lowerbounds': [row['unique_hardlink1_allocated_bytes_lower_bound'] for row in manifests], 'filesystem_after': result['filesystem_after'], 'observed_free_delta_bytes': result['observed_free_delta_bytes'], 'observed_available_delta_bytes': result['observed_available_delta_bytes']}, indent=2))

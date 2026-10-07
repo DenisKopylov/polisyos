@@ -1,0 +1,47 @@
+{
+  "schema": "e02.E.complete-portable-evidence.v1",
+  "primary_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/lint-publication-independent/classification.json",
+  "records": [
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/lint-publication-independent/README.md",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/lint-publication-5e-independent/README.md",
+      "bytes": 3709,
+      "sha256": "524df26e263d320d50892385fb3a798f5416a4a3f93efee5f380b2ad54f5df8c"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/lint-publication-independent/classification.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/lint-publication-5e-independent/classification.json",
+      "bytes": 235270,
+      "sha256": "8b976b1044faa9e4fa1533e31a8934423c8649f91101325aeeb3ff63efb39433"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/lint-publication-independent/classify_lint.py",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/lint-publication-5e-independent/classify_lint.py",
+      "bytes": 15965,
+      "sha256": "9411345b3f122fbbb34e7ae04f970a74f9b7f4667e6e5f5e59ac88d34035160a"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/lint-publication-independent/corrupt-controls.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/lint-publication-5e-independent/corrupt-controls.json",
+      "bytes": 1223,
+      "sha256": "c3fbbded39de661d23ee2afe5871c7b56a6435a9334b353dd2d88b394c21dd47"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/lint-publication-independent/input-index.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/lint-publication-5e-independent/input-index.json",
+      "bytes": 62303,
+      "sha256": "b6eba52cc4782a11ace6e87583dba380068978f43918d50d41ca9493bc732fdc"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/lint-publication-independent/packet-index.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/lint-publication-5e-independent/packet-index.json",
+      "bytes": 1068,
+      "sha256": "38baa7342838d955e6fc548765d524957c7794bb3f36eac7060325addc9c5993"
+    }
+  ],
+  "complete": true,
+  "copies": 6,
+  "bytes": 319538,
+  "raw_private_inputs_copied": false,
+  "scope": "Exact full moderate source/author/independent owner packet; historical and current receipt scopes remain unchanged; no finding closure ratification"
+}

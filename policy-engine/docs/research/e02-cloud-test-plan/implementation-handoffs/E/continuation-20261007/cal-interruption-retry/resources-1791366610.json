@@ -1,0 +1,128 @@
+{
+  "time_unix": 1791366610.7838185,
+  "memory_current_bytes": 14249627648,
+  "memory_max_bytes": 17179869184,
+  "top_process_rss": [
+    {
+      "pid": 497277,
+      "name": "node",
+      "rss_kib": 1741056,
+      "ppid": "497274"
+    },
+    {
+      "pid": 497030,
+      "name": "pytest",
+      "rss_kib": 1330532,
+      "ppid": "497025"
+    },
+    {
+      "pid": 495854,
+      "name": "python3",
+      "rss_kib": 948756,
+      "ppid": "495843"
+    },
+    {
+      "pid": 503317,
+      "name": "python3",
+      "rss_kib": 878964,
+      "ppid": "495602"
+    },
+    {
+      "pid": 493757,
+      "name": "python",
+      "rss_kib": 801844,
+      "ppid": "493524"
+    },
+    {
+      "pid": 497206,
+      "name": "pytest",
+      "rss_kib": 776864,
+      "ppid": "497199"
+    },
+    {
+      "pid": 498495,
+      "name": "node",
+      "rss_kib": 332284,
+      "ppid": "498494"
+    },
+    {
+      "pid": 497108,
+      "name": "node",
+      "rss_kib": 290644,
+      "ppid": "497107"
+    },
+    {
+      "pid": 504047,
+      "name": "node",
+      "rss_kib": 285052,
+      "ppid": "497108"
+    },
+    {
+      "pid": 499001,
+      "name": "chrome-headless",
+      "rss_kib": 260788,
+      "ppid": "498945"
+    },
+    {
+      "pid": 504615,
+      "name": "node",
+      "rss_kib": 141696,
+      "ppid": "497108"
+    },
+    {
+      "pid": 504547,
+      "name": "node",
+      "rss_kib": 107696,
+      "ppid": "497108"
+    },
+    {
+      "pid": 504939,
+      "name": "python",
+      "rss_kib": 99076,
+      "ppid": "504079"
+    },
+    {
+      "pid": 498977,
+      "name": "chrome-headless",
+      "rss_kib": 78312,
+      "ppid": "498938"
+    },
+    {
+      "pid": 493897,
+      "name": "polisyos-tools",
+      "rss_kib": 75824,
+      "ppid": "493879"
+    },
+    {
+      "pid": 496970,
+      "name": "npm exec vitest",
+      "rss_kib": 58284,
+      "ppid": "496695"
+    },
+    {
+      "pid": 497523,
+      "name": "chrome-headless",
+      "rss_kib": 51160,
+      "ppid": "497493"
+    },
+    {
+      "pid": 498938,
+      "name": "chrome-headless",
+      "rss_kib": 50112,
+      "ppid": "498495"
+    },
+    {
+      "pid": 499009,
+      "name": "chrome-headless",
+      "rss_kib": 48416,
+      "ppid": "498945"
+    },
+    {
+      "pid": 499011,
+      "name": "chrome-headless",
+      "rss_kib": 46768,
+      "ppid": "498945"
+    }
+  ],
+  "scope": "RSS observation only, no command/environment secrets and no process termination"
+}

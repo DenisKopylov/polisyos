@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-independent/review_packet.py", line 151, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-independent/review_packet.py", line 39, in main
+    assert head==CURRENT and not git('status','--porcelain','--untracked-files=no')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

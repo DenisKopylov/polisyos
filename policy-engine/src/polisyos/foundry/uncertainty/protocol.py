@@ -69,7 +69,7 @@ class UncertaintyDecomposition:
             raise ValueError("confidence_level must be in (0, 1)")
         epi = max(float(epistemic_std), 0.0)
         ale = max(float(aleatoric_std), 0.0)
-        total_std = math.sqrt(epi * epi + ale * ale)
+        total_std = math.hypot(epi, ale)
         base_metadata = dict(metadata or {})
         total = gaussian_uncertainty_envelope(
             point_estimate=point_estimate,

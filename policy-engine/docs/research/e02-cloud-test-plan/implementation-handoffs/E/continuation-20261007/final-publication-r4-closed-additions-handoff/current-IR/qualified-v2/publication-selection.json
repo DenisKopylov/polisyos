@@ -1,0 +1,387 @@
+{
+  "schema": "policyos.e02.G855_conditions_corrected_publication_selection.v2",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "IR_source": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+  "G_review": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+  "status": "GO literalcustody/currenttechnicalconditionsopen",
+  "original_selector": {
+    "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/publication-selection.json",
+    "bytes": 3201,
+    "sha256": "b001b5e01eebd0f23a7e51c92a95728d087bec7ae6413c2096a1fcafc31be048"
+  },
+  "original_actual_denominator": {
+    "logical": 10,
+    "unique": 8,
+    "logical_bytes": 61292,
+    "unique_bytes": 51496
+  },
+  "assets": [
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/G855-E.md",
+      "bytes": 3435,
+      "sha256": "3f60bdd90cc39bf335eea45163dc05ce26ecf8319f1fef294ce3e7b31203fdf7",
+      "logical_at": "original/G855-E.md",
+      "stored_at": "original/G855-E.md",
+      "role": "literal original native/Error/G response artifact",
+      "original_destination": "G855-E.md"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/G855-E-IR-decision.md",
+      "bytes": 7381,
+      "sha256": "2f0b221653e13dbd27a44bd329af9fd56f894fba95f766ff508bffb8ed51d8ac",
+      "logical_at": "original/G855-E-IR-decision.md",
+      "stored_at": "original/G855-E-IR-decision.md",
+      "role": "literal original native/Error/G response artifact",
+      "original_destination": "G855-E-IR-decision.md"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/actual-conditions-counterexamples.json",
+      "bytes": 18774,
+      "sha256": "d4827c252f4da22f69be8fb920dde6e6a5737553df43a199f886e115637b8042",
+      "logical_at": "original/actual-conditions-counterexamples.json",
+      "stored_at": "original/actual-conditions-counterexamples.json",
+      "role": "literal original native/Error/G response artifact",
+      "original_destination": "actual-conditions-counterexamples.json"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/independent-owner-response.json",
+      "bytes": 11390,
+      "sha256": "f3878619073bf02ed4b66f89525958d0cb5c5d929cd1f860a9535a438e1ae5ca",
+      "logical_at": "original/independent-owner-response.json",
+      "stored_at": "original/independent-owner-response.json",
+      "role": "literal original native/Error/G response artifact",
+      "original_destination": "independent-owner-response.json"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/probe_actual_conditions.py.txt",
+      "bytes": 9796,
+      "sha256": "ee64e2e531923840ff7de62bdb56c88c9b4a8ebfab5cccd601a5276cf4cec5f0",
+      "logical_at": "original/probe_actual_conditions.py.txt",
+      "stored_at": "original/probe_actual_conditions.py.txt",
+      "role": "literal original native/Error/G response artifact",
+      "original_destination": "probe_actual_conditions.py.txt"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/probe.stdout.json",
+      "bytes": 513,
+      "sha256": "d5eda9db1a0ac8df602726b75b1ebd1f9225d504ba8848240878ba0982ddc772",
+      "logical_at": "original/probe.stdout.json",
+      "stored_at": "original/probe.stdout.json",
+      "role": "literal original native/Error/G response artifact",
+      "original_destination": "probe.stdout.json"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/probe.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "original/probe.stderr.txt",
+      "stored_at": "original/probe.stderr.txt",
+      "role": "literal original native/Error/G response artifact",
+      "original_destination": "probe.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/probe-removed-helper-environment-ERROR.py.txt",
+      "bytes": 9796,
+      "sha256": "ee64e2e531923840ff7de62bdb56c88c9b4a8ebfab5cccd601a5276cf4cec5f0",
+      "logical_at": "original/probe-removed-helper-environment-ERROR.py.txt",
+      "stored_at": "original/probe_actual_conditions.py.txt",
+      "role": "literal original native/Error/G response artifact",
+      "original_destination": "probe-removed-helper-environment-ERROR.py.txt"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/probe-removed-helper-environment-ERROR.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "original/probe-removed-helper-environment-ERROR.stdout.txt",
+      "stored_at": "original/probe.stderr.txt",
+      "role": "literal original native/Error/G response artifact",
+      "original_destination": "probe-removed-helper-environment-ERROR.stdout.json"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/probe-removed-helper-environment-ERROR.stderr.txt",
+      "bytes": 207,
+      "sha256": "07b85bb3b63d4901da80bea57425a71dbf99409877c4fa757fd65be98c2ec3ec",
+      "logical_at": "original/probe-removed-helper-environment-ERROR.stderr.txt",
+      "stored_at": "original/probe-removed-helper-environment-ERROR.stderr.txt",
+      "role": "literal original native/Error/G response artifact",
+      "original_destination": "probe-removed-helper-environment-ERROR.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/publication-selection.json",
+      "bytes": 3201,
+      "sha256": "b001b5e01eebd0f23a7e51c92a95728d087bec7ae6413c2096a1fcafc31be048",
+      "logical_at": "history/publication-selection.json",
+      "stored_at": "history/publication-selection.json",
+      "role": "preserved original selector"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/exact-finite-oracle.json",
+      "bytes": 6369,
+      "sha256": "9ecfbdb387d63e1db764bd6cec49b26edcddb38c3ffeac4e82cbd586b682bfdc",
+      "logical_at": "gold/exact-finite-oracle.json",
+      "stored_at": "gold/exact-finite-oracle.json",
+      "role": "frozen gold/CAS refs; no repeat/authority"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/exact_finite_oracle.py",
+      "bytes": 3926,
+      "sha256": "52f814918934cb2f55faa883a3a74086d997400368968d20aec74cee7e0ab851",
+      "logical_at": "gold/exact_finite_oracle.py.txt",
+      "stored_at": "gold/exact_finite_oracle.py.txt",
+      "role": "frozen gold/CAS refs; no repeat/authority"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/exact-oracle.stdout.json",
+      "bytes": 1481,
+      "sha256": "3bf24a8573964b22b78f68e2fe8549075e53e77116260167501f3792bed25b75",
+      "logical_at": "gold/exact-oracle.stdout.json",
+      "stored_at": "gold/exact-oracle.stdout.json",
+      "role": "frozen gold/CAS refs; no repeat/authority"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/exact-oracle.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "gold/exact-oracle.stderr.txt",
+      "stored_at": "original/probe.stderr.txt",
+      "role": "frozen gold/CAS refs; no repeat/authority"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/literal-legacy-profile700-fixture-index.json",
+      "bytes": 8473,
+      "sha256": "2ca74a333bf836d2fbbbbfc0712bc38625a2241008c633b39104ab82351fb3fc",
+      "logical_at": "CAS-ref-index/literal-legacy-profile700-fixture-index.json",
+      "stored_at": "CAS-ref-index/literal-legacy-profile700-fixture-index.json",
+      "role": "frozen gold/CAS refs; no repeat/authority"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/review_literal_custody.py",
+      "bytes": 16352,
+      "sha256": "3ad98134323f72239d0de784e03e8cfc201092b5ee46343e50d61a74e8fa9533",
+      "logical_at": "custody/review_literal_custody.py.txt",
+      "stored_at": "custody/review_literal_custody.py.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/review_literal_custody.attempt1.py.txt",
+      "bytes": 15424,
+      "sha256": "3673ae05e15ade3755bb875a5a09a5ac0768cd9924cd6cd1c9ebea9c07511083",
+      "logical_at": "custody/review_literal_custody.attempt1.py.txt",
+      "stored_at": "custody/review_literal_custody.attempt1.py.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/review_literal_custody.v2-used.py.txt",
+      "bytes": 15427,
+      "sha256": "ebe497d988400cb4e183efbc608e7d4d8e8f40328462c161208c675f0feeda4f",
+      "logical_at": "custody/review_literal_custody.v2-used.py.txt",
+      "stored_at": "custody/review_literal_custody.v2-used.py.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/review_literal_custody.v3-ERROR.py.txt",
+      "bytes": 16339,
+      "sha256": "61d0485032e1213720668c32d83932e4ea2c26c4fabcfc33e002f480588ef76d",
+      "logical_at": "custody/review_literal_custody.v3-ERROR.py.txt",
+      "stored_at": "custody/review_literal_custody.v3-ERROR.py.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/normal-v4-review.json",
+      "bytes": 10227,
+      "sha256": "72ff2b147aa07077ddf210283109a765b4c336a4a57251223e423b87b9d20b0f",
+      "logical_at": "custody/normal-v4-review.json",
+      "stored_at": "custody/normal-v4-review.json",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/optimized-v4-review.json",
+      "bytes": 10227,
+      "sha256": "72ff2b147aa07077ddf210283109a765b4c336a4a57251223e423b87b9d20b0f",
+      "logical_at": "custody/optimized-v4-review.json",
+      "stored_at": "custody/normal-v4-review.json",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/normal-v4.stdout.json",
+      "bytes": 447,
+      "sha256": "0b611ba97f257f53b81f5faf26aaf4d9c002b85de4dfc237832a75465b88536c",
+      "logical_at": "custody/normal-v4.stdout.json",
+      "stored_at": "custody/normal-v4.stdout.json",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/normal-v4.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "custody/normal-v4.stderr.txt",
+      "stored_at": "original/probe.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/optimized-v4.stdout.json",
+      "bytes": 450,
+      "sha256": "1ff5015544e39a9c3c3db6abb27f792978e3731e1cf6e1d42cabec0adc64e493",
+      "logical_at": "custody/optimized-v4.stdout.json",
+      "stored_at": "custody/optimized-v4.stdout.json",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/optimized-v4.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "custody/optimized-v4.stderr.txt",
+      "stored_at": "original/probe.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/normal.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "custody/normal.stdout.txt",
+      "stored_at": "original/probe.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/normal.stderr.txt",
+      "bytes": 1128,
+      "sha256": "945a27533e9752ff28b21c6ff18e89699308a56903b65ca6f17d330f9f8ae237",
+      "logical_at": "custody/normal.stderr.txt",
+      "stored_at": "custody/normal.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/optimized.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "custody/optimized.stdout.txt",
+      "stored_at": "original/probe.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/optimized.stderr.txt",
+      "bytes": 1128,
+      "sha256": "945a27533e9752ff28b21c6ff18e89699308a56903b65ca6f17d330f9f8ae237",
+      "logical_at": "custody/optimized.stderr.txt",
+      "stored_at": "custody/normal.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/normal-v2-review.json",
+      "bytes": 9693,
+      "sha256": "10f709d011e1c0009c7f8da36218c03da67c1990be8bf4e8f590293005522a05",
+      "logical_at": "custody/normal-v2-review.json",
+      "stored_at": "custody/normal-v2-review.json",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/optimized-v2-review.json",
+      "bytes": 9693,
+      "sha256": "10f709d011e1c0009c7f8da36218c03da67c1990be8bf4e8f590293005522a05",
+      "logical_at": "custody/optimized-v2-review.json",
+      "stored_at": "custody/normal-v2-review.json",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/normal-v2.stdout.json",
+      "bytes": 446,
+      "sha256": "1f254d570a0807ed3e8af2eb6cf58e04b3b4f2e9abd90439304ca24ef64d624c",
+      "logical_at": "custody/normal-v2.stdout.json",
+      "stored_at": "custody/normal-v2.stdout.json",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/normal-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "custody/normal-v2.stderr.txt",
+      "stored_at": "original/probe.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/optimized-v2.stdout.json",
+      "bytes": 449,
+      "sha256": "3872883b38ad09ffa7b14d27e9d40d934ba4c32e51b81fefd4ee80fba05ad10c",
+      "logical_at": "custody/optimized-v2.stdout.json",
+      "stored_at": "custody/optimized-v2.stdout.json",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/optimized-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "custody/optimized-v2.stderr.txt",
+      "stored_at": "original/probe.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/normal-v3.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "custody/normal-v3.stdout.txt",
+      "stored_at": "original/probe.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/normal-v3.stderr.txt",
+      "bytes": 860,
+      "sha256": "1279eadad1e2ac8cf498759d09ad5f71a4451744451741f55d9310442025634d",
+      "logical_at": "custody/normal-v3.stderr.txt",
+      "stored_at": "custody/normal-v3.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/optimized-v3.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "custody/optimized-v3.stdout.txt",
+      "stored_at": "original/probe.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/optimized-v3.stderr.txt",
+      "bytes": 860,
+      "sha256": "1279eadad1e2ac8cf498759d09ad5f71a4451744451741f55d9310442025634d",
+      "logical_at": "custody/optimized-v3.stderr.txt",
+      "stored_at": "custody/normal-v3.stderr.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/build_closed_selection.py",
+      "bytes": 5614,
+      "sha256": "96fbd82548b22a00d34d704f6fd3abc14085dd6b01503fcc9063b5b76926f031",
+      "logical_at": "custody/build_closed_selection.py.txt",
+      "stored_at": "custody/build_closed_selection.py.txt",
+      "role": "independent literal custody observer/currentGO/historicalERROR"
+    }
+  ],
+  "logical_assets": 41,
+  "unique_assets": 26,
+  "unique_bytes": 167802,
+  "corrections": [
+    "Original10logical/8unique/51496uniqueB, not10unique/61292uniqueB; originallogical61292B remain literal.",
+    "Only portable destination of empty rawERROR stdout .json becomes.txt; originalabsolute source path/bytes/hash unchanged.",
+    "Exact finite gold+script/stdout/stderr are explicit companions, not a candidate/nativePASS or ratification.",
+    "All storage aliases retain logical_at; restore archived.py.txt code only for explicit read-only stdlib replay."
+  ],
+  "current_counterexample_disposition": "B201/B202 technicalimplementationconditionsopen/change-required on700/64d; root-approved MC/profile addon remains separate author/review; findingclosure and sourcecodeacceptance are not this custody decision.",
+  "native_command_capture_boundary": "not separately captured by original probe receipts; complete script stdout/result/source guards and previous NumPy traceback retained",
+  "gold_math_reviewed_or_repeated_by_this_reviewer": false,
+  "no_new_source_lane_tests_or_native_imports": true,
+  "no_ROOT_environment_package_source_writes": true,
+  "no_raw_CAS_directory_or_DB_copy": true,
+  "CAS_payloads_read_only_ref_index": {
+    "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/literal-legacy-profile700-fixture-index.json",
+    "bytes": 8473,
+    "sha256": "2ca74a333bf836d2fbbbbfc0712bc38625a2241008c633b39104ab82351fb3fc"
+  },
+  "histories": [
+    "OriginalmissingFRCNumPyERROR is preserved; actual DOEleaf correctedenvironment remains separate.",
+    "Literalcustody attempt1 failed due reviewerwrongGitpath(all-six instead oftenth-wave); exactsource/stdout/stderr are observerERROR only.",
+    "V3 custody effective-removal observer initially counted its own literal predicate string; exactERROR/source retained; V4 builds needle fromfragments and executes2realbindingremovals.",
+    "V2 sixcontrolGO remains historical; V4eightcontrolGO addsactualhash/sizeproperty-removal and doesnotrepeatnumerics."
+  ],
+  "finding_closure": false,
+  "native_wave_repeated": false
+}

@@ -1,0 +1,160 @@
+{
+  "checks": [
+    {
+      "name": "compile_complete_owned_inputs",
+      "outcome": "PASS",
+      "result": 229
+    },
+    {
+      "name": "actual_stdout_helpers_positional_flush_bytes",
+      "outcome": "PASS",
+      "result": 140
+    },
+    {
+      "name": "archived_original_copy_index",
+      "outcome": "PASS",
+      "result": 154
+    },
+    {
+      "name": "current_copies_are_not_archived_bytes",
+      "outcome": "PASS",
+      "result": "refused"
+    },
+    {
+      "name": "copy_sha256_negative",
+      "outcome": "PASS",
+      "result": "refused"
+    },
+    {
+      "name": "copy_bytes_negative",
+      "outcome": "PASS",
+      "result": "refused"
+    },
+    {
+      "name": "copy_copied_path_negative",
+      "outcome": "PASS",
+      "result": "refused"
+    },
+    {
+      "name": "copy_option_revision_before_git",
+      "outcome": "PASS",
+      "result": "refused"
+    },
+    {
+      "name": "copy_last_bad_record_before_git",
+      "outcome": "PASS",
+      "result": "refused"
+    },
+    {
+      "name": "criteria_last_source_ref_preflight",
+      "outcome": "PASS",
+      "result": "refused"
+    },
+    {
+      "name": "criteria_last_source_path_preflight",
+      "outcome": "PASS",
+      "result": "refused"
+    },
+    {
+      "name": "criteria_last_portable_ref_preflight",
+      "outcome": "PASS",
+      "result": "refused"
+    },
+    {
+      "name": "criteria_show_option",
+      "outcome": "PASS",
+      "result": "refused"
+    },
+    {
+      "name": "criteria_rev_parse_option",
+      "outcome": "PASS",
+      "result": "refused"
+    },
+    {
+      "name": "mirror_last_source_ref_preflight",
+      "outcome": "PASS",
+      "result": "refused"
+    },
+    {
+      "name": "mirror_last_source_path_preflight",
+      "outcome": "PASS",
+      "result": "refused"
+    },
+    {
+      "name": "mirror_last_portable_ref_preflight",
+      "outcome": "PASS",
+      "result": "refused"
+    },
+    {
+      "name": "mirror_show_option",
+      "outcome": "PASS",
+      "result": "refused"
+    },
+    {
+      "name": "mirror_rev_parse_option",
+      "outcome": "PASS",
+      "result": "refused"
+    },
+    {
+      "name": "pcl_pinned_publication_readback",
+      "outcome": "PASS",
+      "result": {
+        "source_and_footprint": "PASS",
+        "moderate_files": 47,
+        "checks": 10
+      }
+    },
+    {
+      "name": "pcl_forged_digest",
+      "outcome": "PASS",
+      "result": "refused"
+    },
+    {
+      "name": "pcl_candidate_sha_before_git",
+      "outcome": "PASS",
+      "result": "refused"
+    },
+    {
+      "name": "pcl_slice_base_sha_before_git",
+      "outcome": "PASS",
+      "result": "refused"
+    },
+    {
+      "name": "actual_plan_numeric_ports_gate_no_override",
+      "outcome": "PASS",
+      "result": {
+        "numeric": 7,
+        "gates": 8,
+        "execution_state": "NOT_RUN"
+      }
+    },
+    {
+      "name": "plan_candidate_before_git",
+      "outcome": "PASS",
+      "result": "refused"
+    },
+    {
+      "name": "plan_comparison_base_before_git",
+      "outcome": "PASS",
+      "result": "refused"
+    },
+    {
+      "name": "actual_junit_denominator",
+      "outcome": "PASS",
+      "result": {
+        "cases": 2,
+        "passed": 1,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "actual_xml_entity_refusal",
+      "outcome": "PASS",
+      "result": "DTDForbidden"
+    }
+  ],
+  "finding_closure": false,
+  "numeric_wave_repeated": false
+}

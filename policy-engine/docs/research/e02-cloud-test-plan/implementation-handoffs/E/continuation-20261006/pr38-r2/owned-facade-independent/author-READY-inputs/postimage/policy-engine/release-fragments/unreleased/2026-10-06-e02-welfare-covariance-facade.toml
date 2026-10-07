@@ -1,0 +1,30 @@
+id = "2026-10-06-e02-welfare-covariance-facade"
+title = "Route Welfare covariance through the admitted Foundry uncertainty facade"
+type = "added"
+component = "foundry-uncertainty"
+owner = "team-polisyos"
+summary = "Welfare consumes five canonical covariance functions and tolerance constants through the existing admitted uncertainty root. Lazy resolution preserves object identity and optional numeric import behavior."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry.uncertainty"
+compatibility = "Five additive canonical exports; covariance math, calibrated projection, persisted artifacts and IR wire semantics remain unchanged. Existing facade import remains available when the optional JAX stack is absent; requesting the numeric exports preserves the real dependency error."
+migration = "Use polisyos.foundry.uncertainty for the existing covariance functions and v1 reconciliation tolerances."
+limitations = "These exports do not establish a production source law, calibrated evaluator authority, Core/IR entrypoint admission or finding closure."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+evidence = ["tests/unit/foundry/uncertainty/test_covariance_facade.py", "tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py", "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py"]
+migration_docs = ["src/polisyos/foundry/uncertainty/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "foundry-uncertainty-welfare-covariance-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.foundry.uncertainty"
+owner = "team-polisyos"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "Expose the existing covariance axis, singular-support and v1 reconciliation objects lazily by identity through Foundry uncertainty."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/foundry/uncertainty/README.md"]
+runbook_docs = []

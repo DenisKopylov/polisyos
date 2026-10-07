@@ -1,0 +1,26 @@
+{
+  "input_packet": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-ready-catalog-fixture-packet.json",
+  "original_packet_unchanged": true,
+  "controls": [
+    {
+      "control": "full_original_HTTP_counts",
+      "outcome": "accepted",
+      "reason": "validator does not recompute this material summary field"
+    },
+    {
+      "control": "main_catalog_observation_authority",
+      "outcome": "accepted",
+      "reason": "validator does not recompute this material summary field"
+    },
+    {
+      "control": "helper_patch_scope",
+      "outcome": "accepted",
+      "reason": "validator does not recompute this material summary field"
+    },
+    {
+      "control": "process_global_seam_limit",
+      "outcome": "accepted",
+      "reason": "validator does not recompute this material summary field"
+    }
+  ]
+}

@@ -1,0 +1,264 @@
+{
+  "schema": "policyos.e02.wave_publication_custody.v1",
+  "candidate_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+  "candidate_tree_sha": "b6bd2579e39857b91e03deb333cbc8f4609e800d",
+  "wave_root": "/workspace/e02-E-pr38-r3-receipts/lint-r4/current-f3-protocol-wave",
+  "publication_root": "/workspace/e02-E-pr38-r3-receipts/lint-r4/protocol-publication-healthy-f3",
+  "terminal": "execution-complete.json",
+  "started": {
+    "candidate_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+    "started_unix": 1791360030.2841997
+  },
+  "completion": {
+    "candidate_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+    "numerical_codes": [],
+    "gate_codes": []
+  },
+  "source_freeze": null,
+  "collection_state": "CONTROL_COMPLETE_BOUND",
+  "publication_evidence_scope": "Synthetic collector protocol control only; no numerical/backend evidence",
+  "expected_job_count_from_complete_plan": 1,
+  "job_receipt_count": 1,
+  "native_file_count": 0,
+  "all_test_file_input_count": 0,
+  "source_runtime_input_count": 0,
+  "tracked_input_count": 16366,
+  "changed_python_full_lint_denominator": 0,
+  "numeric_counts": {
+    "cases": 0,
+    "passed": 0,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "native_numeric_counts_excluding_A_packets": {
+    "cases": 0,
+    "passed": 0,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "unattributed_owner_packet_counts": {
+    "cases": 0,
+    "passed": 0,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "unattributed_owner_packet_cases": [],
+  "native_numeric_attribution_complete": true,
+  "native_numeric_count_scope": "Includes the explicit G ControlPlaneStore companion. Contradictory owner-packet identities stay unattributed and are excluded from both native and A counts.",
+  "numeric_outcome_counts": {},
+  "non_numeric_outcome_counts": {
+    "PASS": 1
+  },
+  "foreign_owner_A_packet_cases": [],
+  "source_frames_consistent_across_jobs": true,
+  "effective_git_config_consistent_across_jobs": true,
+  "post_command_backend_observer_scope": "No inference of unmeasured test-child JAX state.",
+  "jobs": [
+    {
+      "name": "results-import",
+      "kind": "importer",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006",
+      "outcome": "PASS",
+      "case_counts": null,
+      "exit_code": 0,
+      "wall_seconds": 2.3733928203582764,
+      "max_rss_kib": 130688,
+      "user_cpu_seconds": 0.171428,
+      "system_cpu_seconds": 0.012013999999999999,
+      "rss_scope": "wait4 command plus its waited descendants; not sum of overlapping jobs",
+      "binding_predicates": {
+        "candidate": true,
+        "tree": true,
+        "ending_head": true,
+        "command": true,
+        "cwd": true,
+        "source_frames_equal": true,
+        "source_immutable": true,
+        "config_stable": true,
+        "config_hashes_equal": true,
+        "declared_inputs_bound_to_candidate_git": true,
+        "tracked_path_count": true,
+        "started_after_wave_start": true
+      },
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": null,
+          "UV_PROJECT_ENVIRONMENT": null,
+          "PYTHONPATH": null,
+          "TMPDIR": null,
+          "RUFF_CACHE_DIR": null,
+          "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": null,
+          "PLAYWRIGHT_BROWSERS_PATH": null,
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "backend_observer": {
+        "jax": {
+          "default_backend": "cpu",
+          "enable_x64": false,
+          "devices": [
+            {
+              "platform": "cpu",
+              "id": 0,
+              "kind": "cpu"
+            }
+          ]
+        },
+        "numpy": {
+          "Compilers": {
+            "c": {
+              "name": "gcc",
+              "linker": "ld.bfd",
+              "version": "14.2.1",
+              "commands": "cc"
+            },
+            "cython": {
+              "name": "cython",
+              "linker": "cython",
+              "version": "3.2.1",
+              "commands": "cython"
+            },
+            "c++": {
+              "name": "gcc",
+              "linker": "ld.bfd",
+              "version": "14.2.1",
+              "commands": "c++"
+            }
+          },
+          "Machine Information": {
+            "host": {
+              "cpu": "x86_64",
+              "family": "x86_64",
+              "endian": "little",
+              "system": "linux"
+            },
+            "build": {
+              "cpu": "x86_64",
+              "family": "x86_64",
+              "endian": "little",
+              "system": "linux"
+            }
+          },
+          "Build Dependencies": {
+            "blas": {
+              "name": "scipy-openblas",
+              "found": true,
+              "version": "0.3.30",
+              "detection method": "pkgconfig",
+              "include directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/include",
+              "lib directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/lib",
+              "openblas configuration": "OpenBLAS 0.3.30  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64",
+              "pc file directory": "/project/.openblas"
+            },
+            "lapack": {
+              "name": "scipy-openblas",
+              "found": true,
+              "version": "0.3.30",
+              "detection method": "pkgconfig",
+              "include directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/include",
+              "lib directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/lib",
+              "openblas configuration": "OpenBLAS 0.3.30  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64",
+              "pc file directory": "/project/.openblas"
+            }
+          },
+          "Python Information": {
+            "path": "/tmp/build-env-r8m2wpdb/bin/python",
+            "version": "3.14"
+          },
+          "SIMD Extensions": {
+            "baseline": [
+              "SSE",
+              "SSE2",
+              "SSE3"
+            ],
+            "found": [
+              "SSSE3",
+              "SSE41",
+              "POPCNT",
+              "SSE42",
+              "AVX",
+              "F16C",
+              "FMA3",
+              "AVX2",
+              "AVX512F",
+              "AVX512CD",
+              "AVX512_SKX",
+              "AVX512_CLX",
+              "AVX512_CNL",
+              "AVX512_ICL"
+            ],
+            "not found": [
+              "AVX512_KNL",
+              "AVX512_KNM",
+              "AVX512_SPR"
+            ]
+          }
+        }
+      },
+      "backend_observer_scope": "Post-command observer process; test-child changed JAX config is not inferred."
+    }
+  ],
+  "static_proxy": null,
+  "excluded_raw_custody": [
+    {
+      "path": "raw/results-import.git-config-private.nul",
+      "bytes": 5294,
+      "sha256": "fe8952d68833f451c26733baa8c3f2dc37e1d3d91a2e3b456dc10bdcf6ae0b25",
+      "publication": "private_excluded_hash_size_only"
+    }
+  ],
+  "issues": [],
+  "numeric_results_are_new_candidate_only": false,
+  "doctor_is_full_ci": false,
+  "finding_closure": false,
+  "code_acceptance_and_original_criterion_decisions": "Separate; ledger statuses not reclassified by check counts.",
+  "cleanup_policy": "Only candidate list; no deletion or Trash action. Preserve unique deciding bytes/code/docs. Check no active users before repeatables move to native Trash; without Trash keep exact candidates.",
+  "cleanup_candidates": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-r4/current-f3-protocol-wave/umbrella-temp/workspace-verify",
+      "kind": "umbrella_temporary"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-r4/current-f3-protocol-wave/umbrella-temp/ci-parity",
+      "kind": "umbrella_temporary"
+    }
+  ],
+  "raw_local_input_limitation": "Raw graph/private config remain outside Git; exact command/source/hash/size and complete moderate stdout are published. Do not promote the bounded static proxy to runtime proof."
+}

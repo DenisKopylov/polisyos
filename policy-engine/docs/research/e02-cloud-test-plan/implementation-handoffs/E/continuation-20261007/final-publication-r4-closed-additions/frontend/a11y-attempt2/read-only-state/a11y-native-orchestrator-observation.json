@@ -1,0 +1,27 @@
+{
+  "schema": "policyos.e02.E.a11y_current_orchestration_observation.v1",
+  "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "source_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "started_UTC": "2026-10-07T11:01:55.950Z",
+  "native_endpoint": {
+    "origin": "http://[::1]:63315",
+    "HTML_path": "/__vitest_test__/",
+    "API_path": "/__vitest_api__",
+    "authentication_token_recorded": false
+  },
+  "allowed_read_methods": [
+    "getFiles",
+    "getPaths",
+    "getConfig",
+    "getUnhandledErrors"
+  ],
+  "operations": [],
+  "mutations_requested": false,
+  "browser_or_tests_launched": false,
+  "observation_error": {
+    "name": "Error",
+    "reason": "connect ECONNREFUSED ::1:63315"
+  },
+  "limitation": "Read-only native metadata unavailable; actual current JavaScript wait remains unmeasured.",
+  "finished_UTC": "2026-10-07T11:01:55.960Z"
+}

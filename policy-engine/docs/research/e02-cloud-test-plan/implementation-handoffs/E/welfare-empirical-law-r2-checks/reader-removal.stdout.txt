@@ -1,0 +1,24 @@
+{
+  "candidate": "884681db485b7466b183a206f83bbe0635f86ca3",
+  "negative": "property removal, original law markers/digest and native outcomes retained",
+  "genuine_guard": {
+    "outcome": "PASS_refused",
+    "reason": "welfare empirical law content does not reconcile"
+  },
+  "removed_guard": {
+    "outcome": "FAIL_expected_forgery_accepted",
+    "forged_ref": {
+      "artifact_id": "sha256:89208e3f05232d1425387e8694ecfcf25e0a6e5f7de2efeafc6ef45ded9f9ab0",
+      "kind": "foundry.welfare_draw_outcomes",
+      "media_type": "application/json"
+    },
+    "original_probs": [
+      0.75,
+      0.25
+    ],
+    "forged_probs": [
+      0.5,
+      0.5
+    ]
+  }
+}

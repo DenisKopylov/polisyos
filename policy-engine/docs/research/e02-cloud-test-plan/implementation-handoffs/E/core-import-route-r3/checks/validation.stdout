@@ -1,0 +1,10 @@
+{
+  "receipt_check": "PASS",
+  "corrupt_field_refusals": {
+    "tree": "candidate tree mismatch",
+    "source_hash": "source postimage mismatch",
+    "missing_path": "incomplete changed footprint",
+    "asset_hash": "deciding output mismatch",
+    "outside_path": "asset outside repository"
+  }
+}

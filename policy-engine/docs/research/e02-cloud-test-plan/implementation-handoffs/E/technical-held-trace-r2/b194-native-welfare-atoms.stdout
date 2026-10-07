@@ -1,0 +1,70 @@
+{
+  "native_node_status": "ok",
+  "error": null
+}
+{
+  "independent_declared_support": [
+    0.0,
+    1.0
+  ],
+  "expected_failure_mass": 0.5,
+  "actual_out_of_support_draw_count": 100,
+  "sampled_min": -0.08125769365970859,
+  "sampled_max": 1.0005981459113138
+}
+{
+  "bundle_status": "degraded",
+  "credible_interval": [
+    1.0581562847271078,
+    17.87650669149002
+  ],
+  "report": {
+    "attempted_draw_count": 100,
+    "calibration_report_ref": null,
+    "conditional_interval": null,
+    "dependence_sampling": {
+      "applied": false,
+      "covered_params": [],
+      "reason": "one_dimensional_input",
+      "strategy": "one_dimensional_marginal_law",
+      "uncovered_params": [
+        "x"
+      ]
+    },
+    "draw_outcomes_ref": {
+      "artifact_id": "sha256:f072f88e55e4e8a2d02886564891788fb324f75a1a9bf3858da88f983eb73653",
+      "kind": "foundry.welfare_draw_outcomes",
+      "media_type": "application/json"
+    },
+    "draw_summary": {
+      "conditional_welfare_ge_mean": null,
+      "conditional_welfare_mean": null,
+      "conditional_welfare_pe_mean": null,
+      "conditional_welfare_std": null,
+      "estimate_scope": "all_requested_draws",
+      "welfare_ge_mean": -13.528824664749775,
+      "welfare_mean": -12.528824664749777,
+      "welfare_pe_mean": 1.0,
+      "welfare_std": 167.0850898506973
+    },
+    "estimate_scope": "all_requested_draws",
+    "failed_draw_count": 0,
+    "gate_eligible": false,
+    "input_envelope_count": 1,
+    "input_parameter_sample_means": {
+      "x": 0.5202741733726789
+    },
+    "methods": [
+      "monte_carlo"
+    ],
+    "nominal_parameter_values": {
+      "x": 0.5
+    },
+    "requested_draw_count": 100,
+    "requested_method": "monte_carlo",
+    "schema_version": "1.0",
+    "support_complete": true,
+    "unattempted_draw_count": 0,
+    "valid_draw_count": 100
+  }
+}

@@ -1,0 +1,97 @@
+from __future__ import annotations
+import csv,hashlib,io,json,pathlib,re,subprocess,sys,xml.etree.ElementTree as ET
+W=pathlib.Path('/workspace/e02-E-pr38-r3-receipts');R=pathlib.Path('/workspace/e02-E-mc-20261006');D=pathlib.Path('/tmp/e02-E-owner3932-packet-independent-lint-20261007')
+S='3932cded22a29254a7dfced99723e147d6fea7cb';T='8d19c30199666cf97dd3934f60d772baa3071f7e';BASE='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+SELECT=W/'ir-compat-independent/owner3932-final-append-publication-selection.json'
+def need(x,m):
+ if not x:raise ValueError(m)
+def sha(b):return hashlib.sha256(b).hexdigest()
+def ref(p):
+ b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':sha(b)}
+def git(*a):return subprocess.check_output(['git','-C',str(R),*a])
+def blob(rev,p):
+ need(type(rev) is str and re.fullmatch('[0-9a-f]{40}',rev),'pure exact revision inlet')
+ need(type(p) is str and p and not p.startswith('-') and str(pathlib.PurePosixPath(p))==p and not pathlib.PurePosixPath(p).is_absolute() and '..' not in pathlib.PurePosixPath(p).parts,'pure exact path inlet')
+ return git('show',rev+':'+p)
+cache={}
+def read_ref(r):
+ need(type(r['bytes']) is int and r['bytes']>=0,'exact ref size type');need(type(r['sha256']) is str and re.fullmatch('[0-9a-f]{64}',r['sha256']),'exact ref digest')
+ p=pathlib.Path(r['path']);need(p.is_absolute() and '..' not in p.parts,'exact absolute refpath')
+ if p not in cache:cache[p]=p.read_bytes()
+ b=cache[p];need(len(b)==r['bytes'] and sha(b)==r['sha256'],'closed ref mismatch '+str(p));return b
+sel=json.loads(SELECT.read_text());need(sha(SELECT.read_bytes())=='132dfcc8b5c78e61283796a62987fa8dcb081d491902c6a186fefd993eb9946e','exact selected packet')
+for x in sel['assets']:read_ref(x)
+need(type(sel['asset_count']) is int and sel['asset_count']==len(sel['assets'])==27,'complete selected asset count');need(sel['asset_bytes']==sum(x['bytes'] for x in sel['assets'])==213205,'complete selected bytecount')
+p=json.loads((W/'ir-compat-independent/generator-3932cded/qualified-owner-projection-packet.json').read_text());o=json.loads((W/'criteria-r4/sparse-original-row-decisions-3932.json').read_text())
+need(git('rev-parse',S+'^{tree}').decode().strip()==T==p['tree']==o['tree'],'actual source tree');need(p['candidate']==o['candidate']==S and p['base']==o['ROOT_frozen_source']==BASE,'source/base')
+foot=json.loads(read_ref(p['source_footprint']));actualpaths=git('diff','--name-only',BASE,S).decode().splitlines();need([x['path'] for x in foot['paths']]==actualpaths,'complete source footprint exact')
+for x in foot['paths']:
+ b=blob(S,x['path']);need(len(b)==x['bytes'] and sha(b)==x['sha256'],'Git footprint bytes')
+source_bindings=[]
+for x in o['property_paths_and_native_consumers']:
+ b=blob(x['revision'],x['path']);need(x['revision']==S and sha(b)==x['sha256'] and len(b)==x['bytes'],'native consumer source exact');source_bindings.append(x)
+need(len(source_bindings)==6,'six real source roles')
+ownerpath='policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv'
+owners={x['finding_id']:x for x in csv.DictReader(io.StringIO(blob(S,ownerpath).decode()),delimiter='\t')}
+criteria=[];bound_controls=[];checkrefs={}
+for row in o['rows']:
+ id=row['id'];need(row['original_ownership']==owners[id],'full committed owner row')
+ f=row['original_criterion'];b=blob(f['revision'],f['path']);start,end=f['lines'];fragment=''.join(b.decode().splitlines(keepends=True)[start-1:end]);need(fragment==f['text'] and sha(fragment.encode())==f['sha256'],'full original fragment binding')
+ card=blob(row['original_card']['revision'],row['original_card']['path']);need(id in card.decode(),'original card contains row')
+ priorref=row['prior_bounded_original_row_input'];prior=json.loads(read_ref(priorref));index=int(priorref['fragment'].split('/')[-1]);old=prior['rows'][index];need(old['id']==id and old['historical_ledger_status']==row['historical_ledger_status'],'actual old54 row/historical')
+ for x in row['defining_property_and_negative_bindings']:
+  rr=x['receipt'];raw=json.loads(read_ref(rr));parts=rr['fragment'].split('/');control=raw[parts[1]][int(parts[2])];need(control['id']==x['id'] and control['outcome']=='PASS','exact actual defining control pointer');bound_controls.append({'finding':id,'control':x['id'],'fragment':rr['fragment']})
+ for x in row['check_outcomes_separate']:
+  for key in ['receipt','JUnit']:
+   if key in x:read_ref(x[key]);checkrefs[x[key]['path']]=x[key]
+ criteria.append({'id':id,'original_fragment_sha256':f['sha256'],'original_card_bytes':len(card),'owner_original_status':owners[id]['source_status'],'previous_ROOT64d_disposition':row['previous_ROOT64d_disposition'],'current_E_owner_decision':row['owner_decision'],'current_proposal':row['proposed_finding_outcome'],'formal_G_intake':row['formal_G_intake'],'ledger_changed':row['formal_ledger_change']})
+need([x['id'] for x in criteria]==['B188','B192','B201','B202'],'four rows only')
+counts={}
+for name in ['immutable-candidate-family.xml','dto-native-delta.xml']:
+ data=(W/'mc-joint-law-r5'/name).read_bytes();need(b'<!DOCTYPE' not in data and b'<!ENTITY' not in data,'no XML entity inputs');e=ET.fromstring(data);cases=list(e.iter('testcase'));c={'cases':len(cases),'failure':sum(x.find('failure') is not None for x in cases),'error':sum(x.find('error') is not None for x in cases),'skip':sum(x.find('skipped') is not None for x in cases)};counts[name]=c
+need(counts['immutable-candidate-family.xml']=={'cases':414,'failure':0,'error':0,'skip':0},'actual2c0 family414');need(counts['dto-native-delta.xml']=={'cases':13,'failure':0,'error':0,'skip':0},'actual DTO13')
+math=json.loads((pathlib.Path('/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json')).read_text());need(len(math['current_controls'])==33 and all(x['outcome']=='PASS' for x in math['current_controls']),'qualified independent33')
+census=json.loads(read_ref(p['full103_schema_equality_census']));before=json.loads(read_ref(census['before']));after=json.loads(read_ref(census['after']));need(before==after,'complete103 saved arrays equality');models={x['abi_key']:x for x in before['schemas']};need(len(models)==103 and len(census['models'])==103 and len({x['abi_key'] for x in census['models']})==103,'all103 unique mapped keys')
+for x in census['models']:need(json.loads(read_ref(x['projected']))==models[x['abi_key']]['schema'] and x['fqn']==models[x['abi_key']]['fqn'],'actual projected schema fullvalue')
+oldroot=W/'ir-compat-independent/generator-ca17a489/projected'
+manifests={k:json.loads((oldroot/'schemas/snapshots'/k/'_manifest.json').read_text()) for k in ['ir','fabric']}
+need(len(manifests['ir']['models'])==101 and len(manifests['fabric']['models'])==2,'full module denoms');oldir=json.loads(blob(S,'policy-engine/schemas/snapshots/ir/_manifest.json'));need(len(oldir['models'])==99 and set(oldir['models'])<=set(manifests['ir']['models']),'allold99 keys retained')
+runtime=json.loads(read_ref(p['new_affected_runtime_projection']));rawruntime=json.loads(read_ref(runtime['runtime_output']));need(runtime['candidate']==S and runtime['tree']==T and type(runtime['exit_code']) is int and runtime['exit_code']==0,'actual native affected runtime command')
+need(len(rawruntime['components']['schemas'])==p['runtime_schema_components']==573,'actual573 summary')
+stack=[rawruntime];pairs=[]
+while stack:
+ x=stack.pop()
+ if isinstance(x,dict):
+  if 'bound_dependency_count' in x and 'bound_dependency_aggregate_identity' in x:pairs.append((x['bound_dependency_count'],x['bound_dependency_aggregate_identity']))
+  stack.extend(x.values())
+ elif isinstance(x,list):stack.extend(x)
+need((1494,'sha256:'+p['runtime_source_aggregate']) in pairs and p['runtime_confidence_dependencies']==1494,'actualconfidence1494/sourceaggregate')
+for x in runtime['source_inputs']:
+ b=blob(S,x['path']);need(len(b)==x['bytes'] and sha(b)==x['sha256'],'affected runtime exact source binding')
+patch=read_ref(p['direct_tracked_final_patch']);parts=re.split(br'(?m)^--- ',patch);need(parts[0]==b'','unified patch framing');assembled=[]
+for part in parts[1:]:
+ lines=(b'--- '+part).decode().splitlines(keepends=True);path=lines[1].rstrip('\n')[6:];need(path.startswith('policy-engine/'),'patch product path')
+ try:old=blob(S,path).decode()
+ except subprocess.CalledProcessError:
+  old=''
+ oldlines=old.splitlines(keepends=True);new=[];cursor=0;i=2
+ while i<len(lines):
+  h=re.fullmatch(r'@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@.*\n?',lines[i]);need(h is not None,'hunk framing');i+=1
+  start=int(h.group(1));nc=int(h.group(2) or 1);added_count=int(h.group(4) or 1);at=start-1 if nc else start;need(at>=cursor,'ordered hunks');new.extend(oldlines[cursor:at]);cursor=at;consumed=0;produced=0
+  while i<len(lines) and not lines[i].startswith('@@ '):
+   line=lines[i];i+=1;need(not line.startswith('\\ No newline'),'explicit unsupported no-newline input')
+   marker=line[:1];body=line[1:]
+   if marker in [' ','-']:need(cursor<len(oldlines) and oldlines[cursor]==body,'actual old hunk input');cursor+=1;consumed+=1
+   if marker in [' ','+']:new.append(body);produced+=1
+   need(marker in [' ','-','+'],'hunkline marker')
+  need(consumed==nc and produced==added_count,'complete hunk work')
+ new.extend(oldlines[cursor:]);out=''.join(new).encode();summary=next(x for x in p['changed_generated_companions'] if x['path']==path)
+ need(summary['old_bytes']==len(old.encode()) and summary['old_sha256']==(sha(old.encode()) if old else None),'old generated summary');need(summary['projected_bytes']==len(out) and summary['projected_sha256']==sha(out),'projected generated summary')
+ expected=(pathlib.Path(runtime['runtime_output']['path']).read_bytes() if path.endswith('/runtime_api_v1.openapi.json') else (oldroot/path[len('policy-engine/'):]).read_bytes())
+ need(out==expected,'patch current actual generated input');assembled.append({'path':path,'old_bytes':len(old.encode()),'projected_bytes':len(out),'projected_sha256':sha(out),'exact_closed_projection':True})
+need(len(assembled)==9 and len({x['path'] for x in assembled})==9,'full ninepath patch')
+check=subprocess.run(['git','-C',str(R),'apply','--check',str(pathlib.Path(p['direct_tracked_final_patch']['path']))],capture_output=True)
+need(check.returncode==0 and check.stdout==check.stderr==b'','independent actualreadonly patch check')
+read_ref(runtime['stdout']);read_ref(runtime['stderr'])
+result={'schema':'policyos.e02.independent_sparse_owner_projection_literal_review.v1','outcome':'GO literal source/original criteria/full projection custody; evidence-validator CHANGE_REQUIRED separately','source':S,'tree':T,'base':BASE,'selected_assets':{'count':27,'logical_bytes':213205,'source':ref(SELECT),'all_closed_hashes_equal':True},'actual_source_footprint':{'paths':len(actualpaths),'python':sum(x.endswith('.py') for x in actualpaths)},'native_source_bindings':source_bindings,'original_rows':criteria,'full_native_case_counts':counts,'qualified_independent_law_controls':33,'bound_original_controls':bound_controls,'complete_schema_values':103,'module_models':{'IR':101,'fabric':2,'oldIRkeys_preserved':99},'runtime_closed_observation':{'receipt':p['new_affected_runtime_projection'],'argv':runtime['argv'],'cwd':runtime['cwd'],'exit_code':runtime['exit_code'],'573schemas':True,'1494source_dependencies':True,'aggregate':p['runtime_source_aggregate'],'scope':'Existing closed affected runtime observation only, no repeated render.'},'actual_generated_patch':{'members':assembled,'independent_git_apply_check':{'argv':['git','-C',str(R),'apply','--check',p['direct_tracked_final_patch']['path']],'exit_code':check.returncode,'stdout':check.stdout.decode(),'stderr':check.stderr.decode()}},'historical_vs_current':{'ledger':o['historical_ledger_preserved'],'ROOT64d_proposals':o['ROOT64d_current_proposals_preserved'],'3932_proposals':o['3932_topic_qualified_proposals_after_explicit_E_decision'],'formal_G_or_ROOT_integration_asserted':False,'capability_state':'surface_missing','global_generation_gate':'UNRUN, owner intake needed','C_F_acceptance_asserted':False,'IR_Core_generic_facade_lease_transferred':False},'native_numeric_or_projection_run_repeated':False,'ROOT_source_environment_used_or_mutated':False,'observer':ref(pathlib.Path(__file__)),'python':sys.version,'mode':'optimized' if sys.flags.optimize else 'normal'}
+print(json.dumps(result,indent=2))

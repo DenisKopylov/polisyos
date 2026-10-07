@@ -1,0 +1,15 @@
+"""Synthetic protocol checker, never a product/global check."""
+import json,sys,tempfile
+from pathlib import Path
+def _canonical_json(payload):
+    return json.dumps(payload,sort_keys=True)+"\n"
+def main():
+    rendered=_canonical_json({"value":3})
+    assert rendered == '{"value": 3}\n', "comparison return corrupted"
+    Path("callback.marker").write_text("actual synthetic main invoked\n")
+    with tempfile.TemporaryDirectory(prefix="runtime_client_contract_",dir="/workspace") as name:
+        root=Path(name)
+        for suffix in ("types.ts","client.ts","client.js"):
+            (root/suffix).write_text("generated:"+suffix+"\n")
+    print("synthetic-checker-exit="+sys.argv[1])
+    return int(sys.argv[1])

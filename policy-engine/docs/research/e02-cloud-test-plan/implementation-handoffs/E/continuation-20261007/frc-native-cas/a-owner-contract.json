@@ -1,0 +1,76 @@
+{
+  "schema": "policyos.e02.owner_dependency_packet.v1",
+  "unit": "E",
+  "owner": "A",
+  "finding_ids": [
+    "B32",
+    "LA-051"
+  ],
+  "original_criteria": [
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-01.md#B32",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-02.md#LA-051"
+  ],
+  "source_base_sha": "cd450453cd1dab88e5890ea4f67ae2a6b65269dc",
+  "canonical_writers": {
+    "E": [
+      "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "policy-engine/src/polisyos/calibration/forecast_bridge.py"
+    ],
+    "A": [
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py"
+    ]
+  },
+  "E_native_witness": {
+    "fixture": "policy-engine/tests/_helpers/forecast.py::configured_forecast_request",
+    "selector": "tests/unit/remediation/test_frc_01.py::test_calibration_time_roles_are_preserved_from_bound_evidence",
+    "producer": "ForecastOwner.run(ForecastOwnerRequest)",
+    "backend": "real Foundry MethodDispatcher ETS numpy backend, canonical NumPy Holt linear smoothing",
+    "input": "synthetic linear training metric 1..30; holdout 31..34; source-native count; seed17; 30/4 split; horizon4; externally configured predictive profile threshold0.8",
+    "artifacts": [
+      "ir.forecast_owner_request schema2.0",
+      "ir.forecast_calibration_profile schema1.0",
+      "ir.forecast_candidate_receipt schema1.0",
+      "ir.empirical_calibration_evidence schema1.1",
+      "ir.backtest_report",
+      "forecasting uncertainty bundle"
+    ],
+    "adapter": "ForecastOwnerResult.to_s10_input_fields(fresh configured CAS)",
+    "current_consumer": "RealValueOwnerGateway.produce_forecast_inputs with canonical evidence loader bound to fresh configured CAS",
+    "surface": "native S10 typed support/calibration result; default and HTTP persistence remain A-owned",
+    "authority": "predictive_only; producer verifier_provenance=not_established; bridge_status=bridge_pending; no institutional profile admission is supplied by this fixture"
+  },
+  "adapter_fields": {
+    "empirical_calibration_evidence_ref": "separate persisted EmpiricalCalibrationEvidenceRef",
+    "forecast_candidate_receipt_ref": "separate persisted ForecastCandidateReceiptRef",
+    "expected_rule_version_ref": "persisted request.calibration_rule.rule_id",
+    "temporal_roles": "persisted request six distinct admitted time roles",
+    "measurement_binding": "resolved source schema/metric/field/unit/count/source_native",
+    "authority_scope": "predictive_only",
+    "verifier_provenance": "not_established"
+  },
+  "A_next_verified_results": [
+    "Apply current status/reason test packet and three-hunk patch after owner review: absent ref drives blocked tier plus same named empirical_evidence_ref_missing S6 reason; resolved 0/4 evidence retains calibration_floor_not_met in both disposition and S6.",
+    "Resolve candidate receipt, configured admitted profile/request/source/rule artifacts in the same runtime CAS; independently recompute source metric/unit/scale, train/holdout split, horizon, row pairing/counts/threshold and six time roles. Producer flags and role/hash alone are not verifier provenance.",
+    "Build ForecastOwnerRequest from the admitted source/profile before terminal causal refusal; invoke existing E producer; persist A verification decision and configured verifier provenance; fresh default/HTTP read resolves and re-verifies instead of trusting saved flags.",
+    "Keep causal_effect_authority, treatment_assignment_authority and policy/recommendation/production authority denied; a predictive sibling must not remove treatment_assignment_not_owner_derived."
+  ],
+  "minimum_external_inputs": {
+    "profile_owner": "A trusted runtime composition selects one actually admitted source/design/rule/profile and allowed predictive-calibration purpose outside E-produced payload",
+    "artifacts": "immutable configured source snapshot/schema; model/policy pair; ForecastOwnerRequest/profile refs; candidate receipt/evidence refs; A verifier code/config identity and persisted result",
+    "production_history": "Only for model-specific empirical calibration claim; the generic native wiring test requires no production dataset"
+  },
+  "negative_and_removal_packet": [
+    "Retained historical unresolved mapping with fictional outcome://, implementation:// and evidence:// refs must produce no calibration record.",
+    "Remove empirical ref while retaining candidate receipt, time, method, rule and measurement markers: blocked, no record, named missing-ref reason.",
+    "Unresolved empirical ref, wrong CAS kind, wrong rule or mismatched temporal role: canonical loader/native gateway rejects with typed reason.",
+    "Same CAS-valid shape and credible=True/floor/status declarations with leaky source/split, wrong target/horizon/unit, forged pair/count/threshold or unadmitted purpose/profile must not bypass A independent verifier.",
+    "Fresh default/HTTP persistence read must re-verify; missing ref and resolved floor failure remain different causes."
+  ],
+  "predicate_basis": {
+    "source/count/time/measurement": "recomputed from configured CAS by E reader; independently_reconciled for the separate source-row/bounds oracle",
+    "A verifier identity and institutional profile authority": "not_established until trusted A composition supplies and exercises them"
+  },
+  "capability_state": "implemented_but_not_orchestrated",
+  "finding_disposition": "partial retained; generic native producer/reader witness is separate from A default/HTTP bridge and model-specific calibration"
+}

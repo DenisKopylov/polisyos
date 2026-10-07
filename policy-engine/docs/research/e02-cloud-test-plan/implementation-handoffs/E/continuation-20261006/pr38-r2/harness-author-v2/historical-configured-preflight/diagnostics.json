@@ -1,0 +1,722 @@
+[
+  {
+    "cell": null,
+    "code": "S603",
+    "end_location": {
+      "column": 35,
+      "row": 52
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "fix": null,
+    "location": {
+      "column": 12,
+      "row": 52
+    },
+    "message": "`subprocess` call: check for execution of untrusted input",
+    "noqa_row": 52,
+    "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+  },
+  {
+    "cell": null,
+    "code": "S607",
+    "end_location": {
+      "column": 67,
+      "row": 52
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "fix": null,
+    "location": {
+      "column": 36,
+      "row": 52
+    },
+    "message": "Starting a process with a partial executable path",
+    "noqa_row": 52,
+    "url": "https://docs.astral.sh/ruff/rules/start-process-with-partial-path"
+  },
+  {
+    "cell": null,
+    "code": "S603",
+    "end_location": {
+      "column": 43,
+      "row": 148
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "fix": null,
+    "location": {
+      "column": 20,
+      "row": 148
+    },
+    "message": "`subprocess` call: check for execution of untrusted input",
+    "noqa_row": 148,
+    "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+  },
+  {
+    "cell": null,
+    "code": "S607",
+    "end_location": {
+      "column": 73,
+      "row": 149
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 149
+    },
+    "message": "Starting a process with a partial executable path",
+    "noqa_row": 149,
+    "url": "https://docs.astral.sh/ruff/rules/start-process-with-partial-path"
+  },
+  {
+    "cell": null,
+    "code": "S603",
+    "end_location": {
+      "column": 32,
+      "row": 163
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "fix": null,
+    "location": {
+      "column": 18,
+      "row": 163
+    },
+    "message": "`subprocess` call: check for execution of untrusted input",
+    "noqa_row": 163,
+    "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+  },
+  {
+    "cell": null,
+    "code": "S607",
+    "end_location": {
+      "column": 84,
+      "row": 164
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 164
+    },
+    "message": "Starting a process with a partial executable path",
+    "noqa_row": 164,
+    "url": "https://docs.astral.sh/ruff/rules/start-process-with-partial-path"
+  },
+  {
+    "cell": null,
+    "code": "S603",
+    "end_location": {
+      "column": 43,
+      "row": 186
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "fix": null,
+    "location": {
+      "column": 20,
+      "row": 186
+    },
+    "message": "`subprocess` call: check for execution of untrusted input",
+    "noqa_row": 186,
+    "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+  },
+  {
+    "cell": null,
+    "code": "S607",
+    "end_location": {
+      "column": 75,
+      "row": 187
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 187
+    },
+    "message": "Starting a process with a partial executable path",
+    "noqa_row": 187,
+    "url": "https://docs.astral.sh/ruff/rules/start-process-with-partial-path"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 127,
+      "row": 363
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 363
+    },
+    "message": "Line too long (126 > 100)",
+    "noqa_row": 363,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 115,
+      "row": 372
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 372
+    },
+    "message": "Line too long (114 > 100)",
+    "noqa_row": 372,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "C401",
+    "end_location": {
+      "column": 10,
+      "row": 377
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "{",
+          "end_location": {
+            "column": 35,
+            "row": 373
+          },
+          "location": {
+            "column": 31,
+            "row": 373
+          }
+        },
+        {
+          "content": "}",
+          "end_location": {
+            "column": 10,
+            "row": 377
+          },
+          "location": {
+            "column": 9,
+            "row": 377
+          }
+        }
+      ],
+      "message": "Rewrite as a set comprehension"
+    },
+    "location": {
+      "column": 31,
+      "row": 373
+    },
+    "message": "Unnecessary generator (rewrite as a set comprehension)",
+    "noqa_row": 373,
+    "url": "https://docs.astral.sh/ruff/rules/unnecessary-generator-set"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 252,
+      "row": 400
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 400
+    },
+    "message": "Line too long (251 > 100)",
+    "noqa_row": 400,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 166,
+      "row": 402
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 402
+    },
+    "message": "Line too long (165 > 100)",
+    "noqa_row": 402,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 190,
+      "row": 403
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 403
+    },
+    "message": "Line too long (189 > 100)",
+    "noqa_row": 403,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 153,
+      "row": 404
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 404
+    },
+    "message": "Line too long (152 > 100)",
+    "noqa_row": 404,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 211,
+      "row": 405
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 405
+    },
+    "message": "Line too long (210 > 100)",
+    "noqa_row": 405,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 122,
+      "row": 410
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 410
+    },
+    "message": "Line too long (121 > 100)",
+    "noqa_row": 410,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 178,
+      "row": 411
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 411
+    },
+    "message": "Line too long (177 > 100)",
+    "noqa_row": 411,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 108,
+      "row": 440
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 440
+    },
+    "message": "Line too long (107 > 100)",
+    "noqa_row": 440,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "S603",
+    "end_location": {
+      "column": 39,
+      "row": 452
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "fix": null,
+    "location": {
+      "column": 16,
+      "row": 452
+    },
+    "message": "`subprocess` call: check for execution of untrusted input",
+    "noqa_row": 452,
+    "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+  },
+  {
+    "cell": null,
+    "code": "S607",
+    "end_location": {
+      "column": 14,
+      "row": 459
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 453
+    },
+    "message": "Starting a process with a partial executable path",
+    "noqa_row": 453,
+    "url": "https://docs.astral.sh/ruff/rules/start-process-with-partial-path"
+  },
+  {
+    "cell": null,
+    "code": "T201",
+    "end_location": {
+      "column": 10,
+      "row": 550
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 562
+          },
+          "location": {
+            "column": 1,
+            "row": 550
+          }
+        }
+      ],
+      "message": "Remove `print`"
+    },
+    "location": {
+      "column": 5,
+      "row": 550
+    },
+    "message": "`print` found",
+    "noqa_row": 550,
+    "url": "https://docs.astral.sh/ruff/rules/print"
+  },
+  {
+    "cell": null,
+    "code": "S603",
+    "end_location": {
+      "column": 35,
+      "row": 19
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "fix": null,
+    "location": {
+      "column": 12,
+      "row": 19
+    },
+    "message": "`subprocess` call: check for execution of untrusted input",
+    "noqa_row": 19,
+    "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+  },
+  {
+    "cell": null,
+    "code": "S607",
+    "end_location": {
+      "column": 67,
+      "row": 19
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "fix": null,
+    "location": {
+      "column": 36,
+      "row": 19
+    },
+    "message": "Starting a process with a partial executable path",
+    "noqa_row": 19,
+    "url": "https://docs.astral.sh/ruff/rules/start-process-with-partial-path"
+  },
+  {
+    "cell": null,
+    "code": "S603",
+    "end_location": {
+      "column": 36,
+      "row": 24
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 24
+    },
+    "message": "`subprocess` call: check for execution of untrusted input",
+    "noqa_row": 24,
+    "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+  },
+  {
+    "cell": null,
+    "code": "S607",
+    "end_location": {
+      "column": 79,
+      "row": 24
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "fix": null,
+    "location": {
+      "column": 37,
+      "row": 24
+    },
+    "message": "Starting a process with a partial executable path",
+    "noqa_row": 24,
+    "url": "https://docs.astral.sh/ruff/rules/start-process-with-partial-path"
+  },
+  {
+    "cell": null,
+    "code": "C408",
+    "end_location": {
+      "column": 68,
+      "row": 45
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "{\"cases\": 0, \"passed\": 0, \"failed\": 0, \"errors\": 0, \"skipped\": 0}",
+          "end_location": {
+            "column": 68,
+            "row": 45
+          },
+          "location": {
+            "column": 14,
+            "row": 45
+          }
+        }
+      ],
+      "message": "Rewrite as a literal"
+    },
+    "location": {
+      "column": 14,
+      "row": 45
+    },
+    "message": "Unnecessary `dict()` call (rewrite as a literal)",
+    "noqa_row": 45,
+    "url": "https://docs.astral.sh/ruff/rules/unnecessary-collection-call"
+  },
+  {
+    "cell": null,
+    "code": "S314",
+    "end_location": {
+      "column": 31,
+      "row": 46
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 46
+    },
+    "message": "Using `xml` to parse untrusted data is known to be vulnerable to XML attacks; use `defusedxml` equivalents",
+    "noqa_row": 46,
+    "url": "https://docs.astral.sh/ruff/rules/suspicious-xml-element-tree-usage"
+  },
+  {
+    "cell": null,
+    "code": "S603",
+    "end_location": {
+      "column": 41,
+      "row": 100
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "fix": null,
+    "location": {
+      "column": 18,
+      "row": 100
+    },
+    "message": "`subprocess` call: check for execution of untrusted input",
+    "noqa_row": 100,
+    "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+  },
+  {
+    "cell": null,
+    "code": "S607",
+    "end_location": {
+      "column": 10,
+      "row": 110
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 101
+    },
+    "message": "Starting a process with a partial executable path",
+    "noqa_row": 101,
+    "url": "https://docs.astral.sh/ruff/rules/start-process-with-partial-path"
+  },
+  {
+    "cell": null,
+    "code": "S603",
+    "end_location": {
+      "column": 33,
+      "row": 124
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 124
+    },
+    "message": "`subprocess` call: check for execution of untrusted input",
+    "noqa_row": 124,
+    "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+  },
+  {
+    "cell": null,
+    "code": "S607",
+    "end_location": {
+      "column": 71,
+      "row": 125
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 125
+    },
+    "message": "Starting a process with a partial executable path",
+    "noqa_row": 125,
+    "url": "https://docs.astral.sh/ruff/rules/start-process-with-partial-path"
+  },
+  {
+    "cell": null,
+    "code": "S603",
+    "end_location": {
+      "column": 39,
+      "row": 142
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 142
+    },
+    "message": "`subprocess` call: check for execution of untrusted input",
+    "noqa_row": 142,
+    "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+  },
+  {
+    "cell": null,
+    "code": "S603",
+    "end_location": {
+      "column": 43,
+      "row": 211
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "fix": null,
+    "location": {
+      "column": 20,
+      "row": 211
+    },
+    "message": "`subprocess` call: check for execution of untrusted input",
+    "noqa_row": 211,
+    "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+  },
+  {
+    "cell": null,
+    "code": "S607",
+    "end_location": {
+      "column": 10,
+      "row": 221
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 212
+    },
+    "message": "Starting a process with a partial executable path",
+    "noqa_row": 212,
+    "url": "https://docs.astral.sh/ruff/rules/start-process-with-partial-path"
+  },
+  {
+    "cell": null,
+    "code": "T201",
+    "end_location": {
+      "column": 10,
+      "row": 294
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 309
+          },
+          "location": {
+            "column": 1,
+            "row": 294
+          }
+        }
+      ],
+      "message": "Remove `print`"
+    },
+    "location": {
+      "column": 5,
+      "row": 294
+    },
+    "message": "`print` found",
+    "noqa_row": 294,
+    "url": "https://docs.astral.sh/ruff/rules/print"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 87,
+      "row": 26
+    },
+    "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "    from tools.devx.workspace import ci_parity, verify\n    from tools.devx.workspace._common import CommandSpec\n    from tools.devx.workspace._common import run_command as canonical_run\n",
+          "end_location": {
+            "column": 1,
+            "row": 27
+          },
+          "location": {
+            "column": 1,
+            "row": 25
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 5,
+      "row": 25
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 25,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  }
+]

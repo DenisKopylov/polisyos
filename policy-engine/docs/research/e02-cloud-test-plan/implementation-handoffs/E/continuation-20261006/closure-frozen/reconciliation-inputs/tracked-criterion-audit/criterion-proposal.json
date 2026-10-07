@@ -1,0 +1,2019 @@
+{
+  "schema": "policyos.e02.independent_criterion_reconciliation.v1",
+  "unit": "E",
+  "reviewer": "closure_reconcile_r3 independent leaf",
+  "review_source_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "review_source_tree": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+  "entry_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "denominator": {
+    "manifest_bundles": 127,
+    "bundle_owner_rows": 127,
+    "finding_owner_rows": 282,
+    "ledger_rows": 282,
+    "E_bundles": 22,
+    "E_unique_findings": 54,
+    "E_bundle_links": 55
+  },
+  "ledger_status_counts_preserved": {
+    "partial": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "proposal_counts": {
+    "limited": 51,
+    "closed": 1,
+    "held": 2
+  },
+  "bounded_property_complete_candidate_ids": [
+    "B101",
+    "B102",
+    "B103",
+    "B104",
+    "B105",
+    "B167",
+    "B168",
+    "B171",
+    "B174",
+    "B175",
+    "B176",
+    "B177",
+    "B178",
+    "B179",
+    "B180",
+    "B181",
+    "B182",
+    "B183",
+    "B184",
+    "B186",
+    "B187",
+    "B189",
+    "B191",
+    "B195",
+    "B196",
+    "B198",
+    "B199",
+    "B203",
+    "B97",
+    "B98",
+    "B99",
+    "LA-056"
+  ],
+  "predicate_basis": "recomputed criterion/input-set reconciliation; native outcomes supplied by exact referenced author/independent receipts, not recounted as finding closure",
+  "authority": "No ledger mutation and no final-wave claim. Code acceptance, method scope, formal closure and serving are separate decisions.",
+  "input_identities": {
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json": {
+      "git_blob": "130ba865f6df9b1e7cd3bec5ce868df85e9b918c",
+      "sha256": "5abd40cc31570b26747c36ca2f782503e066c5df0195574452535943626b2b87"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json": {
+      "git_blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+      "sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv": {
+      "git_blob": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b",
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv": {
+      "git_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json": {
+      "git_blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+      "sha256": "610255c2c8718b997b114357c93df7fd6001e83de209f079a481d16768b357f1"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md": {
+      "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md": {
+      "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+      "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-01.md": {
+      "git_blob": "0a9dbf6c94fb414af25b5db9a5e3c27087afaea3",
+      "sha256": "c76f38ce7aca6293c316ce907f94ca3fd4d4116d61dc30aac914aebb7177d82b"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-02.md": {
+      "git_blob": "c436b5b6e96f3fa9ab832eb33f92c6a459e69705",
+      "sha256": "2cc34165f61681fcb2f1023dbdbfcfa106f6cf8820ad7320028d87b891e8aa7e"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-03.md": {
+      "git_blob": "9ece85fc6001c194322e7235a5eb23b375393c09",
+      "sha256": "43aa433c3d5eac777cd0faa5ed1b3750c52736722b34b9126b7295a55a930927"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-04.md": {
+      "git_blob": "d6a34981d3b2cfd76b4d3fb601a38165d4c37284",
+      "sha256": "86af1ed996f8559cafb44bcf23b0c788d23fc7dabf9b67e3fe0bf55b43b3aa7b"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-01.md": {
+      "git_blob": "fe0330dcb59d495f21c00da081d6720a4ca50308",
+      "sha256": "9d3822691086ba6ffa1197eb372cd4cc4eeadc05c7573097f85fa7edceec8a2c"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-02.md": {
+      "git_blob": "85c67c206b2db65924e079c75a8daeb8ae8889c6",
+      "sha256": "0fbe3f83c4133db4bdaed0dc8e3b58c375e7fdbb18c16c0c7a35c49b77c241d4"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-03.md": {
+      "git_blob": "122a5d06586f95b890e9031a286585f5ae255e69",
+      "sha256": "acd14aa7268335498e80c80de546ba45818b73ff8ab6270edb30337338852bee"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-04.md": {
+      "git_blob": "457cdfcf8faa88e088a369f8dc9c22252f0da660",
+      "sha256": "ff37afe78ab90e8963660412e38bc92b8094f2bc90532500be115fdf34877c37"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-05.md": {
+      "git_blob": "9c067bfc9968bc2915d541c7358ee2efd8d22531",
+      "sha256": "da87f868baf7c76653f12519ab36da5510703e2b07b4377043ff96865941278f"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-06.md": {
+      "git_blob": "20103522e2b512847eee272a8354633a2b94d650",
+      "sha256": "b4f37731da45d3605f24e81c3763dddc0d351d0fcffdca91b38bf0c5e1ba5a12"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DDM-01.md": {
+      "git_blob": "996527d9d0f2e49aab587b2eecd72c2978dbe62a",
+      "sha256": "0578a277129749948d051f331b92fe3e8670e321ae4c93cc212e7ab199c17a33"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DDM-02.md": {
+      "git_blob": "121df4a3b4615f72775570acfd900a54c3d07680",
+      "sha256": "02fc4f7f19d1e668b35edf2d4ef547cc85c4ae1c4411e3e4182a9f2aaa48db98"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-01.md": {
+      "git_blob": "12d257bab0c7037328730072e54e90f8269df1c8",
+      "sha256": "50f7d9acd0a0b44c97c9899d6ff29fc921ed2d8f6a1ba4a9bc33ffbce144dc78"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-02.md": {
+      "git_blob": "15a7f1540e00b15b4905d9569cafa6425e185793",
+      "sha256": "363b590d944a8a9cc1bb076de15c784d2824ea1c57aa9a9b5a533474b1d1ad50"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-03.md": {
+      "git_blob": "a3de9d8df20fa7983d53ea96f17d38b4c80b8235",
+      "sha256": "1761291fa68845ee9281161466d1fbea9a448ad093e591869fc2712d32d6eb0c"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-01.md": {
+      "git_blob": "17c89d4bfa74dda2d20cda6a223d1b1012c0291c",
+      "sha256": "a2468ee3188ab13bd145b746bd0836c239fa20b9526b7545e887460eb418c5ee"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-02.md": {
+      "git_blob": "7b7ccd45665e14e2e898182454bb1d94f5259c8d",
+      "sha256": "95ae741769251f9e6f986f287a5fa48673689e57ea75219b7ef18b8a27ec36f6"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/PCL-01.md": {
+      "git_blob": "e723e2ac55a00b524f9f0b87db3c17319535a133",
+      "sha256": "3d36d370ac353f97551d1df132fded4671812a4c37af9368d35644a0c89ff7b7"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-01.md": {
+      "git_blob": "8522630fba017eee65c6b12d96c618f0eadbdc01",
+      "sha256": "58c62ceb3fe995a42f495536403fe569dfb25bddca12d6ef6d507fd8b87596e9"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-02.md": {
+      "git_blob": "7555a17f0acea5c867d034a535ea83bd0843c03c",
+      "sha256": "7ae1f146ad90056b33cd0532da4104103cbd5a60ff47d7eff7d313c2a6739adf"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-03.md": {
+      "git_blob": "1d1d1d6add4711247edf5e99cde67a62df954e6e",
+      "sha256": "73e8a48332fd1b21a89348b92fc3c0ad62fc843588290853a64a4cef4f539811"
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQS-01.md": {
+      "git_blob": "cf08b17c89b6ae300b432c18da7d01cbd9a1b51b",
+      "sha256": "14c375c5bfcb8175abd51fe7ff71c54016e2801282fcd4bda73af753365f5a14"
+    }
+  },
+  "corrections": [
+    "DDM01 LA056 is separate from author DDM02 receipt LA054/LA055 and needs explicit independent evidence.",
+    "B169 is scalar/interval trajectory semantics; B170 is K actual replays/seed plan. Author receipt reason adjacency is not criterion authority.",
+    "B171 defining condition is micro/macro sharding; trust-purpose/equivalence is B172/B173, not B171.",
+    "B174 CV materialization/progress and DOE97/98/99/104 generic properties do not inherently require production corpus.",
+    "CAL broad focused receipt labels target entry base, so use exact final-candidate replay before promoting it as post-change evidence.",
+    "B194/B197 historical held remain ledger held with proposed technical limited; B201/B202 remain semantic held."
+  ],
+  "rows": [
+    {
+      "finding_id": "B32",
+      "bundle_ids": [
+        "FRC-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "criterion includes an active producer/consumer/method/semantic owner boundary",
+      "post_freeze_owner_adjudication_recommendation": "Retain limited/held at the stated active boundary; PASS counts or code acceptance do not resolve it",
+      "formal_ledger_change": false,
+      "criterion": "Distinct prediction/observation/valid/policy/calibration-window roles; no credible/pass defaults from estimator shape.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            607,
+            620
+          ],
+          "sha256": "68a3acb0a34e8ebfce5217cdc99785a851a21368ea2d552795f68272e7140d6c"
+        }
+      ],
+      "deciding_scoped_evidence": "Configured ForecastOwner request and separate source-bound empirical evidence/candidate receipt; exact ETS and CAS replay.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-configured-producer.json@213dfb7c4d9768e90e0b443d093c4b1685e8536a",
+      "implementation_commits": [
+        "5bd27323ecb0935a38908d2b09fa652762c5e4ea"
+      ],
+      "implementation_tree": "1bd337e3a8dae85a9db6af514fcd15417212527c",
+      "independent_extra_evidence": null,
+      "remaining_condition": "A-owned default generation-cycle temporal reader and missing-evidence limitation still fail two FRC01 controls; trusted verifier/default served fresh read is absent.",
+      "next_owner": "A generation-cycle/default gateway and S10 verifier owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B97",
+      "bundle_ids": [
+        "DOE-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "GRID_EXTREME cap applies before full Cartesian materialization, and returned prefix owns only admitted rows.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            2630,
+            2641
+          ],
+          "sha256": "44f1e5ec026a302fe6c36444270e4b12b67cb0fe8b28b935961b1bbb0a50478b"
+        }
+      ],
+      "deciding_scoped_evidence": "Native stress/remediation tests preserve exact prefix, enumeration count and NumPy ownership; canonical producer used.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006.json@fd6b8f991a77fbb8e9551bce8761766581da15f3",
+      "implementation_commits": [
+        "47e46d918ea68beba8a9fd08113a01e59b943646",
+        "e092b1d1796265604df1891340f7a56ce633e745"
+      ],
+      "implementation_tree": "4689ee663187a15e8c81b22cd745ff55c60604c6",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Exact frozen candidate replay and E owner adjudication; original generic cap criterion requires no production corpus.",
+      "next_owner": "E DOE finding owner; G exact-candidate acceptance",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B98",
+      "bundle_ids": [
+        "DOE-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "AdaptiveSampler returns the last completed round with no hidden final evaluator round.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            2642,
+            2653
+          ],
+          "sha256": "ba66b01fed8fd36fcab549cbfa051f1486779a24a0bb52594410c6246baaa995"
+        }
+      ],
+      "deciding_scoped_evidence": "Native adaptive/remediation round-call history and completed-result preservation controls.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006.json@fd6b8f991a77fbb8e9551bce8761766581da15f3",
+      "implementation_commits": [
+        "47e46d918ea68beba8a9fd08113a01e59b943646",
+        "e092b1d1796265604df1891340f7a56ce633e745"
+      ],
+      "implementation_tree": "4689ee663187a15e8c81b22cd745ff55c60604c6",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Exact frozen candidate replay and E owner adjudication; no extra production-data requirement for call-count/state preservation.",
+      "next_owner": "E DOE finding owner; G exact-candidate acceptance",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B99",
+      "bundle_ids": [
+        "DOE-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "Child plans preserve allow_large_run and reject an oversized block before evaluator admission.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            2654,
+            2665
+          ],
+          "sha256": "2dc54f2af8b706598329291977e522e77fe552dc9088092685dc95819d84f921"
+        }
+      ],
+      "deciding_scoped_evidence": "Native adaptive plan/cap and positive explicit-override controls.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006.json@fd6b8f991a77fbb8e9551bce8761766581da15f3",
+      "implementation_commits": [
+        "47e46d918ea68beba8a9fd08113a01e59b943646",
+        "e092b1d1796265604df1891340f7a56ce633e745"
+      ],
+      "implementation_tree": "4689ee663187a15e8c81b22cd745ff55c60604c6",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Exact frozen candidate replay and E owner adjudication; caller budget authority is a distinct claim.",
+      "next_owner": "E DOE finding owner; declared budget owner for institutional override",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B100",
+      "bundle_ids": [
+        "DOE-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "criterion includes an active producer/consumer/method/semantic owner boundary",
+      "post_freeze_owner_adjudication_recommendation": "Retain limited/held at the stated active boundary; PASS counts or code acceptance do not resolve it",
+      "formal_ledger_change": false,
+      "criterion": "Sampler and analyzer share one actual distribution parameterization, transform and design fingerprint.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            2666,
+            2677
+          ],
+          "sha256": "34825cfe459b3861a6461797f12e9e1983399355660131e224359e5d9984fd67"
+        }
+      ],
+      "deciding_scoped_evidence": "Native SALib seeded sampler/analyzer, changed distribution/order/seed refusal and CAS search-consumer numerical replay.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006.json@fd6b8f991a77fbb8e9551bce8761766581da15f3",
+      "implementation_commits": [
+        "47e46d918ea68beba8a9fd08113a01e59b943646",
+        "e092b1d1796265604df1891340f7a56ce633e745"
+      ],
+      "implementation_tree": "4689ee663187a15e8c81b22cd745ff55c60604c6",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Default search/autotune configured-store bridge and admitted population/evaluator provenance are absent; known-law fixture proves math only.",
+      "next_owner": "E DOE distribution owner; D default search/autotune owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B101",
+      "bundle_ids": [
+        "DOE-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "Explicit seed reaches supported local RNG and independent stages do not reset global NumPy state.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            2678,
+            2689
+          ],
+          "sha256": "1245f7e21214f8264fc2921296954e64869c1758685cccde09eebef16fda2c66"
+        }
+      ],
+      "deciding_scoped_evidence": "Canonical native SALib seeded design repeatability, global RNG unchanged and deprecated sibling sampler removed.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006.json@fd6b8f991a77fbb8e9551bce8761766581da15f3",
+      "implementation_commits": [
+        "47e46d918ea68beba8a9fd08113a01e59b943646",
+        "e092b1d1796265604df1891340f7a56ce633e745"
+      ],
+      "implementation_tree": "4689ee663187a15e8c81b22cd745ff55c60604c6",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Exact frozen candidate replay and owner adjudication; no production history is intrinsic to RNG isolation.",
+      "next_owner": "E DOE finding owner; G exact-candidate acceptance",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B102",
+      "bundle_ids": [
+        "DOE-03"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "Failed Morris rows preserve the original denominator and exclude only whole validated trajectories.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            2690,
+            2701
+          ],
+          "sha256": "4f7c1e54bd69c1bc75c22837fcbd9b7e771def59e0db46df8e566640b37a5879"
+        }
+      ],
+      "deciding_scoped_evidence": "Native full trajectory geometry plus ordered X/Y receipt; corruption and removal controls reject mixed/reordered rows.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006.json@fd6b8f991a77fbb8e9551bce8761766581da15f3",
+      "implementation_commits": [
+        "47e46d918ea68beba8a9fd08113a01e59b943646",
+        "e092b1d1796265604df1891340f7a56ce633e745"
+      ],
+      "implementation_tree": "4689ee663187a15e8c81b22cd745ff55c60604c6",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Geometry/content replay does not authenticate evaluator/source provenance or remove parameter-dependent selection bias; default served design consumer absent.",
+      "next_owner": "E DOE experiment/source owner; D search consumer owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B103",
+      "bundle_ids": [
+        "DOE-03"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "Multi-output preprocessing/PCA honors scalar failure policy and retains original attempted/success/failed/block counts.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            2702,
+            2713
+          ],
+          "sha256": "54bce3d469a69faac32d8234957b6df186fff8eae664ee2f370b3c69c6e383e3"
+        }
+      ],
+      "deciding_scoped_evidence": "Native multi-output/Morris tests and finite/nonfinite full-row receipt; failed trajectory selection disclosed.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006.json@fd6b8f991a77fbb8e9551bce8761766581da15f3",
+      "implementation_commits": [
+        "47e46d918ea68beba8a9fd08113a01e59b943646",
+        "e092b1d1796265604df1891340f7a56ce633e745"
+      ],
+      "implementation_tree": "4689ee663187a15e8c81b22cd745ff55c60604c6",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Full configured multi-output design-to-persisted default search consumer is not established; failed-response law remains limited.",
+      "next_owner": "E DOE multi-output owner; D configured search consumer",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B104",
+      "bundle_ids": [
+        "DOE-03"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "PCA rank/number of components is admissible for centered wide, narrow, degenerate and zero matrices on supported backends.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            2714,
+            2725
+          ],
+          "sha256": "104a9e979d5aab702f6f437382d2a3bda2e803eeaa9eb440f948cff74504e438"
+        }
+      ],
+      "deciding_scoped_evidence": "Native multi-output/PCA suite with centered-rank controls; sklearn and NumPy paths remain distinct from sample sufficiency.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006.json@fd6b8f991a77fbb8e9551bce8761766581da15f3",
+      "implementation_commits": [
+        "47e46d918ea68beba8a9fd08113a01e59b943646",
+        "e092b1d1796265604df1891340f7a56ce633e745"
+      ],
+      "implementation_tree": "4689ee663187a15e8c81b22cd745ff55c60604c6",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Exact frozen candidate replay and owner adjudication; three observations are a linear-algebra fixture, not population evidence.",
+      "next_owner": "E DOE finding owner; G exact-candidate acceptance",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B105",
+      "bundle_ids": [
+        "DOE-03"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "Morris point and uncertainty elementary effects use identical declared coordinates, units and scale.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            2726,
+            2737
+          ],
+          "sha256": "07915c57716c654cac474a7302eeca0bd7b73219cfe00eeb9a4449e83084b343"
+        }
+      ],
+      "deciding_scoped_evidence": "Native SALib linear oracle: physical (2,3), normalized full-range (20,3); same validated trajectory and receipt.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006.json@fd6b8f991a77fbb8e9551bce8761766581da15f3",
+      "implementation_commits": [
+        "47e46d918ea68beba8a9fd08113a01e59b943646",
+        "e092b1d1796265604df1891340f7a56ce633e745"
+      ],
+      "implementation_tree": "4689ee663187a15e8c81b22cd745ff55c60604c6",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Nonuniform Morris uncertainty and seeded FAST are explicitly unavailable; no broad method/population confidence claim. Default orchestration missing.",
+      "next_owner": "E sensitivity uncertainty/units owner; D production consumer",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B166",
+      "bundle_ids": [
+        "BKT-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "criterion includes an active producer/consumer/method/semantic owner boundary",
+      "post_freeze_owner_adjudication_recommendation": "Retain limited/held at the stated active boundary; PASS counts or code acceptance do not resolve it",
+      "formal_ledger_change": false,
+      "criterion": "The exact immutable pre-cutoff historical view actually reaches Scientist rather than an independent unmasked state.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4316,
+            4327
+          ],
+          "sha256": "fca923e26ad0c81b5a1097f0c5b09b3a85434faf70826001b2e5d6c676e8a541"
+        }
+      ],
+      "deciding_scoped_evidence": "Controlled real orchestrator dispatch receives masked row IDs and source snapshot; report CAS readback retains view identity.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission.json@8feeb00c0004be8dfd6c9118b2afaf7c364a80de",
+      "implementation_commits": [
+        "d94b1116cb852eb66722d47610dcd65d75faf503",
+        "2f442904a1ed77e5907e8bb288a1d742874b31b7"
+      ],
+      "implementation_tree": "877885ff3dc44d54a2073a7b4e383b6c8acf67ca",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Positive native Foundry workflow/state materializer is UNRUN; Trinity/input materializer and source-state projection are missing. Real history is local only for a factual historical claim.",
+      "next_owner": "Scientist configured-workflow/history materializer owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B167",
+      "bundle_ids": [
+        "BKT-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "Missing predictions remain in requested denominator; zero/wrong-key comparisons cannot earn positive trust grade.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4328,
+            4339
+          ],
+          "sha256": "986a6c0ed5231ea1c7722e750d6ebe11766ef43727f884ddfdc50f3cdaa622e5"
+        }
+      ],
+      "deciding_scoped_evidence": "Native PROVIDED evaluator/report/CAS/matrix controls preserve requested/eligible/observed and not_evaluated.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission.json@8feeb00c0004be8dfd6c9118b2afaf7c364a80de",
+      "implementation_commits": [
+        "d94b1116cb852eb66722d47610dcd65d75faf503",
+        "2f442904a1ed77e5907e8bb288a1d742874b31b7"
+      ],
+      "implementation_tree": "877885ff3dc44d54a2073a7b4e383b6c8acf67ca",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Positive admitted trust-purpose/profile and native replay consumer are not established; diagnostic completeness itself is bounded verified.",
+      "next_owner": "Scientist backtest trust-purpose/profile and configured-workflow owners",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B168",
+      "bundle_ids": [
+        "BKT-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "Missing interval is unknown, actual miss is false, availability is separate, and nominal level survives serialization.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4340,
+            4351
+          ],
+          "sha256": "730ba6f2005332f11155a09f9c6267abec7833456d85b70dc944dccebd55cfb3"
+        }
+      ],
+      "deciding_scoped_evidence": "Native paired interval/evaluator and report CAS controls preserve observed coverage and nominal level.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission.json@8feeb00c0004be8dfd6c9118b2afaf7c364a80de",
+      "implementation_commits": [
+        "d94b1116cb852eb66722d47610dcd65d75faf503",
+        "2f442904a1ed77e5907e8bb288a1d742874b31b7"
+      ],
+      "implementation_tree": "877885ff3dc44d54a2073a7b4e383b6c8acf67ca",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Actual production interval/forecast profile is not established. Generic denominator/nominal-level semantics require frozen replay, not a production corpus.",
+      "next_owner": "Scientist backtest interval/forecast owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B169",
+      "bundle_ids": [
+        "BKT-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "criterion includes an active producer/consumer/method/semantic owner boundary",
+      "post_freeze_owner_adjudication_recommendation": "Retain limited/held at the stated active boundary; PASS counts or code acceptance do not resolve it",
+      "formal_ledger_change": false,
+      "criterion": "Scalar/effect CI cannot silently become a forecast trajectory; explicit constant forecast, units and time coordinates are required.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4352,
+            4363
+          ],
+          "sha256": "8f7c03d7a40a2faa62a4b0c4bc41b43510c9f5c35941ca50ec1fb8dc88fae26b"
+        }
+      ],
+      "deciding_scoped_evidence": "Native temporal/target/scalar refusal controls and Provided forecasts; report-CAS semantics preserved.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission.json@8feeb00c0004be8dfd6c9118b2afaf7c364a80de",
+      "implementation_commits": [
+        "d94b1116cb852eb66722d47610dcd65d75faf503",
+        "2f442904a1ed77e5907e8bb288a1d742874b31b7"
+      ],
+      "implementation_tree": "877885ff3dc44d54a2073a7b4e383b6c8acf67ca",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Positive native forecast model/target materialization is UNRUN; actual trajectory mapping needs configured workflow source/estimand/horizon refs.",
+      "next_owner": "Scientist forecast target/materializer owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B170",
+      "bundle_ids": [
+        "BKT-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "criterion includes an active producer/consumer/method/semantic owner boundary",
+      "post_freeze_owner_adjudication_recommendation": "Retain limited/held at the stated active boundary; PASS counts or code acceptance do not resolve it",
+      "formal_ledger_change": false,
+      "criterion": "K requested simulation runs produce K actual calls with distinct replica identity/seed plan and failures retained.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4364,
+            4375
+          ],
+          "sha256": "ebd468778c34a525226f1631f17dbb9eb3e040a6c9a5d96d038620576528181a"
+        }
+      ],
+      "deciding_scoped_evidence": "Controlled orchestrator executes K scalar dispatches and records complete requested/completed/failed replica denominator; PROVIDED does not rerun.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission.json@8feeb00c0004be8dfd6c9118b2afaf7c364a80de",
+      "implementation_commits": [
+        "d94b1116cb852eb66722d47610dcd65d75faf503",
+        "2f442904a1ed77e5907e8bb288a1d742874b31b7"
+      ],
+      "implementation_tree": "877885ff3dc44d54a2073a7b4e383b6c8acf67ca",
+      "independent_extra_evidence": null,
+      "remaining_condition": "ExecConfig seed binding and positive native RunSimulation workflow remain not established; distinct requested seeds alone do not prove independent data or actual backend use.",
+      "next_owner": "Scientist RunSimulation/ExecConfig and configured-workflow owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B171",
+      "bundle_ids": [
+        "BKT-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "Technical partitioning preserves pooled micro RMSE/MAE; declared macro weights remain a separate estimand.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4376,
+            4387
+          ],
+          "sha256": "e8224b95baa6a52045bc0a4dca7c1241e86570a02a061d18e6e622b6ea434dad"
+        }
+      ],
+      "deciding_scoped_evidence": "Native residual sums/counts and shard/permutation controls; [0,10,10] micro sqrt(200/3), macro 5 for split [0]/[10,10].",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission.json@8feeb00c0004be8dfd6c9118b2afaf7c364a80de",
+      "implementation_commits": [
+        "d94b1116cb852eb66722d47610dcd65d75faf503",
+        "2f442904a1ed77e5907e8bb288a1d742874b31b7"
+      ],
+      "implementation_tree": "877885ff3dc44d54a2073a7b4e383b6c8acf67ca",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Exact frozen replay and E owner adjudication. Trust-purpose/equivalence margin is not this finding's defining condition.",
+      "next_owner": "Scientist backtest aggregation finding owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B172",
+      "bundle_ids": [
+        "BKT-03"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "criterion includes an active producer/consumer/method/semantic owner boundary",
+      "post_freeze_owner_adjudication_recommendation": "Retain limited/held at the stated active boundary; PASS counts or code acceptance do not resolve it",
+      "formal_ledger_change": false,
+      "criterion": "Constant nonzero residual retains descriptive magnitude; unknown/degenerate inference cannot mean neutrality.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4388,
+            4399
+          ],
+          "sha256": "272c388626bc25adcaf03e6f1114819ebcd5ca8a904dfb8556f64a161734b306"
+        }
+      ],
+      "deciding_scoped_evidence": "Native constant/nonzero/zero, small-n and SciPy t/df/p controls; report/matrix cannot promote absent inference.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission.json@8feeb00c0004be8dfd6c9118b2afaf7c364a80de",
+      "implementation_commits": [
+        "d94b1116cb852eb66722d47610dcd65d75faf503",
+        "2f442904a1ed77e5907e8bb288a1d742874b31b7"
+      ],
+      "implementation_tree": "877885ff3dc44d54a2073a7b4e383b6c8acf67ca",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Owner versioned trust purpose/profile and where required meaningful-bias margin/equivalence interval remain absent; p>alpha is not equivalence.",
+      "next_owner": "Scientist trust-grade purpose/profile and statistical-method owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B173",
+      "bundle_ids": [
+        "BKT-03"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "criterion includes an active producer/consumer/method/semantic owner boundary",
+      "post_freeze_owner_adjudication_recommendation": "Retain limited/held at the stated active boundary; PASS counts or code acceptance do not resolve it",
+      "formal_ledger_change": false,
+      "criterion": "Unavailable SciPy does not silently change a labeled Student t test into a normal approximation.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4400,
+            4411
+          ],
+          "sha256": "9cc7587ea32e5a5dd582054acdd30aa10f82468d8cb9a41188c3d3a2468926f8"
+        }
+      ],
+      "deciding_scoped_evidence": "Native SciPy balanced t0/df2/p1 and unequal t2.59807621135/p.1216899343; unavailable dependency preserves descriptive values/degraded status.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission.json@8feeb00c0004be8dfd6c9118b2afaf7c364a80de",
+      "implementation_commits": [
+        "d94b1116cb852eb66722d47610dcd65d75faf503",
+        "2f442904a1ed77e5907e8bb288a1d742874b31b7"
+      ],
+      "implementation_tree": "877885ff3dc44d54a2073a7b4e383b6c8acf67ca",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Same owner-admitted trust purpose, sampling assumptions and equivalence profile remain absent for positive Grade A/neutrality authority.",
+      "next_owner": "Scientist trust-grade purpose/profile and statistical-method owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B174",
+      "bundle_ids": [
+        "BKT-04"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "CV selected fold boundaries are chosen before index arrays; invalid step/train/cap rejects before looping.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4412,
+            4425
+          ],
+          "sha256": "a82f29a9dea77a5de495b6e71780394b8f5aa1df167e13ff717a079fac534664"
+        }
+      ],
+      "deciding_scoped_evidence": "Canonical native CV selector/property-removal controls and allowed-grid parity.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission.json@8feeb00c0004be8dfd6c9118b2afaf7c364a80de",
+      "implementation_commits": [
+        "d94b1116cb852eb66722d47610dcd65d75faf503",
+        "2f442904a1ed77e5907e8bb288a1d742874b31b7"
+      ],
+      "implementation_tree": "877885ff3dc44d54a2073a7b4e383b6c8acf67ca",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Exact frozen replay and E owner adjudication. Standalone CV preparation/progress does not require production history or trust profile.",
+      "next_owner": "Scientist CV finding owner; G exact-candidate acceptance",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B175",
+      "bundle_ids": [
+        "BKT-04"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "Resolve defined bootstrap statistic and finite one-dimensional data before any draw/callback; performed statistic survives readback.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4426,
+            4437
+          ],
+          "sha256": "19a660b8a49a7076ae9973dca81480423bf53f26cd954cd69967bbc12131bfe4"
+        }
+      ],
+      "deciding_scoped_evidence": "Native built-in mean/median discrete oracle, typo/nonfinite/shape pre-callback refusal and persisted statistic.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission.json@8feeb00c0004be8dfd6c9118b2afaf7c364a80de",
+      "implementation_commits": [
+        "d94b1116cb852eb66722d47610dcd65d75faf503",
+        "2f442904a1ed77e5907e8bb288a1d742874b31b7"
+      ],
+      "implementation_tree": "877885ff3dc44d54a2073a7b4e383b6c8acf67ca",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Arbitrary callable label/__name__ remains consumer_asserted provenance; source sampling/resampling law needs owner input only for inferential use.",
+      "next_owner": "Scientist bootstrap/statistical-method owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B176",
+      "bundle_ids": [
+        "CAL-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "Every source/time observation survives or has explicit admissibility/refusal; technical ID rename cannot choose its value or unit.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4525,
+            4534
+          ],
+          "sha256": "96268eb1d68c65e1c1e45e9264d75166c955a5474900b6c4f6639a857dab246a"
+        }
+      ],
+      "deciding_scoped_evidence": "Native measurement/compiler duplicate, unit and source controls retained; source-specific fit remains distinct.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-curvature-admission.json@34788febbbee4a9c45e14fd4245e719038680881",
+      "implementation_commits": [
+        "ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55"
+      ],
+      "implementation_tree": "59f1256589c4b860a22002bb62053630f10c2bcd",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Exact frozen candidate replay and E owner adjudication; real source law is needed only for an actual empirical fit claim.",
+      "next_owner": "Foundry measurement/compiler finding owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B177",
+      "bundle_ids": [
+        "CAL-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "Calendar time is explicit and synchronized with values/masks/metadata; missing requested time column cannot become positional data.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4535,
+            4544
+          ],
+          "sha256": "da1d53d7bc4a80d64aa3799fd371ccbd8ccbdfd1217c636d7f722a1de5a203b9"
+        }
+      ],
+      "deciding_scoped_evidence": "Native sorted/unsorted aligned-pair and missing-time preflight controls.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-curvature-admission.json@34788febbbee4a9c45e14fd4245e719038680881",
+      "implementation_commits": [
+        "ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55"
+      ],
+      "implementation_tree": "59f1256589c4b860a22002bb62053630f10c2bcd",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Exact frozen candidate replay and E owner adjudication; actual Fabric source calendar is separate factual input.",
+      "next_owner": "Foundry preflight/time-axis owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B178",
+      "bundle_ids": [
+        "CAL-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "Fractional fill is dtype-stable; explicit empty observed support is not a measured zero row.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4545,
+            4554
+          ],
+          "sha256": "f47d17cc309c8f24d13326f20a1dc74e6e4fb92adb59f111b40e6918e7a745f9"
+        }
+      ],
+      "deciding_scoped_evidence": "Native integer/float padding, empty-support and allowed endpoint-fill controls.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-curvature-admission.json@34788febbbee4a9c45e14fd4245e719038680881",
+      "implementation_commits": [
+        "ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55"
+      ],
+      "implementation_tree": "59f1256589c4b860a22002bb62053630f10c2bcd",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Exact frozen candidate replay and E owner adjudication; declared filling hypothesis cannot gain empirical authority.",
+      "next_owner": "Foundry preflight/support owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B179",
+      "bundle_ids": [
+        "CAL-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "Declared observation/weight axes are checked before broadcasting so N comparisons do not become N squared.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4555,
+            4564
+          ],
+          "sha256": "76883f0cc8436c9b0266ddc6ae870564a46bc98a036bc88b7e89dfda922f1508"
+        }
+      ],
+      "deciding_scoped_evidence": "Native matched-shape and ambiguous column/vector negative controls through the calibration loss owner.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-curvature-admission.json@34788febbbee4a9c45e14fd4245e719038680881",
+      "implementation_commits": [
+        "ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55"
+      ],
+      "implementation_tree": "59f1256589c4b860a22002bb62053630f10c2bcd",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Exact frozen candidate replay and E owner adjudication; source validity is not intrinsic to the arithmetic-axis property.",
+      "next_owner": "Foundry calibration loss owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B180",
+      "bundle_ids": [
+        "CAL-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "Sample quality normalizes inside a target; target priority is applied outside that normalization and affects the exact objective.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4565,
+            4574
+          ],
+          "sha256": "a5f7bb210e914b99904a1f5fec819651cb2c5db4174c44d856af48ed6471c421"
+        }
+      ],
+      "deciding_scoped_evidence": "Native weighted-loss/JAX gradient, target weight permutation and objective identity controls.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-curvature-admission.json@34788febbbee4a9c45e14fd4245e719038680881",
+      "implementation_commits": [
+        "ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55"
+      ],
+      "implementation_tree": "59f1256589c4b860a22002bb62053630f10c2bcd",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Exact frozen candidate replay and E owner adjudication; normative source/target priorities remain external declared inputs.",
+      "next_owner": "Foundry calibration objective/loss owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B181",
+      "bundle_ids": [
+        "CAL-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "Zero-support inactive arithmetic has finite primal and reverse gradient without hiding active invalid model output.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4575,
+            4584
+          ],
+          "sha256": "0a790655318188a0d9ca96c0e73c28e3ffdb17859f42a911e35784b021f85552"
+        }
+      ],
+      "deciding_scoped_evidence": "Native JAX eager/JIT/grad zero-support and active nonfinite guards retained.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-curvature-admission.json@34788febbbee4a9c45e14fd4245e719038680881",
+      "implementation_commits": [
+        "ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55"
+      ],
+      "implementation_tree": "59f1256589c4b860a22002bb62053630f10c2bcd",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Exact frozen candidate replay and E owner adjudication; numerical zero remains missing support, not successful empirical calibration.",
+      "next_owner": "Foundry calibration loss/autodiff owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B182",
+      "bundle_ids": [
+        "CAL-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "Scale uses the target's observed training support; other targets' dates/placeholders do not change it.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4585,
+            4594
+          ],
+          "sha256": "672d5e7ad45cad5f78609268028702f80d4802c59b1dc17487622e4da9d6f07d"
+        }
+      ],
+      "deciding_scoped_evidence": "Native mask/scale and independent target-date perturbation tests retain the exact objective.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-curvature-admission.json@34788febbbee4a9c45e14fd4245e719038680881",
+      "implementation_commits": [
+        "ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55"
+      ],
+      "implementation_tree": "59f1256589c4b860a22002bb62053630f10c2bcd",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Exact frozen candidate replay and E owner adjudication; actual training-split provenance is separate for a real fit.",
+      "next_owner": "Foundry calibration scale/support owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B183",
+      "bundle_ids": [
+        "CAL-03"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "Each multi-start uses a fresh telemetry span context; enabling observability does not break the second optimizer start.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4595,
+            4604
+          ],
+          "sha256": "036471c121686d6b68a603fde76ce9c015a1a374d090d47465b79abcbbc00c44"
+        }
+      ],
+      "deciding_scoped_evidence": "Native multi-start/calibrator tests retain fresh span lifecycle with and without telemetry.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-curvature-admission.json@34788febbbee4a9c45e14fd4245e719038680881",
+      "implementation_commits": [
+        "ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55"
+      ],
+      "implementation_tree": "59f1256589c4b860a22002bb62053630f10c2bcd",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Exact frozen candidate replay must bind the multi-start/OTel positive selector; no production data is required for context-manager lifetime.",
+      "next_owner": "Foundry Calibrator/multi-start owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B184",
+      "bundle_ids": [
+        "CAL-04"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "One identical final forward yields total/component loss and report traces without detached derivative input.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4605,
+            4614
+          ],
+          "sha256": "0fc68424f39da383b748d9c3b20446065ef16c39173fa8875b0a5b4852843a00"
+        }
+      ],
+      "deciding_scoped_evidence": "Native real Calibrator final-forward counters and matching output/report tests; curvature still differentiates actual parameters.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-curvature-admission.json@34788febbbee4a9c45e14fd4245e719038680881",
+      "implementation_commits": [
+        "ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55"
+      ],
+      "implementation_tree": "59f1256589c4b860a22002bb62053630f10c2bcd",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Exact frozen candidate replay, including new CAL05 caller; no measured global speedup or production fit-quality claim.",
+      "next_owner": "Foundry Calibrator finalization owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B185",
+      "bundle_ids": [
+        "CAL-05"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "criterion includes an active producer/consumer/method/semantic owner boundary",
+      "post_freeze_owner_adjudication_recommendation": "Retain limited/held at the stated active boundary; PASS counts or code acceptance do not resolve it",
+      "formal_ledger_change": false,
+      "criterion": "Inactive per-row mechanisms have zero numerical callbacks and identity derivatives while active rows preserve real failures and independent key identity.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4702,
+            4711
+          ],
+          "sha256": "784336950cf2e3f1d11e577a321235819c6660d9a8218210ec05620e492988bc"
+        }
+      ],
+      "deciding_scoped_evidence": "Real lax.map batch execution, eager/JIT/grad/Hessian and numerical callback removal controls with row state/time/key.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-batch-20261006.json@2643672263971584dcdcf347c6a93c3122d7e7ae",
+      "implementation_commits": [
+        "2721d7fbb83ecb0806aa5cac19ae1f2e1b713afa"
+      ],
+      "implementation_tree": "27d85f1e2fdb2820871ecaef7e94802ddf918542",
+      "independent_extra_evidence": null,
+      "remaining_condition": "CAL companion must route actual Calibrator forwards through the batch owner and persist/reopen row context; standalone helper alone is consumer_missing.",
+      "next_owner": "Foundry Calibrator caller owner + pure-executor owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B186",
+      "bundle_ids": [
+        "UQP-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "Nominal, delta and MC use the same complete fixed-plus-varying effective kwargs.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4712,
+            4721
+          ],
+          "sha256": "9278fafc393d83f73e09a50cb1d74308961a627d63a775905c103e831bb8e6ea"
+        }
+      ],
+      "deciding_scoped_evidence": "Native fixed scale interaction, delta/random/QMC consistent nominal and output-law controls.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.json@7689c880acf3b587e7e0a0ecdb92776871fac462",
+      "implementation_commits": [
+        "0701251c57d707f0abe0550448e036d9d3c47c7d",
+        "2ff602fd73c5c44e957ec58bcefd1aa48107e524"
+      ],
+      "implementation_tree": "ffa8145c84a71e97c3b6d6a2389291857c9c9846",
+      "independent_extra_evidence": null,
+      "remaining_condition": "General real simulation evaluator/source binding is bridge_missing; configured narrow numerical response is verified but not arbitrary served models.",
+      "next_owner": "Scientist simulation/execution owner; E propagation owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B187",
+      "bundle_ids": [
+        "UQP-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "Named covariance row/column axes align before spectral checks; numerical repair cannot conceal an axis permutation.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4722,
+            4731
+          ],
+          "sha256": "2b4d8ebdce33646e0610e74f827232b75cd324432972a7957ab5896c2765275b"
+        }
+      ],
+      "deciding_scoped_evidence": "Native unequal diagonal/cross-axis covariance and singular tied-law controls; common pre-draw representability admission.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.json@7689c880acf3b587e7e0a0ecdb92776871fac462",
+      "implementation_commits": [
+        "0701251c57d707f0abe0550448e036d9d3c47c7d",
+        "2ff602fd73c5c44e957ec58bcefd1aa48107e524"
+      ],
+      "implementation_tree": "ffa8145c84a71e97c3b6d6a2389291857c9c9846",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Exact frozen replay and producer/covariance axes consumer check; inferential calibration source authority is a separate claim.",
+      "next_owner": "E covariance/producer axes owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B188",
+      "bundle_ids": [
+        "UQP-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "criterion includes an active producer/consumer/method/semantic owner boundary",
+      "post_freeze_owner_adjudication_recommendation": "Retain limited/held at the stated active boundary; PASS counts or code acceptance do not resolve it",
+      "formal_ledger_change": false,
+      "criterion": "Every backend preserves the admitted joint vector law; absent dependence cannot become an independent product.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4732,
+            4741
+          ],
+          "sha256": "845944fcb63293d09ccc282370335bbe03a508973c704ac6a58175d019e86771"
+        }
+      ],
+      "deciding_scoped_evidence": "Native Gaussian tied variance0 versus independent.005; content-bound paired empirical draws; absent/fake law refuses before callbacks.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.json@7689c880acf3b587e7e0a0ecdb92776871fac462",
+      "implementation_commits": [
+        "0701251c57d707f0abe0550448e036d9d3c47c7d",
+        "2ff602fd73c5c44e957ec58bcefd1aa48107e524"
+      ],
+      "implementation_tree": "ffa8145c84a71e97c3b6d6a2389291857c9c9846",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Verified external product/joint law and configured CAL joint carrier lineage remain owner inputs; Gaussian declaration remains nongating conditional law.",
+      "next_owner": "E law admission + Foundry calibration producer owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B189",
+      "bundle_ids": [
+        "UQP-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "JAX-compatible varying values are not cast to Python float before differentiation; actual supported affine node chooses delta.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4742,
+            4751
+          ],
+          "sha256": "d4807669b03d45438519948f53992d9b71fd88351e4df7dbf91230791d002c6a"
+        }
+      ],
+      "deciding_scoped_evidence": "Native PropagateUncertaintyNode/JAX derivative and delta selection controls.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.json@7689c880acf3b587e7e0a0ecdb92776871fac462",
+      "implementation_commits": [
+        "0701251c57d707f0abe0550448e036d9d3c47c7d",
+        "2ff602fd73c5c44e957ec58bcefd1aa48107e524"
+      ],
+      "implementation_tree": "ffa8145c84a71e97c3b6d6a2389291857c9c9846",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Exact frozen replay; source-bound response provenance remains a distinct B190/general-evaluator limitation.",
+      "next_owner": "Scientist uncertainty node/JAX adapter owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B190",
+      "bundle_ids": [
+        "UQP-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "criterion includes an active producer/consumer/method/semantic owner boundary",
+      "post_freeze_owner_adjudication_recommendation": "Retain limited/held at the stated active boundary; PASS counts or code acceptance do not resolve it",
+      "formal_ledger_change": false,
+      "criterion": "Missing sensitivity remains unknown; explicit additive response preserves nonzero uncertainty at zero baseline without inventing links.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4752,
+            4761
+          ],
+          "sha256": "bb28f0e65d6317465c37bae99ed3a0bd89a03a3194f111e0f3faf24553724d53"
+        }
+      ],
+      "deciding_scoped_evidence": "Native zero-baseline/partial-map/actual-constant and missing-sensitivity controls; nongating declared affine proxy.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.json@7689c880acf3b587e7e0a0ecdb92776871fac462",
+      "implementation_commits": [
+        "0701251c57d707f0abe0550448e036d9d3c47c7d",
+        "2ff602fd73c5c44e957ec58bcefd1aa48107e524"
+      ],
+      "implementation_tree": "ffa8145c84a71e97c3b6d6a2389291857c9c9846",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Source-bound real model/Jacobian/evaluator bridge is absent; declared proxy is not the served simulator or authoritative sensitivity map.",
+      "next_owner": "Scientist simulation/Jacobian producer owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B191",
+      "bundle_ids": [
+        "UQP-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "Missing output is an addressed structural gap, not an inferred zero interval; true constant zero remains allowed.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4762,
+            4771
+          ],
+          "sha256": "91e46d98b7af41ab8bda1facccae166d7348da11389426af576e2d48293769cd"
+        }
+      ],
+      "deciding_scoped_evidence": "Native expected-output admission and actual zero/partial-output controls across dispatcher/delta/MC.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.json@7689c880acf3b587e7e0a0ecdb92776871fac462",
+      "implementation_commits": [
+        "0701251c57d707f0abe0550448e036d9d3c47c7d",
+        "2ff602fd73c5c44e957ec58bcefd1aa48107e524"
+      ],
+      "implementation_tree": "ffa8145c84a71e97c3b6d6a2389291857c9c9846",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Exact frozen consumer replay and owner adjudication; no real-output certificate is inferred from fallback behavior.",
+      "next_owner": "E propagation expected-output owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B192",
+      "bundle_ids": [
+        "UQP-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "criterion includes an active producer/consumer/method/semantic owner boundary",
+      "post_freeze_owner_adjudication_recommendation": "Retain limited/held at the stated active boundary; PASS counts or code acceptance do not resolve it",
+      "formal_ledger_change": false,
+      "criterion": "Propagation consumes the available exact empirical support/weights/ordered joint rows rather than reconstructing Normal from bounds.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4772,
+            4781
+          ],
+          "sha256": "3ba8c9b9a37ba35d3d7e210af7d91ecdfaebbc6d642739172a988840a9c2ef34"
+        }
+      ],
+      "deciding_scoped_evidence": "Native atomic carrier random/QMC transforms, changed row order/content-digest refusal and persisted-law consumer replay.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.json@7689c880acf3b587e7e0a0ecdb92776871fac462",
+      "implementation_commits": [
+        "0701251c57d707f0abe0550448e036d9d3c47c7d",
+        "2ff602fd73c5c44e957ec58bcefd1aa48107e524"
+      ],
+      "implementation_tree": "ffa8145c84a71e97c3b6d6a2389291857c9c9846",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Configured multivariate CAL producer must emit complete joint-law digest/order/draw identities; shared string ID alone unsupported. V2 Bayesian storage remains B202 held.",
+      "next_owner": "Foundry calibration carrier producer + E MC/QMC consumer",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B193",
+      "bundle_ids": [
+        "UQP-03"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "criterion includes an active producer/consumer/method/semantic owner boundary",
+      "post_freeze_owner_adjudication_recommendation": "Retain limited/held at the stated active boundary; PASS counts or code acceptance do not resolve it",
+      "formal_ledger_change": false,
+      "criterion": "Mean error uses independent pilot and frozen N with pilot excluded; RQMC error uses independent complete-net replicate means.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4782,
+            4791
+          ],
+          "sha256": "ad591257998b80b71a8a6337f202dce1dad9e02c934525527c310d8e336022bf"
+        }
+      ],
+      "deciding_scoped_evidence": "Native canonical Uniform indicator, all-zero256pilot U.0995612819/N408, persisted certificate replay; Sobol4x256 replicate estimator SE.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.json@7689c880acf3b587e7e0a0ecdb92776871fac462",
+      "implementation_commits": [
+        "0701251c57d707f0abe0550448e036d9d3c47c7d",
+        "2ff602fd73c5c44e957ec58bcefd1aa48107e524"
+      ],
+      "implementation_tree": "ffa8145c84a71e97c3b6d6a2389291857c9c9846",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Implemented certificate is only canonical bounded indicator over exact Uniform[0,1]. Opaque evaluator, other law/functional or anytime stop requires an admitted response/theorem profile.",
+      "next_owner": "E estimator-method owner; Scientist configured simulation evaluator owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B194",
+      "bundle_ids": [
+        "UQP-03"
+      ],
+      "ledger_status_preserved": "held",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "criterion includes an active producer/consumer/method/semantic owner boundary",
+      "post_freeze_owner_adjudication_recommendation": "Retain limited/held at the stated active boundary; PASS counts or code acceptance do not resolve it",
+      "formal_ledger_change": false,
+      "criterion": "Every requested draw has terminal support outcome; successful-only mean remains conditional and downstream refuses unconditional authority.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4792,
+            4801
+          ],
+          "sha256": "47058d366d7ff7e11ed2348e96b2f56659a999f1f0839a02edc92804b295711e"
+        }
+      ],
+      "deciding_scoped_evidence": "Native Uniform[-1,1] domain-failure mean approximately.5, full outcome denominator; CAS reconciliation rejects missing outcomes.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.json@7689c880acf3b587e7e0a0ecdb92776871fac462",
+      "implementation_commits": [
+        "0701251c57d707f0abe0550448e036d9d3c47c7d",
+        "2ff602fd73c5c44e957ec58bcefd1aa48107e524"
+      ],
+      "implementation_tree": "ffa8145c84a71e97c3b6d6a2389291857c9c9846",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Real served simulation evaluator is bridge_missing; same-input transient retry classifier is absent. Need exact source-law/evaluator/domain/run refs, not an invented route.",
+      "next_owner": "Scientist simulation/execution/domain failure owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B195",
+      "bundle_ids": [
+        "CAL-03"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "Finite loss and satisfactory/unknown/known-bad raw Hessian are distinct selection states; NaN/inf cannot win through unknown diagnostics.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4894,
+            4907
+          ],
+          "sha256": "69b56d13bbee8d87f83987b09b991e08cf33eff2204302a3b938acef363de747"
+        }
+      ],
+      "deciding_scoped_evidence": "Native multi-start finite minimum and raw saddle/flat/ill-conditioned/nonstationary curvature tests.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-curvature-admission.json@34788febbbee4a9c45e14fd4245e719038680881",
+      "implementation_commits": [
+        "ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55"
+      ],
+      "implementation_tree": "59f1256589c4b860a22002bb62053630f10c2bcd",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Exact frozen replay and owner adjudication; generic curvature is not inferential covariance.",
+      "next_owner": "Foundry multi-start/Hessian selection owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B196",
+      "bundle_ids": [
+        "CAL-04"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "The final produced optimizer iterate is scored under the comparable objective before best-result selection, or remains explicitly unscored.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4908,
+            4921
+          ],
+          "sha256": "e10dd58806c1c009f96344f117d7f7ecbb5f962191b966756a001fd388705fde"
+        }
+      ],
+      "deciding_scoped_evidence": "Native Calibrator final-iterate improvement/overshoot/nonfinite/resource controls; objective identity retained.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-curvature-admission.json@34788febbbee4a9c45e14fd4245e719038680881",
+      "implementation_commits": [
+        "ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55"
+      ],
+      "implementation_tree": "59f1256589c4b860a22002bb62053630f10c2bcd",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Exact frozen candidate replay and new batch caller check; no production fit-quality assumption needed for state accounting.",
+      "next_owner": "Foundry Calibrator optimizer/finalization owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B197",
+      "bundle_ids": [
+        "CAL-06"
+      ],
+      "ledger_status_preserved": "held",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "criterion includes an active producer/consumer/method/semantic owner boundary",
+      "post_freeze_owner_adjudication_recommendation": "Retain limited/held at the stated active boundary; PASS counts or code acceptance do not resolve it",
+      "formal_ledger_change": false,
+      "criterion": "Typed tie-group-to-field J projection preserves addresses/cross covariance through configured producer, CalibrationReportv2 CAS and welfare consumer.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4922,
+            4935
+          ],
+          "sha256": "2f5e64ff7238ff5a340224382fa2875b57ea9e960e0e50bfea7f349c6a83ff3d"
+        }
+      ],
+      "deciding_scoped_evidence": "Real narrow known-sigma Gaussian Calibrator; stationary tied covariance.0025*ones; configured report/profile persistence and strict kind/schema/payload welfare intake.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-curvature-admission.json@34788febbbee4a9c45e14fd4245e719038680881",
+      "implementation_commits": [
+        "ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55"
+      ],
+      "implementation_tree": "59f1256589c4b860a22002bb62053630f10c2bcd",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Configured fixture math chain exists, but independently admitted real calibration/model/source likelihood provenance and actual served producer remain not established. CAL joint-law carrier metadata must match MC admission.",
+      "next_owner": "Foundry configured Calibrator/model/source owner; E adapter; Scientist served workflow owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B198",
+      "bundle_ids": [
+        "CAL-06"
+      ],
+      "ledger_status_preserved": "closed",
+      "proposed_verdict": "closed",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Retain historical closed regression unless a new defining-property falsifier appears",
+      "formal_ledger_change": false,
+      "criterion": "Changing display confidence level does not change the existing typed law sigma or its heuristic/gating limitations.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4936,
+            4949
+          ],
+          "sha256": "2cbd889b85b881ae22f7f99c28e68c82200022c7dfa01cbb150ecf895a30672b"
+        }
+      ],
+      "deciding_scoped_evidence": "Historical closed regression preserved by typed parametric scale .8/.95 readback and current calibration/uncertainty tests.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-curvature-admission.json@34788febbbee4a9c45e14fd4245e719038680881",
+      "implementation_commits": [
+        "ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55"
+      ],
+      "implementation_tree": "59f1256589c4b860a22002bb62053630f10c2bcd",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Keep closed unless a new exact defining-property falsifier appears; final frozen regression pending.",
+      "next_owner": "Foundry calibration uncertainty adapter owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B199",
+      "bundle_ids": [
+        "UQS-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "Duplicate envelope references do not increase stated level or silently change credible to confidence interval.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4950,
+            4963
+          ],
+          "sha256": "ef72002be021501dcd6755c48233dc54679f66a89fd8e363e08f5b506b018952"
+        }
+      ],
+      "deciding_scoped_evidence": "Native singleton/duplicate content, matching type/level and heuristic restriction controls.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.json@7689c880acf3b587e7e0a0ecdb92776871fac462",
+      "implementation_commits": [
+        "0701251c57d707f0abe0550448e036d9d3c47c7d",
+        "2ff602fd73c5c44e957ec58bcefd1aa48107e524"
+      ],
+      "implementation_tree": "ffa8145c84a71e97c3b6d6a2389291857c9c9846",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Exact frozen CAS/consumer replay; mixed interval semantics have bounded candidate behavior and cannot invent guarantees.",
+      "next_owner": "E uncertainty aggregation semantic owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B200",
+      "bundle_ids": [
+        "UQS-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "criterion includes an active producer/consumer/method/semantic owner boundary",
+      "post_freeze_owner_adjudication_recommendation": "Retain limited/held at the stated active boundary; PASS counts or code acceptance do not resolve it",
+      "formal_ledger_change": false,
+      "criterion": "Duplicate evidence does not become independent precision; origins and effective information count remain separate.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4964,
+            4977
+          ],
+          "sha256": "721775dd6bad0fdd3c7392ef5030fcba3032c7f31094b189d99dce422ecc7b2d"
+        }
+      ],
+      "deciding_scoped_evidence": "Native repeat same artifact/content unchanged versus conditional declared independent Gaussian arithmetic; all gates remain false.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.json@7689c880acf3b587e7e0a0ecdb92776871fac462",
+      "implementation_commits": [
+        "0701251c57d707f0abe0550448e036d9d3c47c7d",
+        "2ff602fd73c5c44e957ec58bcefd1aa48107e524"
+      ],
+      "implementation_tree": "ffa8145c84a71e97c3b6d6a2389291857c9c9846",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Verified information-unit relationships/likelihood versus prior/posterior lineage are absent; caller declarations/origin strings cannot establish authority.",
+      "next_owner": "E evidence-information relationship/source owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B201",
+      "bundle_ids": [
+        "UQS-01"
+      ],
+      "ledger_status_preserved": "held",
+      "proposed_verdict": "held",
+      "criterion_property_assessment": "criterion includes an active producer/consumer/method/semantic owner boundary",
+      "post_freeze_owner_adjudication_recommendation": "Retain limited/held at the stated active boundary; PASS counts or code acceptance do not resolve it",
+      "formal_ledger_change": false,
+      "criterion": "Posterior point functional and equal-tail interval are separate: 99zeros+100 gives mean1 and q05/q95[0,0].",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4978,
+            4991
+          ],
+          "sha256": "8069cd2dfd13bbfca1d2bbf02a7cc761d6614a5e967d7c11b1de299e64960474"
+        }
+      ],
+      "deciding_scoped_evidence": "Independent finite analytic discriminator; v1.1 replay is retained and no silent wire change is made.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.json@7689c880acf3b587e7e0a0ecdb92776871fac462",
+      "implementation_commits": [
+        "0701251c57d707f0abe0550448e036d9d3c47c7d",
+        "2ff602fd73c5c44e957ec58bcefd1aa48107e524"
+      ],
+      "implementation_tree": "ffa8145c84a71e97c3b6d6a2389291857c9c9846",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Appointed IR semantic owner must ratify independent functionals and distinct v2 $id while retaining v1.1 read/replay; no producer code can ratify this.",
+      "next_owner": "Appointed canonical IR analytics uncertainty semantic owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B202",
+      "bundle_ids": [
+        "UQS-01"
+      ],
+      "ledger_status_preserved": "held",
+      "proposed_verdict": "held",
+      "criterion_property_assessment": "criterion includes an active producer/consumer/method/semantic owner boundary",
+      "post_freeze_owner_adjudication_recommendation": "Retain limited/held at the stated active boundary; PASS counts or code acceptance do not resolve it",
+      "formal_ledger_change": false,
+      "criterion": "Exact joint posterior law remains resolvable with content/order/weights/units/lineage so identical marginals cannot merge different pairings.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4992,
+            5005
+          ],
+          "sha256": "8d507abb668fd82e3a58b5b416e8d011d07927198cfae69949d218a6328a16ab"
+        }
+      ],
+      "deciding_scoped_evidence": "Content-bound finite joint empirical carriers supported in existing v1.1 input path; current new-law semantics explicitly held.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.json@7689c880acf3b587e7e0a0ecdb92776871fac462",
+      "implementation_commits": [
+        "0701251c57d707f0abe0550448e036d9d3c47c7d",
+        "2ff602fd73c5c44e957ec58bcefd1aa48107e524"
+      ],
+      "implementation_tree": "ffa8145c84a71e97c3b6d6a2389291857c9c9846",
+      "independent_extra_evidence": null,
+      "remaining_condition": "IR owner must choose CAS-onlyv2 (recommended) or inline+persisted ref and all four fixed ratifications; then actual Bayesian producer→CAS→sampler readback.",
+      "next_owner": "Appointed canonical IR analytics uncertainty semantic owner; then E producer and C/F consumers",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "B203",
+      "bundle_ids": [
+        "CAL-04"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "Hessian winner reuse requires exact parameter/objective/weight/seed/dtype/numerical-policy/model identity, otherwise recompute.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            5006,
+            5017
+          ],
+          "sha256": "d40176b9dfa62d140dc28251f63b63be54771ac3b145dd75ceaa4e51a63761ad"
+        }
+      ],
+      "deciding_scoped_evidence": "Native multi-start N versus N+1 counters and per-key mutation/cache miss controls; raw spectrum authority protected.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-curvature-admission.json@34788febbbee4a9c45e14fd4245e719038680881",
+      "implementation_commits": [
+        "ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55"
+      ],
+      "implementation_tree": "59f1256589c4b860a22002bb62053630f10c2bcd",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Exact frozen candidate replay including companion batch context/objective identity; no global cache authority inferred.",
+      "next_owner": "Foundry Calibrator Hessian/cache owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "LA-051",
+      "bundle_ids": [
+        "FRC-01",
+        "FRC-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "criterion includes an active producer/consumer/method/semantic owner boundary",
+      "post_freeze_owner_adjudication_recommendation": "Retain limited/held at the stated active boundary; PASS counts or code acceptance do not resolve it",
+      "formal_ledger_change": false,
+      "criterion": "N8 transfers actual calibrated predictive evidence from one compatible producer and does not manufacture empirical pass from estimator shape.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            3712,
+            3746
+          ],
+          "sha256": "5d3fe7ce8b71d77c07f35e5a68fed244c0d40e0f24925714edbf7297c37ea616"
+        },
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            3712,
+            3746
+          ],
+          "sha256": "5d3fe7ce8b71d77c07f35e5a68fed244c0d40e0f24925714edbf7297c37ea616"
+        }
+      ],
+      "deciding_scoped_evidence": "Configured ETS→ordered holdout→report/role artifacts→separate empirical evidence and candidate receipt→fresh CAS replay.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-configured-producer.json@213dfb7c4d9768e90e0b443d093c4b1685e8536a",
+      "implementation_commits": [
+        "5bd27323ecb0935a38908d2b09fa652762c5e4ea"
+      ],
+      "implementation_tree": "1bd337e3a8dae85a9db6af514fcd15417212527c",
+      "independent_extra_evidence": null,
+      "remaining_condition": "A alone wires default served predictive branch before terminal causal refusal and trusted profile verifier; fresh served recomputation/surface remain missing. Causal/treatment/policy authority remains denied.",
+      "next_owner": "A generation-cycle/default gateway/S10 verifier owner; E configured producer",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "LA-052",
+      "bundle_ids": [
+        "PCL-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "criterion includes an active producer/consumer/method/semantic owner boundary",
+      "post_freeze_owner_adjudication_recommendation": "Retain limited/held at the stated active boundary; PASS counts or code acceptance do not resolve it",
+      "formal_ledger_change": false,
+      "criterion": "Continuous report/receipt agrees with persisted requested/eligible/observed pairs; no comparisons cannot become approximate_calibrated.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            3747,
+            3792
+          ],
+          "sha256": "846f644e4daca7f4a4828a626a08dbf8e659d06028fc902b85878a690b3ac801"
+        }
+      ],
+      "deciding_scoped_evidence": "Native actual Foundry diagnostics caller, same-store pairs/report/receipt and independent full recomputation; fake report/receipt/pairs and removal controls.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006.json@d901d6e301c62ba8c13b49e8a1b6739739279da1",
+      "implementation_commits": [
+        "f333db57fbe55510a3eabe03220d8662ee3a1693",
+        "f96d964062697d2077be2e59b8e1ce7d27b1f0dd"
+      ],
+      "implementation_tree": "75f0e438e3db6722b407ebb5af817a99a1e9cf7b",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Higher default Foundry configured-store composition is implemented_but_not_orchestrated. Source/split/horizon/time are not production authority from synthetic pairs.",
+      "next_owner": "Foundry default diagnostics configured-store owner; E calibration owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "LA-053",
+      "bundle_ids": [
+        "PCL-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "criterion includes an active producer/consumer/method/semantic owner boundary",
+      "post_freeze_owner_adjudication_recommendation": "Retain limited/held at the stated active boundary; PASS counts or code acceptance do not resolve it",
+      "formal_ledger_change": false,
+      "criterion": "Canonical calibration objects and numerical tests migrate while supported old alias keeps identity until its authorized compatibility window ends.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            3793,
+            3815
+          ],
+          "sha256": "b8486db456080f21e07d1949996f18748785d02672e511ea8b57c273192d63a4"
+        }
+      ],
+      "deciding_scoped_evidence": "Three canonical public objects equal supported Scientist forwarding objects; tests under canonical owner with alias identity regression.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006.json@d901d6e301c62ba8c13b49e8a1b6739739279da1",
+      "implementation_commits": [
+        "f333db57fbe55510a3eabe03220d8662ee3a1693",
+        "f96d964062697d2077be2e59b8e1ce7d27b1f0dd"
+      ],
+      "implementation_tree": "75f0e438e3db6722b407ebb5af817a99a1e9cf7b",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Canonical calibration and Scientist API owners must declare actual compatibility/deprecation window and supported external consumers; no alias sunset/retirement was invented.",
+      "next_owner": "Canonical calibration owner and Scientist backtesting API/alias migration owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "LA-054",
+      "bundle_ids": [
+        "DDM-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "criterion includes an active producer/consumer/method/semantic owner boundary",
+      "post_freeze_owner_adjudication_recommendation": "Retain limited/held at the stated active boundary; PASS counts or code acceptance do not resolve it",
+      "formal_ledger_change": false,
+      "criterion": "Same report/model/detector/regime/metric/window/expiry/invalidation evidence reaches public DDM registry consumer without pass-only bypass.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            4053,
+            4107
+          ],
+          "sha256": "ffb93357b63c03313b11c4dedb3cce3153c2f14b30257aadd860ca09fda6d425"
+        }
+      ],
+      "deciding_scoped_evidence": "Native calibration→audit→monitor→persisted registry→source-rebind→gate; quantity/report/source/time removal controls and full shared-field binding.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-source-binding.json@299d165a6040629711019598f2981f7cc3e9c5f6",
+      "implementation_commits": [
+        "927b8fdd8b2ecb804a9bba55c9b9535406f17e9d",
+        "052135e93a5c61dab854e17656feef3903042999"
+      ],
+      "implementation_tree": "2732a4183cbfd385ccce02f097d6feee08a6b12d",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Actual complete live-feed/source/rule/window admission, delayed-event freshness profile and served registry/deployment consumer remain absent; fixture integrity is not stationarity validity.",
+      "next_owner": "DDM applicability/live-feed/source profile owner; deployment consumer owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "LA-055",
+      "bundle_ids": [
+        "DDM-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "criterion includes an active producer/consumer/method/semantic owner boundary",
+      "post_freeze_owner_adjudication_recommendation": "Retain limited/held at the stated active boundary; PASS counts or code acceptance do not resolve it",
+      "formal_ledger_change": false,
+      "criterion": "Baseline eligibility, independent false veto and documented R2 signoff precedence share one consistent gate; R1/R0/failure cannot be overridden.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            4108,
+            4140
+          ],
+          "sha256": "79f9809eacc0a1dbb11ff784ecc8b073da1ca23ef0c2212437a05094423e518f"
+        }
+      ],
+      "deciding_scoped_evidence": "Native R-state matrix and JSON reopen/rebind false-veto protection; public mutation/source removal fails.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-source-binding.json@299d165a6040629711019598f2981f7cc3e9c5f6",
+      "implementation_commits": [
+        "927b8fdd8b2ecb804a9bba55c9b9535406f17e9d",
+        "052135e93a5c61dab854e17656feef3903042999"
+      ],
+      "implementation_tree": "2732a4183cbfd385ccce02f097d6feee08a6b12d",
+      "independent_extra_evidence": null,
+      "remaining_condition": "Versioned deployment-purpose policy, actual institutional signoff and observed-empty versus unavailable feed provenance remain owner inputs; bool is not authorized human identity.",
+      "next_owner": "DDM semantic/deployment-purpose owner and institutional R2 signoff owner",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": null
+    },
+    {
+      "finding_id": "LA-056",
+      "bundle_ids": [
+        "DDM-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "proposed_verdict": "limited",
+      "criterion_property_assessment": "receipt-supported bounded criterion-complete candidate; final independent source replay pending",
+      "post_freeze_owner_adjudication_recommendation": "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority",
+      "formal_ledger_change": false,
+      "criterion": "One neutral event/budget owner imports without orchestration while public/legacy models, aliases, runtime validators, JSON/schema and old FQN pickle remain compatible.",
+      "criterion_refs": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            4141,
+            4171
+          ],
+          "sha256": "bde6e712dfd4323ae0dc44fc5f89fa5f38551babd77da22e9317b806344d0481"
+        }
+      ],
+      "deciding_scoped_evidence": "Independent MetaPath subprocess no-runtime hook, root/integration lazy removal failing controls, all14 classes/enums,12 native JSON/pickle models, LK35 differential and public root monitor;42 native testsPASS.",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-source-binding.json@299d165a6040629711019598f2981f7cc3e9c5f6",
+      "implementation_commits": [
+        "927b8fdd8b2ecb804a9bba55c9b9535406f17e9d",
+        "052135e93a5c61dab854e17656feef3903042999"
+      ],
+      "implementation_tree": "2732a4183cbfd385ccce02f097d6feee08a6b12d",
+      "independent_extra_evidence": "ddm01-independent.json@cb9fb322a45efcac1cbdfa04d5f59a03d7dbe90a",
+      "remaining_condition": "Final frozen source replay and accountable finding-owner decision only. No production corpus/deployment/wheel-wide claim is required for this bounded import/compatibility criterion.",
+      "next_owner": "DDM contracts/facade finding owner; G exact-candidate acceptance",
+      "final_frozen_wave": "UNRUN/pending at reconciliation",
+      "bounded_import_criterion_closure_recommendation": "closed after final DDM input identity replay and owner adjudication"
+    }
+  ]
+}

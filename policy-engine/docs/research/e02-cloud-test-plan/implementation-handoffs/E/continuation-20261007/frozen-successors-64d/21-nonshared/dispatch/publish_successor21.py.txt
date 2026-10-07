@@ -1,0 +1,127 @@
+"""Index closed, already-executed frozen constituents; do not run any selector."""
+from __future__ import annotations
+
+import collections
+import hashlib
+import json
+from pathlib import Path
+
+ROOT = Path('/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007')
+STAGES = Path('/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe')
+SHA = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE = 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+
+
+def identity(path: Path) -> dict:
+    if path.is_symlink() or not path.is_file():
+        raise ValueError('Require closed regular publication input: ' + str(path))
+    data = path.read_bytes()
+    return {'path': str(path), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+
+def write_new(path: Path, value: dict) -> None:
+    with path.open('x') as handle:
+        handle.write(json.dumps(value, ensure_ascii=False, indent=2) + '\n')
+
+
+plan = json.loads((ROOT / 'dispatch-plan-64d7444a18c5-frozen-final.json').read_text())
+complete = json.loads((ROOT / 'successor-21-complete-64d.json').read_text())
+if complete['candidate'] != SHA or complete['tree'] != TREE or complete['ending_HEAD'] != SHA:
+    raise ValueError('Completion source differs from frozen source')
+if complete['ending_tracked_status'] != '':
+    raise ValueError('Completion tracked source was not clean')
+expected = set(plan['proposed_parallel_nonshared_logic_assignments'])
+if len(expected) != 21 or {r['code'] for r in complete['records']} != expected:
+    raise ValueError('Assigned complete constituent denominator differs')
+plans = {r['code']: r for r in plan['rows']}
+rows = []
+files = []
+
+
+def select(path: Path, destination: str, role: str) -> dict:
+    ref = {**identity(path), 'destination': destination, 'role': role}
+    files.append(ref)
+    return ref
+
+
+for record in complete['records']:
+    code = record['code']
+    actual_path = Path(record['actual_receipt'])
+    actual = json.loads(actual_path.read_text())
+    if actual['candidate_sha'] != SHA or actual['candidate_tree_sha'] != TREE or actual['head_at_end'] != SHA:
+        raise ValueError('Actual receipt source differs: ' + code)
+    if actual['source_immutable'] is not True or actual['source_identity_before'] != actual['source_identity_after']:
+        raise ValueError('Actual physical source mutation: ' + code)
+    if record['capturer_exit_code'] != actual['exit_code']:
+        raise ValueError('Capturer/command status differs: ' + code)
+    if actual['outcome'] != ('PASS' if actual['exit_code'] == 0 else 'FAIL'):
+        raise ValueError('Status/exit inconsistency in no-JUnit constituent: ' + code)
+    if actual['junit'] is not None or actual['counts'] is not None:
+        raise ValueError('This index must not replace native JUnit: ' + code)
+    stdout = Path(actual['stdout_path'])
+    actual_stdout = identity(stdout)
+    if actual_stdout['bytes'] != actual['stdout_bytes'] or actual_stdout['sha256'] != actual['stdout_sha256']:
+        raise ValueError('Actual command output bytes differ: ' + code)
+    selected = [select(actual_path, f'stages/{code}/{actual_path.name}', 'complete frozen command/environment/input receipt'),
+                select(stdout, f'stages/{code}/{stdout.name}', 'complete command stdout and stderr combined by canonical run_check')]
+    for name in ('capture.stdout.txt', 'capture.stderr.txt', 'dispatch-observation.json'):
+        selected.append(select(STAGES / code / name, f'stages/{code}/{name}', 'complete orchestration capture; command streams stay separately in combined stdout'))
+    for name in ('tool-output.json', 'tool-output.md', 'schemas-python-residue.txt'):
+        path = STAGES / code / name
+        if path.is_file():
+            selected.append(select(path, f'stages/{code}/{name}', 'complete native tool deciding output'))
+    if code == 'workspace-10':
+        for name in ('coverage.json', 'coverage.md'):
+            path = STAGES / code / 'coverage' / name
+            selected.append(select(path, f'stages/{code}/coverage/{name}', 'complete native coverage-dashboard output; scope does not imply behavior closure'))
+    row = {'code': code, 'label': plans[code]['label'], 'outcome': actual['outcome'], 'exit_code': actual['exit_code'],
+           'command': actual['command'], 'cwd': actual['cwd'], 'started_unix': actual['started_unix'], 'wall_seconds': actual['wall_seconds'],
+           'actual_receipt': selected[0], 'complete_outputs': selected[1:], 'environment': actual['environment'],
+           'source_identity_before': actual['source_identity_before'], 'source_identity_after': actual['source_identity_after'],
+           'source_immutable': True, 'junit': None, 'counts': None, 'finding_closure': False,
+           'canonical_workflow_outcome': 'Read the actual umbrella receipt separately; this standalone command never overwrites fail-fast UNRUN.',
+           'input_domain': plans[code]['input_domain'], 'P41': actual['P41']}
+    if code == 'ci-07':
+        first_line = stdout.read_text().splitlines()[0]
+        measurement = json.loads(first_line.removeprefix('measurement='))
+        row['report_only_limitation'] = 'Exit 0 is the canonical --report-only command outcome. The output reports blocking/informational findings; it does not establish ledger health or finding closure.'
+        row['actual_explicit_reader_receipt'] = {'input_operation_count': len(measurement['inputs']),
+            'finding_coverage': measurement['finding_coverage'], 'selector': measurement['selector'],
+            'unresolved_by_construction': measurement['unresolved_by_construction'],
+            'complete_measurement': 'Complete measurement= JSON is the first line of the exact combined stdout above.'}
+    if code == 'workspace-09':
+        row['input_domain']['actual_runtime_denominator'] = 'Canonical _collect_frontend_mentions scans all tracked policy-engine text with TEXT_SUFFIXES excluding frontend/_build/_cache/.venv, including docs. The static 7652-path preparation projection excludes docs and is not the actual full caller input denominator. Complete frozen tracked inventory is retained by SHA/bytes and Git reconstruction.'
+        row['post_freeze_correction'] = {'candidate': '1186ce5bf60f11ceaafe395f626cee1096d0b878', 'publication': '43f6bb54e316ce1308d53ba75c6e27e40171e364',
+            'frozen_outcome_unchanged': 'FAIL at 64d (ambiguous JSON input). E-owned document-role/custody correction was independently reviewed in isolated leaf. Exact final canonical inventory remains FAIL due baseline drift; no global PASS.',
+            'tracked_handoff': 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/stdout-document-role-correction.json'}
+    if code == 'workspace-12':
+        row['scope_limitation'] = 'PASS only for canonical --skip-install --skip-discovery --skip-pytest selector; install, discovery and examples pytest were not executed by this constituent.'
+    rows.append(row)
+
+counts = collections.Counter(r['outcome'] for r in rows)
+index = {'schema': 'policyos.e02.E.frozen_constituent_check_index.v1', 'candidate_sha': SHA, 'candidate_tree_sha': TREE,
+         'check_count': len(rows), 'check_outcomes': dict(counts), 'all_assigned_selectors_terminal': True,
+         'canonical_umbrella_outcomes': 'Separate common-wave workspace verify and CI parity receipts remain authoritative for their fail-fast selectors.',
+         'finding_statuses': 'No original finding status or owner adjudication changed by this command index.',
+         'all_source_immutable': True, 'source_identity': rows[0]['source_identity_before'],
+         'full_input_inventory_ignored': complete['full_inventory_ignored'],
+         'actual_environment': 'Existing admitted managed environment only; every native receipt contains actual package versions, numeric backend, source/config identity and selected environment.',
+         'parallel_execution': 'All 21 ready nonshared selectors launched concurrently via existing reviewed run_check. No artificial worker/process/thread/CPU caps; seven cap variables removed. Root resource selectors are outside this 21-check index.',
+         'resource_causality': 'Shared cgroup OOM events were observed during cloud execution; per-selector cause is not inferred from concurrency or an exit alone. These 21 commands each returned an actual terminal receipt.',
+         'stream_capture': 'Canonical run_check merges command stderr into command stdout. Separate capture.stderr.txt is orchestration stderr. Both complete streams retained.',
+         'rows': rows}
+write_new(ROOT / 'successor-21-check-index-64d.json', index)
+for name in ('dispatch-plan-64d7444a18c5-frozen-final.json', 'successor-21-started-64d.json', 'successor-21-complete-64d.json', 'successor-21-check-index-64d.json', 'successor-21-launch.stdout.txt', 'successor-21-launch.stderr.txt'):
+    select(ROOT / name, 'dispatch/' + name, 'closed current source-frozen preparation/execution/custody record')
+for name in ('dispatch_assigned_64d.py', 'publish_successor21.py'):
+    select(ROOT / name, 'dispatch/' + name + '.txt', 'literal already-used scratch orchestration/publication producer; archive bytes, not a new API')
+if len({f['path'] for f in files}) != len(files) or len({f['destination'] for f in files}) != len(files):
+    raise ValueError('Duplicate publication asset or portable destination')
+selection = {'schema': 'policyos.e02.closed_publication_selection.v1', 'candidate_sha': SHA, 'candidate_tree_sha': TREE,
+             'asset_count': len(files), 'asset_bytes': sum(f['bytes'] for f in files), 'files': files,
+             'exclusions': ['complete private Git config', '4.24 MB full tracked inventory (exact Git reconstruction retained)', '13 MB unrolled preparation inventory', 'schema caches and generated MkDocs site', 'root-owned 16 resource selectors', 'environments/pyc/temporary catalogs'],
+             'historical_partial_snapshot': 'successor-21-status20-64d.json is retained in ignored history, superseded by final 21-check index; not substituted or rewritten.',
+             'cleanup': 'No cleanup is performed by this publisher. Current wave/constituent outputs and used environments remain protected until root closes receipts and active users. Cloud cleanup clarification supersedes the older preparation Trash-only text.'}
+write_new(ROOT / 'successor-21-publication-selection-64d.json', selection)
+print(json.dumps({'check_count': len(rows), 'outcomes': dict(counts), 'assets': len(files), 'bytes': selection['asset_bytes'],
+                  'index': identity(ROOT / 'successor-21-check-index-64d.json'), 'selection': identity(ROOT / 'successor-21-publication-selection-64d.json')}, indent=2))

@@ -1,0 +1,117 @@
+[
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/native.stdout.txt",
+    "bytes": 535,
+    "sha256": "14592c4cd5c3670aa10d338949c8c9b58febb5b5efa823c7ebcef6fb11ce6dd5"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/native.junit.xml",
+    "bytes": 2157,
+    "sha256": "a823d925517f955eea50af6316888675d2070d9c9e085c43e55d5d0c62214ea9"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/affected.stdout.txt",
+    "bytes": 614,
+    "sha256": "04680a45354fd5bbc872a00434052e76abecbb0ed7212c448b01324dc50a5a44"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/affected.junit.xml",
+    "bytes": 8936,
+    "sha256": "e5e7214e475325604fe1dd20aeed070f0dc31ba64ce38072a2e689a6cfcdfd60"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/native-deciding.json",
+    "bytes": 127264,
+    "sha256": "15402911f3d25139d39199fdfccdc58e924bf1bcbc134c667b1b51c5d79c3d74"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/native-deciding.stdout.txt",
+    "bytes": 310,
+    "sha256": "f8b4be7b46744e1b4edf2a6756c6ed8a6895f547eb5b917ec1a1196d29b27129"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/native-receipt.py.txt",
+    "bytes": 3566,
+    "sha256": "93a4283637a1105fb339b788836854c4c0a13891bfd459b0bb1cde7c4495d764"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/exact-base-deciding.json",
+    "bytes": 78957,
+    "sha256": "df83b14fc877b8d88a051ba3a6cfb6008e90c622addc9353edb409c002793c05"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/exact-base-deciding.stdout.txt",
+    "bytes": 948,
+    "sha256": "dc6e74708ef5f2b5dad2d14d55a5ae9e658c21bc719d6213cd84aebe11794777"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/exact-base-replay.py.txt",
+    "bytes": 1914,
+    "sha256": "ebfdc50a791ce0caa92f8e389b45f54ee893899b18ea2916c2c750f51526881d"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/reader-removal.py.txt",
+    "bytes": 1680,
+    "sha256": "03349d82dcda7cb2b9ae369ae21e6c983ee4d5a8a39e9935301ce656a6a9a3bd"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/reader-removal.stdout.txt",
+    "bytes": 663,
+    "sha256": "45b1293f7b4f6d48569444a3619b69fcee40ceae8d9e21224318364bf68b53d0"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/initial-exact-base-falsifier.stdout.txt",
+    "bytes": 1282,
+    "sha256": "822c27f1f4cc901f3bbf8a9c245371ace7f450306db3b548390775eff4b8c7e3"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/initial-native-ref-type-error.stdout.txt",
+    "bytes": 12604,
+    "sha256": "e8b78ee004fb03b2153c528e2ff3bc39975337654c3f41366a3dceea0577f908"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/initial-typed-uniform-regression.stdout.txt",
+    "bytes": 83686,
+    "sha256": "f646b4e1f65c593f312b75508fdd553f7d0ea722ac2fd12fb6f44355f531b533"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/native-harness-id-error.stdout.txt",
+    "bytes": 1995,
+    "sha256": "61a96f16096cc502db25ac8c3f1ffb9089b02ae3dd34572fb1de8864465f00a0"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/previous-affected-pass.stdout.txt",
+    "bytes": 616,
+    "sha256": "3834b367889fe6f911b8fcc28ee7d8e341988a95eaa1e0fc4abd9d5acefef346"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/worktree-resume.json",
+    "bytes": 123229,
+    "sha256": "541600bbc03c86885560692e35dbec1fdceee6052b1ed650e24defc192dca6ed"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/ruff.stdout.txt",
+    "bytes": 19,
+    "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/format.stdout.txt",
+    "bytes": 26,
+    "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/malformed-preflight.py.txt",
+    "bytes": 1913,
+    "sha256": "4e275d2181e838337cf173c6b4a125ffef0e2373cb0533f2c925eb3b844d83de"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/malformed-preflight.stdout.txt",
+    "bytes": 1671,
+    "sha256": "fb3941b71bd630c6952fe0db8bf4a1bc64a6c5417667770f9f46c362c34ff493"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/malformed-preflight-wrong-cwd-harness-error.stdout.txt",
+    "bytes": 508,
+    "sha256": "581698953db2e8663091e1cead1a42059f3955319a0c909b034586e2792db53e"
+  }
+]

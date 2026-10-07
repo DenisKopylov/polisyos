@@ -1,0 +1,63 @@
+"""Owner-applicable tests for existing forecasting serializer identity aliases.
+
+Apply as an IR facade test only after the canonical owner admits the exports.
+Run its positive selector in a fresh process before any private forecast import.
+Existing ETS/fresh-CAS/measurement-forgery tests named in packet.json separately
+exercise actual producer, artifact and bridge behavior.
+"""
+
+from __future__ import annotations
+
+import functools
+import importlib
+
+import pytest
+
+NATIVE_MODULE = "polisyos.ir.analytics.forecasting_uncertainty"
+SERIALIZERS = (
+    "load_forecasting_uncertainty_bundle",
+    "persist_forecasting_uncertainty_bundle",
+)
+
+
+def require_declared_native(name: str) -> None:
+    analytics = importlib.import_module("polisyos.ir.analytics")
+    api = importlib.import_module("polisyos.ir.api")
+    expected = (NATIVE_MODULE, name)
+    assert api.ANALYTICS_FACADE_EXPORTS.get(name) == expected
+    assert name in analytics.__all__
+    resolved = getattr(analytics, name)
+    native = getattr(importlib.import_module(NATIVE_MODULE), name)
+    assert resolved is native
+
+
+@pytest.mark.parametrize("name", SERIALIZERS)
+def test_existing_forecast_serializer_has_declared_native_identity(name: str) -> None:
+    require_declared_native(name)
+
+
+@pytest.mark.parametrize("name", SERIALIZERS)
+def test_present_function_with_removed_admission_is_rejected(monkeypatch, name: str) -> None:
+    analytics = importlib.import_module("polisyos.ir.analytics")
+    api = importlib.import_module("polisyos.ir.api")
+    native = getattr(importlib.import_module(NATIVE_MODULE), name)
+    monkeypatch.setattr(analytics, name, native, raising=False)
+    monkeypatch.delitem(api.ANALYTICS_FACADE_EXPORTS, name)
+    with pytest.raises(AssertionError):
+        require_declared_native(name)
+
+
+@pytest.mark.parametrize("name", SERIALIZERS)
+def test_same_name_and_behavior_proxy_is_rejected(monkeypatch, name: str) -> None:
+    analytics = importlib.import_module("polisyos.ir.analytics")
+    native = getattr(importlib.import_module(NATIVE_MODULE), name)
+
+    @functools.wraps(native)
+    def proxy(*args, **kwargs):
+        return native(*args, **kwargs)
+
+    assert proxy.__name__ == native.__name__
+    assert proxy.__qualname__ == native.__qualname__
+    monkeypatch.setattr(analytics, name, proxy)
+    with pytest.raises(AssertionError):
+        require_declared_native(name)

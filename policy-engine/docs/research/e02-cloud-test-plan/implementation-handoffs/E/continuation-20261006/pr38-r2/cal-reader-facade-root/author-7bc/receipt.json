@@ -1,0 +1,43 @@
+{
+  "source_sha": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+  "tree_sha": "2c1b3fd02d751a6a8bd3053954ace7be4fce65ad",
+  "command": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/workspace/e02-E-pr38-r2-receipts/facade-author-7bc-native/pytest-temp",
+    "--junitxml",
+    "/workspace/e02-E-pr38-r2-receipts/facade-author-7bc-native/pytest.xml",
+    "tests/unit/calibration/test_evidence_facades.py",
+    "tests/unit/scientist/nodes/test_calibration_report_consumer.py"
+  ],
+  "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+  "environment": {
+    "UV_NO_SYNC": "1",
+    "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+    "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "removed_caps": {},
+  "exit_code": 0,
+  "wall_seconds": 16.07083821296692,
+  "purpose": "Bounded native facade/legacy inlet author provenance, not common numeric wave or source-fit authority",
+  "outputs": [
+    {
+      "path": "stdout.txt",
+      "bytes": 580,
+      "sha256": "4e8ea14d952f4e63c98d6c521fc83c8416a393972f0a5fa21dda992582fe09b7"
+    },
+    {
+      "path": "pytest.xml",
+      "bytes": 2089,
+      "sha256": "e9e0535458f55b43ffa6758755ddb128884ef1506dde630886a6f9fc811182a4"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+fatal: path '/workspace/e02-E-pr38-r2-receipts/g-checkpoint11-assembly-a9f78817/independent-G11-assembly-review-a9f78817.json' exists on disk, but not in 'a9f78817c873be5b35a08155f2593b229d9fdbb6'
+Traceback (most recent call last):
+  File "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py", line 857, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py", line 835, in main
+    result = collect(args)
+  File "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py", line 337, in collect
+    data = git_bytes(repo, "show", candidate + ":" + review["path"])
+  File "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py", line 100, in git_bytes
+    return subprocess.check_output(command)  # noqa: S603
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/subprocess.py", line 473, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               **kwargs).stdout
+               ^^^^^^^^^
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/usr/local/bin/git', '-C', '/workspace/e02-E-continuation-20261006', 'show', 'a9f78817c873be5b35a08155f2593b229d9fdbb6:/workspace/e02-E-pr38-r2-receipts/g-checkpoint11-assembly-a9f78817/independent-G11-assembly-review-a9f78817.json']' returned non-zero exit status 128.

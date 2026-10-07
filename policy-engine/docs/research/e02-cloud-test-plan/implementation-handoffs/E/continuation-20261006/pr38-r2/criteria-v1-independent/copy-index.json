@@ -1,0 +1,213 @@
+{
+  "schema": "policyos.e02.independent-review-copy-index.v1",
+  "reviewer": "/root/ddm_r2",
+  "source_publication_sha": "b5ba9b2e3af3b6702235f3320bf705b8141fda24",
+  "implementation_source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+  "scope": "Bounded criteria matrix, local recipes and Git publication review",
+  "state": "PASS",
+  "immutable_git_inputs_rechecked": 12,
+  "file_count": 30,
+  "total_bytes": 900089,
+  "files": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/check_current_matrix_controls.py",
+      "relative_path": "check_current_matrix_controls.py",
+      "bytes": 3125,
+      "sha256": "a39afd73ac002feee9630176e8ed8c42c73b5928528641c0a139b11731c38fcc"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/current-matrix-negatives.json",
+      "relative_path": "current-matrix-negatives.json",
+      "bytes": 1058,
+      "sha256": "e0fdbc89a0204df2881d5e05c7e826c9ef05b2b225c726244e3cfd60b99edfe7"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/current-matrix-negatives.rerun.json",
+      "relative_path": "current-matrix-negatives.rerun.json",
+      "bytes": 814,
+      "sha256": "77eeb70883ba0f69d54a342216a360887eaf59237f3fa3b3041c7cd18fb522bb"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/current-matrix-negatives.rerun.stdout",
+      "relative_path": "current-matrix-negatives.rerun.stdout",
+      "bytes": 814,
+      "sha256": "77eeb70883ba0f69d54a342216a360887eaf59237f3fa3b3041c7cd18fb522bb"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/format.stdout",
+      "relative_path": "format.stdout",
+      "bytes": 26,
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/freeze_review_index.py",
+      "relative_path": "freeze_review_index.py",
+      "bytes": 3813,
+      "sha256": "1515294bc4c129c7c0eb38a6b0c2e7dcb20ca6590ffa30075aecd0c595a2c721"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-input-snapshot-index.json",
+      "relative_path": "git-input-snapshot-index.json",
+      "bytes": 6701,
+      "sha256": "74f9531a7f79fc53adf7a8cf9430336090169469b5ae57b874976e858e21795a"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/criteria-f445-v1/all-54-update.json",
+      "relative_path": "git-inputs-b5/criteria-f445-v1/all-54-update.json",
+      "bytes": 455518,
+      "sha256": "1baefb19d2ffbedc1be03125d22759adcceddb984609ba120464c90ecfb21dc1"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/criteria-f445-v1/build_packet.py",
+      "relative_path": "git-inputs-b5/criteria-f445-v1/build_packet.py",
+      "bytes": 68772,
+      "sha256": "b0f07857705952182f739c443d7036fde5b581cb2ed8ceb24ed2f5187c69770d"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/criteria-f445-v1/current-local-G-recipes.json",
+      "relative_path": "git-inputs-b5/criteria-f445-v1/current-local-G-recipes.json",
+      "bytes": 31083,
+      "sha256": "52e974bdec728b46a29a8ebd1af2bf9917c4f7efc94ef7ffce411f24d7c0723f"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/criteria-f445-v1/input-index.json",
+      "relative_path": "git-inputs-b5/criteria-f445-v1/input-index.json",
+      "bytes": 77417,
+      "sha256": "d120fd4f72b00227524c66bf2f8bb1fe8a3b51d00e858527e7c3caa108d52e2e"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/criteria-f445-v1/publication-index.json",
+      "relative_path": "git-inputs-b5/criteria-f445-v1/publication-index.json",
+      "bytes": 2817,
+      "sha256": "492a700aac2327864664115aca6fa71b972361ebe5fea8a37bc83b87c743d597"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/criteria-f445-v1/summary.md",
+      "relative_path": "git-inputs-b5/criteria-f445-v1/summary.md",
+      "bytes": 2648,
+      "sha256": "4177e2774df66bc29eb008db9f3ab752e647b186e29fa40f9dffc3c5a83aa80c"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/criteria-f445-v1/validate.py",
+      "relative_path": "git-inputs-b5/criteria-f445-v1/validate.py",
+      "bytes": 15327,
+      "sha256": "390ec9fa22bd59b6d3f642ae15c9045e50ba6b2cfd7c44e57d442189292adef2"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/criteria-f445-v1/validation.json",
+      "relative_path": "git-inputs-b5/criteria-f445-v1/validation.json",
+      "bytes": 1459,
+      "sha256": "09bd5f19ae4881490ba869ff28ccb8588745729b7e84c965751840c33c8548be"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/criteria-f445-v1/validation.stdout.txt",
+      "relative_path": "git-inputs-b5/criteria-f445-v1/validation.stdout.txt",
+      "bytes": 1207,
+      "sha256": "c0fefa0167423b7dad9036848173178d479bcaec2c43f77529c2dfaa71cb6d9b"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/independent-reviews/copy-index.json",
+      "relative_path": "git-inputs-b5/independent-reviews/copy-index.json",
+      "bytes": 70843,
+      "sha256": "af8372918253663cc27d5e568244995ad15db09bf4162c3801e1509ff135e6c9"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/review-copy-git-validation.json",
+      "relative_path": "git-inputs-b5/review-copy-git-validation.json",
+      "bytes": 163,
+      "sha256": "52b59593dc852e9cc5561eee896e0f83aea45f0ddc23a247eb132bc71b202b3f"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/validate_review_copies.py",
+      "relative_path": "git-inputs-b5/validate_review_copies.py",
+      "bytes": 2539,
+      "sha256": "ecf33316c9d698d86904839d0e3dc447973a805ac5f83d746d76ea6cb4f427a2"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/index-scripts-ruff.stdout",
+      "relative_path": "index-scripts-ruff.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/publication-review.json",
+      "relative_path": "publication-review.json",
+      "bytes": 12778,
+      "sha256": "78edc4dedda4cb88d4e0ac3080cfdfb3a54158dd0dbddcd08b55cd382f86eb66"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/publication-review.stdout",
+      "relative_path": "publication-review.stdout",
+      "bytes": 1533,
+      "sha256": "6ab4496aff1cccabfc27b8694c7597c14e4632870eba3a27b3d149abc2f46719"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/recipe-api-review.attempt1.json",
+      "relative_path": "recipe-api-review.attempt1.json",
+      "bytes": 12898,
+      "sha256": "9db791a8e9fe8b1793ff848802d0851de6c25c29963cc17ee4cbf1fd6952b498"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/recipe-api-review.json",
+      "relative_path": "recipe-api-review.json",
+      "bytes": 13610,
+      "sha256": "61d48f561695a8d2513a925d1cc417a852c8745e0e6731e46a93fa9f3af9c59d"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/recomputed-f445.json",
+      "relative_path": "recomputed-f445.json",
+      "bytes": 23366,
+      "sha256": "e48eeed2f9531d4cee713ffd9d3945446389f1d8fcec08fd90aeb3db07fb9a0e"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/recomputed-f445.stdout",
+      "relative_path": "recomputed-f445.stdout",
+      "bytes": 1218,
+      "sha256": "f9456865226bd8e63e2fb53b38c496a745c4cb10c4b71f0972e09d8bed33e5ac"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/review-f445-b5.json",
+      "relative_path": "review-f445-b5.json",
+      "bytes": 65830,
+      "sha256": "5582e996c896ad69fe4132a4c158b1fa099d36d72e69fcbe83d6b552c70cfe92"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/review_publication.py",
+      "relative_path": "review_publication.py",
+      "bytes": 8976,
+      "sha256": "70a27d277c9544ac12062fdb8486e3d90c22c8ac74924506035eadc9f77ee5ce"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/ruff.stdout",
+      "relative_path": "ruff.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/validate_independently_f445.py",
+      "relative_path": "validate_independently_f445.py",
+      "bytes": 13698,
+      "sha256": "6d375cca5388bebabe2633a51ae140f1d4c0b8a858b8f653f154eb38712a2dc4"
+    }
+  ],
+  "negative_controls": [
+    {
+      "control": "corrupt_bytes",
+      "state": "REJECTED",
+      "reason": "Indexed review payload differs: check_current_matrix_controls.py"
+    },
+    {
+      "control": "corrupt_sha256",
+      "state": "REJECTED",
+      "reason": "Indexed review payload differs: check_current_matrix_controls.py"
+    }
+  ],
+  "historical_902": "Superseded/nondeciding; exact ready draft bytes unavailable",
+  "exclusions": [
+    "index itself",
+    "Python bytecode cache",
+    "large ignored raw dump"
+  ],
+  "future_source_or_numeric_wave_claimed": false,
+  "cleanup_candidates": []
+}

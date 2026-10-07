@@ -1,0 +1,47 @@
+{
+  "schema": "policyos.e02.current_validation_copy_index.v1",
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "handoff_sha256": "2eb43bc77067d899c1f38c0b05dfd5205d9dc6ebbb9f2dc2fcc020d268483239",
+  "files": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/final-custody-with-generator-normal.json",
+      "portable_path": "custody/final-custody-with-generator-normal.json",
+      "bytes": 2711,
+      "sha256": "a3412b2e7ce9a06a70467f3ca27130b805fd6e78fe22b2ee3b75e47eb57d8974"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/final-custody-with-generator-normal.stdout.txt",
+      "portable_path": "custody/final-custody-with-generator-normal.stdout.txt",
+      "bytes": 2711,
+      "sha256": "a3412b2e7ce9a06a70467f3ca27130b805fd6e78fe22b2ee3b75e47eb57d8974"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/final-custody-with-generator-normal.stderr.txt",
+      "portable_path": "custody/final-custody-with-generator-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/final-custody-with-generator-optimized.json",
+      "portable_path": "custody/final-custody-with-generator-optimized.json",
+      "bytes": 2711,
+      "sha256": "a3412b2e7ce9a06a70467f3ca27130b805fd6e78fe22b2ee3b75e47eb57d8974"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/final-custody-with-generator-optimized.stdout.txt",
+      "portable_path": "custody/final-custody-with-generator-optimized.stdout.txt",
+      "bytes": 2711,
+      "sha256": "a3412b2e7ce9a06a70467f3ca27130b805fd6e78fe22b2ee3b75e47eb57d8974"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/final-custody-with-generator-optimized.stderr.txt",
+      "portable_path": "custody/final-custody-with-generator-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "file_count": 6,
+  "bytes": 10844,
+  "scope": "Final170 copied assets, complete24/12 source denominator, split414/33/13 observations, independent source/math/typed reviews; healthy+10changed-content refusal controls under both normal and optimized Python. No new numeric/global gate."
+}

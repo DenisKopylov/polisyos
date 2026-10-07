@@ -11,6 +11,7 @@ from .designs import (
     AdversarialStrategy,
     SensitivityMethod,
     SensitivityPlan,
+    _admit_sensitivity_plan,
     _build_salib_problem,
     _derive_backend_seed,
 )
@@ -18,6 +19,8 @@ from .designs import (
 
 def generate_sensitivity_samples(plan: SensitivityPlan) -> np.ndarray:
     """Generate parameter samples for the configured sensitivity plan."""
+    plan = _admit_sensitivity_plan(plan)
+    _admit_sobol_input_law(plan)
     problem = _plan_to_salib_problem(plan)
     backend_seed = _derive_backend_seed(plan.seed, f"sampling:{plan.method.value}")
 
@@ -32,20 +35,8 @@ def generate_sensitivity_samples(plan: SensitivityPlan) -> np.ndarray:
         )
 
     if plan.method == SensitivityMethod.SOBOL:
-        try:
-            from SALib.sample import sobol as sobol_sampler  # type: ignore[import-not-found]
-        except ImportError:
-            from SALib.sample import saltelli as saltelli_sampler  # type: ignore[import-not-found]
+        from SALib.sample import sobol as sobol_sampler  # type: ignore[import-not-found]
 
-            if backend_seed is not None:
-                raise RuntimeError(
-                    "Seeded Sobol sampling requires SALib's seed-capable sobol backend"
-                )
-            return saltelli_sampler.sample(
-                problem,
-                N=plan.n_trajectories,
-                calc_second_order=True,
-            )
         return sobol_sampler.sample(
             problem,
             N=plan.n_trajectories,
@@ -59,6 +50,14 @@ def generate_sensitivity_samples(plan: SensitivityPlan) -> np.ndarray:
         return fast_sampler.sample(problem, N=plan.n_trajectories, seed=backend_seed)
 
     raise ValueError(f"Unsupported sensitivity method: {plan.method}")
+
+
+def _admit_sobol_input_law(plan: SensitivityPlan) -> None:
+    """Admit the named Sobol estimand only for a declared product experiment."""
+    if plan.method == SensitivityMethod.SOBOL and plan.input_law != "independent":
+        raise ValueError("Sobol sensitivity requires an explicitly independent input law")
+    if plan.method == SensitivityMethod.SOBOL and plan.seed is None:
+        raise ValueError("Sobol sensitivity requires a seed to reconcile its ordered design")
 
 
 def generate_adversarial_samples(plan: AdversarialPlan) -> np.ndarray:

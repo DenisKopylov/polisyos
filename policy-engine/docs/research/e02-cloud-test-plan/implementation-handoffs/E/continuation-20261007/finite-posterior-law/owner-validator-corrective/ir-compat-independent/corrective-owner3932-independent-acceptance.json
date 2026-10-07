@@ -1,0 +1,51 @@
+{
+  "schema": "policyos.e02.E.corrective_owner3932_independent_acceptance.v1",
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "corrective_author_packet": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/corrective-owner3932-summary-admission-v2.json",
+    "bytes": 3823,
+    "sha256": "85ddc80d9856827274049a106bed08ccbe17bd294d8534ac9766a37cc094bbee"
+  },
+  "corrective_validator": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/validate-owner3932-packets-v2.py.txt",
+    "bytes": 11275,
+    "sha256": "a7aa11f124f3b877f3d58ad9af7a2acfc61e51b6c4a8b421ba1fb46443021f45"
+  },
+  "independent_reviews": [
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-normal.stdout.json",
+      "bytes": 5400,
+      "sha256": "e6ff9e0e81e3042e4ccf9339a81a589327e9c2c2cf0b67e31a7b99f1b6775e69"
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-optimized.stdout.json",
+      "bytes": 5403,
+      "sha256": "2fafe4a9099949cbdc707da54fea737ef1eff937237462e396855aac94a52eab"
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/review_corrected_validator.py",
+      "bytes": 4656,
+      "sha256": "779ae1412575cecd4ffe16b21cba7753f27fb4efd047b3e3abd9d51ec16dc994"
+    }
+  ],
+  "outcome": "GO",
+  "scope": "Independent evidence verifier delta only, source/originalcriteria/full103 literal custody separately GO. No global gate, C/F acceptance or Gformal finding intake.",
+  "independent_control_count_each": 11,
+  "defining_peer_cases": "Healthy; four genuine oldV1 escapes now refuse; three same-value-type sibling corruptions103.0/20.0/patchExitFalse refuse; actual removal onlyadmit_current_claims preservesV1 and re-admits allfour corruptions.",
+  "historical_V1_27_assets_and_four_reds_preserved": true,
+  "original_source_native_math_projection_owner_decision_bytes_changed": false,
+  "ROOT_source_or_environment_used": false,
+  "capability_state": "surface_missing",
+  "global_gate_outcome": null
+}

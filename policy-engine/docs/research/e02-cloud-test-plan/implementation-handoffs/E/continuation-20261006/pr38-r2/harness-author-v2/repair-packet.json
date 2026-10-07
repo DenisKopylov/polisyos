@@ -1,0 +1,54 @@
+{
+  "schema": "policyos.e02.harness_repair_packet.v2",
+  "unit": "E",
+  "scope": "Three wave-controls files only; apply/review by root, then one common wave after exact freeze",
+  "slice_base_head": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+  "slice_base_tree": "2c1b3fd02d751a6a8bd3053954ace7be4fce65ad",
+  "original_harness_commit": "fd291b736",
+  "implementation_commit": null,
+  "preimage_note": "Root browser cache correction is already present in current plan_wave.py preimage; patch retains it. Exact file preimage hashes in configured-checks-v2.json.",
+  "patch": "wave-controls-configured-repair-v2.patch",
+  "patch_sha256": "935428d3f81693dd80a3f9f89f0b1d1ff21a1c689666950c7ef59c00624cadbb",
+  "author_validation": [
+    "Configured Ruff+format on all three scratch files PASS using actual policy-engine/ruff.toml; syntax AST3PASS; Git apply --check PASS against current source preimages.",
+    "Positive JUnit counts4:1pass/1fail/1error/1skip remain identical; old stdlib reader admits DTD entity, new defusedxml reader refuses DTDForbidden. Base locked odfpy already depends on defusedxml0.7.1, so no dependency/environment change.",
+    "Seven numeric job argv deltas retain all canonical pytest.ini addopts (including importlib/strict-markers), restore cacheprovider, isolate pytest cache/benchmark storage only; all other plan fields/global jobs and full211-path Ruff input denominator retained.",
+    "Existing output directory and dangling output symlink refuse before prepare callback0; exclusive mkdir prevents reuse. Existing numeric basetemp refuses before wave marker and any process callback0. All sentinel bytes remain. Removing guard admits stale path and invalidates required negative without launching pytest."
+  ],
+  "planned_denominator": {
+    "native_test_files": 120,
+    "owner_packet_test_files": 2,
+    "numerical_jobs": 7,
+    "global_jobs": 8,
+    "workspace_verify_stages": 15,
+    "ci_top_level_stages": 24,
+    "ci_nested_backend_stages": 14,
+    "runtime_case_count": "UNRUN"
+  },
+  "command_constraints": [
+    "Explicit fresh absolute --output-root outside tracked docs, pinned actual approved clean HEAD. Never reuse planning-only output.",
+    "UV_NO_SYNC=1, actual existing root venv, managedPATH/corepack, actual browser cache /home/agent/.cache/ms-playwright. Remove inherited numerical caps; no process/thread/CPU quotas.",
+    "FullCI retains doctor/backend/runtimeHTTP/docs/frontend/browser. Actual failfast successors UNRUN, top gate failures remain actual outcomes; doctor is not fullCI."
+  ],
+  "historical_evidence": {
+    "original_37_configured_ruff_errors": "historical-configured-preflight/diagnostics.json",
+    "v1_earlier_receipts_preserved": "../final-configured-checks.json + ../final-helper-behavior-controls.json + ../final-metadata-plan-control.json",
+    "pyproject_config_proxy_divergence": "pyproject.toml contains no Ruff config; --config pyproject.toml silently applies defaults and is not configured repository PASS"
+  },
+  "limitations": [
+    "Author is not independent reviewer; DoE reviewer must examine applied immutable root SHA.",
+    "Full211-path Ruff and every product/numeric/gate/umbrella stage remain UNRUN by this author packet.",
+    "Backend metadata is captured by a post-command observer process, not every test child changed JAX config. Child canonical conftest CPU/x64 roles need receipt interpretation.",
+    "Canonical Hypothesis example DB remains shared at product/_cache/hypothesis, using installed content-addressed atomic writes. New CAS/SQLite fixtures and pytest/benchmark caches are per-job; do not claim all shared mutable state absent.",
+    "Temporal/DoWhy/EconML unavailable in this environment remain actual backend constraints rather than PASS. Finding closure and code acceptance remain separate."
+  ],
+  "predicate_basis": "recomputed helper refusal/plan construction; numerical property NOT_RUN",
+  "finding_closure": false,
+  "cleanup": "No data removed. Preserve unique deciding outputs and sentinel controls. Only repeatable fixtures after no active users may move to native Trash; without Trash list exact candidates.",
+  "cleanup_candidates": [
+    "/workspace/e02-E-pr38-r2-receipts/harness-configured-repair-7bc65f73-20261006/v2/preservation-controls",
+    "/workspace/e02-E-pr38-r2-receipts/harness-configured-repair-7bc65f73-20261006/positive-four-outcomes.xml",
+    "/workspace/e02-E-pr38-r2-receipts/harness-configured-repair-7bc65f73-20261006/negative-dtd-entity.xml"
+  ],
+  "next_owner": "E root applies patch append-only, preserves originalfd291, commits receipt; independentDoE validates applied exactSHA; root freezes only after allreviews and launches one explicit wave."
+}

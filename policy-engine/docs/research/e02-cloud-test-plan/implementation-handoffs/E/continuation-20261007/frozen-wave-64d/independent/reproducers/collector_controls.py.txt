@@ -1,0 +1,166 @@
+"""Independent corruption probes for the read-only receipt collector only."""
+
+from __future__ import annotations
+
+from copy import deepcopy
+import hashlib
+import importlib.util
+import json
+from pathlib import Path
+
+ROOT = Path("/workspace/e02-E-continuation-20261006")
+SOURCE = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+WAVE = Path("/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007")
+OUT = Path(__file__).parent / "collector-controls"
+OUT.mkdir(exist_ok=True)
+SPEC = importlib.util.spec_from_file_location(
+    "collector", Path(__file__).with_name("recompute_wave.py")
+)
+COLLECTOR = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(COLLECTOR)
+TREE = COLLECTOR.git(ROOT, "rev-parse", SOURCE + "^{tree}").decode().strip()
+PLAN = json.loads((WAVE / "plan.json").read_text())
+JOB = next(
+    j
+    for j in PLAN["jobs"]
+    if j["name"] == "mc-joint-law-support-and-scientist-consumer"
+)
+RECEIPT_PATH = Path(JOB["output"]) / (JOB["name"] + ".json")
+RECEIPT = json.loads(RECEIPT_PATH.read_text())
+FILES = {}
+for name in RECEIPT["input_files"]:
+    raw = COLLECTOR.git(ROOT, "show", f"{SOURCE}:{name}")
+    FILES[name] = {
+        "sha256": hashlib.sha256(raw).hexdigest(),
+        "bytes": len(raw),
+        "git_blob": COLLECTOR.git(ROOT, "rev-parse", f"{SOURCE}:{name}")
+        .decode()
+        .strip(),
+    }
+RESULTS = []
+
+
+def probe_receipt(name, alter):
+    receipt = deepcopy(RECEIPT)
+    alter(receipt)
+    path = OUT / (name + ".json")
+    path.write_text(json.dumps(receipt, indent=2) + "\n")
+    parsed = COLLECTOR.reconcile_retry(
+        ROOT, SOURCE, TREE, RECEIPT["source_identity_before"], FILES, JOB, path
+    )
+    if not parsed["issues"]:
+        raise RuntimeError(f"Corrupt receipt was accepted: {name}")
+    RESULTS.append(
+        {
+            "name": name,
+            "outcome": "PASS",
+            "corrupt_receipt_rejected": True,
+            "issues": parsed["issues"],
+        }
+    )
+
+
+normal = COLLECTOR.reconcile_retry(
+    ROOT, SOURCE, TREE, RECEIPT["source_identity_before"], FILES, JOB, RECEIPT_PATH
+)
+if normal["issues"] or normal["counts"] != {
+    "cases": 443,
+    "passed": 443,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+}:
+    raise RuntimeError(f"Actual healthy receipt not reconciled: {normal['issues']}")
+RESULTS.append(
+    {
+        "name": "healthy_completed_MC_receipt",
+        "outcome": "PASS",
+        "counts": normal["counts"],
+    }
+)
+probe_receipt("forged_passed_count", lambda r: r["counts"].__setitem__("passed", 444))
+probe_receipt(
+    "forged_candidate_tree", lambda r: r.__setitem__("candidate_tree_sha", "0" * 40)
+)
+probe_receipt(
+    "forged_full_source_frame",
+    lambda r: r["source_identity_after"].__setitem__("framed_sha256", "0" * 64),
+)
+probe_receipt(
+    "changed_selector_keep_markers",
+    lambda r: r["command"].append("tests/test_present_but_fake.py"),
+)
+probe_receipt(
+    "stdout_hash_mismatch", lambda r: r.__setitem__("stdout_sha256", "0" * 64)
+)
+
+probe_receipt(
+    "changed_captured_thread_cap",
+    lambda r: r["environment"]["selected_variables"].__setitem__(
+        "OMP_NUM_THREADS", "1"
+    ),
+)
+probe_receipt(
+    "changed_captured_package_version",
+    lambda r: r["environment"]["packages"].__setitem__("SALib", "1.5.3"),
+)
+
+xml_controls = {
+    "marker_preserving_failure": '<testsuites><testsuite name="same" tests="1" failures="1" errors="0" skipped="0"><testcase classname="same" name="same"><failure message="runtime property removed">expected guard absent</failure></testcase></testsuite></testsuites>',
+    "forged_suite_counts": '<testsuites><testsuite tests="2" failures="0" errors="0" skipped="0"><testcase classname="same" name="same"/></testsuite></testsuites>',
+    "multiple_status_children": '<testsuites><testsuite tests="1" failures="0" errors="1" skipped="0"><testcase classname="same" name="same"><failure/><error/></testcase></testsuite></testsuites>',
+    "duplicate_identity_reported": '<testsuites><testsuite tests="2" failures="0" errors="0" skipped="0"><testcase classname="same" name="same"/><testcase classname="same" name="same"/></testsuite></testsuites>',
+}
+for name, raw in xml_controls.items():
+    path = OUT / (name + ".xml")
+    path.write_text(raw)
+    parsed = COLLECTOR.junit(path, name)
+    if name == "marker_preserving_failure" and parsed["counts"]["failed"] != 1:
+        raise RuntimeError("Marker-preserving property failure was classified PASS")
+    if (
+        name in {"forged_suite_counts", "multiple_status_children"}
+        and not parsed["issues"]
+    ):
+        raise RuntimeError(f"Corrupt XML accepted: {name}")
+    if name == "duplicate_identity_reported" and not parsed["duplicate_case_identity"]:
+        raise RuntimeError("Duplicate JUnit identity disappeared")
+    RESULTS.append(
+        {
+            "name": name,
+            "outcome": "PASS",
+            "counts": parsed["counts"],
+            "issues": parsed["issues"],
+            "duplicate_case_identity": parsed["duplicate_case_identity"],
+        }
+    )
+
+entity = OUT / "entity.xml"
+entity.write_text('<!DOCTYPE x [<!ENTITY x SYSTEM "file:///absent">]><testsuite/>')
+try:
+    COLLECTOR.junit(entity, "entity")
+except ValueError as error:
+    RESULTS.append(
+        {"name": "external_entity_refusal", "outcome": "PASS", "error": str(error)}
+    )
+else:
+    raise RuntimeError("Entity XML was admitted")
+
+result = {
+    "schema": "policyos.e02.independent_receipt_collector_controls.v1",
+    "source": SOURCE,
+    "tree": TREE,
+    "scope": "Receipt-parser corruption controls only. No numeric/test/gate command executed; actual full frozen source frame will be independently recomputed once closed wave receipts arrive.",
+    "collector": COLLECTOR.identity(Path(__file__).with_name("recompute_wave.py")),
+    "actual_receipt": COLLECTOR.identity(RECEIPT_PATH),
+    "actual_JUnit": COLLECTOR.identity(Path(RECEIPT["junit"])),
+    "results": RESULTS,
+}
+(OUT / "results-current.json").write_text(json.dumps(result, indent=2) + "\n")
+print(
+    json.dumps(
+        {
+            "utility_controls": len(RESULTS),
+            "all_passed": all(r["outcome"] == "PASS" for r in RESULTS),
+        }
+    )
+)

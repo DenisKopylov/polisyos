@@ -1,0 +1,12 @@
+{
+  "source": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "asymmetric": {
+    "outcome": "ERROR",
+    "exception": "ValidationError",
+    "message": "1 validation error for UncertaintyEnvelope\n  Value error, point_estimate (1.0) must lie within confidence_interval [0.0, 0.0] [type=value_error, input_value={'point_estimate': 1.0, '...erior_diagnostics': {}}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+  },
+  "paired": {
+    "carrier_missing": true,
+    "draw_identity_missing": true
+  }
+}

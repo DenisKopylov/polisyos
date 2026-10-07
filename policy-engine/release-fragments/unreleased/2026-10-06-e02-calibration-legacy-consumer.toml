@@ -1,0 +1,15 @@
+id = "2026-10-06-e02-calibration-legacy-consumer"
+title = "Validate configured calibration reports before legacy uncertainty propagation"
+type = "fixed"
+component = "scientist"
+owner = "team-scientist"
+summary = "The existing uncertainty node uses the strict Foundry calibration-report reader, preserving selected CAS kind/schema/profile and configuration/objective lineage before callbacks. Invalid explicit reports refuse even with a valid independent DataSnapshot input."
+evidence = ["tests/unit/scientist/nodes/test_calibration_report_consumer.py"]
+compatibility = "Internal tightening: configured report-shaped bytes under an incorrect profile no longer propagate. Valid v1/v2 Foundry reports remain readable; report wire format and Funnel semantics are unchanged."
+change_class = "internal"
+migration = "Supply a canonical foundry.calibration_report reference with resolved configuration and objective-profile edges where required."
+limitations = "Source-fit/noise-law authority and default native model evaluator admission remain separate owner inputs. Generic covariance witnesses do not grant gate eligibility."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/scientist/nodes/README.md"]
+runbook_docs = []

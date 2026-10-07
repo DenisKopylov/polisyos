@@ -1,0 +1,6 @@
+ABI schema snapshot check failed:
+- snapshot out of date: /workspace/e02-E-continuation-20261006/policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json
+- missing snapshot: /workspace/e02-E-continuation-20261006/policy-engine/schemas/snapshots/ir/posterior_summary_profile.schema.json
+- snapshot out of date: /workspace/e02-E-continuation-20261006/policy-engine/schemas/snapshots/ir/_manifest.json
+- generated reference out of date: /workspace/e02-E-continuation-20261006/policy-engine/docs/reference/ir/schema-catalog.md
+- generated reference out of date: /workspace/e02-E-continuation-20261006/policy-engine/docs/reference/schemas.md

@@ -1,0 +1,706 @@
+{
+  "schema": "policyos.e02.wave_publication_custody.v1",
+  "candidate_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+  "candidate_tree_sha": "a4e4793be4d1aec6adea623b930a65304ab42d64",
+  "wave_root": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave",
+  "publication_root": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property",
+  "terminal": "execution-complete.json",
+  "started": {
+    "candidate_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+    "started_unix": 1791360725.8530633
+  },
+  "completion": {
+    "candidate_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+    "numerical_codes": [
+      0,
+      7
+    ],
+    "gate_codes": [],
+    "finding_closure": false
+  },
+  "source_freeze": null,
+  "collection_state": "CONTROL_COMPLETE_BOUND",
+  "publication_evidence_scope": "Synthetic collector protocol control only; no numerical/backend evidence",
+  "expected_job_count_from_complete_plan": 3,
+  "job_receipt_count": 3,
+  "native_file_count": 0,
+  "all_test_file_input_count": 2,
+  "source_runtime_input_count": 7651,
+  "tracked_input_count": 16366,
+  "changed_python_full_lint_denominator": 340,
+  "numeric_counts": {
+    "cases": 4,
+    "passed": 0,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 4
+  },
+  "native_numeric_counts_excluding_A_packets": {
+    "cases": 4,
+    "passed": 0,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 4
+  },
+  "unattributed_owner_packet_counts": {
+    "cases": 0,
+    "passed": 0,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "unattributed_owner_packet_cases": [],
+  "native_numeric_attribution_complete": true,
+  "native_numeric_count_scope": "Includes the explicit G ControlPlaneStore companion. Contradictory owner-packet identities stay unattributed and are excluded from both native and A counts.",
+  "numeric_outcome_counts": {
+    "SKIP": 2
+  },
+  "non_numeric_outcome_counts": {
+    "PASS": 1
+  },
+  "foreign_owner_A_packet_cases": [],
+  "source_frames_consistent_across_jobs": true,
+  "effective_git_config_consistent_across_jobs": true,
+  "post_command_backend_observer_scope": "No inference of unmeasured test-child JAX state.",
+  "jobs": [
+    {
+      "name": "results-importer",
+      "kind": "importer",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-c",
+        "print(\"tiny corrective importer positive\")"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006/policy-engine",
+      "outcome": "PASS",
+      "case_counts": null,
+      "exit_code": 0,
+      "wall_seconds": 3.6533868312835693,
+      "max_rss_kib": 130388,
+      "user_cpu_seconds": 0.018615,
+      "system_cpu_seconds": 0.0,
+      "rss_scope": "wait4 command plus its waited descendants; not sum of overlapping jobs",
+      "binding_predicates": {
+        "candidate": true,
+        "tree": true,
+        "ending_head": true,
+        "command": true,
+        "cwd": true,
+        "source_frames_equal": true,
+        "source_immutable": true,
+        "config_stable": true,
+        "config_hashes_equal": true,
+        "declared_inputs_bound_to_candidate_git": true,
+        "tracked_path_count": true,
+        "started_after_wave_start": true
+      },
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-cal05-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-cal05-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/tmp-env/results-importer",
+          "RUFF_CACHE_DIR": null,
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "backend_observer": {
+        "jax": {
+          "default_backend": "cpu",
+          "enable_x64": false,
+          "devices": [
+            {
+              "platform": "cpu",
+              "id": 0,
+              "kind": "cpu"
+            }
+          ]
+        },
+        "numpy": {
+          "Compilers": {
+            "c": {
+              "name": "gcc",
+              "linker": "ld.bfd",
+              "version": "14.2.1",
+              "commands": "cc"
+            },
+            "cython": {
+              "name": "cython",
+              "linker": "cython",
+              "version": "3.2.1",
+              "commands": "cython"
+            },
+            "c++": {
+              "name": "gcc",
+              "linker": "ld.bfd",
+              "version": "14.2.1",
+              "commands": "c++"
+            }
+          },
+          "Machine Information": {
+            "host": {
+              "cpu": "x86_64",
+              "family": "x86_64",
+              "endian": "little",
+              "system": "linux"
+            },
+            "build": {
+              "cpu": "x86_64",
+              "family": "x86_64",
+              "endian": "little",
+              "system": "linux"
+            }
+          },
+          "Build Dependencies": {
+            "blas": {
+              "name": "scipy-openblas",
+              "found": true,
+              "version": "0.3.30",
+              "detection method": "pkgconfig",
+              "include directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/include",
+              "lib directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/lib",
+              "openblas configuration": "OpenBLAS 0.3.30  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64",
+              "pc file directory": "/project/.openblas"
+            },
+            "lapack": {
+              "name": "scipy-openblas",
+              "found": true,
+              "version": "0.3.30",
+              "detection method": "pkgconfig",
+              "include directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/include",
+              "lib directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/lib",
+              "openblas configuration": "OpenBLAS 0.3.30  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64",
+              "pc file directory": "/project/.openblas"
+            }
+          },
+          "Python Information": {
+            "path": "/tmp/build-env-r8m2wpdb/bin/python",
+            "version": "3.14"
+          },
+          "SIMD Extensions": {
+            "baseline": [
+              "SSE",
+              "SSE2",
+              "SSE3"
+            ],
+            "found": [
+              "SSSE3",
+              "SSE41",
+              "POPCNT",
+              "SSE42",
+              "AVX",
+              "F16C",
+              "FMA3",
+              "AVX2",
+              "AVX512F",
+              "AVX512CD",
+              "AVX512_SKX",
+              "AVX512_CLX",
+              "AVX512_CNL",
+              "AVX512_ICL"
+            ],
+            "not found": [
+              "AVX512_KNL",
+              "AVX512_KNM",
+              "AVX512_SPR"
+            ]
+          }
+        }
+      },
+      "backend_observer_scope": "Post-command observer process; test-child changed JAX config is not inferred."
+    },
+    {
+      "name": "numeric-skip",
+      "kind": "numerical",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip-actual-driver.py",
+        "--basetemp",
+        "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/temporary/numeric-skip"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006/policy-engine",
+      "outcome": "SKIP",
+      "case_counts": {
+        "cases": 2,
+        "passed": 0,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 2
+      },
+      "exit_code": 0,
+      "wall_seconds": 4.773068189620972,
+      "max_rss_kib": 130516,
+      "user_cpu_seconds": 1.723008,
+      "system_cpu_seconds": 0.14979499999999998,
+      "rss_scope": "wait4 command plus its waited descendants; not sum of overlapping jobs",
+      "binding_predicates": {
+        "candidate": true,
+        "tree": true,
+        "ending_head": true,
+        "command": true,
+        "cwd": true,
+        "source_frames_equal": true,
+        "source_immutable": true,
+        "config_stable": true,
+        "config_hashes_equal": true,
+        "declared_inputs_bound_to_candidate_git": true,
+        "tracked_path_count": true,
+        "started_after_wave_start": true
+      },
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-cal05-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-cal05-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/tmp-env/numeric-skip",
+          "RUFF_CACHE_DIR": null,
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": "0",
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "backend_observer": {
+        "jax": {
+          "default_backend": "cpu",
+          "enable_x64": false,
+          "devices": [
+            {
+              "platform": "cpu",
+              "id": 0,
+              "kind": "cpu"
+            }
+          ]
+        },
+        "numpy": {
+          "Compilers": {
+            "c": {
+              "name": "gcc",
+              "linker": "ld.bfd",
+              "version": "14.2.1",
+              "commands": "cc"
+            },
+            "cython": {
+              "name": "cython",
+              "linker": "cython",
+              "version": "3.2.1",
+              "commands": "cython"
+            },
+            "c++": {
+              "name": "gcc",
+              "linker": "ld.bfd",
+              "version": "14.2.1",
+              "commands": "c++"
+            }
+          },
+          "Machine Information": {
+            "host": {
+              "cpu": "x86_64",
+              "family": "x86_64",
+              "endian": "little",
+              "system": "linux"
+            },
+            "build": {
+              "cpu": "x86_64",
+              "family": "x86_64",
+              "endian": "little",
+              "system": "linux"
+            }
+          },
+          "Build Dependencies": {
+            "blas": {
+              "name": "scipy-openblas",
+              "found": true,
+              "version": "0.3.30",
+              "detection method": "pkgconfig",
+              "include directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/include",
+              "lib directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/lib",
+              "openblas configuration": "OpenBLAS 0.3.30  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64",
+              "pc file directory": "/project/.openblas"
+            },
+            "lapack": {
+              "name": "scipy-openblas",
+              "found": true,
+              "version": "0.3.30",
+              "detection method": "pkgconfig",
+              "include directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/include",
+              "lib directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/lib",
+              "openblas configuration": "OpenBLAS 0.3.30  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64",
+              "pc file directory": "/project/.openblas"
+            }
+          },
+          "Python Information": {
+            "path": "/tmp/build-env-r8m2wpdb/bin/python",
+            "version": "3.14"
+          },
+          "SIMD Extensions": {
+            "baseline": [
+              "SSE",
+              "SSE2",
+              "SSE3"
+            ],
+            "found": [
+              "SSSE3",
+              "SSE41",
+              "POPCNT",
+              "SSE42",
+              "AVX",
+              "F16C",
+              "FMA3",
+              "AVX2",
+              "AVX512F",
+              "AVX512CD",
+              "AVX512_SKX",
+              "AVX512_CLX",
+              "AVX512_CNL",
+              "AVX512_ICL"
+            ],
+            "not found": [
+              "AVX512_KNL",
+              "AVX512_KNM",
+              "AVX512_SPR"
+            ]
+          }
+        }
+      },
+      "backend_observer_scope": "Post-command observer process; test-child changed JAX config is not inferred.",
+      "cases": [
+        {
+          "name": "test_skip_a",
+          "classname": "e02-E-pr38-r3-receipts.harness-independent-r3.tiny_skip",
+          "file": null,
+          "seconds": "0.000",
+          "outcome": "skipped",
+          "job_name": "numeric-skip"
+        },
+        {
+          "name": "test_skip_b",
+          "classname": "e02-E-pr38-r3-receipts.harness-independent-r3.tiny_skip",
+          "file": null,
+          "seconds": "0.000",
+          "outcome": "skipped",
+          "job_name": "numeric-skip"
+        }
+      ]
+    },
+    {
+      "name": "numeric-skip-exit7",
+      "kind": "numerical",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip-exit7-actual-driver.py",
+        "--basetemp",
+        "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/temporary/numeric-skip-exit7"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006/policy-engine",
+      "outcome": "SKIP",
+      "case_counts": {
+        "cases": 2,
+        "passed": 0,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 2
+      },
+      "exit_code": 7,
+      "wall_seconds": 4.1485207080841064,
+      "max_rss_kib": 130284,
+      "user_cpu_seconds": 1.192915,
+      "system_cpu_seconds": 0.156552,
+      "rss_scope": "wait4 command plus its waited descendants; not sum of overlapping jobs",
+      "binding_predicates": {
+        "candidate": true,
+        "tree": true,
+        "ending_head": true,
+        "command": true,
+        "cwd": true,
+        "source_frames_equal": true,
+        "source_immutable": true,
+        "config_stable": true,
+        "config_hashes_equal": true,
+        "declared_inputs_bound_to_candidate_git": true,
+        "tracked_path_count": true,
+        "started_after_wave_start": true
+      },
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-cal05-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-cal05-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/tmp-env/numeric-skip-exit7",
+          "RUFF_CACHE_DIR": null,
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": "0",
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "backend_observer": {
+        "jax": {
+          "default_backend": "cpu",
+          "enable_x64": false,
+          "devices": [
+            {
+              "platform": "cpu",
+              "id": 0,
+              "kind": "cpu"
+            }
+          ]
+        },
+        "numpy": {
+          "Compilers": {
+            "c": {
+              "name": "gcc",
+              "linker": "ld.bfd",
+              "version": "14.2.1",
+              "commands": "cc"
+            },
+            "cython": {
+              "name": "cython",
+              "linker": "cython",
+              "version": "3.2.1",
+              "commands": "cython"
+            },
+            "c++": {
+              "name": "gcc",
+              "linker": "ld.bfd",
+              "version": "14.2.1",
+              "commands": "c++"
+            }
+          },
+          "Machine Information": {
+            "host": {
+              "cpu": "x86_64",
+              "family": "x86_64",
+              "endian": "little",
+              "system": "linux"
+            },
+            "build": {
+              "cpu": "x86_64",
+              "family": "x86_64",
+              "endian": "little",
+              "system": "linux"
+            }
+          },
+          "Build Dependencies": {
+            "blas": {
+              "name": "scipy-openblas",
+              "found": true,
+              "version": "0.3.30",
+              "detection method": "pkgconfig",
+              "include directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/include",
+              "lib directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/lib",
+              "openblas configuration": "OpenBLAS 0.3.30  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64",
+              "pc file directory": "/project/.openblas"
+            },
+            "lapack": {
+              "name": "scipy-openblas",
+              "found": true,
+              "version": "0.3.30",
+              "detection method": "pkgconfig",
+              "include directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/include",
+              "lib directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/lib",
+              "openblas configuration": "OpenBLAS 0.3.30  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64",
+              "pc file directory": "/project/.openblas"
+            }
+          },
+          "Python Information": {
+            "path": "/tmp/build-env-r8m2wpdb/bin/python",
+            "version": "3.14"
+          },
+          "SIMD Extensions": {
+            "baseline": [
+              "SSE",
+              "SSE2",
+              "SSE3"
+            ],
+            "found": [
+              "SSSE3",
+              "SSE41",
+              "POPCNT",
+              "SSE42",
+              "AVX",
+              "F16C",
+              "FMA3",
+              "AVX2",
+              "AVX512F",
+              "AVX512CD",
+              "AVX512_SKX",
+              "AVX512_CLX",
+              "AVX512_CNL",
+              "AVX512_ICL"
+            ],
+            "not found": [
+              "AVX512_KNL",
+              "AVX512_KNM",
+              "AVX512_SPR"
+            ]
+          }
+        }
+      },
+      "backend_observer_scope": "Post-command observer process; test-child changed JAX config is not inferred.",
+      "cases": [
+        {
+          "name": "test_skip_a",
+          "classname": "e02-E-pr38-r3-receipts.harness-independent-r3.tiny_skip",
+          "file": null,
+          "seconds": "0.000",
+          "outcome": "skipped",
+          "job_name": "numeric-skip-exit7"
+        },
+        {
+          "name": "test_skip_b",
+          "classname": "e02-E-pr38-r3-receipts.harness-independent-r3.tiny_skip",
+          "file": null,
+          "seconds": "0.000",
+          "outcome": "skipped",
+          "job_name": "numeric-skip-exit7"
+        }
+      ]
+    }
+  ],
+  "static_proxy": null,
+  "excluded_raw_custody": [
+    {
+      "path": "raw/results-importer.git-config-private.nul",
+      "bytes": 5294,
+      "sha256": "fe8952d68833f451c26733baa8c3f2dc37e1d3d91a2e3b456dc10bdcf6ae0b25",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/numeric-skip.git-config-private.nul",
+      "bytes": 5294,
+      "sha256": "fe8952d68833f451c26733baa8c3f2dc37e1d3d91a2e3b456dc10bdcf6ae0b25",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/numeric-skip-exit7.git-config-private.nul",
+      "bytes": 5294,
+      "sha256": "fe8952d68833f451c26733baa8c3f2dc37e1d3d91a2e3b456dc10bdcf6ae0b25",
+      "publication": "private_excluded_hash_size_only"
+    }
+  ],
+  "issues": [],
+  "numeric_results_are_new_candidate_only": false,
+  "doctor_is_full_ci": false,
+  "finding_closure": false,
+  "code_acceptance_and_original_criterion_decisions": "Separate; ledger statuses not reclassified by check counts.",
+  "cleanup_policy": "Only candidate list; no deletion or Trash action. Preserve unique deciding bytes/code/docs. Check no active users before repeatables move to native Trash; without Trash keep exact candidates.",
+  "cleanup_candidates": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/tmp-env/results-importer",
+      "kind": "TMPDIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/tmp-env/numeric-skip",
+      "kind": "TMPDIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/temporary/numeric-skip",
+      "kind": "numeric_basetemp"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/tmp-env/numeric-skip-exit7",
+      "kind": "TMPDIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/temporary/numeric-skip-exit7",
+      "kind": "numeric_basetemp"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/umbrella-temp/workspace-verify",
+      "kind": "umbrella_temporary"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/umbrella-temp/ci-parity",
+      "kind": "umbrella_temporary"
+    }
+  ],
+  "raw_local_input_limitation": "Raw graph/private config remain outside Git; exact command/source/hash/size and complete moderate stdout are published. Do not promote the bounded static proxy to runtime proof."
+}

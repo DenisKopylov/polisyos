@@ -1,0 +1,13 @@
+........................................................................ [ 17%]
+........................................................................ [ 34%]
+........................................................................ [ 52%]
+........................................................................ [ 69%]
+........................................................................ [ 87%]
+.....................................................                    [100%]
+=============================== warnings summary ===============================
+tests/unit/foundry/uncertainty/test_delta.py::TestDeltaMethodPropagator::test_delta_linear_fn_exact
+tests/unit/foundry/uncertainty/test_delta.py::TestDeltaMethodPropagator::test_delta_multi_output
+  /workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/api_util.py:83: DeprecationWarning: Passing arguments 'a', 'a_min' or 'a_max' to jax.numpy.clip is deprecated. Please use 'arr', 'min' or 'max' respectively instead.
+    ans = f(*py_args, **py_kwargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html

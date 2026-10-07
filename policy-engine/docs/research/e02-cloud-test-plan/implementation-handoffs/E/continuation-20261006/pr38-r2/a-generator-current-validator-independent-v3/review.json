@@ -1,0 +1,156 @@
+{
+  "schema": "policyos.e02.independent-A-G-current-role-validator.v3",
+  "verdict": "GO-bounded-shared-current-candidate-role-validator",
+  "source": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817-validator-v3/validate_binding_v3.py",
+    "bytes": 8016,
+    "sha256": "0183743ead5d4b27ffc6f3265334b8f1329f72c482ab3612cd37e9a7c7b07cf4"
+  },
+  "author_index": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817-validator-v3/copy-index.json",
+    "bytes": 2789,
+    "sha256": "06e6c7696c4262878952f7fdb712705ab11ca83892e6bc906f9a3e1f295046e7",
+    "assets": 16,
+    "asset_bytes": 53648
+  },
+  "external_literal_source_authorization": [
+    "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7"
+  ],
+  "runtime_property": "Common commit/path/computedblob/content inlet validates current29/20/8+collector refs against root-authorized exacta9; old5e only explicit historical columns. P40 class correction, not one-row substitution.",
+  "positive": "Exactcurrent packet and explicit old5e historical source columns accepted. Original10asset716c actualpacket remainsGO and unchanged.",
+  "independent_refusals": [
+    {
+      "name": "old5e-validbytes-current-source",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "Git ref candidate differs from its declared current role",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "name": "old5e-validbytes-current-caller",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "Git ref candidate differs from its declared current role",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "name": "old2f7-validbytes-current-Gref",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "Git ref candidate differs from its declared current role",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "name": "old2f7-validbytes-binding-collector",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "Git ref candidate differs from its declared current role",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "name": "old2f7-validbytes-packet-collector",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "Git ref candidate differs from its declared current role",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "name": "wrong-current-top-binding",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "current source pin differs from authorized candidate",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "name": "wrong-current-top-packet",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "current source pin differs from authorized candidate",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "name": "wrong-current-tree",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "current source pin differs from authorized candidate",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "name": "wrong-current-parent",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "declared current source parents mismatch",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "name": "counterfeit-computedblob",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "declared Git blob differs from computed source blob",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "name": "counterfeit-contentdigest",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "Git source content hash/size mismatch",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "name": "wrong-sourcepath-role",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "Git ref path differs from its canonical role",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "name": "wrong-carried-original-source",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "carried packet source differs from current candidate",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "name": "wrong-carried-review-source",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "carried review source differs from current candidate",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "name": "missingref-reason-is-floor",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "missing-ref reason misclassified",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "name": "floor-reason-is-insufficienthistory",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "resolved-limited reason lost",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "name": "old-generator-count-is-current",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "historical generator count presented as current measurement",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "name": "compiler-pass-is-FRC",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "bounded compiler result misattributed to FRC/closure/E run",
+      "product_numeric_native_gate_commands": 0
+    }
+  ],
+  "effective_property_removals": [
+    {
+      "name": "old5e-validbytes-current-source",
+      "outcome": "EXPECTED_REACCEPTANCE_WITH_SHARED_PREDICATE_REMOVED",
+      "protocol_names_fields_preserved": true,
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "name": "old2f7-validbytes-current-Gref",
+      "outcome": "EXPECTED_REACCEPTANCE_WITH_SHARED_PREDICATE_REMOVED",
+      "protocol_names_fields_preserved": true,
+      "product_numeric_native_gate_commands": 0
+    }
+  ],
+  "prior_HOLD": "Original14a helper validbyteswrongcurrentcandidate acceptance preserved in immutable independent-a-generator-packet-a9; successor doesnot rewrite it.",
+  "prior_actual_packet_custody_math_review": "Unchanged exact10asset/29source/20refs/8callers oldGO reused; no duplicate broadtrace/backend checks.",
+  "wave_evidence": "Preparation NOT_LAUNCHED is historicalsnapshot. Parent actualterminalwave results are separate and not read/reclassified by this validator review.",
+  "scope": "Metadata-only Git reads and predicates; no native/numeric/generator/globalgate/wheel/environment/root/config/ref/fetch writes.",
+  "new_measurements_or_findings_closed": false,
+  "root_before_after": [
+    "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7"
+  ],
+  "next_owner": "Root append-only publish correctivemetadata packet; CAL terminalwave custody independent; A status/default/HTTP and canonicalgenerator decisions remain separatelyowned."
+}

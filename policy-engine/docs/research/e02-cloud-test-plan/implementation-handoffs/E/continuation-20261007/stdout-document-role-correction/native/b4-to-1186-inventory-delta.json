@@ -1,0 +1,12 @@
+[
+  {
+    "id": "LM-025",
+    "owner": "team-frontend",
+    "old_count": 141,
+    "new_count": 142,
+    "added_paths": [
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/exact-Git-inputs/build_final.py.txt"
+    ],
+    "removed_paths": []
+  }
+]

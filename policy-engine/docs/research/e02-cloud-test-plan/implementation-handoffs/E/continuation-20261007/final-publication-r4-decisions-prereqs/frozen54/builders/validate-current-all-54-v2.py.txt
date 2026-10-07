@@ -1,0 +1,156 @@
+"""Recompute the current54 join and reject content drift, without rerunning tests."""
+
+from __future__ import annotations
+
+import argparse
+import copy
+import hashlib
+import json
+import runpy
+import sys
+from pathlib import Path
+from typing import Any
+
+BASE = Path("/workspace/e02-E-pr38-r3-receipts/criteria-r4")
+COLLECTOR = Path(
+    "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d"
+)
+HELPER = Path("/tmp/e02-E-criteria-r4-current54-v2/join-final-all-54-current-v2.py.txt")
+HELPER_HASH = "245c0c17a8ac24d88906bf71c66242145bebb502bbf1dffb619a6a6a3024f75f"
+JOINED = BASE / "current-all-54-source-wave-update-v2.json"
+INPUTS = {
+    "prewave": Path(
+        "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json"
+    ),
+    "numeric": COLLECTOR / "recomputed-wave.json",
+    "case_index": COLLECTOR / "case-index.json",
+    "successor_index": BASE / "current-37-selector-dispositions-v5.json",
+    "defining_case_index": COLLECTOR / "defining-current-case-index.json",
+}
+PINS = {
+    "prewave": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+    "numeric": "bb59345873fdc306c98458587354f3caaed45312694c14a51d01edfd08768bbf",
+    "case_index": "73a5974a61fe29424373bac0edfc0bbdff1840b7717dd493e8261c3dff3e7ab0",
+    "successor_index": "ed043655af120349142c669db39b4f5822ff354e7a33610690b0fab046159175",
+    "defining_case_index": "6d68193c3ff1650e5d3e32718470548b9ff1d8115110a56dfba80ef8534121b1",
+}
+
+
+def require(condition: bool, message: str) -> None:
+    if not condition:
+        raise ValueError(message)
+
+
+def record(path: Path) -> dict[str, Any]:
+    data = path.read_bytes()
+    return {
+        "path": str(path),
+        "bytes": len(data),
+        "sha256": hashlib.sha256(data).hexdigest(),
+    }
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    require(not args.output.exists(), "append-only verification")
+    require(record(HELPER)["sha256"] == HELPER_HASH, "join helper drift")
+    records = {name: record(path) for name, path in INPUTS.items()}
+    require(
+        all(records[name]["sha256"] == PINS[name] for name in records),
+        "immutable input drift",
+    )
+    parsed = {name: json.loads(path.read_bytes()) for name, path in INPUTS.items()}
+    helper = runpy.run_path(str(HELPER), run_name="verified_current54_join")
+    expected = helper["join"](
+        parsed["prewave"],
+        parsed["numeric"],
+        parsed["case_index"],
+        parsed["successor_index"],
+        records,
+    )
+    expected["defining_source_navigation_ref"] = records["defining_case_index"]
+    actual = json.loads(JOINED.read_bytes())
+
+    def validate(value: dict[str, Any]) -> None:
+        require(value == expected, "current54 recomputed content drift")
+
+    validate(actual)
+    controls = []
+    for label in [
+        "historical_ledger_count",
+        "proposed_finding_count",
+        "criterion_status",
+        "canonical_UNRUN",
+        "actual_selector_outcome",
+        "content_bound_report_ref",
+        "actual_case_navigation",
+    ]:
+        altered = copy.deepcopy(actual)
+        if label == "historical_ledger_count":
+            altered["historical_ledger"]["partial"] = 50
+        elif label == "proposed_finding_count":
+            altered["proposed_finding_counts"]["closed"] = 44
+        elif label == "criterion_status":
+            next(r for r in altered["rows"] if r["id"] == "B200")[
+                "proposed_finding_outcome"
+            ] = "closed"
+        elif label == "canonical_UNRUN":
+            altered["standalone_successor_observations"][0][
+                "canonical_umbrella_UNRUN_rewritten"
+            ] = True
+        elif label == "actual_selector_outcome":
+            next(
+                r
+                for r in altered["standalone_successor_observations"]
+                if r["selector"] == "ci-02"
+            )["observed_selector_check_outcome"] = "PASS"
+        elif label == "content_bound_report_ref":
+            altered["numeric_independent_recomputation_ref"]["sha256"] = "0" * 64
+        else:
+            bound = next(
+                r
+                for r in altered["rows"]
+                if r["current_check_links"]["frozen_wave"][
+                    "current_selector_navigation"
+                ]["exact_case_bindings"]
+            )
+            bound["current_check_links"]["frozen_wave"]["current_selector_navigation"][
+                "exact_case_bindings"
+            ][0]["outcome"] = "FORGED"
+        try:
+            validate(altered)
+        except ValueError as error:
+            controls.append(
+                {"mutation": label, "outcome": "rejected", "reason": str(error)}
+            )
+        else:
+            raise ValueError("content corruption admitted")
+        require(
+            altered["schema"] == expected["schema"]
+            and altered["frozen_source"] == expected["frozen_source"],
+            "markers preserved for proxy divergence",
+        )
+    require(record(HELPER)["sha256"] == HELPER_HASH, "source bracket")
+    result = {
+        "schema": "policyos.e02.E.current54_recomputing_validation.v1",
+        "check_outcome": "PASS",
+        "optimized": bool(sys.flags.optimize),
+        "joined_output": record(JOINED),
+        "input_records": records,
+        "join_helper": record(HELPER),
+        "verifier_source": record(Path(__file__)),
+        "healthy_recomputation": "PASS",
+        "corrupt_controls": controls,
+        "property_removal_control": "A marker-only validator retains schema and source identity and admits every altered payload above; full content recomputation rejects all seven.",
+        "native_checks_repeated": False,
+        "root_environment_mutated_or_imported": False,
+        "remaining_available_scope": "Initial37 source observations are closed. Supplemental architecture/browser/backend retry receipts are separate and not asserted complete here.",
+    }
+    args.output.write_text(json.dumps(result, indent=2) + "\n")
+    sys.stdout.write(json.dumps(record(args.output), indent=2) + "\n")
+
+
+if __name__ == "__main__":
+    main()

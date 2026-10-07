@@ -1,0 +1,671 @@
+{
+  "schema": "policyos.e02.independent_oracle.v1",
+  "source_sha": "5840d477346912b0502689a3eeeb6504e6bc2711",
+  "source_tree": "32b8183ea9cf38bb656a807f79428e50e204a041",
+  "cases": [
+    {
+      "case": "healthy_one_trajectory_two_rows",
+      "outcome": "PASS",
+      "decision": "accepted",
+      "actual_rows": 2,
+      "mu_star": {
+        "x": 2.0
+      },
+      "sigma": {
+        "x": "NaN"
+      },
+      "metadata": {
+        "run_failure_policy": "fail_fast",
+        "estimated_runs": 2,
+        "n_trajectories": 1,
+        "uncertainty_status": "point_only_incomplete",
+        "original_total_runs": 2,
+        "failed_row_indices": [],
+        "failed_row_reasons": [],
+        "effective_run_count": 2,
+        "morris_trajectory_size": 2,
+        "original_trajectory_ids": [
+          0
+        ],
+        "effective_trajectory_ids": [
+          0
+        ],
+        "distribution_schema_version": "doe-distribution-v1",
+        "distribution_mapping_fingerprint": "5644a05b507fcddb8b3fddd43210b2c2e2b3bf3ace4cc662c3c2518c2003a079",
+        "salib_backend": "SALib@1.5.2",
+        "plan_seed": 23,
+        "design_id": "0ddffce1f884d1f4680b4e6f69db76812db7a87fb31a5c683e1cbd1e743c5be9",
+        "analysis_id": "54748fe57f1d0d618740782cc11c6025f4f971e0d6884f03681e590e950081d4",
+        "ordered_samples_sha256": "bcf149bb841ec85a0ba250c2ac3b70e95cf637e10560aa6a0d460c5d51dec4d2",
+        "ordered_outputs_sha256": "a82605eefea922e7b83aa4b9e17b103104ba17e0119f21d7f3dbe0b2e80a77a8",
+        "ordered_parameter_names": [
+          "x"
+        ],
+        "parameter_units": {
+          "x": "unspecified"
+        },
+        "analyzer": "SALib@1.5.2:morris",
+        "analyzer_seed": 2392636306,
+        "input_law": "unknown",
+        "input_law_basis": "consumer_asserted",
+        "authority_purpose": "exploratory_parameter_experiment",
+        "population_law_status": "not_established",
+        "point_effect_scale": "unit_coordinate_full_range",
+        "design_order_basis": "geometry_validated_provenance_not_established"
+      },
+      "SALib_calls": [
+        2
+      ],
+      "warnings": [
+        "Degrees of freedom <= 0 for slice",
+        "invalid value encountered in divide"
+      ]
+    },
+    {
+      "case": "four_valid_rows_beyond_admitted_one_trajectory",
+      "outcome": "PASS",
+      "decision": "refused",
+      "error": "actual Morris analysis rows exceed admitted plan (4 > 2); declare the actual trajectory count in SensitivityPlan",
+      "SALib_calls": [],
+      "warnings": []
+    },
+    {
+      "case": "allow_large_true_does_not_expand_declared_trajectory_identity",
+      "outcome": "PASS",
+      "decision": "refused",
+      "error": "actual Morris analysis rows exceed admitted plan (4 > 2); declare the actual trajectory count in SensitivityPlan",
+      "SALib_calls": [],
+      "warnings": []
+    },
+    {
+      "case": "explicit_two_trajectory_override_healthy_four_rows",
+      "outcome": "PASS",
+      "decision": "accepted",
+      "actual_rows": 4,
+      "mu_star": {
+        "x": 2.0
+      },
+      "sigma": {
+        "x": 4.440892098500626e-16
+      },
+      "metadata": {
+        "run_failure_policy": "fail_fast",
+        "estimated_runs": 4,
+        "n_trajectories": 2,
+        "uncertainty_status": "point_only_incomplete",
+        "original_total_runs": 4,
+        "failed_row_indices": [],
+        "failed_row_reasons": [],
+        "effective_run_count": 4,
+        "morris_trajectory_size": 2,
+        "original_trajectory_ids": [
+          0,
+          1
+        ],
+        "effective_trajectory_ids": [
+          0,
+          1
+        ],
+        "distribution_schema_version": "doe-distribution-v1",
+        "distribution_mapping_fingerprint": "5644a05b507fcddb8b3fddd43210b2c2e2b3bf3ace4cc662c3c2518c2003a079",
+        "salib_backend": "SALib@1.5.2",
+        "plan_seed": 23,
+        "design_id": "4e96625d82bc592184eb2093ef32d6e58dbeacd13c0d511625a9273cc4a8e979",
+        "analysis_id": "d152ba6aac95cb22d498fbf9dc8f98aa2489b9da7748aad6a749dad4c1bab019",
+        "ordered_samples_sha256": "77238ccc1c6976b249561e4fe71d0baeac52b00356a90a61b90c3b8a5e753d3f",
+        "ordered_outputs_sha256": "964bc87b64a8e7a548e0eb5b32194b1efda8356ede5b102129430245172d98b5",
+        "ordered_parameter_names": [
+          "x"
+        ],
+        "parameter_units": {
+          "x": "unspecified"
+        },
+        "analyzer": "SALib@1.5.2:morris",
+        "analyzer_seed": 2392636306,
+        "input_law": "unknown",
+        "input_law_basis": "consumer_asserted",
+        "authority_purpose": "exploratory_parameter_experiment",
+        "population_law_status": "not_established",
+        "point_effect_scale": "unit_coordinate_full_range",
+        "design_order_basis": "geometry_validated_provenance_not_established"
+      },
+      "SALib_calls": [
+        4
+      ],
+      "warnings": []
+    },
+    {
+      "case": "admitted_whole_trajectory_subset_preserved",
+      "outcome": "PASS",
+      "decision": "accepted",
+      "actual_rows": 2,
+      "mu_star": {
+        "x": 2.0
+      },
+      "sigma": {
+        "x": "NaN"
+      },
+      "metadata": {
+        "run_failure_policy": "fail_fast",
+        "estimated_runs": 4,
+        "n_trajectories": 2,
+        "uncertainty_status": "point_only_incomplete",
+        "original_total_runs": 2,
+        "failed_row_indices": [],
+        "failed_row_reasons": [],
+        "effective_run_count": 2,
+        "morris_trajectory_size": 2,
+        "original_trajectory_ids": [
+          0
+        ],
+        "effective_trajectory_ids": [
+          0
+        ],
+        "distribution_schema_version": "doe-distribution-v1",
+        "distribution_mapping_fingerprint": "5644a05b507fcddb8b3fddd43210b2c2e2b3bf3ace4cc662c3c2518c2003a079",
+        "salib_backend": "SALib@1.5.2",
+        "plan_seed": 23,
+        "design_id": "11e1104caad95b8e1e835deb164be15af750a669d579d76a239bd1df2a077fbf",
+        "analysis_id": "a85b4888dabf552ecbf1d38f47a77f30212096da27985c2bdc05c585d40584e8",
+        "ordered_samples_sha256": "bcf149bb841ec85a0ba250c2ac3b70e95cf637e10560aa6a0d460c5d51dec4d2",
+        "ordered_outputs_sha256": "a82605eefea922e7b83aa4b9e17b103104ba17e0119f21d7f3dbe0b2e80a77a8",
+        "ordered_parameter_names": [
+          "x"
+        ],
+        "parameter_units": {
+          "x": "unspecified"
+        },
+        "analyzer": "SALib@1.5.2:morris",
+        "analyzer_seed": 2392636306,
+        "input_law": "unknown",
+        "input_law_basis": "consumer_asserted",
+        "authority_purpose": "exploratory_parameter_experiment",
+        "population_law_status": "not_established",
+        "point_effect_scale": "unit_coordinate_full_range",
+        "design_order_basis": "geometry_validated_provenance_not_established"
+      },
+      "SALib_calls": [
+        2
+      ],
+      "warnings": [
+        "Degrees of freedom <= 0 for slice",
+        "invalid value encountered in divide"
+      ]
+    },
+    {
+      "case": "excess_rejected_before_drop_failed_hides_rows",
+      "outcome": "PASS",
+      "decision": "refused",
+      "error": "actual Morris analysis rows exceed admitted plan (4 > 2); declare the actual trajectory count in SensitivityPlan",
+      "SALib_calls": [],
+      "warnings": []
+    },
+    {
+      "case": "analysis_content_identity_admits_actual_work",
+      "outcome": "PASS",
+      "decision": "refused",
+      "error": "actual Morris analysis rows exceed admitted plan (4 > 2); declare the actual trajectory count in SensitivityPlan",
+      "SALib_calls": [],
+      "warnings": []
+    },
+    {
+      "case": "stability_small_input_short_circuit_cannot_bypass_actual_work",
+      "outcome": "PASS",
+      "decision": "refused",
+      "error": "actual Morris analysis rows exceed admitted plan (4 > 2); declare the actual trajectory count in SensitivityPlan",
+      "SALib_calls": [],
+      "warnings": []
+    },
+    {
+      "case": "PCA_admission_before_transform",
+      "outcome": "PASS",
+      "decision": "refused",
+      "error": "actual Morris analysis rows exceed admitted plan (4 > 2); declare the actual trajectory count in SensitivityPlan",
+      "SALib_calls": [],
+      "warnings": []
+    },
+    {
+      "case": "actual_producer_configured_CAS_fresh_reopen",
+      "outcome": "PASS",
+      "actual_rows": 4,
+      "ref": {
+        "artifact_id": "sha256:9f045308e37e2ac7190f2d43c9c95cba83207a6c18587e0fec2b595a72a4ce52",
+        "kind": "doe_sensitivity_analysis",
+        "media_type": "application/json"
+      },
+      "mu_star": {
+        "x": 2.0
+      },
+      "analysis_id": "d152ba6aac95cb22d498fbf9dc8f98aa2489b9da7748aad6a749dad4c1bab019"
+    },
+    {
+      "case": "integrity_valid_CAS_forged_smaller_plan_refuses_before_SALib",
+      "outcome": "PASS",
+      "decision": "refused",
+      "error": "actual Morris analysis rows exceed admitted plan (4 > 2); declare the actual trajectory count in SensitivityPlan",
+      "SALib_calls": [],
+      "warnings": []
+    }
+  ],
+  "case_count": 11,
+  "removal_control": {
+    "outcome": "PASS",
+    "negative_gate_outcome": "FAIL",
+    "assertion": "actual-work invariant removed but analyzer reached four rows",
+    "SALib_calls": [
+      4
+    ],
+    "total_runs": 4,
+    "declared_runs": 2,
+    "mu_star": {
+      "x": 2.0
+    },
+    "scope": "actual-work admission removed; plan construction and metadata remain present"
+  },
+  "immutable_loaded_source_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "git_blob": "d8a97a0995175a651edf81d7324ec7fea670a558",
+      "sha256": "65dc3871e65eeaab30e1210efafc8dc184450783751d4ec2c9b9c584b5b92350",
+      "bytes": 3834
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "git_blob": "4e71700ece55e60c0327c7101cc13523c8440413",
+      "sha256": "98856f7f50784eb899efb807eaefd6c4f33cb3c75f9029dc252c48068afe1e1c",
+      "bytes": 19553
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "git_blob": "c2ea71aa81c6ebdd470894ae2aa4e6310833e2cd",
+      "sha256": "271ae2f0b35bc833af5f0b1c748132311d5ebb256440d394cc46fc1c402b7e73",
+      "bytes": 15819
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+      "git_blob": "132b1a7626814c08efcdc7129b3d605cf81505cb",
+      "sha256": "0c7bda166798cadc7a9769fadae79d8f435cd4572d22b2c59d8c0c3db3427f0c",
+      "bytes": 5532
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/multi_output.py",
+      "git_blob": "eebd843dc9be7678b1ec5fc2b5276225b2e9dd61",
+      "sha256": "cc98dd394851a25da2c7b52855b9860c780b9cb5ff7886ed8dae23191549d19f",
+      "bytes": 9345
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "git_blob": "a6487dd0f7d36d7c989ae916705a4db75952dc0a",
+      "sha256": "863384fc13da74d72d9bb7b5c4285c2103b2fc7f2a3895b6b6b383324515d574",
+      "bytes": 4019
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+      "git_blob": "79f3d5debae7d82e1a7b4ab5805edda943bf89e1",
+      "sha256": "5fba0a61d0c6f6c7fc702bda8f9034924449a1853c3319615434daf27f61607f",
+      "bytes": 6494
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/uncertainty.py",
+      "git_blob": "541e2e5912916351935ee504311b8e3bbdaea019",
+      "sha256": "af3fdab52ebf687adf326134f9f31f407896c7bcf0f26159183acef4db3033b1",
+      "bytes": 65775
+    }
+  ],
+  "actual_Core_dependency_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/core/__init__.py",
+      "git_blob": "5964150861173fd27143d44363fda0ddd1b6f7e4",
+      "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40",
+      "bytes": 11696
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "git_blob": "70c7131a170f4860334e59965bc951347bc12365",
+      "sha256": "bf4757743e4618d1576f62a1a34a4469f0988b6f42a8708554f9b2696ba10a7f",
+      "bytes": 3273
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_atomic_write.py",
+      "git_blob": "4f355498b5a615865c5c190bba9f2510316b93ad",
+      "sha256": "afa41fe64aa388d65ec89db504d2f651447c5a92b5a8cea0384a6793c924ebcf",
+      "bytes": 4074
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+      "git_blob": "62b91c37ce1953949d730faa4d16874e53aa4e38",
+      "sha256": "c85c7c0a79abfde0131206dc7a98a360ef5cfd6bf19cdd199bb6fa8e40ff5c34",
+      "bytes": 9809
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_layout.py",
+      "git_blob": "f51a8cf732778ddeec4bdcc10522b2adf0ae873f",
+      "sha256": "693f2a119d9b413e3091f0fbf5b1dc093ad3786c7af5cc15ed0c3209e660f194",
+      "bytes": 1987
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+      "git_blob": "cba03f8d7542954cb20dbc84a746a24baafda64e",
+      "sha256": "b0948bf37ec2fd9e7d0b893db319b63bfdc21290564a7aa414e80a97cbebf966",
+      "bytes": 6664
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+      "git_blob": "ffb37071a03e0b9b18071b5a5106905247e1b665",
+      "sha256": "4473a4742a27ff022f59383b201a0473838931aa58d635a061c99ba8b6b6af93",
+      "bytes": 14616
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "git_blob": "45cf88375672c34a590d6971f1e9ef56f208b029",
+      "sha256": "7d131caba0deae2ddc9762e2c5a989d51934b3e731e0d6552047bec46d902812",
+      "bytes": 34143
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+      "git_blob": "a664d69d1d0ba58841c530a901783977072523b2",
+      "sha256": "6b50f6cc1cf136e6eac66c3ff72745481495a13e18ab0d2ae8209f88863919fe",
+      "bytes": 6366
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/__init__.py",
+      "git_blob": "cbf733e7d9fb984bdcf2e68888e8863adfc7ed33",
+      "sha256": "c1b63ae18ac92ae67fac24338d775c0dd17253682d0240e32f92bd98398a998a",
+      "bytes": 74
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/config.py",
+      "git_blob": "93c144f77b44c9e9300d7479b7f5b8c86e766345",
+      "sha256": "0c942402af1a304c32bccd285fd78a3aeeebc13a1f02c23b3242c1f6ead2f99d",
+      "bytes": 8035
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py",
+      "git_blob": "c0ecac7e433443ebdce04272b7e8412c3e560477",
+      "sha256": "52ff5c08997516419f0097ae2710dcc5d602a12aaaa55a5b290be101c7b1bc2d",
+      "bytes": 5438
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/graph.py",
+      "git_blob": "d64f8cef24a186730ea8a66455c6a94f8c79fe00",
+      "sha256": "26fe822573a2c9787fafe015195121b70a1a2a7ff89e3bf20d182a92d4909e1f",
+      "bytes": 5861
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ids.py",
+      "git_blob": "f187d1becd6ea2d1c6bbac2a50263c700f385ab5",
+      "sha256": "96ab03d78510679bb9195ce79a58dd1559be8f7ccf1de2e6d10031c172ae07e6",
+      "bytes": 2794
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "git_blob": "3c76237c88f4a667ab71e9e70037eb91a1d83f10",
+      "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d",
+      "bytes": 12758
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ownership.py",
+      "git_blob": "6e4af36382211f1abcc7dbb8128491c2dd4e06f7",
+      "sha256": "79216c9596812628119769a4dcdb9520c04dd097df5501e1b878e5270fd98b9a",
+      "bytes": 98037
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "git_blob": "418c9db4c37ea56510fe179585fc708acb8a3795",
+      "sha256": "2a45894dd5f69a377248fdb80b5157ed99bffdcf2362908c5a2c6e93d68d72d2",
+      "bytes": 5379
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/registry.py",
+      "git_blob": "50ae012e30b3f7f84de5b6e00e28a1301114a5f9",
+      "sha256": "e665dc55703db9d4c4a9b4f4040c665a8a85c300ae9c668d67480f6241ccaf28",
+      "bytes": 992
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/signing.py",
+      "git_blob": "cc3082cdf613707d6df284266fc8c97e565bba84",
+      "sha256": "5d4a19ab6a2c8b5caacb3c7c74caf3625c24d4e5e51873d131292a682738b568",
+      "bytes": 27542
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "git_blob": "72127a25ff25d4a034d376ba1452f54e96914931",
+      "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+      "bytes": 173575
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+      "git_blob": "610a563ce506be29c3606b4229ae4ab427920d5f",
+      "sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef",
+      "bytes": 1137
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/__init__.py",
+      "git_blob": "a0b19b5ce6a9bfd9f5d4149fbdbe76429d14fe29",
+      "sha256": "e33a7486224d5e15cd418ac4dab69bb38ac6b1593d739a4b7ac24ea4d477dfb3",
+      "bytes": 606
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+      "git_blob": "ca14a6bf9cec51292cf457243f38191892c5828a",
+      "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95",
+      "bytes": 1882
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/hashing.py",
+      "git_blob": "0007ba9acac60ad77c58f85355eacece9150df56",
+      "sha256": "a32caf919317c5667ac02bde68fa6a1d0fa064e1edeb44c89bc066a14a9272c0",
+      "bytes": 2352
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/components/__init__.py",
+      "git_blob": "473a0a59dbd5ce6bf1bc56884357f17572ce6f97",
+      "sha256": "7be43542a1e235b4a32cb13f2a0924fac8cc43087433515c063f7f7b683dfd89",
+      "bytes": 3896
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/components/bootstrap.py",
+      "git_blob": "d1cc3baabe15db526f66c8a57782fb44eb002f27",
+      "sha256": "6a5d7216f16bd1d659cc8b9876d776fcc862bc18c0bfd27b58247b0b771b4d10",
+      "bytes": 6574
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/components/capabilities.py",
+      "git_blob": "d191649c4931df237e75ee7b7711fcbb3882c821",
+      "sha256": "899ac56d56e4c85e1447c707c1e8637ef9798cc2b1a7373b002a84cadfed9a8a",
+      "bytes": 1274
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/components/compliance.py",
+      "git_blob": "f01deed0d2e6257fb4ba9905acb1c46709581650",
+      "sha256": "b34a3adb344e6332d2912faee4156f64d800bac5f9244920b41a2080325c1e1b",
+      "bytes": 16405
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/components/discovery.py",
+      "git_blob": "54efe19873fc8087426120eb6fcff5e0bd48fc5d",
+      "sha256": "d82889dc55e74b6e80d4243364a980e2f763c65930a803c9b8efdfbb074e7b22",
+      "bytes": 42689
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/components/ids.py",
+      "git_blob": "1bc3173672a668d955b7187403026af9c78787d8",
+      "sha256": "7cac29d83cbe0775829892a9e32339c53ef7b06c0dabef95e9341b99e26c5c6c",
+      "bytes": 9713
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/components/metadata.py",
+      "git_blob": "8dc3a616b855fb1f7c2a5193abd37525c7e2b0ac",
+      "sha256": "efba84687477aaf838aa55db88c82eedfdbbc0b414020d9190cc6e2b0b10df05",
+      "bytes": 2587
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/components/protocols.py",
+      "git_blob": "1ac91730868ddc315a18d6863f34e3058d806a53",
+      "sha256": "a755d4f4bf0c008265afc9be48f84f854c0604d9d0aa669bc8c872d834af7a01",
+      "bytes": 1362
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/components/registry.py",
+      "git_blob": "7a5952a4f8461ea09bbfb360e5a354c475a56b2b",
+      "sha256": "e15806f4df623df06293e3e50ded6c160b9e3f14257174b263608734fbdc41fe",
+      "bytes": 9040
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/discovery/__init__.py",
+      "git_blob": "b0295a41b4286a344e04d41fde653e36f2a149a7",
+      "sha256": "050b0b60b19d7ae358b9927baa279b8efc70f999b18a083b62ee7588c9a474ce",
+      "bytes": 536
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/discovery/base.py",
+      "git_blob": "dddb72dfe46791c1a6959b37862f8d894ebfb1b3",
+      "sha256": "c6ca686a2823557950e9e801419f404ee58c5f7b74666c2a9518719db9f0f7bf",
+      "bytes": 5733
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/errors/__init__.py",
+      "git_blob": "3e5f2a2d2ed7f54ea09b04e3a86f47a564be42de",
+      "sha256": "e1bbe5e46a1f67d2c9d01175400036782717be128130ab15c63768af1003cdec",
+      "bytes": 210
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/errors/base.py",
+      "git_blob": "ab56a6e4cc36ab91891415b25819cd70ef57c743",
+      "sha256": "f013683b373b4bf947dbdaf0b5e6fc4c830da6fa6b74ef431d59a215bbbeaaed",
+      "bytes": 2349
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/__init__.py",
+      "git_blob": "13b7588762d07a9ac2e56b7858195fdcfaa97230",
+      "sha256": "13e425237dd9ce7dfc45a18eb5a57f77cad6196d72a97f30450bcb19fdf61377",
+      "bytes": 21332
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/_metrics_helpers.py",
+      "git_blob": "f21a2f51a87bb8233bcb7bdcb2402e9b759c7d2c",
+      "sha256": "d168be218d7a3e9dfbb457342127d088d65ee31b417d5766d6a5bc4588964355",
+      "bytes": 2439
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/_metrics_registry_base.py",
+      "git_blob": "1ae17bbe492d61218375968e7b37c932ec8a42a1",
+      "sha256": "922eac01d723a6e30070fd887f469b8c6c0c735d922b1fb76185cb0e47d62f85",
+      "bytes": 49658
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/config.py",
+      "git_blob": "2c548ee17173274a7cbb517e18552573007e3eb8",
+      "sha256": "08cacb20670ed714ce97f90e0d42a9ce5ce4f57b629395fe70fba4dd2d5e0be0",
+      "bytes": 5902
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/decorators.py",
+      "git_blob": "c4202269fd0dfb972657ea63c8439ce184fed6a7",
+      "sha256": "909bf120a4650ee6ef0f0b6d0e02af3d23283c172e77e8646aad976c4913d27d",
+      "bytes": 10267
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/determinism.py",
+      "git_blob": "59bca8e6f153dc9f35e0f5fbea521b381f11da66",
+      "sha256": "989adf82b32a6ea03d11c11920364d97cc2fb64982b5bc54006b76b36e4bd7de",
+      "bytes": 1982
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/logs.py",
+      "git_blob": "e49a4164b1502e600c22efe3f08b10ca5b5d6d6e",
+      "sha256": "9d51eda431ee4a4d9e839866500d792e4f527c1bec08731f247a5ad083d72f4f",
+      "bytes": 5563
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/metrics.py",
+      "git_blob": "92afd54998f40b3630588cda1f9fd50695c54d5c",
+      "sha256": "9148d24d122b591e2a9f16d1aaafee161dd37746cbab024686b1750e549ba022",
+      "bytes": 292
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/metrics_parts.py",
+      "git_blob": "08d4cfc6cc012243904d280470ec0fa49d1eadd4",
+      "sha256": "45d3d3183677aeed557e0d410cdce412387c29e526bc33c81c16ad324a4287ac",
+      "bytes": 40462
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/pricing.py",
+      "git_blob": "68b79e01df6d9c66dd6a4558a2d89c8246144e9c",
+      "sha256": "3a0920548c07468519635b3e9f1dc9c579d8e423739b4b83a001e73d032fe311",
+      "bytes": 2148
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/propagation.py",
+      "git_blob": "ff635c68cd5b8c6f808b3733bc2370c9e58428d2",
+      "sha256": "0662550de014f5f6eefbb85a371328503f630186b9df376d610fd444fd843a96",
+      "bytes": 6189
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/tracer.py",
+      "git_blob": "2e0b0303eba54574e0a746abd1003768fc41f6ab",
+      "sha256": "bac8b15dc232b3e1589198d68e89c2e785f0cf7d5f80352344fba99644b71a8d",
+      "bytes": 14594
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/registry/__init__.py",
+      "git_blob": "d0dbdf77cff76fe6fc12a3719976b6df10ffd1aa",
+      "sha256": "3c0133c05fcda3e0270a117f54ca2b401f1e2dce02c2291c247c786a2e4f6e6d",
+      "bytes": 2084
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/registry/base.py",
+      "git_blob": "045b8003f9f93e7005bc0aa50ea25ee3a660218f",
+      "sha256": "140b47ccc131641a2a3cf3bbb91f899e6ef7429348ba2be3bd59afa7b275a015",
+      "bytes": 4727
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/registry/generic.py",
+      "git_blob": "0563b4217dc587d2f60d502d5b5edf7dd0f5ea90",
+      "sha256": "b1e1708fa846adf841fc4f54faa126c0b2605f005ce12c0c1e1ce9a79758553c",
+      "bytes": 6303
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/__init__.py",
+      "git_blob": "7641c716036cef618a6c99c97eec4edb53c7f00f",
+      "sha256": "eaf1cfb96501a334d6f4f164bec3921fb209e2b28fd764eb448a52617cd96564",
+      "bytes": 18510
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/db_backend.py",
+      "git_blob": "fcf1961a70cdeecb6ec600e702fba5f4a5fb1a55",
+      "sha256": "e2a24be263f3afe4faa445cf0b0500cfeacec2fbe1949a911b138f8ba4c84727",
+      "bytes": 6549
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/exceptions.py",
+      "git_blob": "40e2281a27f2c42e9d4186b030d2f3edb5bbb1a6",
+      "sha256": "7ec972cde8fc7da7d79b553a4ea5441cffff35add96787c5ffab515250083f92",
+      "bytes": 2766
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/tenant_context.py",
+      "git_blob": "5645cf0bf4f8633dc02e800ae28f4496f8d421a9",
+      "sha256": "f9051375fa189e5bc3e020356eccc4d14f6c1e6402080cd4261396ef3b56c9e0",
+      "bytes": 4174
+    }
+  ],
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "packages": {
+      "NumPy": "2.3.5",
+      "SciPy": "1.16.3",
+      "SALib": "1.5.2",
+      "pydantic": "2.12.5"
+    }
+  },
+  "independent_oracle": {
+    "response": "y=2*x",
+    "derivation": "exact slope (2*(2/3)-0)/(2/3)=2; second trajectory same; two exact effects yield mu*=2 and sigma=0",
+    "one_trajectory_dispersion": "undefined ddof=1, point-only witness"
+  },
+  "predicate_basis": "recomputed",
+  "limitations": [
+    "Bounded additional actual-analysis-row admission control; B99 original sampler override remains a separate criterion. No production history or confidence-quality claim."
+  ]
+}

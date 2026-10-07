@@ -1,0 +1,202 @@
+{
+  "schema": "policyos.e02.catalog_evidence_summary_correction.v2",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "correction_scope": "Evidence-only admission class. Original native mechanism/closed captures/owner-only patch and main packet remain unchanged. No native/backend/HTTP/browser selector repeat.",
+  "historical_inputs": {
+    "publication-selection.json": {
+      "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/publication-selection.json",
+      "bytes": 29522,
+      "sha256": "e441715f8effb36bc3197fde4f7f21c2cdcbfa1ac4ec03329a2bc382fe3a1ddd"
+    },
+    "owner-ready-catalog-fixture-packet.json": {
+      "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-ready-catalog-fixture-packet.json",
+      "bytes": 32614,
+      "sha256": "5feed21c81a8e01a68c074571d46182fe3eda1f5fea7f6007db8f06fafa12b80"
+    },
+    "validate_closed_catalog_packet.py": {
+      "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/validate_closed_catalog_packet.py",
+      "bytes": 6181,
+      "sha256": "558ea2ebbc183da3d2e1bd6981f9671585931c6ebae7f290c5ba9511e3d44052"
+    },
+    "packet-validation-normal.json": {
+      "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/packet-validation-normal.json",
+      "bytes": 1430,
+      "sha256": "ee0a1366009ae51cf0c1808ce8d731ba4d36f8768983e91fc6baab79b47b28ca"
+    },
+    "packet-validation-optimized.json": {
+      "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/packet-validation-optimized.json",
+      "bytes": 1430,
+      "sha256": "ee0a1366009ae51cf0c1808ce8d731ba4d36f8768983e91fc6baab79b47b28ca"
+    }
+  },
+  "defect": "V1 receipt hash/native-control checks did not bind duplicated full HTTP counts, full catalog table counts or proposal/product footprint summaries. Integrity-valid summary-only mutations retained native PASS/authority-denial markers yet passed v1.",
+  "independent_old_escape": {
+    "summary-corruption-probe.json": {
+      "path": "/tmp/e02-E-native-catalog-packet-independent-64d/summary-corruption-probe.json",
+      "bytes": 829,
+      "sha256": "a03c2df8b5dc184033b62e72013d947ed34a4adf977b29a4a4cdcbced0e784df"
+    },
+    "old-summary-escape-normal.stdout.json": {
+      "path": "/tmp/e02-E-native-catalog-packet-independent-64d/old-summary-escape-normal.stdout.json",
+      "bytes": 1548,
+      "sha256": "dbdc877b17911da4e667ff1196c211b820fca7ea0d0b88bec59adced7be6f206"
+    },
+    "old-summary-escape-optimized.stdout.json": {
+      "path": "/tmp/e02-E-native-catalog-packet-independent-64d/old-summary-escape-optimized.stdout.json",
+      "bytes": 1548,
+      "sha256": "cad641dc23eb515141dd2143ee9f35f7d33d1e32e48cd7f13891ad13e7e37641"
+    },
+    "probe_validator_summary_class.py.txt": {
+      "path": "/tmp/e02-E-native-catalog-packet-independent-64d/probe_validator_summary_class.py.txt",
+      "bytes": 2201,
+      "sha256": "2d20bede5785c57d081c0128e51d50266c220a3737fec2a72b763fe1f3f77038"
+    }
+  },
+  "current_validator": {
+    "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/validate_closed_catalog_packet_v2.py",
+    "bytes": 15716,
+    "sha256": "bdfba9995c408064c21e9bd7e779b7ad8705f4100f17c34592ebe41afd1b24c7"
+  },
+  "current_outputs": {
+    "packet-validation-v2-normal.json": {
+      "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/packet-validation-v2-normal.json",
+      "bytes": 6376,
+      "sha256": "9cfb10d3f54230b1cd3dc70510a11321f04c1b6fa3c7076c4b50d85f760ad4c2"
+    },
+    "packet-validation-v2-normal.stderr.txt": {
+      "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/packet-validation-v2-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "packet-validation-v2-optimized.json": {
+      "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/packet-validation-v2-optimized.json",
+      "bytes": 6376,
+      "sha256": "9cfb10d3f54230b1cd3dc70510a11321f04c1b6fa3c7076c4b50d85f760ad4c2"
+    },
+    "packet-validation-v2-optimized.stderr.txt": {
+      "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/packet-validation-v2-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "current_measured_summary_class": {
+    "structured_claims": [
+      "source_sha",
+      "tree_sha",
+      "source_guard_inputs",
+      "actual_environment",
+      "receipts.native_positive.source_sha",
+      "receipts.native_positive.tree_sha",
+      "receipts.native_positive.source_immutable",
+      "receipts.native_positive.source_inputs",
+      "receipts.missing_native_startup.source_sha",
+      "receipts.missing_native_startup.tree_sha",
+      "receipts.missing_native_startup.source_immutable",
+      "receipts.missing_native_startup.source_inputs",
+      "receipts.owner_overlay_healthy.source_sha",
+      "receipts.owner_overlay_healthy.tree_sha",
+      "receipts.owner_overlay_healthy.source_immutable",
+      "receipts.owner_overlay_healthy.source_inputs",
+      "receipts.owner_overlay_removed_route.source_sha",
+      "receipts.owner_overlay_removed_route.tree_sha",
+      "receipts.owner_overlay_removed_route.source_immutable",
+      "receipts.owner_overlay_removed_route.source_inputs",
+      "receipts.owner_overlay_fake_producer.source_sha",
+      "receipts.owner_overlay_fake_producer.tree_sha",
+      "receipts.owner_overlay_fake_producer.source_immutable",
+      "receipts.owner_overlay_fake_producer.source_inputs",
+      "minimum_fixture_inputs.actual_catalog_counts",
+      "minimum_fixture_inputs.actual_schema_and_profile_ref",
+      "configured_input.source_root",
+      "configured_input.path",
+      "configured_input.is_file",
+      "configured_input.actual_default_overlay_path",
+      "HTTP.native_source",
+      "HTTP.native_tree",
+      "HTTP.native_immutable",
+      "HTTP.attribution_source",
+      "HTTP.attribution_tree",
+      "native_full_HTTP.full_original_counts",
+      "HTTP.attribution_counts",
+      "native_full_HTTP.original_outcome",
+      "HTTP.attribution_outcome",
+      "native_full_HTTP.native_exit_code",
+      "HTTP.attribution_exit_code",
+      "HTTP.attribution_native_receipt",
+      "HTTP.attribution_native_stdout",
+      "HTTP.attribution_native_junit",
+      "HTTP.stdout_path",
+      "HTTP.stdout_bytes",
+      "HTTP.stdout_sha256",
+      "HTTP.junit_path",
+      "native_full_HTTP.catalog_error_count",
+      "native_full_HTTP.statuses",
+      "native_full_HTTP.literal_errno28_trace_count",
+      "native_full_HTTP.cause_ENOSPC_established",
+      "native_full_HTTP.P41",
+      "overlay.sha256",
+      "overlay.size",
+      "overlay.is_committed_candidate",
+      "owner_overlay_removed_route.literal_overlay_sha256",
+      "owner_overlay_removed_route.literal_overlay_size",
+      "owner_overlay_removed_route.is_committed_candidate",
+      "owner_overlay_fake_producer.literal_overlay_sha256",
+      "owner_overlay_fake_producer.literal_overlay_size",
+      "owner_overlay_fake_producer.is_committed_candidate",
+      "source_footprint",
+      "observer_provenance.native_sources_unchanged",
+      "observer_provenance.owner_overlay_not_a_Git_candidate"
+    ],
+    "claim_count": 65,
+    "patch_numstat": "43\t0\tpolicy-engine/tests/_helpers/runtime_http.py\n",
+    "public_signatures_preserved": true,
+    "narrative_concurrency_and_owner_limits": "manual owner assertions; not inferred authority"
+  },
+  "current_controls": 21,
+  "environment": {
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "cwd": "/workspace",
+    "rootenv_or_packages_mutated": false,
+    "execution_class": "stdlib observer + fixed immutable read-only Git object/patch commands"
+  },
+  "commands": [
+    [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/validate_closed_catalog_packet_v2.py",
+      "--base",
+      "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007",
+      "--packet",
+      "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-ready-catalog-fixture-packet.json"
+    ],
+    [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-O",
+      "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/validate_closed_catalog_packet_v2.py",
+      "--base",
+      "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007",
+      "--packet",
+      "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-ready-catalog-fixture-packet.json"
+    ]
+  ],
+  "native_GO_ref": {
+    "path": "/tmp/e02-E-native-catalog-packet-independent-64d/native-owner-packet-review.json",
+    "bytes": 13629,
+    "sha256": "630a3eabe3e5c1d25b2a80596db1d8f10a5c38b4f2dc1fb9a4b45ad3e1b122f0"
+  },
+  "status": "author bounded validation PASS; independent v2 summary/removal review pending",
+  "effective_removal_contract": {
+    "unique_predicate": "summary_receipt = admit_summary_claims(base, packet)",
+    "mutant": "summary_receipt = {}",
+    "expected": "All3 integrity-valid summary mutants re-admitted by retained historical v1 validation; independent expected-refusal discriminator FAIL. Current source refuses them. No actual native source/fields/refs/authority markers removed."
+  },
+  "scope_flags": {
+    "narrative_concurrency_limits_remain_manual_owner_assertions": true,
+    "owner_helper_patch_accepted": false,
+    "finding_closed": false,
+    "source_or_native_wave_repeated": false
+  },
+  "cleanup": "No cleanup performed. All historical/current scripts and deciding captures retained."
+}

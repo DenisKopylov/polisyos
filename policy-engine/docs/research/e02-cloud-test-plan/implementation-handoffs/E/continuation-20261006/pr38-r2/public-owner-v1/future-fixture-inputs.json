@@ -1,0 +1,35 @@
+{
+  "is_git_candidate": false,
+  "fixture_base_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+  "overlay_rows": [
+    {
+      "path": "policy-engine/src/polisyos/calibration/__init__.py",
+      "overlay_source_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "before_sha256": "3fcbc6d7e10176cf6578dc88fdc54482ba6a300a55385f3603f3069ad2ab67bd",
+      "after_sha256": "42d6b4c46672c228d067b14a03f79db2b702d0325558d4cd89b615d7c025bbfc",
+      "bytes": 2217
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "overlay_source_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "before_sha256": "173954a420aca0bbc9bad13eb4ab82eab6ff8b60ba75e540f0d245061d41ce44",
+      "after_sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+      "bytes": 81721
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "overlay_source_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "before_sha256": "86af4657cb009f932fa8e06921eea5ca9d1896834c8a60af4e95613e4f67203e",
+      "after_sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "bytes": 59611
+    },
+    {
+      "path": "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+      "overlay_source_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+      "sha256": "186078f2cd5c24cdef007449109d5667f60f4f7949c9b663026e5658e538bb5b",
+      "bytes": 38632,
+      "reason": "native execution producer imports tracked method digest registry"
+    }
+  ],
+  "source_history_not_modified": true
+}

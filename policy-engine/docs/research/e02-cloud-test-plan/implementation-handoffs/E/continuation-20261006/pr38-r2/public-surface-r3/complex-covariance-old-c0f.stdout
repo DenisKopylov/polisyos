@@ -1,0 +1,16 @@
+{
+  "exact_source": "c0f146702219cd3280c3b7d06e9d2bc4c7b95dd6",
+  "law": "declared Normal with unsupported complex covariance row[1+5j]",
+  "callback_count": 0,
+  "family": "unknown",
+  "gate_eligible": false,
+  "warnings": [
+    "Casting complex values to real discards the imaginary part"
+  ],
+  "failure": "unsupported_sampling_range_or_covariance"
+}
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet-r3/complex_covariance_old-c0f.py", line 18, in <module>
+    assert len(calls)==101 and result.envelope.distribution_family is DistributionFamily.NORMAL
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

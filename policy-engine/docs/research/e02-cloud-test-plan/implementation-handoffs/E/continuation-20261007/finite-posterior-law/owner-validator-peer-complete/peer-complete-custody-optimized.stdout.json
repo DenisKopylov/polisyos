@@ -1,0 +1,33 @@
+{
+  "schema": "policyos.e02.E.complete_peer_copy_custody_controls.v1",
+  "source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "outcome": "PASS",
+  "positive": {
+    "logical_rows": 21,
+    "literal_rows_verified": 21
+  },
+  "negative_controls": [
+    {
+      "control": "wrong candidate",
+      "outcome": "PASS",
+      "refusal": "source identity"
+    },
+    {
+      "control": "boolean denominator",
+      "outcome": "PASS",
+      "refusal": "logical denominator"
+    },
+    {
+      "control": "wrong copied hash",
+      "outcome": "PASS",
+      "refusal": "literal member"
+    },
+    {
+      "control": "wrong copied size",
+      "outcome": "PASS",
+      "refusal": "literal member"
+    }
+  ],
+  "scope": "Pure stdlib Git/literal custody only; no native source/generator/global gate rerun.",
+  "post_source_committed_doc_paths": 269
+}

@@ -1,0 +1,106 @@
+{
+  "schema": "policyos.e02.independent_closed_install_publication_selection.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-install-custody-independent-doe-20261007/review_install_custody.py",
+      "portable_path": "review_install_custody.py.txt",
+      "bytes": 13758,
+      "sha256": "240baa3541b9866e397550d130f088c2fda6e6493ec92e67c7a3ddba31507e2a",
+      "role": "independent-evidence-reader-or-closed-custody-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-install-custody-independent-doe-20261007/normal.stdout.txt",
+      "portable_path": "normal.stdout.txt",
+      "bytes": 343,
+      "sha256": "cfe19c563bd506289ac76021ffa2fc0963e311683b4872e3ae47f30b58a61777",
+      "role": "independent-evidence-reader-or-closed-custody-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-install-custody-independent-doe-20261007/normal.stderr.txt",
+      "portable_path": "normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-evidence-reader-or-closed-custody-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-install-custody-independent-doe-20261007/optimized.stdout.txt",
+      "portable_path": "optimized.stdout.txt",
+      "bytes": 346,
+      "sha256": "b5bacac49280befcfa32d1a0b97cf7da01646d3fb9bd2c21863f5b2fb46172d6",
+      "role": "independent-evidence-reader-or-closed-custody-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-install-custody-independent-doe-20261007/optimized.stderr.txt",
+      "portable_path": "optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-evidence-reader-or-closed-custody-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-install-custody-independent-doe-20261007/normal/independent-review.json",
+      "portable_path": "normal/independent-review.json",
+      "bytes": 24076,
+      "sha256": "32222a644a1fac2a9c65b33f3bdc88ee56bbbec175d317ed860e143fc7584527",
+      "role": "independent-evidence-reader-or-closed-custody-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-install-custody-independent-doe-20261007/normal/summary-predicate-removal.py.txt",
+      "portable_path": "normal/summary-predicate-removal.py.txt",
+      "bytes": 25052,
+      "sha256": "736042ba62dd7aefd8cb3ffecd73e2065b912c425e4a442fee323377219f16c3",
+      "role": "independent-evidence-reader-or-closed-custody-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-install-custody-independent-doe-20261007/optimized/independent-review.json",
+      "portable_path": "optimized/independent-review.json",
+      "bytes": 24079,
+      "sha256": "9e46fc439d7c28fe692860e8525bcc15b375e77ef922d824feea02579bed25ee",
+      "role": "independent-evidence-reader-or-closed-custody-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-install-custody-independent-doe-20261007/optimized/summary-predicate-removal.py.txt",
+      "portable_path": "optimized/summary-predicate-removal.py.txt",
+      "bytes": 25052,
+      "sha256": "736042ba62dd7aefd8cb3ffecd73e2065b912c425e4a442fee323377219f16c3",
+      "role": "independent-evidence-reader-or-closed-custody-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-install-custody-independent-doe-20261007/review_pending_selection.py",
+      "portable_path": "review_pending_selection.py.txt",
+      "bytes": 3298,
+      "sha256": "916f06904f30054a1b4f154a13684e47cdfb737712446ada6b9dd6abb925a5e7",
+      "role": "thin independent pending publication alias custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-install-custody-independent-doe-20261007/independent-pending-publication-alias-review.json",
+      "portable_path": "independent-pending-publication-alias-review.json",
+      "bytes": 22485,
+      "sha256": "e2d8cb118778368115172e1b044762fecfc8cb708f3e6bdbae14cf7c3c11be4d",
+      "role": "thin independent pending publication alias custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-install-custody-independent-doe-20261007/pending-alias.stdout.txt",
+      "portable_path": "pending-alias.stdout.txt",
+      "bytes": 173,
+      "sha256": "85832bee30af16372553c4dfa3e41e5ec6092c6c54561831a09c393706933c9a",
+      "role": "thin independent pending publication alias custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-install-custody-independent-doe-20261007/pending-alias.stderr.txt",
+      "portable_path": "pending-alias.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "thin independent pending publication alias custody"
+    }
+  ],
+  "asset_count": 13,
+  "bytes": 138662,
+  "scope": "Evidence reader/custody GO only. 32 saved original input bindings,203 unchanged distribution METADATA\u2192207, four existing ignored wheels refs, six source refs; normal/-O fourteen controls each, four effective summary-predicate-removal FAIL discriminators. No installer/preflight/backend or ROOT-env interpreter repeat; unreadable infrastructure199/250 means unconditional all-process quiescence not established; original UNRUN/pending+workspace14FAIL retained; active runtime result not inferred. Thin pending selector8d7754 alias custody GO included separately, original9asset selector remains unchanged.",
+  "historical_original_independent_selection": {
+    "path": "/tmp/e02-E-install-custody-independent-doe-20261007/publication-selection.json",
+    "bytes": 3871,
+    "sha256": "3906eb214ef6aa3f323c4529c13a2762a7ced3a227d514096dec98052a1a3243"
+  }
+}

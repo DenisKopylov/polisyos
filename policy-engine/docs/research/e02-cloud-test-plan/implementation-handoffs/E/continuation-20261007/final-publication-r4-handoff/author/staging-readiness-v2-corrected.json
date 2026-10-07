@@ -1,0 +1,79 @@
+{
+  "schema": "policyos.e02.staging_proposed_copier_v2_control.v1",
+  "manifest_sha256": "c1bee3b493562ebe09d25ab73a02edc53f820ecfedc8f0688b7ff2348ff29fc4",
+  "copier_sha256": "ecbcde3ff8d6d11d8bc6bf1a4217c843b573ad9fa5f077f78d545fb625b1bd5f",
+  "copier_bytes": 9598,
+  "literal_payload_files": 107,
+  "literal_payload_bytes": 3112171,
+  "healthy_cli_exit_code": 0,
+  "healthy_written_paths": 114,
+  "healthy_literal_readback": "PASS",
+  "omitted_member": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/historical-preflight-recovery-search-v1.json",
+  "superficial_counts_recomputed": true,
+  "selector_originals_unchanged": true,
+  "negative_argv": [
+    "python3",
+    "/tmp/e02-E-final-publication-r4-staging/copy-proposed-publication.py.txt",
+    "--manifest",
+    "/tmp/e02-E-final-publication-r4-staging/omitted-member-v2-control-manifest.json",
+    "--destination-root",
+    "/tmp/e02-E-final-publication-r4-staging/omission-control-v2-receipt-corrected-root"
+  ],
+  "negative_exit_code": 1,
+  "negative_destination_created": false,
+  "negative_guard": "exact anchored original selected-member multiset",
+  "old_v1_copier_sha256": "630868fdd62cb3bb79994ae98ff68f8a247ab6cda45bd873d2a7fa31d7046f45",
+  "root_leaf_source_env_writes": false,
+  "source_gate_test_numeric_execution": false,
+  "pending_not_collected": [
+    "new frontend receipts",
+    "new backend receipts",
+    "final all-54 owner closeout"
+  ],
+  "current_metadata": {
+    "staging-manifest.json": {
+      "bytes": 148233,
+      "sha256": "c1bee3b493562ebe09d25ab73a02edc53f820ecfedc8f0688b7ff2348ff29fc4"
+    },
+    "README.md": {
+      "bytes": 2625,
+      "sha256": "efff0d789cc17d25fdf7d287ba7f5c82bea96fc1ee1deb935f2fb5223035d05a"
+    },
+    "copy-proposed-publication.py.txt": {
+      "bytes": 9598,
+      "sha256": "ecbcde3ff8d6d11d8bc6bf1a4217c843b573ad9fa5f077f78d545fb625b1bd5f"
+    },
+    "copy-proposed-publication-v1.py.txt": {
+      "bytes": 3750,
+      "sha256": "630868fdd62cb3bb79994ae98ff68f8a247ab6cda45bd873d2a7fa31d7046f45"
+    },
+    "build-staging.py.txt": {
+      "bytes": 11542,
+      "sha256": "748135acd89963861a2ba2951efa6bf437a5a31fe8a14acd643b342e02b180ff"
+    },
+    "build.stdout.json": {
+      "bytes": 5675,
+      "sha256": "b0c7513856f92e1ce1b116a7a0fbd3e782dd60902e847e3347565b80dfbf1f14"
+    },
+    "build.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "canonical_guard": "Exact selected-member Counter, original selector anchors, explicit owner alias declarations, no orphan canonical copies, first-content canonical path and alias states recomputed before writes.",
+  "actual_negative_stdout": {
+    "path": "/tmp/e02-E-final-publication-r4-staging/omission-control-v2-receipt-corrected.stdout",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "actual_negative_stderr": {
+    "path": "/tmp/e02-E-final-publication-r4-staging/omission-control-v2-receipt-corrected.stderr",
+    "bytes": 634,
+    "sha256": "7a43174bd9bd194a14913fcdc079a92f821012954431bf3c5e00b526871a71a8"
+  },
+  "historical_receipt_correction": {
+    "source": "/tmp/e02-E-final-publication-r4-staging/staging-readiness-v2-final.json",
+    "problem": "Author receipt accidentally replaced --destination-root at argv index4 while relabelling output path. Historical receipt preserved; this fresh actual CLI invocation records the exact list and exit/output.",
+    "source_payload_or_copier_changed": false
+  }
+}

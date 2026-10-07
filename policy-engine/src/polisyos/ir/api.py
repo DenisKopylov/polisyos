@@ -185,6 +185,65 @@ IR_NAMING_CONVENTIONS: dict[str, str] = {
 }
 
 ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
+    "posterior_population_std_v2": (
+        "polisyos.ir.analytics.posterior_summary",
+        "posterior_population_std_v2",
+    ),
+    "PosteriorSummaryProfileV2": (
+        "polisyos.ir.analytics.posterior_summary",
+        "PosteriorSummaryProfileV2",
+    ),
+    "canonicalize_posterior_weights": (
+        "polisyos.ir.analytics.posterior_summary",
+        "canonicalize_posterior_weights",
+    ),
+    "posterior_sampling_cdf": ("polisyos.ir.analytics.posterior_summary", "posterior_sampling_cdf"),
+    "posterior_summary_functionals_v2": (
+        "polisyos.ir.analytics.posterior_summary",
+        "posterior_summary_functionals_v2",
+    ),
+    "load_posterior_summary_envelope": (
+        "polisyos.ir.analytics.posterior_summary",
+        "load_posterior_summary_envelope",
+    ),
+    "validate_raw_posterior_summary_envelope": (
+        "polisyos.ir.analytics.posterior_summary",
+        "validate_raw_posterior_summary_envelope",
+    ),
+    "PosteriorSamplesCarrier": ("polisyos.ir.analytics.uncertainty", "PosteriorSamplesCarrier"),
+    "PosteriorParameterBinding": (
+        "polisyos.ir.analytics.posterior_summary",
+        "PosteriorParameterBinding",
+    ),
+    "PosteriorSummaryContext": (
+        "polisyos.ir.analytics.posterior_summary",
+        "PosteriorSummaryContext",
+    ),
+    "PosteriorSummaryProfile": (
+        "polisyos.ir.analytics.posterior_summary",
+        "PosteriorSummaryProfile",
+    ),
+    "posterior_nominal_mean": ("polisyos.ir.analytics.posterior_summary", "posterior_nominal_mean"),
+    "admit_posterior_summary_profiles": (
+        "polisyos.ir.analytics.posterior_summary",
+        "admit_posterior_summary_profiles",
+    ),
+    "posterior_joint_carrier_digest": (
+        "polisyos.ir.analytics.posterior_summary",
+        "posterior_joint_carrier_digest",
+    ),
+    "posterior_carrier_content_hash": (
+        "polisyos.ir.analytics.posterior_summary",
+        "posterior_carrier_content_hash",
+    ),
+    "posterior_summary_functionals": (
+        "polisyos.ir.analytics.posterior_summary",
+        "posterior_summary_functionals",
+    ),
+    "read_posterior_summary_profile": (
+        "polisyos.ir.analytics.posterior_summary",
+        "read_posterior_summary_profile",
+    ),
     "AccessTier": ("polisyos.ir.analytics.data_views", "AccessTier"),
     "AdmittedClaimAdjudicationBatch": (
         "polisyos.ir.analytics.literature",

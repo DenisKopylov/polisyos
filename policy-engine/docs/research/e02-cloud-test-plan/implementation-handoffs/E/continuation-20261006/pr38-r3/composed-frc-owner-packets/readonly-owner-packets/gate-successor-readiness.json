@@ -1,0 +1,2240 @@
+{
+  "schema": "policyos.e02.E.readonly-successor-queue.v1",
+  "source_sha": "8e7e6cc28ac336fa9275ed456ac19a74d0e55553",
+  "source_tree": "4b062f4fe79c311b887e1f050cde1432d8a31830",
+  "scope": "All14 canonical workspace backend stages, including13 historical successors, and23 post-doctor CI selectors",
+  "no_source_or_global_execution": true,
+  "rows": [
+    {
+      "scope": "workspace",
+      "stage_number": 1,
+      "code": "workspace-01",
+      "label": "lint imports",
+      "canonical_command": {
+        "label": "lint imports",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "python",
+          "tools/quality/lint/lint_imports.py",
+          "--policy",
+          "architecture/imports/policy.toml",
+          "--exceptions",
+          "architecture/imports/exceptions.toml"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/lint/lint_imports.py",
+            "--policy",
+            "architecture/imports/policy.toml",
+            "--exceptions",
+            "architecture/imports/exceptions.toml"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone read-only checker or isolated report",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available"
+      ],
+      "shared_mutable_seams": [],
+      "next_owner": "Architecture/import-policy canonical owners; E/Core/IR/Foundry leased routes",
+      "input_domain": {
+        "patterns": [
+          "src/**/*.py",
+          "architecture/imports/*"
+        ],
+        "tracked_candidate_superset_count": 2710,
+        "tracked_candidate_superset_sha256": "ea67908df09e7ec2d97c211f37f35c37a552279b3d8eec4871347ad41bcf81d4",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "workspace",
+      "stage_number": 2,
+      "code": "workspace-02",
+      "label": "check package import gates (shell-package closure)",
+      "canonical_command": {
+        "label": "check package import gates (shell-package closure)",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "polisyos-tools",
+          "validation",
+          "check-package-import-gates",
+          "--fail-closed",
+          "--json-output",
+          "_build/.tmp/last-mile/package-import-gates.json"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "polisyos-tools",
+            "validation",
+            "check-package-import-gates",
+            "--fail-closed",
+            "--json-output",
+            "_build/.tmp/last-mile/package-import-gates.json"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone read-only checker or isolated report",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available"
+      ],
+      "shared_mutable_seams": [
+        "_build/.tmp/last-mile unique report file named by canonical argv; serialize any duplicate invocation only"
+      ],
+      "next_owner": "Core/IR/public-surface and Tools owners",
+      "input_domain": {
+        "patterns": [
+          "src/**/*.py",
+          "architecture/public_surface/**",
+          "architecture/imports/**"
+        ],
+        "tracked_candidate_superset_count": 2714,
+        "tracked_candidate_superset_sha256": "1bb65706007410f0ea75ff1e74e0c959affe934ccf2ed9e524c52a197762b32f",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "workspace",
+      "stage_number": 3,
+      "code": "workspace-03",
+      "label": "lint foundry",
+      "canonical_command": {
+        "label": "lint foundry",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "python",
+          "-m",
+          "tools.quality.lint.lint_foundry",
+          "--repo-root",
+          "."
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "-m",
+            "tools.quality.lint.lint_foundry",
+            "--repo-root",
+            "."
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone read-only checker or isolated report",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available"
+      ],
+      "shared_mutable_seams": [],
+      "next_owner": "Foundry/Tools owner",
+      "input_domain": {
+        "patterns": [
+          "src/polisyos/foundry/**/*.py",
+          "tools/quality/lint/**"
+        ],
+        "tracked_candidate_superset_count": 615,
+        "tracked_candidate_superset_sha256": "f80a63f45de001d02a863c6d46dc3bd66f465f42708979115f76be990f1f234c",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "workspace",
+      "stage_number": 4,
+      "code": "workspace-04",
+      "label": "check state reads",
+      "canonical_command": {
+        "label": "check state reads",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "python",
+          "tools/quality/diagnostics/check_state_reads.py"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/diagnostics/check_state_reads.py"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone read-only checker or isolated report",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available"
+      ],
+      "shared_mutable_seams": [],
+      "next_owner": "Core/Foundry state-contract and Tools owners",
+      "input_domain": {
+        "patterns": [
+          "src/**/*.py",
+          "tools/quality/diagnostics/check_state_reads.py"
+        ],
+        "tracked_candidate_superset_count": 2702,
+        "tracked_candidate_superset_sha256": "0e5906a239cd63d9838f60f4b7a6b981b96b2265f6b6787e375d1cd0d9667962",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "workspace",
+      "stage_number": 5,
+      "code": "workspace-05",
+      "label": "check scholar imports",
+      "canonical_command": {
+        "label": "check scholar imports",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "python",
+          "tools/quality/lint/check_scholar_imports.py"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/lint/check_scholar_imports.py"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone read-only checker or isolated report",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available"
+      ],
+      "shared_mutable_seams": [],
+      "next_owner": "Scholar/Tools owner",
+      "input_domain": {
+        "patterns": [
+          "src/polisyos/scholar/**/*.py",
+          "tools/quality/lint/check_scholar_imports.py"
+        ],
+        "tracked_candidate_superset_count": 22,
+        "tracked_candidate_superset_sha256": "ffe8b5a0f3743cfd3b89281c766c14c51c348c6cd9b4585e74355cba908a83b3",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "workspace",
+      "stage_number": 6,
+      "code": "workspace-06",
+      "label": "check connector contracts",
+      "canonical_command": {
+        "label": "check connector contracts",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "polisyos-tools",
+          "connectors",
+          "check-contracts",
+          "--check"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "polisyos-tools",
+            "connectors",
+            "check-contracts",
+            "--check"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone read-only checker or isolated report",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available"
+      ],
+      "shared_mutable_seams": [
+        "serialize with active schema/OpenAPI/public inventory generator writes, so checker observes immutable source/output"
+      ],
+      "next_owner": "C/Fabric connector schema and generator owner",
+      "input_domain": {
+        "patterns": [
+          "src/polisyos/fabric/**",
+          "schemas/connectors/**",
+          "schemas/snapshots/fabric/**"
+        ],
+        "tracked_candidate_superset_count": 330,
+        "tracked_candidate_superset_sha256": "593c373fbd6411e73e4a93637460af54971a6db9cb0249c513831fa5a9147e1c",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "workspace",
+      "stage_number": 7,
+      "code": "workspace-07",
+      "label": "check schema freshness",
+      "canonical_command": {
+        "label": "check schema freshness",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "--extra",
+          "ml",
+          "python",
+          "tools/quality/diagnostics/gen_schema.py",
+          "--check"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "--extra",
+            "ml",
+            "python",
+            "tools/quality/diagnostics/gen_schema.py",
+            "--check"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone read-only checker or isolated report",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available"
+      ],
+      "shared_mutable_seams": [
+        "serialize with active schema/OpenAPI/public inventory generator writes, so checker observes immutable source/output"
+      ],
+      "next_owner": "Core DTO + IR ABI registry + schema generator owner",
+      "input_domain": {
+        "patterns": [
+          "src/**/*.py",
+          "schemas/snapshots/**",
+          "docs/reference/**",
+          "tools/quality/diagnostics/**"
+        ],
+        "tracked_candidate_superset_count": 3019,
+        "tracked_candidate_superset_sha256": "953f8e22f0250e7dbb4d25d8f42e9f842c8fd64cfd524dddf252a81771bb5bb1",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "workspace",
+      "stage_number": 8,
+      "code": "workspace-08",
+      "label": "check runtime API contract",
+      "canonical_command": {
+        "label": "check runtime API contract",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "--extra",
+          "runtime",
+          "--extra",
+          "ml",
+          "python",
+          "tools/ops_runners/runtime/check_runtime_api_contract.py"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "--extra",
+            "runtime",
+            "--extra",
+            "ml",
+            "python",
+            "tools/ops_runners/runtime/check_runtime_api_contract.py"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone read-only checker or isolated report",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available"
+      ],
+      "shared_mutable_seams": [
+        "serialize with active schema/OpenAPI/public inventory generator writes, so checker observes immutable source/output"
+      ],
+      "next_owner": "A/runtime HTTP + runtime/client generator owner",
+      "input_domain": {
+        "patterns": [
+          "src/polisyos/runtime/http/**",
+          "schemas/runtime_api_v1.openapi.json",
+          "packages/runtime-api-client/**",
+          "architecture/policy_design_case/**",
+          "tools/ops_runners/runtime/**"
+        ],
+        "tracked_candidate_superset_count": 693,
+        "tracked_candidate_superset_sha256": "47042c466d036190ae3253959dbfb48ac0edaf57109762e91d01d83f28bd3737",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "workspace",
+      "stage_number": 9,
+      "code": "workspace-09",
+      "label": "check last-mile inventory baseline",
+      "canonical_command": {
+        "label": "check last-mile inventory baseline",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/repository_last_mile_inventory.py",
+          "--json-output",
+          "_build/.tmp/last-mile/inventory.json",
+          "--check"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/validation/repository_last_mile_inventory.py",
+            "--json-output",
+            "_build/.tmp/last-mile/inventory.json",
+            "--check"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone read-only checker or isolated report",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available"
+      ],
+      "shared_mutable_seams": [
+        "_build/.tmp/last-mile unique report file named by canonical argv; serialize any duplicate invocation only"
+      ],
+      "next_owner": "Tools/repository inventory owner",
+      "input_domain": {
+        "patterns": [
+          "src/**",
+          "tools/**",
+          "tests/**",
+          "architecture/**",
+          "schemas/**"
+        ],
+        "tracked_candidate_superset_count": 7647,
+        "tracked_candidate_superset_sha256": "79091204c539e8eff7916172347ac6c19ddcf9b85d9cee23c5b3e84bb04cfbff",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "workspace",
+      "stage_number": 10,
+      "code": "workspace-10",
+      "label": "build honest diagnostics coverage dashboard",
+      "canonical_command": {
+        "label": "build honest diagnostics coverage dashboard",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/build_honest_diagnostics_coverage.py",
+          "--repo-root",
+          ".",
+          "--output-dir",
+          "_build/honest-diagnostics/coverage"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/validation/build_honest_diagnostics_coverage.py",
+            "--repo-root",
+            ".",
+            "--output-dir",
+            "_build/honest-diagnostics/coverage"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone read-only checker or isolated report",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available"
+      ],
+      "shared_mutable_seams": [
+        "_build/honest-diagnostics/coverage writer"
+      ],
+      "next_owner": "Runtime quality / honest diagnostics owner",
+      "input_domain": {
+        "patterns": [
+          "architecture/production_quality/**",
+          "src/polisyos/runtime/quality/**",
+          "tests/unit/runtime/quality/**",
+          "schemas/runtime_quality/**",
+          "docs/system-design-decisions/**"
+        ],
+        "tracked_candidate_superset_count": 467,
+        "tracked_candidate_superset_sha256": "36a57e1bd078e4f3127b547d5461af3a7969ad60f1bbf5a1f19d5ace601ad147",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "workspace",
+      "stage_number": 11,
+      "code": "workspace-11",
+      "label": "check honest diagnostics substrate drift",
+      "canonical_command": {
+        "label": "check honest diagnostics substrate drift",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/check_substrate_drift.py",
+          "--repo-root",
+          ".",
+          "--require-passing"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/validation/check_substrate_drift.py",
+            "--repo-root",
+            ".",
+            "--require-passing"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone read-only checker or isolated report",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available",
+        "declared ci_tiers.toml, invariant_registry.toml, decision-log source; check_substrate_drift independently rebuilds its scan, does not consume stage10 coverage output"
+      ],
+      "shared_mutable_seams": [],
+      "next_owner": "Runtime quality / substrate anti-drift owner",
+      "input_domain": {
+        "patterns": [
+          "architecture/production_quality/**",
+          "src/polisyos/runtime/quality/**",
+          "tests/unit/runtime/quality/**",
+          "tests/repo_quality/tools/**",
+          "tools/quality/validation/**",
+          "schemas/runtime_quality/**",
+          "docs/adr/**",
+          "docs/system-design-decisions/**",
+          "docs/plans/archive/**"
+        ],
+        "tracked_candidate_superset_count": 1164,
+        "tracked_candidate_superset_sha256": "306e07b3560371118cca4872d9ee96a9dbc7e633772f4421cc8bcd71bf99a7a4",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "workspace",
+      "stage_number": 12,
+      "code": "workspace-12",
+      "label": "check extension example contract coverage",
+      "canonical_command": {
+        "label": "check extension example contract coverage",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/check_extension_examples.py",
+          "--skip-install",
+          "--skip-discovery",
+          "--skip-pytest"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/validation/check_extension_examples.py",
+            "--skip-install",
+            "--skip-discovery",
+            "--skip-pytest"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone read-only checker or isolated report",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available",
+        "extension example declared metadata and contract sources"
+      ],
+      "shared_mutable_seams": [],
+      "next_owner": "Extension-contract and Tools owner",
+      "input_domain": {
+        "patterns": [
+          "examples/**",
+          "src/**",
+          "tests/**",
+          "docs/**",
+          "pyproject.toml",
+          "uv.lock"
+        ],
+        "tracked_candidate_superset_count": 12863,
+        "tracked_candidate_superset_sha256": "b0b4dc8c5b4e6693a2ff52a4412c0b5c19f760c734e7b41bf25a3486054b80ea",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "workspace",
+      "stage_number": 13,
+      "code": "workspace-13",
+      "label": "check schemas pure-data closure",
+      "canonical_command": {
+        "label": "check schemas pure-data closure",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "python",
+          "-c",
+          "from pathlib import Path\n\nroot = Path(\"schemas\")\noutput = Path(\"_build/.tmp/last-mile/schemas-python-residue.txt\")\noutput.parent.mkdir(parents=True, exist_ok=True)\nmatches = []\nif root.exists():\n    for path in sorted(root.rglob(\"*\")):\n        if path.name == \"__pycache__\" or path.suffix == \".py\":\n            matches.append(path.as_posix())\noutput.write_text(\"\\n\".join(matches) + (\"\\n\" if matches else \"\"), encoding=\"utf-8\")\nif matches:\n    print(\"\\n\".join(matches))\n    raise SystemExit(1)"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "-c",
+            "from pathlib import Path\n\nroot = Path(\"schemas\")\noutput = Path(\"_build/.tmp/last-mile/schemas-python-residue.txt\")\noutput.parent.mkdir(parents=True, exist_ok=True)\nmatches = []\nif root.exists():\n    for path in sorted(root.rglob(\"*\")):\n        if path.name == \"__pycache__\" or path.suffix == \".py\":\n            matches.append(path.as_posix())\noutput.write_text(\"\\n\".join(matches) + (\"\\n\" if matches else \"\"), encoding=\"utf-8\")\nif matches:\n    print(\"\\n\".join(matches))\n    raise SystemExit(1)"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone read-only checker or isolated report",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available",
+        "filesystem schemas residue scan includes ignored __pycache__/.py; tracked schema domain is not the full live filesystem predicate"
+      ],
+      "shared_mutable_seams": [
+        "_build/.tmp/last-mile unique report file named by canonical argv; serialize any duplicate invocation only",
+        "serialize with active schema/OpenAPI/public inventory generator writes, so checker observes immutable source/output"
+      ],
+      "next_owner": "Schema/Tools owner",
+      "input_domain": {
+        "patterns": [
+          "schemas/**"
+        ],
+        "tracked_candidate_superset_count": 157,
+        "tracked_candidate_superset_sha256": "2d475479e5bd4062002e976eb5de7828488e78f419e65f5a78a72f27c5f5347c",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "workspace",
+      "stage_number": 14,
+      "code": "workspace-14",
+      "label": "pytest fast backend gate",
+      "canonical_command": {
+        "label": "pytest fast backend gate",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "pytest",
+          "-m",
+          "not integration",
+          "--ignore=tests/unit/runtime/http"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "VECLIB_MAXIMUM_THREADS": "1",
+          "BLIS_NUM_THREADS": "1"
+        },
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "pytest",
+            "-m",
+            "not integration",
+            "--ignore=tests/unit/runtime/http",
+            "--basetemp",
+            "/workspace/e02-E-pr38-r3-receipts/final-wave-after-freeze/standalone-successors/workspace-14/pytest-base",
+            "-o",
+            "cache_dir=/workspace/e02-E-pr38-r3-receipts/final-wave-after-freeze/standalone-successors/workspace-14/pytest-cache",
+            "--benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/final-wave-after-freeze/standalone-successors/workspace-14/benchmarks",
+            "--junitxml=/workspace/e02-E-pr38-r3-receipts/final-wave-after-freeze/standalone-successors/workspace-14/junit.xml"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone pytest selector; no requirement that doctor/import lint PASS before invocation",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available",
+        "fresh absent isolated pytest/cache/benchmark paths",
+        "exact pytest selector fixtures and declared backend capabilities"
+      ],
+      "shared_mutable_seams": [
+        "unidentified test DB/port is an observed runtime seam, not an automatic reason to cap unrelated numeric processes"
+      ],
+      "next_owner": "All backend source owners; root verification runner",
+      "input_domain": {
+        "patterns": [
+          "tests/**",
+          "src/**",
+          "pyproject.toml",
+          "uv.lock",
+          "conftest.py"
+        ],
+        "tracked_candidate_superset_count": 6219,
+        "tracked_candidate_superset_sha256": "87579641386aa7fb4e15c22d7434b754900f4b2c877f6cc58fffa9b32054283f",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "CI",
+      "stage_number": 1,
+      "code": "ci-01",
+      "label": "verify backend fast gate",
+      "canonical_command": {
+        "label": "verify backend fast gate",
+        "argv": [
+          "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+          "-m",
+          "tools.devx.workspace.verify",
+          "--backend-only",
+          "--skip-doctor"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+            "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+            "--repo",
+            "/workspace/e02-E-continuation-20261006",
+            "--gate",
+            "verify",
+            "--stages-output",
+            "/workspace/e02-E-pr38-r3-receipts/final-wave-after-freeze/standalone-successors/ci-01/internal-stages.json",
+            "--temp-root",
+            "/workspace/e02-E-pr38-r3-receipts/final-wave-after-freeze/standalone-successors/ci-01/tmp",
+            "--backend-only",
+            "--skip-doctor"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "nested canonical fail-fast scope; invoke individual workspace successors separately if first import lint remains red",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available"
+      ],
+      "shared_mutable_seams": [
+        "nested verify writes same repository _build outputs as top-level verify; serialize the same scope writer"
+      ],
+      "next_owner": "Root/canonical verify runner; all backend source owners",
+      "input_domain": {
+        "patterns": [
+          "src/**",
+          "tests/**",
+          "tools/**",
+          "architecture/**",
+          "schemas/**"
+        ],
+        "tracked_candidate_superset_count": 7647,
+        "tracked_candidate_superset_sha256": "79091204c539e8eff7916172347ac6c19ddcf9b85d9cee23c5b3e84bb04cfbff",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "CI",
+      "stage_number": 2,
+      "code": "ci-02",
+      "label": "pytest runtime/http",
+      "canonical_command": {
+        "label": "pytest runtime/http",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "pytest",
+          "tests/unit/runtime/http"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "pytest",
+            "tests/unit/runtime/http",
+            "--basetemp",
+            "/workspace/e02-E-pr38-r3-receipts/final-wave-after-freeze/standalone-successors/ci-02/pytest-base",
+            "-o",
+            "cache_dir=/workspace/e02-E-pr38-r3-receipts/final-wave-after-freeze/standalone-successors/ci-02/pytest-cache",
+            "--benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/final-wave-after-freeze/standalone-successors/ci-02/benchmarks",
+            "--junitxml=/workspace/e02-E-pr38-r3-receipts/final-wave-after-freeze/standalone-successors/ci-02/junit.xml"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone pytest selector; no requirement that doctor/import lint PASS before invocation",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available",
+        "fresh absent isolated pytest/cache/benchmark paths",
+        "exact pytest selector fixtures and declared backend capabilities"
+      ],
+      "shared_mutable_seams": [
+        "unidentified test DB/port is an observed runtime seam, not an automatic reason to cap unrelated numeric processes"
+      ],
+      "next_owner": "A/runtime HTTP consumer owner",
+      "input_domain": {
+        "patterns": [
+          "tests/unit/runtime/http/**",
+          "tests/_helpers/**",
+          "src/**",
+          "pyproject.toml",
+          "uv.lock"
+        ],
+        "tracked_candidate_superset_count": 3053,
+        "tracked_candidate_superset_sha256": "d57a53c2e5f3e64c6f91d0c1aff3b8337f1ddf1cb60f8a9d1c4fce3f15828f55",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "CI",
+      "stage_number": 3,
+      "code": "ci-03",
+      "label": "check directory health ratchet",
+      "canonical_command": {
+        "label": "check directory health ratchet",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/directory_health.py",
+          "--repo-root",
+          ".",
+          "--json-output",
+          "_build/.tmp/last-mile/directory-health.json",
+          "--markdown-output",
+          "_build/.tmp/last-mile/directory-health.md",
+          "--fail-on-regression"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/validation/directory_health.py",
+            "--repo-root",
+            ".",
+            "--json-output",
+            "_build/.tmp/last-mile/directory-health.json",
+            "--markdown-output",
+            "_build/.tmp/last-mile/directory-health.md",
+            "--fail-on-regression"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone read-only checker or isolated report",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available"
+      ],
+      "shared_mutable_seams": [
+        "_build/.tmp/last-mile unique report file named by canonical argv; duplicate writer requires serialization"
+      ],
+      "next_owner": "Repository health/Tools owner",
+      "input_domain": {
+        "patterns": [
+          "src/**",
+          "tools/**",
+          "tests/**",
+          "architecture/**"
+        ],
+        "tracked_candidate_superset_count": 7490,
+        "tracked_candidate_superset_sha256": "ce97795b709fb4dd0371734b87bf3c96db526f8eddecdac85c4ac84be93d0915",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "CI",
+      "stage_number": 4,
+      "code": "ci-04",
+      "label": "check test ratchets and helper topology",
+      "canonical_command": {
+        "label": "check test ratchets and helper topology",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "python",
+          "tools/quality/testing/report_test_ratchets.py",
+          "--format",
+          "json",
+          "--output",
+          "_build/.tmp/last-mile/test-ratchets.json",
+          "--fail-on-regression"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/testing/report_test_ratchets.py",
+            "--format",
+            "json",
+            "--output",
+            "_build/.tmp/last-mile/test-ratchets.json",
+            "--fail-on-regression"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone read-only checker or isolated report",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available"
+      ],
+      "shared_mutable_seams": [
+        "_build/.tmp/last-mile unique report file named by canonical argv; duplicate writer requires serialization"
+      ],
+      "next_owner": "Testing topology/Tools owner",
+      "input_domain": {
+        "patterns": [
+          "tests/**",
+          "architecture/**",
+          "tools/quality/testing/**"
+        ],
+        "tracked_candidate_superset_count": 4051,
+        "tracked_candidate_superset_sha256": "dcb9450381de9d77c931a3dfc91e110b7d2224dc1bbbc5982bf77feb1975d92c",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "CI",
+      "stage_number": 5,
+      "code": "ci-05",
+      "label": "check architecture phase6-1 report-only contracts",
+      "canonical_command": {
+        "label": "check architecture phase6-1 report-only contracts",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/architecture_report_only_contracts.py",
+          "--report",
+          "phase6-1",
+          "--json-output",
+          "_build/.tmp/last-mile/architecture-phase6-1.json",
+          "--fail-on-contract-errors"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/validation/architecture_report_only_contracts.py",
+            "--report",
+            "phase6-1",
+            "--json-output",
+            "_build/.tmp/last-mile/architecture-phase6-1.json",
+            "--fail-on-contract-errors"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone read-only checker or isolated report",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available"
+      ],
+      "shared_mutable_seams": [
+        "_build/.tmp/last-mile unique report file named by canonical argv; duplicate writer requires serialization"
+      ],
+      "next_owner": "Architecture report contract owner",
+      "input_domain": {
+        "patterns": [
+          "architecture/**",
+          "tools/quality/validation/**",
+          "docs/**",
+          "src/**"
+        ],
+        "tracked_candidate_superset_count": 10456,
+        "tracked_candidate_superset_sha256": "365d89008f84b344d06f70392e9f27610c638abf66032950efc9bd947365fe17",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "CI",
+      "stage_number": 6,
+      "code": "ci-06",
+      "label": "check validator module-size budget",
+      "canonical_command": {
+        "label": "check validator module-size budget",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/architecture_report_only_contracts.py",
+          "--report",
+          "module-size",
+          "--json-output",
+          "_build/.tmp/last-mile/module-size.json",
+          "--fail-on-contract-errors"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/validation/architecture_report_only_contracts.py",
+            "--report",
+            "module-size",
+            "--json-output",
+            "_build/.tmp/last-mile/module-size.json",
+            "--fail-on-contract-errors"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone read-only checker or isolated report",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available"
+      ],
+      "shared_mutable_seams": [
+        "_build/.tmp/last-mile unique report file named by canonical argv; duplicate writer requires serialization"
+      ],
+      "next_owner": "Validation Tools owner",
+      "input_domain": {
+        "patterns": [
+          "tools/quality/validation/**",
+          "architecture/**"
+        ],
+        "tracked_candidate_superset_count": 942,
+        "tracked_candidate_superset_sha256": "0955a7fa40638df0b385c42f65b32571a76abf40744466352472c83dd33f0b11",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "CI",
+      "stage_number": 7,
+      "code": "ci-07",
+      "label": "report debt ledger reconciliation",
+      "canonical_command": {
+        "label": "report debt ledger reconciliation",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/check_debt_ledger.py",
+          "--check",
+          "--report-only"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/validation/check_debt_ledger.py",
+            "--check",
+            "--report-only"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone read-only checker or isolated report",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available"
+      ],
+      "shared_mutable_seams": [],
+      "next_owner": "Debt ledger/architecture owner",
+      "input_domain": {
+        "patterns": [
+          "architecture/**",
+          "docs/**",
+          "src/**",
+          "tools/quality/validation/check_debt_ledger.py"
+        ],
+        "tracked_candidate_superset_count": 10248,
+        "tracked_candidate_superset_sha256": "e7d89f3a2b24711184c734e094ea144b76abd731574e1f0082d2a4bc51fdda05",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "CI",
+      "stage_number": 8,
+      "code": "ci-08",
+      "label": "check extension example installability",
+      "canonical_command": {
+        "label": "check extension example installability",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/check_extension_examples.py"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/validation/check_extension_examples.py"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone read-only checker or isolated report",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available",
+        "extension example declared metadata and contract sources",
+        "declared package/install/discovery environments; available network/package cache if tool needs them"
+      ],
+      "shared_mutable_seams": [
+        "extension install/discovery/smoke scratch owned by tool; no concurrent reuse of identical path"
+      ],
+      "next_owner": "Extension installability and Tools owners",
+      "input_domain": {
+        "patterns": [
+          "examples/**",
+          "src/**",
+          "tests/**",
+          "docs/**",
+          "pyproject.toml",
+          "uv.lock"
+        ],
+        "tracked_candidate_superset_count": 12863,
+        "tracked_candidate_superset_sha256": "b0b4dc8c5b4e6693a2ff52a4412c0b5c19f760c734e7b41bf25a3486054b80ea",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "CI",
+      "stage_number": 9,
+      "code": "ci-09",
+      "label": "check ADR thematic index freshness",
+      "canonical_command": {
+        "label": "check ADR thematic index freshness",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/generate_adr_index.py",
+          "--check"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/validation/generate_adr_index.py",
+            "--check"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone read-only checker or isolated report",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available"
+      ],
+      "shared_mutable_seams": [],
+      "next_owner": "ADR/docs owner",
+      "input_domain": {
+        "patterns": [
+          "docs/adr/**",
+          "tools/quality/validation/generate_adr_index.py"
+        ],
+        "tracked_candidate_superset_count": 199,
+        "tracked_candidate_superset_sha256": "7ad06ce2c5a10d8a3ebd5bfc38f94d22d6404fa2af9e0341b28a5ec53ec8e35e",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "CI",
+      "stage_number": 10,
+      "code": "ci-10",
+      "label": "check docs accuracy",
+      "canonical_command": {
+        "label": "check docs accuracy",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "--extra",
+          "docs",
+          "python",
+          "tools/quality/validation/check_docs_accuracy.py",
+          "--repo-root",
+          "."
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "--extra",
+            "docs",
+            "python",
+            "tools/quality/validation/check_docs_accuracy.py",
+            "--repo-root",
+            "."
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone read-only checker or isolated report",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available"
+      ],
+      "shared_mutable_seams": [],
+      "next_owner": "Docs/tooling and affected source owners",
+      "input_domain": {
+        "patterns": [
+          "docs/**",
+          "src/**",
+          "tools/**",
+          "mkdocs.yml",
+          "pyproject.toml",
+          "uv.lock"
+        ],
+        "tracked_candidate_superset_count": 10057,
+        "tracked_candidate_superset_sha256": "5733cc84991491c11cd93031392f7ee772539f9032a2bb374a7341f37b9797a8",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "CI",
+      "stage_number": 11,
+      "code": "ci-11",
+      "label": "build docs in strict mode",
+      "canonical_command": {
+        "label": "build docs in strict mode",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "--extra",
+          "docs",
+          "python",
+          "-m",
+          "mkdocs",
+          "build",
+          "--strict"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "--extra",
+            "docs",
+            "python",
+            "-m",
+            "mkdocs",
+            "build",
+            "--strict"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone read-only checker or isolated report",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available"
+      ],
+      "shared_mutable_seams": [
+        "_build/site MkDocs output and plugins; serialize same output writer"
+      ],
+      "next_owner": "Docs platform/MkDocs owner",
+      "input_domain": {
+        "patterns": [
+          "docs/**",
+          "src/**",
+          "tools/**",
+          "mkdocs.yml",
+          "pyproject.toml",
+          "uv.lock"
+        ],
+        "tracked_candidate_superset_count": 10057,
+        "tracked_candidate_superset_sha256": "5733cc84991491c11cd93031392f7ee772539f9032a2bb374a7341f37b9797a8",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "CI",
+      "stage_number": 12,
+      "code": "ci-12",
+      "label": "check semantic docstring quality",
+      "canonical_command": {
+        "label": "check semantic docstring quality",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "run",
+          "--extra",
+          "docs",
+          "python",
+          "tools/quality/validation/check_docstring_quality.py",
+          "--repo-root",
+          ".",
+          "--allowlist",
+          "tools/quality/validation/docstring_quality_allowlist.txt",
+          "--coverage-scope",
+          "public-surface",
+          "--minimum-coverage",
+          "85"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "--extra",
+            "docs",
+            "python",
+            "tools/quality/validation/check_docstring_quality.py",
+            "--repo-root",
+            ".",
+            "--allowlist",
+            "tools/quality/validation/docstring_quality_allowlist.txt",
+            "--coverage-scope",
+            "public-surface",
+            "--minimum-coverage",
+            "85"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone read-only checker or isolated report",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available"
+      ],
+      "shared_mutable_seams": [],
+      "next_owner": "Public API and semantic docstring tooling owner",
+      "input_domain": {
+        "patterns": [
+          "src/**",
+          "tools/quality/validation/docstring_quality_allowlist.txt",
+          "architecture/public_surface/**",
+          "docs/**"
+        ],
+        "tracked_candidate_superset_count": 9519,
+        "tracked_candidate_superset_sha256": "2d897d6d102bb976106264b5e3d787c8a2138cc35d6e5606bf9a664e2d895ba4",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "CI",
+      "stage_number": 13,
+      "code": "ci-13",
+      "label": "npm typecheck",
+      "canonical_command": {
+        "label": "npm typecheck",
+        "argv": [
+          "npm",
+          "run",
+          "typecheck"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "typecheck"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone canonical frontend script selector",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available",
+        "Node>=22 <23, locked package dependencies and actual npm script inputs"
+      ],
+      "shared_mutable_seams": [
+        "node_modules and package lock are read-only after environment admission; serialize with installs",
+        "own fixed _build/_cache output per script as declared package/config"
+      ],
+      "next_owner": "Frontend/runtime-dashboard canonical owner",
+      "input_domain": {
+        "patterns": [
+          "apps/runtime-dashboard/**",
+          "packages/**",
+          "package.json",
+          "pnpm-lock.yaml",
+          "pnpm-workspace.yaml"
+        ],
+        "tracked_candidate_superset_count": 1446,
+        "tracked_candidate_superset_sha256": "619bc72d5afe4aa6ce50704f932a060588ffbf3130f71063e1d3cb3fbd66f6d4",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "CI",
+      "stage_number": 14,
+      "code": "ci-14",
+      "label": "npm lint",
+      "canonical_command": {
+        "label": "npm lint",
+        "argv": [
+          "npm",
+          "run",
+          "lint"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "lint"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone canonical frontend script selector",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available",
+        "Node>=22 <23, locked package dependencies and actual npm script inputs"
+      ],
+      "shared_mutable_seams": [
+        "node_modules and package lock are read-only after environment admission; serialize with installs",
+        "own fixed _build/_cache output per script as declared package/config",
+        "_cache/apps/runtime-dashboard/eslint/.eslintcache"
+      ],
+      "next_owner": "Frontend/runtime-dashboard canonical owner",
+      "input_domain": {
+        "patterns": [
+          "apps/runtime-dashboard/**",
+          "packages/**",
+          "package.json",
+          "pnpm-lock.yaml",
+          "pnpm-workspace.yaml"
+        ],
+        "tracked_candidate_superset_count": 1446,
+        "tracked_candidate_superset_sha256": "619bc72d5afe4aa6ce50704f932a060588ffbf3130f71063e1d3cb3fbd66f6d4",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "CI",
+      "stage_number": 15,
+      "code": "ci-15",
+      "label": "npm format check",
+      "canonical_command": {
+        "label": "npm format check",
+        "argv": [
+          "npm",
+          "run",
+          "format:check"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "format:check"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone canonical frontend script selector",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available",
+        "Node>=22 <23, locked package dependencies and actual npm script inputs"
+      ],
+      "shared_mutable_seams": [
+        "node_modules and package lock are read-only after environment admission; serialize with installs",
+        "own fixed _build/_cache output per script as declared package/config"
+      ],
+      "next_owner": "Frontend/runtime-dashboard canonical owner",
+      "input_domain": {
+        "patterns": [
+          "apps/runtime-dashboard/**",
+          "packages/**",
+          "package.json",
+          "pnpm-lock.yaml",
+          "pnpm-workspace.yaml"
+        ],
+        "tracked_candidate_superset_count": 1446,
+        "tracked_candidate_superset_sha256": "619bc72d5afe4aa6ce50704f932a060588ffbf3130f71063e1d3cb3fbd66f6d4",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "CI",
+      "stage_number": 16,
+      "code": "ci-16",
+      "label": "npm architecture check",
+      "canonical_command": {
+        "label": "npm architecture check",
+        "argv": [
+          "npm",
+          "run",
+          "check:architecture"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "check:architecture"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone canonical frontend script selector",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available",
+        "Node>=22 <23, locked package dependencies and actual npm script inputs"
+      ],
+      "shared_mutable_seams": [
+        "node_modules and package lock are read-only after environment admission; serialize with installs",
+        "own fixed _build/_cache output per script as declared package/config"
+      ],
+      "next_owner": "Frontend/runtime-dashboard canonical owner",
+      "input_domain": {
+        "patterns": [
+          "apps/runtime-dashboard/**",
+          "packages/**",
+          "package.json",
+          "pnpm-lock.yaml",
+          "pnpm-workspace.yaml"
+        ],
+        "tracked_candidate_superset_count": 1446,
+        "tracked_candidate_superset_sha256": "619bc72d5afe4aa6ce50704f932a060588ffbf3130f71063e1d3cb3fbd66f6d4",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "CI",
+      "stage_number": 17,
+      "code": "ci-17",
+      "label": "npm contract fixtures",
+      "canonical_command": {
+        "label": "npm contract fixtures",
+        "argv": [
+          "npm",
+          "run",
+          "contracts:verify"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "contracts:verify"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone canonical frontend script selector",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available",
+        "Node>=22 <23, locked package dependencies and actual npm script inputs"
+      ],
+      "shared_mutable_seams": [
+        "node_modules and package lock are read-only after environment admission; serialize with installs",
+        "own fixed _build/_cache output per script as declared package/config"
+      ],
+      "next_owner": "Frontend/runtime-dashboard canonical owner",
+      "input_domain": {
+        "patterns": [
+          "apps/runtime-dashboard/**",
+          "packages/**",
+          "package.json",
+          "pnpm-lock.yaml",
+          "pnpm-workspace.yaml"
+        ],
+        "tracked_candidate_superset_count": 1446,
+        "tracked_candidate_superset_sha256": "619bc72d5afe4aa6ce50704f932a060588ffbf3130f71063e1d3cb3fbd66f6d4",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "CI",
+      "stage_number": 18,
+      "code": "ci-18",
+      "label": "npm coverage",
+      "canonical_command": {
+        "label": "npm coverage",
+        "argv": [
+          "npm",
+          "run",
+          "test:coverage"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "npm",
+            "exec",
+            "--",
+            "vitest",
+            "run",
+            "--coverage",
+            "--testTimeout=20000",
+            "--hookTimeout=20000"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "environment_add": {}
+        },
+        {
+          "argv": [
+            "node",
+            "./scripts/check-coverage-ratchet.mjs"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "environment_add": {},
+          "requires_previous_exit_zero": true
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "same full coverage selector and ratchet; only artificial maxWorkers=1 removed at runtime, no package script edit or threshold change",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available",
+        "Node>=22 <23, locked package dependencies and actual npm script inputs",
+        "full vitest unit + confidence-ledger-browser project inputs; Chromium provider installed"
+      ],
+      "shared_mutable_seams": [
+        "node_modules and package lock are read-only after environment admission; serialize with installs",
+        "own fixed _build/_cache output per script as declared package/config",
+        "_cache/apps/runtime-dashboard/vitest, _build/apps/runtime-dashboard/coverage; serialize simultaneous duplicate writers"
+      ],
+      "next_owner": "Frontend/runtime-dashboard canonical owner",
+      "input_domain": {
+        "patterns": [
+          "apps/runtime-dashboard/**",
+          "packages/**",
+          "package.json",
+          "pnpm-lock.yaml",
+          "pnpm-workspace.yaml"
+        ],
+        "tracked_candidate_superset_count": 1446,
+        "tracked_candidate_superset_sha256": "619bc72d5afe4aa6ce50704f932a060588ffbf3130f71063e1d3cb3fbd66f6d4",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "CI",
+      "stage_number": 19,
+      "code": "ci-19",
+      "label": "npm build",
+      "canonical_command": {
+        "label": "npm build",
+        "argv": [
+          "npm",
+          "run",
+          "build"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone canonical frontend script selector",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available",
+        "Node>=22 <23, locked package dependencies and actual npm script inputs"
+      ],
+      "shared_mutable_seams": [
+        "node_modules and package lock are read-only after environment admission; serialize with installs",
+        "own fixed _build/_cache output per script as declared package/config",
+        "_build/apps/runtime-dashboard build/dist, postbuild security and atlas source validation; typecheck required by script"
+      ],
+      "next_owner": "Frontend/runtime-dashboard canonical owner",
+      "input_domain": {
+        "patterns": [
+          "apps/runtime-dashboard/**",
+          "packages/**",
+          "package.json",
+          "pnpm-lock.yaml",
+          "pnpm-workspace.yaml"
+        ],
+        "tracked_candidate_superset_count": 1446,
+        "tracked_candidate_superset_sha256": "619bc72d5afe4aa6ce50704f932a060588ffbf3130f71063e1d3cb3fbd66f6d4",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "CI",
+      "stage_number": 20,
+      "code": "ci-20",
+      "label": "npm build-storybook",
+      "canonical_command": {
+        "label": "npm build-storybook",
+        "argv": [
+          "npm",
+          "run",
+          "build-storybook"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build-storybook"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone canonical frontend script selector",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available",
+        "Node>=22 <23, locked package dependencies and actual npm script inputs"
+      ],
+      "shared_mutable_seams": [
+        "node_modules and package lock are read-only after environment admission; serialize with installs",
+        "own fixed _build/_cache output per script as declared package/config",
+        "_build/apps/runtime-dashboard/storybook-static"
+      ],
+      "next_owner": "Frontend/runtime-dashboard canonical owner",
+      "input_domain": {
+        "patterns": [
+          "apps/runtime-dashboard/**",
+          "packages/**",
+          "package.json",
+          "pnpm-lock.yaml",
+          "pnpm-workspace.yaml"
+        ],
+        "tracked_candidate_superset_count": 1446,
+        "tracked_candidate_superset_sha256": "619bc72d5afe4aa6ce50704f932a060588ffbf3130f71063e1d3cb3fbd66f6d4",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "CI",
+      "stage_number": 21,
+      "code": "ci-21",
+      "label": "Playwright browser install",
+      "canonical_command": {
+        "label": "Playwright browser install",
+        "argv": [
+          "npm",
+          "run",
+          "playwright:install"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "playwright:install"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone canonical frontend script selector",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available",
+        "Node>=22 <23, locked package dependencies and actual npm script inputs",
+        "Chromium browser install network/cache only if not already installed"
+      ],
+      "shared_mutable_seams": [
+        "node_modules and package lock are read-only after environment admission; serialize with installs",
+        "own fixed _build/_cache output per script as declared package/config",
+        "Playwright browser cache installer: serialize same browser/version writer"
+      ],
+      "next_owner": "Frontend/runtime-dashboard canonical owner",
+      "input_domain": {
+        "patterns": [
+          "apps/runtime-dashboard/**",
+          "packages/**",
+          "package.json",
+          "pnpm-lock.yaml",
+          "pnpm-workspace.yaml"
+        ],
+        "tracked_candidate_superset_count": 1446,
+        "tracked_candidate_superset_sha256": "619bc72d5afe4aa6ce50704f932a060588ffbf3130f71063e1d3cb3fbd66f6d4",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "CI",
+      "stage_number": 22,
+      "code": "ci-22",
+      "label": "npm Storybook interaction tests",
+      "canonical_command": {
+        "label": "npm Storybook interaction tests",
+        "argv": [
+          "npm",
+          "run",
+          "test:storybook"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:storybook"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone canonical frontend script selector",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available",
+        "Node>=22 <23, locked package dependencies and actual npm script inputs",
+        "Chromium browser provider and .storybook mocks/setup; browser test plugin starts its own isolated runtime; canonical script does not require stage20 storybook-static build"
+      ],
+      "shared_mutable_seams": [
+        "node_modules and package lock are read-only after environment admission; serialize with installs",
+        "own fixed _build/_cache output per script as declared package/config",
+        "_cache/apps/runtime-dashboard/vitest-storybook"
+      ],
+      "next_owner": "Frontend/runtime-dashboard canonical owner",
+      "input_domain": {
+        "patterns": [
+          "apps/runtime-dashboard/**",
+          "packages/**",
+          "package.json",
+          "pnpm-lock.yaml",
+          "pnpm-workspace.yaml"
+        ],
+        "tracked_candidate_superset_count": 1446,
+        "tracked_candidate_superset_sha256": "619bc72d5afe4aa6ce50704f932a060588ffbf3130f71063e1d3cb3fbd66f6d4",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    },
+    {
+      "scope": "CI",
+      "stage_number": 23,
+      "code": "ci-23",
+      "label": "npm accessibility suite",
+      "canonical_command": {
+        "label": "npm accessibility suite",
+        "argv": [
+          "npm",
+          "run",
+          "test:a11y"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      "standalone_steps": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:a11y"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "environment_add": {}
+        }
+      ],
+      "execution_status": "UNRUN",
+      "standalone_selector_available_despite_doctor_or_import_red": true,
+      "availability_basis": "Source-derived standalone command and required local inputs; no invocation performed, dependency availability must be recorded at execution. A preceding checker red is not a runtime prerequisite unless listed.",
+      "kind": "standalone canonical frontend script selector",
+      "minimal_dependencies": [
+        "actual frozen source checkout",
+        "declared locked runtime/optional extras available",
+        "Node>=22 <23, locked package dependencies and actual npm script inputs",
+        "Chromium installed; fixture Runtime HTTP backend extras; identity-bound bound-run-paper fixture selector"
+      ],
+      "shared_mutable_seams": [
+        "node_modules and package lock are read-only after environment admission; serialize with installs",
+        "own fixed _build/_cache output per script as declared package/config",
+        "Playwright fixture backend fixed8000 and Vite fixed5173; _build/apps/runtime-dashboard/.tmp/fixture-runtime.json and test-results/playwright-report; serialize this shared fixture/controller",
+        "Playwright workers1 is a shared fixture/port rule in source config; it is not an artificial CPU quota applied to independent numerical families"
+      ],
+      "next_owner": "Frontend/runtime-dashboard canonical owner",
+      "input_domain": {
+        "patterns": [
+          "apps/runtime-dashboard/**",
+          "packages/**",
+          "package.json",
+          "pnpm-lock.yaml",
+          "pnpm-workspace.yaml"
+        ],
+        "tracked_candidate_superset_count": 1446,
+        "tracked_candidate_superset_sha256": "619bc72d5afe4aa6ce50704f932a060588ffbf3130f71063e1d3cb3fbd66f6d4",
+        "exact_executed_denominator": "UNRUN; supersets do not assert test collection/runtime/transitive dependency measurement. Preserve each checker actual reported input denominator/output on execution."
+      }
+    }
+  ],
+  "operational_caps_removed_at_runtime": [
+    "OMP_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "MKL_NUM_THREADS",
+    "NUMEXPR_NUM_THREADS",
+    "VECLIB_MAXIMUM_THREADS",
+    "BLIS_NUM_THREADS",
+    "POLISYOS_PYTEST_WORKERS",
+    "POLISYOS_PYTEST_DIST"
+  ],
+  "canonical_failfast_vs_standalone": "Canonical umbrella retains FAIL and later UNRUN at exact observed failure. Independently invoked successor has separate command/env/stdout/JUnit/outcome receipt; it cannot rewrite canonical UNRUN or certify complete CI. Root may invoke ready independent selectors on frozen source once without waiting for unrelated doctor/import-policy green.",
+  "full_input_source_domain": {
+    "tracked_repository_count": 16377,
+    "tracked_product_count": 16349,
+    "source_runtime_input_path_count": 7651,
+    "current_lint_denominator_count": 340
+  },
+  "environment_paths_only_readonly_observation": {
+    "tools": {
+      "uv": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+      "npm": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/npm",
+      "node": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "corepack": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/corepack"
+    },
+    "product_venv_exists": true,
+    "dashboard_node_modules_exists": true,
+    "runtime_api_client_node_modules_exists": true
+  },
+  "cleanup": "Preserve deciding receipts and source. No Trash available; list isolated fixture/cache/build candidates after inactive-user checks, never permanently delete or clean Trash."
+}

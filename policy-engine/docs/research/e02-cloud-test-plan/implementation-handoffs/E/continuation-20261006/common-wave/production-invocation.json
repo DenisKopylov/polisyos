@@ -1,0 +1,48 @@
+{
+  "schema": "policyos.e02.frozen_check.v1",
+  "candidate_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "candidate_tree_sha": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+  "head_at_end": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "command": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "tools/quality/validation/check_production_invocation.py",
+    "--repo-root",
+    "/workspace/e02-E-continuation-20261006/policy-engine",
+    "--base",
+    "198076863e143dea9f89f02734b13d50dae3eed5",
+    "--receipt",
+    "/workspace/e02-E-20261006-receipts/common-wave/production-invocation.raw.json"
+  ],
+  "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+  "exit_code": 1,
+  "outcome": "FAIL",
+  "started_unix": 1791284401.748751,
+  "wall_seconds": 303.0472321510315,
+  "max_rss_kib": 8270276,
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "selected_variables": {
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null,
+      "BLIS_NUM_THREADS": null,
+      "XLA_FLAGS": null,
+      "JAX_PLATFORMS": null,
+      "JAX_ENABLE_X64": null,
+      "POLISYOS_PYTEST_WORKERS": null,
+      "UV_NO_SYNC": "1",
+      "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+      "TMPDIR": null
+    }
+  },
+  "source_identity_before": "9f8a51ddde321609d106d7ee7d747bde6a3182b7cc6747e1254d344e2ebd85fc",
+  "source_identity_after": "9f8a51ddde321609d106d7ee7d747bde6a3182b7cc6747e1254d344e2ebd85fc",
+  "source_immutable": true,
+  "stdout_path": "/workspace/e02-E-20261006-receipts/common-wave/production-invocation.stdout.txt",
+  "stdout_bytes": 5337,
+  "stdout_sha256": "ce3e4020e8a1e4146491f1c9faf0dbcd2b4cd4030e54cde9d61f70e6ab078abc",
+  "P41": "not_established; no inherited-red attribution"
+}

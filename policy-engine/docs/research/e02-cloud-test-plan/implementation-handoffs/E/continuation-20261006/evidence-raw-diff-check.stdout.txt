@@ -1,0 +1,36 @@
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers.stdout.txt:10: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers.stdout.txt:32: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers.stdout.txt:65: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers.stdout.txt:75: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers.stdout.txt:90: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers.stdout.txt:112: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers.stdout.txt:125: trailing whitespace.
++  
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers.xml:3: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers.xml:25: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers.xml:58: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers.xml:65: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers.xml:80: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers.xml:102: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-cal-and-welfare-consumer.stdout.txt:8: trailing whitespace.
++  
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-ddm-runtime-and-facade.stdout.txt:5: trailing whitespace.
++  
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-doe-salib-and-consumer-factory.stdout.txt:6: trailing whitespace.
++  
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-mc-joint-law-support-and-scientist-consumer.stdout.txt:9: trailing whitespace.
++  
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-pcl-continuous-persistence.stdout.txt:6: trailing whitespace.
++  

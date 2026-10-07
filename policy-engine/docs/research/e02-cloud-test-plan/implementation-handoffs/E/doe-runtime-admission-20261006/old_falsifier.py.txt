@@ -1,0 +1,29 @@
+from pathlib import Path
+import hashlib, json,sys,subprocess
+from unittest.mock import patch
+import numpy as np
+from SALib.sample import morris,sobol
+from polisyos.scientist.methods.doe import analysis,sampling,designs
+from polisyos.scientist.methods.doe.designs import SensitivityPlan,SensitivityMethod
+ROOT=Path('/workspace/e02-E-doe-20261006');REF='a2677935015e8a0e7f2dfd5412b671e13fb3175a';OUT=Path(__file__).parent
+identity={}
+for m in [designs,sampling,analysis]:
+ p=Path(m.__file__);name=str(p.relative_to(ROOT));b=p.read_bytes();assert b==subprocess.check_output(['git','show',REF+':'+name],cwd=ROOT);identity[name]=hashlib.sha256(b).hexdigest()
+observations=[]
+p=SensitivityPlan(parameters=['x'],n_trajectories=1,max_estimated_runs=2,seed=7);p.n_trajectories=4
+with patch.object(morris,'sample',wraps=morris.sample) as spy:
+ rows=sampling.generate_sensitivity_samples(p)
+ observations.append({'boundary':'directMorris sampler','estimated':p.estimated_runs,'cap':p.max_estimated_runs,'SALib_calls':spy.call_count,'rows':len(rows),'outcome':'OVER_CAP_MATERIALIZED'})
+q=SensitivityPlan(parameters=['x'],method=SensitivityMethod.SOBOL,n_trajectories=1,max_estimated_runs=4,input_law='independent',seed=7);q.n_trajectories=2
+x=sampling.generate_sensitivity_samples(q);y=x[:,0]
+with patch.object(sobol,'sample',wraps=sobol.sample) as spy:
+ result=analysis._analysis_identity(q,x,y)
+ observations.append({'boundary':'identity Sobol regeneration','estimated':q.estimated_runs,'cap':q.max_estimated_runs,'SALib_calls':spy.call_count,'rows':len(x),'identity_emitted':bool(result['analysis_id']),'outcome':'OVER_CAP_MATERIALIZED'})
+from SALib.analyze import sobol as sobol_analyzer
+with patch.object(sobol_analyzer,'analyze',wraps=sobol_analyzer.analyze) as spy:
+ result=analysis.analyze_sensitivity(q,x,y)
+ observations.append({'boundary':'directSobol analyzer','estimated':q.estimated_runs,'cap':q.max_estimated_runs,'SALib_analyzer_calls':spy.call_count,'result_total_runs':result.total_runs,'outcome':'OVER_CAP_ANALYZED'})
+for m in [designs,sampling,analysis]:
+ p=Path(m.__file__);assert hashlib.sha256(p.read_bytes()).hexdigest()==identity[str(p.relative_to(ROOT))]
+record={'source_sha':REF,'tree':subprocess.check_output(['git','rev-parse',REF+'^{tree}'],cwd=ROOT,text=True).strip(),'module_origins':identity,'observations':observations,'evaluator_callbacks':0,'authority':'Bounded actual SALib old-source code defect; no production law/finding closure','runtime':{'python':sys.version,'numpy':np.__version__}}
+(OUT/'old-falsifier.json').write_text(json.dumps(record,indent=2)+'\n');print(json.dumps(record,indent=2))

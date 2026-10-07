@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/review_wrapper.py", line 33, in <module>
+    check('runtime_checker_arguments_preserved',plan['operational_runtime_capture']['canonical_checker_main_arguments']==original['jobs'][[j['name'] for j in original['jobs']].index('runtime-api-contract')]['argv'][4:])
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/review_wrapper.py", line 11, in check
+    if not predicate:raise AssertionError(row)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'name': 'runtime_checker_arguments_preserved', 'passed': False}

@@ -1,0 +1,2 @@
+baseline drift: architecture/baselines/repository_best_in_class_last_mile/inventory.json
+Wrote last-mile inventory JSON: /workspace/e02-E-pr38-r3-receipts/doe-r4/zero-json-candidate-1186/inventory.json

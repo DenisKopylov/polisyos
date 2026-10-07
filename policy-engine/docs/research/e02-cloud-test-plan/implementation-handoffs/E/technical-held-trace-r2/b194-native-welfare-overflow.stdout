@@ -1,0 +1,77 @@
+/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/numpy/_core/_methods.py:134: RuntimeWarning: overflow encountered in reduce
+  ret = umr_sum(arr, axis, dtype, out, keepdims, where=where)
+/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/numpy/_core/_methods.py:170: RuntimeWarning: overflow encountered in reduce
+  arrmean = umr_sum(arr, axis, dtype, keepdims=True, where=where)
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/technical-held-trace/b194_native_welfare_overflow.py", line 21, in <module>
+    outcome=PropagateWelfareNode().execute(ctx,state)
+  File "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py", line 585, in execute
+    propagation = _propagate_credible_interval(
+        ctx,
+    ...<6 lines>...
+        calibration_source=collection.calibration_source,
+    )
+  File "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py", line 2283, in _propagate_credible_interval
+    report_ref = _persist_json_payload(
+        ctx,
+    ...<67 lines>...
+        ),
+    )
+  File "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py", line 4317, in _persist_json_payload
+    ref = ctx.store.put_json(
+        dict(payload),
+    ...<6 lines>...
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+  File "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/core/artifacts/store.py", line 2460, in put_json
+    data = to_canonical_bytes(obj, canon_spec)
+  File "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/core/canon/canon_json.py", line 40, in to_canonical_bytes
+    return _to_canonical_bytes(
+        obj,
+    ...<2 lines>...
+        canonical_types=_CANONICAL_TYPES,
+    )
+  File "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/common/canonical.py", line 232, in to_canonical_bytes
+    canon_obj = _canonicalize_obj(
+        obj,
+    ...<2 lines>...
+        canonical_types=canonical_types,
+    )
+  File "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/common/canonical.py", line 200, in _canonicalize_obj
+    return _canonicalize_mapping(
+        obj,
+    ...<3 lines>...
+        canonical_types=canonical_types,
+    )
+  File "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/common/canonical.py", line 108, in _canonicalize_mapping
+    out[key] = _canonicalize_obj(
+               ~~~~~~~~~~~~~~~~~^
+        value,
+        ^^^^^^
+    ...<3 lines>...
+        canonical_types=canonical_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/common/canonical.py", line 200, in _canonicalize_obj
+    return _canonicalize_mapping(
+        obj,
+    ...<3 lines>...
+        canonical_types=canonical_types,
+    )
+  File "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/common/canonical.py", line 108, in _canonicalize_mapping
+    out[key] = _canonicalize_obj(
+               ~~~~~~~~~~~~~~~~~^
+        value,
+        ^^^^^^
+    ...<3 lines>...
+        canonical_types=canonical_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/common/canonical.py", line 191, in _canonicalize_obj
+    _raise_violation(violation_type, "NaN/Inf forbidden in canonical JSON")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/common/canonical.py", line 67, in _raise_violation
+    raise violation_type(message)
+polisyos.core.canon.canon_json.CanonViolation: NaN/Inf forbidden in canonical JSON

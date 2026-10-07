@@ -1,0 +1,79 @@
+{
+  "schema": "policyos.e02.independent_packet_summary_admission_falsifier.v1",
+  "mode": "normal",
+  "validator": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/validate-owner3932-packets.py.txt",
+    "bytes": 13024,
+    "sha256": "4e3e354f50d16e12bf2defab996cf6e97caec963b934cee243e94b435007fcdb"
+  },
+  "healthy_actual_validator_passed": true,
+  "mutants": [
+    {
+      "id": "runtime_components_false_summary",
+      "keys": [
+        "runtime_schema_components"
+      ],
+      "kind": "projection",
+      "newvalue": 1,
+      "projection_PASS_marker": true,
+      "candidate_tree_refs_preserved": true,
+      "all_native_content_refs_preserved": true,
+      "expected_refusal": true,
+      "actual_refusal": null,
+      "defining_negative_outcome": "FAIL",
+      "actual_mutant_admitted": true
+    },
+    {
+      "id": "generated_payload_digest_false_summary",
+      "keys": [
+        "changed_generated_companions",
+        0,
+        "projected_sha256"
+      ],
+      "kind": "projection",
+      "newvalue": "0000000000000000000000000000000000000000000000000000000000000000",
+      "projection_PASS_marker": true,
+      "candidate_tree_refs_preserved": true,
+      "all_native_content_refs_preserved": true,
+      "expected_refusal": true,
+      "actual_refusal": null,
+      "defining_negative_outcome": "FAIL",
+      "actual_mutant_admitted": true
+    },
+    {
+      "id": "historical_ledger_bool_count",
+      "keys": [
+        "historical_ledger_preserved",
+        "closed"
+      ],
+      "kind": "owner",
+      "newvalue": true,
+      "projection_PASS_marker": true,
+      "candidate_tree_refs_preserved": true,
+      "all_native_content_refs_preserved": true,
+      "expected_refusal": true,
+      "actual_refusal": null,
+      "defining_negative_outcome": "FAIL",
+      "actual_mutant_admitted": true
+    },
+    {
+      "id": "source_consumer_digest_false_summary",
+      "keys": [
+        "property_paths_and_native_consumers",
+        0,
+        "sha256"
+      ],
+      "kind": "owner",
+      "newvalue": "0000000000000000000000000000000000000000000000000000000000000000",
+      "projection_PASS_marker": true,
+      "candidate_tree_refs_preserved": true,
+      "all_native_content_refs_preserved": true,
+      "expected_refusal": true,
+      "actual_refusal": null,
+      "defining_negative_outcome": "FAIL",
+      "actual_mutant_admitted": true
+    }
+  ],
+  "source_native_Git_or_environment_mutated": false,
+  "native_math_or_projection_rerun": false
+}

@@ -63,10 +63,6 @@ from polisyos.runtime.quality.grounding_relation import (  # noqa: E402
     GroundingCandidateAtom,
     MechanisticSignature,
 )
-from polisyos.runtime.quality.intervention_atom_binding import (
-    InterventionAtomBinding,
-    intervention_atom_content_hash,
-)  # noqa: E402
 from polisyos.runtime.quality.open_world_risk import PromotionRuntime  # noqa: E402
 from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveCycleBudget,
@@ -80,32 +76,10 @@ from polisyos.scientist.orchestration.engine.budget import (  # noqa: E402
     BudgetLimit,
     BudgetState,
 )
-
-
-def _recursive_problem(node_ref: str) -> DesignProblem:
-    payload = json.loads(
-        (
-            REPO_ROOT
-            / "architecture/policy_design_case/layer3_gy_second_domain_smoke_design_problem.json"
-        ).read_text(encoding="utf-8")
-    )["design_problem"]
-    problem = DesignProblem.model_validate(payload)
-    return problem.model_copy(
-        update={
-            "design_problem_id": "recursive_" + node_ref.rsplit("/", 1)[-1],
-            "objectives": [
-                problem.objectives[0].model_copy(update={"metric_id": "final_queue_length"})
-            ],
-            "outcome_of_interest": problem.outcome_of_interest.model_copy(
-                update={
-                    "target_variable": "final_queue_length",
-                    "metric_id": "final_queue_length",
-                    "estimand": "effect on the final claims queue length",
-                    "direction": "minimize",
-                }
-            ),
-        }
-    )
+from tests.unit.runtime.quality.recursive_generation_cycle_fixtures import (  # noqa: E402
+    _lane0_coupled_request,
+    _recursive_problem,
+)
 
 
 class _Lane0GenerationPort:
@@ -198,54 +172,6 @@ def _lane0_leaf_terminal() -> SearchTerminalState:
 
 def _recursive_budget_state() -> BudgetState:
     return BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))})
-
-
-def _lane0_coupled_request(
-    *,
-    parent_ref: str,
-    child_refs: tuple[str, str],
-    problem: DesignProblem,
-) -> Any:
-    module = import_module(
-        "tools.quality.validation.check_layer3_gy_joint_simulation_horizon_contract"
-    )
-    request = cast("Any", module)._coupled_request()
-    graph = request.coupling_graph
-    assert graph is not None
-    edges = tuple(
-        edge.model_copy(
-            update={
-                "source_module_ref": child_refs[0],
-                "target_module_ref": child_refs[1],
-            }
-        )
-        for edge in graph.interaction_edges
-    )
-    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
-    atoms: list[InterventionAtomBinding] = []
-    for atom in request.intervention_atoms:
-        draft = atom.model_copy(update={"problem_frame_ref": problem_ref})
-        content_hash = intervention_atom_content_hash(draft)
-        bound = draft.model_copy(
-            update={
-                "atom_id": f"atom_{content_hash.removeprefix('sha256:')[:16]}",
-                "content_hash": content_hash,
-            }
-        )
-        atoms.append(InterventionAtomBinding.model_validate(bound.model_dump(mode="python")))
-    return request.model_copy(
-        update={
-            "intervention_atoms": tuple(atoms),
-            "coupling_graph": graph.model_copy(
-                update={
-                    "design_ref": parent_ref,
-                    "module_refs": child_refs,
-                    "interaction_edges": edges,
-                    "evidence_state": "observed",
-                }
-            ),
-        }
-    )
 
 
 def _lane0_subdesigns(

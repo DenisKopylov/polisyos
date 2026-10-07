@@ -33,7 +33,7 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveGenerationCycleRun,
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
-from tests.unit.runtime.quality.test_depth_n_universality import (
+from tests.unit.runtime.quality.recursive_generation_cycle_fixtures import (
     _lane0_coupled_request,
     _recursive_problem,
 )

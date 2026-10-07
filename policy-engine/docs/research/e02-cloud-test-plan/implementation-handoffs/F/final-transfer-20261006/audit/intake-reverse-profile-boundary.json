@@ -1,0 +1,210 @@
+{
+  "schema": "policyos.e02.independent_profile_boundary.v1",
+  "unit": "F",
+  "reviewer": "F/economics",
+  "source_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+  "tree_sha": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+  "check": "PASS",
+  "outcome": "limited",
+  "finding_id": "B214",
+  "method_decision": "F-M9",
+  "source_change": false,
+  "classification": "Intentional declared canonical-static DAG profile restriction, not new authority/endpoint bypass. Does not demonstrate directNode acceptance of all resolved graph types.",
+  "actual_observations": [
+    {
+      "input_graph_type": "dag",
+      "input_marks": [
+        "arrow",
+        "tail"
+      ],
+      "source_coordinates": [
+        "X",
+        "Y"
+      ],
+      "IR_or_method_error": "ValidationError: 1 validation error for CausalGraphModel\n  Value error, DAG requires oriented edges with mark_src=tail, mark_dst=arrow [type=value_error, input_value={'graph_type': 'dag', 'no..., 'sources': ['data']}]}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+    },
+    {
+      "input_graph_type": "pag",
+      "input_marks": [
+        "arrow",
+        "tail"
+      ],
+      "source_coordinates": [
+        "X",
+        "Y"
+      ],
+      "IR_model_admission": "accepted",
+      "default_method_edges": [
+        [
+          "Y",
+          "X",
+          "tail",
+          "arrow"
+        ]
+      ],
+      "node_status": "fail",
+      "node_error": {
+        "code": "foundry.execute_failed",
+        "message": "reconcile_causal_graph execution failed: static graph intake requires a declared DAG, not a PAG/CPDAG/ADMG",
+        "details": {}
+      }
+    },
+    {
+      "equivalent_canonical_forward_coordinate_graph": [
+        "Y",
+        "X"
+      ],
+      "node_status": "ok",
+      "actual_fresh_edges": [
+        [
+          "Y",
+          "X",
+          "tail",
+          "arrow"
+        ]
+      ]
+    },
+    {
+      "registered_default_method_source_graph_type": "pag",
+      "registered_default_method_source_marks": [
+        "arrow",
+        "tail"
+      ],
+      "producer_fqn": "causal.prior.reconcile_causal_graph@1.0.0",
+      "source_ref": {
+        "artifact_id": "sha256:e5bd5f44918e39bc49cd311d953288c7577ea7d1347611ae526920c38e5cd2b8",
+        "kind": "tests.synthetic.known_reverse_graph",
+        "media_type": "application/json"
+      },
+      "method_result_ref": {
+        "artifact_id": "sha256:656b343a3de416332d9bb955b710e99e2c8d8f6ae21ff4dffb84f97058df1dd0",
+        "kind": "scientist.method_result.causal.prior",
+        "media_type": "application/json"
+      },
+      "node_status": "ok",
+      "fresh_edges": [
+        [
+          "Y",
+          "X",
+          "tail",
+          "arrow"
+        ]
+      ],
+      "original_endpoint_origin": {
+        "dst": "X",
+        "lag": 0,
+        "mark_dst": "arrow",
+        "mark_src": "tail",
+        "src": "Y"
+      },
+      "declared_scope": "Actual default producer normalizes known direction before canonical-DAG static Node; direct PAG input remains refused."
+    }
+  ],
+  "source_identity": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "source_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "bytes": 62458,
+      "sha256": "ab71e03c5594ad5eb6705c86d227884d38b57691f4a7df0db2e7abc6a016ca6f",
+      "workspace_equals_frozen": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "source_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "bytes": 42195,
+      "sha256": "1b9d1d678f4719acb5fe3b2f62605a1e382a693191f659f5d5455e3c82858a2d",
+      "workspace_equals_frozen": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "source_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "bytes": 20114,
+      "sha256": "121f33acc4b5bbc0541b3bb5cc331c3e77d9a3f2e684359af58211e56f44e1a1",
+      "workspace_equals_frozen": true
+    }
+  ],
+  "supported_route": "Actual registered default causal.prior.reconcile_causal_graph job accepts valid knownARROW-TAIL PAG, normalizes to Y→X, persists realMethodResult; strict currentNode consumes canonical-DAG result and freshCAS reader sees Y→X. Direct knownreverse PAG atNode is typedrefusal.",
+  "limitation": "Node supports declaredDAG canonicalTAIL-ARROW input only. ValidPAG knownreverse/unambiguousone-edge is outside its direct inputprofile. RawDAG ARROW-TAIL is already invalid in unchangedIR; profile safety/refusal is not broadB214 client/graphwriter support. Protected-readiness/B218 broader temporal route remainlimited.",
+  "origin_scope": "Second reconciliation data_endpoint_origin describes current canonical method-result coordinates; original producer graph/request remain source-bound through MethodResult and persisted request lineage. No single metadata field all-prior-stages preservation claim.",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-F-20261006-receipts/economics/intake-review/probe_reverse_boundary.py"
+  ],
+  "cwd": "/workspace/e02-F-graph-intake-20261006/policy-engine",
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "src:tools:.",
+    "versions": {
+      "numpy": "2.3.5",
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5",
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2",
+      "networkx": "3.6.1"
+    },
+    "environment_mutations": "none; root interpreter reused read-only",
+    "no_cloud_compute_quota": true
+  },
+  "exit": 0,
+  "actual_runner_warning_count": 4,
+  "output": "/workspace/e02-F-20261006-receipts/economics/intake-review/reverse-boundary-consumer-final.stdout.txt",
+  "output_ref": {
+    "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/reverse-boundary-consumer-final.stdout.txt",
+    "bytes": 3640,
+    "sha256": "3b253c43c10a3cc84f607112096b69b9d42d0d978c09cf2ead0d1afca7b813f4"
+  },
+  "stderr_ref": {
+    "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/reverse-boundary-consumer-final.stderr.txt",
+    "bytes": 893,
+    "sha256": "81f52ec6e3b33052dce333a1c4e8807bee14b891de093153be9c083ad7b5369a"
+  },
+  "script_ref": {
+    "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/probe_reverse_boundary.py",
+    "bytes": 3674,
+    "sha256": "3e9f7cd7c72ec8307565d8d918e67da21fd58f1d5185ad24a838eb72b2e9cd19"
+  },
+  "harness_history": "First script incorrectly expected DAG ARROW-TAIL to pass IR; IR correctly refused, wrapperassertion KeyError exit1, not product issue. Full initial output/script retained. Corrected profile checks pass; genuinejob positive then independently added. JSON extraction builder initially included logger text and raised JSONDecodeError; no source or test changes, complete raw stdout kept.",
+  "complete_companions": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/probe_reverse_boundary.py",
+      "bytes": 3674,
+      "sha256": "3e9f7cd7c72ec8307565d8d918e67da21fd58f1d5185ad24a838eb72b2e9cd19"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/probe_reverse_boundary.initial-harness.py",
+      "bytes": 2073,
+      "sha256": "67b205281ff6d08cbf18f9a4598163b734b8654bc23f7f38ac973b381de6f684"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/reverse-boundary.stdout.txt",
+      "bytes": 1813,
+      "sha256": "2ce44233464dab1d71525081d2b8de09c1fd1f3bb60ab9bd4474f2bb0a513f26"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/reverse-boundary.stderr.txt",
+      "bytes": 298,
+      "sha256": "8fb9b59982bef509ecfb8e738f663cfde473d5b0e4af78cda7ba25e12978a3b5"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/reverse-boundary-final.stdout.txt",
+      "bytes": 1813,
+      "sha256": "2ce44233464dab1d71525081d2b8de09c1fd1f3bb60ab9bd4474f2bb0a513f26"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/reverse-boundary-final.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/reverse-boundary-consumer-final.stdout.txt",
+      "bytes": 3640,
+      "sha256": "3b253c43c10a3cc84f607112096b69b9d42d0d978c09cf2ead0d1afca7b813f4"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/reverse-boundary-consumer-final.stderr.txt",
+      "bytes": 893,
+      "sha256": "81f52ec6e3b33052dce333a1c4e8807bee14b891de093153be9c083ad7b5369a"
+    }
+  ]
+}

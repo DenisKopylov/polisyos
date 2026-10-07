@@ -1,0 +1,85 @@
+{
+  "source": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+  "command": "/tmp/e02-F-continuation-20261006/foundry/docs-venv/bin/python -m mkdocs build --config-file /tmp/e02-F-continuation-20261006/foundry/state-docs.yml --clean",
+  "argv": [
+    "/tmp/e02-F-continuation-20261006/foundry/docs-venv/bin/python",
+    "-m",
+    "mkdocs",
+    "build",
+    "--config-file",
+    "/tmp/e02-F-continuation-20261006/foundry/state-docs.yml",
+    "--clean"
+  ],
+  "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+  "exit_code": 0,
+  "wall_seconds": 30.76476472200011,
+  "outcome": "PASS",
+  "environment": {
+    "interpreter": "/tmp/e02-F-continuation-20261006/foundry/docs-venv/bin/python",
+    "python": "Python 3.14.7",
+    "PYTHONPATH": "src:tools",
+    "installation_input": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/docs-install-inputs.json",
+      "bytes": 1667,
+      "sha256": "9d7992801b01816bc2f5bd61e299822694b98fa1a0fdaffc7dfe0b896498fafc"
+    },
+    "shared_environment_mutated": false,
+    "cloud_quota_introduced": false
+  },
+  "input_closure": "One complete maintained state page and all its native API directives; repository MkDocs config/theme/plugin/Markdown options inherited without source stubs; only page/navigation scope narrowed.",
+  "source_inputs": [
+    {
+      "path": "/workspace/e02-F-fry-20261006/policy-engine/mkdocs.yml",
+      "bytes": 221,
+      "sha256": "6c0f5281f0d25246dde5a3963dfcbfa1c6f7d6e6ae9df36fd457973bb6d4e567"
+    },
+    {
+      "path": "/workspace/e02-F-fry-20261006/policy-engine/architecture/tooling/mkdocs/generated.yml",
+      "bytes": 29832,
+      "sha256": "c121a8014d24456bc9158b63af0d69fc14401b329d4806021ba6606b638c1851"
+    },
+    {
+      "path": "/workspace/e02-F-fry-20261006/policy-engine/docs/reference/foundry/state.md",
+      "bytes": 4810,
+      "sha256": "008b08d202406a570cc837a2c6f78c6f68bedcefb59057b7d0cdd269ba3a90a9"
+    },
+    {
+      "path": "/workspace/e02-F-fry-20261006/policy-engine/src/polisyos/ir/kernel/slots.py",
+      "bytes": 18445,
+      "sha256": "6f24e435089d0c7d0cbb3b52fde1e2cb8f3b042c41f6b69adb37bb91620d4c81"
+    }
+  ],
+  "config": {
+    "path": "/tmp/e02-F-continuation-20261006/foundry/state-docs.yml",
+    "bytes": 307,
+    "sha256": "a62f8dcc7c81079eb7e0cf68dd2ac52c8f7da3052c8810a99ae07a93bacbd763"
+  },
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/foundry/state-docs.stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/foundry/state-docs.stderr.txt",
+    "bytes": 1440,
+    "sha256": "63fc76f8dc4210768e771727d035ed867164ed38917cb0ec878ada18c1a6041b"
+  },
+  "rendered_native_layout_anchors": [
+    "polisyos.ir.kernel.slots.SlotLayout",
+    "polisyos.ir.kernel.slots.SlotFamily",
+    "polisyos.ir.kernel.slots.SlotFamilyManifest",
+    "polisyos.ir.kernel.slots.build_slot_layout",
+    "polisyos.ir.kernel.slots.build_slot_family_manifest"
+  ],
+  "api_directives": [
+    "polisyos.ir.kernel.slots",
+    "polisyos.foundry.contracts.state",
+    "polisyos.foundry.execute.executor"
+  ],
+  "rendered_output": {
+    "path": "/tmp/e02-F-continuation-20261006/foundry/state-docs-site/reference/foundry/state/index.html",
+    "bytes": 422842,
+    "sha256": "2506604b81c603f4f598f03e1c2e56697972eed976837e2f2053e9cc1887433e"
+  },
+  "limitations": "Scoped page build, not strict full-project documentation/regression acceptance. All warnings retained in full stderr; no plugin/backend suppression or product import shim."
+}

@@ -1,0 +1,90 @@
+{
+  "check": "PASS",
+  "outcome": "limited",
+  "source_sha": "f9095536592150362747b063c0f4cf3aac899bb0",
+  "manifest_ref": {
+    "source_sha": "f9095536592150362747b063c0f4cf3aac899bb0",
+    "source_path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+    "bytes": 52447,
+    "sha256": "a2491b99771ccd92ceb2e90a38445375fc615f4ae3507c887c7a2d9d6e0d222e"
+  },
+  "canonical_generator_ref": {
+    "source_sha": "f9095536592150362747b063c0f4cf3aac899bb0",
+    "source_path": "policy-engine/tools/quality/diagnostics/gen_schema.py",
+    "bytes": 23635,
+    "sha256": "6d1b8f48e20853415dbd9109d0b0662f3d9ca199e2d15c36292823b2e7c1d72e"
+  },
+  "checks": [
+    {
+      "model": "structural_causal_model_spec",
+      "schema_version": "1.1",
+      "canonical_full": "699017daf1e4e5b848c24489197dd839eda9a34012cdf9a81146b78f62675ee5",
+      "canonical_semantic": "8ce5963b79c8be7dcf7e3a8493242023a8fcf990db72d364f0d80eec0bdf1613",
+      "snapshot_ref": {
+        "source_sha": "f9095536592150362747b063c0f4cf3aac899bb0",
+        "source_path": "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+        "bytes": 15243,
+        "sha256": "e0709ef298134086b4f57c279ac1cdd5cb173afaf1b8577a458bccca31387df4"
+      },
+      "provider_ref": {
+        "source_sha": "f9095536592150362747b063c0f4cf3aac899bb0",
+        "source_path": "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+        "bytes": 14857,
+        "sha256": "9ab530f92781aae2f00bb0151858ccca41a2c0bc93b94c0bc2da1dfaf503f6fa"
+      },
+      "fresh_runtime_payload_equal": true
+    },
+    {
+      "model": "causal_effect_report",
+      "schema_version": "1.0",
+      "canonical_full": "9b3c61fab918cd1291ed3fef560c78bd8172a9db42e66b621af4f2bb0b66ef70",
+      "canonical_semantic": "7aab181a683314bb4a5911c32dc7bb69bb6783c4aa60b6f35a654b737ceca3b3",
+      "snapshot_ref": {
+        "source_sha": "f9095536592150362747b063c0f4cf3aac899bb0",
+        "source_path": "policy-engine/schemas/snapshots/ir/causal_effect_report.schema.json",
+        "bytes": 42619,
+        "sha256": "7c00c1717ce59f0c4d6d05fafca99e853c4c8bf83fb21136382a79c070e29b72"
+      },
+      "provider_ref": {
+        "source_sha": "f9095536592150362747b063c0f4cf3aac899bb0",
+        "source_path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+        "bytes": 76429,
+        "sha256": "c7c6e0d382ce4d671ff1c783726a422464873bf7b3d93a602109f919222b7af7"
+      },
+      "fresh_runtime_payload_equal": true
+    }
+  ],
+  "new_typed_bindings": [
+    {
+      "name": "CausalEstimatorInterval",
+      "root_and_analytics_identity": true,
+      "registry_owner": [
+        "polisyos.ir.analytics.causal_queries",
+        "CausalEstimatorInterval"
+      ],
+      "provider_ref": {
+        "source_sha": "f9095536592150362747b063c0f4cf3aac899bb0",
+        "source_path": "policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+        "bytes": 29803,
+        "sha256": "704676490c54d5ce21f03d93f8273940b8145c9595cd8ab8b3fa651f53aa7f59"
+      },
+      "scope": "actual source/class binding and fresh schema, not scientific execution"
+    },
+    {
+      "name": "CausalResultKind",
+      "root_and_analytics_identity": true,
+      "registry_owner": [
+        "polisyos.ir.analytics.causal_queries",
+        "CausalResultKind"
+      ],
+      "provider_ref": {
+        "source_sha": "f9095536592150362747b063c0f4cf3aac899bb0",
+        "source_path": "policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+        "bytes": 29803,
+        "sha256": "704676490c54d5ce21f03d93f8273940b8145c9595cd8ab8b3fa651f53aa7f59"
+      },
+      "scope": "actual source/class binding and fresh schema, not scientific execution"
+    }
+  ],
+  "scope": "Only the two current SCM/TMLE schema packets; no full schema family generation/freshness, installed build, CAS/numerical production admission or authority claim."
+}

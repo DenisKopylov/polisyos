@@ -1,0 +1,37 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "--tb=short",
+    "tests/unit/ir/test_structural_causal_model_versions.py",
+    "tests/unit/ir/test_structural_causal_model_contract.py",
+    "tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "source_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+  "source_tree_sha": "9638891de1a7061d05e36949eb367912f08e0d17",
+  "exit_code": 0,
+  "wall_s": 35.099252296000486,
+  "rss_kib": 620916,
+  "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+  "outputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/scm-version-frozen-native.stdout.txt",
+      "bytes": 6253,
+      "sha256": "b5be75f8a15bed58e2de193a397d7e90a6a51daa7ee386af0a5c4ca37d42df6b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/scm-version-frozen-native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "check": "PASS"
+}

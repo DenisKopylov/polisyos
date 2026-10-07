@@ -1,0 +1,4775 @@
+{
+  "admin_records": [
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-api-20261006",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-api-20261006",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-api-20261006/.git",
+      "worktree": "/workspace/e02-F-api-20261006"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-base-control",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-base-control",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-base-control/.git",
+      "worktree": "/workspace/e02-F-base-control"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-cau",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-cau",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-cau/.git",
+      "worktree": "/workspace/e02-F-cau"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-cau-20261006",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-cau-20261006",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-cau-20261006/.git",
+      "worktree": "/workspace/e02-F-cau-20261006"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-causal-api",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-causal-api",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-causal-api/.git",
+      "worktree": "/workspace/e02-F-causal-api"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-causal-output",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-causal-output",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-causal-output/.git",
+      "worktree": "/workspace/e02-F-causal-output"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-closeout-20261006",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-closeout-20261006",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-closeout-20261006/.git",
+      "worktree": "/workspace/e02-F-closeout-20261006"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-dowhy-20261006",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-dowhy-20261006",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-dowhy-20261006/.git",
+      "worktree": "/workspace/e02-F-dowhy-20261006"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-economic-dtype",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-economic-dtype",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-economic-dtype/.git",
+      "worktree": "/workspace/e02-F-economic-dtype"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-economics",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-economics",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-economics/.git",
+      "worktree": "/workspace/e02-F-economics"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-economics-20261006",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-economics-20261006",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-economics-20261006/.git",
+      "worktree": "/workspace/e02-F-economics-20261006"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-fit-tmle",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-fit-tmle",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-fit-tmle/.git",
+      "worktree": "/workspace/e02-F-fit-tmle"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-foundry",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-foundry",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-foundry/.git",
+      "worktree": "/workspace/e02-F-foundry"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-fry-20261006",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-fry-20261006",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-fry-20261006/.git",
+      "worktree": "/workspace/e02-F-fry-20261006"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-graph-20261006",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-graph-20261006",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-graph-20261006/.git",
+      "worktree": "/workspace/e02-F-graph-20261006"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-graph-intake-20261006",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-graph-intake-20261006",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-graph-intake-20261006/.git",
+      "worktree": "/workspace/e02-F-graph-intake-20261006"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-graph-review-20261006",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-graph-review-20261006",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-graph-review-20261006/.git",
+      "worktree": "/workspace/e02-F-graph-review-20261006"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-graph-scm",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-graph-scm",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-graph-scm/.git",
+      "worktree": "/workspace/e02-F-graph-scm"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-handoff-index",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-handoff-index",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-handoff-index/.git",
+      "worktree": "/workspace/e02-F-handoff-index"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-installed-worker-20261006",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-installed-worker-20261006",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-installed-worker-20261006/.git",
+      "worktree": "/workspace/e02-F-installed-worker-20261006"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-lex",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-lex",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-lex/.git",
+      "worktree": "/workspace/e02-F-lex"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-lex-20261006",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-lex-20261006",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-lex-20261006/.git",
+      "worktree": "/workspace/e02-F-lex-20261006"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-rdd-20261006",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-rdd-20261006",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-rdd-20261006/.git",
+      "worktree": "/workspace/e02-F-rdd-20261006"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-F-tmle-20261006",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-tmle-20261006",
+      "commondir": "../..",
+      "gitdir": "/workspace/e02-F-tmle-20261006/.git",
+      "worktree": "/workspace/e02-F-tmle-20261006"
+    }
+  ],
+  "branch_exists": true,
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-20261006/policy-engine",
+        "check-ref-format",
+        "refs/heads/codex/e02-F-graph-20261006"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-20261006/policy-engine",
+        "check-ref-format",
+        "--branch",
+        "codex/e02-F-graph-20261006"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "codex/e02-F-graph-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-20261006/policy-engine",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-20261006/policy-engine",
+        "worktree",
+        "list",
+        "--porcelain",
+        "-z"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "worktree /workspace/polisyos\u0000HEAD 0a4b9cd48068454bb8ce95b5ae69bf5c323ee924\u0000branch refs/heads/work\u0000\u0000worktree /workspace/e02-F-api-20261006\u0000HEAD 0c522b88cff658aa4cdf4990ada70dd363989e0d\u0000branch refs/heads/codex/e02-F-api-20261006\u0000\u0000worktree /workspace/e02-F-base-control\u0000HEAD c40d4acae1ce58b597267255026d9356565828fd\u0000branch refs/heads/codex/e02-F-base-control\u0000\u0000worktree /workspace/e02-F-cau\u0000HEAD 08aaccebfce37aa652ff243fce8037ff48020807\u0000branch refs/heads/codex/e02-F-cau\u0000\u0000worktree /workspace/e02-F-cau-20261006\u0000HEAD f88c98a190c336ef414361a236276ed7ea6d3d62\u0000branch refs/heads/codex/e02-F-cau-20261006\u0000\u0000worktree /workspace/e02-F-causal-api\u0000HEAD 0b6d872d8a681b1725abb5e2e3f57f9668e31c69\u0000branch refs/heads/codex/e02-F-causal-api\u0000\u0000worktree /workspace/e02-F-causal-output\u0000HEAD 9a952415bb988e6ff79983fa9ef782ac28f2e672\u0000branch refs/heads/codex/e02-F-causal-output\u0000\u0000worktree /workspace/e02-F-closeout-20261006\u0000HEAD 7185572917f7a3db5e93385a176cb611b35aff42\u0000branch refs/heads/codex/e02-F-closeout-20261006\u0000\u0000worktree /workspace/e02-F-dowhy-20261006\u0000HEAD c8c2319d6c48f23f90103322da8cd63bc959da6f\u0000branch refs/heads/codex/e02-F-dowhy-20261006\u0000\u0000worktree /workspace/e02-F-economic-dtype\u0000HEAD bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42\u0000branch refs/heads/codex/e02-F-economic-dtype\u0000\u0000worktree /workspace/e02-F-economics\u0000HEAD e642bb9025a67739c201393acca5712603cb064d\u0000branch refs/heads/codex/e02-F-economics\u0000\u0000worktree /workspace/e02-F-economics-20261006\u0000HEAD 1324d2fcd7b75e448ad0fa1cce128a79101df1aa\u0000branch refs/heads/codex/e02-F-economics-20261006\u0000\u0000worktree /workspace/e02-F-fit-tmle\u0000HEAD ef3f208db031671d9f0d5cefe1ffa68af0650f0a\u0000branch refs/heads/codex/e02-F-fit-tmle\u0000\u0000worktree /workspace/e02-F-foundry\u0000HEAD ea577ac3185829e066a39f51a8a2eae8f1bb5d43\u0000branch refs/heads/codex/e02-F-foundry\u0000\u0000worktree /workspace/e02-F-fry-20261006\u0000HEAD 7185572917f7a3db5e93385a176cb611b35aff42\u0000branch refs/heads/codex/e02-F-fry-20261006\u0000\u0000worktree /workspace/e02-F-graph-20261006\u0000HEAD 3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0\u0000branch refs/heads/codex/e02-F-graph-20261006\u0000\u0000worktree /workspace/e02-F-graph-intake-20261006\u0000HEAD 2044260c39dc4988b37d5a1568b65a1cdb1e3d31\u0000branch refs/heads/codex/e02-F-graph-intake-20261006\u0000\u0000worktree /workspace/e02-F-graph-review-20261006\u0000HEAD 07beb7c2986770e1b9901f3061a4768251c5a154\u0000branch refs/heads/codex/e02-F-graph-review-20261006\u0000\u0000worktree /workspace/e02-F-graph-scm\u0000HEAD 85c16de9f16a4e21c05c516271b6c81e08b7a39f\u0000branch refs/heads/codex/e02-F-graph-scm\u0000\u0000worktree /workspace/e02-F-handoff-index\u0000HEAD f72e8fa6b7be831f8fda6f106c9d4f04572c4b69\u0000branch refs/heads/codex/e02-F-handoff-index\u0000\u0000worktree /workspace/e02-F-installed-worker-20261006\u0000HEAD 3dde887e22592cdd7c1fe8865707afdfd72dc6fb\u0000branch refs/heads/codex/e02-F-installed-worker-20261006\u0000\u0000worktree /workspace/e02-F-lex\u0000HEAD 3fab28d98997527b2a26d46fe4e16220e42383b7\u0000branch refs/heads/codex/e02-F-lex\u0000\u0000worktree /workspace/e02-F-lex-20261006\u0000HEAD 77166daa0ff8b9659e3978447f9016c691694266\u0000branch refs/heads/codex/e02-F-lex-20261006\u0000\u0000worktree /workspace/e02-F-rdd-20261006\u0000HEAD 15a04c4400497374416e167a5f61ebc12f61b8e4\u0000branch refs/heads/codex/e02-F-rdd-20261006\u0000\u0000worktree /workspace/e02-F-tmle-20261006\u0000HEAD 27f172d56b59c3157275e90e50b1d00cc5219a91\u0000branch refs/heads/codex/e02-F-tmle-20261006\u0000\u0000"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/polisyos",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/polisyos",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/polisyos",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/polisyos",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/work\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/polisyos",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "0a4b9cd48068454bb8ce95b5ae69bf5c323ee924\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-api-20261006",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-api-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-api-20261006",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-api-20261006",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-api-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-api-20261006",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-api-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-api-20261006",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "0c522b88cff658aa4cdf4990ada70dd363989e0d\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-base-control",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-base-control\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-base-control",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-base-control",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-base-control\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-base-control",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-base-control\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-base-control",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "c40d4acae1ce58b597267255026d9356565828fd\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-cau",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-cau\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-cau",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-cau",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-cau\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-cau",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-cau\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-cau",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "08aaccebfce37aa652ff243fce8037ff48020807\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-cau-20261006",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-cau-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-cau-20261006",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-cau-20261006",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-cau-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-cau-20261006",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-cau-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-cau-20261006",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "f88c98a190c336ef414361a236276ed7ea6d3d62\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-causal-api",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-causal-api\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-causal-api",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-causal-api",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-causal-api\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-causal-api",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-causal-api\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-causal-api",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "0b6d872d8a681b1725abb5e2e3f57f9668e31c69\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-causal-output",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-causal-output\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-causal-output",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-causal-output",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-causal-output\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-causal-output",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-causal-output\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-causal-output",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "9a952415bb988e6ff79983fa9ef782ac28f2e672\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-closeout-20261006",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-closeout-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-closeout-20261006",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-closeout-20261006",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-closeout-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-closeout-20261006",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-closeout-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-closeout-20261006",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "7185572917f7a3db5e93385a176cb611b35aff42\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-dowhy-20261006",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-dowhy-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-dowhy-20261006",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-dowhy-20261006",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-dowhy-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-dowhy-20261006",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-dowhy-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-dowhy-20261006",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "c8c2319d6c48f23f90103322da8cd63bc959da6f\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-economic-dtype",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-economic-dtype\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-economic-dtype",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-economic-dtype",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-economic-dtype\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-economic-dtype",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-economic-dtype\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-economic-dtype",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-economics",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-economics\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-economics",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-economics",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-economics\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-economics",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-economics\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-economics",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "e642bb9025a67739c201393acca5712603cb064d\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-economics-20261006",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-economics-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-economics-20261006",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-economics-20261006",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-economics-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-economics-20261006",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-economics-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-economics-20261006",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "1324d2fcd7b75e448ad0fa1cce128a79101df1aa\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-fit-tmle",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-fit-tmle\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-fit-tmle",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-fit-tmle",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-fit-tmle\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-fit-tmle",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-fit-tmle\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-fit-tmle",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-foundry",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-foundry\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-foundry",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-foundry",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-foundry\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-foundry",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-foundry\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-foundry",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-fry-20261006",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-fry-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-fry-20261006",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-fry-20261006",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-fry-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-fry-20261006",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-fry-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-fry-20261006",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "7185572917f7a3db5e93385a176cb611b35aff42\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-20261006",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-graph-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-20261006",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-20261006",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-graph-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-20261006",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-graph-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-20261006",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-intake-20261006",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-graph-intake-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-intake-20261006",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-intake-20261006",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-graph-intake-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-intake-20261006",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-graph-intake-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-intake-20261006",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-review-20261006",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-graph-review-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-review-20261006",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-review-20261006",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-graph-review-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-review-20261006",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-graph-review-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-review-20261006",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "07beb7c2986770e1b9901f3061a4768251c5a154\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-scm",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-graph-scm\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-scm",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-scm",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-graph-scm\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-scm",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-graph-scm\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-scm",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "85c16de9f16a4e21c05c516271b6c81e08b7a39f\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-handoff-index",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-handoff-index\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-handoff-index",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-handoff-index",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-handoff-index\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-handoff-index",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-handoff-index\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-handoff-index",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "f72e8fa6b7be831f8fda6f106c9d4f04572c4b69\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-installed-worker-20261006",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-installed-worker-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-installed-worker-20261006",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-installed-worker-20261006",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-installed-worker-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-installed-worker-20261006",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-installed-worker-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-installed-worker-20261006",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-lex",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-lex\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-lex",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-lex",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-lex\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-lex",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-lex\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-lex",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "3fab28d98997527b2a26d46fe4e16220e42383b7\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-lex-20261006",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-lex-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-lex-20261006",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-lex-20261006",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-lex-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-lex-20261006",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-lex-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-lex-20261006",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "77166daa0ff8b9659e3978447f9016c691694266\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-rdd-20261006",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-rdd-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-rdd-20261006",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-rdd-20261006",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-rdd-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-rdd-20261006",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-rdd-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-rdd-20261006",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "15a04c4400497374416e167a5f61ebc12f61b8e4\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-tmle-20261006",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/e02-F-tmle-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-tmle-20261006",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-tmle-20261006",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-F-tmle-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-tmle-20261006",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-F-tmle-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-tmle-20261006",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "27f172d56b59c3157275e90e50b1d00cc5219a91\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-20261006/policy-engine",
+        "show-ref",
+        "--verify",
+        "--quiet",
+        "refs/heads/codex/e02-F-graph-20261006"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-F-graph-20261006/policy-engine",
+        "worktree",
+        "list",
+        "--porcelain",
+        "-z"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "worktree /workspace/polisyos\u0000HEAD 0a4b9cd48068454bb8ce95b5ae69bf5c323ee924\u0000branch refs/heads/work\u0000\u0000worktree /workspace/e02-F-api-20261006\u0000HEAD 0c522b88cff658aa4cdf4990ada70dd363989e0d\u0000branch refs/heads/codex/e02-F-api-20261006\u0000\u0000worktree /workspace/e02-F-base-control\u0000HEAD c40d4acae1ce58b597267255026d9356565828fd\u0000branch refs/heads/codex/e02-F-base-control\u0000\u0000worktree /workspace/e02-F-cau\u0000HEAD 08aaccebfce37aa652ff243fce8037ff48020807\u0000branch refs/heads/codex/e02-F-cau\u0000\u0000worktree /workspace/e02-F-cau-20261006\u0000HEAD f88c98a190c336ef414361a236276ed7ea6d3d62\u0000branch refs/heads/codex/e02-F-cau-20261006\u0000\u0000worktree /workspace/e02-F-causal-api\u0000HEAD 0b6d872d8a681b1725abb5e2e3f57f9668e31c69\u0000branch refs/heads/codex/e02-F-causal-api\u0000\u0000worktree /workspace/e02-F-causal-output\u0000HEAD 9a952415bb988e6ff79983fa9ef782ac28f2e672\u0000branch refs/heads/codex/e02-F-causal-output\u0000\u0000worktree /workspace/e02-F-closeout-20261006\u0000HEAD 7185572917f7a3db5e93385a176cb611b35aff42\u0000branch refs/heads/codex/e02-F-closeout-20261006\u0000\u0000worktree /workspace/e02-F-dowhy-20261006\u0000HEAD c8c2319d6c48f23f90103322da8cd63bc959da6f\u0000branch refs/heads/codex/e02-F-dowhy-20261006\u0000\u0000worktree /workspace/e02-F-economic-dtype\u0000HEAD bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42\u0000branch refs/heads/codex/e02-F-economic-dtype\u0000\u0000worktree /workspace/e02-F-economics\u0000HEAD e642bb9025a67739c201393acca5712603cb064d\u0000branch refs/heads/codex/e02-F-economics\u0000\u0000worktree /workspace/e02-F-economics-20261006\u0000HEAD 1324d2fcd7b75e448ad0fa1cce128a79101df1aa\u0000branch refs/heads/codex/e02-F-economics-20261006\u0000\u0000worktree /workspace/e02-F-fit-tmle\u0000HEAD ef3f208db031671d9f0d5cefe1ffa68af0650f0a\u0000branch refs/heads/codex/e02-F-fit-tmle\u0000\u0000worktree /workspace/e02-F-foundry\u0000HEAD ea577ac3185829e066a39f51a8a2eae8f1bb5d43\u0000branch refs/heads/codex/e02-F-foundry\u0000\u0000worktree /workspace/e02-F-fry-20261006\u0000HEAD 7185572917f7a3db5e93385a176cb611b35aff42\u0000branch refs/heads/codex/e02-F-fry-20261006\u0000\u0000worktree /workspace/e02-F-graph-20261006\u0000HEAD 3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0\u0000branch refs/heads/codex/e02-F-graph-20261006\u0000\u0000worktree /workspace/e02-F-graph-intake-20261006\u0000HEAD 2044260c39dc4988b37d5a1568b65a1cdb1e3d31\u0000branch refs/heads/codex/e02-F-graph-intake-20261006\u0000\u0000worktree /workspace/e02-F-graph-review-20261006\u0000HEAD 07beb7c2986770e1b9901f3061a4768251c5a154\u0000branch refs/heads/codex/e02-F-graph-review-20261006\u0000\u0000worktree /workspace/e02-F-graph-scm\u0000HEAD 85c16de9f16a4e21c05c516271b6c81e08b7a39f\u0000branch refs/heads/codex/e02-F-graph-scm\u0000\u0000worktree /workspace/e02-F-handoff-index\u0000HEAD f72e8fa6b7be831f8fda6f106c9d4f04572c4b69\u0000branch refs/heads/codex/e02-F-handoff-index\u0000\u0000worktree /workspace/e02-F-installed-worker-20261006\u0000HEAD 3dde887e22592cdd7c1fe8865707afdfd72dc6fb\u0000branch refs/heads/codex/e02-F-installed-worker-20261006\u0000\u0000worktree /workspace/e02-F-lex\u0000HEAD 3fab28d98997527b2a26d46fe4e16220e42383b7\u0000branch refs/heads/codex/e02-F-lex\u0000\u0000worktree /workspace/e02-F-lex-20261006\u0000HEAD 77166daa0ff8b9659e3978447f9016c691694266\u0000branch refs/heads/codex/e02-F-lex-20261006\u0000\u0000worktree /workspace/e02-F-rdd-20261006\u0000HEAD 15a04c4400497374416e167a5f61ebc12f61b8e4\u0000branch refs/heads/codex/e02-F-rdd-20261006\u0000\u0000worktree /workspace/e02-F-tmle-20261006\u0000HEAD 27f172d56b59c3157275e90e50b1d00cc5219a91\u0000branch refs/heads/codex/e02-F-tmle-20261006\u0000\u0000"
+    }
+  ],
+  "complete_verdict": true,
+  "filesystem_reads": [
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 262336,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees"
+      },
+      "status": "observed"
+    },
+    {
+      "members": [
+        "/workspace/polisyos/.git/worktrees/e02-F-api-20261006",
+        "/workspace/polisyos/.git/worktrees/e02-F-base-control",
+        "/workspace/polisyos/.git/worktrees/e02-F-cau",
+        "/workspace/polisyos/.git/worktrees/e02-F-cau-20261006",
+        "/workspace/polisyos/.git/worktrees/e02-F-causal-api",
+        "/workspace/polisyos/.git/worktrees/e02-F-causal-output",
+        "/workspace/polisyos/.git/worktrees/e02-F-closeout-20261006",
+        "/workspace/polisyos/.git/worktrees/e02-F-dowhy-20261006",
+        "/workspace/polisyos/.git/worktrees/e02-F-economic-dtype",
+        "/workspace/polisyos/.git/worktrees/e02-F-economics",
+        "/workspace/polisyos/.git/worktrees/e02-F-economics-20261006",
+        "/workspace/polisyos/.git/worktrees/e02-F-fit-tmle",
+        "/workspace/polisyos/.git/worktrees/e02-F-foundry",
+        "/workspace/polisyos/.git/worktrees/e02-F-fry-20261006",
+        "/workspace/polisyos/.git/worktrees/e02-F-graph-20261006",
+        "/workspace/polisyos/.git/worktrees/e02-F-graph-intake-20261006",
+        "/workspace/polisyos/.git/worktrees/e02-F-graph-review-20261006",
+        "/workspace/polisyos/.git/worktrees/e02-F-graph-scm",
+        "/workspace/polisyos/.git/worktrees/e02-F-handoff-index",
+        "/workspace/polisyos/.git/worktrees/e02-F-installed-worker-20261006",
+        "/workspace/polisyos/.git/worktrees/e02-F-lex",
+        "/workspace/polisyos/.git/worktrees/e02-F-lex-20261006",
+        "/workspace/polisyos/.git/worktrees/e02-F-rdd-20261006",
+        "/workspace/polisyos/.git/worktrees/e02-F-tmle-20261006"
+      ],
+      "operation": "iterdir",
+      "path": "/workspace/polisyos/.git/worktrees",
+      "predicate_class": "recomputed",
+      "status": "read"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-api-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 1200414,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-api-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 35,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-api-20261006/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "5b5a06ae1b51c44ebce18b63570318d0223e3c65dc67bfaf12d68895d786de4f",
+      "status": "read",
+      "text": "/workspace/e02-F-api-20261006/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-api-20261006/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 41,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-api-20261006/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "e8be0c04070bf2bde8b953a928800bfc13a48172e648250c141dfd9a3d4b6f24",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-api-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-api-20261006/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-api-20261006/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-base-control",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 668382,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-base-control"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 35,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-base-control/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "3bce0c3761613b94cd16bea40e3fee982b5b66b8d917e28da4a5666290328035",
+      "status": "read",
+      "text": "/workspace/e02-F-base-control/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-base-control/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 41,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-base-control/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "5fc90b2865f7069d3b4303518800a6079c63c5e774ca3d1e94ad410f2720cf6f",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-base-control\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-base-control/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-base-control/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-cau",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 262337,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-cau"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 26,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-cau/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "71062d8efb1152a405554ec77617f46b025bc333096e650804925189a3b5cf88",
+      "status": "read",
+      "text": "/workspace/e02-F-cau/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-cau/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 32,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-cau/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "d812dde01a20d3283a170371a285952445d2baeb667014df2e4f828d1ea23674",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-cau\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-cau/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-cau/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-cau-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 933186,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-cau-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 35,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-cau-20261006/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "3fa847d9746826c7bd8c1166a93684d6fb657aeb5009565878bea7c3747d4237",
+      "status": "read",
+      "text": "/workspace/e02-F-cau-20261006/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-cau-20261006/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 41,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-cau-20261006/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "559ca21f7704f0ae62ece5b8fad3b307db2e43d7be278da3598451c29256c958",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-cau-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-cau-20261006/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-cau-20261006/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-causal-api",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 525222,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-causal-api"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 33,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-causal-api/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "9c1a8cf11fb754bddfe6e48204653d7f638e707f41971a48da4a644037ef58dc",
+      "status": "read",
+      "text": "/workspace/e02-F-causal-api/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-causal-api/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 39,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-causal-api/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "6a769b5eb25be95895a87428b70ce7a101b46285e7e4015e59a2bb57c50956c9",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-causal-api\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-causal-api/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-causal-api/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-causal-output",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 689742,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-causal-output"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 36,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-causal-output/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "75e9591948ac93ff97446785a7d5e6cefcd0978255e3f40d52703071bd21da11",
+      "status": "read",
+      "text": "/workspace/e02-F-causal-output/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-causal-output/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 42,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-causal-output/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "7e5448e43cdeca62d1206e72dbf75f22b43fa7ee6aefe98e8ee6fa4d7554f8af",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-causal-output\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-causal-output/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-causal-output/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-closeout-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 918028,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-closeout-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 40,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-closeout-20261006/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "1481216dda53840a1b00430a2bcd7bf1e1e22f6e1f9845822cfd4fa993b11c76",
+      "status": "read",
+      "text": "/workspace/e02-F-closeout-20261006/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-closeout-20261006/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 46,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-closeout-20261006/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "24eb53f0deece0af76fa675eda048b12596f92c000fb2101033f388ccd045efb",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-closeout-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-closeout-20261006/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-closeout-20261006/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-dowhy-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 948342,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-dowhy-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 37,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-dowhy-20261006/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "0aa5027b75bab9c9c8f095b65146fb875f081d68d6bd5097d7ee851a7611a9fa",
+      "status": "read",
+      "text": "/workspace/e02-F-dowhy-20261006/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-dowhy-20261006/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 43,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-dowhy-20261006/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "adb82e076827a4c3f5af4ed1f47a31a41acb566a4ef0a56f32eebcf36f420f7b",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-dowhy-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-dowhy-20261006/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-dowhy-20261006/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-economic-dtype",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 794968,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-economic-dtype"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 37,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-economic-dtype/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "c82d580aebc7b4e285c9e1748790e6a4458a868f8650be7f05cd5c7c72c75e2f",
+      "status": "read",
+      "text": "/workspace/e02-F-economic-dtype/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-economic-dtype/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 43,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-economic-dtype/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "73efe2c0f0ced55eb2a4fde21fdf13b832c1b14b59a9cc2f7f4d68c4a3531fb4",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-economic-dtype\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-economic-dtype/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-economic-dtype/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-economics",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 292301,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-economics"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 32,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-economics/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "f1ce2d2a6e9a3455011b8d2535286fbbf35b9eb67103dd0c4117b3f76de8928a",
+      "status": "read",
+      "text": "/workspace/e02-F-economics/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-economics/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 38,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-economics/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "a7460b4110002b55853d3efbfbf2eb19776afe57c834b6a5d3ba223179274b58",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-economics\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-economics/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-economics/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-economics-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 963499,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-economics-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 41,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-economics-20261006/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "39df301656fc31283ad7b2246c7998da44730150a081943aaedc6792af3d2e0c",
+      "status": "read",
+      "text": "/workspace/e02-F-economics-20261006/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-economics-20261006/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 47,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-economics-20261006/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "025006c0d973d75e08c3543e47d305f87af21011870d687ca14ba95b68651979",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-economics-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-economics-20261006/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-economics-20261006/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-fit-tmle",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 297445,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-fit-tmle"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 31,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-fit-tmle/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "c12a36412214d7207e546a9d570338409c411e9845728b06e6288e61dbe42fd0",
+      "status": "read",
+      "text": "/workspace/e02-F-fit-tmle/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-fit-tmle/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 37,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-fit-tmle/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "a9b3e94b49222393da75213450558965bcd8f58c8f8f55752b8c4c1d6d95d555",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-fit-tmle\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-fit-tmle/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-fit-tmle/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-foundry",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 298208,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-foundry"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 30,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-foundry/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "cdb417387a37abc8c4c945faa0975020d679b3ad1a0861c5a50dd9adea1eecdd",
+      "status": "read",
+      "text": "/workspace/e02-F-foundry/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-foundry/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 36,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-foundry/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "af6aca3049e84bc83e89544faa0e9cfb0f402be4720edfb6a2160c3b3063bb75",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-foundry\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-foundry/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-foundry/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-fry-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 1185262,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-fry-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 35,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-fry-20261006/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "183aa04e956e8cf2cb580bf876cb4c22e829aab336df15af40a010505a707fd6",
+      "status": "read",
+      "text": "/workspace/e02-F-fry-20261006/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-fry-20261006/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 41,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-fry-20261006/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "aec24b9a9d9f78f5ed1a41703ade7c37e5faaea9df33b70d9a9429e2071dd040",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-fry-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-fry-20261006/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-fry-20261006/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-graph-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 966837,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-graph-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 37,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-graph-20261006/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "62748784b97e36bbdc54873df0bfdb32f0e6e1391b8a4170da95e03a2102edc5",
+      "status": "read",
+      "text": "/workspace/e02-F-graph-20261006/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-graph-20261006/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 43,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-graph-20261006/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "2c036496820dad175b9a7ff5eb71be074ec53eeb340b2ab3d123efc888616a67",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-graph-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-graph-20261006/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-graph-20261006/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-graph-intake-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 299447,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-graph-intake-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 44,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-graph-intake-20261006/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "14a94c29b4c5e27751c0dc4a745961415fec6d427dbe532fe67c2867c393cf24",
+      "status": "read",
+      "text": "/workspace/e02-F-graph-intake-20261006/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-graph-intake-20261006/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 50,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-graph-intake-20261006/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "d9cef4d4a4cb981d1cc4ac738e48b4716c380d8d5ec60b50067672387045af61",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-graph-intake-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-graph-intake-20261006/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-graph-intake-20261006/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-graph-review-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 1469214,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-graph-review-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 44,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-graph-review-20261006/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "478b9e446e017dc52adb38244f18bc80531f1ab41c2df72ba7ad887327220496",
+      "status": "read",
+      "text": "/workspace/e02-F-graph-review-20261006/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-graph-review-20261006/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 50,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-graph-review-20261006/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "c4f23bd971db8c670f4f7b1778fd41804c849e312af753e9c8df245ee45f5c3e",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-graph-review-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-graph-review-20261006/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-graph-review-20261006/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-graph-scm",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 277315,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-graph-scm"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 32,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-graph-scm/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "9dab4e35a049759370e251ab7ccde484f454b8abb3dcd86713635c92d4a521a5",
+      "status": "read",
+      "text": "/workspace/e02-F-graph-scm/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-graph-scm/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 38,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-graph-scm/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "0569d030e6b8625c60e208612328365e24d7083128a517b561790e2d9270f6c6",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-graph-scm\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-graph-scm/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-graph-scm/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-handoff-index",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 794931,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-handoff-index"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 36,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-handoff-index/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "7e2674f8ae3e9dc3b828c0cd750ee547bab42b7a22b5959a645c56a086a0ae79",
+      "status": "read",
+      "text": "/workspace/e02-F-handoff-index/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-handoff-index/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 42,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-handoff-index/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "756634e4cfef3578fc00c3b6a7a92e68fb507cbc42a4f752e136c42dcd0c2cba",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-handoff-index\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-handoff-index/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-handoff-index/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-installed-worker-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 299394,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-installed-worker-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 48,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-installed-worker-20261006/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "407ed27a9daef3bc37d5a28d911b4897e2f27f6bce0b6af9380f5115d0617ad1",
+      "status": "read",
+      "text": "/workspace/e02-F-installed-worker-20261006/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-installed-worker-20261006/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 54,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-installed-worker-20261006/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "1579e07925586595c8f0b194accadd59683ec3477418e013315928b5c4d31e95",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-installed-worker-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-installed-worker-20261006/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-installed-worker-20261006/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-lex",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 525223,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-lex"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 26,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-lex/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "7fa9460c4475abbc07e48d2f9a41f6c4e9c930ad0f81e85404e3c3d6132f5da9",
+      "status": "read",
+      "text": "/workspace/e02-F-lex/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-lex/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 32,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-lex/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "723ed3dfc04163ff299e6cc19b076c3b9d5ff88e403285ee7759dfd9b25e955e",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-lex\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-lex/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-lex/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-lex-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 1185261,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-lex-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 35,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-lex-20261006/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "12a6bb04280fa63c048d029de5654ca090705b9dd6ad57185d4ab724b1b88762",
+      "status": "read",
+      "text": "/workspace/e02-F-lex-20261006/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-lex-20261006/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 41,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-lex-20261006/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "65a124c80c7b8f5ceabaee4da5f5d5287b14f7e69607059046b2cd89e1e3433c",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-lex-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-lex-20261006/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-lex-20261006/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-rdd-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 1090383,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-rdd-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 35,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-rdd-20261006/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "cf92be531ad815619196acb47f68243bc9b054ec66196842dea8b30ac5b85f1f",
+      "status": "read",
+      "text": "/workspace/e02-F-rdd-20261006/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-rdd-20261006/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 41,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-rdd-20261006/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "b672b4fe372442b141c81ff8c98a66a96333fee1b541e18023a4374282e7c591",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-rdd-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-rdd-20261006/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-rdd-20261006/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-tmle-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 965579,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-tmle-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 36,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-tmle-20261006/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "4c08fae7d9020509cebb6ecaf6b67304d1b0563970d0ab78885416004d2fbef6",
+      "status": "read",
+      "text": "/workspace/e02-F-tmle-20261006/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-tmle-20261006/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 42,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-tmle-20261006/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "a5d8cd2eaca4d18eecf7b4d46844ca2ca102c1cc76392330810c37f81a74ccc1",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-F-tmle-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/e02-F-tmle-20261006/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/e02-F-tmle-20261006/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 9223372036855896196,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-api-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 1215566,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-api-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-api-20261006/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 1215568,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-api-20261006/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 62,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-api-20261006/.git",
+      "predicate_class": "recomputed",
+      "sha256": "f3da043b927dd69499f0798d16ccec86a335d08688b9a9c2b473901e670044eb",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-api-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-base-control",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 668384,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-base-control"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-base-control/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 668386,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-base-control/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 62,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-base-control/.git",
+      "predicate_class": "recomputed",
+      "sha256": "ec2612eaf394d2227ca007593d665546ca8247ac221023ff52d8bc078de45a5e",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-base-control\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-cau",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 262339,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-cau"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-cau/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 262341,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-cau/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 53,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-cau/.git",
+      "predicate_class": "recomputed",
+      "sha256": "7ec37f8c739ca2716a404300a1c3d8a4f7db5eb65cd91974bacfb931840146d6",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-cau\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-cau-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 933188,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-cau-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-cau-20261006/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 933190,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-cau-20261006/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 62,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-cau-20261006/.git",
+      "predicate_class": "recomputed",
+      "sha256": "4aeb4c749d7276e1231671759cf376676729f54975df90deb96584f97466c5b1",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-cau-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-causal-api",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 525224,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-causal-api"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-causal-api/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 525226,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-causal-api/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 60,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-causal-api/.git",
+      "predicate_class": "recomputed",
+      "sha256": "7c1892407a0cd1b7fc03194a05e50921c4670593754a506d960c5fed7b8a9f8a",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-causal-api\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-causal-output",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 689744,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-causal-output"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-causal-output/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 689746,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-causal-output/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 63,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-causal-output/.git",
+      "predicate_class": "recomputed",
+      "sha256": "0d027950b02dfbf32fefe211b6570e6c93102da0cace7a676fe94f64589066b1",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-causal-output\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-closeout-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 918030,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-closeout-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-closeout-20261006/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 918032,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-closeout-20261006/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 67,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-closeout-20261006/.git",
+      "predicate_class": "recomputed",
+      "sha256": "1b9f4dc0d5819d1f87ad6b9e7cbc8197bdb6e55744b71b50cc29202374c22b23",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-closeout-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-dowhy-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 948344,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-dowhy-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-dowhy-20261006/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 948346,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-dowhy-20261006/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 64,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-dowhy-20261006/.git",
+      "predicate_class": "recomputed",
+      "sha256": "e9b08b025c8f6d5470418badbfb20e44084619a36a9c0c7304f38e1f3590574c",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-dowhy-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-economic-dtype",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 794970,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-economic-dtype"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-economic-dtype/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 794972,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-economic-dtype/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 64,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-economic-dtype/.git",
+      "predicate_class": "recomputed",
+      "sha256": "4c65a5d9227a1313f03f24e0bc15acb5ee8cf7f7f24fded8f9175e1d218d4a2e",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-economic-dtype\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-economics",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 292303,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-economics"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-economics/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 292305,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-economics/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 59,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-economics/.git",
+      "predicate_class": "recomputed",
+      "sha256": "161c51966fc701c6830403397987a8bb10d1659db26243a42f23f55cf410693a",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-economics\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-economics-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 963501,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-economics-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-economics-20261006/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 963503,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-economics-20261006/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 68,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-economics-20261006/.git",
+      "predicate_class": "recomputed",
+      "sha256": "efc368af74dd11368c86bce9af05fbe87e7c89416f2c6a10119d8c433774936e",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-economics-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-fit-tmle",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 297447,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-fit-tmle"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-fit-tmle/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 297449,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-fit-tmle/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 58,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-fit-tmle/.git",
+      "predicate_class": "recomputed",
+      "sha256": "634209103e621d29f5a6041c07e3e086f5beab1d2faf43ea7ec1cb1324b00787",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-fit-tmle\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-foundry",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 298210,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-foundry"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-foundry/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 298212,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-foundry/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 57,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-foundry/.git",
+      "predicate_class": "recomputed",
+      "sha256": "29a23aedba5de44a498ca6574c6195f145c5782124591c0c854a80b216d46d46",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-foundry\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-fry-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 1200415,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-fry-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-fry-20261006/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 1200417,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-fry-20261006/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 62,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-fry-20261006/.git",
+      "predicate_class": "recomputed",
+      "sha256": "eab28c6ce6d1224aa303c6870f53b139768d158da24a60f935d5b65ee1718849",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-fry-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-graph-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 966839,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-graph-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-graph-20261006/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 966841,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-graph-20261006/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 64,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-graph-20261006/.git",
+      "predicate_class": "recomputed",
+      "sha256": "56e9dced13fff003fe38510811c72f7fb05b8ca06debb21e8602fe2283c77188",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-graph-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-graph-intake-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 1461395,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-graph-intake-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-graph-intake-20261006/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 1504505,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-graph-intake-20261006/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 71,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-graph-intake-20261006/.git",
+      "predicate_class": "recomputed",
+      "sha256": "fa9aa990c8123558f6ac444ddda0d86a33ec40c4b9d7bee963a2c8d0413c30bf",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-graph-intake-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-graph-review-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 1469618,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-graph-review-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-graph-review-20261006/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 1469682,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-graph-review-20261006/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 71,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-graph-review-20261006/.git",
+      "predicate_class": "recomputed",
+      "sha256": "99897e897d337e1cdd4d0dbb45239f7b4c1deb42b808bb1bd1759f138064ea49",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-graph-review-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-graph-scm",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 277317,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-graph-scm"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-graph-scm/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 277319,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-graph-scm/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 59,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-graph-scm/.git",
+      "predicate_class": "recomputed",
+      "sha256": "f3c16472b49cbb90db6b44aa7ae9ed02c6dab815963ac8bea05f4e20fc265166",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-graph-scm\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-handoff-index",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 812609,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-handoff-index"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-handoff-index/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 812616,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-handoff-index/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 63,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-handoff-index/.git",
+      "predicate_class": "recomputed",
+      "sha256": "9e4f49d721505893941ccb31f429fa6b939c928ef82912606a82474425ecc798",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-handoff-index\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-installed-worker-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 1507607,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-installed-worker-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-installed-worker-20261006/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 1508338,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-installed-worker-20261006/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 75,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-installed-worker-20261006/.git",
+      "predicate_class": "recomputed",
+      "sha256": "598f6cc6ee36b19a654cce08bafdfbe2c1a46e06df49f87de664baad9eda6167",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-installed-worker-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-lex",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 540207,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-lex"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-lex/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 540209,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-lex/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 53,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-lex/.git",
+      "predicate_class": "recomputed",
+      "sha256": "7cd48cfcd208bc5327e481f0229130bad1f7fa7b90c5e59c01d51d65a1e3b81b",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-lex\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-lex-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 1185263,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-lex-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-lex-20261006/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 1185265,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-lex-20261006/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 62,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-lex-20261006/.git",
+      "predicate_class": "recomputed",
+      "sha256": "708d6ebb91e1e39731ab80c016c20ecd10c4a11f0e410a859b0575e699c205be",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-lex-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-rdd-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 1090385,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-rdd-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-rdd-20261006/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 1090387,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-rdd-20261006/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 62,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-rdd-20261006/.git",
+      "predicate_class": "recomputed",
+      "sha256": "47b07a834656ae0a55ed9b9698ed00ab0366c9309b5e2f54a10ff5018518237b",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-rdd-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-tmle-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 965581,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-tmle-20261006"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-tmle-20261006/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 965583,
+        "kind": "file",
+        "resolved": "/workspace/e02-F-tmle-20261006/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 63,
+      "operation": "read_bytes",
+      "path": "/workspace/e02-F-tmle-20261006/.git",
+      "predicate_class": "recomputed",
+      "sha256": "d9aad6319915493a1e3723307b12da6e790484c11a1c6d330295e253e97d69e3",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/e02-F-tmle-20261006\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/e02-F-graph-20261006",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 966839,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-graph-20261006"
+      },
+      "status": "observed"
+    }
+  ],
+  "findings": [],
+  "finished_at": "2026-10-06T18:02:29.269417+00:00",
+  "measurement": {
+    "file_type_denominator": "Git porcelain/ref outputs; gitdir, commondir, HEAD, optional locked and .git markers; filesystem lstat/iterdir",
+    "path_denominator": "all Git worktree registrations, all linked admin directories, their required records and live backlinks, requested path",
+    "predicate_class": "independently_reconciled",
+    "selector": "exact branch ref AND exact worktree root; create availability or resume attachment"
+  },
+  "path_state": {
+    "device": 27,
+    "exists": true,
+    "inode": 966839,
+    "kind": "directory",
+    "resolved": "/workspace/e02-F-graph-20261006"
+  },
+  "registrations": [
+    {
+      "HEAD": "0a4b9cd48068454bb8ce95b5ae69bf5c323ee924",
+      "branch": "refs/heads/work",
+      "live": {
+        "branch": "refs/heads/work",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git",
+        "head": "0a4b9cd48068454bb8ce95b5ae69bf5c323ee924",
+        "root": "/workspace/polisyos"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 9223372036855896196,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos"
+      },
+      "worktree": "/workspace/polisyos"
+    },
+    {
+      "HEAD": "0c522b88cff658aa4cdf4990ada70dd363989e0d",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-api-20261006",
+      "branch": "refs/heads/codex/e02-F-api-20261006",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-api-20261006",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-api-20261006",
+        "head": "0c522b88cff658aa4cdf4990ada70dd363989e0d",
+        "root": "/workspace/e02-F-api-20261006"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 1215566,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-api-20261006"
+      },
+      "worktree": "/workspace/e02-F-api-20261006"
+    },
+    {
+      "HEAD": "c40d4acae1ce58b597267255026d9356565828fd",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-base-control",
+      "branch": "refs/heads/codex/e02-F-base-control",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-base-control",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-base-control",
+        "head": "c40d4acae1ce58b597267255026d9356565828fd",
+        "root": "/workspace/e02-F-base-control"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 668384,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-base-control"
+      },
+      "worktree": "/workspace/e02-F-base-control"
+    },
+    {
+      "HEAD": "08aaccebfce37aa652ff243fce8037ff48020807",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-cau",
+      "branch": "refs/heads/codex/e02-F-cau",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-cau",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-cau",
+        "head": "08aaccebfce37aa652ff243fce8037ff48020807",
+        "root": "/workspace/e02-F-cau"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 262339,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-cau"
+      },
+      "worktree": "/workspace/e02-F-cau"
+    },
+    {
+      "HEAD": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-cau-20261006",
+      "branch": "refs/heads/codex/e02-F-cau-20261006",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-cau-20261006",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-cau-20261006",
+        "head": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+        "root": "/workspace/e02-F-cau-20261006"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 933188,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-cau-20261006"
+      },
+      "worktree": "/workspace/e02-F-cau-20261006"
+    },
+    {
+      "HEAD": "0b6d872d8a681b1725abb5e2e3f57f9668e31c69",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-causal-api",
+      "branch": "refs/heads/codex/e02-F-causal-api",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-causal-api",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-causal-api",
+        "head": "0b6d872d8a681b1725abb5e2e3f57f9668e31c69",
+        "root": "/workspace/e02-F-causal-api"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 525224,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-causal-api"
+      },
+      "worktree": "/workspace/e02-F-causal-api"
+    },
+    {
+      "HEAD": "9a952415bb988e6ff79983fa9ef782ac28f2e672",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-causal-output",
+      "branch": "refs/heads/codex/e02-F-causal-output",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-causal-output",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-causal-output",
+        "head": "9a952415bb988e6ff79983fa9ef782ac28f2e672",
+        "root": "/workspace/e02-F-causal-output"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 689744,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-causal-output"
+      },
+      "worktree": "/workspace/e02-F-causal-output"
+    },
+    {
+      "HEAD": "7185572917f7a3db5e93385a176cb611b35aff42",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-closeout-20261006",
+      "branch": "refs/heads/codex/e02-F-closeout-20261006",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-closeout-20261006",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-closeout-20261006",
+        "head": "7185572917f7a3db5e93385a176cb611b35aff42",
+        "root": "/workspace/e02-F-closeout-20261006"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 918030,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-closeout-20261006"
+      },
+      "worktree": "/workspace/e02-F-closeout-20261006"
+    },
+    {
+      "HEAD": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-dowhy-20261006",
+      "branch": "refs/heads/codex/e02-F-dowhy-20261006",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-dowhy-20261006",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-dowhy-20261006",
+        "head": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+        "root": "/workspace/e02-F-dowhy-20261006"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 948344,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-dowhy-20261006"
+      },
+      "worktree": "/workspace/e02-F-dowhy-20261006"
+    },
+    {
+      "HEAD": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-economic-dtype",
+      "branch": "refs/heads/codex/e02-F-economic-dtype",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-economic-dtype",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-economic-dtype",
+        "head": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+        "root": "/workspace/e02-F-economic-dtype"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 794970,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-economic-dtype"
+      },
+      "worktree": "/workspace/e02-F-economic-dtype"
+    },
+    {
+      "HEAD": "e642bb9025a67739c201393acca5712603cb064d",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-economics",
+      "branch": "refs/heads/codex/e02-F-economics",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-economics",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-economics",
+        "head": "e642bb9025a67739c201393acca5712603cb064d",
+        "root": "/workspace/e02-F-economics"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 292303,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-economics"
+      },
+      "worktree": "/workspace/e02-F-economics"
+    },
+    {
+      "HEAD": "1324d2fcd7b75e448ad0fa1cce128a79101df1aa",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-economics-20261006",
+      "branch": "refs/heads/codex/e02-F-economics-20261006",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-economics-20261006",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-economics-20261006",
+        "head": "1324d2fcd7b75e448ad0fa1cce128a79101df1aa",
+        "root": "/workspace/e02-F-economics-20261006"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 963501,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-economics-20261006"
+      },
+      "worktree": "/workspace/e02-F-economics-20261006"
+    },
+    {
+      "HEAD": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-fit-tmle",
+      "branch": "refs/heads/codex/e02-F-fit-tmle",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-fit-tmle",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-fit-tmle",
+        "head": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+        "root": "/workspace/e02-F-fit-tmle"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 297447,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-fit-tmle"
+      },
+      "worktree": "/workspace/e02-F-fit-tmle"
+    },
+    {
+      "HEAD": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-foundry",
+      "branch": "refs/heads/codex/e02-F-foundry",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-foundry",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-foundry",
+        "head": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+        "root": "/workspace/e02-F-foundry"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 298210,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-foundry"
+      },
+      "worktree": "/workspace/e02-F-foundry"
+    },
+    {
+      "HEAD": "7185572917f7a3db5e93385a176cb611b35aff42",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-fry-20261006",
+      "branch": "refs/heads/codex/e02-F-fry-20261006",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-fry-20261006",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-fry-20261006",
+        "head": "7185572917f7a3db5e93385a176cb611b35aff42",
+        "root": "/workspace/e02-F-fry-20261006"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 1200415,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-fry-20261006"
+      },
+      "worktree": "/workspace/e02-F-fry-20261006"
+    },
+    {
+      "HEAD": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-graph-20261006",
+      "branch": "refs/heads/codex/e02-F-graph-20261006",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-graph-20261006",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-graph-20261006",
+        "head": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+        "root": "/workspace/e02-F-graph-20261006"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 966839,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-graph-20261006"
+      },
+      "worktree": "/workspace/e02-F-graph-20261006"
+    },
+    {
+      "HEAD": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-graph-intake-20261006",
+      "branch": "refs/heads/codex/e02-F-graph-intake-20261006",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-graph-intake-20261006",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-graph-intake-20261006",
+        "head": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+        "root": "/workspace/e02-F-graph-intake-20261006"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 1461395,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-graph-intake-20261006"
+      },
+      "worktree": "/workspace/e02-F-graph-intake-20261006"
+    },
+    {
+      "HEAD": "07beb7c2986770e1b9901f3061a4768251c5a154",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-graph-review-20261006",
+      "branch": "refs/heads/codex/e02-F-graph-review-20261006",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-graph-review-20261006",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-graph-review-20261006",
+        "head": "07beb7c2986770e1b9901f3061a4768251c5a154",
+        "root": "/workspace/e02-F-graph-review-20261006"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 1469618,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-graph-review-20261006"
+      },
+      "worktree": "/workspace/e02-F-graph-review-20261006"
+    },
+    {
+      "HEAD": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-graph-scm",
+      "branch": "refs/heads/codex/e02-F-graph-scm",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-graph-scm",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-graph-scm",
+        "head": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+        "root": "/workspace/e02-F-graph-scm"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 277317,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-graph-scm"
+      },
+      "worktree": "/workspace/e02-F-graph-scm"
+    },
+    {
+      "HEAD": "f72e8fa6b7be831f8fda6f106c9d4f04572c4b69",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-handoff-index",
+      "branch": "refs/heads/codex/e02-F-handoff-index",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-handoff-index",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-handoff-index",
+        "head": "f72e8fa6b7be831f8fda6f106c9d4f04572c4b69",
+        "root": "/workspace/e02-F-handoff-index"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 812609,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-handoff-index"
+      },
+      "worktree": "/workspace/e02-F-handoff-index"
+    },
+    {
+      "HEAD": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-installed-worker-20261006",
+      "branch": "refs/heads/codex/e02-F-installed-worker-20261006",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-installed-worker-20261006",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-installed-worker-20261006",
+        "head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+        "root": "/workspace/e02-F-installed-worker-20261006"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 1507607,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-installed-worker-20261006"
+      },
+      "worktree": "/workspace/e02-F-installed-worker-20261006"
+    },
+    {
+      "HEAD": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-lex",
+      "branch": "refs/heads/codex/e02-F-lex",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-lex",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-lex",
+        "head": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+        "root": "/workspace/e02-F-lex"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 540207,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-lex"
+      },
+      "worktree": "/workspace/e02-F-lex"
+    },
+    {
+      "HEAD": "77166daa0ff8b9659e3978447f9016c691694266",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-lex-20261006",
+      "branch": "refs/heads/codex/e02-F-lex-20261006",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-lex-20261006",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-lex-20261006",
+        "head": "77166daa0ff8b9659e3978447f9016c691694266",
+        "root": "/workspace/e02-F-lex-20261006"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 1185263,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-lex-20261006"
+      },
+      "worktree": "/workspace/e02-F-lex-20261006"
+    },
+    {
+      "HEAD": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-rdd-20261006",
+      "branch": "refs/heads/codex/e02-F-rdd-20261006",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-rdd-20261006",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-rdd-20261006",
+        "head": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+        "root": "/workspace/e02-F-rdd-20261006"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 1090385,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-rdd-20261006"
+      },
+      "worktree": "/workspace/e02-F-rdd-20261006"
+    },
+    {
+      "HEAD": "27f172d56b59c3157275e90e50b1d00cc5219a91",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-F-tmle-20261006",
+      "branch": "refs/heads/codex/e02-F-tmle-20261006",
+      "live": {
+        "branch": "refs/heads/codex/e02-F-tmle-20261006",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/e02-F-tmle-20261006",
+        "head": "27f172d56b59c3157275e90e50b1d00cc5219a91",
+        "root": "/workspace/e02-F-tmle-20261006"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 965581,
+        "kind": "directory",
+        "resolved": "/workspace/e02-F-tmle-20261006"
+      },
+      "worktree": "/workspace/e02-F-tmle-20261006"
+    }
+  ],
+  "repository_common_dir": "/workspace/polisyos/.git",
+  "requested": {
+    "branch": "codex/e02-F-graph-20261006",
+    "mode": "resume",
+    "path": "/workspace/e02-F-graph-20261006"
+  },
+  "schema_version": "polisyos.workspace.worktree-admission.v1",
+  "selector_predicate_class": "consumer_asserted",
+  "started_at": "2026-10-06T18:02:29.037797+00:00",
+  "status": "admitted",
+  "unresolved_by_construction": [
+    {
+      "boundary": "moved_directories_outside_registered_paths",
+      "detail": "No wider filesystem/mount search; missing registered directories do not prove abandonment or prune safety."
+    },
+    {
+      "boundary": "non_atomic_observation",
+      "detail": "Git and filesystem reads are sequential, not an atomic snapshot; changes after or between reads can escape observation."
+    },
+    {
+      "boundary": "name_reservation",
+      "detail": "This read-only command reserves nothing. Root serializes commissioning, reruns immediately before creation and reads back exact attachment afterward."
+    },
+    {
+      "boundary": "external_prompt_writers",
+      "detail": "Receipt does not intercept or enforce arbitrary commissioning prompts."
+    }
+  ],
+  "unresolved_inputs": []
+}

@@ -1,0 +1,49 @@
+2026-10-06 16:39:06 [debug    ] method_dispatch_start          backend=numpy fqn=causal.inference.regression_discontinuity@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 16:39:06 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=38.7 fqn=causal.inference.regression_discontinuity@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+FFF2026-10-06 16:39:07 [debug    ] method_dispatch_start          backend=numpy fqn=econometrics.timeseries.time_series@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 16:39:07 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=594.95 fqn=econometrics.timeseries.time_series@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+FF...............
+=================================== FAILURES ===================================
+___________ test_success_ci_real_report_cas_remains_refused[missing] ___________
+/tmp/e02-F-continuation-20261006/foundry/test_value_consumer_identification.py:111: in test_success_ci_real_report_cas_remains_refused
+    assert envelope is not None and envelope.confidence_interval == native.confidence_interval
+E   AssertionError: assert (UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ates randomization.', 'no_precise_manipulation': 'Units cannot precisely manipulate the running variable at cutoff.'}}) is not None and (2.5206142540....631854422419) == (2.5206142540...8544224186207)
+E     
+E     At index 0 diff: 2.520614254073 != 2.5206142540732452
+E     Use -v to get more diff)
+________ test_success_ci_real_report_cas_remains_refused[present_fake] _________
+/tmp/e02-F-continuation-20261006/foundry/test_value_consumer_identification.py:111: in test_success_ci_real_report_cas_remains_refused
+    assert envelope is not None and envelope.confidence_interval == native.confidence_interval
+E   AssertionError: assert (UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ates randomization.', 'no_precise_manipulation': 'Units cannot precisely manipulate the running variable at cutoff.'}}) is not None and (2.5206142540....631854422419) == (2.5206142540...8544224186207)
+E     
+E     At index 0 diff: 2.520614254073 != 2.5206142540732452
+E     Use -v to get more diff)
+______ test_success_ci_real_report_cas_remains_refused[swapped_real_cas] _______
+/tmp/e02-F-continuation-20261006/foundry/test_value_consumer_identification.py:90: in test_success_ci_real_report_cas_remains_refused
+    graph_ref=str(other_graph.artifact_id), query_ref=str(other_query.artifact_id),
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'dict' object has no attribute 'artifact_id'
+______________ test_existing_native_noncausal_value_profile[None] ______________
+/tmp/e02-F-continuation-20261006/foundry/test_value_consumer_identification.py:157: in test_existing_native_noncausal_value_profile
+    reopened = EconometricResult.model_validate(get_json_artifact(FileSystemCAS(tmp_path), ref.artifact_id))
+                                                                                           ^^^^^^^^^^^^^^^
+E   AttributeError: 'dict' object has no attribute 'artifact_id'
+____ test_existing_native_noncausal_value_profile[HEURISTIC_POST_SELECTION] ____
+/tmp/e02-F-continuation-20261006/foundry/test_value_consumer_identification.py:157: in test_existing_native_noncausal_value_profile
+    reopened = EconometricResult.model_validate(get_json_artifact(FileSystemCAS(tmp_path), ref.artifact_id))
+                                                                                           ^^^^^^^^^^^^^^^
+E   AttributeError: 'dict' object has no attribute 'artifact_id'
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED ::test_success_ci_real_report_cas_remains_refused[missing] - Assertion...
+FAILED ::test_success_ci_real_report_cas_remains_refused[present_fake] - Asse...
+FAILED ::test_success_ci_real_report_cas_remains_refused[swapped_real_cas] - ...
+FAILED ::test_existing_native_noncausal_value_profile[None] - AttributeError:...
+FAILED ::test_existing_native_noncausal_value_profile[HEURISTIC_POST_SELECTION]
+5 failed, 15 passed, 1 warning in 9.90s

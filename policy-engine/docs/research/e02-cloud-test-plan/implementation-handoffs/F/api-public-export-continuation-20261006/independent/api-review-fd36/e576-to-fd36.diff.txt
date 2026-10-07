@@ -1,0 +1,297 @@
+diff --git a/policy-engine/release-fragments/unreleased/2026-10-06-public-export-resolution.toml b/policy-engine/release-fragments/unreleased/2026-10-06-public-export-resolution.toml
+index 7df33109c..b39d35c41 100644
+--- a/policy-engine/release-fragments/unreleased/2026-10-06-public-export-resolution.toml
++++ b/policy-engine/release-fragments/unreleased/2026-10-06-public-export-resolution.toml
+@@ -4,11 +4,11 @@ type = "fixed"
+ component = "architecture-tooling"
+ owner = "team-architecture"
+ summary = "Resolve declared __all__ through maintained local/imported literal name maps and sequences. Generated entrypoint inventory records actual dependency reads; missing or unreadable sources and unexpected errors refuse measurement. Unsupported, cyclic, rebound, shadowed or escaped declarations record typed unknown totals rather than empty namespaces. A direct literal prefix followed only by unresolved extensions records a null total and fails the completeness guardrail."
+-compatibility = "Supported causal library facades retain their canonical classes and functions. Retired shadow filenames were already absent before this slice; filename loaders have no implicit alias. Generated inventory gains export_resolution and known_export_count metadata with a bounded static selector; all parser-unresolved totals are null and remain gate failures. Known zero means no names proven, not an empty runtime namespace."
++compatibility = "Supported causal library facades retain their canonical classes and functions. Retired shadow filenames were already absent before this slice; filename loaders have no implicit alias. Generated inventory gains export_resolution and known_export_count metadata with a bounded static selector; all parser-unresolved totals are null and remain gate failures. Known zero means no names proven, not an empty runtime namespace. Incomplete export_resolution retains separately labelled declared_export_candidates from finite source expressions; candidates do not count as proved exports or a complete verdict."
+ change_class = "tooling"
+ surface_classification = "internal: public-surface generator and caller census; public_stable: existing causal library facade addresses unchanged"
+ migration = "Use supported package imports for causal_engine, id_engine and interference; private helpers use their canonical leaf owners. Dynamic-import AST candidates are classified by source/configuration and are not established runtime clients."
+-limitations = "The static grammar does not execute modules or prove external plugin/configuration caller coverage. Finite passive alias/container consumers are audited transitively; unknown calls after a selected binding, executable class mutation and undeclared class-creation hooks refuse completeness. Runtime function bodies are outside the static selector. Unsupported runtime-dependent declarations are unresolved. Generation on the current composed producer namespace is required separately; source fixture checks do not establish scientific causal validity, admitted data or Runtime authority."
++limitations = "The static grammar does not execute modules or prove external plugin/configuration caller coverage. Finite passive alias/container consumers are audited transitively; unsupported module-level calls anywhere before, inside or after declarations and all class constructions refuse completeness. Imported canonical sources with those effects remain unknown even when a separate native profile observes their names. Runtime function bodies are outside the static selector. Unsupported runtime-dependent declarations are unresolved. Generation on the current composed producer namespace is required separately; source fixture checks do not establish scientific causal validity, admitted data or Runtime authority."
+ evidence = ["tests/repo_quality/architecture/test_public_surface_export_resolution.py", "tests/unit/foundry/methods/catalog/causal/test_facade_consumer_continuation.py"]
+ public_surface_inventory_reviewed = false
+ generated_client_compatibility = "not_applicable"
+diff --git a/policy-engine/tests/repo_quality/architecture/test_public_surface_export_resolution.py b/policy-engine/tests/repo_quality/architecture/test_public_surface_export_resolution.py
+index 9248fb58d..e12a84544 100644
+--- a/policy-engine/tests/repo_quality/architecture/test_public_surface_export_resolution.py
++++ b/policy-engine/tests/repo_quality/architecture/test_public_surface_export_resolution.py
+@@ -33,7 +33,15 @@ def test_actual_analytics_mapping_is_not_reported_as_empty() -> None:
+     from polisyos.ir.api import ANALYTICS_FACADE_EXPORTS
+ 
+     result = guardrails._entrypoint_inventory("polisyos.ir.analytics")
+-    assert result.exports == tuple(analytics.__all__) == tuple(sorted(ANALYTICS_FACADE_EXPORTS))
++    assert tuple(analytics.__all__) == tuple(sorted(ANALYTICS_FACADE_EXPORTS))
++    assert len(analytics.__all__) == 278
++    # The native profile has these names, but the imported source also creates
++    # classes outside the finite static grammar. Do not infer an empty namespace.
++    assert result.export_count is None
++    assert result.known_export_count == 0
++    assert result.export_resolution["complete"] is False
++    assert result.export_resolution["declared_export_candidates"] == sorted(ANALYTICS_FACADE_EXPORTS)
++    assert "class construction" in result.export_resolution["reason"]
+     inputs = result.export_resolution["inputs"]
+     paths = {row["path"] for row in inputs if row["operation"] == "read_bytes"}
+     assert paths == {
+@@ -143,17 +151,35 @@ def test_unresolved_mapping_never_becomes_empty_manifest(
+             guardrails._entrypoint_inventory("polisyos.fixture")
+ 
+ 
+-def test_static_literal_mapping_is_read_without_executing_module(
++def test_unsupported_module_effect_is_reported_without_executing_module(
+     tmp_path: Path,
+     monkeypatch: pytest.MonkeyPatch,
+ ) -> None:
+-    _, mapping = _fixture(tmp_path, monkeypatch)
++    facade, mapping = _fixture(tmp_path, monkeypatch)
+     mapping.write_text(
+         'raise RuntimeError("module execution forbidden")\n'
+         'BASE = {"A": unknown_runtime_owner}\n'
+         'PUBLIC_NAMES = {**BASE, "B": object}\n',
+     )
+-    assert guardrails._entrypoint_inventory("polisyos.fixture").exports == ("A", "B")
++    result = guardrails._entrypoint_inventory("polisyos.fixture")
++    assert result.export_count is None
++    assert result.known_export_count == 0
++    assert result.export_resolution["complete"] is False
++    assert "import-time call" in result.export_resolution["reason"]
++    assert result.export_resolution["declared_export_candidates"] == ["A", "B"]
++    policy = guardrails.PackagePolicy(
++        module="polisyos.fixture", classification="public_experimental", facade_mode="eager_exports",
++        owner="test-owner", readme=facade, reference_doc=facade,
++        supported_entrypoints=("polisyos.fixture",), major_subsystem=False, notes="fixture",
++    )
++    inventory = guardrails.build_public_surface_inventory([policy])
++    serialized = json.loads(guardrails.render_public_surface_json(inventory))["packages"][0]
++    assert serialized["exports"] == []
++    assert serialized["export_count"] is None
++    assert serialized["known_export_count"] == 0
++    assert serialized["entrypoints"][0]["export_resolution"]["declared_export_candidates"] == ["A", "B"]
++    assert "Source-declared candidates (2; native exports unproved)" in guardrails.render_public_surface_markdown(inventory)
++    assert [item.detail for item in guardrails._check_public_surface_contracts(inventory)] == ["incomplete_exports"]
+ 
+ 
+ def test_local_names_and_sequence_concat_share_same_reader() -> None:
+@@ -275,15 +301,20 @@ def test_current_world_optional_profile_has_unknown_static_total() -> None:
+         )
+     )
+     assert row.export_count is None
+-    assert row.known_export_count == len(ast.literal_eval(literal)) == 41
+-    assert tuple(world.__all__[:row.known_export_count]) == row.exports
++    # The source has a literal prefix, but preceding optional-import probes are
++    # outside the effect grammar. That prefix is not a proved runtime total.
++    literal_names = ast.literal_eval(literal)
++    assert len(literal_names) == 41
++    assert row.known_export_count == 0
++    assert row.exports == ()
+     assert row.export_resolution["complete"] is False
+-    # Optional runtime exports are outside the static prefix and remain unknown.
+-    # This is an actual installed-profile discriminator, not a manifest marker.
++    assert row.export_resolution["declared_export_candidates"] == literal_names
++    assert tuple(world.__all__[:len(literal_names)]) == tuple(literal_names)
++    # The maintained native namespace is a separate observed profile.
+     if world._MATERIALIZE_AVAILABLE:
+-        assert len(world.__all__) == 59 > row.known_export_count
++        assert len(world.__all__) == 59 > len(literal_names)
+     else:
+-        assert len(world.__all__) == row.known_export_count
++        assert len(world.__all__) == len(literal_names)
+ 
+ 
+ @pytest.mark.parametrize("source", [
+@@ -299,12 +330,24 @@ def test_current_world_optional_profile_has_unknown_static_total() -> None:
+     'M = {"x": 1}\nclass C:\n    global M\n    M = {"y": 2}\n__all__ = sorted(M)',
+     'M = {"x": 1}\nclass C(metaclass=unknown):\n    pass\n__all__ = sorted(M)',
+     'M = {"x": 1}\nclass C(unknown):\n    pass\n__all__ = sorted(M)',
++    'globals()["sorted"] = choose\nM = {"x": 1}\n__all__ = sorted(M)',
++    'M = {\n    "x": poison(),\n}\n__all__ = sorted(M)',
++    'class D:\n    def __set_name__(self, owner, name):\n        M["y"] = 2\nd = D()\nM = {"x": 1}\nclass C:\n    descriptor = d\n__all__ = sorted(M)',
+ ])
+ def test_bindings_cannot_escape_finite_declaration_consumers(source: str) -> None:
+     with pytest.raises(ValueError, match="Unresolved"):
+         guardrails._extract_exports(ast.parse(source))
+ 
+ 
++@pytest.mark.parametrize("source", [
++    'globals()["__all__"] = ["RuntimeOnly"]',
++    'class C:\n    pass',
++])
++def test_missing_syntactic_binding_does_not_bypass_effect_audit(source: str) -> None:
++    with pytest.raises(guardrails._UnresolvedExportDeclarationError, match="import-time"):
++        guardrails._extract_exports(ast.parse(source))
++
++
+ def test_finite_selected_alias_chain_has_audited_consumers() -> None:
+     tree = ast.parse('M = {"B": None, "A": None}\nA = M\nN = sorted(A)\n__all__ = tuple(N)\n')
+     assert guardrails._extract_exports(tree) == ("A", "B")
+diff --git a/policy-engine/tools/devx/architecture/guardrails.py b/policy-engine/tools/devx/architecture/guardrails.py
+index 6d3ee53e7..f2161a2d1 100644
+--- a/policy-engine/tools/devx/architecture/guardrails.py
++++ b/policy-engine/tools/devx/architecture/guardrails.py
+@@ -588,6 +588,10 @@ def _symbol_binding_nodes(tree: ast.Module, symbol: str) -> Iterator[ast.AST]:
+ class _UnresolvedExportDeclarationError(ValueError):
+     """An intentional refusal by the bounded static export grammar."""
+ 
++    def __init__(self, message: str, declared_candidates: tuple[str, ...] = ()) -> None:
++        super().__init__(message)
++        self.declared_candidates = declared_candidates
++
+ 
+ class _StaticExportResolver:
+     """Resolve declared export names without importing or executing facade code.
+@@ -767,7 +771,7 @@ class _StaticExportResolver:
+ 
+     def audit_consumers(self) -> None:
+         """A finite binding must not escape the selected declaration grammar."""
+-        for source in {path for path, _ in self._resolved}:
++        for source in self._trees:
+             # Passive aliases/containers are finite only if their own complete
+             # module-level consumer closure is audited as well.
+             while True:
+@@ -783,28 +787,23 @@ class _StaticExportResolver:
+                         changed = True
+                 if not changed:
+                     break
+-            symbols = {symbol for path, symbol in self._resolved if path == source}
+-            first_bound_line = min(
+-                line for (path, _), line in self._resolved.items() if path == source
+-            )
+             for node in _module_level_nodes(self._tree(source)):
+                 if (
+-                    isinstance(node, ast.Call) and node.lineno >= first_bound_line
++                    isinstance(node, ast.Call)
+                     and (source, id(node)) not in self._allowed_calls
+                 ):
+-                    raise _UnresolvedExportDeclarationError(f"Unresolved call after export binding: {source}:{ast.unparse(node)}")
++                    raise _UnresolvedExportDeclarationError(f"Unresolved import-time call outside finite grammar: {source}:{ast.unparse(node)}")
+                 if (
+-                    isinstance(node, ast.ClassDef) and node.lineno >= first_bound_line
+-                    and (node.bases or node.keywords or node.decorator_list)
++                    isinstance(node, ast.ClassDef)
+                 ):
+-                    raise _UnresolvedExportDeclarationError(f"Unresolved class construction after export binding: {source}:{node.name}")
++                    raise _UnresolvedExportDeclarationError(f"Unresolved import-time class construction outside finite grammar: {source}:{node.name}")
+ 
+ 
+ class _IncompleteExportDeclarationError(_UnresolvedExportDeclarationError):
+     """A literal prefix is readable, but its extension has no static total."""
+ 
+     def __init__(self, prefix: tuple[str, ...]) -> None:
+-        super().__init__("Unresolved __all__.extend; literal prefix only, total unknown")
++        super().__init__("Unresolved __all__.extend; literal prefix only, total unknown", prefix)
+         self.prefix = prefix
+ 
+ 
+@@ -854,13 +853,11 @@ def _literal_prefix_before_extensions(tree: ast.Module) -> tuple[str, ...] | Non
+     ):
+         return None
+     if any(
+-        isinstance(node, ast.Call) and node.lineno > declaration.end_lineno
+-        and id(node) not in allowed_calls for node in _module_level_nodes(tree)
++        isinstance(node, ast.Call) and id(node) not in allowed_calls for node in _module_level_nodes(tree)
+     ):
+         return None
+     if any(
+-        isinstance(node, ast.ClassDef) and node.lineno > declaration.end_lineno
+-        and (node.bases or node.keywords or node.decorator_list)
++        isinstance(node, ast.ClassDef)
+         for node in _module_level_nodes(tree)
+     ):
+         return None
+@@ -868,17 +865,36 @@ def _literal_prefix_before_extensions(tree: ast.Module) -> tuple[str, ...] | Non
+ 
+ 
+ def _extract_exports(tree: ast.Module, source_file: Path | None = None) -> tuple[str, ...]:
++    source = source_file or SRC_ROOT / "polisyos" / "__static_exports__.py"
++    resolver = _StaticExportResolver(source, tree)
+     if not any(_symbol_binding_nodes(tree, "__all__")):
++        # Absence of a syntactic binding does not excuse reflective module effects.
++        resolver.audit_consumers()
+         return ()
+     prefix = _literal_prefix_before_extensions(tree)
+     if prefix is not None:
+         raise _IncompleteExportDeclarationError(prefix)
+-    source = source_file or SRC_ROOT / "polisyos" / "__static_exports__.py"
+-    resolver = _StaticExportResolver(source, tree)
+-    exports = resolver.resolve(source, "__all__")
+-    resolver.audit_consumers()
++    try:
++        exports = resolver.resolve(source, "__all__")
++    except _UnresolvedExportDeclarationError as exc:
++        # These are source declarations only: mutations or extension can change
++        # the native namespace. They never supply a complete export verdict.
++        literals = [
++            _string_list_value(node.value) for node in tree.body
++            if isinstance(node, (ast.Assign, ast.AnnAssign))
++            and any(
++                isinstance(target, ast.Name) and target.id == "__all__"
++                for target in (node.targets if isinstance(node, ast.Assign) else [node.target])
++            )
++        ]
++        candidates = literals[0] if len(literals) == 1 and literals[0] is not None else ()
++        raise _UnresolvedExportDeclarationError(str(exc), candidates) from exc
+     if not isinstance(exports, (tuple, list)) or not all(isinstance(item, str) for item in exports):
+         raise _UnresolvedExportDeclarationError(f"Export declaration must resolve to string sequence: {source}")
++    try:
++        resolver.audit_consumers()
++    except _UnresolvedExportDeclarationError as exc:
++        raise _UnresolvedExportDeclarationError(str(exc), tuple(exports)) from exc
+     return tuple(exports)
+ 
+ 
+@@ -909,6 +925,7 @@ def _facade_source_for(module: str) -> Path:
+ def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
+     incomplete_reason = None
+     exports_scope = None
++    declared_candidates: tuple[str, ...] = ()
+     with measure_file_reads(REPO_ROOT) as reads:
+         try:
+             source_file = _facade_source_for(module)
+@@ -917,10 +934,12 @@ def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
+                 exports = _extract_exports(tree, source_file)
+             except _IncompleteExportDeclarationError as exc:
+                 exports = exc.prefix
++                declared_candidates = exc.declared_candidates
+                 incomplete_reason = str(exc)
+                 exports_scope = "direct unconditional literal prefix; extensions unresolved"
+             except _UnresolvedExportDeclarationError as exc:
+                 exports = ()
++                declared_candidates = exc.declared_candidates
+                 incomplete_reason = str(exc)
+                 exports_scope = "no names proven by the bounded parser; not an empty runtime namespace"
+         except (OSError, ValueError, SyntaxError, TypeError) as exc:
+@@ -931,6 +950,11 @@ def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
+     if incomplete_reason is not None:
+         export_resolution["reason"] = incomplete_reason
+         export_resolution["exports_scope"] = exports_scope
++        export_resolution["declared_export_candidates"] = list(declared_candidates)
++        export_resolution["candidate_scope"] = (
++            "Names in a finite source declaration before effect audit; not proved native exports, "
++            "not included in known_export_count and not a completeness verdict."
++        )
+     export_resolution["selector"] = (
+         "Declared __all__; literal sequences/mapping keys, named/imported declarations, "
+         "concatenation and sorted/list/tuple. No module execution or runtime dispatch."
+@@ -1290,6 +1314,18 @@ def render_public_surface_markdown(inventory: list[PackageInventory]) -> str:
+                 lines.append(f"- Summary: {entrypoint.summary}")
+             if entrypoint.export_count is None:
+                 lines.append(f"- Export resolution incomplete: {entrypoint.export_resolution['reason']}.")
++                candidates = entrypoint.export_resolution["declared_export_candidates"]
++                if candidates:
++                    lines.extend([
++                        "",
++                        f"<details><summary>Source-declared candidates ({len(candidates)}; native exports unproved)</summary>",
++                        "",
++                        "```text",
++                        *candidates,
++                        "```",
++                        "",
++                        "</details>",
++                    ])
+             if entrypoint.known_export_count:
+                 label = (
+                     f"Known literal prefix ({entrypoint.known_export_count}; total unknown)"

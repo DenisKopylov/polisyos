@@ -1,0 +1,34 @@
+{
+  "source_start": "7450e7ece415490cbf70a59871bdf1e17fb25abd",
+  "tree_start": "36f5f6dfc94e0990069204a90d539685e75864cb",
+  "status_start": "",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "ruff",
+    "format",
+    "--check",
+    "src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "source_sha": "7450e7ece415490cbf70a59871bdf1e17fb25abd",
+  "tree": "36f5f6dfc94e0990069204a90d539685e75864cb",
+  "status": "",
+  "exit": 0,
+  "wall_s": 0.04207609700097237,
+  "pythonpath": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/consumer/final-format.stdout",
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+      "bytes": 26
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/consumer/final-format.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

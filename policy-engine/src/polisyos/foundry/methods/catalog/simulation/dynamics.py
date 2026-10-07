@@ -826,6 +826,7 @@ class AgentPopulationSimulationEstimator:
     def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
         import jax.numpy as jnp
 
+        from polisyos.foundry.agent_sim.distributions import compute_gini_hard
         from polisyos.foundry.agent_sim.executor import PureExecutor
         from polisyos.foundry.agent_sim.state import GlobalState as AgentSimGlobalState
 
@@ -880,7 +881,7 @@ class AgentPopulationSimulationEstimator:
         result = {
             "final_total_wealth": final_state.aggregates.total_wealth,
             "final_mean_consumption": final_state.aggregates.mean_consumption,
-            "final_gini": final_state.distributions.gini_wealth,
+            "final_gini": compute_gini_hard(final_state.agents.wealth, final_state.agents.active),
             "final_active_agents": final_state.population_manager.n_active,
             "final_time_step": final_state.time_step,
             "mean_metrics": metric_means,

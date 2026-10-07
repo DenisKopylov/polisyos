@@ -1,0 +1,15 @@
+{
+  "check": "PASS",
+  "verdict": "GO_BOUNDED_DOC_ONLY",
+  "source": {
+    "sha": "c0084cd530c1dbe01eedfb9b5c24f055954a97be",
+    "tree": "9bbaa69dc195dd38adb04c9d52fc4cd700824bc7"
+  },
+  "prior_scientific_review_source": "193b3582a72c640c1d06a131f93502654a77a36a",
+  "changed_paths": [
+    "policy-engine/docs/reference/foundry/economic-baseline-profile.md"
+  ],
+  "runtime_test_fragment_unchanged": true,
+  "basis": "Current original LA035 equivalent-relocation recommendation and dated oldheld/normative-intent history separated; original formula/native guards/aliases and real signed-Gini domain unchanged. No new optimizer/welfare or Gaccepted claim.",
+  "scientific_rerun": false
+}

@@ -1,0 +1,38 @@
+{
+  "schema": "policyos.e02.integration_decisions.v1",
+  "date": "2026-10-06",
+  "publisher": "G",
+  "branch": "codex/e02-integration",
+  "integration_sha": "aff2d90cd336f905054d6e96109906d2ebf1ece2",
+  "integration_tree": "9d3b5a013e462ddb9834513e92dfbc82467ad2ac",
+  "previous_checkpoint": "checkpoint-07.json",
+  "published_continuation_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "accepted_slices": [
+    {
+      "unit": "B",
+      "slice": "cas-current-put",
+      "accepted_head": "aff2d90cd336f905054d6e96109906d2ebf1ece2",
+      "candidate_sha": "b16cf7f6ccb1311e74a6fc8af3dc6e16526e4db4",
+      "candidate_tree": "6a2c69c191f2aa7514d6809b055d54e085f821b7",
+      "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "code_decision": "GO_bounded_test_only_direct_put_regression",
+      "reviewers": [
+        "risk_canonical",
+        "git_admission",
+        "docs_links",
+        "G"
+      ],
+      "handoff_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json@aff2d90cd336f905054d6e96109906d2ebf1ece2",
+      "deciding_receipt": "checks/2026-10-06-first-wave/b-cas-focused.json",
+      "finding_closure": false,
+      "runtime_source_delta": [],
+      "limitation": "B151 closure, full CAS/generation/crash/locking and other B IDs remain separate."
+    }
+  ],
+  "finding_closures": [],
+  "freeze": "not_frozen",
+  "broad_replay": "UNRUN; reserve once after source freeze",
+  "main_publication": "future_publication_requires_separate_explicit_authorization",
+  "review_queue": "reviews/2026-10-06-first-wave.md",
+  "remote_readback": "Ordinary integration push and exact remote readback follow this record commit."
+}

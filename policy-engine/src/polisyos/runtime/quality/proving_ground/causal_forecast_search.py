@@ -5850,7 +5850,7 @@ def _default_g2_runtime_method_candidate() -> dict[str, object]:
     sha = "sha256:"
     return {
         "method_id": "causal.did.readiness",
-        "method_fqn": "causal.did.difference_in_differences@1.0.0",
+        "method_fqn": "causal.inference.did.standard@1.0.0",
         "method_family": "causal_effect_estimation",
         "method_expectations": ["causal_effect_estimation", "uncertainty"],
         "truthfulness_status": "synthetic_fixture",
@@ -5891,7 +5891,7 @@ def _default_g2_runtime_method_candidate() -> dict[str, object]:
         "missingness_handling": {"status": "pass", "strategy": "complete_case"},
         "sensitivity": {"status": "pass", "robustness": "moderate"},
         "transportability_limits": {"target_population": "wartime_msmes"},
-        "specification_space": {"primary": "two_way_fixed_effects"},
+        "specification_space": {"primary": "standard_2x2_did"},
         "method_result_refs": {"method_result_ref": sha + "4" * 64},
         "limitation_refs": {"method_limitation_ref": sha + "5" * 64},
         "validity_surfaces": {

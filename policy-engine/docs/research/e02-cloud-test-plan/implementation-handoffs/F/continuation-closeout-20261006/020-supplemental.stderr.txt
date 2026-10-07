@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261006/graph/final-packet-review/check_final_supplemental.py", line 175, in <module>
+    check_commit(upstream)
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/tmp/e02-F-continuation-20261006/graph/final-packet-review/check_final_supplemental.py", line 111, in check_commit
+    body = git('cat-file', 'commit', record['sha'])
+                                     ~~~~~~^^^^^^^
+TypeError: string indices must be integers, not 'str'

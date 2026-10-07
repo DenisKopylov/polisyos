@@ -1,0 +1,33 @@
+{
+  "source_root": "/workspace/e02-F-api-20261006",
+  "target_sha": "d5ae668fe6079bfa81bd7448aa911fa4bee4e03b",
+  "cwd": "/workspace",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "python3",
+    "/tmp/e02-F-continuation-20261006/api/setup_installed_final_wave_v2.py",
+    "/tmp/e02-F-continuation-20261006/api/installed-final-d5ae-config-input.json"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/api/installed-final-d5ae-setup",
+  "scope": "One source wheel+sdist+explicit rebuilt-sdist wheel and fresh two installed sites; native selected consumers UNRUN until separately launched.",
+  "tree_sha": "299a64a56f84ae9ce0044032dba78f014ceec60e",
+  "source_status_before": "",
+  "elapsed_seconds": 33.4304780960083,
+  "exit_code": 0,
+  "child_max_rss_kib_linux": 124672,
+  "rss_scope": "Maximum child-process RSS reported by Linux RUSAGE_CHILDREN for this wrapper, including command and source guards; not total concurrent RSS.",
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/api/installed-final-d5ae-setup.stdout",
+    "bytes": 882,
+    "sha256": "ec56193c60ffafd3349e0822e3e83050c182091141cf3ec4538a0965d77140df"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/api/installed-final-d5ae-setup.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_status_after": "",
+  "artifacts": []
+}

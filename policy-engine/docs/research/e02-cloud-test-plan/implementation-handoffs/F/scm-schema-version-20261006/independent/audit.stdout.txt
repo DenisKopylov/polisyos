@@ -1,0 +1,72 @@
+Generated ABI schema snapshots for 1 models (2 file updates, scan_mode=full)
+{
+  "source_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+  "mode": "audit",
+  "outcome": "PASS",
+  "changed_paths": [
+    "policy-engine/docs/reference/ir/schema-catalog.md",
+    "policy-engine/docs/reference/schemas.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-scm-schema-catalog-version.toml",
+    "policy-engine/schemas/snapshots/ir/_manifest.json",
+    "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+    "policy-engine/src/polisyos/ir/analytics/README.md",
+    "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+    "policy-engine/src/polisyos/ir/migrations/schema_registry.py",
+    "policy-engine/tests/unit/ir/test_structural_causal_model_contract.py",
+    "policy-engine/tests/unit/ir/test_structural_causal_model_versions.py"
+  ],
+  "canonical_runtime_snapshot_equal": true,
+  "selected_manifest_entry_equal": true,
+  "complete_manifest_other_entries_retained": 98,
+  "manifest_header_unchanged": true,
+  "snapshot_only_default_changed": true,
+  "generated_owner_docs_section_and_row_equal": true,
+  "all_other_doc_bytes_retained": true,
+  "schema_directions": [
+    {
+      "producer": "1.0",
+      "consumer": "1.1",
+      "can_read": true,
+      "reason": "declared_readable_version"
+    },
+    {
+      "producer": "1.1",
+      "consumer": "1.0",
+      "can_read": false,
+      "reason": "not_compatible"
+    },
+    {
+      "producer": "1.2",
+      "consumer": "1.1",
+      "can_read": false,
+      "reason": "not_compatible"
+    },
+    {
+      "producer": "1.2",
+      "consumer": "1.0",
+      "can_read": false,
+      "reason": "not_compatible"
+    },
+    {
+      "producer": "2.0",
+      "consumer": "1.1",
+      "can_read": false,
+      "reason": "not_compatible"
+    },
+    {
+      "producer": "1.0",
+      "consumer": "1.2",
+      "can_read": false,
+      "reason": "unknown_consumer_version"
+    }
+  ],
+  "generator_argv": [
+    "--models",
+    "structural_causal_model_spec",
+    "--output-dir",
+    "/tmp/e02-F-continuation-20261006/foundry/schema-review/canonical-generated/snapshots",
+    "--cache-dir",
+    "/tmp/e02-F-continuation-20261006/foundry/schema-review/canonical-generated/cache"
+  ],
+  "source_writes": false
+}

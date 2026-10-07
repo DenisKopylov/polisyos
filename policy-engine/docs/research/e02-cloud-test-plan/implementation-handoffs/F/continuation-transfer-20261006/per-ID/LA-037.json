@@ -1,0 +1,243 @@
+{
+  "schema": "F-original-finding-continuation-receipt/1",
+  "unit": "F",
+  "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "formal_G_acceptance": "not_issued",
+  "check_scope": "Actual bounded measurement is separate from unresolved original/current authority inputs.",
+  "complete_original_bound_row": {
+    "finding_id": "LA-037",
+    "primary_bundle": "FRY-01",
+    "primary_tsv_owner": {
+      "finding_id": "LA-037",
+      "unit": "F",
+      "docx_analytical_package": "P12",
+      "source_closure_owner": "FRY-01",
+      "source_bundle_ids": "FRY-01",
+      "source_status": "partial"
+    },
+    "original_source_criterion_refs": [
+      {
+        "criterion_id": "LA-037",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "lines": [
+          2146,
+          2178
+        ],
+        "bytes": 5602,
+        "sha256": "79dc9efe37fc67c6b481db97f51d50a38d4aea4cff051ce0ffcf864ce049589c",
+        "title": "## LA-037. Slot layout: две последовательные compatibility-обёртки после переноса в IR",
+        "byte_binding_check": "PASS",
+        "complete_original_block": "## LA-037. Slot layout: две последовательные compatibility-обёртки после переноса в IR\n\n**C — завершение адресной миграции; перенос алгоритма не требуется**\n\n**Точная область:**\n\n`src/polisyos/foundry/methods/layout.py`\n\n`src/polisyos/foundry/methods/compiler/layout.py`\n\n**Статус.** Оба hop прочитаны полностью; конечный IR-владелец и действующий compiler caller подтверждены. Две обёртки не являются двумя layout-алгоритмами.\n\n**Что установлено.** Внешний `methods/layout.py` вызывает общий `_reexport_module` с target `foundry.methods.compiler.layout`. Сам target импортирует лишь пять объектов из `polisyos.ir.kernel.slots`: три типа и два builder. Таким образом, «канонический» адрес первой миграции уже стал compatibility второго переноса. Trinity compiler всё ещё импортирует `build_slot_layout` через самый внешний путь; документация рекомендует промежуточный, а найденный тест специально сохраняет старую Foundry-поверхность. [E116–E122]\n\nПрочитанный конечный владелец действительно содержит `SlotLayout`, `SlotFamily`, `SlotFamilyManifest`, `build_slot_layout` и `build_slot_family_manifest`. Здесь не предлагается переносить layout в IR заново или заводить четвёртый registry.\n\n**Что сохранить.** Identity типов/функций и семантику builders: пропуск slots без `state_path`, grouping/family inventory, порядок и fallback для global family. Полный численный/execution контракт нельзя заменить одной типовой fixture. Сохранить compiler tests и различие между проверкой текущего поведения и временным условием доступности старого import-path.\n\n**Куда перенести / с чем объединить.** Существующий `src/polisyos/ir/kernel/slots.py` — конечный адрес. Для first-party imports использовать его напрямую там, где import direction уже позволяет IR. Если внешний Foundry facade действительно нужен как стабильный контракт, сохранить **один** осознанный facade с прямыми явными bindings, а не обязательную цепочку двух. Сам `_internal/reexport.py` этим решением не удаляется: есть другие consumers, включая loss facade.\n\n**Порядок миграции.** Переключить Trinity и установленных клиентов, references/API-doc directives и config/FQN consumers. При временной поддержке внешнего адреса сначала направить его прямо к IR; только затем выводить промежуточный wrapper. Закрытие последнего поддерживаемого public facade требует собственного lifecycle-решения. Отрицательные проверки от возврата старого самостоятельного layout-кода оставить у архитектурных/contract tests.\n\n**Фактическая проверка.** r04-P23–P25 исполняют оба точных wrapper и точный reexport-helper с fixture IR objects. Все пять объектов сохраняют identity; внешняя поверхность содержит ровно эти пять имён. Блокирование промежуточного адреса ломает ещё не перенаправленный внешний facade. Настоящий `ir.kernel.slots` в этих probes не исполняется.\n\n**Приёмка.** Native slot-layout/family tests, compiler output и registry defaults, public imports/identity, docs build и package distribution. Проверить именно старые и промежуточные адреса; поиск только `compiler.layout` не найдёт callers внешнего `methods.layout` и наоборот. Переименование Python-пути не меняет сохранённые slot IDs и data manifests.\n\n**Приоритет.** Небольшая по коду, конечная по зависимостям миграция. Ни ожидаемое ускорение Foundry, ни существенное уменьшение объёма данных не заявляются.\n\n**Граница вывода.** IR source прочитан в диапазоне 1–230, включая оба builder, но не весь registry. Положительные caller/test/docs fragments доказывают наличие зависимостей, не их полный перечень. Удалять обе обёртки до миграции известных consumers нельзя.\n\n**Основания:** E116–E122. Локальные проверки: r04-P23–P25.\n\n<!-- PAGEBREAK -->\n"
+      }
+    ],
+    "criterion_short_ru": "Actual IR slot/compiler/state/doc/install migration; optional family state execution is separate",
+    "actual_consumer": "IR.kernel.slots → TrinityCompiler/default registry → PatchOp/state/CAS; scoped realMkDocs Python handler; installed owners",
+    "source_scope": "Native IR slot owner, direct compiler/docs caller and supported wrapper/install compatibility",
+    "oracle_and_negative": "7f05native40 + actualcompile1 + layoutCAS3, layout removalFAIL; realstatepage buildPASS; exactownerbytes installed5cd13wheel/13sdist",
+    "predicate_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Native IR slot owner, direct compiler/docs caller and supported wrapper/install compatibility. Independent oracle/retained-marker negative: 7f05native40 + actualcompile1 + layoutCAS3, layout removalFAIL; realstatepage buildPASS; exactownerbytes installed5cd13wheel/13sdist. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check": "PASS",
+    "outcome": "closed",
+    "state_role": "Explicit F ROOT recommendation on original byte-bound criterion; separate technical profile and current continuation. G formal acceptance not issued.",
+    "technical_original_criterion_recommendation": "closed",
+    "technical_historical_baseline_profile_outcome": null,
+    "technical_check": "PASS",
+    "current_continuation_outcome_recommendation": "closed",
+    "check_interpretation": "Proposed original/current criterion measurement disposition. Component-native PASSs remain on their exact source; pending owner/authority measurements are not PASS.",
+    "original_criterion_remainder": "None in original supported finite catalog/IC/native IR/direct caller/docs/install migration; optional new family state kernels and full compatibility retirement are not original acceptance prerequisites.",
+    "separate_unavailable_inputs_or_authority": "Fullstrictdocs/architecture/production admission not implied by scoped page; optionalfamilyexecution notcriterion.",
+    "limit_next_owner_short_ru": "None in original supported finite catalog/IC/native IR/direct caller/docs/install migration; optional new family state kernels and full compatibility retirement are not original acceptance prerequisites.",
+    "authority_check": "UNRUN",
+    "formal_G_accepted": false,
+    "formal_ledger_acceptance": "not_issued",
+    "receipt_ref": {
+      "head": "f4fa51e6dd247cfd967450263579d67233a743d6",
+      "branch": "refs/heads/codex/e02-F-fry-20261006",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json",
+      "bytes": 77903,
+      "sha256": "ff8a8f2b2689fb9793c5ab03f29fde1412eb5fe03dae961656fad722a108176e",
+      "table": "criterion_decisions",
+      "per_id": "LA-037"
+    },
+    "implementation_sha": "63425f734946979cfc990e9cb91b00163f051898",
+    "candidate_tree_sha": "dab61c3e7a161e00837f5a128fc2768a36e9b19a",
+    "historical_421_per_id_deciding_refs": [
+      {
+        "index": 0,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/native-frozen.stdout.txt"
+      },
+      {
+        "index": 1,
+        "check_id": null,
+        "outcome": "FAIL",
+        "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/executor-frozen.stdout.txt.text.json"
+      },
+      {
+        "index": 2,
+        "check_id": null,
+        "outcome": "UNRUN",
+        "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/architecture.stdout.txt"
+      },
+      {
+        "index": 3,
+        "check_id": null,
+        "outcome": "UNRUN",
+        "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/production-invocation.stdout.txt"
+      },
+      {
+        "index": 4,
+        "check_id": null,
+        "outcome": "FAIL",
+        "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release.stdout.txt"
+      },
+      {
+        "index": 5,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release-scoped.stdout.txt"
+      },
+      {
+        "index": 6,
+        "check_id": null,
+        "outcome": "FAIL",
+        "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-source.stdout.txt"
+      },
+      {
+        "index": 7,
+        "check_id": null,
+        "outcome": "FAIL",
+        "target_sha": "63425f734946979cfc990e9cb91b00163f051898",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-final.stdout.txt"
+      },
+      {
+        "index": 8,
+        "check_id": null,
+        "outcome": "UNRUN",
+        "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate.stdout.txt"
+      },
+      {
+        "index": 9,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/independent/fry-independent-review.json"
+      },
+      {
+        "index": 10,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "63425f734946979cfc990e9cb91b00163f051898",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-only-fidelity.json"
+      },
+      {
+        "index": 11,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/family-trace.json"
+      },
+      {
+        "index": 12,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/installed-layout-companion-binding.json"
+      },
+      {
+        "index": 13,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "63425f734946979cfc990e9cb91b00163f051898",
+        "output": "Complete committed outputs: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/ruff-check.txt; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/ruff-format.txt; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/diff-check.txt"
+      }
+    ],
+    "historical_421_owner_decision": {
+      "id": "LA-037",
+      "finding_state": "limited",
+      "check_outcome": "PASS",
+      "scope": "Native layout/family/compiler outputs and the API729 installed wheel/sdist identity, real path and CAS companions with identical existing source bytes.",
+      "limits": "Full documentation/build acceptance is unresolved. Family-to-state activation remains unestablished in the shared F-M12 criterion. The installed API profile does not contain the new FRY Treasury source."
+    },
+    "owner_proposals_complete": [],
+    "supplemental_receipt_registry_indices": [
+      4,
+      17,
+      26,
+      30,
+      35
+    ],
+    "current_exact_consumer_receipts": [
+      {
+        "key": "fry",
+        "git_ref": "e00dd3799cf2cdd14baf4b26e175ba1e848c3a6a",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006.json",
+        "bytes": 97248,
+        "sha256": "04fba06be549c934631ea496ae1cbf6b3698e2f235a94b61880ba540308f2cbf",
+        "implementation_commits": [
+          "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "3e1819173f0593ce93d257c3c62cdb2fa627e426"
+        ],
+        "candidate_tree_sha": "45852a68bb786a96d6d23c52cea790f13d3489d3"
+      }
+    ],
+    "canonical_owner_re_adjudication_required": "For unavailable semantic/institutional inputs only; source-bound ROOT decisions and independent reviews are carried separately.",
+    "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+    "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+    "historical_proposal_before_ROOT_adjudication": {
+      "original_criterion_remainder": "None in original supported finite catalog/IC/native IR/direct caller/docs/install migration; optional new family state kernels and full compatibility retirement are not original acceptance prerequisites.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+      "outcome": "closed",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "oracle_and_negative": "7f05native40 + actualcompile1 + layoutCAS3, layout removalFAIL; realstatepage buildPASS; exactownerbytes installed5cd13wheel/13sdist",
+      "source_scope": "Native IR slot owner, direct compiler/docs caller and supported wrapper/install compatibility",
+      "actual_consumer": "IR.kernel.slots → TrinityCompiler/default registry → PatchOp/state/CAS; scoped realMkDocs Python handler; installed owners",
+      "check": "PASS",
+      "decision_basis": null,
+      "separate_unavailable_inputs_or_authority": "Fullstrictdocs/architecture/production admission not implied by scoped page; optionalfamilyexecution notcriterion.",
+      "criterion_short_ru": "Actual IR slot/compiler/state/doc/install migration; optional family state execution is separate",
+      "technical_original_criterion_recommendation": "closed",
+      "deciding_receipt_refs": null
+    },
+    "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Native IR slot owner, direct compiler/docs caller and supported wrapper/install compatibility. Independent oracle/retained-marker negative: 7f05native40 + actualcompile1 + layoutCAS3, layout removalFAIL; realstatepage buildPASS; exactownerbytes installed5cd13wheel/13sdist. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check_scope": "Explicit source-bound ROOT original/current criterion adjudication; exact component outcomes remain separately preserved",
+    "ROOT_deciding_refs": [
+      {
+        "git_ref": "f4fa51e6dd247cfd967450263579d67233a743d6",
+        "head": "f4fa51e6dd247cfd967450263579d67233a743d6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json",
+        "bytes": 77903,
+        "sha256": "ff8a8f2b2689fb9793c5ab03f29fde1412eb5fe03dae961656fad722a108176e",
+        "git_blob": "12937d746fc2a65adfb6022e24ec00f61083f492",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/LA-037"
+        ]
+      }
+    ],
+    "ROOT_adjudication_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/root-adjudication.json",
+      "bytes": 130025,
+      "sha256": "0fc3e6440719fc3094bb13d82a809586cf05776bcf6a4dc3807e9cbfde44126f",
+      "head": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+      "git_ref": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+      "json_pointer": "/rows/34"
+    }
+  },
+  "independent_packet_review_resolution": {
+    "check": "UNRUN at this immutable packet seal",
+    "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+    "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+  }
+}

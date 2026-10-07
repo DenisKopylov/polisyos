@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="7" time="23.342" timestamp="2026-10-06T15:23:28.368272+00:00" hostname="6d6fd139922b"><testcase classname="tests.unit.foundry.plugins.test_economic_profiles" name="test_registered_fiscal_producer_full_patch_reaches_state_consumer[income_tax-IncomeTaxMechanismMethod-expected_delta0-30.0-eager]" time="0.710"><failure message="AssertionError: &#10;Arrays are not equal&#10;&#10;Mismatched elements: 2 / 4 (50%)&#10;Max absolute difference among violations: 20.&#10;Max relative difference among violations: 1.&#10; ACTUAL: array([0., 0., 0., 0.], dtype=float32)&#10; DESIRED: array([-20.,   0.,   0., -10.])">tests/unit/foundry/plugins/test_economic_profiles.py:103: in test_registered_fiscal_producer_full_patch_reaches_state_consumer
+    _assert_full_patch(patch, expected_patch)
+tests/unit/foundry/plugins/test_economic_profiles.py:69: in _assert_full_patch
+    np.testing.assert_array_equal(np.asarray(lhs[field]), np.asarray(rhs[field]))
+E   AssertionError: 
+E   Arrays are not equal
+E   
+E   Mismatched elements: 2 / 4 (50%)
+E   Max absolute difference among violations: 20.
+E   Max relative difference among violations: 1.
+E    ACTUAL: array([0., 0., 0., 0.], dtype=float32)
+E    DESIRED: array([-20.,   0.,   0., -10.])</failure></testcase><testcase classname="tests.unit.foundry.plugins.test_economic_profiles" name="test_registered_fiscal_producer_full_patch_reaches_state_consumer[income_tax-IncomeTaxMechanismMethod-expected_delta0-30.0-jit]" time="0.075"><failure message="AssertionError: &#10;Arrays are not equal&#10;&#10;Mismatched elements: 2 / 4 (50%)&#10;Max absolute difference among violations: 20.&#10;Max relative difference among violations: 1.&#10; ACTUAL: array([0., 0., 0., 0.], dtype=float32)&#10; DESIRED: array([-20.,   0.,   0., -10.])">tests/unit/foundry/plugins/test_economic_profiles.py:103: in test_registered_fiscal_producer_full_patch_reaches_state_consumer
+    _assert_full_patch(patch, expected_patch)
+tests/unit/foundry/plugins/test_economic_profiles.py:69: in _assert_full_patch
+    np.testing.assert_array_equal(np.asarray(lhs[field]), np.asarray(rhs[field]))
+E   AssertionError: 
+E   Arrays are not equal
+E   
+E   Mismatched elements: 2 / 4 (50%)
+E   Max absolute difference among violations: 20.
+E   Max relative difference among violations: 1.
+E    ACTUAL: array([0., 0., 0., 0.], dtype=float32)
+E    DESIRED: array([-20.,   0.,   0., -10.])</failure></testcase><testcase classname="tests.unit.foundry.plugins.test_economic_profiles" name="test_registered_fiscal_producer_full_patch_reaches_state_consumer[tax_subsidy-TaxSubsidyMechanismMethod-expected_delta1--45.0-eager]" time="0.256" /><testcase classname="tests.unit.foundry.plugins.test_economic_profiles" name="test_registered_fiscal_producer_full_patch_reaches_state_consumer[tax_subsidy-TaxSubsidyMechanismMethod-expected_delta1--45.0-jit]" time="0.098" /><testcase classname="tests.unit.foundry.plugins.test_economic_profile_consumers" name="test_registered_progressive_tax_complete_state_budget_and_step_profile[0.0]" time="14.109"><failure message="AssertionError: &#10;Arrays are not equal&#10;&#10;Mismatched elements: 8 / 12 (66.7%)&#10;Max absolute difference among violations: 7500.&#10;Max relative difference among violations: 0.14285715&#10; ACTUAL: array([ 5000., 20000., 60000.,  5000., 20000., 60000.,  5000., 20000.,&#10;       60000.,  5000., 20000., 60000.], dtype=float32)&#10; DESIRED: array([ 4375., 20000., 52500.,  4375., 20000., 52500.,  4375., 20000.,&#10;       52500.,  4375., 20000., 52500.], dtype=float32)">tests/unit/foundry/plugins/test_economic_profile_consumers.py:103: in test_registered_progressive_tax_complete_state_budget_and_step_profile
+    np.testing.assert_array_equal(result.agents.income, income - debit)
+E   AssertionError: 
+E   Arrays are not equal
+E   
+E   Mismatched elements: 8 / 12 (66.7%)
+E   Max absolute difference among violations: 7500.
+E   Max relative difference among violations: 0.14285715
+E    ACTUAL: array([ 5000., 20000., 60000.,  5000., 20000., 60000.,  5000., 20000.,
+E          60000.,  5000., 20000., 60000.], dtype=float32)
+E    DESIRED: array([ 4375., 20000., 52500.,  4375., 20000., 52500.,  4375., 20000.,
+E          52500.,  4375., 20000., 52500.], dtype=float32)</failure></testcase><testcase classname="tests.unit.foundry.plugins.test_economic_profile_consumers" name="test_registered_progressive_tax_complete_state_budget_and_step_profile[0.25]" time="4.159"><failure message="AssertionError: &#10;Arrays are not equal&#10;&#10;Mismatched elements: 8 / 12 (66.7%)&#10;Max absolute difference among violations: 7500.&#10;Max relative difference among violations: 0.14285715&#10; ACTUAL: array([ 5000., 20000., 60000.,  5000., 20000., 60000.,  5000., 20000.,&#10;       60000.,  5000., 20000., 60000.], dtype=float32)&#10; DESIRED: array([ 4375., 20000., 52500.,  4375., 20000., 52500.,  4375., 20000.,&#10;       52500.,  4375., 20000., 52500.], dtype=float32)">tests/unit/foundry/plugins/test_economic_profile_consumers.py:103: in test_registered_progressive_tax_complete_state_budget_and_step_profile
+    np.testing.assert_array_equal(result.agents.income, income - debit)
+E   AssertionError: 
+E   Arrays are not equal
+E   
+E   Mismatched elements: 8 / 12 (66.7%)
+E   Max absolute difference among violations: 7500.
+E   Max relative difference among violations: 0.14285715
+E    ACTUAL: array([ 5000., 20000., 60000.,  5000., 20000., 60000.,  5000., 20000.,
+E          60000.,  5000., 20000., 60000.], dtype=float32)
+E    DESIRED: array([ 4375., 20000., 52500.,  4375., 20000., 52500.,  4375., 20000.,
+E          52500.,  4375., 20000., 52500.], dtype=float32)</failure></testcase><testcase classname="tests.unit.foundry.plugins.test_economic_profile_consumers" name="test_registered_progressive_tax_complete_state_budget_and_step_profile[0.5]" time="3.697"><failure message="AssertionError: &#10;Arrays are not equal&#10;&#10;Mismatched elements: 8 / 12 (66.7%)&#10;Max absolute difference among violations: 7500.&#10;Max relative difference among violations: 0.14285715&#10; ACTUAL: array([ 5000., 20000., 60000.,  5000., 20000., 60000.,  5000., 20000.,&#10;       60000.,  5000., 20000., 60000.], dtype=float32)&#10; DESIRED: array([ 4375., 20000., 52500.,  4375., 20000., 52500.,  4375., 20000.,&#10;       52500.,  4375., 20000., 52500.], dtype=float32)">tests/unit/foundry/plugins/test_economic_profile_consumers.py:103: in test_registered_progressive_tax_complete_state_budget_and_step_profile
+    np.testing.assert_array_equal(result.agents.income, income - debit)
+E   AssertionError: 
+E   Arrays are not equal
+E   
+E   Mismatched elements: 8 / 12 (66.7%)
+E   Max absolute difference among violations: 7500.
+E   Max relative difference among violations: 0.14285715
+E    ACTUAL: array([ 5000., 20000., 60000.,  5000., 20000., 60000.,  5000., 20000.,
+E          60000.,  5000., 20000., 60000.], dtype=float32)
+E    DESIRED: array([ 4375., 20000., 52500.,  4375., 20000., 52500.,  4375., 20000.,
+E          52500.,  4375., 20000., 52500.], dtype=float32)</failure></testcase></testsuite></testsuites>

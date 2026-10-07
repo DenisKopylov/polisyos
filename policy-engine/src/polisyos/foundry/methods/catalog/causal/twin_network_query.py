@@ -37,22 +37,26 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 from polisyos.foundry.methods.catalog.causal.gcm_query import (
-    _AbductionDiagnostic,
-    _LinearGaussianPosterior,
     _abduce_noises_unified,
+    _AbductionDiagnostic,
     _apply_intervention,
     _draw_linear_gaussian_noises,
     _joint_root_sample_index,
+    _LinearGaussianPosterior,
     _mechanism_map,
     _mechanism_predict,
     _observed_root_samples,
-    _prepare_linear_gaussian_abduction,
     _parents_by_node,
     _percentile_ci,
+    _prepare_linear_gaussian_abduction,
     _topological_order,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import TwinNetworkQueryData
-from polisyos.ir.analytics.causal_queries import InterventionSpec, InterventionType
+from polisyos.ir.analytics.causal_queries import (
+    CausalResultKind,
+    InterventionSpec,
+    InterventionType,
+)
 from polisyos.ir.analytics.structural_causal_model import (
     MechanismFamily,
     NodeMechanism,
@@ -88,6 +92,11 @@ def _sample_node_noise(
 
     if mechanism.family is MechanismFamily.LINEAR:
         params = mechanism.family_params
+        if "residual_samples" in params:
+            residuals = np.asarray(params["residual_samples"], dtype=float)
+            if residuals.ndim != 1 or not len(residuals) or not np.isfinite(residuals).all():
+                raise ValueError("empirical structural residuals must be a non-empty finite vector")
+            return float(rng.choice(residuals))
         try:
             std = float(params.get("noise_std", 0.0))
         except (TypeError, ValueError, ArithmeticError):
@@ -364,6 +373,7 @@ class TwinNetworkQuery:
             ParameterSpec(name="confidence_level", default=0.95),
             ParameterSpec(name="store_distribution", default=True),
             ParameterSpec(name="allow_declared_root_hypothesis", default=False),
+            ParameterSpec(name="bootstrap_replicates", default=0),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
@@ -535,8 +545,49 @@ class TwinNetworkQuery:
 
         elapsed = float(time.perf_counter() - started_at)
 
+        from polisyos.foundry.methods.catalog.causal.gcm_query import _refit_bootstrap_interval
+        from polisyos.ir.analytics.causal_queries import (
+            CausalContrastSpec,
+            CausalQuery,
+            CausalRegime,
+            QueryType,
+        )
+
+        replicate_count = params.get("bootstrap_replicates", 0)
+        if type(replicate_count) is not int:
+            raise ValueError("bootstrap_replicates must be an integer")
+        estimator_query = CausalQuery(
+            query_type=QueryType.ATTRIBUTION,
+            treatment_variable=payload.treatment_variable,
+            outcome_variable=payload.outcome_variable,
+            condition=payload.factual_condition,
+            n_samples=n_samples,
+            contrast=CausalContrastSpec(
+                target=counterfactual_intervention,
+                comparator=CausalRegime(kind="interventional", intervention=factual_intervention),
+            ),
+        )
+        estimator_interval = (
+            _refit_bootstrap_interval(
+                scm_spec,
+                estimator_query,
+                seed=seed,
+                confidence_level=confidence_level,
+                replicate_count=replicate_count,
+            )
+            if replicate_count != 0
+            else None
+        )
+
         result = TwinNetworkResult(
             outcome_variable=payload.outcome_variable,
+            result_kind=(
+                CausalResultKind.POSTERIOR_CREDIBLE_INTERVAL
+                if abduction_diagnostic.profile == "linear_gaussian_posterior"
+                else CausalResultKind.ITE_DISTRIBUTION
+            ),
+            interval_level=confidence_level,
+            estimator_interval=estimator_interval,
             factual_intervention=factual_intervention,
             counterfactual_intervention=counterfactual_intervention,
             po_factual_mean=po_factual_mean,
@@ -563,35 +614,14 @@ class TwinNetworkQuery:
             },
         )
 
-        ci_lo, ci_hi = result.ite_ci
-        envelope = UncertaintyEnvelope(
-            point_estimate=float(result.ite_mean),
-            confidence_interval=(float(ci_lo), float(ci_hi)),
-            confidence_level=confidence_level,
-            distribution_family=DistributionFamily.BOOTSTRAP,
-            source=UncertaintySource.CAUSAL,
-            propagation_method=PropagationMethod.MONTE_CARLO,
-            interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
-            sample_size=n_samples,
-            is_heuristic_ci=False,
-            gate_eligible=(
-                abduction_diagnostic.gate_eligible and not bool(missing_root_nodes)
-            ),
-            metadata={
-                "query_type": "twin_network",
-                "outcome_variable": payload.outcome_variable,
-                "ite_std": result.ite_std,
-                "po_correlation": result.po_correlation,
-                "declared_root_hypothesis": missing_root_nodes,
-                **abduction_diagnostic.as_metadata(),
-            },
-        )
+        envelope = result.to_uncertainty_envelope()
         if missing_root_nodes:
             envelope = envelope.model_copy(update={"gate_eligible": False})
 
         return {
             "twin_network_result": result,
             "envelope": envelope,
+            "estimator_envelope": result.to_estimator_uncertainty_envelope(),
             "warnings": warnings,
             "__determinism_tier__": DeterminismTier.STATISTICAL,
         }

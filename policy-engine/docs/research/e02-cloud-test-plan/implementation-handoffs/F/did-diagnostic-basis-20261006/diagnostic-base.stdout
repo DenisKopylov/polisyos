@@ -1,0 +1,40 @@
+{
+  "producer_source": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+  "consumer_source": "421f1dd977b237307394c68820caab4156716eb2",
+  "consumer_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+  "consumer_source_sha256": "04a13ca7d81cf88ea0dddabd7ab36174800a5050da7dbfcc9f49a0aa03237ef0",
+  "producer_module": "/workspace/e02-F-cau-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+  "theta": 2.75,
+  "theta_and_markers_unchanged": true,
+  "old_diagnostic": [
+    {
+      "test_name": "pre_trend_parallelism",
+      "statistic": null,
+      "p_value": null,
+      "passed": false,
+      "details": {
+        "identification_authority": false,
+        "limitation": "Non-rejection cannot establish untreated potential-outcome parallel trends.",
+        "status": "not_testable",
+        "reason": "insufficient_pre_periods"
+      }
+    }
+  ],
+  "current_diagnostic": [
+    {
+      "test_name": "pre_trend_parallelism",
+      "statistic": -0.15000000000000005,
+      "p_value": 0.5718922635979181,
+      "passed": true,
+      "details": {
+        "identification_authority": false,
+        "limitation": "Non-rejection cannot establish untreated potential-outcome parallel trends.",
+        "status": "no_detected_pretrend",
+        "slope_se": 0.265361388801511,
+        "z_score": -0.5652668637191951
+      }
+    }
+  ],
+  "actual_consumer_helper_after_actual_CAS_fresh_read": "ACCEPTS_STALE_DIAGNOSTIC",
+  "scope": "exact native helper source AST executed without changes against candidate classes; whole Scientist job/Node UNRUN"
+}

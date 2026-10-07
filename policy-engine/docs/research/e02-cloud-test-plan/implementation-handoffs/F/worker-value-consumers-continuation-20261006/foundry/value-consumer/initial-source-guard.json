@@ -1,0 +1,27 @@
+{
+  "name": "initial_root_source_guard",
+  "command": "read-only metadata wrapper: git rev-parse HEAD then assert declared386b before any product subprocess",
+  "target_sha": "386b361865fb22d6da241716481d919b6ebd8249",
+  "environment": {
+    "interpreter": "python3",
+    "role": "scratch source admission guard"
+  },
+  "input_closure": "Declared root snapshot versus actual maintained root HEAD; no product test invoked",
+  "outcome": "ERROR",
+  "exit_code": 1,
+  "output": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/initial-source-guard.stderr.txt",
+  "output_refs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/initial-source-guard.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/initial-source-guard.stderr.txt",
+      "bytes": 130,
+      "sha256": "de4ff766e8e63f84ea33c29b2e18ac75927abbc47c90379ecd1c3f6fbe5bfccf"
+    }
+  ],
+  "observed_sha": "53afa77611c98cb0ac8c271d0aa6ddc205b40f76",
+  "interpretation": "Legitimate root concurrent append merges observed; requested updated admission/source binding. No product verdict and no source/history repair."
+}

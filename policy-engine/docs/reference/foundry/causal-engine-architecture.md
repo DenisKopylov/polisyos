@@ -97,10 +97,22 @@ User Query (treatment, outcome, graph, data)
 
 ### Module Map
 
+The three split libraries resolve to packages: use the qualified imports
+`polisyos.foundry.methods.catalog.causal.causal_engine`, `.id_engine`, and
+`.interference`. Their former sibling `.py` files were already absent at the
+E02 base `198076863e143dea9f89f02734b13d50dae3eed5`. Import resolution and
+filename loading are separate contracts; a client opening an old filename must
+migrate to the package or its canonical leaf. These libraries are not `runpy`
+command entrypoints. Method execution uses the existing Foundry registry/FQN
+contract. The benchmark and method-count numbers elsewhere on this page retain
+their dated v26 scope.
+
 ```text
 causal/
-├── causal_engine.py          ← Main orchestrator (600+ lines)
-├── id_engine.py              ← Identification algorithms (1200+ lines)
+├── causal_engine/            ← Orchestrator API, identification, estimation, artifacts
+│   └── api.py                ← Canonical CausalEngine class
+├── id_engine/                ← Identification API, core, counterfactual, transport
+│   └── api.py                ← Canonical identification entrypoints
 ├── do_calculus.py            ← Pearl's 3 rules
 ├── estimand_compiler.py      ← AST → ExecutionPlan (400+ lines)
 ├── admg_ops.py               ← Pure graph algorithms (500+ lines)
@@ -140,7 +152,7 @@ causal/
 ├── constraint_discovery.py    ← PC, FCI, GES
 │
 ├── # Special topics
-├── interference.py            ← Network/spatial AIPW, partial interference
+├── interference/              ← API, identification and estimation owners
 ├── missing_data.py            ← M-graph recoverability
 ├── data_fusion.py             ← Multi-source fusion
 ├── path_specific.py           ← NDE/NIE via cross-fit EIF
@@ -302,7 +314,7 @@ EstimandAST → classify_estimand() → EstimandShape → recommend_estimator() 
 
 | Capability                       | Module                                          |
 | -------------------------------- | ----------------------------------------------- |
-| Network/spatial interference     | `interference.py`                               |
+| Network/spatial interference     | `interference.api`, `interference.identification` |
 | M-graph recovery (missing data)  | `missing_data.py`                               |
 | Multi-source data fusion         | `data_fusion.py`                                |
 | Path-specific effects (NDE/NIE)  | `path_specific.py`                              |

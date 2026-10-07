@@ -1,0 +1,1458 @@
+{
+  "exitstatus": 0,
+  "collected": 76,
+  "collected_nodeids": [
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[None]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[0]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[17]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[2147483655]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_unmarked_historical_plan_keeps_sequential_default_and_override[None]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_unmarked_historical_plan_keeps_sequential_default_and_override[0]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_unmarked_historical_plan_keeps_sequential_default_and_override[17]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[unknown_profile-unsupported_randomization_profile]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[duplicate_profile-unsupported_randomization_profile]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[missing_treasury-treasury_requires_one_treasury_plan_input]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[duplicate_treasury-treasury_requires_one_treasury_plan_input]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_plan_program-treasury_exec_program_mismatch]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_program_input-treasury_program_input_mismatch]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_treasury_program-treasury_source_program_mismatch]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_root-treasury_seed_or_salts_mismatch]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_node_salt-treasury_seed_or_salts_mismatch]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[missing_node-treasury_seed_or_salts_mismatch]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[extra_node-treasury_seed_or_salts_mismatch]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_stream-treasury_seed_or_salts_mismatch]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_kind-Artifact reference type does not match selected manifest]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_schema-treasury_manifest_schema_or_kind]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_actual_rng_bridge_removal_is_detected_while_profile_and_cas_remain[all_salts]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_actual_rng_bridge_removal_is_detected_while_profile_and_cas_remain[high_word]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_actual_rng_bridge_removal_is_detected_while_profile_and_cas_remain[stream_salt]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_public_execute_cas_snapshot_consumer_uses_bound_profile[None]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_public_execute_cas_snapshot_consumer_uses_bound_profile[0]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_public_execute_cas_snapshot_consumer_uses_bound_profile[101]",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_versioned_legacy_mechanism_node_and_graph_storage_permutation",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_actual_registered_dispatcher_consumes_versioned_node_seed",
+    "tests/unit/foundry/compile/test_treasury_execution.py::test_native_skipped_prior_draw_cannot_move_versioned_node_stream",
+    "tests/unit/foundry/compile/test_compile_artifact_contracts.py::test_native_compile_artifacts_survive_scientist_consumer_and_cas_reopen",
+    "tests/unit/foundry/compile/test_compile_artifact_contracts.py::test_compiler_artifact_contract_rejects_same_shape_missing_property[treasury]",
+    "tests/unit/foundry/compile/test_compile_artifact_contracts.py::test_compiler_artifact_contract_rejects_same_shape_missing_property[layout]",
+    "tests/unit/foundry/compile/test_compile_artifact_contracts.py::test_compile_consumer_retains_persisted_failure_for_malformed_trinity",
+    "tests/unit/foundry/compile/test_randomization.py::test_randomization_owner_preserves_treasury_plan_bytes_and_seed_laws",
+    "tests/unit/foundry/compile/test_randomization.py::test_randomization_salts_match_historical_hash_oracle_and_round_trip[0]",
+    "tests/unit/foundry/compile/test_randomization.py::test_randomization_salts_match_historical_hash_oracle_and_round_trip[17]",
+    "tests/unit/foundry/compile/test_randomization.py::test_randomization_salts_match_historical_hash_oracle_and_round_trip[-3]",
+    "tests/unit/foundry/compile/test_randomization.py::test_v1_plan_bytes_remain_readable",
+    "tests/unit/foundry/compile/test_compile_determinism.py::test_compile_determinism",
+    "tests/unit/foundry/compile/test_trinity_compiler.py::test_registry_loader_refuses_foreign_selected_member_profile",
+    "tests/unit/foundry/compile/test_trinity_compiler.py::TestCompileTrinityMissing::test_compile_trinity_missing_registry_bundle",
+    "tests/unit/foundry/compile/test_trinity_compiler.py::TestCompileTrinityLowering::test_compile_trinity_lowering_exception",
+    "tests/unit/foundry/compile/test_trinity_compiler.py::TestCompileTrinityLowering::test_compile_trinity_strict_link_failure",
+    "tests/unit/foundry/compile/test_trinity_compiler.py::TestCompileTrinitySuccess::test_compile_trinity_success_all_derived_refs",
+    "tests/unit/foundry/compile/test_trinity_compiler.py::TestMergeNotes::test_merge_notes_dedup",
+    "tests/unit/foundry/compile/test_trinity_compiler.py::TestMergeNotes::test_merge_notes_preserves_order",
+    "tests/unit/foundry/compile/test_trinity_compiler.py::TestMergeNotes::test_merge_notes_empty",
+    "tests/unit/foundry/compile/test_trinity_compiler.py::test_trinity_compiler_binds_slot_layout_to_ir_owner",
+    "tests/unit/foundry/facade/test_compile_facade.py::test_compile_auto_facade",
+    "tests/unit/foundry/facade/test_compile_facade.py::test_compile_trinity_facade",
+    "tests/unit/foundry/facade/test_compile_facade.py::test_compile_trinity_lowers_bindings_and_fidelity",
+    "tests/unit/foundry/facade/test_compile_facade.py::test_compile_trinity_fails_on_binding_kind_mismatch",
+    "tests/unit/foundry/facade/test_compile_facade.py::test_compile_trinity_fails_fast_when_mechanism_has_no_runtime_support",
+    "tests/unit/foundry/facade/test_execute_facade_smoke.py::test_execute_facade_smoke",
+    "tests/unit/foundry/contracts/test_layout.py::test_slot_family_manifest_includes_cell_families",
+    "tests/unit/foundry/contracts/test_layout.py::test_foundry_layout_reexports_ir_slot_family_manifest_builder",
+    "tests/unit/foundry/contracts/test_layout.py::test_foundry_layout_facade_binds_ir_owner_without_compiler_hop",
+    "tests/unit/foundry/contracts/test_layout.py::test_both_layout_addresses_preserve_all_ir_object_identities[polisyos.foundry.methods.layout]",
+    "tests/unit/foundry/contracts/test_layout.py::test_both_layout_addresses_preserve_all_ir_object_identities[polisyos.foundry.methods.compiler.layout]",
+    "tests/unit/foundry/contracts/test_layout.py::test_native_layout_and_family_builders_distinguish_inventory_from_state_paths",
+    "tests/unit/foundry/methods/catalog/mechanism/test_families.py::test_catalog_family_owner_preserves_ids_assumptions_and_unknown_id_behavior",
+    "tests/unit/foundry/methods/catalog/mechanism/test_families.py::test_ic_service_binds_family_lookup_to_catalog_owner",
+    "tests/unit/foundry/methods/catalog/mechanism/test_families.py::test_registered_family_requires_native_certificate_for_actual_policy[schedule0-positive]",
+    "tests/unit/foundry/methods/catalog/mechanism/test_families.py::test_registered_family_requires_native_certificate_for_actual_policy[schedule1-negative]",
+    "tests/unit/foundry/mechanisms/test_treasury.py::test_stable_hash_is_deterministic_and_distinguishes_values",
+    "tests/unit/foundry/mechanisms/test_treasury.py::test_build_treasury_plan_populates_node_and_stream_salts",
+    "tests/unit/foundry/mechanisms/test_treasury.py::test_build_treasury_plan_zero_seed_preserves_historical_salts",
+    "tests/unit/foundry/mechanisms/test_treasury.py::test_build_treasury_plan_root_seed_changes_salts",
+    "tests/unit/foundry/mechanisms/test_mechanism_design.py::test_mechanism_family_catalog_contains_phase3_entries",
+    "tests/unit/foundry/mechanisms/test_mechanism_design.py::test_get_mechanism_family_spec_returns_typed_phase3_surface",
+    "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py::test_compile_success_with_mock_foundry",
+    "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py::test_compile_missing_inputs",
+    "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py::test_compile_missing_trinity_ref",
+    "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py::test_compile_error_result",
+    "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py::test_compile_foundry_uses_branch_state_for_declared_outputs"
+  ],
+  "counts": {
+    "setup:passed": 76,
+    "call:passed": 76,
+    "teardown:passed": 76
+  },
+  "reports": [
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[None]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.005251782000414096
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[None]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 2.4180318959988654
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[None]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00020865700207650661
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[0]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0008463010017294437
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[0]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.8742908540007193
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[0]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00016635800420772284
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[17]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0006647249974776059
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[17]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.823083499999484
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[17]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00019210699247196317
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[2147483655]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0006298490043263882
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[2147483655]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.8384484849957516
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[2147483655]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0001547069987282157
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_unmarked_historical_plan_keeps_sequential_default_and_override[None]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.000619871003436856
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_unmarked_historical_plan_keeps_sequential_default_and_override[None]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.5878133009973681
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_unmarked_historical_plan_keeps_sequential_default_and_override[None]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00016413399134762585
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_unmarked_historical_plan_keeps_sequential_default_and_override[0]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0007473180012311786
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_unmarked_historical_plan_keeps_sequential_default_and_override[0]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.5991741820034804
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_unmarked_historical_plan_keeps_sequential_default_and_override[0]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00017695900169201195
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_unmarked_historical_plan_keeps_sequential_default_and_override[17]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0006999199977144599
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_unmarked_historical_plan_keeps_sequential_default_and_override[17]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.6373111220018473
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_unmarked_historical_plan_keeps_sequential_default_and_override[17]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.000160146999405697
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[unknown_profile-unsupported_randomization_profile]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0008100740087684244
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[unknown_profile-unsupported_randomization_profile]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.47437429199635517
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[unknown_profile-unsupported_randomization_profile]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00017332199786324054
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[duplicate_profile-unsupported_randomization_profile]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0008110360067803413
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[duplicate_profile-unsupported_randomization_profile]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.43437476799590513
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[duplicate_profile-unsupported_randomization_profile]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00017435300105717033
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[missing_treasury-treasury_requires_one_treasury_plan_input]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00079697000910528
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[missing_treasury-treasury_requires_one_treasury_plan_input]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.4577528269874165
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[missing_treasury-treasury_requires_one_treasury_plan_input]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00021497900888789445
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[duplicate_treasury-treasury_requires_one_treasury_plan_input]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0008709170069778338
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[duplicate_treasury-treasury_requires_one_treasury_plan_input]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.4320256430073641
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[duplicate_treasury-treasury_requires_one_treasury_plan_input]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0001819280005292967
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_plan_program-treasury_exec_program_mismatch]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0007566160056740046
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_plan_program-treasury_exec_program_mismatch]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.47328354700584896
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_plan_program-treasury_exec_program_mismatch]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00017189900972880423
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_program_input-treasury_program_input_mismatch]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0008361930085811764
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_program_input-treasury_program_input_mismatch]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.42816435199347325
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_program_input-treasury_program_input_mismatch]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00017630700313020498
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_treasury_program-treasury_source_program_mismatch]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0008118980040308088
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_treasury_program-treasury_source_program_mismatch]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.4456162700080313
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_treasury_program-treasury_source_program_mismatch]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00018538399308454245
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_root-treasury_seed_or_salts_mismatch]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0007838050078134984
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_root-treasury_seed_or_salts_mismatch]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.45177702700311784
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_root-treasury_seed_or_salts_mismatch]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00017814099555835128
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_node_salt-treasury_seed_or_salts_mismatch]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.000819231994682923
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_node_salt-treasury_seed_or_salts_mismatch]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.4385654899961082
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_node_salt-treasury_seed_or_salts_mismatch]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0002030970063060522
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[missing_node-treasury_seed_or_salts_mismatch]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0007801180036040023
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[missing_node-treasury_seed_or_salts_mismatch]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.44599182199453935
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[missing_node-treasury_seed_or_salts_mismatch]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00017114898946601897
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[extra_node-treasury_seed_or_salts_mismatch]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0008532950014341623
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[extra_node-treasury_seed_or_salts_mismatch]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.5120056109881261
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[extra_node-treasury_seed_or_salts_mismatch]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00017470400780439377
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_stream-treasury_seed_or_salts_mismatch]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.001056881999829784
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_stream-treasury_seed_or_salts_mismatch]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.4519442659948254
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_stream-treasury_seed_or_salts_mismatch]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0002451350010233
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_kind-Artifact reference type does not match selected manifest]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0008732209971640259
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_kind-Artifact reference type does not match selected manifest]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.4611111459962558
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_kind-Artifact reference type does not match selected manifest]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00016025800141505897
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_schema-treasury_manifest_schema_or_kind]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0009467780037084594
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_schema-treasury_manifest_schema_or_kind]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.4494295219919877
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_schema-treasury_manifest_schema_or_kind]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.000246798008447513
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_actual_rng_bridge_removal_is_detected_while_profile_and_cas_remain[all_salts]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0007794970006216317
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_actual_rng_bridge_removal_is_detected_while_profile_and_cas_remain[all_salts]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.5641045920056058
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_actual_rng_bridge_removal_is_detected_while_profile_and_cas_remain[all_salts]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00016397499712184072
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_actual_rng_bridge_removal_is_detected_while_profile_and_cas_remain[high_word]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0006816769891884178
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_actual_rng_bridge_removal_is_detected_while_profile_and_cas_remain[high_word]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.5781208999978844
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_actual_rng_bridge_removal_is_detected_while_profile_and_cas_remain[high_word]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00021456899412442
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_actual_rng_bridge_removal_is_detected_while_profile_and_cas_remain[stream_salt]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00073923499439843
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_actual_rng_bridge_removal_is_detected_while_profile_and_cas_remain[stream_salt]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.556789285998093
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_actual_rng_bridge_removal_is_detected_while_profile_and_cas_remain[stream_salt]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00016831299581099302
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_public_execute_cas_snapshot_consumer_uses_bound_profile[None]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0006340789987007156
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_public_execute_cas_snapshot_consumer_uses_bound_profile[None]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.7145704760041554
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_public_execute_cas_snapshot_consumer_uses_bound_profile[None]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00015673099551349878
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_public_execute_cas_snapshot_consumer_uses_bound_profile[0]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0006468229985330254
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_public_execute_cas_snapshot_consumer_uses_bound_profile[0]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.7171089860057691
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_public_execute_cas_snapshot_consumer_uses_bound_profile[0]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0001541759993415326
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_public_execute_cas_snapshot_consumer_uses_bound_profile[101]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0007297970005311072
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_public_execute_cas_snapshot_consumer_uses_bound_profile[101]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.722853473998839
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_public_execute_cas_snapshot_consumer_uses_bound_profile[101]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0001672509970376268
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_versioned_legacy_mechanism_node_and_graph_storage_permutation",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0006066670030122623
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_versioned_legacy_mechanism_node_and_graph_storage_permutation",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.5969500450009946
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_versioned_legacy_mechanism_node_and_graph_storage_permutation",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.000174102999153547
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_actual_registered_dispatcher_consumes_versioned_node_seed",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0007801679894328117
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_actual_registered_dispatcher_consumes_versioned_node_seed",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.6461837829992874
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_actual_registered_dispatcher_consumes_versioned_node_seed",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00016502599464729428
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_native_skipped_prior_draw_cannot_move_versioned_node_stream",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0006525719945784658
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_native_skipped_prior_draw_cannot_move_versioned_node_stream",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 1.29265718399256
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_treasury_execution.py::test_native_skipped_prior_draw_cannot_move_versioned_node_stream",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00015081999299582094
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_compile_artifact_contracts.py::test_native_compile_artifacts_survive_scientist_consumer_and_cas_reopen",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0006552770064445212
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_compile_artifact_contracts.py::test_native_compile_artifacts_survive_scientist_consumer_and_cas_reopen",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.5866888820019085
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_compile_artifact_contracts.py::test_native_compile_artifacts_survive_scientist_consumer_and_cas_reopen",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00014055099745746702
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_compile_artifact_contracts.py::test_compiler_artifact_contract_rejects_same_shape_missing_property[treasury]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00068158601061441
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_compile_artifact_contracts.py::test_compiler_artifact_contract_rejects_same_shape_missing_property[treasury]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.4440051429992309
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_compile_artifact_contracts.py::test_compiler_artifact_contract_rejects_same_shape_missing_property[treasury]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00016801198944449425
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_compile_artifact_contracts.py::test_compiler_artifact_contract_rejects_same_shape_missing_property[layout]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0008139010024024174
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_compile_artifact_contracts.py::test_compiler_artifact_contract_rejects_same_shape_missing_property[layout]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.44115395899279974
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_compile_artifact_contracts.py::test_compiler_artifact_contract_rejects_same_shape_missing_property[layout]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00016788100765552372
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_compile_artifact_contracts.py::test_compile_consumer_retains_persisted_failure_for_malformed_trinity",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0005620239971904084
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_compile_artifact_contracts.py::test_compile_consumer_retains_persisted_failure_for_malformed_trinity",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.1830151080066571
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_compile_artifact_contracts.py::test_compile_consumer_retains_persisted_failure_for_malformed_trinity",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00015442600124515593
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_randomization.py::test_randomization_owner_preserves_treasury_plan_bytes_and_seed_laws",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00020707500516436994
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_randomization.py::test_randomization_owner_preserves_treasury_plan_bytes_and_seed_laws",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.000556332990527153
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_randomization.py::test_randomization_owner_preserves_treasury_plan_bytes_and_seed_laws",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 9.458500426262617e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_randomization.py::test_randomization_salts_match_historical_hash_oracle_and_round_trip[0]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00029870501020923257
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_randomization.py::test_randomization_salts_match_historical_hash_oracle_and_round_trip[0]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00033263699151575565
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_randomization.py::test_randomization_salts_match_historical_hash_oracle_and_round_trip[0]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00010399399616289884
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_randomization.py::test_randomization_salts_match_historical_hash_oracle_and_round_trip[17]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.000230206991545856
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_randomization.py::test_randomization_salts_match_historical_hash_oracle_and_round_trip[17]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00027462000434752554
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_randomization.py::test_randomization_salts_match_historical_hash_oracle_and_round_trip[17]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 9.901399607770145e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_randomization.py::test_randomization_salts_match_historical_hash_oracle_and_round_trip[-3]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00022236400400288403
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_randomization.py::test_randomization_salts_match_historical_hash_oracle_and_round_trip[-3]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00026781699853017926
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_randomization.py::test_randomization_salts_match_historical_hash_oracle_and_round_trip[-3]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 9.355299698654562e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_randomization.py::test_v1_plan_bytes_remain_readable",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0001761780004017055
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_randomization.py::test_v1_plan_bytes_remain_readable",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00016727000183891505
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_randomization.py::test_v1_plan_bytes_remain_readable",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.417600474786013e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_compile_determinism.py::test_compile_determinism",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0005328389961505309
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_compile_determinism.py::test_compile_determinism",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.6013734969892539
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_compile_determinism.py::test_compile_determinism",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00017999400733970106
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::test_registry_loader_refuses_foreign_selected_member_profile",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0005956270033493638
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::test_registry_loader_refuses_foreign_selected_member_profile",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.2059804059972521
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::test_registry_loader_refuses_foreign_selected_member_profile",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00012080500891897827
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::TestCompileTrinityMissing::test_compile_trinity_missing_registry_bundle",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00016823300393298268
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::TestCompileTrinityMissing::test_compile_trinity_missing_registry_bundle",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0015874109958531335
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::TestCompileTrinityMissing::test_compile_trinity_missing_registry_bundle",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 9.581800259184092e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::TestCompileTrinityLowering::test_compile_trinity_lowering_exception",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00015376599912997335
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::TestCompileTrinityLowering::test_compile_trinity_lowering_exception",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00293668000085745
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::TestCompileTrinityLowering::test_compile_trinity_lowering_exception",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 9.817299724090844e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::TestCompileTrinityLowering::test_compile_trinity_strict_link_failure",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00015541899483650923
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::TestCompileTrinityLowering::test_compile_trinity_strict_link_failure",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0025824519980233163
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::TestCompileTrinityLowering::test_compile_trinity_strict_link_failure",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 9.684999531600624e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::TestCompileTrinitySuccess::test_compile_trinity_success_all_derived_refs",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0006195409951033071
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::TestCompileTrinitySuccess::test_compile_trinity_success_all_derived_refs",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.05995065000024624
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::TestCompileTrinitySuccess::test_compile_trinity_success_all_derived_refs",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00013037200551480055
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::TestMergeNotes::test_merge_notes_dedup",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00015733200416434556
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::TestMergeNotes::test_merge_notes_dedup",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00012450099166017026
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::TestMergeNotes::test_merge_notes_dedup",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.366600377485156e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::TestMergeNotes::test_merge_notes_preserves_order",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00019631499890238047
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::TestMergeNotes::test_merge_notes_preserves_order",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00011309100955259055
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::TestMergeNotes::test_merge_notes_preserves_order",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.951600466389209e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::TestMergeNotes::test_merge_notes_empty",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00014284500502981246
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::TestMergeNotes::test_merge_notes_empty",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00010721900616772473
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::TestMergeNotes::test_merge_notes_empty",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.032900223042816e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::test_trinity_compiler_binds_slot_layout_to_ir_owner",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0001898829941637814
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::test_trinity_compiler_binds_slot_layout_to_ir_owner",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0009845500026131049
+    },
+    {
+      "nodeid": "tests/unit/foundry/compile/test_trinity_compiler.py::test_trinity_compiler_binds_slot_layout_to_ir_owner",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 9.595800656825304e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/facade/test_compile_facade.py::test_compile_auto_facade",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0005406450072769076
+    },
+    {
+      "nodeid": "tests/unit/foundry/facade/test_compile_facade.py::test_compile_auto_facade",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.398123018007027
+    },
+    {
+      "nodeid": "tests/unit/foundry/facade/test_compile_facade.py::test_compile_auto_facade",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00014690299576614052
+    },
+    {
+      "nodeid": "tests/unit/foundry/facade/test_compile_facade.py::test_compile_trinity_facade",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0006158049945952371
+    },
+    {
+      "nodeid": "tests/unit/foundry/facade/test_compile_facade.py::test_compile_trinity_facade",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.3954369730054168
+    },
+    {
+      "nodeid": "tests/unit/foundry/facade/test_compile_facade.py::test_compile_trinity_facade",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0001478850026614964
+    },
+    {
+      "nodeid": "tests/unit/foundry/facade/test_compile_facade.py::test_compile_trinity_lowers_bindings_and_fidelity",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0006089620001148432
+    },
+    {
+      "nodeid": "tests/unit/foundry/facade/test_compile_facade.py::test_compile_trinity_lowers_bindings_and_fidelity",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.4068533809913788
+    },
+    {
+      "nodeid": "tests/unit/foundry/facade/test_compile_facade.py::test_compile_trinity_lowers_bindings_and_fidelity",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0001369740057270974
+    },
+    {
+      "nodeid": "tests/unit/foundry/facade/test_compile_facade.py::test_compile_trinity_fails_on_binding_kind_mismatch",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0005985720054013655
+    },
+    {
+      "nodeid": "tests/unit/foundry/facade/test_compile_facade.py::test_compile_trinity_fails_on_binding_kind_mismatch",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.19536454899935052
+    },
+    {
+      "nodeid": "tests/unit/foundry/facade/test_compile_facade.py::test_compile_trinity_fails_on_binding_kind_mismatch",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00015448698832187802
+    },
+    {
+      "nodeid": "tests/unit/foundry/facade/test_compile_facade.py::test_compile_trinity_fails_fast_when_mechanism_has_no_runtime_support",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.000683320002281107
+    },
+    {
+      "nodeid": "tests/unit/foundry/facade/test_compile_facade.py::test_compile_trinity_fails_fast_when_mechanism_has_no_runtime_support",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.24469304500962608
+    },
+    {
+      "nodeid": "tests/unit/foundry/facade/test_compile_facade.py::test_compile_trinity_fails_fast_when_mechanism_has_no_runtime_support",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00015519800945185125
+    },
+    {
+      "nodeid": "tests/unit/foundry/facade/test_execute_facade_smoke.py::test_execute_facade_smoke",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0006586149975191802
+    },
+    {
+      "nodeid": "tests/unit/foundry/facade/test_execute_facade_smoke.py::test_execute_facade_smoke",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 1.1638694739958737
+    },
+    {
+      "nodeid": "tests/unit/foundry/facade/test_execute_facade_smoke.py::test_execute_facade_smoke",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00015747301222290844
+    },
+    {
+      "nodeid": "tests/unit/foundry/contracts/test_layout.py::test_slot_family_manifest_includes_cell_families",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00033271800202783197
+    },
+    {
+      "nodeid": "tests/unit/foundry/contracts/test_layout.py::test_slot_family_manifest_includes_cell_families",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0003177500038873404
+    },
+    {
+      "nodeid": "tests/unit/foundry/contracts/test_layout.py::test_slot_family_manifest_includes_cell_families",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 9.058800060302019e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/contracts/test_layout.py::test_foundry_layout_reexports_ir_slot_family_manifest_builder",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00014946800365578383
+    },
+    {
+      "nodeid": "tests/unit/foundry/contracts/test_layout.py::test_foundry_layout_reexports_ir_slot_family_manifest_builder",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00010623699927236885
+    },
+    {
+      "nodeid": "tests/unit/foundry/contracts/test_layout.py::test_foundry_layout_reexports_ir_slot_family_manifest_builder",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.162099402397871e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/contracts/test_layout.py::test_foundry_layout_facade_binds_ir_owner_without_compiler_hop",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00017222999304067343
+    },
+    {
+      "nodeid": "tests/unit/foundry/contracts/test_layout.py::test_foundry_layout_facade_binds_ir_owner_without_compiler_hop",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0005985219904687256
+    },
+    {
+      "nodeid": "tests/unit/foundry/contracts/test_layout.py::test_foundry_layout_facade_binds_ir_owner_without_compiler_hop",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 9.085900092031807e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/contracts/test_layout.py::test_both_layout_addresses_preserve_all_ir_object_identities[polisyos.foundry.methods.layout]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0002432919864077121
+    },
+    {
+      "nodeid": "tests/unit/foundry/contracts/test_layout.py::test_both_layout_addresses_preserve_all_ir_object_identities[polisyos.foundry.methods.layout]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.000113590998807922
+    },
+    {
+      "nodeid": "tests/unit/foundry/contracts/test_layout.py::test_both_layout_addresses_preserve_all_ir_object_identities[polisyos.foundry.methods.layout]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.906499715521932e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/contracts/test_layout.py::test_both_layout_addresses_preserve_all_ir_object_identities[polisyos.foundry.methods.compiler.layout]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0002514269872335717
+    },
+    {
+      "nodeid": "tests/unit/foundry/contracts/test_layout.py::test_both_layout_addresses_preserve_all_ir_object_identities[polisyos.foundry.methods.compiler.layout]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00010955400648526847
+    },
+    {
+      "nodeid": "tests/unit/foundry/contracts/test_layout.py::test_both_layout_addresses_preserve_all_ir_object_identities[polisyos.foundry.methods.compiler.layout]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.996699762064964e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/contracts/test_layout.py::test_native_layout_and_family_builders_distinguish_inventory_from_state_paths",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0001402199995936826
+    },
+    {
+      "nodeid": "tests/unit/foundry/contracts/test_layout.py::test_native_layout_and_family_builders_distinguish_inventory_from_state_paths",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0002315299934707582
+    },
+    {
+      "nodeid": "tests/unit/foundry/contracts/test_layout.py::test_native_layout_and_family_builders_distinguish_inventory_from_state_paths",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.846400305628777e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/methods/catalog/mechanism/test_families.py::test_catalog_family_owner_preserves_ids_assumptions_and_unknown_id_behavior",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0002588700008345768
+    },
+    {
+      "nodeid": "tests/unit/foundry/methods/catalog/mechanism/test_families.py::test_catalog_family_owner_preserves_ids_assumptions_and_unknown_id_behavior",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0003081419999944046
+    },
+    {
+      "nodeid": "tests/unit/foundry/methods/catalog/mechanism/test_families.py::test_catalog_family_owner_preserves_ids_assumptions_and_unknown_id_behavior",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.617999264970422e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/methods/catalog/mechanism/test_families.py::test_ic_service_binds_family_lookup_to_catalog_owner",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00013851700350642204
+    },
+    {
+      "nodeid": "tests/unit/foundry/methods/catalog/mechanism/test_families.py::test_ic_service_binds_family_lookup_to_catalog_owner",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00914372100669425
+    },
+    {
+      "nodeid": "tests/unit/foundry/methods/catalog/mechanism/test_families.py::test_ic_service_binds_family_lookup_to_catalog_owner",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00010207000013906509
+    },
+    {
+      "nodeid": "tests/unit/foundry/methods/catalog/mechanism/test_families.py::test_registered_family_requires_native_certificate_for_actual_policy[schedule0-positive]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.000790538004366681
+    },
+    {
+      "nodeid": "tests/unit/foundry/methods/catalog/mechanism/test_families.py::test_registered_family_requires_native_certificate_for_actual_policy[schedule0-positive]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.10697914299089462
+    },
+    {
+      "nodeid": "tests/unit/foundry/methods/catalog/mechanism/test_families.py::test_registered_family_requires_native_certificate_for_actual_policy[schedule0-positive]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00013214499631430954
+    },
+    {
+      "nodeid": "tests/unit/foundry/methods/catalog/mechanism/test_families.py::test_registered_family_requires_native_certificate_for_actual_policy[schedule1-negative]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0007602219993714243
+    },
+    {
+      "nodeid": "tests/unit/foundry/methods/catalog/mechanism/test_families.py::test_registered_family_requires_native_certificate_for_actual_policy[schedule1-negative]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.10305815200263169
+    },
+    {
+      "nodeid": "tests/unit/foundry/methods/catalog/mechanism/test_families.py::test_registered_family_requires_native_certificate_for_actual_policy[schedule1-negative]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0001764579938026145
+    },
+    {
+      "nodeid": "tests/unit/foundry/mechanisms/test_treasury.py::test_stable_hash_is_deterministic_and_distinguishes_values",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00017733999993652105
+    },
+    {
+      "nodeid": "tests/unit/foundry/mechanisms/test_treasury.py::test_stable_hash_is_deterministic_and_distinguishes_values",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00013334800314623863
+    },
+    {
+      "nodeid": "tests/unit/foundry/mechanisms/test_treasury.py::test_stable_hash_is_deterministic_and_distinguishes_values",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.528798935003579e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/mechanisms/test_treasury.py::test_build_treasury_plan_populates_node_and_stream_salts",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00015009900380391628
+    },
+    {
+      "nodeid": "tests/unit/foundry/mechanisms/test_treasury.py::test_build_treasury_plan_populates_node_and_stream_salts",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00020118300744798034
+    },
+    {
+      "nodeid": "tests/unit/foundry/mechanisms/test_treasury.py::test_build_treasury_plan_populates_node_and_stream_salts",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.647999493405223e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/mechanisms/test_treasury.py::test_build_treasury_plan_zero_seed_preserves_historical_salts",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00017167899932246655
+    },
+    {
+      "nodeid": "tests/unit/foundry/mechanisms/test_treasury.py::test_build_treasury_plan_zero_seed_preserves_historical_salts",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00016377399151679128
+    },
+    {
+      "nodeid": "tests/unit/foundry/mechanisms/test_treasury.py::test_build_treasury_plan_zero_seed_preserves_historical_salts",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.542899740859866e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/mechanisms/test_treasury.py::test_build_treasury_plan_root_seed_changes_salts",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00014053100312594324
+    },
+    {
+      "nodeid": "tests/unit/foundry/mechanisms/test_treasury.py::test_build_treasury_plan_root_seed_changes_salts",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00020098299137316644
+    },
+    {
+      "nodeid": "tests/unit/foundry/mechanisms/test_treasury.py::test_build_treasury_plan_root_seed_changes_salts",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.722199709154665e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/mechanisms/test_mechanism_design.py::test_mechanism_family_catalog_contains_phase3_entries",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0001842519995989278
+    },
+    {
+      "nodeid": "tests/unit/foundry/mechanisms/test_mechanism_design.py::test_mechanism_family_catalog_contains_phase3_entries",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00011756799358408898
+    },
+    {
+      "nodeid": "tests/unit/foundry/mechanisms/test_mechanism_design.py::test_mechanism_family_catalog_contains_phase3_entries",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0001523730024928227
+    },
+    {
+      "nodeid": "tests/unit/foundry/mechanisms/test_mechanism_design.py::test_get_mechanism_family_spec_returns_typed_phase3_surface",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00013939899508841336
+    },
+    {
+      "nodeid": "tests/unit/foundry/mechanisms/test_mechanism_design.py::test_get_mechanism_family_spec_returns_typed_phase3_surface",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00014812499284744263
+    },
+    {
+      "nodeid": "tests/unit/foundry/mechanisms/test_mechanism_design.py::test_get_mechanism_family_spec_returns_typed_phase3_surface",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.526899910066277e-05
+    },
+    {
+      "nodeid": "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py::test_compile_success_with_mock_foundry",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.1337812429992482
+    },
+    {
+      "nodeid": "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py::test_compile_success_with_mock_foundry",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.05396406800718978
+    },
+    {
+      "nodeid": "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py::test_compile_success_with_mock_foundry",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0001668799959588796
+    },
+    {
+      "nodeid": "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py::test_compile_missing_inputs",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.13412189998780377
+    },
+    {
+      "nodeid": "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py::test_compile_missing_inputs",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00017757999012246728
+    },
+    {
+      "nodeid": "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py::test_compile_missing_inputs",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00014321599155664444
+    },
+    {
+      "nodeid": "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py::test_compile_missing_trinity_ref",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.13530148200516123
+    },
+    {
+      "nodeid": "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py::test_compile_missing_trinity_ref",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0003619419876486063
+    },
+    {
+      "nodeid": "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py::test_compile_missing_trinity_ref",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00014484899293165654
+    },
+    {
+      "nodeid": "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py::test_compile_error_result",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.13295817900507245
+    },
+    {
+      "nodeid": "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py::test_compile_error_result",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.03213572000095155
+    },
+    {
+      "nodeid": "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py::test_compile_error_result",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00016751101065892726
+    },
+    {
+      "nodeid": "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py::test_compile_foundry_uses_branch_state_for_declared_outputs",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.12796252200496383
+    },
+    {
+      "nodeid": "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py::test_compile_foundry_uses_branch_state_for_declared_outputs",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.046185571991372854
+    },
+    {
+      "nodeid": "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py::test_compile_foundry_uses_branch_state_for_declared_outputs",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0005627350037684664
+    }
+  ],
+  "warnings": []
+}

@@ -1,0 +1,16 @@
+{
+  "base": "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4",
+  "target": "a58d36299b35b6865d7640e09d7e0e3ee7e248bf",
+  "argv": [
+    "git",
+    "merge",
+    "--no-ff",
+    "--no-edit",
+    "a58d36299b35b6865d7640e09d7e0e3ee7e248bf"
+  ],
+  "cwd": "/workspace/e02-F-tmle-20261006",
+  "exit_code": 0,
+  "wall_seconds": 0.1173749459994724,
+  "head": "ae9f30204c84cb3f9d1bd418752145eec2a5429d",
+  "tree": "f51724d489fcb09ee75cb2fe7c1a92c2f00210d5"
+}

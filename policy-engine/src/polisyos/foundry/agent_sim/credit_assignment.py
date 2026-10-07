@@ -152,8 +152,10 @@ class CentralizedCritic:
         mean_income = jnp.sum(agents.income * active_f) / n_active
         mean_consumption = jnp.sum(agents.consumption * active_f) / n_active
 
-        gini_wealth = state.distributions.gini_wealth
-        gini_income = state.distributions.gini_income
+        from polisyos.foundry.agent_sim.distributions import compute_gini_hard
+
+        gini_wealth = compute_gini_hard(agents.wealth, agents.active)
+        gini_income = compute_gini_hard(agents.income, agents.active)
         top_10_share = state.distributions.top_10_share
         bottom_50_share = state.distributions.bottom_50_share
 

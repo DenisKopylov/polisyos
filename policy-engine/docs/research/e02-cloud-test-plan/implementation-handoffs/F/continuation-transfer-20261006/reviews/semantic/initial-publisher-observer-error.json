@@ -1,0 +1,10 @@
+{
+  "schema": "F-root-publisher-observer-error/1",
+  "check": "ERROR",
+  "phase": "First semantic review companion transfer before any file write",
+  "cause": "ROOT assumed file entries contain path; actual independently supplied schema uses original_path/relative_path.",
+  "observed_tool_response_stdout": "selectionkeys ['schema', 'reviewer', 'candidate_source_sha', 'verdict', 'files', 'unique_files', 'unique_bytes', 'reconstruction_only', 'existing_git_files', 'existing_evidence_scope', 'not_copied', 'limits']\n",
+  "observed_tool_response_stderr": "Traceback (most recent call last):\n  File \"<stdin>\", line 6, in <module>\nKeyError: 'path'\n",
+  "custody": "Complete returned tool text preserved; original stderr/stdout were not separately stored as byte files. Initial stdin publisher script not separately saved. No product/file mutation preceded the failure.",
+  "correction": "Use the actual original_path/relative_path entry fields. Corrected exact script and all full unique companions preserved; no numerical rerun."
+}

@@ -1,0 +1,166 @@
+{
+  "schema": "policyos.e02.canonical-receipt-inventory.v1",
+  "source_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "topic_head_denominator": 12,
+  "introduced_direct_F_json_files_examined_per_head_sum": 162,
+  "canonical_unique_path_count": 15,
+  "registered_component_count": 15,
+  "introduced_canonical_receipt_paths": {
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006.json": [
+      {
+        "sha": "449d32909928caf39382f4ff02ac74b0adf277eb",
+        "bytes": 33029,
+        "sha256": "6729aabae4bd540d2b1e3077e5f7f39a007868d30fb1f265ced62f6798e8ce99",
+        "role": "implementation",
+        "candidate_sha": "729d137279b7d6334230045e420255762fe55f08"
+      }
+    ],
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-binding-20261006.json": [
+      {
+        "sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "bytes": 162224,
+        "sha256": "1f4b740e02d77c66e13704c72535fc2e38b207ee307ccc063168d59b44309a6d",
+        "role": "implementation",
+        "candidate_sha": "74f754bd6a3388aef83188dac00e24b12ab3feb6"
+      }
+    ],
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json": [
+      {
+        "sha": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "bytes": 216928,
+        "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+        "role": "implementation",
+        "candidate_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5"
+      }
+    ],
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json": [
+      {
+        "sha": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+        "bytes": 93732,
+        "sha256": "0a60ca2fa939fb480a989bd87f11312c9543ac458381c197a7288060a3a53833",
+        "role": "implementation",
+        "candidate_sha": "423165322e508a293ffd23918c039c99fb37e7a7"
+      }
+    ],
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json": [
+      {
+        "sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+        "bytes": 109240,
+        "sha256": "cd005af9bf2e45edcd88f54b4bb223636351abefc991a52828167f2070aead1e",
+        "role": "implementation",
+        "candidate_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6"
+      }
+    ],
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006.json": [
+      {
+        "sha": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "bytes": 66228,
+        "sha256": "b36bac6bf8f01a2821d8077e34166acdda487d21467a8c06a706177747177b6b",
+        "role": "implementation",
+        "candidate_sha": "2137961b0d3a2b39b85c5a57bf774777d2a4204e"
+      }
+    ],
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json": [
+      {
+        "sha": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+        "bytes": 150755,
+        "sha256": "78b07ba01cf9b483ff23d08c8144fc55b9ab678412b46fa8f170c775a3f1f05e",
+        "role": "implementation",
+        "candidate_sha": "6321dc33476b0fad24d97ebb140c373608d30019"
+      }
+    ],
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006.json": [
+      {
+        "sha": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "bytes": 30467,
+        "sha256": "fc4185ba629d9cedeedbd27a3cc3f184844665be53dc056d526ae436582a7a06",
+        "role": "ancillary_historical_native",
+        "candidate_sha": "07beb7c2986770e1b9901f3061a4768251c5a154"
+      }
+    ],
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json": [
+      {
+        "sha": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+        "bytes": 209475,
+        "sha256": "1ebacf5377764b5c0958d7e6597e10eab56536c570aacea64d25be3ee7cff908",
+        "role": "implementation",
+        "candidate_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6"
+      }
+    ],
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json": [
+      {
+        "sha": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+        "bytes": 71310,
+        "sha256": "00617d32afdafcff3f986fb53043580f6a4a360c4c3f191c3867ed0631357fde",
+        "role": "implementation",
+        "candidate_sha": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5"
+      }
+    ],
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-20261006.json": [
+      {
+        "sha": "77166daa0ff8b9659e3978447f9016c691694266",
+        "bytes": 24363,
+        "sha256": "0d6e1e2bde0a76edfe74fed0ed278df7c73fc209c982cbfcf54fbb7347631f1a",
+        "role": "implementation",
+        "candidate_sha": "00a6eda114b903bc5abe86902cd8372426f739a1"
+      }
+    ],
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json": [
+      {
+        "sha": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+        "bytes": 68616,
+        "sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60",
+        "role": "implementation",
+        "candidate_sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8"
+      }
+    ],
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json": [
+      {
+        "sha": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "role": "implementation",
+        "candidate_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181"
+      }
+    ],
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json": [
+      {
+        "sha": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+        "bytes": 28486,
+        "sha256": "5870aaedd4d4eb83a1f40c392c5cec79660d28927a5846981e8a363702945429",
+        "role": "implementation",
+        "candidate_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1"
+      }
+    ],
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json": [
+      {
+        "sha": "f4fa51e6dd247cfd967450263579d67233a743d6",
+        "bytes": 77903,
+        "sha256": "ff8a8f2b2689fb9793c5ab03f29fde1412eb5fe03dae961656fad722a108176e",
+        "role": "implementation",
+        "candidate_sha": "63425f734946979cfc990e9cb91b00163f051898"
+      }
+    ]
+  },
+  "registered_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-binding-20261006.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-20261006.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json"
+  ],
+  "missing_registered_paths": [],
+  "unregistered_canonical_paths": [],
+  "check": "PASS",
+  "scope": "Complete direct F JSON paths introduced since freshbase198 on every actual registered published topic head; scientific/primary decision mapping remains separately35/17. Canonical schema files only; raw/review manifests excluded by actual schema, not filename guess."
+}

@@ -1,0 +1,40 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-ra",
+    "--tb=short",
+    "tests/unit/foundry/methods/catalog/causal/test_sigma_calculus_standalone.py",
+    "tests/unit/foundry/methods/catalog/causal/test_admg_s_ops.py",
+    "tests/unit/foundry/methods/catalog/causal/test_ctf_calculus.py",
+    "tests/unit/foundry/methods/catalog/causal/test_twin_amn_graph.py",
+    "tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py",
+    "tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "source_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+  "source_tree_sha": "87e2bc0e426a2e1cc41fdb3adb340a70ed0c8b1e",
+  "exit_code": 1,
+  "wall_s": 18.98381381299987,
+  "rss_kib": 591684,
+  "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+  "outputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/profile-frozen-neighbors.stdout.txt",
+      "bytes": 4128,
+      "sha256": "9fbd3316466dee71f11f46930e37cc3ea0ab9f1391f22e15775656a2f840dc7f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/profile-frozen-neighbors.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "check": "FAIL"
+}

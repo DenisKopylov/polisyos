@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/cau/root-frozen-native-v2.py"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "source_sha": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77",
+  "source_tree": "508884be8ea79e5b87844030ea4122c8e74d610a",
+  "utc": "2026-10-06T15:40:23.316780+00:00",
+  "elapsed_s": 38.45212431899563,
+  "exit_code": 0,
+  "environment": {
+    "python": "3.14.7",
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/tmp/e02-F-continuation-20261006/cau/frozen-import:/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine:."
+  },
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-native.stdout",
+    "bytes": 2885,
+    "sha256": "08f041859d6ae91668cd88187e032999793e1474e70d20055ee6ec20f4c4f56c"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-native.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

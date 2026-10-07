@@ -1,0 +1,2297 @@
+{
+  "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "profile": "sdist",
+  "configured_source": "installed-config.json",
+  "collection": [
+    "test_installed_facade_contract.py::test_public_and_retained_private_identity_pickle_and_documentation[polisyos.foundry.methods.catalog.causal.causal_engine]",
+    "test_installed_facade_contract.py::test_public_and_retained_private_identity_pickle_and_documentation[polisyos.foundry.methods.catalog.causal.interference]",
+    "test_installed_facade_contract.py::test_each_supported_patch_executes_native_algorithm_and_restores[mz_id_algorithm]",
+    "test_installed_facade_contract.py::test_each_supported_patch_executes_native_algorithm_and_restores[id_with_oracle_fallback]",
+    "test_installed_facade_contract.py::test_each_supported_patch_executes_native_algorithm_and_restores[id_star_algorithm]",
+    "test_installed_facade_contract.py::test_each_supported_patch_executes_native_algorithm_and_restores[idc_star_algorithm]",
+    "test_installed_facade_contract.py::test_unknown_and_incidental_names_remain_absent_on_real_reload[polisyos.foundry.methods.catalog.causal.causal_engine]",
+    "test_installed_facade_contract.py::test_unknown_and_incidental_names_remain_absent_on_real_reload[polisyos.foundry.methods.catalog.causal.interference]",
+    "test_installed_facade_contract.py::test_same_name_wrapper_clone_and_removed_patch_bridge_fail_original_identity_oracle",
+    "test_installed_facade_contract.py::test_installed_id_package_executes_identification_and_reopens_persisted_result",
+    "test_installed_facade_contract.py::test_installed_layout_identity_and_real_slot_paths_survive_cas[polisyos.foundry.methods.layout]",
+    "test_installed_facade_contract.py::test_installed_layout_identity_and_real_slot_paths_survive_cas[polisyos.foundry.methods.compiler.layout]",
+    "test_facade_consumer_continuation.py::test_supported_import_loader_resolves_package_not_retired_shadow_file[causal_engine]",
+    "test_facade_consumer_continuation.py::test_supported_import_loader_resolves_package_not_retired_shadow_file[id_engine]",
+    "test_facade_consumer_continuation.py::test_supported_import_loader_resolves_package_not_retired_shadow_file[interference]",
+    "test_facade_consumer_continuation.py::test_real_registry_keeps_canonical_method_and_public_engine_identities",
+    "test_installed_worker_profile.py::test_public_canonical_helpers_and_pure_report_factory_identity",
+    "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal",
+    "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer",
+    "test_dispatch_output_contract.py::test_native_alias_and_sidecars_do_not_create_slot_anomalies",
+    "test_dispatch_output_contract.py::test_actual_runner_rejects_missing_and_malformed_declared_slots[payload0-missing output for declared slot]",
+    "test_dispatch_output_contract.py::test_actual_runner_rejects_missing_and_malformed_declared_slots[payload1-expects VECTOR]",
+    "test_dispatch_output_contract.py::test_actual_runner_rejects_missing_and_malformed_declared_slots[payload2-expected shape]",
+    "test_dispatch_output_contract.py::test_raw_numeric_sidecar_remains_an_error_diagnostic",
+    "test_dispatch_output_contract.py::test_empty_diagnostics_and_explicit_numeric_empties_are_distinct",
+    "test_dispatch_output_contract.py::test_nonempty_numeric_sequences_keep_nan_inf_diagnostics",
+    "test_dispatch_output_contract.py::test_declared_vector_empty_list_keeps_native_warning",
+    "test_dispatch_output_contract.py::test_canonical_missing_and_extra_keys_remain_typed_errors",
+    "test_dispatch_output_contract.py::test_registered_standard_did_report_alias_uses_canonical_slot",
+    "test_dispatch_output_contract.py::test_registered_noncausal_prediction_preserves_its_slot_contract",
+    "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[nan-report]",
+    "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[nan-result]",
+    "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[nan-bare]",
+    "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[inf-report]",
+    "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[inf-result]",
+    "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[inf-bare]",
+    "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[negative_inf-report]",
+    "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[negative_inf-result]",
+    "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[negative_inf-bare]",
+    "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[nan_inf_vector-report]",
+    "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[nan_inf_vector-result]",
+    "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[nan_inf_vector-bare]",
+    "test_output_anomaly_count.py::test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[nan-False]",
+    "test_output_anomaly_count.py::test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[nan-True]",
+    "test_output_anomaly_count.py::test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[inf-False]",
+    "test_output_anomaly_count.py::test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[inf-True]",
+    "test_output_anomaly_count.py::test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[nan_inf_vector-False]",
+    "test_output_anomaly_count.py::test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[nan_inf_vector-True]",
+    "test_output_anomaly_count.py::test_existing_canonical_key_has_priority_over_unused_alias",
+    "test_output_anomaly_count.py::test_unused_alias_retains_anomalies_when_identical_to_selected_canonical",
+    "test_output_anomaly_count.py::test_custom_projection_has_no_invented_source_correspondence[_CopiedProjection]",
+    "test_output_anomaly_count.py::test_custom_projection_has_no_invented_source_correspondence[_WrappedProjection]",
+    "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[0.0-artifacts_index-missing_bytes]",
+    "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[0.0-artifacts_index-malformed_json]",
+    "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[0.0-artifacts_index-wrong_model]",
+    "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[0.0-top_level-missing_bytes]",
+    "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[0.0-top_level-malformed_json]",
+    "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[0.0-top_level-wrong_model]",
+    "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[1.0-artifacts_index-missing_bytes]",
+    "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[1.0-artifacts_index-malformed_json]",
+    "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[1.0-artifacts_index-wrong_model]",
+    "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[1.0-top_level-missing_bytes]",
+    "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[1.0-top_level-malformed_json]",
+    "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[1.0-top_level-wrong_model]",
+    "test_confidence_issue_accumulation.py::test_noncausal_failed_simulation_keeps_its_existing_warning[artifacts_index-missing_bytes]",
+    "test_confidence_issue_accumulation.py::test_noncausal_failed_simulation_keeps_its_existing_warning[artifacts_index-malformed_json]",
+    "test_confidence_issue_accumulation.py::test_noncausal_failed_simulation_keeps_its_existing_warning[artifacts_index-wrong_model]",
+    "test_confidence_issue_accumulation.py::test_noncausal_failed_simulation_keeps_its_existing_warning[top_level-missing_bytes]",
+    "test_confidence_issue_accumulation.py::test_noncausal_failed_simulation_keeps_its_existing_warning[top_level-malformed_json]",
+    "test_confidence_issue_accumulation.py::test_noncausal_failed_simulation_keeps_its_existing_warning[top_level-wrong_model]",
+    "test_confidence_issue_accumulation.py::test_causal_blocker_survives_other_early_return_and_degraded_paths[missing_store-artifacts_index]",
+    "test_confidence_issue_accumulation.py::test_causal_blocker_survives_other_early_return_and_degraded_paths[missing_store-top_level]",
+    "test_confidence_issue_accumulation.py::test_causal_blocker_survives_other_early_return_and_degraded_paths[absent_simulation-artifacts_index]",
+    "test_confidence_issue_accumulation.py::test_causal_blocker_survives_other_early_return_and_degraded_paths[absent_simulation-top_level]",
+    "test_confidence_issue_accumulation.py::test_causal_blocker_survives_other_early_return_and_degraded_paths[unresolved_causal-artifacts_index]",
+    "test_confidence_issue_accumulation.py::test_causal_blocker_survives_other_early_return_and_degraded_paths[unresolved_causal-top_level]",
+    "test_confidence_issue_accumulation.py::test_causal_blocker_survives_other_early_return_and_degraded_paths[malformed_causal-artifacts_index]",
+    "test_confidence_issue_accumulation.py::test_causal_blocker_survives_other_early_return_and_degraded_paths[malformed_causal-top_level]",
+    "test_confidence_issue_accumulation.py::test_loaded_simulation_never_replaces_existing_causal_blocker[False-artifacts_index]",
+    "test_confidence_issue_accumulation.py::test_loaded_simulation_never_replaces_existing_causal_blocker[False-top_level]",
+    "test_confidence_issue_accumulation.py::test_loaded_simulation_never_replaces_existing_causal_blocker[True-artifacts_index]",
+    "test_confidence_issue_accumulation.py::test_loaded_simulation_never_replaces_existing_causal_blocker[True-top_level]",
+    "test_confidence_issue_accumulation.py::test_loaded_noncausal_simulation_preserves_supported_confidence_profile[False]",
+    "test_confidence_issue_accumulation.py::test_loaded_noncausal_simulation_preserves_supported_confidence_profile[True]",
+    "test_id_engine_extensions.py::TestProofStepDataclass::test_is_frozen",
+    "test_id_engine_extensions.py::TestProofStepDataclass::test_rule_name_stored",
+    "test_id_engine_extensions.py::TestProofStepDataclass::test_depth_default_zero",
+    "test_id_engine_extensions.py::TestProofStepDataclass::test_depth_custom",
+    "test_id_engine_extensions.py::TestProofStepDataclass::test_tuple_fields",
+    "test_id_engine_extensions.py::TestProofStepDataclass::test_all_rule_names_can_be_stored",
+    "test_id_engine_extensions.py::TestRequiredDataSpec::test_is_frozen",
+    "test_id_engine_extensions.py::TestRequiredDataSpec::test_defaults",
+    "test_id_engine_extensions.py::TestRequiredDataSpec::test_missing_distributions_stored",
+    "test_id_engine_extensions.py::TestRequiredDataSpec::test_alternative_identification",
+    "test_id_engine_extensions.py::TestRequiredDataSpec::test_empty_missing_distributions",
+    "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_proof_steps_field_exists",
+    "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_proof_steps_is_list",
+    "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_proof_steps_populated_on_identified_graph",
+    "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_trace_backward_compatible",
+    "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_proof_steps_type_when_nonempty",
+    "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_hedge_cert_required_data_field_exists",
+    "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_hedge_cert_required_data_is_required_data_spec_or_none",
+    "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_hedge_required_data_populated_when_hedge_found",
+    "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_hedge_proof_steps_contain_hedge_step",
+    "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_oracle_needed_has_oracle_step",
+    "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_default_proof_steps_is_empty_list",
+    "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_x_empty_emits_rule1_step",
+    "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_ancestral_collapse_emits_step",
+    "test_id_engine_extensions.py::TestSourceDomain::test_is_frozen",
+    "test_id_engine_extensions.py::TestSourceDomain::test_defaults",
+    "test_id_engine_extensions.py::TestSourceDomain::test_with_s_nodes",
+    "test_id_engine_extensions.py::TestSourceDomain::test_with_z_interventions",
+    "test_id_engine_extensions.py::TestSourceDomain::test_dataset_ref",
+    "test_id_engine_extensions.py::TestZIDAlgorithm::test_z_id_returns_identification_result",
+    "test_id_engine_extensions.py::TestZIDAlgorithm::test_z_id_status_is_valid_enum",
+    "test_id_engine_extensions.py::TestZIDAlgorithm::test_z_id_no_interventions_collapses_to_standard",
+    "test_id_engine_extensions.py::TestZIDAlgorithm::test_z_id_with_backdoor_graph",
+    "test_id_engine_extensions.py::TestZIDAlgorithm::test_z_id_trace_is_list_of_strings",
+    "test_id_engine_extensions.py::TestZIDAlgorithm::test_z_id_required_distributions_is_list",
+    "test_id_engine_extensions.py::TestZIDAlgorithm::test_z_id_simple_chain_no_confounding",
+    "test_id_engine_extensions.py::TestZIDAlgorithm::test_z_id_accepts_dataset_ref",
+    "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_accepts_ir_source_domain_specs",
+    "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_rejects_untyped_source_domain_input",
+    "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_no_domains_returns_result",
+    "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_no_domains_status_is_valid",
+    "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_single_domain_no_s_nodes",
+    "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_returns_identification_result_type",
+    "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_single_domain_with_z_interventions",
+    "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_trace_is_list_of_strings",
+    "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_identified_simple_graph",
+    "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_multiple_domains_returns_best",
+    "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_required_distributions_is_list",
+    "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_dataset_ref_propagated",
+    "test_id_engine_extensions.py::TestProofStepAuditTrail::test_new_rule_names_in_formal_map",
+    "test_id_engine_extensions.py::TestProofStepAuditTrail::test_internal_to_ir_rule_formal_name_populated",
+    "test_id_engine_extensions.py::TestProofStepAuditTrail::test_internal_to_ir_applicable_theorem_populated",
+    "test_id_engine_extensions.py::TestProofStepAuditTrail::test_graph_state_before_preserved",
+    "test_id_engine_extensions.py::TestProofStepAuditTrail::test_graph_state_after_populated",
+    "test_id_engine_extensions.py::TestProofStepAuditTrail::test_internal_proof_step_has_graph_state_before_field",
+    "test_id_engine_extensions.py::TestProofStepAuditTrail::test_internal_proof_step_graph_state_before_defaults_empty",
+    "test_id_engine_extensions.py::TestIDCProofSteps::test_idc_emits_decompose_step",
+    "test_id_engine_extensions.py::TestIDCProofSteps::test_idc_trivial_z_emits_step",
+    "test_id_engine_extensions.py::TestIDCProofSteps::test_idc_positivity_step_present",
+    "test_id_engine_extensions.py::TestIDCProofSteps::test_idc_includes_sub_call_steps",
+    "test_id_engine_extensions.py::TestIDCProofSteps::test_idc_proof_steps_are_proof_step_instances",
+    "test_id_engine_extensions.py::TestIDCProofSteps::test_idc_trivial_z_returns_identified",
+    "test_id_engine_extensions.py::TestSIDAlgorithm::test_soft_policy_returns_identified_when_base_is_identified",
+    "test_id_engine_extensions.py::TestSIDAlgorithm::test_soft_policy_proof_step_sid_policy_wrap",
+    "test_id_engine_extensions.py::TestSIDAlgorithm::test_shift_policy_emits_sid_shift_step",
+    "test_id_engine_extensions.py::TestSIDAlgorithm::test_sid_dag_policy_fastpath_emits_policy_g_formula_step",
+    "test_id_engine_extensions.py::TestSIDAlgorithm::test_shift_policy_attaches_policy_side_conditions",
+    "test_id_engine_extensions.py::TestSIDAlgorithm::test_sid_non_identified_when_base_non_identified",
+    "test_id_engine_extensions.py::TestSIDAlgorithm::test_observed_u_collider_is_not_a_latent_bow[SID]",
+    "test_id_engine_extensions.py::TestSIDAlgorithm::test_observed_u_collider_is_not_a_latent_bow[conditional-ID]",
+    "test_id_engine_extensions.py::TestSIDAlgorithm::test_bow_has_same_observed_law_with_distinct_do_laws",
+    "test_id_engine_extensions.py::TestSIDAlgorithm::test_sid_result_has_version_tag",
+    "test_id_engine_extensions.py::TestSIDAlgorithm::test_conditional_intervention_id_basic",
+    "test_id_engine_extensions.py::TestSIDAlgorithm::test_conditional_intervention_records_condition_vars",
+    "test_id_engine_extensions.py::TestSIDAlgorithm::test_conditional_intervention_emits_sid_conditional_step",
+    "test_id_engine_extensions.py::TestSIDAlgorithm::test_conditional_intervention_non_id_graph",
+    "test_id_engine_extensions.py::TestSIDAlgorithm::test_dynamic_intervention_two_periods",
+    "test_id_engine_extensions.py::TestSIDAlgorithm::test_dynamic_intervention_emits_dynamic_gformula_step",
+    "test_id_engine_extensions.py::TestSIDAlgorithm::test_dynamic_intervention_single_period",
+    "test_id_engine_extensions.py::TestSIDAlgorithm::test_soft_policy_delegates_via_conditional_policy",
+    "test_id_engine_extensions.py::TestJointID::test_joint_id_simple_dag_returns_identified",
+    "test_id_engine_extensions.py::TestJointID::test_joint_id_emits_joint_factor_decompose_step",
+    "test_id_engine_extensions.py::TestJointID::test_joint_id_single_outcome_delegates",
+    "test_id_engine_extensions.py::TestJointID::test_joint_id_has_version_tag",
+    "test_id_engine_extensions.py::TestJointID::test_joint_id_trace_mentions_ccomponent",
+    "test_id_engine_extensions.py::TestJointID::test_multi_outcome_id_returns_dict",
+    "test_id_engine_extensions.py::TestJointID::test_multi_outcome_all_identified",
+    "test_id_engine_extensions.py::TestJointID::test_multi_outcome_three_outcomes",
+    "test_id_engine_extensions.py::TestJointID::test_multi_outcome_shared_ccomp_step",
+    "test_id_engine_extensions.py::TestJointID::test_multi_outcome_has_version_tag",
+    "test_id_engine_extensions.py::TestJointID::test_multi_outcome_single_outcome",
+    "test__causal_engine_contracts.py::test_causal_engine_contracts_are_reexported_from_runtime_module",
+    "test__interference_contracts.py::test_interference_contracts_are_reexported_from_runtime_module",
+    "test__interference_contracts.py::test_interference_reduction_bound_contract_is_characterized",
+    "test_installed_native_boundaries.py::test_installed_native_tmle_configured_job_and_actual_boundaries",
+    "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+    "test_causal_graph_cache_rows.py::test_returned_rows_cannot_change_cached_graph_export[overwrite-kuzu_node_rows]",
+    "test_causal_graph_cache_rows.py::test_returned_rows_cannot_change_cached_graph_export[overwrite-kuzu_edge_rows]",
+    "test_causal_graph_cache_rows.py::test_returned_rows_cannot_change_cached_graph_export[base_alias-kuzu_node_rows]",
+    "test_causal_graph_cache_rows.py::test_returned_rows_cannot_change_cached_graph_export[base_alias-kuzu_edge_rows]",
+    "test_causal_graph_cache_rows.py::test_returned_rows_cannot_change_cached_graph_export[clear-kuzu_node_rows]",
+    "test_causal_graph_cache_rows.py::test_returned_rows_cannot_change_cached_graph_export[clear-kuzu_edge_rows]",
+    "test_causal_graph_cache_rows.py::test_returned_rows_cannot_change_cached_graph_export[add_nested-kuzu_node_rows]",
+    "test_causal_graph_cache_rows.py::test_returned_rows_cannot_change_cached_graph_export[add_nested-kuzu_edge_rows]",
+    "test_causal_graph_cache_rows.py::test_native_emitter_can_mutate_its_plain_dict_without_corrupting_cache",
+    "test_causal_graph_cache_rows.py::test_private_preparation_is_immutable_reused_and_copy_has_new_rows",
+    "test_causal_graph_cache_rows.py::test_actual_csv_helpers_retain_plain_row_values_after_reader_mutation",
+    "test_performance_primitives.py::test_cached_adjacency_reuse",
+    "test_performance_primitives.py::test_cached_adjacency_eviction",
+    "test_performance_primitives.py::test_published_graph_rejects_nested_topology_mutation[nodes_append]",
+    "test_performance_primitives.py::test_published_graph_rejects_nested_topology_mutation[edges_clear]",
+    "test_performance_primitives.py::test_published_graph_rejects_nested_topology_mutation[edge_sources_append]",
+    "test_performance_primitives.py::test_published_graph_rejects_nested_topology_mutation[edge_metadata_nested_append]",
+    "test_performance_primitives.py::test_published_graph_rejects_nested_topology_mutation[graph_metadata_nested_append]",
+    "test_performance_primitives.py::test_warmed_derived_rows_are_not_reused_after_copy_update"
+  ],
+  "test_reports": [
+    {
+      "nodeid": "test_installed_facade_contract.py::test_public_and_retained_private_identity_pickle_and_documentation[polisyos.foundry.methods.catalog.causal.causal_engine]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.005054082997958176
+    },
+    {
+      "nodeid": "test_installed_facade_contract.py::test_public_and_retained_private_identity_pickle_and_documentation[polisyos.foundry.methods.catalog.causal.interference]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.018971907993545756
+    },
+    {
+      "nodeid": "test_installed_facade_contract.py::test_each_supported_patch_executes_native_algorithm_and_restores[mz_id_algorithm]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.002952383001684211
+    },
+    {
+      "nodeid": "test_installed_facade_contract.py::test_each_supported_patch_executes_native_algorithm_and_restores[id_with_oracle_fallback]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00140044599538669
+    },
+    {
+      "nodeid": "test_installed_facade_contract.py::test_each_supported_patch_executes_native_algorithm_and_restores[id_star_algorithm]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.004057067999383435
+    },
+    {
+      "nodeid": "test_installed_facade_contract.py::test_each_supported_patch_executes_native_algorithm_and_restores[idc_star_algorithm]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.003964506002375856
+    },
+    {
+      "nodeid": "test_installed_facade_contract.py::test_unknown_and_incidental_names_remain_absent_on_real_reload[polisyos.foundry.methods.catalog.causal.causal_engine]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0011132419895147905
+    },
+    {
+      "nodeid": "test_installed_facade_contract.py::test_unknown_and_incidental_names_remain_absent_on_real_reload[polisyos.foundry.methods.catalog.causal.interference]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0010136560013052076
+    },
+    {
+      "nodeid": "test_installed_facade_contract.py::test_same_name_wrapper_clone_and_removed_patch_bridge_fail_original_identity_oracle",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0009190499986289069
+    },
+    {
+      "nodeid": "test_installed_facade_contract.py::test_installed_id_package_executes_identification_and_reopens_persisted_result",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.04580511400126852
+    },
+    {
+      "nodeid": "test_installed_facade_contract.py::test_installed_layout_identity_and_real_slot_paths_survive_cas[polisyos.foundry.methods.layout]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0052879690047120675
+    },
+    {
+      "nodeid": "test_installed_facade_contract.py::test_installed_layout_identity_and_real_slot_paths_survive_cas[polisyos.foundry.methods.compiler.layout]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.019297633989481255
+    },
+    {
+      "nodeid": "test_facade_consumer_continuation.py::test_supported_import_loader_resolves_package_not_retired_shadow_file[causal_engine]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0002957109973067418
+    },
+    {
+      "nodeid": "test_facade_consumer_continuation.py::test_supported_import_loader_resolves_package_not_retired_shadow_file[id_engine]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00023620900174137205
+    },
+    {
+      "nodeid": "test_facade_consumer_continuation.py::test_supported_import_loader_resolves_package_not_retired_shadow_file[interference]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0002211419923696667
+    },
+    {
+      "nodeid": "test_facade_consumer_continuation.py::test_real_registry_keeps_canonical_method_and_public_engine_identities",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 2.8408694960089633
+    },
+    {
+      "nodeid": "test_installed_worker_profile.py::test_public_canonical_helpers_and_pure_report_factory_identity",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0012442350125638768
+    },
+    {
+      "nodeid": "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 26.03726203899714
+    },
+    {
+      "nodeid": "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 23.683888838000712
+    },
+    {
+      "nodeid": "test_dispatch_output_contract.py::test_native_alias_and_sidecars_do_not_create_slot_anomalies",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.049577928002690896
+    },
+    {
+      "nodeid": "test_dispatch_output_contract.py::test_actual_runner_rejects_missing_and_malformed_declared_slots[payload0-missing output for declared slot]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.04666095100401435
+    },
+    {
+      "nodeid": "test_dispatch_output_contract.py::test_actual_runner_rejects_missing_and_malformed_declared_slots[payload1-expects VECTOR]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.03497595599037595
+    },
+    {
+      "nodeid": "test_dispatch_output_contract.py::test_actual_runner_rejects_missing_and_malformed_declared_slots[payload2-expected shape]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.032872341995243914
+    },
+    {
+      "nodeid": "test_dispatch_output_contract.py::test_raw_numeric_sidecar_remains_an_error_diagnostic",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.04476149599940982
+    },
+    {
+      "nodeid": "test_dispatch_output_contract.py::test_empty_diagnostics_and_explicit_numeric_empties_are_distinct",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00010579699301160872
+    },
+    {
+      "nodeid": "test_dispatch_output_contract.py::test_nonempty_numeric_sequences_keep_nan_inf_diagnostics",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00015276500198524445
+    },
+    {
+      "nodeid": "test_dispatch_output_contract.py::test_declared_vector_empty_list_keeps_native_warning",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.044728765002219006
+    },
+    {
+      "nodeid": "test_dispatch_output_contract.py::test_canonical_missing_and_extra_keys_remain_typed_errors",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0001888109982246533
+    },
+    {
+      "nodeid": "test_dispatch_output_contract.py::test_registered_standard_did_report_alias_uses_canonical_slot",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 2.857011642990983
+    },
+    {
+      "nodeid": "test_dispatch_output_contract.py::test_registered_noncausal_prediction_preserves_its_slot_contract",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.46551470599661116
+    },
+    {
+      "nodeid": "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[nan-report]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.05116777699731756
+    },
+    {
+      "nodeid": "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[nan-result]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.043877160002011806
+    },
+    {
+      "nodeid": "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[nan-bare]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.044010277997585945
+    },
+    {
+      "nodeid": "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[inf-report]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.04543848599132616
+    },
+    {
+      "nodeid": "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[inf-result]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.052163751010084525
+    },
+    {
+      "nodeid": "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[inf-bare]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.04470211500301957
+    },
+    {
+      "nodeid": "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[negative_inf-report]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.04416252100782003
+    },
+    {
+      "nodeid": "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[negative_inf-result]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.04737536099855788
+    },
+    {
+      "nodeid": "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[negative_inf-bare]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.05089496000437066
+    },
+    {
+      "nodeid": "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[nan_inf_vector-report]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.04439171799458563
+    },
+    {
+      "nodeid": "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[nan_inf_vector-result]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.04394678999960888
+    },
+    {
+      "nodeid": "test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[nan_inf_vector-bare]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0460422890027985
+    },
+    {
+      "nodeid": "test_output_anomaly_count.py::test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[nan-False]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.04361887999402825
+    },
+    {
+      "nodeid": "test_output_anomaly_count.py::test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[nan-True]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.044209678992046975
+    },
+    {
+      "nodeid": "test_output_anomaly_count.py::test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[inf-False]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.044904672002303414
+    },
+    {
+      "nodeid": "test_output_anomaly_count.py::test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[inf-True]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.04366205001133494
+    },
+    {
+      "nodeid": "test_output_anomaly_count.py::test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[nan_inf_vector-False]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.04371795400220435
+    },
+    {
+      "nodeid": "test_output_anomaly_count.py::test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[nan_inf_vector-True]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.043438254011562094
+    },
+    {
+      "nodeid": "test_output_anomaly_count.py::test_existing_canonical_key_has_priority_over_unused_alias",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.043322847996023484
+    },
+    {
+      "nodeid": "test_output_anomaly_count.py::test_unused_alias_retains_anomalies_when_identical_to_selected_canonical",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.043560151010751724
+    },
+    {
+      "nodeid": "test_output_anomaly_count.py::test_custom_projection_has_no_invented_source_correspondence[_CopiedProjection]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.04318808899552096
+    },
+    {
+      "nodeid": "test_output_anomaly_count.py::test_custom_projection_has_no_invented_source_correspondence[_WrappedProjection]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.043901957003981806
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[0.0-artifacts_index-missing_bytes]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.006797898997319862
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[0.0-artifacts_index-malformed_json]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00821869399806019
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[0.0-artifacts_index-wrong_model]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.008072222000919282
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[0.0-top_level-missing_bytes]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00532515998929739
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[0.0-top_level-malformed_json]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.007929084997158498
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[0.0-top_level-wrong_model]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00790991898975335
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[1.0-artifacts_index-missing_bytes]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.005038536008214578
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[1.0-artifacts_index-malformed_json]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.007780198007822037
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[1.0-artifacts_index-wrong_model]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00796038300904911
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[1.0-top_level-missing_bytes]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.005163509005797096
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[1.0-top_level-malformed_json]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.007867189997341484
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[1.0-top_level-wrong_model]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.008046754999668337
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_noncausal_failed_simulation_keeps_its_existing_warning[artifacts_index-missing_bytes]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0016885119985090569
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_noncausal_failed_simulation_keeps_its_existing_warning[artifacts_index-malformed_json]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.004554986997391097
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_noncausal_failed_simulation_keeps_its_existing_warning[artifacts_index-wrong_model]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.004680598998675123
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_noncausal_failed_simulation_keeps_its_existing_warning[top_level-missing_bytes]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.001772248011548072
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_noncausal_failed_simulation_keeps_its_existing_warning[top_level-malformed_json]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.004530469988822006
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_noncausal_failed_simulation_keeps_its_existing_warning[top_level-wrong_model]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.004778542002895847
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_causal_blocker_survives_other_early_return_and_degraded_paths[missing_store-artifacts_index]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.004021583998110145
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_causal_blocker_survives_other_early_return_and_degraded_paths[missing_store-top_level]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.003985235991422087
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_causal_blocker_survives_other_early_return_and_degraded_paths[absent_simulation-artifacts_index]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0048273029970005155
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_causal_blocker_survives_other_early_return_and_degraded_paths[absent_simulation-top_level]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.004874039994319901
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_causal_blocker_survives_other_early_return_and_degraded_paths[unresolved_causal-artifacts_index]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.005775707992142998
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_causal_blocker_survives_other_early_return_and_degraded_paths[unresolved_causal-top_level]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.005128354008775204
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_causal_blocker_survives_other_early_return_and_degraded_paths[malformed_causal-artifacts_index]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.004326139998738654
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_causal_blocker_survives_other_early_return_and_degraded_paths[malformed_causal-top_level]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.004277138999896124
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_loaded_simulation_never_replaces_existing_causal_blocker[False-artifacts_index]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.014818836003541946
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_loaded_simulation_never_replaces_existing_causal_blocker[False-top_level]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.014550246996805072
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_loaded_simulation_never_replaces_existing_causal_blocker[True-artifacts_index]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.017976161994738504
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_loaded_simulation_never_replaces_existing_causal_blocker[True-top_level]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.017877267993753776
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_loaded_noncausal_simulation_preserves_supported_confidence_profile[False]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.01084614300634712
+    },
+    {
+      "nodeid": "test_confidence_issue_accumulation.py::test_loaded_noncausal_simulation_preserves_supported_confidence_profile[True]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.01465480100887362
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestProofStepDataclass::test_is_frozen",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00011185900075361133
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestProofStepDataclass::test_rule_name_stored",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 6.943900370970368e-05
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestProofStepDataclass::test_depth_default_zero",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 6.596300227101892e-05
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestProofStepDataclass::test_depth_custom",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 6.809701153542846e-05
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestProofStepDataclass::test_tuple_fields",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 6.48609857307747e-05
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestProofStepDataclass::test_all_rule_names_can_be_stored",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 7.68329919083044e-05
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestRequiredDataSpec::test_is_frozen",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 8.402600360568613e-05
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestRequiredDataSpec::test_defaults",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00010402299812994897
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestRequiredDataSpec::test_missing_distributions_stored",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 6.44999963697046e-05
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestRequiredDataSpec::test_alternative_identification",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 6.570298864971846e-05
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestRequiredDataSpec::test_empty_missing_distributions",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 6.299700180534273e-05
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_proof_steps_field_exists",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.003614957007812336
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_proof_steps_is_list",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0005014930065954104
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_proof_steps_populated_on_identified_graph",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00047600599646102637
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_trace_backward_compatible",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.000509478006279096
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_proof_steps_type_when_nonempty",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0004177569935563952
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_hedge_cert_required_data_field_exists",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00030713199521414936
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_hedge_cert_required_data_is_required_data_spec_or_none",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00031524601217824966
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_hedge_required_data_populated_when_hedge_found",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0003367870085639879
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_hedge_proof_steps_contain_hedge_step",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0003849969943985343
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_oracle_needed_has_oracle_step",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0007779680017847568
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_default_proof_steps_is_empty_list",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 8.991699723992497e-05
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_x_empty_emits_rule1_step",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0001752560056047514
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_ancestral_collapse_emits_step",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0003247139975428581
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestSourceDomain::test_is_frozen",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 8.865600102581084e-05
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestSourceDomain::test_defaults",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 7.824500789865851e-05
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestSourceDomain::test_with_s_nodes",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 7.180300599429756e-05
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestSourceDomain::test_with_z_interventions",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 6.581300112884492e-05
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestSourceDomain::test_dataset_ref",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 6.532199040520936e-05
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestZIDAlgorithm::test_z_id_returns_identification_result",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0002722670033108443
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestZIDAlgorithm::test_z_id_status_is_valid_enum",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0002397960051894188
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestZIDAlgorithm::test_z_id_no_interventions_collapses_to_standard",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0007367409998551011
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestZIDAlgorithm::test_z_id_with_backdoor_graph",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0002596629929030314
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestZIDAlgorithm::test_z_id_trace_is_list_of_strings",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00022383700706996024
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestZIDAlgorithm::test_z_id_required_distributions_is_list",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00025271999766118824
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestZIDAlgorithm::test_z_id_simple_chain_no_confounding",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00025315101083833724
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestZIDAlgorithm::test_z_id_accepts_dataset_ref",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0002212209947174415
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_accepts_ir_source_domain_specs",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0003483280015643686
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_rejects_untyped_source_domain_input",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00025884099886752665
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_no_domains_returns_result",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00034894001146312803
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_no_domains_status_is_valid",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0003535280120559037
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_single_domain_no_s_nodes",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00042895899969153106
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_returns_identification_result_type",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0007386040088022128
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_single_domain_with_z_interventions",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0002998080017277971
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_trace_is_list_of_strings",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00028414900589268655
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_identified_simple_graph",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00024389399914070964
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_multiple_domains_returns_best",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00038470599974971265
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_required_distributions_is_list",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0002564070018706843
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestMZIDAlgorithm::test_mz_id_dataset_ref_propagated",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00027646400849334896
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestProofStepAuditTrail::test_new_rule_names_in_formal_map",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00022415700368583202
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestProofStepAuditTrail::test_internal_to_ir_rule_formal_name_populated",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00016986600530799478
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestProofStepAuditTrail::test_internal_to_ir_applicable_theorem_populated",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0002731589920585975
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestProofStepAuditTrail::test_graph_state_before_preserved",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 9.763099660631269e-05
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestProofStepAuditTrail::test_graph_state_after_populated",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 9.495699487160891e-05
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestProofStepAuditTrail::test_internal_proof_step_has_graph_state_before_field",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 6.39180070720613e-05
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestProofStepAuditTrail::test_internal_proof_step_graph_state_before_defaults_empty",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 6.728500011377037e-05
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestIDCProofSteps::test_idc_emits_decompose_step",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0003840139979729429
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestIDCProofSteps::test_idc_trivial_z_emits_step",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0002728179970290512
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestIDCProofSteps::test_idc_positivity_step_present",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00035307698999531567
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestIDCProofSteps::test_idc_includes_sub_call_steps",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00035967900475952774
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestIDCProofSteps::test_idc_proof_steps_are_proof_step_instances",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0003430579963605851
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestIDCProofSteps::test_idc_trivial_z_returns_identified",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0002667059889063239
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestSIDAlgorithm::test_soft_policy_returns_identified_when_base_is_identified",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00039030599873512983
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestSIDAlgorithm::test_soft_policy_proof_step_sid_policy_wrap",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0002625680062919855
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestSIDAlgorithm::test_shift_policy_emits_sid_shift_step",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0006105370121076703
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestSIDAlgorithm::test_sid_dag_policy_fastpath_emits_policy_g_formula_step",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0003026630001841113
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestSIDAlgorithm::test_shift_policy_attaches_policy_side_conditions",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00026189800701104105
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestSIDAlgorithm::test_sid_non_identified_when_base_non_identified",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0008638870058348402
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestSIDAlgorithm::test_observed_u_collider_is_not_a_latent_bow[SID]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0005837460048496723
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestSIDAlgorithm::test_observed_u_collider_is_not_a_latent_bow[conditional-ID]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0006779309915145859
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestSIDAlgorithm::test_bow_has_same_observed_law_with_distinct_do_laws",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0001722410088405013
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestSIDAlgorithm::test_sid_result_has_version_tag",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00021862699941266328
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestSIDAlgorithm::test_conditional_intervention_id_basic",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0003048880025744438
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestSIDAlgorithm::test_conditional_intervention_records_condition_vars",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0003259470104239881
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestSIDAlgorithm::test_conditional_intervention_emits_sid_conditional_step",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00028595200274139643
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestSIDAlgorithm::test_conditional_intervention_non_id_graph",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0002582400047685951
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestSIDAlgorithm::test_dynamic_intervention_two_periods",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0003455030091572553
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestSIDAlgorithm::test_dynamic_intervention_emits_dynamic_gformula_step",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00031136001052800566
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestSIDAlgorithm::test_dynamic_intervention_single_period",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0001718499988783151
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestSIDAlgorithm::test_soft_policy_delegates_via_conditional_policy",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00034707499435171485
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestJointID::test_joint_id_simple_dag_returns_identified",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0005428500007838011
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestJointID::test_joint_id_emits_joint_factor_decompose_step",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0005239250021986663
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestJointID::test_joint_id_single_outcome_delegates",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00021391799964476377
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestJointID::test_joint_id_has_version_tag",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.000429157997132279
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestJointID::test_joint_id_trace_mentions_ccomponent",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0004665079904953018
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestJointID::test_multi_outcome_id_returns_dict",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0004481539945118129
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestJointID::test_multi_outcome_all_identified",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0005935949884587899
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestJointID::test_multi_outcome_three_outcomes",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0005439919914351776
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestJointID::test_multi_outcome_shared_ccomp_step",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00038567800947930664
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestJointID::test_multi_outcome_has_version_tag",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0003825719904853031
+    },
+    {
+      "nodeid": "test_id_engine_extensions.py::TestJointID::test_multi_outcome_single_outcome",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0002753629960352555
+    },
+    {
+      "nodeid": "test__causal_engine_contracts.py::test_causal_engine_contracts_are_reexported_from_runtime_module",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 6.579200271517038e-05
+    },
+    {
+      "nodeid": "test__interference_contracts.py::test_interference_contracts_are_reexported_from_runtime_module",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 6.432899681385607e-05
+    },
+    {
+      "nodeid": "test__interference_contracts.py::test_interference_reduction_bound_contract_is_characterized",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 6.479100557044148e-05
+    },
+    {
+      "nodeid": "test_installed_native_boundaries.py::test_installed_native_tmle_configured_job_and_actual_boundaries",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 9.37043217199971
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.9108832759957295
+    },
+    {
+      "nodeid": "test_causal_graph_cache_rows.py::test_returned_rows_cannot_change_cached_graph_export[overwrite-kuzu_node_rows]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0004558489890769124
+    },
+    {
+      "nodeid": "test_causal_graph_cache_rows.py::test_returned_rows_cannot_change_cached_graph_export[overwrite-kuzu_edge_rows]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00037760200211778283
+    },
+    {
+      "nodeid": "test_causal_graph_cache_rows.py::test_returned_rows_cannot_change_cached_graph_export[base_alias-kuzu_node_rows]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00035550199390854686
+    },
+    {
+      "nodeid": "test_causal_graph_cache_rows.py::test_returned_rows_cannot_change_cached_graph_export[base_alias-kuzu_edge_rows]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0003507719957269728
+    },
+    {
+      "nodeid": "test_causal_graph_cache_rows.py::test_returned_rows_cannot_change_cached_graph_export[clear-kuzu_node_rows]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0002938469988293946
+    },
+    {
+      "nodeid": "test_causal_graph_cache_rows.py::test_returned_rows_cannot_change_cached_graph_export[clear-kuzu_edge_rows]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0003030139923794195
+    },
+    {
+      "nodeid": "test_causal_graph_cache_rows.py::test_returned_rows_cannot_change_cached_graph_export[add_nested-kuzu_node_rows]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0003371880011400208
+    },
+    {
+      "nodeid": "test_causal_graph_cache_rows.py::test_returned_rows_cannot_change_cached_graph_export[add_nested-kuzu_edge_rows]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0002988460037158802
+    },
+    {
+      "nodeid": "test_causal_graph_cache_rows.py::test_native_emitter_can_mutate_its_plain_dict_without_corrupting_cache",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0002591319935163483
+    },
+    {
+      "nodeid": "test_causal_graph_cache_rows.py::test_private_preparation_is_immutable_reused_and_copy_has_new_rows",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00020524198771454394
+    },
+    {
+      "nodeid": "test_causal_graph_cache_rows.py::test_actual_csv_helpers_retain_plain_row_values_after_reader_mutation",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00042811701132450253
+    },
+    {
+      "nodeid": "test_performance_primitives.py::test_cached_adjacency_reuse",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.002772178006125614
+    },
+    {
+      "nodeid": "test_performance_primitives.py::test_cached_adjacency_eviction",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.6776242880005157
+    },
+    {
+      "nodeid": "test_performance_primitives.py::test_published_graph_rejects_nested_topology_mutation[nodes_append]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0005097109969938174
+    },
+    {
+      "nodeid": "test_performance_primitives.py::test_published_graph_rejects_nested_topology_mutation[edges_clear]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00014396800543181598
+    },
+    {
+      "nodeid": "test_performance_primitives.py::test_published_graph_rejects_nested_topology_mutation[edge_sources_append]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00013480099732987583
+    },
+    {
+      "nodeid": "test_performance_primitives.py::test_published_graph_rejects_nested_topology_mutation[edge_metadata_nested_append]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00013333899551071227
+    },
+    {
+      "nodeid": "test_performance_primitives.py::test_published_graph_rejects_nested_topology_mutation[graph_metadata_nested_append]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00013761701120529324
+    },
+    {
+      "nodeid": "test_performance_primitives.py::test_warmed_derived_rows_are_not_reused_after_copy_update",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0002121960133081302
+    }
+  ],
+  "all_warnings": [
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMClassifier was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    },
+    {
+      "nodeid": "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+      "when": "runtest",
+      "category": "UserWarning",
+      "message": "X does not have valid feature names, but LGBMRegressor was fitted with feature names",
+      "filename": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py",
+      "lineno": 2691,
+      "location": null
+    }
+  ],
+  "runtime_warnings": [],
+  "historical_alias_runtime_warning_memberships": [],
+  "historical_comparison": "Full original14 memberships recorded separately at receipt3dde; both original real consumers executed again and must emit zero false runtime anomalies.",
+  "optional_lightgbm_warnings": [],
+  "child_python_calls": [
+    {
+      "argv": [
+        "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python",
+        "-I",
+        "-c",
+        "\nimport hashlib,json,sys\nfrom pathlib import Path\nfrom polisyos.core.artifacts.manifest import ArtifactRef\nfrom polisyos.core.artifacts.store import FileSystemCAS\nfrom polisyos.core.canon import from_canonical_bytes\nfrom polisyos.foundry import methods\nfrom polisyos.foundry.methods.catalog.causal import _dowhy_worker as bridge\nfrom polisyos.foundry.methods.catalog.causal.dowhy_identify_estimate import DoWhyIdentifyEstimate\nfrom polisyos.foundry.methods.catalog.causal.protocols import GraphCausalData\nfrom polisyos.ir.analytics.causal import CausalEffectReport\nsite=Path(sys.prefix)/'lib/python3.14/site-packages'\nassert sys.flags.isolated and Path(bridge.__file__).is_relative_to(site)\nassert not any('/src' in p for p in sys.path)\nstore=FileSystemCAS(sys.argv[1]);ref=ArtifactRef.model_validate(json.loads(sys.argv[2]));source=ArtifactRef.model_validate(json.loads(sys.argv[3]))\nreport=CausalEffectReport.model_validate(from_canonical_bytes(store.get_bytes(ref))['report'])\nstate=GraphCausalData.model_validate(from_canonical_bytes(store.get_bytes(source)))\nworker=report.metadata['worker']\ntry:\n    methods.validate_source_bound_causal_worker_response(response=worker,state=state,store=store,source_ref=source)\nexcept bridge.WorkerUnavailableError as exc:\n    assert sys.argv[4]=='missing_asset'\n    print(json.dumps({'typed_refusal':type(exc).__name__,'reason':str(exc),'reply_sha256':hashlib.sha256(store.get_bytes(ref)).hexdigest()}))\nelse:\n    assert sys.argv[4]=='positive'\n    expected=DoWhyIdentifyEstimate.report_from_worker_result(data=state,params={},response=worker)\n    assert expected.model_dump(mode='json')==report.model_dump(mode='json')\n    origins={n:m.__file__ for n,m in sys.modules.copy().items() if n.startswith('polisyos') and getattr(m,'__file__',None)}\n    assert all(Path(p).is_relative_to(site) for p in origins.values())\n    print(json.dumps({'point':report.point_estimate,'p_value':report.p_value,'complete_report_equal':True,'profile':str(bridge._worker_directory()),'product_origins':origins,'reply_sha256':hashlib.sha256(store.get_bytes(ref)).hexdigest()}))\n",
+        "/tmp/pytest-of-agent/pytest-252/test_real_installed_method_job0",
+        "{\"artifact_id\":\"sha256:6f744cbe8cd89e56457dd7fdf959e06b9fd363ea36118730542010d9c2c93e2b\",\"kind\":\"scientist.method_result.causal.inference\",\"media_type\":\"application/json\"}",
+        "{\"artifact_id\":\"sha256:602a8b50802419fae8a23eba69ee241a21099c0f4fb7aa34f038902725fc0cd3\",\"kind\":\"tests.graph_causal_data\",\"media_type\":\"application/json\"}",
+        "positive"
+      ],
+      "cwd": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-consumer",
+      "isolated": true,
+      "reason": "Harness fresh reader explicitly uses own installed interpreter under -I; native product code and external worker unchanged."
+    },
+    {
+      "argv": [
+        "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python",
+        "-I",
+        "-c",
+        "\nimport hashlib,json,sys\nfrom pathlib import Path\nfrom polisyos.core.artifacts.manifest import ArtifactRef\nfrom polisyos.core.artifacts.store import FileSystemCAS\nfrom polisyos.core.canon import from_canonical_bytes\nfrom polisyos.foundry import methods\nfrom polisyos.foundry.methods.catalog.causal import _dowhy_worker as bridge\nfrom polisyos.foundry.methods.catalog.causal.dowhy_identify_estimate import DoWhyIdentifyEstimate\nfrom polisyos.foundry.methods.catalog.causal.protocols import GraphCausalData\nfrom polisyos.ir.analytics.causal import CausalEffectReport\nsite=Path(sys.prefix)/'lib/python3.14/site-packages'\nassert sys.flags.isolated and Path(bridge.__file__).is_relative_to(site)\nassert not any('/src' in p for p in sys.path)\nstore=FileSystemCAS(sys.argv[1]);ref=ArtifactRef.model_validate(json.loads(sys.argv[2]));source=ArtifactRef.model_validate(json.loads(sys.argv[3]))\nreport=CausalEffectReport.model_validate(from_canonical_bytes(store.get_bytes(ref))['report'])\nstate=GraphCausalData.model_validate(from_canonical_bytes(store.get_bytes(source)))\nworker=report.metadata['worker']\ntry:\n    methods.validate_source_bound_causal_worker_response(response=worker,state=state,store=store,source_ref=source)\nexcept bridge.WorkerUnavailableError as exc:\n    assert sys.argv[4]=='missing_asset'\n    print(json.dumps({'typed_refusal':type(exc).__name__,'reason':str(exc),'reply_sha256':hashlib.sha256(store.get_bytes(ref)).hexdigest()}))\nelse:\n    assert sys.argv[4]=='positive'\n    expected=DoWhyIdentifyEstimate.report_from_worker_result(data=state,params={},response=worker)\n    assert expected.model_dump(mode='json')==report.model_dump(mode='json')\n    origins={n:m.__file__ for n,m in sys.modules.copy().items() if n.startswith('polisyos') and getattr(m,'__file__',None)}\n    assert all(Path(p).is_relative_to(site) for p in origins.values())\n    print(json.dumps({'point':report.point_estimate,'p_value':report.p_value,'complete_report_equal':True,'profile':str(bridge._worker_directory()),'product_origins':origins,'reply_sha256':hashlib.sha256(store.get_bytes(ref)).hexdigest()}))\n",
+        "/tmp/pytest-of-agent/pytest-252/test_real_installed_method_job0",
+        "{\"artifact_id\":\"sha256:6f744cbe8cd89e56457dd7fdf959e06b9fd363ea36118730542010d9c2c93e2b\",\"kind\":\"scientist.method_result.causal.inference\",\"media_type\":\"application/json\"}",
+        "{\"artifact_id\":\"sha256:602a8b50802419fae8a23eba69ee241a21099c0f4fb7aa34f038902725fc0cd3\",\"kind\":\"tests.graph_causal_data\",\"media_type\":\"application/json\"}",
+        "missing_asset"
+      ],
+      "cwd": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-consumer",
+      "isolated": true,
+      "reason": "Harness fresh reader explicitly uses own installed interpreter under -I; native product code and external worker unchanged."
+    },
+    {
+      "argv": [
+        "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python",
+        "-I",
+        "-c",
+        "\nimport hashlib,json,sys\nfrom pathlib import Path\nfrom polisyos.core.artifacts.manifest import ArtifactRef\nfrom polisyos.core.artifacts.store import FileSystemCAS\nfrom polisyos.core.canon import from_canonical_bytes\nfrom polisyos.foundry import methods\nfrom polisyos.foundry.methods.catalog.causal import _dowhy_worker as bridge\nfrom polisyos.foundry.methods.catalog.causal.dowhy_identify_estimate import DoWhyIdentifyEstimate\nfrom polisyos.foundry.methods.catalog.causal.protocols import GraphCausalData\nfrom polisyos.ir.analytics.causal import CausalEffectReport\nsite=Path(sys.prefix)/'lib/python3.14/site-packages'\nassert sys.flags.isolated and Path(bridge.__file__).is_relative_to(site)\nassert not any('/src' in p for p in sys.path)\nstore=FileSystemCAS(sys.argv[1]);ref=ArtifactRef.model_validate(json.loads(sys.argv[2]));source=ArtifactRef.model_validate(json.loads(sys.argv[3]))\nreport=CausalEffectReport.model_validate(from_canonical_bytes(store.get_bytes(ref))['report'])\nstate=GraphCausalData.model_validate(from_canonical_bytes(store.get_bytes(source)))\nworker=report.metadata['worker']\ntry:\n    methods.validate_source_bound_causal_worker_response(response=worker,state=state,store=store,source_ref=source)\nexcept bridge.WorkerUnavailableError as exc:\n    assert sys.argv[4]=='missing_asset'\n    print(json.dumps({'typed_refusal':type(exc).__name__,'reason':str(exc),'reply_sha256':hashlib.sha256(store.get_bytes(ref)).hexdigest()}))\nelse:\n    assert sys.argv[4]=='positive'\n    expected=DoWhyIdentifyEstimate.report_from_worker_result(data=state,params={},response=worker)\n    assert expected.model_dump(mode='json')==report.model_dump(mode='json')\n    origins={n:m.__file__ for n,m in sys.modules.copy().items() if n.startswith('polisyos') and getattr(m,'__file__',None)}\n    assert all(Path(p).is_relative_to(site) for p in origins.values())\n    print(json.dumps({'point':report.point_estimate,'p_value':report.p_value,'complete_report_equal':True,'profile':str(bridge._worker_directory()),'product_origins':origins,'reply_sha256':hashlib.sha256(store.get_bytes(ref)).hexdigest()}))\n",
+        "/tmp/pytest-of-agent/pytest-252/test_real_installed_method_job0",
+        "{\"artifact_id\":\"sha256:6f744cbe8cd89e56457dd7fdf959e06b9fd363ea36118730542010d9c2c93e2b\",\"kind\":\"scientist.method_result.causal.inference\",\"media_type\":\"application/json\"}",
+        "{\"artifact_id\":\"sha256:602a8b50802419fae8a23eba69ee241a21099c0f4fb7aa34f038902725fc0cd3\",\"kind\":\"tests.graph_causal_data\",\"media_type\":\"application/json\"}",
+        "positive"
+      ],
+      "cwd": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-consumer",
+      "isolated": true,
+      "reason": "Harness fresh reader explicitly uses own installed interpreter under -I; native product code and external worker unchanged."
+    },
+    {
+      "argv": [
+        "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python",
+        "-I",
+        "-c",
+        "\nimport json,sys\nfrom polisyos.core.artifacts.store import FileSystemCAS\nfrom polisyos.ir.registry.refs import StructuralCausalModelSpecRef\nfrom polisyos.ir.analytics.structural_causal_model import load_structural_causal_model_spec\nfrom polisyos.foundry.methods.catalog.causal.gcm_fit import validate_persisted_gcm_spec\nfrom polisyos.foundry.methods.catalog.causal.gcm_query import GCMQuery\nfrom polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData\nstore=FileSystemCAS(sys.argv[1]);ref=StructuralCausalModelSpecRef.model_validate(json.loads(sys.argv[2]))\nmodel=load_structural_causal_model_spec(store,ref);validate_persisted_gcm_spec(model,store)\nquery=json.loads(sys.argv[3]);output=GCMQuery.pure_step(SCMQueryData(scm_spec=model,query=query),{'__seed__':23,'enable_dowhy_comparison':False})\nassert sys.version_info[:2]==(3,14)\nassert not output['envelope'].gate_eligible\nprint(json.dumps({'mean':output['query_result'].result_mean,'profile':model.fit_provenance.profile}))\n\nfrom pathlib import Path\nfrom polisyos.foundry.methods.catalog.causal import _dowhy_worker as installed_bridge\nassert sys.flags.isolated and Path(installed_bridge.__file__).is_relative_to(Path(sys.prefix)/'lib/python3.14/site-packages')\nassert installed_bridge._worker_directory()==Path(installed_bridge.__file__).parent/'_dowhy_profile'\n",
+        "/tmp/pytest-of-agent/pytest-252/test_installed_true_gcm_job_an0/cas",
+        "{\"artifact_id\":\"sha256:f61b15625b22a95ddceb0d83e6181730d844693ebdbc45c7291a26104a7e7781\",\"kind\":\"ir.structural_causal_model_spec\",\"media_type\":\"application/json\"}",
+        "{\"query_type\":\"attribution\",\"treatment_variable\":\"X\",\"treatment_value\":null,\"outcome_variable\":\"Y\",\"condition\":{},\"n_samples\":3000,\"intervention_spec\":null,\"contrast\":{\"target\":{\"type\":\"atomic\",\"value\":1.0,\"distribution\":null,\"bounds\":null,\"shift\":null,\"legal_constraint_id\":null},\"comparator\":{\"kind\":\"interventional\",\"intervention\":{\"type\":\"atomic\",\"value\":0.0,\"distribution\":null,\"bounds\":null,\"shift\":null,\"legal_constraint_id\":null}}}}"
+      ],
+      "cwd": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-consumer",
+      "isolated": true,
+      "reason": "Harness fresh reader explicitly uses own installed interpreter under -I; native product code and external worker unchanged."
+    },
+    {
+      "argv": [
+        "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python",
+        "-I",
+        "-c",
+        "import json,sys; from polisyos.core.artifacts.manifest import ArtifactRef; from polisyos.core.artifacts.store import FileSystemCAS; from polisyos.core.canon import from_canonical_bytes; from polisyos.ir.analytics.causal import CausalEffectReport; from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope; store=FileSystemCAS(sys.argv[1]); ref=ArtifactRef.model_validate_json(sys.argv[2]); saved=from_canonical_bytes(store.get_bytes(ref)); report=CausalEffectReport.model_validate(saved['report']); envelope=UncertaintyEnvelope.model_validate(saved['envelope']); assert envelope==report.to_uncertainty_envelope(); assert not envelope.gate_eligible; print(json.dumps({'method':report.method.value,'point':report.point_estimate,'ci':report.confidence_interval,'status':report.status.value}))",
+        "/tmp/pytest-of-agent/pytest-252/test_installed_native_tmle_con0/native/cas",
+        "{\"artifact_id\":\"sha256:70ad8adfcf5589e31bcd485f2fc280c598fc3e0e5a87ff2f0918767ffc4f3d45\",\"kind\":\"scientist.method_result.causal.treatment_effects\",\"media_type\":\"application/json\"}"
+      ],
+      "cwd": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-consumer",
+      "isolated": true,
+      "reason": "Harness fresh reader explicitly uses own installed interpreter under -I; native product code and external worker unchanged."
+    }
+  ],
+  "namespace_origin_violations": {},
+  "pytest_exit": 0,
+  "nonpassed_reports": [],
+  "authority": "Known synthetic/native installed computation only; no genuine admitted Runtime Node, identification appointment, value authority or B56 common budget PASS."
+}

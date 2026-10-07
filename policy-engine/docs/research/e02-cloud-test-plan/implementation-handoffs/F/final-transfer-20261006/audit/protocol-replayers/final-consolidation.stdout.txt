@@ -1,0 +1,5 @@
+F published protocol/byte audit UNRUN (current_deciding_reference_check=PASS; all_reference_custody_check=UNRUN)
+10 primary + 4 companion + 1 ancillary exact Git receipts; primary mapping35/35 and bundles17/17
+Git hash references 11009; per-component records 17630; distinct decoded bodies 314
+Primary reported finding outcomes {'closed': 17, 'limited': 16, 'held': 2}; these are bounded author recommendations, not ledger closure.
+current_deciding_issues 0 historical_unavailable_non_deciding_records 4

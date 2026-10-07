@@ -1,0 +1,47 @@
+{
+  "source_root": "/workspace/e02-F-api-20261006",
+  "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-I",
+    "/workspace/e02-F-api-20261006/policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py",
+    "--root",
+    "/workspace/e02-F-api-20261006",
+    "--ref",
+    "8236d9c368336a5ea20c1586f29aea7321db6536",
+    "--output",
+    "/tmp/e02-F-continuation-20261006/api/census-8236-full.json"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/api/census-8236-run",
+  "artifact_paths": [
+    "/tmp/e02-F-continuation-20261006/api/census-8236-full.json"
+  ],
+  "tree_sha": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "source_status_before": "",
+  "elapsed_seconds": 81.08127117156982,
+  "exit_code": 0,
+  "child_max_rss_kib_linux": 270912,
+  "rss_scope": "Maximum child-process RSS reported by Linux RUSAGE_CHILDREN for this wrapper, including command and source guards; not total concurrent RSS.",
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/api/census-8236-run.stdout",
+    "bytes": 1717,
+    "sha256": "455b7529496c9399cfd7d3e6a47fddc46b28dff9288824379ef73b88fed88b10"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/api/census-8236-run.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_status_after": "",
+  "artifacts": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/census-8236-full.json",
+      "bytes": 2044623,
+      "sha256": "a4616b37c5ba57c6050e9b8c068dec4e14752ea2f96af92e9b66517f34566093"
+    }
+  ]
+}

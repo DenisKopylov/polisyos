@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/trace_fiscal_precision.py", line 115, in <module>
+    (OUT/'fiscal-precision-trace.json').write_text(json.dumps(report,indent=2,ensure_ascii=False)+'\n')
+                                                   ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/json/__init__.py", line 242, in dumps
+    **kw).encode(obj)
+          ~~~~~~^^^^^
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/json/encoder.py", line 202, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/json/encoder.py", line 263, in iterencode
+    return _iterencode(o, 0)
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/json/encoder.py", line 182, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+                    f'is not JSON serializable')
+TypeError: Object of type Decimal is not JSON serializable
+when serializing dict item 'rate'
+when serializing dict item 'params'
+when serializing dict item 'payload'
+when serializing list item 0
+when serializing dict item 'lowered_parameter_payloads'
+when serializing dict item 'actual_spec_compile_cas_execute_fresh_reader'

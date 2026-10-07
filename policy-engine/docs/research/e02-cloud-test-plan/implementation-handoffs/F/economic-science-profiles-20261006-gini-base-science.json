@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/foundry/agent_sim/test_gini_science.py",
+    "-q",
+    "-ra"
+  ],
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "head": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "head_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "source_diff_bytes": 0,
+  "pythonpath": "src:tools:.",
+  "start_unix": 1791279627.697012,
+  "wall_seconds": 20.76706862449646,
+  "maximum_child_rss_kib": 1061932,
+  "returncode": 1,
+  "output": {
+    "path": "/workspace/e02-F-20261006-receipts/economics/gini-base-science.txt",
+    "bytes": 104323,
+    "sha256": "e2ab09975fc452328d0232ab149d812dc7de71a50ae71f986542d162b8ea2ef7"
+  }
+}

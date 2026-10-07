@@ -1,0 +1,11 @@
+id = "e02-current-runtime"
+title = "Retain shared executor ownership through callbacks"
+type = "fixed"
+component = "common"
+owner = "team-policyos-runtime"
+summary = "Shared execution uses Future-compatible proxies that retain worker/callback reservations and reject saturated nested submissions before queuing dependent work. Shutdown cancellation releases queued ownership without a lock cycle."
+evidence = ["tests/unit/common/test_async_tools.py"]
+compatibility = "Future result, exception, running, cancellation and callback thread/order semantics remain supported. Saturated nested worker/callback submissions now raise SharedExecutorReentrancyError, a RuntimeError subtype."
+surface_classification = "internal: polisyos.common.async_tools"
+migration = "Use the asynchronous entrypoint when already in async code. An owner without a configured helper deadline explicitly passes unbounded=True; omitted/None timeouts preserve the existing helper default."
+limitations = "Running arbitrary user callables/callbacks remain cooperative. Context propagation does not grant or extend tenant authority, and memory cancellation does not roll back external effects."

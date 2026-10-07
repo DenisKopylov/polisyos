@@ -1,0 +1,34 @@
+{
+  "source_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+  "source_tree": "c9e855889a3b8eb92964bfae91a95145dc466497",
+  "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "tools/ops_runners/release/check_compatibility_release_gates.py",
+    "--fail-on-contract-errors"
+  ],
+  "started_unix": 1791284098.4068274,
+  "exit_code": 1,
+  "wall_s": 0.30083131790161133,
+  "child_peak_rss_kib": 22596,
+  "environment": {
+    "PYTHONPATH": "src:.:/workspace/e02-F-20261006-receipts/fry",
+    "UV_NO_SYNC": "1",
+    "UV_PROJECT_ENVIRONMENT": "/workspace/e02-F-closeout-20261006/policy-engine/.venv",
+    "E02_REPORT_PATH": "/workspace/e02-F-20261006-receipts/fry/compatibility-release.pytest.json"
+  },
+  "git_status_before": "",
+  "git_status_after": "",
+  "outputs": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/fry/compatibility-release.stdout.txt",
+      "sha256": "ef2df826e72e0fddc72f9d33acfcc06eed9c982d775f69fd78d7e00efb6cd02c",
+      "bytes": 1253
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/fry/compatibility-release.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ]
+}

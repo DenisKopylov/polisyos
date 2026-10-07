@@ -1,0 +1,96 @@
+SCOPE LIMITED: required generated-artifact freshness checks explicitly omitted (--skip-generated-checks); no freshness verdict.
+Standalone Atlas gate: architecture/atlas_surfaces/check_status_retirement_inventory.py is not run by `uv run polisyos-tools architecture guardrails check`; run it explicitly or through architecture/atlas_surfaces/check_atlas_enforcement.py.
+Architecture guardrail check FAILED:
+- polisyos.common export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/common/__init__.py:from __future__ import annotations.
+- polisyos.common.config export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/common/__init__.py:from __future__ import annotations.
+- polisyos.core export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/core/__init__.py:from __future__ import annotations.
+- polisyos.core.contracts export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/core/__init__.py:from __future__ import annotations.
+- polisyos.core.observability export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/core/__init__.py:from __future__ import annotations.
+- polisyos.core.security export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/core/__init__.py:from __future__ import annotations.
+- polisyos.core.trace export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/core/__init__.py:from __future__ import annotations.
+- polisyos.ir export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/ir/__init__.py:from __future__ import annotations.
+- polisyos.ir.analytics export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/ir/__init__.py:from __future__ import annotations.
+- polisyos.ir.api export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/ir/__init__.py:from __future__ import annotations.
+- polisyos.obligation_rules export total is unresolved: Unresolved import-time ClassDef outside pure-declaration grammar: src/polisyos/obligation_rules/catalog.py:class ObligationRule(ObligationRuleModel):
+    """Governed obligation rule contract consumed by downstream compilers."""
+    rule_id: str = Field(pattern=ID_PATTERN)
+    rule_family: ObligationRuleFamily
+    rule_version: str = Field(min_length=1)
+    logic: dict[str, Any]
+    logic_hash: str = Field(pattern='^sha256:[0-9a-f]{64}$')
+    owner: str = Field(min_length=1)
+    scope: ObligationRuleScope
+    authority_level: str = Field(min_length=1)
+    evidence_basis: tuple[str, ...] = Field(min_length=1)
+    status: ObligationRuleStatus = ObligationRuleStatus.GOVERNED
+    public_revalidation_effect: PublicRevalidationEffect
+    deprecation_policy: RuleDeprecationPolicy = Field(default_factory=RuleDeprecationPolicy)
+    source_class: ObligationRuleSourceClass = ObligationRuleSourceClass.GOVERNED_RULE
+    source_refs: tuple[str, ...] = Field(min_length=1)
+    taxonomy_refs: tuple[str, ...] = Field(default_factory=tuple)
+    provenance_refs: tuple[str, ...] = Field(default_factory=tuple)
+    candidate_source_class: ObligationRuleSourceClass | None = None
+    governance_decision_ref: str | None = None
+    validation_refs: tuple[str, ...] = Field(default_factory=tuple)
+    may_not_use_for: tuple[str, ...] = Field(default=('claim_evidence_authority', 'silent_rulebook_admission', 'llm_candidate_authority'))
+
+    @model_validator(mode='after')
+    def validate_governed_rule(self) -> ObligationRule:
+        """Validate governed-rule invariants that protect P07 and P15."""
+        if self.status is ObligationRuleStatus.GOVERNED:
+            if self.public_revalidation_effect is PublicRevalidationEffect.NONE:
+                raise ValueError('governed rules require a public revalidation effect')
+            if not self.owner or not self.authority_level or (not self.evidence_basis):
+                raise ValueError('governed rules require owner, authority_level, and evidence_basis')
+            if self.candidate_source_class is not None and self.candidate_source_class.value in _LLM_SOURCE_CLASSES and (not self.governance_decision_ref):
+                raise ValueError('LLM candidates require explicit governance admission')
+        return self.
+- polisyos.obligation_graph export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/obligation_graph/__init__.py:from __future__ import annotations.
+- polisyos.method_requirement export total is unresolved: Unresolved import-time ClassDef outside pure-declaration grammar: src/polisyos/method_requirement/_impl/compiler.py:class MethodValidityRequirementCompiler:
+    """Deterministically compile W6.D claims into W7.C method requirements."""
+
+    def compile(self, *, run_id: str, claims: Sequence[object], requirement_graph_ref: str | None=None, generated_at: datetime | None=None, metadata: Mapping[str, Any] | None=None) -> MethodValidityRequirementArtifact:
+        """Compile claim records into a persistable requirement artifact."""
+        normalized_run_id = _required_text(run_id, field_name='run_id')
+        claim_rows = [_mapping(claim) for claim in claims]
+        requirements = [self._compile_claim(normalized_run_id, claim) for claim in claim_rows if _claim_requires_method_requirement(claim)]
+        now = generated_at or datetime.now(UTC)
+        return MethodValidityRequirementArtifact(run_id=normalized_run_id, requirements=requirements, requirement_graph_ref=_text(requirement_graph_ref) or None, runtime_event_ref=f'event://method-requirement/{_slug(normalized_run_id)}', authority_boundary=method_requirement_authority_boundary(), metadata={'producer': 'method_requirement_compiler', 'generated_at': now.isoformat(), 'pattern_guards': ['P01', 'P02', 'P10', 'P14'], 'claim_count': len(claim_rows), 'requirement_count': len(requirements), **dict(metadata or {})})
+
+    def _compile_claim(self, run_id: str, claim: Mapping[str, Any]) -> MethodValidityRequirementSpec:
+        claim_id = _required_text(claim.get('claim_id') or claim.get('id'), field_name='claim_id')
+        method_needs = _method_needs(claim)
+        tokens = _claim_tokens(claim, method_needs)
+        identification_class = _identification_class(claim, method_needs, tokens)
+        uncertainty_class = _uncertainty_class(identification_class, tokens)
+        fairness_need = _fairness_need(tokens)
+        strategic_sensitivity = _strategic_response_sensitivity(tokens)
+        simulation_dgp = _simulation_dgp_requirement(tokens)
+        assumption_needs = _assumption_validation_needs(identification_class=identification_class, fairness_need=fairness_need, strategic_sensitivity=strategic_sensitivity, simulation_dgp=simulation_dgp, method_needs=method_needs, tokens=tokens)
+        method_expectations = _method_expectations(method_needs=method_needs, tokens=tokens, strategic_sensitivity=strategic_sensitivity)
+        return MethodValidityRequirementSpec(requirement_id=_stable_id('method_requirement', run_id, claim_id, method_needs), run_id=run_id, claim_id=claim_id, identification_class=identification_class, transportability_requirement=_transportability_requirement(identification_class, tokens), uncertainty_class=uncertainty_class, fairness_decomposition_need=fairness_need, strategic_response_sensitivity=strategic_sensitivity, simulation_dgp_requirements=simulation_dgp, assumption_validation_needs=assumption_needs, method_expectations=method_expectations, required_method_families=method_expectations, facet_refs=_string_list(claim.get('facet_refs')), obligation_refs=_string_list(claim.get('obligation_refs')), concept_spine_refs=_string_list(claim.get('concept_spine_refs')), authority_profile_refs=_string_list(claim.get('authority_profile_refs')), baseline_refs=_string_list(claim.get('baseline_refs')), alternative_refs=_string_list(claim.get('alternative_refs')), source_precondition_refs=[_text(precondition.get('precondition_id')) for precondition in _precondition_rows(claim) if _text(precondition.get('precondition_id'))], requires_ir_analytics=identification_class in {MethodIdentificationClass.POINT, MethodIdentificationClass.PARTIAL, MethodIdentificationClass.BOUNDS, MethodIdentificationClass.NEGATIVE_CERTIFICATE}, requires_runtime_assumption_gates=bool(assumption_needs), requires_uncertainty_envelope=uncertainty_class is not MethodUncertaintyClass.NONE, requires_limitation_refs=identification_class is not MethodIdentificationClass.NEGATIVE_CERTIFICATE, requires_method_output=identification_class is not MethodIdentificationClass.NEGATIVE_CERTIFICATE, requires_negative_certificate=identification_class is MethodIdentificationClass.NEGATIVE_CERTIFICATE, metadata={'claim_type': _text(claim.get('claim_type')), 'claim_family': _text(claim.get('claim_family')), 'claim_use': _text(claim.get('claim_use')), 'source': 'claim_method_need_preconditions'}).
+- polisyos.participation_requirement export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/participation_requirement/__init__.py:from __future__ import annotations.
+- polisyos.fabric export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/fabric/__init__.py:from __future__ import annotations.
+- polisyos.fabric.api export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/fabric/__init__.py:from __future__ import annotations.
+- polisyos.fabric.world export total is unresolved: Unresolved conditional/mutated exports: src/polisyos/fabric/world/__init__.py:__all__.
+- polisyos.foundry export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/foundry/__init__.py:from __future__ import annotations.
+- polisyos.foundry.api export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/foundry/__init__.py:from __future__ import annotations.
+- polisyos.foundry.compile export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/foundry/__init__.py:from __future__ import annotations.
+- polisyos.foundry.execute export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/foundry/__init__.py:from __future__ import annotations.
+- polisyos.foundry.uncertainty export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/foundry/__init__.py:from __future__ import annotations.
+- polisyos.scientist export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/scientist/__init__.py:from __future__ import annotations.
+- polisyos.scientist.governance.continuous export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/scientist/__init__.py:from __future__ import annotations.
+- polisyos.scientist.methods.research_dag export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/scientist/__init__.py:from __future__ import annotations.
+- polisyos.scientist.replay export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/scientist/__init__.py:from __future__ import annotations.
+- polisyos.evidence export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/evidence/__init__.py:from __future__ import annotations.
+- polisyos.runtime export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/runtime/__init__.py:from __future__ import annotations.
+- polisyos.runtime.quality export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/runtime/__init__.py:from __future__ import annotations.
+- polisyos.lex export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/lex/__init__.py:from __future__ import annotations.
+- polisyos.lex.knowledge export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/lex/__init__.py:from __future__ import annotations.
+- polisyos.scholar export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/scholar/__init__.py:from __future__ import annotations.
+- polisyos.data_forge export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/data_forge/__init__.py:from __future__ import annotations.
+- polisyos.data_forge.read_api export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/data_forge/__init__.py:from __future__ import annotations.
+- polisyos.berl export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/berl/__init__.py:from __future__ import annotations.
+- polisyos.calibration export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/calibration/__init__.py:from __future__ import annotations.
+- polisyos.ddm export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/ddm/__init__.py:from __future__ import annotations.
+- polisyos.foundry.agent_sim.world export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/foundry/__init__.py:from __future__ import annotations.

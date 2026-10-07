@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261006/graph/final-packet-review/prepare_required_registry-initial.py", line 145, in <module>
+    prepare(args.extra_specs)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-F-continuation-20261006/graph/final-packet-review/prepare_required_registry-initial.py", line 109, in prepare
+    assert commits and all(len(c) == 40 for c in commits), key
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('0c9fe861a3725cb803aad8f583802af577300c20', 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-inputs-and-storage-20261006.json')

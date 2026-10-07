@@ -1,0 +1,35 @@
+{
+  "source_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+  "source_tree": "2e90d63e7149a4816d409c770dfeff3db0a71539",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/ir/test_root_facade_closeout.py",
+    "tests/unit/ir/test_schema_catalog.py",
+    "tests/unit/core/contracts/test_ir_ref_facades.py",
+    "tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "environment_overrides": {
+    "PYTHONPATH": "src:."
+  },
+  "started_utc": "2026-10-06T10:38:52.317625+00:00",
+  "wall_s": 35.30445980800141,
+  "exit": 0,
+  "outputs": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/public-abi.stdout.txt",
+      "bytes": 100,
+      "sha256": "e630a780a2f38d44faa6908e7ff0130471d5169e652ace96b0ee77d11cb7e713"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/public-abi.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

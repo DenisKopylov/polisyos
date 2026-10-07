@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle.py", line 23, in <module>
+    model=StructuralCausalModelSpec(schema_version='1.0',graph=graph,fitted=True,fit_method='manual',mechanisms=[NodeMechanism(variable='X',family=MechanismFamily.EMPIRICAL,family_params={'mean':float(x.mean()),'std':float(x.std()),'observed_samples':x.tolist(),'joint_sample_group':str(source.artifact_id)},source=MechanismSource.DATA_FITTED),NodeMechanism(variable='Y',parents=['X'],family=MechanismFamily.ADDITIVE_NOISE,family_params=params,source=MechanismSource.DATA_FITTED)])
+  File "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py", line 250, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 1 validation error for StructuralCausalModelSpec
+  Value error, Observed root carrier 'X' requires source, alignment, and joint group [type=value_error, input_value={'schema_version': '1.0',...tivity_to_latent=None)]}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/value_error

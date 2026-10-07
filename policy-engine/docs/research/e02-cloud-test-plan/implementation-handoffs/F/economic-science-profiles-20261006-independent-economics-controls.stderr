@@ -1,0 +1,2 @@
+/workspace/e02-F-20261006-receipts/root-review/economics_controls.py:5: DeprecationWarning: jax.experimental.enable_x64 is deprecated in JAX v0.8.0 and will be removed in JAX v0.9.0; use jax.enable_x64(True) instead.
+  with jax.experimental.enable_x64():

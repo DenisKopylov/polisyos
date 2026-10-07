@@ -1,0 +1,447 @@
+{
+  "schema": "policyos.e02.F.independent-b220-review.v1",
+  "decision": "GO",
+  "implementation_sha": "2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+  "implementation_tree": "9fd2bd6d9aebdb48d1a2bed266483a8b4ab1974e",
+  "runtime_and_test_sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+  "native": {
+    "implementation_sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+    "tree": "c13b8953adedd15f0db735aec1e39860a92e7dc4",
+    "command": [
+      "/workspace/e02-F-graph-env/bin/python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-p",
+      "no:cacheprovider",
+      "-q",
+      "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/test_b220_independent.py",
+      "tests/unit/ir/test_causal_graph_cache_rows.py",
+      "tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py::test_cached_adjacency_reuse",
+      "tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py::test_cached_adjacency_eviction",
+      "tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py::test_published_graph_rejects_nested_topology_mutation",
+      "tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py::test_warmed_derived_rows_are_not_reused_after_copy_update"
+    ],
+    "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+    "environment": {
+      "PYTHONPATH": "src:.:/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "cloud_artificial_quota": "none"
+    },
+    "wall_s": 10.957985670989729,
+    "exit": 0,
+    "outcome": "PASS",
+    "output": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/native.stdout.txt",
+    "stderr": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/native.stderr.txt",
+    "source_bindings": {
+      "src/polisyos/ir/analytics/causal_graph.py": {
+        "sha256": "b8cc85501f67668b61b6265abe7970026b5124dd9c2204205251697988bfb5cc",
+        "bytes": 20746,
+        "git_blob": "342d416961ec817441574253320a9054c00d969e"
+      },
+      "src/polisyos/ir/analytics/causal_graph_kuzu.py": {
+        "sha256": "36f5b22b3832eddcda65346a09814a3e52db57d0cbf8f32dac357040627cd6c0",
+        "bytes": 8209,
+        "git_blob": "c1a747fc46e8e6e8e185b8f357480d472a0373e1"
+      },
+      "src/polisyos/foundry/methods/catalog/causal/admg_ops.py": {
+        "sha256": "7ce7e791e0ae6390fcf2c33a09667b4d539a549b373ab7932d929b206b87e738",
+        "bytes": 40707,
+        "git_blob": "b60260eb81d537ddcf75d4a0e4c61c372a5aa968"
+      },
+      "tests/unit/ir/test_causal_graph_cache_rows.py": {
+        "sha256": "3a060e7207d024f11e6c98353524d22ccb63f1e10c81a63d1b5d1ecc96ce480b",
+        "bytes": 4320,
+        "git_blob": "46fc62eb211a1cd47922450a195c0d55a2ff005f"
+      },
+      "tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py": {
+        "sha256": "f52b445544f858a5fee857cf3fdea8a4806759b3f98ea81876c6bd59a167e664",
+        "bytes": 8512,
+        "git_blob": "257bf3503976b9584a684854dcb82d468105220e"
+      }
+    },
+    "before": {
+      "sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+      "tree": "c13b8953adedd15f0db735aec1e39860a92e7dc4",
+      "tracked_diff_empty": true
+    },
+    "after": {
+      "sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+      "tracked_diff": "",
+      "tracked_index_diff": ""
+    },
+    "limits": [
+      "Synthetic bounded source/API/cache property, not real-data causal identification.",
+      "Real CSV helpers and native to_kuzu parameter boundary are exercised; recording parameter consumer is not a live Kuzu backend witness.",
+      "No broad performance benchmark or architecture rerun."
+    ]
+  },
+  "native_counts": {
+    "passed": 23,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "warnings": 1
+  },
+  "scoped_release_validation": {
+    "outcome": "PASS",
+    "implementation_sha": "2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+    "runtime_and_test_sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+    "only_delta": [
+      "policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-cache-rows.toml"
+    ],
+    "fragment_sha256": "3d7d75c328e06b1b630793fe0b2932f179c18517b22fb1fa6fc6360f3404e8be",
+    "fragment_bytes": 1640,
+    "structured_record_count": 1,
+    "errors": [],
+    "findings": [],
+    "rendered_output": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/release-rendered.md",
+    "historical_e2c_release_scope": "0structuredrecords: top-level classification ignored, metadata-only corrected at213",
+    "gate_scope": "Canonical _validate_fragments and release renderer on exactone ownedfragment+policy only; no whole repository release/architecture gate claim."
+  },
+  "source_review": {
+    "cache": "Per-version private tuple of immutable serialized strings; public reads materialize detached exact tuple/plain-dict wire values. Original cached dictionary alias defect fixed for node and edge rows.",
+    "copy": "Copy/update clears private and legacy derived row keys; deep copy and warm/cold views rebind correctly. Actual serializer reused once per version.",
+    "consumers": "Actual CSV helpers with quoted/newline/Unicode labels and complete edge payload, fresh CAS graph reader, and actual to_kuzu parameter boundary preserve native values and permit reader-local mutation. Recording parameter consumer is not a live Kuzu backend.",
+    "cleanup": "Actual native graph, adjacency/component caches and weakref entries created/reused; deletion plus GC removes all three maps. Existing 5nested source/edge/metadata mutation cases execute and refuse."
+  },
+  "author_removal_controls_inspected": [
+    {
+      "name": "row_isolation",
+      "recorded_execution": {
+        "schema": "policyos.e02.execution.v1",
+        "command": [
+          "/workspace/e02-F-graph-env/bin/python",
+          "/workspace/e02-F-20261006-receipts/graph/b220/removal-replayer.py",
+          "row_isolation"
+        ],
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "target_sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+        "target_tree_sha": "c13b8953adedd15f0db735aec1e39860a92e7dc4",
+        "observed_utc": "2026-10-06T12:27:57.415083+00:00",
+        "environment": {
+          "PYTHONPATH": "src:.:/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages",
+          "interpreter": "/workspace/e02-F-graph-env/bin/python"
+        },
+        "input_closure": "Known synthetic two-node/DAG/finite latent graph fixtures and actual native providers; no production data or live Kuzu engine.",
+        "exit_code": 1,
+        "wall_time_s": 9.027680541999871,
+        "max_child_rss_kib": 604904,
+        "source_bindings": [
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+            "sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+            "git_blob": "342d416961ec817441574253320a9054c00d969e",
+            "bytes": 20746,
+            "sha256": "b8cc85501f67668b61b6265abe7970026b5124dd9c2204205251697988bfb5cc"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/causal_graph_kuzu.py",
+            "sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+            "git_blob": "c1a747fc46e8e6e8e185b8f357480d472a0373e1",
+            "bytes": 8209,
+            "sha256": "36f5b22b3832eddcda65346a09814a3e52db57d0cbf8f32dac357040627cd6c0"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+            "sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+            "git_blob": "b60260eb81d537ddcf75d4a0e4c61c372a5aa968",
+            "bytes": 40707,
+            "sha256": "7ce7e791e0ae6390fcf2c33a09667b4d539a549b373ab7932d929b206b87e738"
+          },
+          {
+            "path": "policy-engine/tests/unit/ir/test_causal_graph_cache_rows.py",
+            "sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+            "git_blob": "46fc62eb211a1cd47922450a195c0d55a2ff005f",
+            "bytes": 4320,
+            "sha256": "3a060e7207d024f11e6c98353524d22ccb63f1e10c81a63d1b5d1ecc96ce480b"
+          },
+          {
+            "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py",
+            "sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+            "git_blob": "257bf3503976b9584a684854dcb82d468105220e",
+            "bytes": 8512,
+            "sha256": "f52b445544f858a5fee857cf3fdea8a4806759b3f98ea81876c6bd59a167e664"
+          }
+        ],
+        "stdout": {
+          "path": "/workspace/e02-F-20261006-receipts/graph/b220/row_isolation.stdout.txt",
+          "bytes": 3447,
+          "sha256": "449fb3d369934c00556c3b09f57d089035767af6c1c0f8230d4fb8c72f234935"
+        },
+        "stderr": {
+          "path": "/workspace/e02-F-20261006-receipts/graph/b220/row_isolation.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "receipt": {
+        "path": "/workspace/e02-F-20261006-receipts/graph/b220/row_isolation.json",
+        "sha256": "c59f5a34ec229e087a930062617aabda7bb8c5c13e981afca8d0221a4aad6aa3",
+        "bytes": 2902
+      }
+    },
+    {
+      "name": "nested_freeze",
+      "recorded_execution": {
+        "schema": "policyos.e02.execution.v1",
+        "command": [
+          "/workspace/e02-F-graph-env/bin/python",
+          "/workspace/e02-F-20261006-receipts/graph/b220/removal-replayer.py",
+          "nested_freeze"
+        ],
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "target_sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+        "target_tree_sha": "c13b8953adedd15f0db735aec1e39860a92e7dc4",
+        "observed_utc": "2026-10-06T12:27:57.425990+00:00",
+        "environment": {
+          "PYTHONPATH": "src:.:/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages",
+          "interpreter": "/workspace/e02-F-graph-env/bin/python"
+        },
+        "input_closure": "Known synthetic two-node/DAG/finite latent graph fixtures and actual native providers; no production data or live Kuzu engine.",
+        "exit_code": 1,
+        "wall_time_s": 9.5243690010102,
+        "max_child_rss_kib": 606380,
+        "source_bindings": [
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+            "sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+            "git_blob": "342d416961ec817441574253320a9054c00d969e",
+            "bytes": 20746,
+            "sha256": "b8cc85501f67668b61b6265abe7970026b5124dd9c2204205251697988bfb5cc"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/causal_graph_kuzu.py",
+            "sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+            "git_blob": "c1a747fc46e8e6e8e185b8f357480d472a0373e1",
+            "bytes": 8209,
+            "sha256": "36f5b22b3832eddcda65346a09814a3e52db57d0cbf8f32dac357040627cd6c0"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+            "sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+            "git_blob": "b60260eb81d537ddcf75d4a0e4c61c372a5aa968",
+            "bytes": 40707,
+            "sha256": "7ce7e791e0ae6390fcf2c33a09667b4d539a549b373ab7932d929b206b87e738"
+          },
+          {
+            "path": "policy-engine/tests/unit/ir/test_causal_graph_cache_rows.py",
+            "sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+            "git_blob": "46fc62eb211a1cd47922450a195c0d55a2ff005f",
+            "bytes": 4320,
+            "sha256": "3a060e7207d024f11e6c98353524d22ccb63f1e10c81a63d1b5d1ecc96ce480b"
+          },
+          {
+            "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py",
+            "sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+            "git_blob": "257bf3503976b9584a684854dcb82d468105220e",
+            "bytes": 8512,
+            "sha256": "f52b445544f858a5fee857cf3fdea8a4806759b3f98ea81876c6bd59a167e664"
+          }
+        ],
+        "stdout": {
+          "path": "/workspace/e02-F-20261006-receipts/graph/b220/nested_freeze.stdout.txt",
+          "bytes": 3373,
+          "sha256": "f490c1fa6b437dfb2d1c759e4df48c0ec9cc8cb1bcbb3bb54f47a8f20ad689cf"
+        },
+        "stderr": {
+          "path": "/workspace/e02-F-20261006-receipts/graph/b220/nested_freeze.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "receipt": {
+        "path": "/workspace/e02-F-20261006-receipts/graph/b220/nested_freeze.json",
+        "sha256": "a66cf16fad9b152e4b092315fe9301bdda2a12b43c4c6587066ce646514098a2",
+        "bytes": 2900
+      }
+    },
+    {
+      "name": "weakref_cleanup",
+      "recorded_execution": {
+        "schema": "policyos.e02.execution.v1",
+        "command": [
+          "/workspace/e02-F-graph-env/bin/python",
+          "/workspace/e02-F-20261006-receipts/graph/b220/removal-replayer.py",
+          "weakref_cleanup"
+        ],
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "target_sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+        "target_tree_sha": "c13b8953adedd15f0db735aec1e39860a92e7dc4",
+        "observed_utc": "2026-10-06T12:27:57.421836+00:00",
+        "environment": {
+          "PYTHONPATH": "src:.:/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages",
+          "interpreter": "/workspace/e02-F-graph-env/bin/python"
+        },
+        "input_closure": "Known synthetic two-node/DAG/finite latent graph fixtures and actual native providers; no production data or live Kuzu engine.",
+        "exit_code": 1,
+        "wall_time_s": 10.499918005007203,
+        "max_child_rss_kib": 606652,
+        "source_bindings": [
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+            "sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+            "git_blob": "342d416961ec817441574253320a9054c00d969e",
+            "bytes": 20746,
+            "sha256": "b8cc85501f67668b61b6265abe7970026b5124dd9c2204205251697988bfb5cc"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/causal_graph_kuzu.py",
+            "sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+            "git_blob": "c1a747fc46e8e6e8e185b8f357480d472a0373e1",
+            "bytes": 8209,
+            "sha256": "36f5b22b3832eddcda65346a09814a3e52db57d0cbf8f32dac357040627cd6c0"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+            "sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+            "git_blob": "b60260eb81d537ddcf75d4a0e4c61c372a5aa968",
+            "bytes": 40707,
+            "sha256": "7ce7e791e0ae6390fcf2c33a09667b4d539a549b373ab7932d929b206b87e738"
+          },
+          {
+            "path": "policy-engine/tests/unit/ir/test_causal_graph_cache_rows.py",
+            "sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+            "git_blob": "46fc62eb211a1cd47922450a195c0d55a2ff005f",
+            "bytes": 4320,
+            "sha256": "3a060e7207d024f11e6c98353524d22ccb63f1e10c81a63d1b5d1ecc96ce480b"
+          },
+          {
+            "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py",
+            "sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+            "git_blob": "257bf3503976b9584a684854dcb82d468105220e",
+            "bytes": 8512,
+            "sha256": "f52b445544f858a5fee857cf3fdea8a4806759b3f98ea81876c6bd59a167e664"
+          }
+        ],
+        "stdout": {
+          "path": "/workspace/e02-F-20261006-receipts/graph/b220/weakref_cleanup.stdout.txt",
+          "bytes": 2438,
+          "sha256": "d836302c215c1567dfa97fb9eb1c219d35ec5c7993fa142e3d1c9cfa8515e56a"
+        },
+        "stderr": {
+          "path": "/workspace/e02-F-20261006-receipts/graph/b220/weakref_cleanup.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "receipt": {
+        "path": "/workspace/e02-F-20261006-receipts/graph/b220/weakref_cleanup.json",
+        "sha256": "aa85779ecd198140f85b27e631946ffb5acae01e90dd0700a4ff1197cc96e933",
+        "bytes": 2909
+      }
+    }
+  ],
+  "prior_defect": {
+    "schema": "policyos.e02.execution.v1",
+    "command": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "-"
+    ],
+    "stdin_replayer": {
+      "path": "/workspace/e02-F-20261006-receipts/graph/b220/original-row-mutation.py",
+      "bytes": 1109,
+      "sha256": "77b77ba99f8ecf0cf7680c242abf0504f98ba038fc03cf8d19a31b934f60621f"
+    },
+    "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+    "target_sha": "a0a050d24c137b4893a7b52b2f83ea710da46471",
+    "candidate_scientific_source_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+    "environment": {
+      "PYTHONPATH": "src:.",
+      "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "python_version": "3.14.7"
+    },
+    "exit_code": 1,
+    "outcome": "FAIL",
+    "property": "Caller mutation of returned cached graph row must not change later export relative to graph dump/cold graph",
+    "input_closure": "Known synthetic X→Y graph; actual nativeprovider and cachedrow reader; live KuzuDB UNRUN",
+    "P40": "same topology/cache mutation class one level deeper in returned derived rows",
+    "P41": "not_established; no inherited claim",
+    "source_binding": {
+      "sha": "a0a050d24c137b4893a7b52b2f83ea710da46471",
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "git_blob": "8787cd95d63b342b5d9f5e760ffc8d73b1b8985d",
+      "bytes": 20114,
+      "sha256": "121f33acc4b5bbc0541b3bb5cc331c3e77d9a3f2e684359af58211e56f44e1a1"
+    },
+    "full_outputs": [
+      {
+        "path": "/workspace/e02-F-20261006-receipts/graph/b220/original-row-mutation.stdout.txt",
+        "bytes": 1933,
+        "sha256": "17bae615a9d84e8c97676ae6fe26075632e06dfffc038deb929f3948aa46679e"
+      },
+      {
+        "path": "/workspace/e02-F-20261006-receipts/graph/b220/original-row-mutation.stderr.txt",
+        "bytes": 164,
+        "sha256": "99c8516f1b76d8cd8186bbe58ee780e17780b1d23f67dce57bd40c55fffe5bf1"
+      }
+    ]
+  },
+  "limits": [
+    "Finite original generic graph/cache/reader predicate; no real-data identification or production authority.",
+    "Live Kuzu/Rustworkx execution remains UNRUN; supported actual NetworkX property is separate graph-native witness.",
+    "Full repository release/architecture not rerun by this narrow review; EMP01 red remains source-owning author explicit diagnostic, P41not_established."
+  ],
+  "harness_navigation_errors": [
+    "One initial gitdiff attempted without repository cwd returned usage129; corrected exact Git213/e2c diff read with repo cwd.",
+    "Two rg navigation calls included nonexistent guessed fragment/config path; discovery corrected through actual tracked paths. These are navigation errors, not methodological/product outcomes."
+  ],
+  "full_companions": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/native.json",
+      "sha256": "dd4e33acc03eed2ac86f8cf7bbadcd3357cde566714014d85ff75d9c32417a8a",
+      "bytes": 3271
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/native.stdout.txt",
+      "sha256": "d94ab6df5e6aa37ef461d3e4f363678efdfda7a118750c7980e9964d1b02d7f6",
+      "bytes": 619
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/native.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/environment.json",
+      "sha256": "967356901ebd99c172aaab91cbf00c41f7e4df59ff1282afc2ab8ae3b57dec27",
+      "bytes": 1292
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/test_b220_independent.py",
+      "sha256": "10e8ddd855f765ca7023bc9689c672024ccd139eafabad172a41bcf41e99832f",
+      "bytes": 4167
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/execute_review.py",
+      "sha256": "f77858637af74c187218698d006504870d25f3e33e0d77ac7bd27a32b8db733d",
+      "bytes": 3020
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/validate_release.py",
+      "sha256": "a145a85fe252ffb0bd1cc158507ffbe50506562c7df88d46aa521339f4caead9",
+      "bytes": 2248
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/release-validation.json",
+      "sha256": "4eb5b200b64b5d83ef2e1b5cfccba43c419ed54f1fcc6026b87d87ac57c09ee4",
+      "bytes": 852
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/release-validation.stdout.txt",
+      "sha256": "4eb5b200b64b5d83ef2e1b5cfccba43c419ed54f1fcc6026b87d87ac57c09ee4",
+      "bytes": 852
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/release-validation.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/release-rendered.md",
+      "sha256": "94b5969cd8b1086f0336cd3546d1274502a38b7911bd6fa156b1907a9a5c225e",
+      "bytes": 977
+    }
+  ]
+}

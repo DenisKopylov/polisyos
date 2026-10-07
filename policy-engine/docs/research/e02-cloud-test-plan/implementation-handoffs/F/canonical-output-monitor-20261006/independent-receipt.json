@@ -1,0 +1,27 @@
+{
+  "source": "ec6944c8c5b4807f291c96919309472de60de127",
+  "tree": "e7474ad799ce0c0e754e54ef35b05653c414477d",
+  "reviewer": "root, independent of author foundry",
+  "cmd": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "cache_dir=/tmp/e02-F-continuation-20261006/root-review-monitor/pytest-cache",
+    "tests/unit/foundry/methods/backends/test_dispatch_output_contract.py",
+    "tests/unit/foundry/methods/lifecycle/test_output_monitor.py"
+  ],
+  "exit_code": 4,
+  "wall_seconds": 2.0145646699966164,
+  "outputs": {
+    "stdout": {
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    "stderr": {
+      "bytes": 97,
+      "sha256": "a1ee01a615bdddb547e9581551fde3d195ae905ac1f379daed068e1fc70015fd"
+    }
+  }
+}

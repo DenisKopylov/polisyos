@@ -1,0 +1,6 @@
+{
+  "encoding": "utf8-json-string",
+  "raw_stdout_or_stderr": "2026-10-06 10:59:50 [info     ] method_registered              backend=numpy fqn=causal.prior.reconcile_causal_graph@1.0.0 lazy=False namespace=causal.prior override=True tags=['causal', 'estimation', 'prior', 'reconciliation', 'structural'] version=1.0.0\n2026-10-06 10:59:50 [debug    ] method_dispatch_start          backend=numpy fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend\n2026-10-06 10:59:50 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=23.57 fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend\n",
+  "raw_sha256": "e5f1a1576576d429267e83614abcf61ae8b44c82c5d413bd97fdb2029e5d676c",
+  "raw_bytes": 689
+}

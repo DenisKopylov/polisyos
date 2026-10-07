@@ -59,7 +59,7 @@ def test_hybrid_scm_fit_assigns_all_mechanism_sources(monkeypatch) -> None:
         },
     )
 
-    result = HybridSCMFit.pure_step(payload, params={})
+    result = HybridSCMFit.pure_step(payload, params={"fit_backend": "native_hybrid"})
     scm_spec = result["scm_spec"]
     mechanisms = {item.variable: item for item in scm_spec.mechanisms}
 
@@ -73,7 +73,7 @@ def test_hybrid_scm_fit_assigns_all_mechanism_sources(monkeypatch) -> None:
     assert "posterior_std" in mechanisms["C"].family_params
     assert mechanisms["C"].literature_prior is not None
     assert mechanisms["C"].literature_prior["B"]["mean"] == 0.8
-    assert scm_spec.fit_method == "hybrid"
+    assert scm_spec.fit_method == "native_hybrid"
     assert scm_spec.fit_metrics["dowhy_available"] == 0.0
     assert result["warnings"]
 
@@ -109,7 +109,7 @@ def test_hybrid_scm_fit_marks_hybrid_fallback_for_invalid_prior(monkeypatch) -> 
         },
     )
 
-    result = HybridSCMFit.pure_step(payload, params={})
+    result = HybridSCMFit.pure_step(payload, params={"fit_backend": "native_hybrid"})
     mechanism_y = next(item for item in result["scm_spec"].mechanisms if item.variable == "Y")
     assert mechanism_y.source is MechanismSource.HYBRID
     assert mechanism_y.family in {MechanismFamily.ADDITIVE_NOISE, MechanismFamily.EMPIRICAL}
@@ -141,7 +141,7 @@ def test_hybrid_scm_fit_pag_u_node_does_not_crash_and_sets_sensitivity(monkeypat
         graph=graph,
     )
 
-    result = HybridSCMFit.pure_step(payload, params={"latent_sensitivity_threshold": 0.3})
+    result = HybridSCMFit.pure_step(payload, params={"fit_backend": "native_hybrid", "latent_sensitivity_threshold": 0.3})
     scm_spec = result["scm_spec"]
     assert result["latent_vars"] == ["U_0"]
     assert scm_spec.graph.graph_type is GraphType.DAG

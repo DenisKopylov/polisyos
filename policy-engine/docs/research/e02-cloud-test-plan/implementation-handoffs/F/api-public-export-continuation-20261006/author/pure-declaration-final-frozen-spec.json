@@ -1,0 +1,23 @@
+{
+  "source_root": "/workspace/e02-F-api-20261006",
+  "target_sha": "35b1808c63fa84dd0555ff9043e0aaffe9831e7b",
+  "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:tools:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+    "tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py",
+    "-q",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/api/pure-declaration-final-frozen"
+}

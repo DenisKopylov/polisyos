@@ -1,0 +1,498 @@
+diff --git a/policy-engine/docs/reference/foundry/causal-neighbor-fixtures.md b/policy-engine/docs/reference/foundry/causal-neighbor-fixtures.md
+new file mode 100644
+index 000000000..613c363ae
+--- /dev/null
++++ b/policy-engine/docs/reference/foundry/causal-neighbor-fixtures.md
+@@ -0,0 +1,55 @@
++# Static graph consumer fixtures
++
++These tests exercise finite supported static graphs through the maintained
++SID, conditional-ID, AMN and estimand compiler consumers. They do not change
++the graph algorithms, IR versions or public exports.
++
++## A latent bow and an observed collider are different graphs
++
++The bow has two observed nodes and both relations `X→Y` and `X↔Y`. Its latent
++expansion adds a hidden parent of X and Y. SID and conditional-ID must return
++a hedge for this example, with the native hedge certificate and proof step.
++
++The former fixture instead encoded `X↔U↔Y` and `X→Y`, making U an observed
++collider. After removing the outgoing effect of X, that path is closed without
++conditions and open when U is conditioned. This graph remains a separate
++identified positive control; it is not renamed into a hidden common cause.
++
++An independent nonidentification example uses independent standard Gaussian
++U and E, `X=U`, and `Y=βX+γU+E`. The pairs `(β,γ)=(1/2,1/2)` and
++`(3/2,−1/2)` have identical, nonsingular observed covariance
++`[[1,1],[1,2]]`, while `E[Y|do(X=1)]` equals 1/2 and 3/2 respectively.
++Both structural coefficients are nonzero. Observational data cannot determine
++which intervention law holds in this bow.
++
++## AMN separation uses disjoint query sets
++
++The cross-world fixture uses a shared `U→X→Y` chain with no direct `U→Y`
++edge. The maintained AMN builder also adds the bidirected X bridge between
++worlds. `X__w0` and `Y__w1` are dependent without conditions and separated
++given `X__w1`. That condition is distinct from both queried endpoints.
++
++The reference expands the bridge into its own latent common cause and uses
++ancestral moralization. A separate Gaussian realization gives
++`Cov(X0,Y1|X1)=2−2·3/3=0`. This checks the derived graph's separation law;
++it does not identify the builder's numeric counterfactual or intervention SEM.
++Fork, collider and conditioned-descendant cases supply opposite controls.
++The former query conditioned on its own Y endpoint and remains an explicit
++false result outside the supported disjoint-query domain.
++
++## Compiler fixtures must execute the pre-pass
++
++The compiler fixture constructs typed `CausalEdge` objects directly. The graph
++is `T→Y` with isolated Z, and the adjustment AST is
++`Σ_Z P(Y|T,Z)P(Z)`. Rule 1 therefore removes Z from the outcome factor before
++compilation. The tests observe the real rewriter, its changed AST and the exact
++proof transferred into the ExecutorGraph, including the ordering before an
++existing manual proof. Constructor errors fail the test rather than turning
++into backend-unavailable skips.
++
++The pre-pass removal control keeps the callable and graph/AST markers but
++returns the unchanged AST and no steps. The consumer test must fail. The
++historical three failed fixtures and two constructor-induced skips remain in
++the receipt as original observations, not passing results or an inherited-red
++claim. These checks do not establish general ID completeness, arbitrary
++PAG/CPDAG support or causal authority on admitted real data.
+diff --git a/policy-engine/release-fragments/unreleased/2026-10-06-causal-neighbor-fixtures.toml b/policy-engine/release-fragments/unreleased/2026-10-06-causal-neighbor-fixtures.toml
+new file mode 100644
+index 000000000..ca4f82a9b
+--- /dev/null
++++ b/policy-engine/release-fragments/unreleased/2026-10-06-causal-neighbor-fixtures.toml
+@@ -0,0 +1,28 @@
++id = "2026-10-06-causal-neighbor-fixtures"
++title = "Exercise supported graph consumers with intended typed fixtures"
++type = "fixed"
++component = "foundry"
++owner = "team-foundry"
++summary = "Replace malformed bow and endpoint-conditioning fixtures, and execute the compiler's real Rule 1 pre-pass instead of skipping invalid graph construction."
++change_class = "internal"
++surface_classification = "internal: causal consumer regression fixtures"
++compatibility = "Production graph algorithms, public exports, IR schemas and persisted formats are unchanged."
++migration = "Use a two-observed-node bow for latent confounding, disjoint separation query sets and typed CausalEdge construction in tests."
++limitations = "Finite native consumer checks do not establish general ID/PAG completeness or identified real-data effects; historical FAIL/SKIP outputs remain preserved."
++generated_client_compatibility = "not_applicable"
++migration_docs = ["docs/reference/foundry/causal-neighbor-fixtures.md"]
++runbook_docs = ["docs/reference/foundry/causal-neighbor-fixtures.md"]
++evidence = ["tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py", "tests/unit/foundry/methods/catalog/causal/test_twin_amn_graph.py", "tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py"]
++
++[[compatibility_change]]
++id = "causal-neighbor-fixtures"
++change_class = "internal"
++impact = "compatible"
++surface = "internal: graph consumer tests"
++owner = "team-foundry"
++version_owner = "team-foundry"
++deprecation_window = "not_applicable: test fixture correction"
++release_note = "Graph consumer tests distinguish a latent bow from an observed collider, use disjoint AMN queries, and assert real compiler rewriting and proof transfer."
++generated_client_compatibility = "not_applicable"
++migration_docs = ["docs/reference/foundry/causal-neighbor-fixtures.md"]
++runbook_docs = ["docs/reference/foundry/causal-neighbor-fixtures.md"]
+diff --git a/policy-engine/tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py b/policy-engine/tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py
+index 3a29db810..d7bc61526 100644
+--- a/policy-engine/tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py
++++ b/policy-engine/tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py
+@@ -7,14 +7,9 @@ Verifies that compile_estimand:
+ - Simplified AST after pre-pass may change EstimandShape classification
+ """
+ 
+-import os
+-import sys
+-
+-import pytest
+-
+-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../../../src"))
+-
++from polisyos.foundry.methods.catalog.causal import do_calculus
+ from polisyos.foundry.methods.catalog.causal.estimand_compiler import compile_estimand
++from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
+ from polisyos.ir.analytics.estimand import (
+     DistributionDomain,
+     DistributionRef,
+@@ -46,18 +41,13 @@ def _make_simple_ast() -> EstimandAST:
+     )
+ 
+ 
+-def _make_causal_graph():
+-    """Build a minimal CausalGraphModel T → Y ← Z."""
+-    try:
+-        from polisyos.ir.analytics.causal_graph import CausalGraphModel
+-
+-        return CausalGraphModel(
+-            nodes=["T", "Y", "Z"],
+-            edges=[("T", "Y"), ("Z", "Y"), ("Z", "T")],
+-            schema_version="1.0",
+-        )
+-    except Exception:
+-        return None
++def _make_causal_graph() -> CausalGraphModel:
++    """T→Y and isolated Z: P(Y|T,Z)=P(Y|T) by Rule 1."""
++    return CausalGraphModel(
++        graph_type=GraphType.DAG,
++        nodes=["T", "Y", "Z"],
++        edges=[CausalEdge(src="T", dst="Y")],
++    )
+ 
+ 
+ class TestDoCalculusPrePass:
+@@ -68,14 +58,29 @@ class TestDoCalculusPrePass:
+         assert graph is not None
+         assert len(graph.nodes) >= 1
+ 
+-    def test_with_graph_does_not_raise(self):
+-        """compile_estimand with a valid CausalGraphModel should not raise."""
++    def test_with_graph_does_not_raise(self, monkeypatch):
++        """The real rewrite is consumed before the executor is compiled."""
+         ast = _make_simple_ast()
+         g = _make_causal_graph()
+-        if g is None:
+-            pytest.skip("CausalGraphModel not available")
+-        rec, graph = compile_estimand(ast, run_id="r2", n_obs=200, causal_graph=g)
+-        assert graph is not None
++        calls = []
++        original_rewrite = do_calculus.rewrite_estimand
++
++        def observe_actual_rewrite(input_ast, input_graph):
++            rewritten, steps = original_rewrite(input_ast, input_graph)
++            calls.append((input_ast, input_graph, rewritten, steps))
++            return rewritten, steps
++
++        monkeypatch.setattr(do_calculus, "rewrite_estimand", observe_actual_rewrite)
++        _, graph = compile_estimand(ast, run_id="r2", n_obs=200, causal_graph=g)
++        assert len(calls) == 1
++        input_ast, input_graph, rewritten, steps = calls[0]
++        assert input_ast is ast and input_graph is g
++        assert rewritten.root.operand.factors[0].conditioning == ("T",)
++        assert ast.root.operand.factors[0].conditioning == ("T", "Z")
++        assert [step.rule_name for step in steps] == ["RULE1"]
++        assert steps[0].variables_affected == ("Z",)
++        assert graph.proof_steps == tuple(steps)
++        assert graph.nodes
+ 
+     def test_graph_none_preserves_existing_proof_steps(self):
+         """Existing proof_steps are preserved when causal_graph=None."""
+@@ -97,8 +102,9 @@ class TestDoCalculusPrePass:
+ 
+         ast = _make_simple_ast()
+         g = _make_causal_graph()
+-        if g is None:
+-            pytest.skip("CausalGraphModel not available")
++        rewritten, dc_steps = do_calculus.rewrite_estimand(ast, g)
++        assert rewritten.root.operand.factors[0].conditioning == ("T",)
++        assert [step.rule_name for step in dc_steps] == ["RULE1"]
+         manual_ps = ProofStep(
+             rule_name="MANUAL",
+             description="manually added",
+@@ -112,8 +118,8 @@ class TestDoCalculusPrePass:
+             causal_graph=g,
+             proof_steps=(manual_ps,),
+         )
+-        # Manual step should be present
+-        assert any(s.rule_name == "MANUAL" for s in graph.proof_steps)
++        assert graph.proof_steps == (*dc_steps, manual_ps)
++        assert [step.rule_name for step in graph.proof_steps] == ["RULE1", "MANUAL"]
+ 
+     def test_invalid_graph_falls_through_gracefully(self):
+         """A broken/incompatible graph object should not raise — pre-pass skipped."""
+diff --git a/policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py b/policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py
+index 3267f315b..17e1a78b7 100644
+--- a/policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py
++++ b/policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py
+@@ -13,6 +13,7 @@ Tests cover:
+ from __future__ import annotations
+ 
+ import dataclasses
++from fractions import Fraction
+ 
+ import pytest
+ 
+@@ -103,6 +104,18 @@ def make_confounded_graph(
+     )
+ 
+ 
++def _bow_graph() -> CausalGraphModel:
++    """Two observed nodes; the hidden common cause is represented by X↔Y."""
++    return CausalGraphModel(
++        graph_type=GraphType.ADMG,
++        nodes=["X", "Y"],
++        edges=[
++            CausalEdge(src="X", dst="Y"),
++            CausalEdge(src="X", dst="Y", mark_src=EdgeMark.ARROW),
++        ],
++    )
++
++
+ # ---------------------------------------------------------------------------
+ # TestProofStepDataclass
+ # ---------------------------------------------------------------------------
+@@ -1080,9 +1093,8 @@ class TestSIDAlgorithm:
+         from polisyos.ir.analytics.estimand import StochasticPolicy
+ 
+         # Bow-arc graph: X ← U → Y with X → Y, U unobserved — non-identifiable
+-        edges = [("X", "Y")]
+-        hidden = [("U", "X"), ("U", "Y")]
+-        graph = make_confounded_graph(edges, hidden)
++        # The observed ADMG is the latent projection of U→X, U→Y, X→Y.
++        graph = _bow_graph()
+         policy = StochasticPolicy(policy_type="soft")
+         result = sid_algorithm(
+             treatment=frozenset({"X"}),
+@@ -1090,7 +1102,66 @@ class TestSIDAlgorithm:
+             graph=graph,
+             policy=policy,
+         )
+-        assert result.status != IdentificationStatus.IDENTIFIED
++        assert result.status == IdentificationStatus.HEDGE_FOUND
++        assert result.hedge_certificate is not None
++        assert [step.rule_name for step in result.proof_steps] == ["HEDGE"]
++
++    @pytest.mark.parametrize("conditional", [False, True], ids=["SID", "conditional-ID"])
++    def test_observed_u_collider_is_not_a_latent_bow(self, conditional):
++        """Old fixture: X↔U↔Y, X→Y has observed collider U, not hidden U→X,Y."""
++        from polisyos.foundry.methods.catalog.causal.admg_ops import (
++            m_separation,
++            remove_outgoing_edges,
++        )
++        from polisyos.foundry.methods.catalog.causal.id_engine import (
++            conditional_intervention_id,
++            sid_algorithm,
++        )
++        from polisyos.ir.analytics.estimand import StochasticPolicy
++
++        graph = make_confounded_graph([("X", "Y")], [("U", "X"), ("U", "Y")])
++        without_effect = remove_outgoing_edges(graph, frozenset({"X"}))
++        # Latent expansion L1→X,U; L2→Y,U: U is the collider on the backdoor path.
++        assert m_separation(without_effect, frozenset({"X"}), frozenset({"Y"}), frozenset())
++        assert not m_separation(
++            without_effect, frozenset({"X"}), frozenset({"Y"}), frozenset({"U"})
++        )
++        if conditional:
++            result = conditional_intervention_id(
++                treatment=frozenset({"X"}),
++                outcome=frozenset({"Y"}),
++                condition_vars=frozenset(),
++                graph=graph,
++            )
++        else:
++            result = sid_algorithm(
++                treatment=frozenset({"X"}),
++                outcome=frozenset({"Y"}),
++                graph=graph,
++                policy=StochasticPolicy(policy_type="soft"),
++            )
++        assert result.status == IdentificationStatus.IDENTIFIED
++        assert result.estimand_ast is not None
++        assert result.hedge_certificate is None
++
++    def test_bow_has_same_observed_law_with_distinct_do_laws(self):
++        """Independent Gaussian SCM pair disproves identification for this bow."""
++        # U,E iid N(0,1); X=U; Y=beta*X+gamma*U+E. Both structural edges
++        # have nonzero coefficients. The full-support observed law is identical;
++        # after replacing X with do(X=1), E[Y]=beta differs.
++        models = [(Fraction(1, 2), Fraction(1, 2)), (Fraction(3, 2), Fraction(-1, 2))]
++        observed_covariances = []
++        intervention_means = []
++        for beta, gamma in models:
++            assert beta != 0 and gamma != 0
++            observed_loading = beta + gamma
++            observed_covariances.append(
++                ((1, observed_loading), (observed_loading, observed_loading**2 + 1))
++            )
++            intervention_means.append(beta)
++        assert observed_covariances == [((1, 1), (1, 2)), ((1, 1), (1, 2))]
++        assert observed_covariances[0][0][0] * observed_covariances[0][1][1] - 1 == 1
++        assert intervention_means == [Fraction(1, 2), Fraction(3, 2)]
+ 
+     def test_sid_result_has_version_tag(self):
+         """sid_algorithm result metadata must include 'phase5_sid'."""
+@@ -1154,16 +1225,17 @@ class TestSIDAlgorithm:
+         """conditional_intervention_id with unidentifiable base → non-ID result."""
+         from polisyos.foundry.methods.catalog.causal.id_engine import conditional_intervention_id
+ 
+-        edges = [("X", "Y")]
+-        hidden = [("U", "X"), ("U", "Y")]
+-        graph = make_confounded_graph(edges, hidden)
++        # The observed ADMG is the latent projection of U→X, U→Y, X→Y.
++        graph = _bow_graph()
+         result = conditional_intervention_id(
+             treatment=frozenset({"X"}),
+             outcome=frozenset({"Y"}),
+             condition_vars=frozenset(),
+             graph=graph,
+         )
+-        assert result.status != IdentificationStatus.IDENTIFIED
++        assert result.status == IdentificationStatus.HEDGE_FOUND
++        assert result.hedge_certificate is not None
++        assert [step.rule_name for step in result.proof_steps] == ["HEDGE"]
+ 
+     def test_dynamic_intervention_two_periods(self):
+         """dynamic_intervention_id on 2-period sequential DAG → IDENTIFIED."""
+diff --git a/policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_amn_graph.py b/policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_amn_graph.py
+index b144a9d32..213b0313e 100644
+--- a/policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_amn_graph.py
++++ b/policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_amn_graph.py
+@@ -1,6 +1,10 @@
+ from __future__ import annotations
+ 
+ import json
++from fractions import Fraction
++from itertools import combinations
++
++import pytest
+ 
+ from polisyos.foundry.methods.catalog.causal.amn import AMNMetadata, amn_d_separation, build_amn
+ from polisyos.foundry.methods.catalog.causal.twin_graph import (
+@@ -63,22 +67,52 @@ def test_build_amn_with_three_worlds() -> None:
+ 
+ 
+ def test_amn_cross_world_separation() -> None:
+-    interventions = {"w0": {"X": 0.0}, "w1": {"X": 1.0}}
+-    amn_graph, meta = build_amn(_base_admg(), interventions)
+-    assert not amn_d_separation(
+-        amn_graph,
+-        meta,
+-        x_set=frozenset({"X__w0"}),
+-        y_set=frozenset({"X__w1"}),
+-        z_set=frozenset(),
+-    )
+-    assert amn_d_separation(
+-        amn_graph,
+-        meta,
+-        x_set=frozenset({"X__w0"}),
+-        y_set=frozenset({"X__w1"}),
+-        z_set=frozenset({"X__w1"}),
++    # Shared U→X→Y, without a direct U→Y path: X0 and Y1 separate given X1.
++    source = CausalGraphModel(
++        graph_type=GraphType.ADMG,
++        nodes=["U_shared", "X", "Y"],
++        edges=[CausalEdge(src="U_shared", dst="X"), CausalEdge(src="X", dst="Y")],
++        metadata={"shared_exogenous": ["U_shared"]},
+     )
++    amn_graph, meta = build_amn(source, {"w0": {"X": 0.0}, "w1": {"X": 1.0}})
++    expected_edges = {
++        ("U_shared", "X__w0", EdgeMark.TAIL, EdgeMark.ARROW),
++        ("X__w0", "Y__w0", EdgeMark.TAIL, EdgeMark.ARROW),
++        ("U_shared", "X__w1", EdgeMark.TAIL, EdgeMark.ARROW),
++        ("X__w1", "Y__w1", EdgeMark.TAIL, EdgeMark.ARROW),
++        ("X__w0", "X__w1", EdgeMark.ARROW, EdgeMark.ARROW),
++    }
++    assert {(e.src, e.dst, e.mark_src, e.mark_dst) for e in amn_graph.edges} == expected_edges
++    # Expand the single bridge into its own hidden common cause B.
++    latent_edges = [
++        ("U_shared", "X__w0"),
++        ("X__w0", "Y__w0"),
++        ("U_shared", "X__w1"),
++        ("X__w1", "Y__w1"),
++        ("B", "X__w0"),
++        ("B", "X__w1"),
++    ]
++    for condition, separated in [(frozenset(), False), (frozenset({"X__w1"}), True)]:
++        expected = _latent_dag_separated(latent_edges, "X__w0", "Y__w1", condition)
++        assert expected == separated
++        assert (
++            amn_d_separation(amn_graph, meta, frozenset({"X__w0"}), frozenset({"Y__w1"}), condition)
++            == expected
++        )
++    # Independent unit-Gaussian realization of this derived graph:
++    # X0=U+B+E0; X1=U+B+E1; Y1=X1+E2 (all sources independent).
++    # Cov(X0,Y1|X1)=2 - 2*3/3 = 0. This is a graph oracle, not do-SEM authority.
++    x0 = (1, 1, 1, 0, 0)
++    x1 = (1, 1, 0, 1, 0)
++    y1 = (1, 1, 0, 1, 1)
++
++    def covariance(left, right):
++        return sum(Fraction(a) * Fraction(b) for a, b in zip(left, right, strict=True))
++
++    marginal = covariance(x0, y1)
++    conditional = marginal - covariance(x0, x1) * covariance(x1, y1) / covariance(x1, x1)
++    assert marginal == 2
++    assert conditional == 0
+ 
+ 
+ def test_twin_and_amn_metadata_json_roundtrip() -> None:
+@@ -100,3 +134,80 @@ def test_twin_and_amn_metadata_json_roundtrip() -> None:
+     assert restored_twin_meta.world_count == 2
+     assert restored_amn.graph_type is GraphType.ADMG
+     assert restored_amn_meta.worlds == ["w0", "w1"]
++
++
++def _latent_dag_separated(edges, x: str, y: str, conditioned: frozenset[str]) -> bool:
++    """Independent ancestral moralization, not the native endpoint walk."""
++    parents: dict[str, set[str]] = {}
++    for source, target in edges:
++        parents.setdefault(target, set()).add(source)
++    ancestors = {x, y, *conditioned}
++    pending = list(ancestors)
++    while pending:
++        for parent in parents.get(pending.pop(), set()):
++            if parent not in ancestors:
++                ancestors.add(parent)
++                pending.append(parent)
++    moral = {node: set() for node in ancestors}
++    for child in ancestors:
++        family = parents.get(child, set()) & ancestors
++        for parent in family:
++            moral[parent].add(child)
++            moral[child].add(parent)
++        for left, right in combinations(family, 2):
++            moral[left].add(right)
++            moral[right].add(left)
++    visited = set(conditioned)
++    pending = [x]
++    while pending:
++        node = pending.pop()
++        if node in visited:
++            continue
++        if node == y:
++            return False
++        visited.add(node)
++        pending.extend(moral[node] - visited)
++    return True
++
++
++def test_amn_endpoint_conditioning_is_not_disjoint_separation() -> None:
++    """Keep the old overlapping query as an unsupported-domain negative."""
++    amn_graph, meta = build_amn(_base_admg(), {"w0": {"X": 0.0}, "w1": {"X": 1.0}})
++    assert not amn_d_separation(
++        amn_graph,
++        meta,
++        x_set=frozenset({"X__w0"}),
++        y_set=frozenset({"X__w1"}),
++        z_set=frozenset({"X__w1"}),
++    )
++
++
++@pytest.mark.parametrize(
++    ("edges", "conditioned", "separated"),
++    [
++        ([("M", "X"), ("M", "Y")], (), False),
++        ([("M", "X"), ("M", "Y")], ("M",), True),
++        ([("X", "M"), ("Y", "M"), ("M", "D")], (), True),
++        ([("X", "M"), ("Y", "M"), ("M", "D")], ("M",), False),
++        ([("X", "M"), ("Y", "M"), ("M", "D")], ("D",), False),
++    ],
++    ids=["fork-open", "fork-blocked", "collider-closed", "collider-conditioned", "descendant"],
++)
++def test_amn_disjoint_fork_collider_queries_match_latent_oracle(
++    edges, conditioned, separated
++) -> None:
++    source = CausalGraphModel(
++        graph_type=GraphType.DAG,
++        nodes=["X", "M", "Y", "D"],
++        edges=[CausalEdge(src=src, dst=dst) for src, dst in edges],
++    )
++    graph, meta = build_amn(source, {"w0": {}, "w1": {}})
++    # Independent reference comes from the specified source, not native graph traversal.
++    latent_edges = [(f"{src}__w0", f"{dst}__w0") for src, dst in edges]
++    condition = frozenset(f"{node}__w0" for node in conditioned)
++    expected = _latent_dag_separated(latent_edges, "X__w0", "Y__w0", condition)
++    assert expected == separated
++    assert (
++        amn_d_separation(graph, meta, frozenset({"X__w0"}), frozenset({"Y__w0"}), condition)
++        == expected
++    )

@@ -1,0 +1,26 @@
+ImportError while loading conftest '/tmp/e02-F-continuation-20261006/economics/base-source-archive/policy-engine/tests/unit/foundry/agent_sim/conftest.py'.
+tests/unit/foundry/agent_sim/conftest.py:10: in <module>
+    from polisyos.foundry.agent_sim.state import GlobalState
+src/polisyos/foundry/agent_sim/__init__.py:84: in <module>
+    from .government_policy import (
+src/polisyos/foundry/agent_sim/government_policy.py:18: in <module>
+    from polisyos.foundry.welfare.social_weights import (
+src/polisyos/foundry/welfare/social_weights.py:10: in <module>
+    from polisyos.foundry.methods.catalog.policy.welfare import (
+src/polisyos/foundry/methods/catalog/__init__.py:133: in <module>
+    from polisyos.foundry.methods.catalog.dependency_authority import (
+src/polisyos/foundry/methods/catalog/dependency_authority.py:7157: in <module>
+    _OWNER_ENTRYPOINT_SPECS = derive_owner_entrypoint_denominator_from_source(
+src/polisyos/foundry/methods/catalog/dependency_authority.py:6119: in derive_owner_entrypoint_denominator_from_source
+    registry = load_digest_domain_registry(_DIGEST_REGISTRY_PATH)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/catalog/dependency_evidence.py:2253: in load_digest_domain_registry
+    return decode_digest_domain_registry_toml(path.read_bytes())
+                                              ^^^^^^^^^^^^^^^^^
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:777: in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:771: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/e02-F-continuation-20261006/economics/base-source-archive/policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml'

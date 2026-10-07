@@ -1,0 +1,282 @@
+[
+  {
+    "finding_id": "B54",
+    "unit": "F",
+    "docx_analytical_package": "P14",
+    "source_closure_owner": "FIT-01",
+    "source_bundle_ids": "FIT-01",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "B56",
+    "unit": "F",
+    "docx_analytical_package": "P13",
+    "source_closure_owner": "FIT-01",
+    "source_bundle_ids": "FIT-01",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "B204",
+    "unit": "F",
+    "docx_analytical_package": "P33",
+    "source_closure_owner": "CAU-01",
+    "source_bundle_ids": "CAU-01",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "B205",
+    "unit": "F",
+    "docx_analytical_package": "P33",
+    "source_closure_owner": "CAU-01",
+    "source_bundle_ids": "CAU-01",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "B206",
+    "unit": "F",
+    "docx_analytical_package": "P33",
+    "source_closure_owner": "CAU-01",
+    "source_bundle_ids": "CAU-01",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "B207",
+    "unit": "F",
+    "docx_analytical_package": "P33",
+    "source_closure_owner": "CAU-02",
+    "source_bundle_ids": "CAU-02",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "B208",
+    "unit": "F",
+    "docx_analytical_package": "P33",
+    "source_closure_owner": "CAU-02",
+    "source_bundle_ids": "CAU-02",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "B209",
+    "unit": "F",
+    "docx_analytical_package": "P33",
+    "source_closure_owner": "CAU-02",
+    "source_bundle_ids": "CAU-02",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "B210",
+    "unit": "F",
+    "docx_analytical_package": "P33",
+    "source_closure_owner": "CAU-03",
+    "source_bundle_ids": "CAU-03",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "B211",
+    "unit": "F",
+    "docx_analytical_package": "P33",
+    "source_closure_owner": "CAU-03",
+    "source_bundle_ids": "CAU-03",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "B212",
+    "unit": "F",
+    "docx_analytical_package": "P33",
+    "source_closure_owner": "CAU-04",
+    "source_bundle_ids": "CAU-04",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "B213",
+    "unit": "F",
+    "docx_analytical_package": "P33",
+    "source_closure_owner": "CAU-04",
+    "source_bundle_ids": "CAU-04",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "B214",
+    "unit": "F",
+    "docx_analytical_package": "P34",
+    "source_closure_owner": "GRF-03",
+    "source_bundle_ids": "GRF-03",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "B215",
+    "unit": "F",
+    "docx_analytical_package": "P35",
+    "source_closure_owner": "SCM-02",
+    "source_bundle_ids": "SCM-02",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "B216",
+    "unit": "F",
+    "docx_analytical_package": "P34",
+    "source_closure_owner": "GRF-01",
+    "source_bundle_ids": "GRF-01",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "B217",
+    "unit": "F",
+    "docx_analytical_package": "P34",
+    "source_closure_owner": "GRF-01",
+    "source_bundle_ids": "GRF-01",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "B218",
+    "unit": "F",
+    "docx_analytical_package": "P34",
+    "source_closure_owner": "GRF-03",
+    "source_bundle_ids": "GRF-03",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "B219",
+    "unit": "F",
+    "docx_analytical_package": "P34",
+    "source_closure_owner": "GRF-02",
+    "source_bundle_ids": "GRF-02",
+    "source_status": "held"
+  },
+  {
+    "finding_id": "B220",
+    "unit": "F",
+    "docx_analytical_package": "P34",
+    "source_closure_owner": "GRF-02",
+    "source_bundle_ids": "GRF-02",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "B221",
+    "unit": "F",
+    "docx_analytical_package": "P35",
+    "source_closure_owner": "SCM-01",
+    "source_bundle_ids": "SCM-01",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "B222",
+    "unit": "F",
+    "docx_analytical_package": "P35",
+    "source_closure_owner": "SCM-01",
+    "source_bundle_ids": "SCM-01",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "B223",
+    "unit": "F",
+    "docx_analytical_package": "P35",
+    "source_closure_owner": "SCM-02",
+    "source_bundle_ids": "SCM-02",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "B224",
+    "unit": "F",
+    "docx_analytical_package": "P35",
+    "source_closure_owner": "SCM-03",
+    "source_bundle_ids": "SCM-03",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "B225",
+    "unit": "F",
+    "docx_analytical_package": "P35",
+    "source_closure_owner": "SCM-03",
+    "source_bundle_ids": "SCM-03",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "LA-001",
+    "unit": "F",
+    "docx_analytical_package": "P24",
+    "source_closure_owner": "FRY-01",
+    "source_bundle_ids": "FRY-01",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "LA-002",
+    "unit": "F",
+    "docx_analytical_package": "P36",
+    "source_closure_owner": "FRY-01",
+    "source_bundle_ids": "FRY-01",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "LA-003",
+    "unit": "F",
+    "docx_analytical_package": "P36",
+    "source_closure_owner": "FRY-03",
+    "source_bundle_ids": "FRY-03",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "LA-004",
+    "unit": "F",
+    "docx_analytical_package": "P36",
+    "source_closure_owner": "ECO-01",
+    "source_bundle_ids": "ECO-01",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "LA-007",
+    "unit": "F",
+    "docx_analytical_package": "P34",
+    "source_closure_owner": "GRF-01",
+    "source_bundle_ids": "GRF-01",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "LA-016",
+    "unit": "F",
+    "docx_analytical_package": "P33",
+    "source_closure_owner": "CAU-05",
+    "source_bundle_ids": "CAU-01,CAU-05",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "LA-017",
+    "unit": "F",
+    "docx_analytical_package": "P39",
+    "source_closure_owner": "LEX-01",
+    "source_bundle_ids": "LEX-01",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "LA-019",
+    "unit": "F",
+    "docx_analytical_package": "P34",
+    "source_closure_owner": "GRF-01",
+    "source_bundle_ids": "GRF-01",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "LA-020",
+    "unit": "F",
+    "docx_analytical_package": "P34",
+    "source_closure_owner": "API-01",
+    "source_bundle_ids": "API-01",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "LA-035",
+    "unit": "F",
+    "docx_analytical_package": "P36",
+    "source_closure_owner": "ECO-01",
+    "source_bundle_ids": "ECO-01",
+    "source_status": "partial"
+  },
+  {
+    "finding_id": "LA-037",
+    "unit": "F",
+    "docx_analytical_package": "P12",
+    "source_closure_owner": "FRY-01",
+    "source_bundle_ids": "FRY-01",
+    "source_status": "partial"
+  }
+]

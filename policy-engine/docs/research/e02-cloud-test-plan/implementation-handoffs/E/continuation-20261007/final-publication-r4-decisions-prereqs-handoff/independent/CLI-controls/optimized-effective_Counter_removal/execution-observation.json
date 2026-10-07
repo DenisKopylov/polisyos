@@ -1,0 +1,26 @@
+{
+  "mode": "optimized",
+  "case": "effective_Counter_removal",
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-O",
+    "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/removed-Counter.py.txt",
+    "--manifest",
+    "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/optimized-effective_Counter_removal/manifest.json",
+    "--destination-root",
+    "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/optimized-effective_Counter_removal/destination"
+  ],
+  "exit_code": 0,
+  "destination_created": true,
+  "stdout": {
+    "path": "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/optimized-effective_Counter_removal/stdout.txt",
+    "bytes": 469,
+    "sha256": "158a1ebd41704c29959fb2daf8c7e6d4f3341394022f4306785db2f98fae85ec"
+  },
+  "stderr": {
+    "path": "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/optimized-effective_Counter_removal/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "copied_exact_file_count": 177
+}

@@ -1,0 +1,108 @@
+import hashlib,json,os,platform,subprocess,sys
+from pathlib import Path
+S=Path('/tmp/e02-E-decisions-prereqs-publication-r4-stage')
+R=Path('/workspace/e02-E-frc-20261006')
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+BASE='737c9e3115abac3fefe76920b08c05e76a5bee17'
+BASE_TREE='a32e3762c3d969a4749650be7e34c8c0108a8a53'
+CAND='e233efcd0e5a4bb4c5b280f86a12ec7d0a264d62'
+TREE='6f541e58830bb760c2885921d58d6dfae4e6b01a'
+SOURCE='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+SOURCE_TREE='aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs-handoff'
+DEST=R/PREFIX
+IPREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs'
+# Closed independent selection is supplied with explicit size/hash after immutable review.
+SELECTION=Path(sys.argv[1]); SELECTION_SIZE=int(sys.argv[2]); SELECTION_SHA=sys.argv[3]
+env=dict(os.environ,GIT_OPTIONAL_LOCKS='0')
+def git(repo,*args):return subprocess.check_output(['git',*args],cwd=repo,env=env).decode().strip()
+def info(b):return {'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+def save(p,o):p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(o,ensure_ascii=False,indent=2)+'\n')
+def guard():
+ d={'head':git(ROOT,'rev-parse','HEAD'),'tree':git(ROOT,'rev-parse','HEAD^{tree}'),'tracked_status':git(ROOT,'status','--porcelain','--untracked-files=no')}
+ if d['head']!=SOURCE or d['tree']!=SOURCE_TREE:raise ValueError('ROOT frozen Git identity guard')
+ changed=git(ROOT,'diff','--name-only',SOURCE).splitlines()
+ d['tracked_changed_paths']=changed
+ d['product_test_paths_changed']=[p for p in changed if p.startswith(('policy-engine/src/','policy-engine/tests/'))]
+ if d['product_test_paths_changed']:raise ValueError('ROOT product/test source changed')
+ d['whole_tracked_clean']=not bool(d['tracked_status'])
+ d['broad_source_input_immutable']=False if changed else True
+ d['snapshot_atomic']=False
+ d['scope']='HEAD/tree and current product/test path delta only; generated architecture inputs observed mutable, no allowlist/source-freeze waiver'
+ return d
+if DEST.exists():raise ValueError('new handoff destination must not exist')
+if git(R,'rev-parse','HEAD')!=CAND or git(R,'rev-parse','HEAD^{tree}')!=TREE or git(R,'status','--porcelain','--untracked-files=no'):raise ValueError('author immutable candidate guard')
+before=guard()
+if info(SELECTION.read_bytes())!={'bytes':SELECTION_SIZE,'sha256':SELECTION_SHA}:raise ValueError('independent selector identity')
+sel=json.loads(SELECTION.read_text()); rows=[]
+def copy(src,target,role,expected=None):
+ p=Path(src);b=p.read_bytes();i=info(b)
+ if expected is not None and i!=expected:raise ValueError('original custody '+str(src))
+ q=DEST/target
+ if Path(target).is_absolute() or '..' in Path(target).parts or q.exists() or q.suffix=='.py' or (q.suffix=='.json' and not b):raise ValueError('portable path/collision/role')
+ if q.suffix=='.json':json.loads(b)
+ q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(b)
+ rows.append({'source_path':str(p),'portable_path':target,'role':role,**i})
+for a in sel['assets']:
+ target=a.get('portable_path',a.get('destination'))
+ if target is None:raise ValueError('independent selector portable target')
+ if target.endswith('.py'):target+='.txt'
+ if target.endswith('.json') and a['bytes']==0:target=target[:-5]+'.txt'
+ copy(a['path'],'independent/'+target,'literal independent immutable Git custody, typed metadata controls and effective predicate removal',{k:a[k] for k in ('bytes','sha256')})
+copy(SELECTION,'independent/publication-selection.json','fixed complete independent moderate selector')
+copy('/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/observations/tracked-generated-input-drift-20261007T1259Z/observation.json','author/ROOT-generated-input-drift-observation.json','exact root source-reported temporal snapshot:29 generatedJSON changed; broad input immutability false, native caller attribution not established',{'bytes':24848,'sha256':'617baab627ee4280808a27ccc5cdc7d4b82cb7acd85575e1d14c6960cd367ce0'})
+for name in ('resume-admission.json','resume-admission.stderr.txt','author-custody-controls.json','author-claim-admission-controls-v2.json','author-temporal-delta.json','probe-custody-controls.py.txt','probe-custody-controls.stdout.json','probe-custody-controls.stderr.txt','probe-claim-admission-controls-v2.py.txt','probe-claim-admission-controls-v2.stdout.json','probe-claim-admission-controls-v2.stderr.txt','probe-temporal-qualification-delta.py.txt','probe-temporal-qualification-delta.stdout.json','probe-temporal-qualification-delta.stderr.txt','historical-copy-decisions-prereqs-72049.py.txt','leaf-copy.stdout.json','leaf-copy.stderr.txt','leaf-readback.json','implementation-commit.stdout.txt','implementation-commit.stderr.txt','correction-commit.stdout.txt','correction-commit.stderr.txt','temporal-commit.stdout.txt','temporal-commit.stderr.txt','corrected-implementation-Git-readback.json','build-handoff.py.txt','attempt1-build-handoff.py.txt','attempt1-build-handoff.stdout.txt','attempt1-build-handoff.stderr.txt'):
+ copy(S/name,'author/'+name,'literal author custody/admission/append-only execution record; prior controls explicitly tied to their original immutable utility SHA')
+for d in ('author-cli-controls','author-claim-admission-v2','author-temporal-delta'):
+ for p in sorted((S/d).rglob('*')):
+  if p.is_file() and p.name in ('stdout.txt','stderr.txt') and 'destination' not in p.relative_to(S).parts:
+   copy(p,'author/'+str(p.relative_to(S)),'complete actual healthy/adversarial/removal stdout or stderr; no native/gate execution')
+# Exact copied predicate-removal utility snapshots, excluding destination payload trees.
+for p in sorted(S.rglob('*')):
+ if p.is_file() and p.name.endswith('.py.txt') and p.parent.name in ('author-cli-controls','author-claim-admission-v2','author-temporal-delta'):
+  target='author/'+str(p.relative_to(S))
+  if not any(r['portable_path']==target for r in rows):copy(p,target,'exact executed effective property-removal utility snapshot')
+index={'schema':'policyos.e02.decisions_prereqs_handoff_literal_copy_index.v1','candidate_sha':CAND,'candidate_tree_sha':TREE,'verification_source_sha':SOURCE,'verification_source_tree_sha':SOURCE_TREE,'copied_files':len(rows),'copied_bytes':sum(x['bytes'] for x in rows),'copies':rows,'original_bytes_rewritten':False,'source_tests_gate_numerical_execution':False}
+save(DEST/'copy-index.json',index)
+paths=git(R,'diff','--name-only',BASE,CAND).splitlines()
+impl=[]
+for p in paths:
+ b=subprocess.check_output(['git','show',CAND+':'+p],cwd=R,env=env);impl.append({'path':p,**info(b)})
+if len(paths)!=183 or sum(x['bytes'] for x in impl)!=8721267 or any(not p.startswith(IPREFIX+'/') or p.endswith('.py') for p in paths):raise ValueError('immutable implementation footprint')
+manifest=json.loads((R/IPREFIX/'manifest.json').read_text()); qualification=json.loads((R/IPREFIX/'qualification.json').read_text())
+header={'schema':'policyos.e02.decisions_prereqs_handoff_environment.v1','python_executable':sys.executable,'python_version':sys.version,'platform':platform.platform(),'leaf_branch':git(R,'branch','--show-current'),'leaf_head':CAND,'leaf_tree':TREE,'ROOT_before':before,'selected_environment':{k:os.environ.get(k) for k in ('TMPDIR','UV_CACHE_DIR','UV_PYTHON','PYTHONDONTWRITEBYTECODE')},'capture':'stdlib only; all Git metadata reads use GIT_OPTIONAL_LOCKS=0; no ROOT env/imports/locks modified','source_numeric_gate_execution':False}
+save(DEST/'environment.json',header)
+metadata=['copy-index.json','environment.json','README.md','implementation-handoff.json']
+hpaths=sorted([PREFIX+'/'+x['portable_path'] for x in rows]+[PREFIX+'/'+x for x in metadata])
+after=guard()
+h={
+ 'schema':'policyos.e02.frozen_decisions_prereqs_publication_handoff.v1',
+ 'base_sha':BASE,'base_tree_sha':BASE_TREE,'candidate_sha':CAND,'candidate_tree_sha':TREE,'verification_source_sha':SOURCE,'verification_source_tree_sha':SOURCE_TREE,
+ 'handoff_future_commit_sha':'Excluded; publication commit/readback is saved only after commit.',
+ 'canonical_writer':'frc_r4 DOC custody carrier only; original authors, E accountable criterion owners and Core/IR/G retain source/semantic/public-surface and integration acceptance.',
+ 'worktree':{'branch':'codex/e02-E-frc-20261006','absolute_path':str(R),'resume_admission':'author/resume-admission.json','exit_code':0},
+ 'implementation_commits':['72049b1f4af560703eb0278289e888dc938f1d93','100aa796447a5f8afbcf627a93cd13a7497553a6',CAND],
+ 'implementation_footprint':paths,'implementation_input_index':impl,'implementation_path_count':len(paths),'implementation_bytes':sum(x['bytes'] for x in impl),'implementation_active_python_paths':[],
+ 'selected_subset':manifest['selection_inputs'],'membership':{k:manifest[k] for k in ('logical_count','logical_bytes','unique_payload_files','unique_payload_bytes','deduplicated_aliases')},
+ 'runtime_property_path':IPREFIX+'/copy-decisions-prereqs.py.txt; pure custody/typed claim admission before destination creation',
+ 'ROOT_tracked_input_qualification':{'historical_complete_clean_guard':'Independent final-e233 first reporter reached ROOT tracked-status guard and ERRORed after successful ownlane custody controls; retained as historical observation.','current_observation':'author/ROOT-generated-input-drift-observation.json','HEAD_tree_source_identity':'64d/aef unchanged; author e233/tree6f54 immutable; observed product/test path delta empty.','broad_source_input_immutable':False,'whole_tracked_clean':False,'native_mutating_caller_attribution':'not_established; independentDOE tracing pending','allowlisted_or_waived_sourcefreeze':False,'snapshot_atomic':False,'generated_input_owner':'canonical G fixture/generator writer with exact native caller provenance; root pending trace, no manual restore by this DOC carrier'},
+ 'predicate_basis':{'selector_identity':'five actual fixed selectors and two separate qualifier companions, exact byte/hash pin and complete typed vector','member_law':'redecode each actual selector and exact Counter of all selected primary/alias/role fields;230 selected memberships+5selectors+2qualifiers237','carrier':'168 first-content carriers/8218180B and69 logical aliases, exact source byte/hash and portable collision/role','claims':'recursive strict typed comparison of complete qualification/header/source-before-after/flags and summary/count fields; bool/int/float are distinct','limitations':'same source/output identity, historical check/finding outcomes and scoped new source observations remain separate'},
+ 'independent_oracle':{'closed_selection':'independent/publication-selection.json','scope':'immutable Git custody, actual copier CLI controls and effective predicate removals only; no numeric/global/finding or production acceptance'},
+ 'author_controls':{'initial_healthy_and_membership':'author/author-custody-controls.json','historical100aa_typed_guard_healthy_and_19_negative_per_mode':'author/author-claim-admission-controls-v2.json','finale233_normal_optimized_healthy_and_temporal_type_refusals':'author/author-temporal-delta.json','all_complete_streams':'author/author-cli-controls,author/author-claim-admission-v2,author/author-temporal-delta'},
+ 'historical_counterexample':{'candidate':'72049b1f4af560703eb0278289e888dc938f1d93','literal_record':IPREFIX+'/correction/current-claim-counterexamples-72049.json','property':'actual normal/-O accepted int1→boolTrue historical ledger, forged ROOT_after.head, false execution claim→true while all selected payloads/Counter intact','disposition':'preserved immutable historical red; typed structural metadata admission corrected append-only100aa, precise temporal source qualification appendede233'},
+ 'removal_controls':{'membership':'Exact Counter-only predicate removal retains markers/counts/payloads but admits incorrect equal-byte duplicate membership; defining custody propertyFAIL.','typed_header':'Exact fixed-header comparison-only removal retains markers/members/content but admits forged ROOT_after SHA; defining source-identity propertyFAIL.','outputs':'literal author/independent stdout/stderr and exact executed archived utility/reproducer; no dummy marker or artifact removal'},
+ 'qualification':qualification,
+ 'checks':{'DOC_custody':'independent immutable source review receipt and closed selector','source_tests_gate_numerical_execution':False,'global_or_finding_PASS':False,'backend_stage_status':'excluded; protected ROOT backend source execution owned by root'},
+ 'commands':{'admission':{'argv':['/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/polisyos-tools','workspace','doctor','--worktree-admission','resume','--branch','codex/e02-E-frc-20261006','--path',str(R)],'cwd':str(R/'policy-engine'),'environment':{'PYTHONDONTWRITEBYTECODE':'1'},'reason':'read-only exact existing lane resume; installed canonical CLI avoids UV/env-lock mutation'},'literal_copier_argv_outputs':'author control JSONs and independent closed review; complete normal/-O streams copied','implementation_git':['author/implementation-commit.stdout.txt','author/correction-commit.stdout.txt','author/temporal-commit.stdout.txt'],'publication':'normal append-only E topic push only after independent handoff/Git readback; exact receipt created after publication'},
+ 'limitations':['Full frozen54 remains historical43closed proposals/9limited/2held, not current accepted closure; historical ledger49partial/4held/1closed untouched.','Current64d G855 pre-fix41/9/2/2 and B201/B202 technicalOPEN are frozen snapshots, not rewritten by separate source receipts.','Historical ca17 finite-law/CAS GO is separate from actual DTOtyped CHANGE_REQUIRED (+2 new variable override errors); later3932 correction/source GO and G closure are separate owner deliveries, not accepted here.','Remaining private CanonSpec edge is an unapplied canonical owner packet: runtime positive alone does not overcome actual scoped33→35 type errors.','Install PASS is bounded declared-dependency installation/native preflight only; full backend/global outcomes are excluded.','Wheels and large raw/static/source trees remain immutable refs, not copied; no production data/authority synthesized.','ROOT backend concurrently changed29 tracked layer3 generatedJSON: broad source-input immutability and whole tracked clean are false; HEAD/tree and observed product/test source delta alone are guarded. Native mutating caller attribution is not_established pending independent tracing; snapshot is temporal/non-atomic, no source-freeze waiver.'],
+ 'next_owner':{'E_root':'Merge published DOC carrier at safe source boundary; deliver current original-row decisions and final global/backend supplements with temporal identity.','Core_IR_API_owner':'Resolve remaining CanonSpec facade/export type-compatible contract and public companions; review unapplied narrow two-path proposal.','E_source_author_imports_and_oracle':'Publish separate3932 source/handoff and defining-property DTO/source review; do not infer G original finding closure.','G':'Only integration publisher; code acceptance and original finding closure remain separate. Canonical generated-input fixture owner needs native mutating-caller provenance and isolated/repeatable mutable-input boundary; no manual ROOT restore performed.'},
+ 'copied_handoff_files':len(rows),'copied_handoff_bytes':index['copied_bytes'],'copy_index':{'path':'copy-index.json',**info((DEST/'copy-index.json').read_bytes())},
+ 'ROOT_before':before,'ROOT_after':after,'ROOT_source_env_locks_written':False,'source_tests_gate_numerical_execution':False,
+ 'handoff_footprint':hpaths,'handoff_path_count':len(hpaths),'full_footprint':sorted(paths+hpaths),'full_path_count':len(paths)+len(hpaths),
+ 'cleanup':'No cleanup by this DOC carrier; unique evidence/code/data kept, repeatable test overlays listed for owner-controlled cleanup only.'
+}
+save(DEST/'implementation-handoff.json',h)
+(DEST/'README.md').write_text('''# Frozen decisions and prerequisite evidence publication\n\nImplementation e233efcd (tree6f541e58), after preserved72049 red and100aa typed custody correction, contains183 additive DOC paths and no active Python/source changes. Five exact selector chains bind230 selected memberships plus five selectors and two separate qualifiers to237 logical rows,168 literal content carriers and69 aliases. This separate handoff pins the immutable implementation before its own commit and retains all actual normal/-O controls and independent custody observations.\n\nThe full54 dataset remains the frozen43/9/2 proposal layer; historical49partial/4held/1closed ledger stays unchanged. Current64d G855 pre-fix technicalOPEN for B201/B202 is preserved separately. Historical ca17 finite-law/CAS GO and its two new DTOtyping errors have separate receipts. Later3932 source correction and G finding acceptance belong to separate owners; this DOC carrier grants neither.\n\nDeclared installation/preflight PASS is bounded. Remaining CanonSpec runtime positives accompany an open canonical API/type contract, including actual33→35 scoped errors and an unapplied narrow proposal. ROOT HEAD/tree64d/aef23574 and observed product/test source remain unchanged. Backend concurrently changed29 tracked layer3 generated JSON, so broad source-input immutability and whole-worktree-clean are false; native mutating caller attribution remains not_established pending independent tracing. This is a temporal non-atomic observation, without a source-freeze waiver or manual restore. No native tests/gates or production claims are created by this publication. See implementation-handoff.json and copy-index.json for every byte/source/owner/control and complete footprint.\n''')
+actual=sorted(str(p.relative_to(R)) for p in DEST.rglob('*') if p.is_file())
+if actual!=hpaths:raise ValueError('complete handoff footprint')
+print(json.dumps({'candidate':CAND,'copied_files':len(rows),'copied_bytes':index['copied_bytes'],'handoff_paths':len(actual),'full_paths':len(paths)+len(actual),'metadata':{n:info((DEST/n).read_bytes()) for n in metadata}},indent=2))

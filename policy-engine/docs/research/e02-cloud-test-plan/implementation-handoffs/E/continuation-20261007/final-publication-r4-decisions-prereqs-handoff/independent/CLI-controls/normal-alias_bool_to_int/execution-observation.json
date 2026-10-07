@@ -1,0 +1,24 @@
+{
+  "mode": "normal",
+  "case": "alias_bool_to_int",
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+    "--manifest",
+    "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/normal-alias_bool_to_int/manifest.json",
+    "--destination-root",
+    "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/normal-alias_bool_to_int/destination"
+  ],
+  "exit_code": 1,
+  "destination_created": false,
+  "stdout": {
+    "path": "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/normal-alias_bool_to_int/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/normal-alias_bool_to_int/stderr.txt",
+    "bytes": 772,
+    "sha256": "be70353236e440770663e9ab119bb8549f277063250e2f0947454ba6e69f8248"
+  }
+}

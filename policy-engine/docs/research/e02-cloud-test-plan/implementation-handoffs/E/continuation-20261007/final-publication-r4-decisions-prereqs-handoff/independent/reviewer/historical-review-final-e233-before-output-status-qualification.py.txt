@@ -1,0 +1,160 @@
+import ast, collections, copy, hashlib, json, os, platform, subprocess, sys
+from pathlib import Path
+
+S=Path('/tmp/e02-E-decisions-prereqs-publication-r4-stage')
+O=Path('/tmp/e02-E-decisions-prereqs-custody-independent/final-e233')
+O.mkdir(exist_ok=True)
+R=Path('/workspace/e02-E-frc-20261006')
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+C='e233efcd0e5a4bb4c5b280f86a12ec7d0a264d62'
+T='6f541e58830bb760c2885921d58d6dfae4e6b01a'
+B='737c9e3115abac3fefe76920b08c05e76a5bee17'
+P='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs'
+META=['manifest.json','copy-decisions-prereqs.py.txt','build-stage.py.txt','README.md','qualification.json','build.stdout.json','build.stderr.txt','resume-admission.json','resume-admission.stderr.txt']
+EXPECTED=[('install','/tmp/e02-E-declared-prereq-custody-64d-20261007/publication-selection.json',37164,'fbb77f967bae3745fe578723c248bfc8582cf80aa85d37e34989c0795c18530a','files'),('install-independent','/tmp/e02-E-install-custody-independent-doe-20261007/publication-selection-v2.json',5634,'556a343973fae37aeaee75bebf5935ae07341d34cf8bb08a03335ce581fedda0','assets'),('frozen54','/workspace/e02-E-pr38-r3-receipts/criteria-r4/closed-current54-publication-selection-v2.json',55484,'ba5f870134772172778b0e52f84c2d3d5827b9f46cf4533e3d627e3e1b370440','assets-aliases'),('canonspec','/tmp/e02-E-forecast-canon-public-route-64d-20261007/publication-selection.json',14255,'36ba6f015ea6f5bef9cc30ab97afc8802eda95b5db1fbf2b47566d58cbc6c484','files'),('postpublication','/tmp/e02-E-closed-additions-publication-r4-stage/postpublication-selection.json',8356,'c26ab9121e411138f64879dbb9030c9a699e89f2a8b7f32503ce5379950853a5','assets')]
+QUALIFIERS=[('current-IR','/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-IR-technical-open-G855-v2.json',10455,'8c7e904c709fdfc23e130a20309b8256f2499e2758554514b24cb7113d617265','current-IR-technical-open-G855-v2.json'),('current-IR','/workspace/e02-E-pr38-r3-receipts/criteria-r4/record-current-IR-technical-open.py.txt',6374,'58a1c4c7630031eca479acd5f8cc51ea4890adb67e740453347d295e3a638d8d','record-current-IR-technical-open.py.txt')]
+def sha(b): return hashlib.sha256(b).hexdigest()
+def canon(x): return json.dumps(x,ensure_ascii=False,sort_keys=True,separators=(',',':'))
+def require(c,m):
+    if not c: raise ValueError(m)
+def git(*a): return subprocess.check_output(['git','-C',str(R),*a])
+def state(r):
+    def g(*a):return subprocess.check_output(['git','-C',str(r),*a]).decode().strip()
+    return {'head':g('rev-parse','HEAD'),'tree':g('rev-parse','HEAD^{tree}'),'tracked_status':g('status','--porcelain','--untracked-files=no')}
+def ref(p):
+    b=Path(p).read_bytes();return {'path':str(p),'bytes':len(b),'sha256':sha(b)}
+def original_record(p,n,h):
+    b=Path(p).read_bytes();require(len(b)==n and sha(b)==h,'raw source hash/size '+p);return b
+before=state(ROOT)
+leaf=state(R);require(leaf['head']==C and leaf['tree']==T and not leaf['tracked_status'],'immutable e233 lane')
+pins={'manifest.json':(320323,'5a284648c3aa68fc4a1bd1377a8d3a10695970fbb6429341afdeac1fe4dfe4d9'),'copy-decisions-prereqs.py.txt':(15203,'f90cf379b8833595e16009d4f800160638c7a84f296d575e50d3f2385e448768'),'qualification.json':(3824,'169a1459e9f0f8d309528e455f124d61255b89a4430af437e419fb5e8f02f152')}
+for n,(sz,h) in pins.items():original_record(str(S/n),sz,h)
+M=json.loads((S/'manifest.json').read_text()); Q=json.loads((S/'qualification.json').read_text())
+require(canon(M['qualification'])==canon(Q),'qualification manifest companion')
+changes=git('diff','--name-status',B,C).decode().splitlines(); require(len(changes)==183,'183 complete additive DOC paths')
+footprint=[]
+for line in changes:
+    status,path=line.split('\t');require(status=='A' and path.startswith(P+'/') and not path.endswith('.py'),'additive DOC-only footprint '+line)
+    blob=git('show',C+':'+path);physical=(R/path).read_bytes();require(blob==physical,'physical Git blob '+path)
+    rel=path[len(P)+1:]
+    if rel in META:require(blob==(S/rel).read_bytes(),'staged metadata '+rel)
+    elif not rel.startswith('correction/'):require(blob==(S/'payload'/rel).read_bytes(),'staged payload '+rel)
+    if rel.endswith('.json'):json.loads(blob)
+    footprint.append({'status':status,'path':path,'bytes':len(blob),'sha256':sha(blob)})
+require(sum(r['bytes'] for r in footprint)==8721267,'complete Git byte denominator')
+# Original five selector documents, not the copier loop, define expected memberships.
+expected=[];inputs=[]
+for family,path,sz,h,kind in EXPECTED:
+    raw=original_record(path,sz,h);d=json.loads(raw)
+    items=[('files',v) for v in d['files']] if kind=='files' else [('assets',v) for v in d['assets']]+([('identical_byte_aliases',v) for v in d.get('identical_byte_aliases',[])] if kind=='assets-aliases' else [])
+    inputs.append({'family':family,'selection_source_path':path,'bytes':sz,'sha256':h,'kind':kind,'selected_members':len(items)})
+    for cls,item in items:
+        src=item.get('source_path',item.get('path')); b=original_record(src,item['bytes'],item['sha256'])
+        name=item.get('logical_at',item.get('portable_path'));require(isinstance(name,str),'selected logical name')
+        require(not Path(name).is_absolute() and '..' not in Path(name).parts,'safe original path')
+        if len(b)==0 and name.endswith('.json'):name=name[:-5]+'.txt'
+        if name.endswith('.py'):name+='.txt'
+        expected.append({'family':family,'selection_source_path':path,'member_class':cls,'source_path':src,'source_bytes':len(b),'source_sha256':sha(b),'logical_destination':family+'/'+name,'selected_record':item})
+    expected.append({'family':family,'selection_source_path':path,'member_class':'selector','source_path':path,'source_bytes':sz,'source_sha256':h,'logical_destination':'selectors/'+family+'-selection.json','selected_record':None})
+for fam,path,sz,h,name in QUALIFIERS:
+    original_record(path,sz,h)
+    expected.append({'family':fam,'selection_source_path':None,'member_class':'qualifier','source_path':path,'source_bytes':sz,'source_sha256':h,'logical_destination':fam+'/'+name,'selected_record':None})
+keys=tuple(expected[0]);observed=collections.Counter(canon({k:r[k] for k in keys}) for r in M['logical_sources']);gold=collections.Counter(canon(r) for r in expected)
+require(observed==gold,'independent exact 237-member occurrence Counter')
+require(canon(inputs)==canon(M['selection_inputs']),'independent typed selector headers')
+require(len(expected)==237 and sum(r['source_bytes'] for r in expected)==8564493,'complete logical denominator')
+seen={};carrier=[]
+for r in M['logical_sources']:
+    pair=(r['source_sha256'],r['source_bytes'])
+    if pair not in seen:
+        seen[pair]=r['logical_destination'];carrier.append({'source_path':r['source_path'],'source_bytes':r['source_bytes'],'source_sha256':r['source_sha256'],'destination':r['logical_destination']})
+    require(r['canonical_destination']==seen[pair] and type(r['literal_alias']) is bool and r['literal_alias']==(r['logical_destination']!=seen[pair]),'exact first content route')
+require(canon(carrier)==canon(M['canonical_copies']),'full canonical vector')
+require(len(carrier)==168 and sum(r['source_bytes'] for r in carrier)==8218180 and len(expected)-len(carrier)==69,'dedup denominator')
+for r in carrier:
+    original_record(str(S/'payload'/r['destination']),r['source_bytes'],r['source_sha256'])
+    require(git('show',C+':'+P+'/'+r['destination'])==(S/'payload'/r['destination']).read_bytes(),'Git original carrier')
+# Meaning of temporal decisions is reconciled from preserved raw rows, not PASS counts.
+full54=json.loads(Path('/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-all-54-source-wave-update-v2.json').read_text())
+rows=full54['rows'];require(len(rows)==54 and len(set(r['id'] for r in rows))==54,'54 unique IDs')
+ledger=dict(collections.Counter(r['historical_ledger_status'] for r in rows));proposals=dict(collections.Counter(r['proposed_finding_outcome'] for r in rows))
+require(ledger=={'partial':49,'held':4,'closed':1} and proposals=={'closed':43,'limited':9,'held':2},'raw historical vs frozen proposed decisions')
+cur=json.loads(Path(QUALIFIERS[0][1]).read_text());require(cur['current_E_proposals_after_exact_two_row_correction']=={'closed':41,'limited':9,'held':2,'open':2},'pre-fix two opens')
+require({r['id']:r['current_accountable_E_decision'] for r in cur['rows']}=={'B201':'open','B202':'open'},'exact two IR open snapshot')
+require(Q['frozen54']['proposal_counts']==proposals and Q['frozen54']['historical_ledger']==ledger,'bound frozen labels')
+require(Q['G855_pre_fix_qualification']['proposal_counts']==cur['current_E_proposals_after_exact_two_row_correction'],'bound current labels')
+require(Q['global_or_finding_PASS'] is False and Q['frozen54']['accountable_owner_decisions_accepted_by_this_carrier'] is False,'no closure conversion')
+dto=Q['separate_source_slice']['typed_DTO_review']
+for name in ('candidate_stdout','base_stdout','exact_resolved_command_provenance'):
+    f=dto[name];original_record(f['path'],f['bytes'],f['sha256'])
+cand=json.loads(Path(dto['candidate_stdout']['path']).read_text());base=json.loads(Path(dto['base_stdout']['path']).read_text())
+require(cand['summary']['errorCount']==3 and base['summary']['errorCount']==1 and dto['new_override_errors']==2 and dto['status']=='historical CHANGE_REQUIRED','actual typed ca17 distinct red')
+require(dto['later3932_source_slice_copied_or_accepted_here'] is False,'3932 separate source receipt')
+# Seven same validator bodies reused from100aa; qualify only the temporal header delta.
+old=git('show','100aa796447a5f8afbcf627a93cd13a7497553a6:'+P+'/copy-decisions-prereqs.py.txt').decode();new=(S/'copy-decisions-prereqs.py.txt').read_text()
+def bodies(s):return {n.name:ast.get_source_segment(s,n) for n in ast.parse(s).body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))}
+oldbody,newbody=bodies(old),bodies(new);require(oldbody==newbody and len(newbody)==7,'seven function-body exact reuse')
+# Actual CLI rejects integrity-valid metadata/occurrence mutants before destination creation.
+records=[]
+def run_case(mode,name,data,script=S/'copy-decisions-prereqs.py.txt',companion=None):
+    p=O/(mode+'-'+name);p.mkdir();(p/'payload').symlink_to(S/'payload',target_is_directory=True)
+    for n in META:
+        if n=='manifest.json':continue
+        (p/n).write_bytes((S/n).read_bytes())
+    if companion is not None:(p/'qualification.json').write_text(json.dumps(companion,ensure_ascii=False,indent=2)+'\n')
+    (p/'manifest.json').write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
+    argv=[sys.executable]+(['-O'] if mode=='optimized' else [])+[str(script),'--manifest',str(p/'manifest.json'),'--destination-root',str(p/'destination')]
+    with (p/'stdout.txt').open('wb') as so,(p/'stderr.txt').open('wb') as se:proc=subprocess.run(argv,stdout=so,stderr=se)
+    out={'mode':mode,'case':name,'argv':argv,'exit_code':proc.returncode,'destination_created':(p/'destination').exists(),'stdout':ref(p/'stdout.txt'),'stderr':ref(p/'stderr.txt')}
+    if proc.returncode==0:
+        dest=p/'destination'/P;written=[f for f in dest.rglob('*') if f.is_file()];require(len(written)==177,'CLI177 current core carriers/metadata')
+        for row in carrier:require((dest/row['destination']).read_bytes()==(S/'payload'/row['destination']).read_bytes(),'CLI literal output carrier')
+        for n in META:require((dest/n).read_bytes()==(p/n).read_bytes(),'CLI literal output metadata')
+        out['copied_exact_file_count']=len(written)
+    records.append(out);return out
+mods={}
+def edit(n,fn):d=copy.deepcopy(M);fn(d);mods[n]=d
+edit('historical_closed_int_to_bool',lambda d:d['qualification']['frozen54']['historical_ledger'].update(closed=True))
+edit('ROOT_after_wrong_head',lambda d:d['ROOT_after'].update(head='0'*40))
+edit('numeric_execution_false_to_true',lambda d:d.update(source_tests_gate_numeric_execution=True))
+edit('verification_source_wrong',lambda d:d.update(verification_source='0'*40))
+edit('verification_tree_wrong',lambda d:d.update(verification_tree='0'*40))
+edit('base_wrong',lambda d:d.update(publication_base='0'*40))
+edit('prefix_wrong',lambda d:d.update(proposed_git_prefix='unowned/new-prefix'))
+edit('logical_count_int_to_float',lambda d:d.update(logical_count=237.0))
+edit('alias_bool_to_int',lambda d:d['logical_sources'][0].update(literal_alias=0))
+edit('selected_members_int_to_float',lambda d:d['selection_inputs'][0].update(selected_members=73.0))
+edit('carrier_size_int_to_float',lambda d:d['canonical_copies'][0].update(source_bytes=float(d['canonical_copies'][0]['source_bytes'])))
+edit('extra_root_authority',lambda d:d.update(authority_granted=True))
+edit('extra_row_authority',lambda d:d['logical_sources'][0].update(authority_granted=True))
+edit('selector_duplicate',lambda d:d['selection_inputs'].append(copy.deepcopy(d['selection_inputs'][0])))
+edit('selector_omitted',lambda d:d['selection_inputs'].pop())
+edit('qualifier_omitted',lambda d:d['logical_sources'].pop())
+edit('current_IR_open_to_closed',lambda d:d['qualification']['G855_pre_fix_qualification'].update(B201='closed'))
+edit('frozen43_is_accepted',lambda d:d['qualification']['frozen54'].update(accountable_owner_decisions_accepted_by_this_carrier=True))
+edit('ca17_typed_red_to_GO',lambda d:d['qualification']['separate_source_slice']['typed_DTO_review'].update(status='GO',new_override_errors=0))
+edit('3932_accepted_by_carrier',lambda d:d['qualification']['separate_source_slice']['typed_DTO_review'].update(later3932_source_slice_copied_or_accepted_here=True))
+zeros=[i for i,r in enumerate(M['logical_sources']) if r['family']=='frozen54' and r['member_class']=='identical_byte_aliases' and r['source_bytes']==0]
+require(len(zeros)>=2,'actual two distinct zero-body aliases')
+edit('same_body_required_alias_substitution',lambda d:d['logical_sources'].__setitem__(zeros[0],copy.deepcopy(d['logical_sources'][zeros[1]])))
+companion=copy.deepcopy(Q);companion['frozen54']['historical_ledger']['closed']=True
+needles={
+'header':"if canonical({k:manifest[k] for k in FIXED_HEADER})!=canonical(FIXED_HEADER):raise ValueError('typed fixed publication/source/before-after/flags claims')",
+'Counter':"if got!=want:raise ValueError('exact selected member Counter')",
+'qualification':"if canonical(manifest['qualification'])!=canonical(QUALIFICATION):raise ValueError('frozen/current/source/gate claims')"}
+removed={}
+for n,s in needles.items():
+    require(new.count(s)==1,'unique property inlet '+n)
+    p=O/('removed-'+n+'.py.txt');p.write_text(new.replace(s,"if False:raise ValueError('independent removed "+n+" admission')"));removed[n]=p
+for mode in ('normal','optimized'):
+    healthy=run_case(mode,'healthy',copy.deepcopy(M));require(healthy['exit_code']==0,'healthy '+mode)
+    for name,data in mods.items():
+        r=run_case(mode,name,data);require(r['exit_code']==1 and not r['destination_created'],'typed/current Counter refusal '+name+' '+mode)
+    r=run_case(mode,'companion_bool_ledger',copy.deepcopy(M),companion=companion);require(r['exit_code']==1 and not r['destination_created'],'companion typed refusal')
+    for prop,case in [('header','ROOT_after_wrong_head'),('Counter','same_body_required_alias_substitution'),('qualification','historical_closed_int_to_bool')]:
+        r=run_case(mode,'effective_'+prop+'_removal',mods[case],script=removed[prop]);require(r['exit_code']==0 and r['destination_created'],'effective '+prop+' removal')
+        r['required_property_outcome']='FAIL under isolated exact-predicate removal; markers/bytes/payload remain'
+after=state(ROOT);require(before==after,'ROOT narrow source guard stable');require(state(R)==leaf,'immutable author guard stable')
+receipt={'schema':'policyos.e02.independent_decisions_prereqs_final_custody.v2','disposition':'GO bounded DOC custody and typed exact claim admission','source_sha':C,'source_tree':T,'publication_base':B,'source_guard_before':before,'source_guard_after':after,'leaf_guard':leaf,'pinned_files':{n:ref(S/n) for n in pins},'complete_Git_footprint':footprint,'git_file_count':len(footprint),'git_bytes':sum(r['bytes'] for r in footprint),'active_python_paths':0,'original_selector_inputs':inputs,'member_occurrences':len(expected),'logical_bytes':sum(r['source_bytes'] for r in expected),'unique_carriers':len(carrier),'unique_payload_bytes':sum(r['source_bytes'] for r in carrier),'deduplicated_aliases':len(expected)-len(carrier),'independent_gold':'raw fixed selector documents and selected original bytes, exact full occurrence Counter and canonical first-content route; not copier-produced PASS','claim_basis':{'raw54_rows':'independently_reconciled','fixed_source_tree_header_and_refs':'recomputed','typed_DTO_errors':'recomputed from pinned actual closed candidate/base diagnostics','producer_scientific_authority':'not_established','finding_acceptance_by_publication':'not_established'},'historical_ledger':ledger,'frozen_previous_proposals':proposals,'G855_pre_fix_current_proposals':cur['current_E_proposals_after_exact_two_row_correction'],'ca17_typed_status':'historical CHANGE_REQUIRED,3candidate/1base/+2overrides; later3932 source is separate','validator_body_count_exact_reused_from_100aa':7,'healthy_modes':['normal','optimized'],'negative_count_per_mode':len(mods)+1,'effective_predicate_removals':['header','Counter','qualification'],'controls':records,'earlier_72049_CHANGE_REQUIRED_preserved':ref('/tmp/e02-E-decisions-prereqs-custody-independent/current-claim-counterexamples-72049.json'),'numeric_backend_browser_or_gate_reexecuted':False,'ROOT_source_environment_packages_mutated':False,'limitations':['DOC acceptance does not ratify finding closure or Gformal intake','Frozen43 vs pre-fix41/open2 vs separate ca17 finite-lawGO/typedred vs later3932 remain distinct','Core runtime CanonSpec positive has33to35 typed errors; IR API-owner packet remains unapplied','Installation/preflight bound claims exclude still-running full backend','Repeatable scratch destination copies are cleanup candidates only, no review cleanup executed'],'environment':{'python':sys.version,'executable':sys.executable,'platform':platform.platform()}}
+out=O/'independent-final-custody-e233.json';out.write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
+print(json.dumps({'disposition':receipt['disposition'],'source_sha':C,'source_tree':T,'complete_DOC_files':183,'complete_DOC_bytes':8721267,'member_occurrences':237,'payload_files':168,'payload_bytes':8218180,'aliases':69,'healthy_modes':receipt['healthy_modes'],'negative_controls_per_mode':len(mods)+1,'effective_removals':receipt['effective_predicate_removals'],'receipt':ref(out),'ROOT_unchanged':before==after,'native_tests_repeated':False},indent=2))

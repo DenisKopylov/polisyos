@@ -53,4 +53,16 @@ uv run pytest tests/unit/scientist/orchestration/engine/test_condition.py tests/
 
 ## Last Updated
 
+## Budget completion retention
+
+`BudgetMiddleware` and `FileBudgetLedger` preserve the existing budget namespace,
+reservation, completion and settlement records. An obtained LLM response with an
+unknown amount creates a pending completion obligation; it cannot produce a zero-cost
+receipt or release its held reservation. Reported zero is a separate known amount.
+
+The LLM enforcer can use an explicitly injected middleware/ledger for fresh-process
+readback. Current A translator/adversary callers pass only `BudgetState` and retain
+unresolved completions in process. Production durable configuration and external invoice
+truth are separate from this owner-source composition.
+
 - Last updated: 2026-04-17

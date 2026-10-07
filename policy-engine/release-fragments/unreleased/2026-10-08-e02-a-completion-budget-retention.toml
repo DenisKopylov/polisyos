@@ -1,0 +1,17 @@
+id = "2026-10-08-e02-a-completion-budget-retention"
+title = "Retain unknown-cost completions in the canonical budget owner"
+type = "fixed"
+component = "scientist-orchestration"
+owner = "team-policyos-runtime"
+summary = "Compose the exact B budget enforcer, middleware and ledger owners so a physical reply with unknown cost retains its response and reservation instead of becoming a released or zero-cost operation."
+evidence = ["tests/integration/core_runtime/test_e02_monetary_budget_hold.py"]
+compatibility = "Existing BudgetState-only callers keep their constructor arguments. An unknown completion now holds and blocks subsequent work; known reported zero and positive amounts remain distinct."
+change_class = "runtime-correctness"
+surface_classification = "Existing Scientist budget owner modules and optional middleware/ledger injection; no new runtime HTTP endpoint or invoice authority."
+migration = "Callers that require restart persistence must explicitly provide the existing BudgetMiddleware with FileBudgetLedger. Resolve unknown completion obligations through the canonical owner before issuing more work."
+api = "Canonical B optional completion-owner and durable-ledger hooks are carried at their existing module paths. Translator/adversary callers are unchanged."
+limitations = "Default A translator/adversary retention is in-process. Explicit durable test configuration does not establish production durable wiring; local accounting receipts are not external provider invoices."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/orchestration/llm/README.md", "src/polisyos/scientist/orchestration/engine/README.md"]
+runbook_docs = []

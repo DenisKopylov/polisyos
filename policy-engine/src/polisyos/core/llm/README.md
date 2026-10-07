@@ -42,7 +42,7 @@ from usable token evidence; an invalid reported amount stays invalid. Explicit r
 zero remains zero. Call observers receive the status and origin together with the amount.
 
 `settlement.py` carries producer completion and cache provenance through these owners.
-The ordinary A runtime observer path has no trusted settlement owner and records
+An unwrapped A runtime observer has no trusted settlement owner and records
 `settlement_status="unmanaged"`. Its operational cost projection does not establish an
 invoice or protected budget settlement. The cache and factory must use the same producer
 contract so reuse is distinguished from another provider call.

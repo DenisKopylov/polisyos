@@ -43,4 +43,12 @@ cost/usage statuses и origin существующему runtime cost consumer. 
 
 Prompt cache и factory используют completion provenance того же producer: обычный hit
 отражается как reuse без нового provider call. A observer composition сохраняет
-unmanaged settlement; отдельная protected/durable budget integration этим не доказана.
+unmanaged settlement без настроенного completion owner; отдельная protected/durable
+budget integration этим не доказана.
+
+`LLMBudgetEnforcer` связывает полученный provider completion с существующим бюджетным
+резервом до публикации cache result. Неизвестная стоимость сохраняет ответ и резерв,
+оставляет cost unknown и блокирует следующий вызов до разрешения обязательства.
+Вызовы translator/adversary с одним `BudgetState` сохраняют это состояние в памяти.
+Durable readback требует явного `BudgetMiddleware` с существующим `FileBudgetLedger`;
+локальный receipt не доказывает внешний invoice.

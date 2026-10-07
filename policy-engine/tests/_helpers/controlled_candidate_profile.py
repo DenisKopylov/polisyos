@@ -101,7 +101,7 @@ def _candidate_only_procurement_intervention_bundle():
         "target_world_slot": "cells.distress_score",
     }
     fixture_payloads = {
-        "intervention_knob_dictionary": {
+        "knob_dictionary": {
             "procurement_shock_intensity": {
                 "type": "float",
                 "default": 0.5,
@@ -148,7 +148,7 @@ def _candidate_only_procurement_intervention_bundle():
         },
     }
     source_names = {
-        "intervention_knob_dictionary": "candidate_knob",
+        "knob_dictionary": "candidate_knob",
         "world_mechanism_manifest": "candidate_mechanism",
         "slot_family_manifest": "candidate_slot",
     }
@@ -162,10 +162,10 @@ def _candidate_only_procurement_intervention_bundle():
                 for name, label in source_names.items()
             },
             "source_content_hashes": {
-                name: gy_content_hash(
-                    {**fixture_identity, "payload": fixture_payloads[field]}
+                source_name: gy_content_hash(
+                    {**fixture_identity, "payload": fixture_payloads[field_name]}
                 )
-                for field, name in source_names.items()
+                for field_name, source_name in source_names.items()
             },
         },
     )

@@ -79,6 +79,16 @@
       "outcome": "ERROR",
       "terminal": "No completion output; exec session30584 pending before transport disconnect",
       "qualification": "Instrument should stream128KiB chunks. Full archive/projection custody remains not_established. No inferred native cases."
+    },
+    {
+      "command": [
+        "pwd"
+      ],
+      "cwd": "/workspace",
+      "outcome": "UNRUN",
+      "actual_harness_terminal": "Rejected: Failed to create unified exec process: exec-server connection attempt failed: environment registry request failed (409 Conflict, environment_offline): Environment is not connected.",
+      "process_created": false,
+      "qualification": "Backend readiness helper returnedready; direct actual shell gate disproved available execution. No nativecollection or productoutcome."
     }
   ],
   "resource_observation": {
@@ -109,7 +119,9 @@
     "official running/offline",
     "official running/connected, pwd exit0",
     "official running/offline after custody attempt",
-    "official starting/offline"
+    "official starting/offline",
+    "wait_for_environment returned statusready, but subsequent actual pwd request terminated with409environment_offline; no shell created",
+    "2026-10-07current official spec76 observedpending/connectivityoffline/failureNull/networkstateunknown"
   ],
   "product_validation": "Final source native/removal/affected consumers UNRUN; no fabricated JUnit/count; G broad replay still pending.",
   "cleanup": {

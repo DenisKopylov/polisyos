@@ -255,7 +255,7 @@
     "runtime_path": [
       "ExperimentState/NodeSpec state_writes → branch_state root grant",
       "Sequential/Async actual node mutation; serialized shared-worker entrypoint → typed mutation envelope",
-      "producer completion closes live bindings → canonical full snapshot",
+      "Producer completion creates a separate neutral completed snapshot/COPY; the original producer-held live view retains its scope guards. The actual full snapshot is published without granting mutation authority to the original view.",
       "actual CAS and NodeResultCache → fresh restored node/state; unsupported mutation rejected before publication"
     ],
     "proxy_divergence": "An unchanged caller base or empty mutation journal can coexist with undeclared branch output99 or mutated typed refs; producer artifact presence alone misses the scope escape. Physical model membership/caller state/CAS/cache restored value distinguish admission from marker/constructor assertions.",
@@ -284,7 +284,7 @@
   },
   "source_delivery": {
     "exact_tree_match": "0bf788 tree2e069 equals local6b87tree2e069",
-    "history": "Append-only same PR55 first parentd030; actual G855 and seven published peer parents preserve original histories. Old local6b87 SHA remains a separate matching source-tree carrier.",
+    "history": "Append-only same PR55 first parentd030; actual G855 plus six published B lane parents preserve their original histories, for eight parents total. Old local6b87 SHA remains a separate matching source-tree carrier.",
     "git_method": "GitHub MCP immutable blob/tree/commit/ref operations; normal expected-head fast-forward force=false; original physical checkout remains attached590.",
     "unexpected_local_refs": "Originalfetch corrupt refs/stash and unrelated bad composition ref preserved; normal isolated bare fetch used; no ref deletion/prune/reset.",
     "admission": "All seven exact existing lane branch/path resume admissions admitted; full135k JSON each retained. No new checkout/worktree created.",
@@ -500,7 +500,7 @@
         "selector": "literal15-case HTTP→B ledger→freshDreader argv in peer receipt"
       },
       "target_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
-      "environment": "Exact existing cloud env; no state_branching imported; source875 closure and fullphysicalHTTP/work/ledger/audit in peer packet.",
+      "environment": "Exact existing cloud environment; no state_branching imported. Current15native has874 distinct loaded sourcepaths(871B+3D),14369 observations; historical source-equivalence separately875of876. Fullphysical HTTP/work/ledger/audit committed in peer packet.",
       "input_closure": "Actual raw HTTP responsebytes→parse_float=Decimal→B enforcer→canonical ledger→freshDreader;874 actual loaded sourcepaths in committed custody; source remains same.",
       "outcome": "PASS",
       "output": "15PASS/45pytest phasesPASS. Completed peer log3614595B and all cases retained; this is bounded transport/ledger, not D B120 actual evaluator/controller/cache-ledger provider bridge."
@@ -508,7 +508,7 @@
     {
       "command": {
         "status": "NOT EXECUTED",
-        "required_contour": "Author59prepared cases +13affected consumer modules; independent20prepared cases; one matched generic BaseModel-wrap removal. Literal ready drivers/profile pointers to be appended only from retained originals."
+        "required_contour": "Author59source-derivedprepared cases and13affectedwholefile modules via exact14file normal pytest command in committedEXE native-preparation; independent20prepared cases and one matched generic BaseModel-wrap removal via explicitbounded native-plan."
       },
       "target_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
       "environment": {
@@ -539,7 +539,14 @@
         },
         "fulltracked_expected_files": 19038,
         "fulltracked_actual_complete": "not_established",
-        "capture_instruments": "Retained VM-only; need streaming custody and full canonical configs, not narrowed missing-input selector."
+        "capture_instruments": "Exact14author selectors and ready child argv are nowcommitted; full physical archive/currentruntime/origin closure remainsnot_established. Independent outer driver still needs forwardstream correction and actual complete source/admission/hash.",
+        "author_native_preparation": {
+          "git_sha": "082c28efd1afcd4e0d7718d3ffdfd49045174861",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-native-preparation.json",
+          "sha256": "bd287813ef987e9db15757d2ebf36587230cb668334833a2d44b079d555aa089",
+          "bytes": 13555,
+          "status": "14wholefile inputs/13affected module list and literal absolutePython/concrete scratch planned;59source-derived cases, no native collection/output; original2be rawreceiver availability pending."
+        }
       },
       "outcome": "UNRUN",
       "output": "No final pytest collection/case/JUnit/partition exists. Earlier partial projection has1collectionERROR and author preflightERROR before bodies; instrumentation status separate."
@@ -575,8 +582,8 @@
   },
   "instrumentation_status": {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/instrumentation-status.json",
-    "sha256": "8803a002a267bd8e6cbf19b27a9e8401fe040bdd531f97a464101449c1c3ca1a",
-    "bytes": 6324,
+    "sha256": "9a35b2edfb1450778d83beb7414353822c982c81a4bb849d8656deb5dd19750e",
+    "bytes": 7100,
     "receiver_raw_availability": "VM-only actual instrument outputs not_established until published; no summary proof."
   },
   "footprint": {
@@ -615,12 +622,46 @@
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-source-independent-offline-evidence/git-readback.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-source-independent-review.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-candidate-binding-evidence/readback.json",
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-candidate-binding.json"
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-candidate-binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-native-preparation-evidence/input-plan.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-native-preparation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-root-handoff-independent-evidence/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-root-handoff-independent-review.json"
   ],
   "native_plan": {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/native-plan.json",
-    "sha256": "1cff1ca9efcc91d63e3ab5a27752b1033c43cd79993d960114df65237d3a796f",
-    "bytes": 6264,
-    "status": "UNRUN and outer runner not ready; explicit omitted-conftest finite contour is separate from canonical author/affected gates"
+    "sha256": "a6e2064a1d9583ca00fb819011f267b83c99bf76299b3fd012afa25f9904a841",
+    "bytes": 14282,
+    "status": "Author14normal files and exact argv nowindependently Git byte-qualified; independent20preparedfile/removal finite-no-conftest contour stillseparate; runtime/origins/sourceprojection UNRUN/notestablished."
+  },
+  "current_execution_status": "Actual pwdcreation rejected409environment_offline despite helperready. Latest observed spec76 pending/offline/failureNull; current runtime/sourceprojection and native/removal UNRUN. No process cause, complete source19038 snapshot or case partition inferred.",
+  "author_native_preparation": {
+    "git_sha": "082c28efd1afcd4e0d7718d3ffdfd49045174861",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-native-preparation.json",
+    "sha256": "bd287813ef987e9db15757d2ebf36587230cb668334833a2d44b079d555aa089",
+    "bytes": 13555,
+    "status": "14wholefile inputs/13affected module list and literal absolutePython/concrete scratch planned;59source-derived cases, no native collection/output; original2be rawreceiver availability pending.",
+    "root_input_readback": {
+      "source_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+      "source_tree_sha": "2e069f18e02175dd0d6f7acd6573a4c0b071c766",
+      "wholefile_inputs": 14,
+      "status": "All14immutable APIblob/byte/SHA256 MATCH; no imports/collection",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/native-plan.json"
+    }
+  },
+  "independent_handoff_review": {
+    "git_sha": "4741ee31ec12529dc12c434e0a25e313bbd864be",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-root-handoff-independent-review.json",
+    "sha256": "f3b836e967064cdb98c5734e6443fbe024a1bb19190d81d0b300748e5d880497",
+    "bytes": 11996,
+    "outcome": "Schema/data/source-binding PASS; three exact historicalc2 wording FAILs corrected forward R1parents/R2origincount/R3neutralcopy. Newnative remainsUNRUN."
+  },
+  "forward_metadata_corrections": {
+    "reviewed_receipt_sha": "c2b9564d9e758727567c5e7bdc9c977826c06da0",
+    "R1": "G855 plus six Badditional=sevenadditional/eighttotalparents",
+    "R2": "Current15 has874actualpaths871B+3D; separate historical equivalence875/876",
+    "R3": "Completion neutralCOPY, original producer-held live view retains scopeguards",
+    "new_author_plan": "Exact14wholefile APIblob inputs nowcommitted; normal currentnative executionUNRUN",
+    "source_and_old_deciding_outputs": "Unchanged, no rerun or evidence-grade restamp."
   }
 }

@@ -1,0 +1,241 @@
+"""Recompute whole summary/source claims; preserve the bounded V1 validator observation."""
+
+import ast
+import copy
+import hashlib
+import json
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any
+
+WORK = Path("/workspace/e02-E-pr38-r3-receipts")
+HERE = WORK / "ir-compat-independent"
+GEN = HERE / "generator-3932cded"
+PROJECTED = HERE / "generator-ca17a489/projected"
+REPO = Path("/workspace/e02-E-mc-20261006")
+SOURCE = "3932cded22a29254a7dfced99723e147d6fea7cb"
+TREE = "8d19c30199666cf97dd3934f60d772baa3071f7e"
+PROJECTION = GEN / "qualified-owner-projection-packet.json"
+OWNER = WORK / "criteria-r4/sparse-original-row-decisions-3932.json"
+LEGACY = HERE / "validate-owner3932-packets.py.txt"
+PINS = {
+    PROJECTION: "4e072a6c180495a39bce0341625ed7a6253403852e5c8111a08a073cdb2469d3",
+    OWNER: "9acba4ad109ffa6c3033cc89f83580951e245bb0f49b73677216c5d40ca85cde",
+    LEGACY: "4e3e354f50d16e12bf2defab996cf6e97caec963b934cee243e94b435007fcdb",
+}
+
+
+def require(condition: bool, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+def typed_equal(actual: object, expected: object, path: str = "$") -> None:
+    require(type(actual) is type(expected), "JSON field type mismatch at " + path)
+    if isinstance(actual, dict) and isinstance(expected, dict):
+        require(set(actual) == set(expected), "JSON field denominator mismatch at " + path)
+        for key in expected:
+            typed_equal(actual[key], expected[key], path + "/" + str(key))
+    elif isinstance(actual, list) and isinstance(expected, list):
+        require(len(actual) == len(expected), "JSON array denominator mismatch at " + path)
+        for i, value in enumerate(expected):
+            typed_equal(actual[i], value, path + "/" + str(i))
+    else:
+        require(actual == expected, "JSON field value mismatch at " + path)
+
+
+for pin_path, expected_hash in PINS.items():
+    require(
+        hashlib.sha256(pin_path.read_bytes()).hexdigest() == expected_hash, "closed input changed"
+    )
+CANONICAL_PROJECTION = json.loads(PROJECTION.read_bytes())
+CANONICAL_OWNER = json.loads(OWNER.read_bytes())
+legacy_namespace: dict[str, Any] = {"__name__": "historical_v1_validator"}
+# Existing constant/hash-pinned helper has definitions only when __name__ differs from main.
+exec(compile(LEGACY.read_bytes(), str(LEGACY), "exec"), legacy_namespace)  # noqa: S102
+
+
+def git_blob(path: str, *, absent_allowed: bool = False) -> bytes | None:
+    paths = {r["path"] for r in CANONICAL_PROJECTION["changed_generated_companions"]}
+    paths.update(r["path"] for r in CANONICAL_OWNER["property_paths_and_native_consumers"])
+    footprint = json.loads(legacy_namespace["read_ref"](CANONICAL_PROJECTION["source_footprint"]))
+    paths.update(r["path"] for r in footprint["paths"])
+    paths.update(r["original_criterion"]["path"] for r in CANONICAL_OWNER["rows"])
+    require(
+        path in paths and ".." not in Path(path).parts, "Git source path outside bound footprint"
+    )
+    # Exact immutable revision, canonical admitted repository path, shell=False.
+    result = subprocess.run(  # noqa: S603
+        ["/usr/bin/git", "-C", str(REPO), "show", SOURCE + ":" + path],
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        require(
+            absent_allowed
+            and path
+            in {
+                "policy-engine/schemas/snapshots/ir/posterior_summary_profile.schema.json",
+                "policy-engine/schemas/snapshots/ir/posterior_summary_profile_v2.schema.json",
+            },
+            "missing bound Git source",
+        )
+        return None
+    return result.stdout
+
+
+def admit_current_claims(projection: dict[str, Any], owner: dict[str, Any]) -> None:
+    runtime = json.loads(
+        legacy_namespace["read_ref"](projection["new_affected_runtime_projection"])
+    )
+    native_runtime = json.loads(legacy_namespace["read_ref"](runtime["runtime_output"]))
+    typed_equal(
+        projection["runtime_schema_components"],
+        len(native_runtime["components"]["schemas"]),
+        "$/runtime_schema_components",
+    )
+    actual_environment = runtime["existing_DoE184_all_METADATA_unchanged"]
+    typed_equal(
+        projection["existing_DoE184_environment_metadata_unchanged"],
+        actual_environment,
+        "$/existing_DoE184_environment_metadata_unchanged",
+    )
+    for row in projection["changed_generated_companions"]:
+        path = row["path"]
+        require(path in legacy_namespace["EXPECTED_PATHS"], "unadmitted generated companion")
+        old = git_blob(path, absent_allowed=True)
+        expected_old_bytes = 0 if old is None else len(old)
+        expected_old_hash = None if old is None else hashlib.sha256(old).hexdigest()
+        typed_equal(row["old_bytes"], expected_old_bytes, path + "/old_bytes")
+        typed_equal(row["old_sha256"], expected_old_hash, path + "/old_sha256")
+        if path == "policy-engine/schemas/runtime_api_v1.openapi.json":
+            actual = legacy_namespace["read_ref"](runtime["runtime_output"])
+        else:
+            actual = (PROJECTED / Path(path).relative_to("policy-engine")).read_bytes()
+        typed_equal(row["projected_bytes"], len(actual), path + "/projected_bytes")
+        typed_equal(
+            row["projected_sha256"], hashlib.sha256(actual).hexdigest(), path + "/projected_sha256"
+        )
+        typed_equal(
+            row["same_as_source_candidate"], old == actual, path + "/same_as_source_candidate"
+        )
+    footprint = json.loads(legacy_namespace["read_ref"](projection["source_footprint"]))
+    for row in footprint["paths"]:
+        raw = git_blob(row["path"])
+        typed_equal(row["bytes"], len(raw), row["path"] + "/bytes")
+        typed_equal(row["sha256"], hashlib.sha256(raw).hexdigest(), row["path"] + "/sha256")
+    for row in owner["property_paths_and_native_consumers"]:
+        require(row["revision"] == SOURCE, "native consumer source revision")
+        body = git_blob(row["path"])
+        typed_equal(row["bytes"], len(body), row["path"] + "/bytes")
+        typed_equal(row["sha256"], hashlib.sha256(body).hexdigest(), row["path"] + "/sha256")
+    for row in owner["rows"]:
+        fragment = row["original_criterion"]
+        body = git_blob(fragment["path"]).decode().splitlines(keepends=True)
+        start, end = fragment["lines"]
+        require(type(start) is type(end) is int and start <= end, "criterion typed lines")
+        text = "".join(body[start - 1 : end])
+        typed_equal(fragment["text"], text, row["id"] + "/original_criterion")
+        typed_equal(
+            fragment["sha256"],
+            hashlib.sha256(text.encode()).hexdigest(),
+            row["id"] + "/original_criterion_sha256",
+        )
+    # Preserve the explicit owner/source-observation record, including prose and extra fields.
+    # This conservation check follows independent raw/Git recomputation; it does not ratify science.
+    typed_equal(owner, CANONICAL_OWNER, "$/frozen_E_owner_decision")
+    typed_equal(projection, CANONICAL_PROJECTION, "$/closed_projection_claims")
+
+
+def validate(projection: dict[str, Any], owner: dict[str, Any]) -> None:
+    legacy_namespace["validate"](projection, owner)
+    admit_current_claims(projection, owner)
+
+
+def main() -> None:
+    projection, owner = copy.deepcopy(CANONICAL_PROJECTION), copy.deepcopy(CANONICAL_OWNER)
+    validate(projection, owner)
+    mutations = [
+        ("projection", ["runtime_schema_components"], 1),
+        ("projection", ["changed_generated_companions", 0, "projected_sha256"], "0" * 64),
+        ("owner", ["historical_ledger_preserved", "closed"], True),
+        ("owner", ["property_paths_and_native_consumers", 0, "sha256"], "0" * 64),
+        ("projection", ["changed_generated_companions", 0, "old_bytes"], True),
+        ("projection", ["changed_generated_companions", 0, "projected_bytes"], 1),
+        ("projection", ["existing_DoE184_environment_metadata_unchanged"], False),
+        ("projection", ["old99IR_keys_retained"], True),
+        ("owner", ["property_paths_and_native_consumers", 1, "bytes"], True),
+        ("owner", ["property_paths_and_native_consumers", 1, "revision"], "0" * 40),
+        ("owner", ["rows", 0, "original_criterion", "lines", 0], True),
+        ("projection", ["patch_check", "exit_code"], False),
+        ("owner", ["ROOT64d_current_proposals_preserved", "open"], 0),
+        (
+            "owner",
+            ["exact_supported_law_semantics", "compression"],
+            "Scientific authority positive",
+        ),
+    ]
+    # Same-value property control has a distinct type; the original marker remains present.
+    mutations[7] = ("projection", ["old99IR_keys_retained"], 1)
+    results = [{"case": "healthy complete current raw/Git/typed admission", "outcome": "PASS"}]
+    for kind, keys, value in mutations:
+        p, o = copy.deepcopy(projection), copy.deepcopy(owner)
+        target = p if kind == "projection" else o
+        for key in keys[:-1]:
+            target = target[key]
+        target[keys[-1]] = value
+        try:
+            validate(p, o)
+        except (ValueError, KeyError, TypeError) as exc:
+            results.append({"case": [kind, keys], "outcome": "PASS", "actual_refusal": str(exc)})
+        else:
+            raise ValueError("whole-summary negative admitted: " + repr(keys))
+    source_ast = ast.parse(Path(__file__).read_bytes())
+    targets = [
+        n
+        for n in source_ast.body
+        if isinstance(n, ast.FunctionDef) and n.name == "admit_current_claims"
+    ]
+    require(len(targets) == 1, "actual summary predicate removal target")
+    targets[0].body = [ast.Return(value=ast.Constant(value=None))]
+    ast.fix_missing_locations(source_ast)
+    namespace: dict[str, Any] = {"__name__": "effective_claim_admission_removal"}
+    # Fixed hash-bound own AST; only the actual new admission body is removed for the control.
+    exec(compile(source_ast, str(__file__), "exec"), namespace)  # noqa: S102
+    for kind, keys, value in mutations[:4]:
+        p, o = copy.deepcopy(projection), copy.deepcopy(owner)
+        target = p if kind == "projection" else o
+        for key in keys[:-1]:
+            target = target[key]
+        target[keys[-1]] = value
+        namespace["validate"](p, o)
+        require(p["candidate"] == SOURCE and o["candidate"] == SOURCE, "markers lost on removal")
+        results.append(
+            {
+                "case": ["actual_claim_admission_removal", kind, keys],
+                "outcome": "PASS",
+                "divergence": "V1 admits corrupt summary after only actual V2 claim guard removal",
+            }
+        )
+    sys.stdout.write(
+        json.dumps(
+            {
+                "schema": "policyos.e02.E.corrective_typed_whole_summary_controls.v2",
+                "candidate": SOURCE,
+                "tree": TREE,
+                "optimized": not __debug__,
+                "outcome": "PASS",
+                "scope": "Packet verification only; no source/math/native/generator rerun.",
+                "historical_V1_19_controls_limited": True,
+                "cases": results,
+                "independent_peer_four_actual_escapes_preserved": True,
+            },
+            indent=2,
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,418 @@
+{
+  "schema": "policyos.e02.independent_sparse_owner_projection_literal_review.v1",
+  "outcome": "GO literal source/original criteria/full projection custody; evidence-validator CHANGE_REQUIRED separately",
+  "source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "base": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "selected_assets": {
+    "count": 27,
+    "logical_bytes": 213205,
+    "source": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-final-append-publication-selection.json",
+      "bytes": 8318,
+      "sha256": "132dfcc8b5c78e61283796a62987fa8dcb081d491902c6a186fefd993eb9946e"
+    },
+    "all_closed_hashes_equal": true
+  },
+  "actual_source_footprint": {
+    "paths": 24,
+    "python": 12
+  },
+  "native_source_bindings": [
+    {
+      "role": "producer",
+      "revision": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "bytes": 17155,
+      "sha256": "0ca1f285756508e86ccfadd1ceba011a777dafd91ac2defdc843172985bf3e05"
+    },
+    {
+      "role": "profile_and_reader",
+      "revision": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "bytes": 30919,
+      "sha256": "737af1672db198c1465da8fcf009cd470f479ac342327e4699fb831b91dd0b24"
+    },
+    {
+      "role": "common_law_admission",
+      "revision": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "bytes": 22618,
+      "sha256": "a29fff79a9d9d7cf47f66809f2fcfcc6188722af6f5f1617eb5a78ce5c5a0f4a"
+    },
+    {
+      "role": "common_stochastic_transform",
+      "revision": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "bytes": 71486,
+      "sha256": "4860382fe26db3ad6a29c206aada4b94123b7cd4d941ee79c58beae342f5c47f"
+    },
+    {
+      "role": "native_Node",
+      "revision": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "bytes": 20893,
+      "sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41"
+    },
+    {
+      "role": "single_Welfare_consumer",
+      "revision": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "bytes": 193138,
+      "sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23"
+    }
+  ],
+  "original_rows": [
+    {
+      "id": "B188",
+      "original_fragment_sha256": "845944fcb63293d09ccc282370335bbe03a508973c704ac6a58175d019e86771",
+      "original_card_bytes": 14877,
+      "owner_original_status": "partial",
+      "previous_ROOT64d_disposition": "closed",
+      "current_E_owner_decision": "accepted",
+      "current_proposal": "closed",
+      "formal_G_intake": "pending",
+      "ledger_changed": false
+    },
+    {
+      "id": "B192",
+      "original_fragment_sha256": "3ba8c9b9a37ba35d3d7e210af7d91ecdfaebbc6d642739172a988840a9c2ef34",
+      "original_card_bytes": 14877,
+      "owner_original_status": "partial",
+      "previous_ROOT64d_disposition": "closed",
+      "current_E_owner_decision": "accepted",
+      "current_proposal": "closed",
+      "formal_G_intake": "pending",
+      "ledger_changed": false
+    },
+    {
+      "id": "B201",
+      "original_fragment_sha256": "8069cd2dfd13bbfca1d2bbf02a7cc761d6614a5e967d7c11b1de299e64960474",
+      "original_card_bytes": 20683,
+      "owner_original_status": "held",
+      "previous_ROOT64d_disposition": "open",
+      "current_E_owner_decision": "accepted",
+      "current_proposal": "closed",
+      "formal_G_intake": "pending",
+      "ledger_changed": false
+    },
+    {
+      "id": "B202",
+      "original_fragment_sha256": "8d507abb668fd82e3a58b5b416e8d011d07927198cfae69949d218a6328a16ab",
+      "original_card_bytes": 20683,
+      "owner_original_status": "held",
+      "previous_ROOT64d_disposition": "open",
+      "current_E_owner_decision": "accepted",
+      "current_proposal": "closed",
+      "formal_G_intake": "pending",
+      "ledger_changed": false
+    }
+  ],
+  "full_native_case_counts": {
+    "immutable-candidate-family.xml": {
+      "cases": 414,
+      "failure": 0,
+      "error": 0,
+      "skip": 0
+    },
+    "dto-native-delta.xml": {
+      "cases": 13,
+      "failure": 0,
+      "error": 0,
+      "skip": 0
+    }
+  },
+  "qualified_independent_law_controls": 33,
+  "bound_original_controls": [
+    {
+      "finding": "B188",
+      "control": "actual_all_backend_paired_law_halton",
+      "fragment": "#/current_controls/4"
+    },
+    {
+      "finding": "B188",
+      "control": "actual_all_backend_paired_law_random",
+      "fragment": "#/current_controls/5"
+    },
+    {
+      "finding": "B188",
+      "control": "actual_all_backend_paired_law_sobol",
+      "fragment": "#/current_controls/6"
+    },
+    {
+      "finding": "B188",
+      "control": "producer_missing_joint_premise_refused",
+      "fragment": "#/current_controls/19"
+    },
+    {
+      "finding": "B188",
+      "control": "fresh_CAS_forged_alignment_shared_admission_removal",
+      "fragment": "#/current_controls/16"
+    },
+    {
+      "finding": "B188",
+      "control": "nearest_float_proxy_diverges_effective_rounding_removal",
+      "fragment": "#/current_controls/18"
+    },
+    {
+      "finding": "B188",
+      "control": "unreachable_positive_atom_before_callback_random",
+      "fragment": "#/current_controls/22"
+    },
+    {
+      "finding": "B188",
+      "control": "unreachable_positive_atom_before_callback_sobol",
+      "fragment": "#/current_controls/23"
+    },
+    {
+      "finding": "B188",
+      "control": "unreachable_positive_atom_before_callback_halton",
+      "fragment": "#/current_controls/21"
+    },
+    {
+      "finding": "B192",
+      "control": "actual_all_backend_paired_law_halton",
+      "fragment": "#/current_controls/4"
+    },
+    {
+      "finding": "B192",
+      "control": "actual_all_backend_paired_law_random",
+      "fragment": "#/current_controls/5"
+    },
+    {
+      "finding": "B192",
+      "control": "actual_all_backend_paired_law_sobol",
+      "fragment": "#/current_controls/6"
+    },
+    {
+      "finding": "B192",
+      "control": "hundred_atoms_fresh_CAS_exact_law_not_old_residual",
+      "fragment": "#/current_controls/17"
+    },
+    {
+      "finding": "B192",
+      "control": "nearest_float_proxy_diverges_effective_rounding_removal",
+      "fragment": "#/current_controls/18"
+    },
+    {
+      "finding": "B192",
+      "control": "actual_native_fresh_E_named_mean_consumer",
+      "fragment": "#/current_controls/7"
+    },
+    {
+      "finding": "B201",
+      "control": "hundred_atoms_fresh_CAS_exact_law_not_old_residual",
+      "fragment": "#/current_controls/17"
+    },
+    {
+      "finding": "B201",
+      "control": "actual_native_fresh_E_named_mean_consumer",
+      "fragment": "#/current_controls/7"
+    },
+    {
+      "finding": "B201",
+      "control": "actual_E_raw_before_builder_inline_bool",
+      "fragment": "#/current_controls/0"
+    },
+    {
+      "finding": "B201",
+      "control": "actual_E_raw_before_builder_inline_string",
+      "fragment": "#/current_controls/1"
+    },
+    {
+      "finding": "B201",
+      "control": "actual_E_raw_before_builder_raw_bool",
+      "fragment": "#/current_controls/2"
+    },
+    {
+      "finding": "B201",
+      "control": "actual_E_raw_before_builder_raw_string",
+      "fragment": "#/current_controls/3"
+    },
+    {
+      "finding": "B201",
+      "control": "seven_literal_old700_profile1_mean_ABI_bytes_replay",
+      "fragment": "#/current_controls/20"
+    },
+    {
+      "finding": "B201",
+      "control": "value_sorted_tiny_tail_refused",
+      "fragment": "#/current_controls/24"
+    },
+    {
+      "finding": "B202",
+      "control": "actual_all_backend_paired_law_halton",
+      "fragment": "#/current_controls/4"
+    },
+    {
+      "finding": "B202",
+      "control": "actual_all_backend_paired_law_random",
+      "fragment": "#/current_controls/5"
+    },
+    {
+      "finding": "B202",
+      "control": "actual_all_backend_paired_law_sobol",
+      "fragment": "#/current_controls/6"
+    },
+    {
+      "finding": "B202",
+      "control": "producer_missing_joint_premise_refused",
+      "fragment": "#/current_controls/19"
+    },
+    {
+      "finding": "B202",
+      "control": "fresh_CAS_forged_alignment_shared_admission_removal",
+      "fragment": "#/current_controls/16"
+    },
+    {
+      "finding": "B202",
+      "control": "hundred_atoms_fresh_CAS_exact_law_not_old_residual",
+      "fragment": "#/current_controls/17"
+    },
+    {
+      "finding": "B202",
+      "control": "seven_literal_old700_profile1_mean_ABI_bytes_replay",
+      "fragment": "#/current_controls/20"
+    }
+  ],
+  "complete_schema_values": 103,
+  "module_models": {
+    "IR": 101,
+    "fabric": 2,
+    "oldIRkeys_preserved": 99
+  },
+  "runtime_closed_observation": {
+    "receipt": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/runtime-delta-receipt.json",
+      "bytes": 41949,
+      "sha256": "ab52fc0067553452862218d640165c2158f459b62a53e3aaf52cdbf8de2ae228"
+    },
+    "argv": [
+      "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+      "-B",
+      "/workspace/e02-E-mc-20261006/policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py",
+      "--output",
+      "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/runtime_api_v1.openapi.json",
+      "--scratch-root",
+      "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/runtime-state"
+    ],
+    "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+    "exit_code": 0,
+    "573schemas": true,
+    "1494source_dependencies": true,
+    "aggregate": "2924a8116e1d1dbd7c9116ab43deedcd13a8266a0bd2382c9d46e2d7aedd5ffa",
+    "scope": "Existing closed affected runtime observation only, no repeated render."
+  },
+  "actual_generated_patch": {
+    "members": [
+      {
+        "path": "policy-engine/architecture/public_surface/inventory.json",
+        "old_bytes": 222856,
+        "projected_bytes": 223160,
+        "projected_sha256": "1981e8a6905568dac57d86f3ca9d156c077c5e7873a5f9a6ac6ea5553e8bf2a0",
+        "exact_closed_projection": true
+      },
+      {
+        "path": "policy-engine/docs/reference/ir/schema-catalog.md",
+        "old_bytes": 1635334,
+        "projected_bytes": 1642574,
+        "projected_sha256": "9d370c8a8e324b4ee4d06f27b451596666bab822113aef673953ad5470f31bab",
+        "exact_closed_projection": true
+      },
+      {
+        "path": "policy-engine/docs/reference/public-surface.md",
+        "old_bytes": 154167,
+        "projected_bytes": 154367,
+        "projected_sha256": "5c06b4dafcb7397b4fd755f0642d98200111cdacae9d948c61f34790acdc3c57",
+        "exact_closed_projection": true
+      },
+      {
+        "path": "policy-engine/docs/reference/schemas.md",
+        "old_bytes": 29371,
+        "projected_bytes": 30043,
+        "projected_sha256": "20ccb87943f131b86387025a965a2b9e10f65498fb69c821af5c7597834c275b",
+        "exact_closed_projection": true
+      },
+      {
+        "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+        "old_bytes": 2812414,
+        "projected_bytes": 2812414,
+        "projected_sha256": "701b5d6fe04afc283518f96ec5461db0fb3f7beb9fe33b82813a63b20e614ca0",
+        "exact_closed_projection": true
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+        "old_bytes": 52447,
+        "projected_bytes": 53541,
+        "projected_sha256": "1f6e737b93879bb6c33fbc7bf4c5d847f66f1365720dc4702afdccaadb43d6e9",
+        "exact_closed_projection": true
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json",
+        "old_bytes": 8853,
+        "projected_bytes": 10458,
+        "projected_sha256": "27dad4e3ca52c016d9203c5d70b27299bfbb38698fc6f64f4e2bc7377d2045d3",
+        "exact_closed_projection": true
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/posterior_summary_profile.schema.json",
+        "old_bytes": 0,
+        "projected_bytes": 6257,
+        "projected_sha256": "fb26ce985c4b99092bd1a9d75a2f9b3940415eff83cbb9383fbb63a89b2dccf6",
+        "exact_closed_projection": true
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/posterior_summary_profile_v2.schema.json",
+        "old_bytes": 0,
+        "projected_bytes": 6746,
+        "projected_sha256": "d538fc5a5b9003afd015eb59213a9fd72f5dcf7ab2ec830418e94124f13613d2",
+        "exact_closed_projection": true
+      }
+    ],
+    "independent_git_apply_check": {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-E-mc-20261006",
+        "apply",
+        "--check",
+        "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/canonical-generated-full-final3932.patch"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  },
+  "historical_vs_current": {
+    "ledger": {
+      "partial": 49,
+      "held": 4,
+      "closed": 1
+    },
+    "ROOT64d_proposals": {
+      "closed": 41,
+      "limited": 9,
+      "held": 2,
+      "open": 2
+    },
+    "3932_proposals": {
+      "closed": 43,
+      "limited": 9,
+      "held": 2
+    },
+    "formal_G_or_ROOT_integration_asserted": false,
+    "capability_state": "surface_missing",
+    "global_generation_gate": "UNRUN, owner intake needed",
+    "C_F_acceptance_asserted": false,
+    "IR_Core_generic_facade_lease_transferred": false
+  },
+  "native_numeric_or_projection_run_repeated": false,
+  "ROOT_source_environment_used_or_mutated": false,
+  "observer": {
+    "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/review_literal_inputs.py",
+    "bytes": 12375,
+    "sha256": "603453103df335644b14100c249f24377b14432a0300a88899baaf0108421161"
+  },
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "mode": "normal"
+}

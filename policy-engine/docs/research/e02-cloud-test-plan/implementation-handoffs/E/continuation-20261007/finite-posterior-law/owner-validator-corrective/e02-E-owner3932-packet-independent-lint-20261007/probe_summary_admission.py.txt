@@ -1,0 +1,18 @@
+import copy,hashlib,json,pathlib,runpy,sys
+WORK=pathlib.Path('/workspace/e02-E-pr38-r3-receipts')
+SOURCE=WORK/'ir-compat-independent/validate-owner3932-packets.py.txt'
+n=runpy.run_path(str(SOURCE),run_name='independent_readonly_packet_probe')
+p=json.loads((WORK/'ir-compat-independent/generator-3932cded/qualified-owner-projection-packet.json').read_text())
+o=json.loads((WORK/'criteria-r4/sparse-original-row-decisions-3932.json').read_text())
+n['validate'](p,o)
+mutants=[('runtime_components_false_summary','projection',['runtime_schema_components'],1),('generated_payload_digest_false_summary','projection',['changed_generated_companions',0,'projected_sha256'],'0'*64),('historical_ledger_bool_count','owner',['historical_ledger_preserved','closed'],True),('source_consumer_digest_false_summary','owner',['property_paths_and_native_consumers',0,'sha256'],'0'*64)]
+rows=[]
+for name,kind,keys,v in mutants:
+ a,b=copy.deepcopy(p),copy.deepcopy(o);t=a if kind=='projection' else b
+ for k in keys[:-1]:t=t[k]
+ t[keys[-1]]=v
+ try:n['validate'](a,b)
+ except (ValueError,TypeError) as e:result={'expected_refusal':True,'actual_refusal':str(e),'defining_negative_outcome':'PASS'}
+ else:result={'expected_refusal':True,'actual_refusal':None,'defining_negative_outcome':'FAIL','actual_mutant_admitted':True}
+ rows.append({'id':name,'keys':keys,'kind':kind,'newvalue':v,'projection_PASS_marker':a['outcome']=='PASS','candidate_tree_refs_preserved':a['candidate']==p['candidate'] and a['tree']==p['tree'] and b['candidate']==o['candidate'] and b['tree']==o['tree'],'all_native_content_refs_preserved':a['new_affected_runtime_projection']==p['new_affected_runtime_projection'] and a['old_complete103_projection']==p['old_complete103_projection'],**result})
+print(json.dumps({'schema':'policyos.e02.independent_packet_summary_admission_falsifier.v1','mode':'optimized' if sys.flags.optimize else 'normal','validator':{'path':str(SOURCE),'bytes':SOURCE.stat().st_size,'sha256':hashlib.sha256(SOURCE.read_bytes()).hexdigest()},'healthy_actual_validator_passed':True,'mutants':rows,'source_native_Git_or_environment_mutated':False,'native_math_or_projection_rerun':False},indent=2))

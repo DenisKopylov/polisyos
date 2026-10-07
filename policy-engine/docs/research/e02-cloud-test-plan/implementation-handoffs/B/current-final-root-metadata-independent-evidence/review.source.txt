@@ -1,0 +1,249 @@
+"""Git/stdlib-only metadata review. Never imports product code or runs a gate."""
+import collections
+import copy
+import csv
+import hashlib
+import io
+import json
+import re
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+
+ROOT_RECEIPT = "5a9a7b3cdf4bfc98f19923d32cd4c12a2c01f050"
+ROOT_IMPL = "92601021ba17032ec15151e2e3bdbc36dfa61510"
+RUNTIME = "1862c021df74a5c5815bc5cd21a20e61b30132b6"
+MAIN = "198076863e143dea9f89f02734b13d50dae3eed5"
+PROPOSAL = "d1efd64136815a04a96a534e1be8003783f444fe"
+PORTABLE = "120a9f11a0fb4f800c71da370176b6fc22d4aa87"
+AFFECTED = "28b9ba5febf41c0eb619e4613e839c33b181ed08"
+PREFIX = "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/"
+EVIDENCE = PREFIX + "current-final-full-B-evidence/"
+REQUIRED = set("schema unit slice closure_ids bundle_ids slice_base_sha implementation_commits candidate_tree_sha branch pull_request changed_paths baseline_cells checks property predicate_basis capability_state_or_finding_state limitations_and_next_owner".split())
+PREDICATES = {"recomputed", "independently_reconciled", "consumer_asserted", "institutionally_supplied", "not_established"}
+READS = {}
+CHECKS = []
+
+
+def git(*args):
+    return subprocess.check_output(["git", *args])
+
+
+def raw(sha, path):
+    key = sha + ":" + path
+    body = git("show", key)
+    READS[key] = {"source_ref": key, "bytes": len(body), "sha256": hashlib.sha256(body).hexdigest()}
+    return body
+
+
+def obj(sha, path):
+    return json.loads(raw(sha, path))
+
+
+def paths(a, b):
+    return git("diff", "--name-only", a, b).decode().splitlines()
+
+
+def check(name, condition, details):
+    CHECKS.append({"id": name, "outcome": "PASS" if condition else "FAIL", "details": details})
+
+
+def verify(sha, row, pathkey="path"):
+    body = raw(sha, row[pathkey])
+    assert len(body) == row["bytes"] and hashlib.sha256(body).hexdigest() == row["sha256"], row[pathkey]
+    return body
+
+
+def handoff(value):
+    assert REQUIRED <= set(value)
+    assert value["schema"] == "policyos.e02.implementation_handoff.v1"
+    assert value["predicate_basis"] in PREDICATES
+    assert set("statement runtime_path proxy_divergence negative_controls".split()) <= set(value["property"])
+    for item in value["checks"]:
+        assert set("command target_sha environment input_closure outcome output".split()) <= set(item)
+        assert item["outcome"] in {"PASS", "FAIL", "ERROR", "SKIP", "UNRUN"}
+
+
+def indexed_rows(value):
+    if isinstance(value, dict):
+        if set("path bytes sha256".split()) <= set(value):
+            yield value
+        else:
+            for child in value.values():
+                yield from indexed_rows(child)
+    elif isinstance(value, list):
+        for child in value:
+            yield from indexed_rows(child)
+
+
+def verify_bound_refs(value):
+    if isinstance(value, dict):
+        source = value.get("source_ref")
+        if set("bytes sha256".split()) <= set(value):
+            if "commit" in value and "path" in value:
+                verify(value["commit"], value)
+            elif isinstance(source, str) and re.match(r"^[0-9a-f]{40}:", source):
+                sha, path = source.split(":", 1)
+                verify(sha, {**value, "path": path.split("#", 1)[0]})
+        for child in value.values():
+            verify_bound_refs(child)
+    elif isinstance(value, list):
+        for child in value:
+            verify_bound_refs(child)
+
+
+def junit(sha, path):
+    root = ET.fromstring(raw(sha, path))
+    outcomes = collections.Counter()
+    failures = []
+    for case in root.iter("testcase"):
+        state = "FAIL" if case.find("failure") is not None else "ERROR" if case.find("error") is not None else "SKIP" if case.find("skipped") is not None else "PASS"
+        outcomes[state] += 1
+        if state != "PASS":
+            failures.append({"classname": case.get("classname"), "name": case.get("name"), "outcome": state})
+    return {"case_count": sum(outcomes.values()), "outcomes": dict(outcomes), "nonpass": failures}
+
+
+receipt = obj(ROOT_RECEIPT, PREFIX + "current-final-full-B.json")
+handoff(receipt)
+index = obj(ROOT_IMPL, EVIDENCE + "index.json")
+payloads = [verify(ROOT_IMPL, row) for row in index["files"]]
+root_paths = paths(receipt["slice_base_sha"], ROOT_IMPL)
+check("root_full_payload_and_footprint", len(payloads) == 35 and sum(map(len, payloads)) == 2416438 and len(root_paths) == 36 and set(root_paths) == set(receipt["changed_paths"]) == {row["path"] for row in index["files"]} | {EVIDENCE + "index.json"}, {"payloads": len(payloads), "payload_bytes": sum(map(len, payloads)), "complete_paths": root_paths})
+check("root_strict_v1_and_identity", receipt["implementation_commits"] == [ROOT_IMPL] and receipt["candidate_sha"] == ROOT_IMPL and receipt["candidate_tree_sha"] == git("rev-parse", ROOT_IMPL + "^{tree}").decode().strip() and receipt["closure_ids"] == [] and len(receipt["checks"]) == 9, {"receipt_sha": ROOT_RECEIPT, "receipt_tree": git("rev-parse", ROOT_RECEIPT + "^{tree}").decode().strip(), "implementation_tree": receipt["candidate_tree_sha"], "check_outcomes": dict(collections.Counter(row["outcome"] for row in receipt["checks"])), "property_keys": sorted(receipt["property"])})
+nonmetadata = [p for p in paths(RUNTIME, ROOT_RECEIPT) if not p.startswith(PREFIX)]
+check("runtime_source_test_companion_zero_delta", not nonmetadata and receipt["checked_runtime_sha"] == RUNTIME and receipt["checked_runtime_tree_sha"] == git("rev-parse", RUNTIME + "^{tree}").decode().strip(), {"complete_non_handoff_delta": nonmetadata, "scope": "Exact bytes outside B handoff directory; no semantic acceptance of own EXE implementation."})
+footprint = obj(ROOT_IMPL, EVIDENCE + "complete-footprint.json")
+check("full_main_runtime_metadata_footprints", footprint["complete_base_to_runtime_paths"] == paths(MAIN, RUNTIME) and footprint["complete_runtime_to_metadata_parent_paths"] == paths(RUNTIME, receipt["slice_base_sha"]) and footprint["non_handoff_runtime_delta"] == [], {"main_to_runtime_paths": len(footprint["complete_base_to_runtime_paths"]), "runtime_to_metadata_parent_paths": len(footprint["complete_runtime_to_metadata_parent_paths"]), "main_source": MAIN})
+
+validation = obj(ROOT_IMPL, EVIDENCE + "completed-final-forward-packets-full-byte-validation.json")
+peer_readbacks = []
+for packet in validation["packets"]:
+    ref = packet["receipt"]
+    body = raw(ref["commit"], ref["path"])
+    assert len(body) == packet["receipt_bytes"] and hashlib.sha256(body).hexdigest() == packet["receipt_sha256"]
+    peer = json.loads(body)
+    handoff(peer)
+    assert git("rev-parse", packet["implementation_candidate"] + "^{tree}").decode().strip() == packet["tree"]
+    actual_union = set()
+    for implementation in peer["implementation_commits"]:
+        actual_union.update(git("diff-tree", "--no-commit-id", "--name-only", "-r", implementation).decode().splitlines())
+    assert actual_union == set(peer["changed_paths"]) == set(packet["implementation_union_paths"])
+    verify_bound_refs(peer)
+    count = size = 0
+    for peer_index in packet["indices"]:
+        actual_index = obj(packet["implementation_candidate"], peer_index["path"])
+        actual_rows = list(indexed_rows(actual_index.get("files", actual_index.get("payloads"))))
+        normalized_rows = [{"path": row["path"] if row["path"].startswith("policy-engine/") else peer_index["path"].rsplit("/", 1)[0] + "/" + row["path"], "bytes": row["bytes"], "sha256": row["sha256"]} for row in actual_rows]
+        assert normalized_rows == peer_index["payloads"]
+        for row in peer_index["payloads"]:
+            size += len(verify(packet["implementation_candidate"], row))
+            count += 1
+    assert packet["failures"] == []
+    peer_readbacks.append({"receipt": ref, "indexed_payloads_read": count, "indexed_payload_bytes_read": size, "check_count": len(peer["checks"]), "runtime_execution_by_reviewer": "UNRUN"})
+check("nine_forward_packets_full_git_bytes", len(peer_readbacks) == 9 and validation["all_pass"] is True, peer_readbacks)
+
+proposal = obj(PROPOSAL, PREFIX + "current-all60-final-criterion-proposal.json")
+verify_bound_refs(receipt)
+verify_bound_refs(proposal)
+rows = proposal["all60_manual_rows"]
+disposition = obj(ROOT_IMPL, EVIDENCE + "all60-root-disposition.json")
+denominator = proposal["denominator"]
+source_rows = {}
+for key in ["finding_source", "routes_source", "baseline_cells_source", "baseline_context_source"]:
+    ref = denominator[key]
+    body = verify(ref["commit"], ref)
+    source_rows[key] = json.loads(body) if key == "baseline_context_source" else list(csv.DictReader(io.StringIO(body.decode()), delimiter="\t"))
+findings = [row for row in source_rows["finding_source"] if row["unit"] == "B"]
+owners = {row["finding_id"]: row["source_closure_owner"] for row in findings}
+ids = {row["finding_id"] for row in findings}
+routes = [row for row in source_rows["routes_source"] if row["finding_id"] in ids]
+cellids = {row["cell_id"] for row in routes}
+cells = {row["id"]: row for row in source_rows["baseline_cells_source"]}
+states = collections.Counter(row["proposed_status"] for row in rows)
+check("all25_60_561_189_exact_navigation_join", len(rows) == len(ids) == 60 and {row["finding_id"] for row in rows} == ids == set(receipt["finding_ids"]) and len({row["bundle_id"] for row in rows}) == len(receipt["bundle_ids"]) == 25 and all(row["bundle_id"] == owners[row["finding_id"]] for row in rows) and len(routes) == 561 and len(cellids) == 189 and cellids <= set(cells) and set(receipt["baseline_cells"]) == cellids, {"finding_ids": sorted(ids), "bundles": sorted({row["bundle_id"] for row in rows}), "route_rows": len(routes), "unique_cells": len(cellids), "per_ID_canonical_owner_bundle_equal": True, "cell_source_records_complete": all(cells[c]["source_sha"] and cells[c]["path"] for c in cellids), "basis": "Original source-reported navigation only; environment/input closure/raw archives not re-established by this reader."})
+check("all60_status_formal_authority_separation", dict(states) == {"limited": 7, "closed": 48, "held": 4, "open": 1} == disposition["state_counts"] and all(not row["formal_closure"] for row in rows) and disposition["formal_closure_ids"] == [] and all(set(disposition["states"][state]) == {row["finding_id"] for row in rows if row["proposed_status"] == state} for state in states), {"status_counts": dict(states), "nonclosed": {state: disposition["states"][state] for state in ["limited", "held", "open"]}, "formal_closure_ids": [], "code_acceptance": disposition["code_acceptance"], "scope": "Checks classification/criterion/evidence binding and residual preservation, not an independent code acceptance of this reviewer's EXE mechanism."})
+status_by_id = {row["finding_id"]: row["proposed_status"] for row in rows}
+foreign14 = obj("df945de549d9d31ca56c5b3b7fab6a1e29d09361", PREFIX + "current-dur-llm-net-final-status-independent.json")
+foreign15 = obj("e6f947151a4837578e5263aca5ab2fd2dab2876d", PREFIX + "current-foreign-final-adjudication-review.json")
+judgment_ref = foreign15["judgment"]
+judgment_body = raw(judgment_ref["git_sha"], judgment_ref["path"])
+assert hashlib.sha256(judgment_body).hexdigest() == judgment_ref["sha256"]
+judgment = json.loads(judgment_body)
+check("foreign14_15_status_guards_aligned", len(foreign14["capability_state_or_finding_state"]["per_id"]) == 14 and all(row["proposed_status"] == status_by_id[finding] and row["formal_closure"] is False for finding, row in foreign14["capability_state_or_finding_state"]["per_id"].items()) and len(judgment["rows"]) == 15 and all(("limited" if finding["finding_id"] in {"B13", "B74"} else "closed") == status_by_id[finding["finding_id"]] for finding in judgment["rows"]), {"foreign14_counts": foreign14["capability_state_or_finding_state"]["counts"], "foreign15_rows": judgment["rows"], "authority": "Foreign guards are bounded recommendations; no new formal or own EXE acceptance.", "peer_navigation_erratum": "The immutable foreign15 global_boundary.first_eight also repeats invocation setupERROR. Same final-root erratum applies: both actual scanner wrappers are EXECUTED/-9/setupNone/noJSON; old prose is not used as an outcome."})
+canonical = proposal["canonical_source"]
+criterion_reads = []
+for row in rows:
+    path = canonical["card_path_template"].format(bundle_id=row["bundle_id"])
+    text = raw(canonical["git_sha"], path).decode()
+    assert raw(RUNTIME, path).decode() == text
+    marker = re.search(r"<!-- SOURCE_BEGIN ([^:]+:" + re.escape(row["finding_id"]) + r") -->", text)
+    match = None if marker is None else re.search(r"<!-- SOURCE_BEGIN " + re.escape(marker.group(1)) + r" -->(.*?)<!-- SOURCE_END " + re.escape(marker.group(1)) + r" -->", text, re.S)
+    assert match is not None and hashlib.sha256(match.group(1).encode()).hexdigest() == row["canonical_criterion"]["source_block_sha256"], row["finding_id"]
+    begin = text[:match.start()].count("\n") + 1
+    end = text[:match.end()].count("\n") + 1
+    assert [begin, end] == [row["canonical_criterion"]["line_begin"], row["canonical_criterion"]["line_end"]]
+    criterion_reads.append({"finding_id": row["finding_id"], "bundle_id": row["bundle_id"], "source_sha256": row["canonical_criterion"]["source_block_sha256"], "line_begin": begin, "line_end": end})
+check("full60_raw_canonical_criterion_bindings", len(criterion_reads) == 60, criterion_reads)
+
+union = obj(ROOT_IMPL, EVIDENCE + "G-complete-union-selector-UNRUN.json")
+selector = obj(PORTABLE, PREFIX + "current-completed-root-evidence/completed-final-selector.json")
+args = raw(AFFECTED, PREFIX + "current-final-affected-consumers-evidence/selectors.args").decode().splitlines()
+relative35 = [p.removeprefix("/workspace/e02-B-current-coordination/policy-engine/") for p in args if p]
+additional = sorted(set(relative35) - set(selector["test_paths"]))
+external = union["additional_external_defining_input"]
+external_body = raw(external["commit"], external["path"])
+check("proposed_G253_input_union_UNRUN", union["canonical250_paths"] == selector["test_paths"] and additional == union["additional_actual35_consumer_paths"] and len(selector["test_paths"]) == 250 and len(additional) == 2 and union["declarative_whole_file_count"] == 253 and union["state"] == "UNRUN" and "UNRUN" in union["actual_combined_case_count"] and all(git("cat-file", "-t", RUNTIME + ":policy-engine/" + p).decode().strip() == "blob" for p in additional), {"canonical_files": 250, "additional_actual35_relative_paths": additional, "external_exact_ref": external, "external_bytes": len(external_body), "external_sha256": hashlib.sha256(external_body).hexdigest(), "executed35_argv_unchanged": True, "combined_case_count": "UNRUN", "fresh_platform/source/wheel/PG/resource_admission": "not_established"})
+
+native47 = junit(PORTABLE, PREFIX + "current-completed-root-evidence/native-affected.xml")
+native35 = junit(AFFECTED, PREFIX + "current-final-affected-consumers-evidence/native.xml")
+phases35 = obj(AFFECTED, PREFIX + "current-final-affected-consumers-evidence/all-runtime-phases.json")
+profile35 = obj(AFFECTED, PREFIX + "current-final-affected-consumers-evidence/execution-profile.json")
+closeout = obj(ROOT_IMPL, EVIDENCE + "execution-and-quality-closeout.json")
+check("completed807_and712_XML_distinct_contours", native47["outcomes"] == {"PASS": 806, "FAIL": 1} and native35["outcomes"] == {"PASS": 712} and phases35["row_count"] == 2136, {"affected47": native47, "affected35": native35, "phases35": phases35["row_count"], "actual35_HEAD": closeout["affected35"]["actual_HEAD"], "content_only_reference1862": "6246 exact production/test/product blobs retained at peer evidence; no HEAD relabeling or universal import assertion."})
+partial_wrapper = obj(PORTABLE, PREFIX + "current-completed-root-evidence/completed-final-B-cohort.json")
+partial_stdout = raw(PORTABLE, PREFIX + "current-completed-root-evidence/completed-final-B-cohort.txt").decode()
+check("full3882_incomplete_not_partition", closeout["full_native250"]["actual_collected_cases"] == 3882 and closeout["full_native250"]["actual_exit_code"] == -9 and closeout["full_native250"]["final_JUnit"] == "ABSENT" and closeout["full_native250"]["persisted_runtime_phases"] == 0 and "NOT_ESTABLISHED" in closeout["full_native250"]["complete_case_partition"], {"full_native": closeout["full_native250"], "wrapper": partial_wrapper, "stdout_bytes": len(partial_stdout.encode()), "JUnit_reconstruction_or_native_execution": "UNRUN", "stdout_labels": "Observations, not the terminal grades of3882."})
+quality = obj("da0fd9abba7a6be9871503224962c7419321ead0", PREFIX + "current-completed-quality-retry-review.json")
+qualification = receipt["proposal_quality_quantity_qualification"]
+check("latest_quality_RED_unrun_and_quantity_qualification", quality["literal_quality_execution_denominators"]["latest_result_per8gate"] == {"FAIL": 6, "PASS": 1, "ERROR": 1} and [len(closeout["latest8_quality"][s]) for s in ["FAIL", "PASS", "ERROR"]] == [6, 1, 1] and closeout["unstarted_constituents"] == {"workspace_verify": 13, "parity": 34} and "four architecture families" in qualification["later_architecture_denominators"] and "six artifact outputs" in qualification["later_architecture_denominators"] and "EXECUTED" in qualification["first_eight_invocation_text_erratum"], {"all_literal_quality_execution_denominators": quality["literal_quality_execution_denominators"], "latest8": closeout["latest8_quality"], "constituents_UNRUN": closeout["unstarted_constituents"], "qualification": qualification, "P41": "not_established; no inherited-red waiver", "architecture": "Four families/171 static and six outputs/174 top refer to the same latest retry; preliminary historical interpretation withdrawn."})
+first_quality_sha = "71ffc6341623e53602564ad42fdc61c0cdc39c1d"
+first_quality_path = PREFIX + "current-completed-quality-output-review-evidence/"
+first_quality_index = obj(first_quality_sha, first_quality_path + "index.json")
+for row in first_quality_index["files"]:
+    verify(first_quality_sha, {**row, "path": first_quality_path + row["path"]})
+scanner_first = obj(first_quality_sha, first_quality_path + "production-invocation.json")
+scanner_second = obj("189c0c10b08fcfab08698133163510aa6c89166c", PREFIX + "current-completed-quality-retry-review-evidence/production-invocation-retry.json")
+check("both_scanner_actual_executed_SIGKILL", all(w["harness_state"] == "EXECUTED" and w["exec_setup_error"] is None and w["exit_code"] == -9 and w["head"] == RUNTIME and w["head_after"] == RUNTIME for w in [scanner_first, scanner_second]), {"first": scanner_first, "second": scanner_second, "full_first_eight_payloads_read": len(first_quality_index["files"]), "stdout_empty_or_partial_does_not_mean_setup_failure": True, "causal_victim_attribution": "not_established", "noJSON_and_resource_falsifier": "Root/peer exact profiles preserve no receipt and finite cloud boundary; no new attempt here."})
+admissions = []
+for row in index["files"]:
+    if "/admission/" in row["path"]:
+        value = obj(ROOT_IMPL, row["path"])
+        admissions.append({"path": row["path"], "status": value["status"], "requested": value["requested"], "started_at": value["started_at"], "finished_at": value["finished_at"]})
+cleanup = obj(ROOT_IMPL, EVIDENCE + "completed-final-cleanup-candidates.json")
+shutdown = obj(ROOT_IMPL, EVIDENCE + "completed-final-owned-postgres-shutdown.json")
+check("admission_and_preserved_cleanup_custody", len(admissions) == 14 and all(row["status"] == "admitted" for row in admissions) and cleanup["performed_deletion_or_move"] is False and len(cleanup["candidates"]) == 28, {"admissions": admissions, "admission_role": "Workspace custody snapshots, not runtime proof", "cleanup_candidate_count": len(cleanup["candidates"]), "native_trash": cleanup["native_trash"], "performed_deletion_or_move": False, "explicit_preservation": cleanup["explicit_preservation"], "owned_PG_shutdown": shutdown, "new_service_or_cleanup_actions_by_reviewer": "UNRUN"})
+
+negative_controls = []
+missing_property = copy.deepcopy(receipt)
+del missing_property["property"]["negative_controls"]
+try:
+    handoff(missing_property)
+except AssertionError:
+    negative_controls.append({"input": "Actual root v1 detached data with negative_controls removed; all other declarations preserved", "actual": "rejected by complete property predicate"})
+wrong_hash = {**index["files"][0], "sha256": "0" * 64}
+try:
+    verify(ROOT_IMPL, wrong_hash)
+except AssertionError:
+    negative_controls.append({"input": "Actual first payload and valid path/bytes with false digest", "actual": "rejected by reading complete Git bytes"})
+altered_rows = copy.deepcopy(rows)
+altered_rows[0]["proposed_status"] = "closed"
+altered_states = collections.Counter(row["proposed_status"] for row in altered_rows)
+if dict(altered_states) != disposition["state_counts"]:
+    negative_controls.append({"input": "Actual all60 detached rows with B13 LIMITED changed to CLOSED; root declared counts unchanged", "actual": "60-row classification disagrees with exact root quantities"})
+check("three_metadata_property_corruption_controls", len(negative_controls) == 3, {"controls": negative_controls, "native_or_source_modification": "None; exact original Git bytes and historical outcomes retained"})
+
+result = {"schema": "policyos.e02.independent_metadata_review.v1", "root_implementation": ROOT_IMPL, "root_receipt": ROOT_RECEIPT, "runtime_source": RUNTIME, "outcome": "PASS" if all(c["outcome"] == "PASS" for c in CHECKS) else "FAIL", "scope": "Independent Git-object/receipt/denominator/evidence metadata reconciliation only. No acceptance of own EXE code, no new native/gates/collection/product imports, no formal finding closure.", "checks": CHECKS, "complete_objects_read": list(READS.values()), "complete_unique_Git_object_count": len(READS), "complete_unique_bytes_read": sum(r["bytes"] for r in READS.values()), "blockers": [c["id"] for c in CHECKS if c["outcome"] != "PASS"], "limitations": ["Technical48/7/4/1 remain proposed scoped findings, formalclosure[].", "Full3882 native terminal partition and generic27 parser remain not_established/UNRUN.", "G253 future wholefiles need new admitted compatible resource/platform/producer inputs; no additive case count.", "Large raw originals and baseline archives remain qualified receiver-not-established navigation.", "Latest8 quality6FAIL/1ERROR/1PASS blocks global code acceptance; no P41 waiver."]}
+json.dump(result, sys.stdout, ensure_ascii=False, indent=2)
+sys.stdout.write("\n")
+sys.exit(0 if result["outcome"] == "PASS" else 1)

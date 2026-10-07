@@ -758,8 +758,8 @@ def test_v3_history_projects_n5_artifact_root_model_as_scalar_wire() -> None:
         )
 
 
-def test_v3_history_preserves_typed_conditional_interaction_evidence() -> None:
-    """Retain the complete N5 interaction owner through the v3 history graph."""
+def test_v5_history_preserves_typed_conditional_interaction_evidence() -> None:
+    """Retain the complete N5 interaction owner through the additive v5 graph."""
 
     evidence = ConditionalSimulationInteractionEvidence.model_validate(
         {
@@ -792,7 +792,7 @@ def test_v3_history_preserves_typed_conditional_interaction_evidence() -> None:
     projection = generation._historical_generation_cycle_field_tree(
         restored,
         wire,
-        version="v3",
+        version="v5",
     )
     assert isinstance(projection, dict)
     spec = canon.CanonSpec(forbid_floats=False)
@@ -824,7 +824,7 @@ def test_v3_history_preserves_typed_conditional_interaction_evidence() -> None:
         generation._historical_generation_cycle_field_tree(
             forged,
             wire,
-            version="v3",
+            version="v5",
         )
 
 
@@ -870,8 +870,8 @@ def test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph() -> N
     """Freeze aliases/Enums across every map class and exclude computed wire keys."""
 
     frozen = generation.FROZEN_N6_HISTORY_SCHEMA
-    expected_field_counts = {"v1": 76, "v2": 82, "v3": 99}
-    expected_model_counts = {"v1": 59, "v2": 60, "v3": 65}
+    expected_field_counts = {"v1": 76, "v2": 82, "v3": 92, "v5": 99}
+    expected_model_counts = {"v1": 59, "v2": 60, "v3": 64, "v5": 65}
     assert {version: len(models) for version, models in frozen.items()} == expected_model_counts
     for version, models in frozen.items():
         assert sum(
@@ -921,7 +921,11 @@ def test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph() -> N
     assert strategies[0]["type"] == (
         "polisyos.runtime.quality.acquisition_planner.AcquisitionStrategy"
     )
-    interaction_field = frozen["v3"][
+    v3_value_port = frozen["v3"][
+        "polisyos.runtime.quality.generation_cycle.ValuePortObservation"
+    ]
+    assert "conditional_interaction_evidence" not in v3_value_port["wire_fields"]
+    interaction_field = frozen["v5"][
         "polisyos.runtime.quality.generation_cycle.ValuePortObservation"
     ]
     interaction_owner = (
@@ -931,7 +935,7 @@ def test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph() -> N
         [["union:0"], interaction_owner]
     ]
     assert "conditional_interaction_evidence" in interaction_field["wire_fields"]
-    assert frozen["v3"][interaction_owner]["opaque_fields"] == [
+    assert frozen["v5"][interaction_owner]["opaque_fields"] == [
         "higher_order_residuals"
     ]
 

@@ -127,16 +127,35 @@ class PosteriorSummaryProfile(BaseModel):
         return self
 
 
-class PosteriorSummaryProfileV2(PosteriorSummaryProfile):
+class PosteriorSummaryProfileV2(BaseModel):
     """Exact binary-weight ratios with explicit finite-grid sampling semantics."""
 
     model_config = ConfigDict(extra="forbid", frozen=True, json_schema_extra={"$id": PROFILE_V2_ID})
     profile_id: Literal["urn:policyos:ir:bayesian-posterior-summary-profile:2"] = PROFILE_V2_ID
     profile_version: Literal["2.0"] = "2.0"
-    probability_convention: Literal["exact_binary_weight_ratios"] = "exact_binary_weight_ratios"
+    point_functional: Literal["median"] = "median"
+    mean_functional: Literal["weighted_arithmetic_mean"] = "weighted_arithmetic_mean"
+    interval_functional: Literal["equal_tail_inverse_cdf"] = "equal_tail_inverse_cdf"
+    numeric_representation: Literal["finite_float64"] = "finite_float64"
+    compression: Literal["none"] = "none"
+    thinning: Literal["none"] = "none"
+    gate_eligible: Literal[False] = False
+    parameter_name: str = Field(min_length=1)
+    parameter_order: tuple[str, ...] = Field(min_length=1)
+    draw_ids: tuple[str, ...] = Field(min_length=1)
+    row_identity_basis: Literal["producer_input_order", "producer_supplied_ids"]
+    sample_axis: str = Field(min_length=1)
     probabilities: tuple[StrictFloat, ...] = Field(
         min_length=1, description="Canonical binary ratio weights; need not sum to one."
     )
+    posterior_mean: StrictFloat
+    credible_mass: StrictFloat = Field(gt=0, lt=1)
+    carrier_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    joint_law_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    binding: PosteriorParameterBinding | None = None
+    context: PosteriorSummaryContext = Field(default_factory=PosteriorSummaryContext)
+    context_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    probability_convention: Literal["exact_binary_weight_ratios"] = "exact_binary_weight_ratios"
     sampling_approximation: Literal["finite_uniform_mesh_discretization"] = (
         "finite_uniform_mesh_discretization"
     )

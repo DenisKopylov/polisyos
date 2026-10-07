@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import inspect
 import math
+import numbers
 from dataclasses import dataclass
 from enum import Enum
 from statistics import NormalDist
@@ -18,9 +19,11 @@ from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_
 from polisyos.ir.registry.refs import ArtifactRefModel, UncertaintyEnvelopeRef
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable
+    from collections.abc import Callable, Iterable, Sequence
 
     from polisyos.ir.kernel.trust import TrustPolicySpec
+
+    from .posterior_summary import PosteriorSummaryProfileV2
 
 
 class UncertaintyCompatibilityError(ValueError):
@@ -102,9 +105,7 @@ class OutputContractDeclaration:
         normalized = frozenset(self.capabilities)
         if not all(isinstance(item, OutputContractCapability) for item in normalized):
             raise TypeError("output_contract_declaration_capability_invalid")
-        owns_value_projection = (
-            OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION in normalized
-        )
+        owns_value_projection = OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION in normalized
         if owns_value_projection != isinstance(
             self.value_uncertainty_projection_kind,
             ValueUncertaintyProjectionKind,
@@ -127,13 +128,9 @@ class NativeValueEstimandBinding(BaseModel):
     schema_version: Literal["polisyos.ir.native_value_estimand_binding.v1"] = (
         "polisyos.ir.native_value_estimand_binding.v1"
     )
-    authority_scope: Literal["contract_only_nonproduction"] = (
-        "contract_only_nonproduction"
-    )
+    authority_scope: Literal["contract_only_nonproduction"] = "contract_only_nonproduction"
     production_value_eligible: Literal[False] = False
-    binding_kind: Literal["contract_projection_request"] = (
-        "contract_projection_request"
-    )
+    binding_kind: Literal["contract_projection_request"] = "contract_projection_request"
     native_contract_id: str = Field(min_length=1)
     producer_method_fqn: str = Field(min_length=1)
     projection_input_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
@@ -187,19 +184,12 @@ class NativeValueEstimandBinding(BaseModel):
                 getattr(estimand, "treatment_or_exposure", None)
             ),
             "covariates_or_conditioning": tuple(
-                str(item)
-                for item in getattr(estimand, "covariates_or_conditioning", ())
+                str(item) for item in getattr(estimand, "covariates_or_conditioning", ())
             ),
-            "adjustment_set": _optional_estimand_tuple(
-                getattr(estimand, "adjustment_set", None)
-            ),
+            "adjustment_set": _optional_estimand_tuple(getattr(estimand, "adjustment_set", None)),
             "population": str(getattr(estimand, "population", "") or ""),
-            "sample_filter": _optional_estimand_text(
-                getattr(estimand, "sample_filter", None)
-            ),
-            "time_horizon": _optional_estimand_text(
-                getattr(estimand, "time_horizon", None)
-            ),
+            "sample_filter": _optional_estimand_text(getattr(estimand, "sample_filter", None)),
+            "time_horizon": _optional_estimand_text(getattr(estimand, "time_horizon", None)),
             "prediction_origin": _optional_estimand_text(
                 getattr(estimand, "prediction_origin", None)
             ),
@@ -256,9 +246,7 @@ def value_uncertainty_output_contract(
 
     return OutputContractDeclaration(
         contract_id=contract_id,
-        capabilities=frozenset(
-            {OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION}
-        ),
+        capabilities=frozenset({OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION}),
         value_uncertainty_projection_kind=projection_kind,
     )
 
@@ -274,8 +262,7 @@ def supports_value_uncertainty_projection_contract(owner: type[object]) -> bool:
     except (TypeError, ValueError):
         return False
     return all(
-        name in parameters
-        and parameters[name].kind is inspect.Parameter.KEYWORD_ONLY
+        name in parameters and parameters[name].kind is inspect.Parameter.KEYWORD_ONLY
         for name in ("estimand", "projection_binding")
     )
 
@@ -1601,6 +1588,126 @@ def join_envelopes(
     )
 
 
+def _ratio_composition_profile(
+    envelope: UncertaintyEnvelope,
+) -> PosteriorSummaryProfileV2 | None:
+    """Admit declared ratio profiles without changing legacy composition."""
+    from .posterior_summary import (
+        PROFILE_KEY,
+        PosteriorSummaryProfileV2,
+        read_posterior_summary_profile,
+    )
+
+    if not any(
+        key in envelope.metadata
+        for key in (
+            PROFILE_KEY,
+            "posterior_summary_profile_required",
+            "posterior_summary_profile_id",
+            "posterior_summary_profile_version",
+        )
+    ):
+        return None
+    profile = read_posterior_summary_profile(envelope)
+    return profile if isinstance(profile, PosteriorSummaryProfileV2) else None
+
+
+def _derived_ratio_metadata(
+    profile: PosteriorSummaryProfileV2, *, operation: str, limitation: str
+) -> dict[str, Any]:
+    """Carry explicit parent lineage without copying fit or law authority."""
+    return {
+        "posterior_composition": operation,
+        "posterior_composition_limitation": limitation,
+        "parent_posterior_profile_hash": content_hash(
+            to_canonical_bytes(profile.model_dump(mode="python"), CanonSpec(forbid_floats=False)),
+            prefix=True,
+        ),
+        "inherited_parent_lineage": profile.context.model_dump(mode="json", exclude={"parameters"}),
+        "inherited_parent_lineage_authoritative": False,
+        "derived_parameter_binding": "not_established",
+    }
+
+
+def _reissue_ratio_profile(
+    result: UncertaintyEnvelope, profile: PosteriorSummaryProfileV2, *, mean: float
+) -> UncertaintyEnvelope:
+    """Bind one complete transformed corpus, retaining rows but not unit claims."""
+    from .posterior_summary import (
+        PROFILE_KEY,
+        PosteriorSummaryContext,
+        PosteriorSummaryProfileV2,
+        posterior_carrier_content_hash,
+        posterior_joint_carrier_digest,
+    )
+
+    carrier = result.distribution_payload
+    if not isinstance(carrier, PosteriorSamplesCarrier):
+        raise UncertaintyCompatibilityError("derived posterior requires an exact carrier")
+    context = PosteriorSummaryContext(
+        lineage_refs=profile.context.lineage_refs,
+        time_roles=profile.context.time_roles,
+        purpose=profile.context.purpose,
+    )
+    digest = posterior_joint_carrier_digest(
+        [profile.parameter_name], {profile.parameter_name: result}, list(profile.draw_ids)
+    )
+    derived = PosteriorSummaryProfileV2(
+        parameter_name=profile.parameter_name,
+        parameter_order=profile.parameter_order,
+        draw_ids=profile.draw_ids,
+        row_identity_basis=profile.row_identity_basis,
+        sample_axis=carrier.sample_axis,
+        probabilities=profile.probabilities,
+        posterior_mean=mean,
+        credible_mass=profile.credible_mass,
+        carrier_content_hash=posterior_carrier_content_hash(carrier),
+        joint_law_sha256=digest,
+        context=context,
+        context_content_hash=context.content_hash,
+    )
+    return result.model_copy(
+        update={
+            "metadata": {
+                **result.metadata,
+                "param_name": profile.parameter_name,
+                "posterior_summary_profile_required": True,
+                "posterior_summary_profile_id": derived.profile_id,
+                "posterior_summary_profile_version": derived.profile_version,
+                "point_functional": "median",
+                "interval_functional": "equal_tail_inverse_cdf",
+                "joint_parameter_order": list(derived.parameter_order),
+                "joint_draw_ids": list(derived.draw_ids),
+                "joint_law_sha256": digest,
+                "joint_sample_id": digest,
+                PROFILE_KEY: derived.model_dump(mode="json"),
+            }
+        }
+    )
+
+
+def _finite_ratio_map_values(values: Sequence[object]) -> np.ndarray:
+    """Refuse failed or coerced support before issuing a transformed law."""
+    converted = []
+    for value in values:
+        if isinstance(value, (bool, np.bool_)) or not isinstance(value, numbers.Real):
+            raise UncertaintyCompatibilityError(
+                "posterior map requires every finite real non-bool draw"
+            )
+        try:
+            numeric = float(value)
+        except (OverflowError, TypeError, ValueError) as exc:
+            raise UncertaintyCompatibilityError(
+                "posterior mapped draw exceeds finite float64"
+            ) from exc
+        if not math.isfinite(numeric) or (value != 0 and numeric == 0):
+            raise UncertaintyCompatibilityError(
+                "posterior map requires every finite real non-bool draw"
+            )
+        converted.append(numeric)
+    return np.asarray(converted, dtype=float)
+
+
 def compress_envelope(
     envelope: UncertaintyEnvelope,
     *,
@@ -1608,6 +1715,7 @@ def compress_envelope(
 ) -> UncertaintyEnvelope:
     """Explicitly compress a law-carrying envelope into a smaller representation."""
 
+    profile = _ratio_composition_profile(envelope)
     base = _base_provenance(envelope)
     distribution_payload = envelope.distribution_payload
     distribution_family = envelope.distribution_family
@@ -1615,17 +1723,29 @@ def compress_envelope(
     exactness = base.exactness
     certificate_kind = base.certificate_kind
     certificate_radius = base.certificate_radius
+    point_estimate = envelope.point_estimate
+    confidence_interval = envelope.confidence_interval
 
     if target == "interval":
         if distribution_payload is not None:
             exactness = ExactnessKind.OUTER_BOUND
         distribution_payload = None
     elif target == "moments":
-        std = _std_from_envelope(envelope)
+        std = _std_from_envelope(envelope) if profile is None else 0.0
+        if profile is not None:
+            from .posterior_summary import posterior_population_std_v2
+
+            carrier = envelope.distribution_payload
+            if not isinstance(carrier, PosteriorSamplesCarrier):
+                raise UncertaintyCompatibilityError("posterior moment projection lacks a carrier")
+            point_estimate = profile.posterior_mean
+            std = posterior_population_std_v2(carrier.samples, profile.probabilities)
+            z = NormalDist().inv_cdf((1.0 + profile.credible_mass) / 2.0)
+            confidence_interval = (point_estimate - z * std, point_estimate + z * std)
         distribution_family = DistributionFamily.NORMAL
         distribution_payload = ParametricFitCarrier(
             family=DistributionFamily.NORMAL,
-            parameters={"mean": float(envelope.point_estimate), "std": float(std)},
+            parameters={"mean": float(point_estimate), "std": float(std)},
         )
         exactness = ExactnessKind.APPROXIMATION
         certificate_kind = (
@@ -1641,6 +1761,7 @@ def compress_envelope(
         )
         distribution_payload = PosteriorSamplesCarrier(
             samples=tuple(float(value) for value in particle_values),
+            sample_axis=(profile.sample_axis if profile is not None else "draw"),
             weights=(
                 None
                 if particle_weights is None
@@ -1678,6 +1799,34 @@ def compress_envelope(
         scope=scope,
         notes={"target": target},
     )
+    if profile is not None:
+        preserved = target == "particles" and distribution_payload == envelope.distribution_payload
+        metadata = (
+            dict(envelope.metadata)
+            if preserved
+            else _derived_ratio_metadata(
+                profile,
+                operation=f"compress_{target}",
+                limitation="full posterior law and named functionals are not retained",
+            )
+        )
+        return UncertaintyEnvelope.model_validate(
+            {
+                **envelope.model_dump(mode="python"),
+                "point_estimate": point_estimate,
+                "confidence_interval": confidence_interval,
+                "distribution_family": distribution_family,
+                "distribution_payload": distribution_payload,
+                "composition_provenance": provenance,
+                "sample_size": (
+                    len(distribution_payload.samples)
+                    if isinstance(distribution_payload, PosteriorSamplesCarrier)
+                    else envelope.sample_size
+                ),
+                "gate_eligible": False,
+                "metadata": {**metadata, "compression_target": target},
+            }
+        )
     return envelope.model_copy(
         update={
             "distribution_family": distribution_family,
@@ -1708,15 +1857,35 @@ def push_forward_envelope(
 ) -> UncertaintyEnvelope:
     """Propagate one scalar envelope through a downstream map."""
 
+    profile = _ratio_composition_profile(envelope)
+    if profile is not None and len(profile.parameter_order) != 1:
+        raise UncertaintyCompatibilityError(
+            "scalar posterior push-forward requires the complete single-coordinate law"
+        )
     base = _base_provenance(envelope)
     map_label = map_name or getattr(func, "__name__", "anonymous_map")
 
+    mean: float | None = None
     extracted = _samples_from_payload(envelope.distribution_payload)
     if extracted is not None:
         samples, weights = extracted
-        pushed = np.asarray([float(func(float(sample))) for sample in samples], dtype=float)
-        point_estimate = _weighted_mean(pushed, weights)
-        if (
+        pushed = (
+            _finite_ratio_map_values([func(float(sample)) for sample in samples])
+            if profile is not None
+            else np.asarray([float(func(float(sample))) for sample in samples], dtype=float)
+        )
+        if profile is not None:
+            from .posterior_summary import posterior_summary_functionals_v2
+
+            mean, point_estimate, (lower, upper) = posterior_summary_functionals_v2(
+                tuple(float(value) for value in pushed),
+                profile.probabilities,
+                profile.credible_mass,
+            )
+            interval_semantics = IntervalSemantics.CREDIBLE_INTERVAL
+            confidence_level = profile.credible_mass
+            gate_eligible = False
+        elif (
             envelope.interval_semantics
             in {
                 IntervalSemantics.CONFIDENCE_INTERVAL,
@@ -1724,6 +1893,7 @@ def push_forward_envelope(
             }
             and envelope.confidence_level is not None
         ):
+            point_estimate = _weighted_mean(pushed, weights)
             alpha = 1.0 - envelope.confidence_level
             lower = _weighted_quantile(pushed, alpha / 2.0, weights)
             upper = _weighted_quantile(pushed, 1.0 - alpha / 2.0, weights)
@@ -1731,6 +1901,7 @@ def push_forward_envelope(
             confidence_level = envelope.confidence_level
             gate_eligible = envelope.gate_eligible
         else:
+            point_estimate = _weighted_mean(pushed, weights)
             lower = float(np.min(pushed))
             upper = float(np.max(pushed))
             interval_semantics = IntervalSemantics.DETERMINISTIC_BOUNDS
@@ -1738,6 +1909,7 @@ def push_forward_envelope(
             gate_eligible = envelope.gate_eligible and not envelope.is_heuristic_ci
         output_payload = PosteriorSamplesCarrier(
             samples=tuple(float(value) for value in pushed),
+            sample_axis=profile.sample_axis if profile is not None else "draw",
             weights=(None if weights is None else tuple(float(weight) for weight in weights)),
         )
         output_flavour = base.composed_flavour
@@ -1838,7 +2010,8 @@ def push_forward_envelope(
         assumptions=assumptions,
         notes={"cert_policy": cert_policy},
     )
-    return UncertaintyEnvelope(
+    result = UncertaintyEnvelope(
+        schema_version="1.1",
         numeric_policy=envelope.numeric_policy,
         point_estimate=float(point_estimate),
         confidence_interval=(float(min(lower, upper)), float(max(lower, upper))),
@@ -1857,11 +2030,24 @@ def push_forward_envelope(
         is_heuristic_ci=interval_semantics is IntervalSemantics.HEURISTIC_RANGE,
         gate_eligible=gate_eligible,
         metadata={
-            **envelope.metadata,
+            **(
+                envelope.metadata
+                if profile is None
+                else _derived_ratio_metadata(
+                    profile,
+                    operation="push_forward",
+                    limitation="map unit/estimand and fit authority are not established",
+                )
+            ),
             "push_forward_map": map_label,
             "push_forward_cert_policy": cert_policy,
         },
     )
+    if profile is not None:
+        if mean is None:
+            raise UncertaintyCompatibilityError("posterior push-forward lacks its exact mean")
+        return _reissue_ratio_profile(result, profile, mean=mean)
+    return result
 
 
 def pull_back_envelope(
@@ -1881,6 +2067,7 @@ def pull_back_envelope(
             "pull_back_envelope requires base_measure, upstream_particles, or local_inverse"
         )
 
+    profile = _ratio_composition_profile(envelope)
     map_label = map_name or getattr(func, "__name__", "anonymous_map")
     base = _base_provenance(envelope)
     lower_out, upper_out = envelope.confidence_interval
@@ -1909,11 +2096,33 @@ def pull_back_envelope(
             raise PullBackNotRepresentableError(
                 "pull-back rejected every supplied upstream particle"
             )
-        point_estimate = _weighted_mean(selected, selected_weights)
+        if profile is not None:
+            from .posterior_summary import (
+                canonicalize_posterior_weights,
+                posterior_summary_functionals_v2,
+            )
+
+            retained_weights = canonicalize_posterior_weights(
+                np.ones(selected.size) if selected_weights is None else selected_weights,
+                int(selected.size),
+            )
+            point_estimate, _, _ = posterior_summary_functionals_v2(
+                tuple(float(value) for value in selected),
+                tuple(float(weight) for weight in retained_weights),
+                profile.credible_mass,
+            )
+            selected_weights = retained_weights
+        else:
+            point_estimate = _weighted_mean(selected, selected_weights)
         lower = float(np.min(selected))
         upper = float(np.max(selected))
         distribution_payload = PosteriorSamplesCarrier(
             samples=tuple(float(value) for value in selected),
+            sample_axis=(
+                upstream_particles.sample_axis
+                if profile is not None and isinstance(upstream_particles, PosteriorSamplesCarrier)
+                else "draw"
+            ),
             weights=(
                 None
                 if selected_weights is None
@@ -1977,6 +2186,7 @@ def pull_back_envelope(
         notes=notes,
     )
     return UncertaintyEnvelope(
+        schema_version="1.1",
         numeric_policy=envelope.numeric_policy,
         point_estimate=float(point_estimate),
         confidence_interval=(float(min(lower, upper)), float(max(lower, upper))),
@@ -1991,7 +2201,15 @@ def pull_back_envelope(
         is_heuristic_ci=False,
         gate_eligible=False,
         metadata={
-            **envelope.metadata,
+            **(
+                envelope.metadata
+                if profile is None
+                else _derived_ratio_metadata(
+                    profile,
+                    operation="pull_back",
+                    limitation="retained upstream particles are constraint-only, not the posterior law",
+                )
+            ),
             "pull_back_map": map_label,
         },
     )

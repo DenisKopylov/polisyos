@@ -98,3 +98,19 @@ approximate the continuous mass law. Unreachable positive atoms refuse before
 callbacks. Multi-coordinate producers and readers require supplied shared row
 IDs; matching lengths or digest presence cannot supply that premise. Profile1
 literal display/decode/replay keeps its original functional implementation.
+
+Profile2 scalar `push_forward_envelope` admits the source carrier before any
+map callback and requires a complete single-coordinate law. It uses the same
+finite-ratio mean, median and inverse-CDF interval, then binds a new profile to
+the actual transformed rows with the original draw IDs and sample axis. An
+arbitrary map clears unit/estimand bindings; parent refs, time roles and purpose
+remain explicitly inherited non-authoritative lineage. Invalid transformed
+draws refuse the whole law rather than produce a success-only posterior.
+
+Particle compression retains the profile only for a content-identical carrier,
+including its axis. Interval and normal moment projections discard all profile
+and joint-law declarations and remain non-gating. A moment projection uses the
+exact finite-law mean and population spread with its own approximate normal
+interval, rather than reinterpret the original equal-tail posterior interval.
+Pull-back remains constraint-only and drops posterior authority. These changes
+apply to Profile2; Profile1 and unprofiled composition retain their legacy behavior.

@@ -33,12 +33,12 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/portable-copy-index.json",
       "records": 51,
-      "bytes": 4097990,
+      "bytes": 4098026,
       "original_index_sha256": "d24d07792368c0e9c96e754309aebea174b670b825bd649f85d1acc38e9c302b"
     }
   ],
   "review_copy_records": 67,
-  "review_copy_bytes": 4433236,
+  "review_copy_bytes": 4433272,
   "source": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
   "wave": "1441PASS4FAIL0ERROR0SKIP",
   "required_global_gates": "7FAIL;13+23UNRUN",

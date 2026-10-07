@@ -23,8 +23,8 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/portable-copy-index.json",
       "records": 51,
-      "bytes": 24234,
-      "sha256": "74508f2bafcb22e480e9dd1f13f57b89d25fb682a93ddce3a009eae2f884023b"
+      "bytes": 24270,
+      "sha256": "c7ae3d55a9af1b22c6088d0d87e0dc4c0bb6ddee2f3dacdb6cb66eea58b07aa1"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-refbinding-independent/portable-copy-index.json",
@@ -90,9 +90,9 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/copy-index.json",
       "status": "A",
-      "bytes": 10054,
-      "sha256": "b19970300724cbabe800761906e23b9b7d05ced3df71b71179812927417e0218",
-      "index_git_blob": "91a582c7a7af0cde3d11ed7bf046cbee7c9b12ab",
+      "bytes": 10090,
+      "sha256": "b456e055f63b0a837c4475b9eeb69b22b40e6b6c21f558b75106b2b35547f470",
+      "index_git_blob": "7ce86cc08ec6de953b35d3123f94c362ed6a7b7d",
       "historical_index_git_blob": "75806c8eab38a8f668d63fd71b05912161143072"
     },
     {
@@ -117,7 +117,7 @@
       "index_git_blob": "6a4472ebbb668153b000b7feb3f6b67ff79d1681"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/exact-Git-inputs/build_final.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/exact-Git-inputs/build_final.py.txt",
       "status": "A",
       "bytes": 71308,
       "sha256": "eff77c607d6ba230da72e17fc2fb8b53d80a49d75e05b8f20bf0362aaa41ce2a",
@@ -201,7 +201,7 @@
       "index_git_blob": "1d7e9b3d71640c4fb2f37d850e1594a656afbd56"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/exact-Git-inputs/validate.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/exact-Git-inputs/validate.py.txt",
       "status": "A",
       "bytes": 24721,
       "sha256": "2d38d703d950cb4883ea1107b1c8fac01e83ba64e8ecda0a543aa333c20a7626",
@@ -329,9 +329,9 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/portable-copy-index.json",
       "status": "A",
-      "bytes": 24234,
-      "sha256": "74508f2bafcb22e480e9dd1f13f57b89d25fb682a93ddce3a009eae2f884023b",
-      "index_git_blob": "8792020707a46c2674e21d5b93938d499dd3fc5e",
+      "bytes": 24270,
+      "sha256": "c7ae3d55a9af1b22c6088d0d87e0dc4c0bb6ddee2f3dacdb6cb66eea58b07aa1",
+      "index_git_blob": "60c6792528b14cf30ad798d282cb42c95878d8e9",
       "historical_index_git_blob": "25242c9ce787a159659f08c2e322eb50a485c414"
     },
     {
@@ -349,49 +349,49 @@
       "index_git_blob": "784bfe963b9f27d844b56d4adbee491c5a8752f9"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt1-used.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt1-used.py.txt",
       "status": "A",
       "bytes": 18132,
       "sha256": "dbde4cef421952c13f12d57868316de5f020b22861a115a636f230befc715df1",
       "index_git_blob": "dab7a919950ea930910f60b74a0cf4391204cce1"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt2-used.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt2-used.py.txt",
       "status": "A",
       "bytes": 18248,
       "sha256": "ff0d4a574aac01fe07c35e165ab0c4ef347c1d8461942883d932d21ca445c0f9",
       "index_git_blob": "45296698a982dd59ba36e90ff41b4d7fdf60eb9a"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt3-used.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt3-used.py.txt",
       "status": "A",
       "bytes": 18240,
       "sha256": "c70f9f5c4ed1b7a1312610b1db45aba9b181e26a9e3ff05ed047220db7dd878e",
       "index_git_blob": "ff36f70e59aeaaedbab7b8f77813048dd1e5bf82"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt4-used.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt4-used.py.txt",
       "status": "A",
       "bytes": 18327,
       "sha256": "dfa5a7d128558829ac07b051e6771b1bbae309a00ef8546cc99736d899a6aa1d",
       "index_git_blob": "737ec289fe8b08b781de9c538c4c31ba2ef80711"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt5-used.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt5-used.py.txt",
       "status": "A",
       "bytes": 18448,
       "sha256": "e174dd51a4c9755ee682e9991b0d4e02cdff320a880d6195fe842bf4994c3f8a",
       "index_git_blob": "add11e096da12a757e4418964cf3160e78f2ddbb"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt6-used.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt6-used.py.txt",
       "status": "A",
       "bytes": 21484,
       "sha256": "34a6143104e5181c07e30e94c66f7c6905486ae9358b9060e48adbf0615cbfcb",
       "index_git_blob": "fe939c366e8adbe7370036f9f34587cfc3c62ef3"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.py.txt",
       "status": "A",
       "bytes": 27110,
       "sha256": "203d83388f2694243430ae7d4308413ab730d62cf57a584152ffe25c20d48066",
@@ -646,8 +646,8 @@
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-review-refbindings.json",
       "status": "A",
       "bytes": 2993,
-      "sha256": "6b266c8abe7bfc186b7be1ff8fc340618322d6019f8f571e60f9273abd5ec7da",
-      "index_git_blob": "eb8d333f63b14388b6df0445295e29f14d87ec9e",
+      "sha256": "7ca341dacf2b6938ad9bd62e239ebfbe775b35fdfa4d83247f9e69ab90821bc9",
+      "index_git_blob": "9109c4071c41f2149c788ba04c21361db92f3ea5",
       "historical_index_git_blob": "9b7d2218cdf8e7c5900a535cb2fc8032ab0331d2"
     }
   ],
@@ -673,6 +673,6 @@
     "sha256": "7dffdaa7094ec192761a43bea685e2b9a8c6308fc6ba585c33084d807cfbfbaa"
   },
   "historical_observation_scope": "Original numerical/gate/count/PASS fields describe their recorded historical publication, not this correction candidate. Only current copied paths and direct derivative index identities are normalized here; the separate handoff records current checks.",
-  "current_archive_review_record_bytes": 4536004,
+  "current_archive_review_record_bytes": 4536040,
   "staged_footprint_role": "Current archive paths/byte identities projected from historical staging receipt; per-row status values and original numeric/check observations remain historical."
 }

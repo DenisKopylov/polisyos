@@ -1,3 +1,5 @@
+> Historical c75 pre-publication review. Current F35 follow-up corrects the broad installed-UNRUN wording in operative reviews and adds the executed MGraph witness; it does not rewrite this earlier evidence cut.
+
 # Independent final publication review — G twelfth wave
 
 **Decision: GO for these review/evidence documents as scoped.** Read at G branch `codex/e02-integration`, HEAD `83e7c0e934d0b40644dec8a24264a0602ef013e7` (tree `dc1a7697f506b23f2db0f1c80bf929fd2d6a2e0d`). I changed no tracked files, refs, source, or tests. Root README, owner actions, B model check, B custody/B120 correction, E and F reports, pins and storage receipts were reviewed; their local links resolve.

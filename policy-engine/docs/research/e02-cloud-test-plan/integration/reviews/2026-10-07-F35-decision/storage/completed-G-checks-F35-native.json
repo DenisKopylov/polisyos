@@ -1,0 +1,51 @@
+{
+  "utc": "2026-10-07T14:40:12.399628+00:00",
+  "policy": "Native Trash only; never empty; preserve Git and deciding receipts.",
+  "actions": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate",
+      "inode": 174034548,
+      "device": 16777231,
+      "mtime_ns": 1791379898855051624,
+      "allocated_bytes": 62541824,
+      "retained_commit": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+      "retained_tree": "d4faa64e884c863bdd8c4692432bff4bbd102c54",
+      "reason": "Completed reproducible exactGit source copy; decidingoutputs/harness/receipts preserved outsideleaf; no source uniquechanges.",
+      "state": "verified_in_native_Trash",
+      "native_exit": 0,
+      "native_stdout": "{\"native_success\":true,\"source_exists\":false,\"matches\":[{\"path\":\"/Users/deniskopylov/.Trash/candidate 17-40-12-672\",\"inode\":174034548,\"device\":16777231}]}\n",
+      "native_stderr": "",
+      "destination": "/Users/deniskopylov/.Trash/candidate 17-40-12-672"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/candidate",
+      "inode": 173991269,
+      "device": 16777231,
+      "mtime_ns": 1791371535247939199,
+      "allocated_bytes": 61288448,
+      "retained_commit": "55b45d9a5c95c3b773fc3b4d8679786b3993eb1e",
+      "retained_tree": "70ed14e004063536ff3a12d30d14d9bdd79a4916",
+      "reason": "Completed reproducible exactGit source copy; decidingoutputs/harness/receipts preserved outsideleaf; no source uniquechanges.",
+      "state": "verified_in_native_Trash",
+      "native_exit": 0,
+      "native_stdout": "{\"native_success\":true,\"source_exists\":false,\"matches\":[{\"path\":\"/Users/deniskopylov/.Trash/candidate 17-40-12-906\",\"inode\":173991269,\"device\":16777231}]}\n",
+      "native_stderr": "",
+      "destination": "/Users/deniskopylov/.Trash/candidate 17-40-12-906"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/checkout",
+      "inode": 174020255,
+      "device": 16777231,
+      "mtime_ns": 1791375545444876038,
+      "allocated_bytes": 61927424,
+      "retained_commit": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "retained_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+      "reason": "Completed reproducible exactGit source copy; decidingoutputs/harness/receipts preserved outsideleaf; no source uniquechanges.",
+      "state": "verified_in_native_Trash",
+      "native_exit": 0,
+      "native_stdout": "{\"native_success\":true,\"source_exists\":false,\"matches\":[{\"path\":\"/Users/deniskopylov/.Trash/checkout\",\"inode\":174020255,\"device\":16777231}]}\n",
+      "native_stderr": "",
+      "destination": "/Users/deniskopylov/.Trash/checkout"
+    }
+  ]
+}

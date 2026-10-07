@@ -1,3 +1,5 @@
+> For F head25c follow-up, use [F-resume-after-25c-focused.md](F-resume-after-25c-focused.md). Historical offline/whole-packet repeat instructions below are superseded for the unchanged parts.
+
 # F — продолжить closeout E02 после остановки cloud executor
 
 Этот prompt и G feedback опубликованы на `codex/e02-integration`; актуальный checkpoint получи через обычный `git fetch origin`. Читай файлы напрямую из fetched G ref (`git show origin/codex/e02-integration:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/README.md`); не требуется переносить локальные файлы в chat или переключать shared checkout. Указанный ниже G SHA — историческая база этого review, не требование вернуться на старый head.

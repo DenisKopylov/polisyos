@@ -1,0 +1,46 @@
+command: /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python -m ruff check /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/g_origin_plugin.py
+exit_code: 1
+stdout (complete):
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `session`
+  --> docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/g_origin_plugin.py:21:35
+   |
+21 | def pytest_sessionfinish(session: Any, exitstatus: int) -> None:
+   |                                   ^^^
+22 |     global EXIT_STATUS
+23 |     EXIT_STATUS = int(exitstatus)
+   |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `config`
+  --> docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/g_origin_plugin.py:26:32
+   |
+26 | def pytest_unconfigure(config: Any) -> None:
+   |                                ^^^
+27 |     variant = os.environ['G_NUMERIC_VARIANT']
+28 |     archive = Path(os.environ['G_ARCHIVE_ROOT']).resolve()
+   |
+
+E501 Line too long (103 > 100)
+  --> docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/g_origin_plugin.py:70:101
+   |
+68 |             except ValueError:
+69 |                 errors.append(f'{name}: origin outside candidate src: {origin}')
+70 |                 product_modules.append({'name': name, 'origin': str(origin), 'candidate_bound': False})
+   |                                                                                                     ^^^
+71 |                 continue
+72 |             repo_rel = f'policy-engine/src/{rel_from_src}'
+   |
+
+E501 Line too long (105 > 100)
+  --> docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/g_origin_plugin.py:93:101
+   |
+91 |             })
+92 |             if not valid:
+93 |                 errors.append(f'{name}: source bytes differ from expected candidate/control: {repo_rel}')
+   |                                                                                                     ^^^^^
+94 |         elif raw_origin and isinstance(raw_origin, str):
+95 |             origin = Path(raw_origin).resolve()
+   |
+
+Found 4 errors.
+stderr (complete):
+<empty>

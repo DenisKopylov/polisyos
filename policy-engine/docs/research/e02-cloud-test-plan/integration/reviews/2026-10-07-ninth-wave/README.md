@@ -4,7 +4,7 @@ Review base: `ebae80eaa25482d84bc6ad2e78721bc318bc0228`, tree `4bc0ca606eaf5145e
 
 This checkpoint publishes independent delta review and concrete owner feedback. It accepts no new runtime source and closes no finding. Earlier independent reviews remain applicable only to unchanged source, dependencies and evidence. A metadata carrier is not a separate implementation slice.
 
-- [B](B.md): bounded HTTP numeric fix is supported by real producer/ledger/reader evidence; the original controller-spend bridge remains separate. Observer receipt hashes and resumable frame namespace require correction.
+- [B](B.md): bounded HTTP numeric fix is supported by real producer/ledger/reader evidence; the original controller-spend bridge remains separate. The observer-hash objection was [withdrawn after native payload readback](../2026-10-07-tenth-wave/B-journal-correction.md); the resumable frame namespace limitation remains.
 - [D](D.md): useful source/test delta has no complete current-candidate handoff and deciding outputs. Targeted synthetic checks suffice for these generic mechanisms; production inputs are required only for their original data-dependent criteria.
 - [E](E.md): bounded source delta passes independent review; composed Morris/receipt checks remain. E is already appointed to decide B201/B202.
 - [F](F.md): source prerequisites are present in incoming tested ancestry and absent from older G. Preserve that implementation and its tests; integrate dependencies before the affected consumer checks.

@@ -260,10 +260,10 @@ def _owner_fixture(
 
 def _owner_fixture_with_expression_candidate(
     tmp_path: Path,
-) -> tuple[Any, Any, Any, _FixtureCandidate, _FixtureCandidate]:
-    """Build a high-ranked atom without the numeric input required by NCM."""
+) -> tuple[Any, Any, Any, _FixtureCandidate, _FixtureCandidate, _FixtureCandidate]:
+    """Build one expression candidate and two distinct numeric alternatives."""
 
-    store, problem, context, _conflicting, numeric = _owner_fixture(tmp_path)
+    store, problem, context, conflicting, numeric = _owner_fixture(tmp_path)
     source_assignment = numeric.atom.to_node_intervention().assignments[0]
     expression_intervention = NodeIntervention(
         assignments=(
@@ -312,7 +312,14 @@ def _owner_fixture_with_expression_candidate(
         intervention_atoms=(high_atom,),
         content_hash=_bundle_hash((high_atom,)),
     )
-    return store, problem, context, high, numeric
+    alternative_atom = conflicting.intervention_atoms[1]
+    alternative = _FixtureCandidate(
+        candidate_id="candidate_feasible_numeric_unselected_alternative",
+        atom=alternative_atom,
+        intervention_atoms=(alternative_atom,),
+        content_hash=_bundle_hash((alternative_atom,)),
+    )
+    return store, problem, context, high, numeric, alternative
 
 
 def _production_controller(
@@ -611,17 +618,24 @@ async def test_hard_n5_feasibility_filters_before_voi_and_serves_real_owner_resu
 @pytest.mark.asyncio
 async def test_expression_valued_candidate_falls_back_to_numeric_ncm_candidate(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """B10: missing NCM-ready input on the top-ranked candidate preserves the fallback."""
 
     repo_root = Path(__file__).resolve().parents[3]
-    store, problem, context, high, low = _owner_fixture_with_expression_candidate(tmp_path)
+    store, problem, context, high, low, alternative = (
+        _owner_fixture_with_expression_candidate(tmp_path)
+    )
     high_assignment = high.atom.to_node_intervention().assignments[0]
     low_assignment = low.atom.to_node_intervention().assignments[0]
+    alternative_assignment = alternative.atom.to_node_intervention().assignments[0]
     assert high_assignment.value is None
     assert high_assignment.value_expr == "benefit_rate * eligible_income"
     assert low_assignment.value == 1.0
     assert low_assignment.value_expr is None
+    assert alternative_assignment.value == 2.0
+    assert alternative_assignment.value_expr is None
+    assert alternative.content_hash != low.content_hash
     assert high.atom.world_model_record_ref == low.atom.world_model_record_ref
     assert high.atom.world_model_record_ref == context.world_model_record.world_model_record_id
     assert high.content_hash != low.content_hash
@@ -632,30 +646,81 @@ async def test_expression_valued_candidate_falls_back_to_numeric_ncm_candidate(
                 store=store,
                 problem=problem,
                 context=context,
-                candidates=(high, low),
+                candidates=(high, low, alternative),
                 repo_root=repo_root,
             )
             assert type(controller._simulation_port) is JointSimulationPort
             port = controller._simulation_port
             assert port.supports_applicability_preflight(problem)
+            n5_requests: list[JointSimulationRequest] = []
+            actual_n5_run = port._controller.run
+
+            def observe_n5_run(request: JointSimulationRequest, **kwargs: Any) -> Any:
+                n5_requests.append(request)
+                return actual_n5_run(request, **kwargs)
+
+            monkeypatch.setattr(port._controller, "run", observe_n5_run)
+            scheduler_observations: list[
+                tuple[tuple[Any, ...], Decimal | None, int]
+            ] = []
+            actual_prioritize = controller._voi_scheduler.prioritize
+
+            def observe_prioritize(
+                candidates: Any,
+                budget_remaining: Any,
+                frontier: Any = None,
+            ) -> Any:
+                decisions = actual_prioritize(candidates, budget_remaining, frontier)
+                scheduler_observations.append(
+                    (
+                        tuple(decisions),
+                        budget_remaining.remaining("run"),
+                        len(n5_requests),
+                    )
+                )
+                return decisions
+
+            monkeypatch.setattr(controller._voi_scheduler, "prioritize", observe_prioritize)
+            budget = _budget("0.50")
+            assert budget.remaining("run") == Decimal("0.50")
             run = await controller.run(
                 problem,
-                budget_state=_budget(),
+                budget_state=budget,
                 min_cycles=1,
                 max_cycles=1,
             )
             cycle = run.cycles[0]
             assert cycle.selected_candidate_ref == low.candidate_id
+            assert cycle.candidate_ids == (
+                high.candidate_id,
+                low.candidate_id,
+                alternative.candidate_id,
+            )
             assert cycle.simulation.status == "joint_simulated"
             assert cycle.simulation.simulation_result_ref is not None
             assert cycle.value_port.status == "value_conditional"
             assert cycle.value_port.value_ref == str(
                 cycle.simulation.simulation_result_ref.artifact_id
             )
+            assert len(n5_requests) == 1
+            assert tuple(atom.content_hash for atom in n5_requests[0].intervention_atoms) == (
+                low.atom.content_hash,
+            )
+            assert scheduler_observations
+            execution_gate, remaining_before_execution, runs_before_execution = (
+                scheduler_observations[0]
+            )
+            assert remaining_before_execution == Decimal("0.50")
+            assert runs_before_execution == 0
+            assert len(execution_gate) == 1
+            assert execution_gate[0].candidate_id == low.candidate_id
+            assert execution_gate[0].recommended_action == "advance"
+            assert execution_gate[0].economics.estimated_cost_usd == pytest.approx(0.5)
 
             summary_by_id = {item.candidate_id: item for item in run.candidate_summaries}
             high_summary = summary_by_id[high.candidate_id]
             low_summary = summary_by_id[low.candidate_id]
+            alternative_summary = summary_by_id[alternative.candidate_id]
             assert high_summary.proxy_score > low_summary.proxy_score
             assert high_summary.voi_estimate > low_summary.voi_estimate
             assert high_summary.n5_applicability.status == "ineligible"
@@ -663,8 +728,18 @@ async def test_expression_valued_candidate_falls_back_to_numeric_ncm_candidate(
                 "value_expr_intervention_not_supported_by_ncm_controller",
             )
             assert low_summary.n5_applicability.status == "eligible"
+            assert alternative_summary.n5_applicability.status == "eligible"
+            assert alternative_summary.proxy_score == low_summary.proxy_score
+            assert alternative_summary.voi_estimate == low_summary.voi_estimate
+            assert alternative_summary.value_status == "value_pending_n8"
+            assert alternative_summary.value_ref is None
+            assert alternative_summary.value_decision_grade is None
+            assert alternative.atom.content_hash not in tuple(
+                atom.content_hash for atom in n5_requests[0].intervention_atoms
+            )
             assert high_summary.content_hash == high.content_hash
             assert low_summary.content_hash == low.content_hash
+            assert alternative_summary.content_hash == alternative.content_hash
 
             prepared = port.prepare_candidate(
                 candidate=low,

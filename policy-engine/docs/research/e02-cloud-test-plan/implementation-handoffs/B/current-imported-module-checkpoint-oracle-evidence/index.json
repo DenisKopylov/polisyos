@@ -1,0 +1,63 @@
+{
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-oracle-evidence/README.md",
+      "bytes": 1956,
+      "sha256": "811dd35aa48999fdaeba9776a284f55444bb904f99bea8a8b1954a2371d71d17"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-oracle-evidence/baseline-context.json",
+      "bytes": 31923,
+      "sha256": "8918d550940865fda55ce379b62d1d58f559a8c180ded99dd4133ab5e4dc2029"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-oracle-evidence/baseline-e02_b74_input_custody.py.txt",
+      "bytes": 615,
+      "sha256": "1db7017a60bd8c786dc9a5e53f595806d92cc5f6e15a14b3e4e42050a50466e1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-oracle-evidence/baseline-input-custody.json",
+      "bytes": 950,
+      "sha256": "54f655fbf1e2b92f1becbaddd3e445e9f2cc7f54f7846d399eae895d128c1538"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-oracle-evidence/baseline-module-origins.json",
+      "bytes": 44211,
+      "sha256": "d6a95b224e26c8aee1bd08e867cd336493980f9461870b1c378723ba18919716"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-oracle-evidence/baseline-native.txt",
+      "bytes": 8906,
+      "sha256": "84d1cc5033d3be277b0eec612b0cdf1a2b217522f5de5028439b7714bbdaef73"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-oracle-evidence/baseline-native.xml",
+      "bytes": 2627,
+      "sha256": "d73cc4e29347dbeb1a4346e8c8a221b4787953e05b535fbc2b5398e3e6fc1716"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-oracle-evidence/baseline-profile.json",
+      "bytes": 1578,
+      "sha256": "eaadfb564cddd4255bcc08deae5b407c42329fdf0dae59fc04adf85ae5f3b3dc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-oracle-evidence/baseline-result.json",
+      "bytes": 637,
+      "sha256": "fa14a00c6bc94cc55fb952d8ac9644029f4624a73dff502ca76f5f01d5e35d42"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-oracle-evidence/native.py.txt",
+      "bytes": 3916,
+      "sha256": "e411f7554ed691f73061da58e2fcb06195b201d2c92b6764df02e36f0b680f03"
+    }
+  ],
+  "file_count": 10,
+  "payload_bytes": 97319,
+  "baseline_case_counts": {
+    "PASS": 2,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "source_projection": "actualf4test-only successor of f796; production unchanged"
+}

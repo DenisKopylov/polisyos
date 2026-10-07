@@ -1,0 +1,10 @@
+import hashlib,json,pathlib,sys
+def pytest_sessionfinish(session,exitstatus):
+ root=pathlib.Path('/workspace/e02-B-current-cas-generation'); rows=[]
+ for n,m in sorted(sys.modules.items()):
+  f=getattr(m,'__file__',None)
+  if not isinstance(f,str): continue
+  p=pathlib.Path(f).absolute()
+  if p.is_file() and (p.is_relative_to(root/'policy-engine/src') or p.is_relative_to(root/'policy-engine/tests')):
+   rows.append({'module':n,'path':str(p),'sha256':hashlib.sha256(p.read_bytes()).hexdigest()})
+ pathlib.Path('/tmp/e02-B-cas-b74-20261007/base-f4/module-origins.json').write_text(json.dumps(rows,indent=2)+'\n')

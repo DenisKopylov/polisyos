@@ -250,7 +250,7 @@ def test_simple_cycle_converts_min_confidence_edge_to_lagged_edge() -> None:
             _data_edge("B", "C", confidence=0.8),
             _data_edge("C", "A", confidence=0.2),
         ],
-        graph_type=GraphType.CPDAG,
+        graph_type=GraphType.ADMG,
     )
     payload = GraphReconciliationData(data_graph=data_graph, min_edge_confidence=0.0)
 
@@ -277,7 +277,7 @@ def test_more_than_eight_cycles_triggers_fallback_removal_warning() -> None:
                 _data_edge(c, a, confidence=0.1),
             ]
         )
-    data_graph = _graph(nodes, edges, graph_type=GraphType.CPDAG)
+    data_graph = _graph(nodes, edges, graph_type=GraphType.ADMG)
     payload = GraphReconciliationData(data_graph=data_graph, min_edge_confidence=0.0)
 
     result = ReconcileCausalGraph.pure_step(payload, params={})
@@ -295,7 +295,7 @@ def test_cycle_edge_with_lag_depth_limit_is_removed() -> None:
             _data_edge("B", "C", confidence=0.8),
             _data_edge("C", "A", confidence=0.1, lag=2),
         ],
-        graph_type=GraphType.CPDAG,
+        graph_type=GraphType.ADMG,
     )
     payload = GraphReconciliationData(
         data_graph=data_graph,
@@ -346,7 +346,7 @@ def test_diagnostics_truncated_when_hard_limits_exceeded() -> None:
         _data_edge(nodes[idx], nodes[idx + 1], confidence=0.55)
         for idx in range(MAX_RECON_EDGES + 2)
     ]
-    data_graph = _graph(nodes, edges, graph_type=GraphType.CPDAG)
+    data_graph = _graph(nodes, edges, graph_type=GraphType.ADMG)
     payload = GraphReconciliationData(data_graph=data_graph, min_edge_confidence=0.0)
 
     result = ReconcileCausalGraph.pure_step(payload, params={})
@@ -354,6 +354,36 @@ def test_diagnostics_truncated_when_hard_limits_exceeded() -> None:
 
     assert diagnostics.diagnostics_truncated is True
     assert diagnostics.truncation_reason is not None
+
+
+@pytest.mark.parametrize("graph_type", [GraphType.CPDAG, GraphType.PAG, GraphType.MGRAPH])
+def test_compose_scm_fragments_refuses_other_semantic_profiles(graph_type) -> None:
+    """Resolved arrows do not authorize a different fragment graph family."""
+    fragments = [_fragment(name, interface_variables=["X"]) for name in ("a", "b")]
+    report, mapping = verify_fragment_bundle_alignment(fragments)
+    payload = FragmentCompositionData(
+        fragments=fragments,
+        fragment_graphs={
+            "a": _graph(["X", "Y"], [_data_edge("X", "Y", confidence=0.9)]),
+            "b": _graph(["X", "Z"], [_data_edge("X", "Z", confidence=0.9)]),
+        },
+        alignment_report=report,
+        interface_mapping=mapping,
+    )
+    # DTO construction already rejects unsupported types. Public model_copy
+    # does not validate updates; a typed instance cannot bypass runtime intake.
+    payload = payload.model_copy(
+        update={
+            "fragment_graphs": {
+                **payload.fragment_graphs,
+                "a": _graph(
+                    ["X", "Y"], [_data_edge("X", "Y", confidence=0.9)], graph_type=graph_type
+                ),
+            }
+        }
+    )
+    with pytest.raises(ValueError, match="Unsupported graph reconciliation profile"):
+        ComposeSCMFragments.pure_step(payload, params={})
 
 
 def test_compose_scm_fragments_preserves_exact_observed_interface() -> None:

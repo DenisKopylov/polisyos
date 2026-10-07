@@ -79,6 +79,21 @@ _SUPPORTED_CYCLE_TYPES = {
 }
 
 
+def _validate_reconciliation_profile(graph: CausalGraphModel) -> None:
+    """Admit the declared DAG/ADMG family before any semantic projection.
+
+    Resolved endpoint marks alone cannot establish this profile: MGraph,
+    CPDAG and PAG carry distinct semantics even with the same visible edges.
+    This boundary does not constrain their other supported consumers.
+    """
+    if graph.graph_type not in {GraphType.DAG, GraphType.ADMG}:
+        raise ValueError(
+            "Unsupported graph reconciliation profile: "
+            f"graph_type={graph.graph_type.value}; requires declared static DAG/ADMG"
+        )
+    _validate_static_admg(graph)
+
+
 @dataclass
 class _MergedEdge:
     src: str
@@ -993,7 +1008,7 @@ class ReconcileCausalGraph:
             else GraphReconciliationData.model_validate(state)
         )
         # Admission precedes filtering, confidence merging and cycle rewrites.
-        _validate_static_admg(payload.data_graph)
+        _validate_reconciliation_profile(payload.data_graph)
         min_edge_confidence = float(params.get("min_edge_confidence", payload.min_edge_confidence))
         max_lag_depth = int(params.get("max_lag_depth", payload.max_lag_depth))
         max_lagged_edges = int(params.get("max_lagged_edges", payload.max_lagged_edges))
@@ -1305,6 +1320,8 @@ class ComposeSCMFragments:
             if isinstance(state, FragmentCompositionData)
             else FragmentCompositionData.model_validate(state)
         )
+        for graph in payload.fragment_graphs.values():
+            _validate_reconciliation_profile(graph)
         declared_cycle_semantics = _fragments_declare_cycles(payload.fragments)
         cycle_semantics_mode = _cycle_semantics_mode(payload.fragments)
         graph_type = _effective_composition_graph_type(payload.fragment_graphs, payload.fragments)

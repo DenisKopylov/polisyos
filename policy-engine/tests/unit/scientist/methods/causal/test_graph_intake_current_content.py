@@ -14,7 +14,12 @@ from polisyos.core.run.context import RunContext
 from polisyos.foundry.methods.catalog.causal.graph_reconciliation import ReconcileCausalGraph
 from polisyos.foundry.methods.catalog.causal.protocols import GraphReconciliationData
 from polisyos.foundry.methods.registry import MethodRegistry
-from polisyos.ir.analytics.causal_graph import CausalGraphModel, load_causal_graph_model
+from polisyos.ir.analytics.causal_graph import (
+    CausalGraphModel,
+    load_causal_graph_model,
+    persist_causal_graph_model,
+)
+from polisyos.ir.analytics.mgraph import MissingnessKind, build_mgraph, extract_mgraph_metadata
 from polisyos.scientist.compute.job_spec import JobSpec
 from polisyos.scientist.compute.runner import run_job
 from polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph import ReconcileCausalGraphNode
@@ -100,13 +105,134 @@ def relations(value):
     }
 
 
+def scored_mgraph():
+    """Build the actual missingness profile, with synthetic cutoff support only."""
+    value = build_mgraph(
+        substantive_vars=["X", "Y"],
+        directed_edges=[("X", "Y")],
+        bidirected_edges=[("X", "Y")],
+        missingness_map={"X": MissingnessKind.MCAR},
+        discovery_method="native-probe-mgraph",
+    ).model_dump(mode="json")
+    for edge in value["edges"]:
+        edge.update(sources=["data"], data_confidence=0.9, combined_confidence=0.9)
+    return CausalGraphModel.model_validate(value)
+
+
+def test_mgraph_producer_and_node_refuse_without_retyping_or_publishing(context):
+    """The actual missingness reader survives refusal of static reconciliation."""
+    source_graph = scored_mgraph()
+    original = persist_causal_graph_model(context.store, source_graph)
+    job, _ = produce(context, source_graph)
+    direct = ReconcileCausalGraphNode().execute(
+        context,
+        ExperimentState(
+            run_id="graph-content",
+            params={"data_causal_graph": source_graph.model_dump(mode="json")},
+        ),
+    )
+    assert job.issues and job.method_result_ref is None, job
+    assert direct.status == "fail" and not direct.artifacts, direct
+    assert "Unsupported graph reconciliation profile" in direct.error.message
+    assert ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF not in direct.state.artifacts_index
+    reopened = load_causal_graph_model(FileSystemCAS(context.store.root), original)
+    assert reopened == source_graph
+    assert relations(reopened) == {
+        ("X", "Y", "tail", "arrow", None),
+        ("X", "Y", "arrow", "arrow", None),
+        ("R_X", "X_star", "tail", "arrow", None),
+    }
+    assert extract_mgraph_metadata(reopened) == extract_mgraph_metadata(source_graph)
+
+
+def test_same_admg_shape_has_real_producer_node_and_fresh_reader(context):
+    """Graph family, rather than metadata names or endpoint shape, decides intake."""
+    value = scored_mgraph().model_dump(mode="json")
+    value["graph_type"] = "admg"
+    source_graph = CausalGraphModel.model_validate(value)
+    job, _ = produce(context, source_graph)
+    _, reopened = fresh(context, ReconcileCausalGraphNode().execute(context, state_for(job)))
+    assert reopened.graph_type.value == "admg"
+    assert relations(reopened) == relations(source_graph)
+    assert reopened.metadata["mgraph"] == source_graph.metadata["mgraph"]
+
+
+@pytest.mark.parametrize("source_type", ["cpdag", "pag", "mgraph"])
+@pytest.mark.parametrize("with_edges", [False, True])
+def test_other_semantic_profiles_refuse_direct_and_supplied_result(
+    context, source_type, with_edges
+):
+    """Resolved/empty edges and a filtering cutoff cannot erase graph semantics."""
+    source_graph = graph(
+        *([{"src": "X", "dst": "Y"}] if with_edges else []), graph_type=source_type
+    )
+    for cutoff in (0.1, 0.99):
+        job, _ = produce(context, source_graph)
+        assert job.issues and job.method_result_ref is None
+        # A supplied discovery result is real CAS content, but never authority.
+        supplied = context.store.put_json(
+            {"graph": source_graph.model_dump(mode="json")},
+            PutOptions(
+                kind="scientist.method_result.causal.discovery",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.scientist.MethodResult", version="0.1.0"),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        for state in (
+            ExperimentState(
+                run_id="graph-content",
+                params={
+                    "data_causal_graph": source_graph.model_dump(mode="json"),
+                    "reconciliation_min_edge_confidence": cutoff,
+                },
+            ),
+            ExperimentState(
+                run_id="graph-content",
+                params={"reconciliation_min_edge_confidence": cutoff},
+                artifacts_index={ARTIFACT_CAUSAL_METHOD_RESULT_REF: supplied},
+            ),
+        ):
+            outcome = ReconcileCausalGraphNode().execute(context, state)
+            assert outcome.status == "fail" and not outcome.artifacts
+            assert "Unsupported graph reconciliation profile" in outcome.error.message
+            assert ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF not in outcome.state.artifacts_index
+
+
+def test_supplied_mgraph_result_and_selected_cache_apply_same_profile_boundary(context):
+    """The scored builder graph cannot enter through either selected CAS surface."""
+    source_graph = scored_mgraph()
+    supplied = context.store.put_json(
+        {"graph": source_graph.model_dump(mode="json")},
+        PutOptions(
+            kind="scientist.method_result.causal.discovery",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.MethodResult", version="0.1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    original = persist_causal_graph_model(context.store, source_graph)
+    for key, ref in (
+        (ARTIFACT_CAUSAL_METHOD_RESULT_REF, supplied),
+        (ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF, original),
+    ):
+        outcome = ReconcileCausalGraphNode().execute(
+            context, ExperimentState(run_id="graph-content", artifacts_index={key: ref})
+        )
+        assert outcome.status == "fail" and not outcome.artifacts
+        assert "Unsupported graph reconciliation profile" in outcome.error.message
+    reopened = load_causal_graph_model(FileSystemCAS(context.store.root), original)
+    assert reopened == source_graph
+    assert extract_mgraph_metadata(reopened) == extract_mgraph_metadata(source_graph)
+
+
 @pytest.mark.parametrize(
     "source_graph, expected",
     [
         (graph({"src": "X", "dst": "Y"}), {("X", "Y", "tail", "arrow", None)}),
         (
             graph(
-                {"src": "X", "dst": "Y", "mark_src": "arrow", "mark_dst": "tail"}, graph_type="pag"
+                {"src": "X", "dst": "Y", "mark_src": "arrow", "mark_dst": "tail"}, graph_type="admg"
             ),
             {("Y", "X", "tail", "arrow", None)},
         ),
@@ -219,7 +345,7 @@ def test_unsupported_static_profile_refuses_before_real_producer_and_node(
     )
     result = ReconcileCausalGraphNode().execute(context, state)
     assert result.status == "fail" and not result.artifacts
-    assert "Unsupported static ADMG profile" in result.error.message
+    assert "Unsupported" in result.error.message and "profile" in result.error.message
 
 
 def test_missing_cache_is_not_admitted_even_with_valid_current_source(context):

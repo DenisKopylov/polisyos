@@ -14,7 +14,6 @@ from polisyos.core.artifacts import ArtifactRef, InputRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts import build_skip_blocker_record
-from polisyos.foundry.methods.catalog.causal.admg_ops import _validate_static_admg
 from polisyos.foundry.methods.catalog.causal.composition_failure_cards import (
     CompositionFailureCardBundle,
     persist_composition_failure_card_bundle,
@@ -22,6 +21,7 @@ from polisyos.foundry.methods.catalog.causal.composition_failure_cards import (
 from polisyos.foundry.methods.catalog.causal.graph_reconciliation import (
     ComposeSCMFragments,
     ReconcileCausalGraph,
+    _validate_reconciliation_profile,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import (
     FragmentCompositionData,
@@ -204,7 +204,7 @@ def _resolve_graph_ref(ctx: ExecutionContext, ref: Any) -> CausalGraphModel:
     graph = _resolve_typed_source(ctx, ref, kind="ir.causal_graph_model", model=CausalGraphModel)
     if graph.schema_version != "1.0":
         raise ValueError("Unsupported causal graph schema version")
-    _validate_static_admg(graph)
+    _validate_reconciliation_profile(graph)
     return graph
 
 
@@ -570,7 +570,7 @@ def _apply_query_preservation_hook(
                 "failure_card_bundle_ref": certificate.failure_card_bundle_ref,
             }
         )
-        _validate_static_admg(composed_graph)
+        _validate_reconciliation_profile(composed_graph)
     except _RECONCILE_LOAD_ERRORS as exc:
         return NodeOutcome(
             status="fail",
@@ -1070,7 +1070,7 @@ class ReconcileCausalGraphNode:
             reconciled_graph = CausalGraphModel.model_validate(
                 reconciled_graph.model_dump(mode="json")
             )
-            _validate_static_admg(reconciled_graph)
+            _validate_reconciliation_profile(reconciled_graph)
             metadata = dict(reconciled_graph.metadata)
             metadata["reconciliation_input_sha256"] = hashlib.sha256(request_bytes).hexdigest()
             reconciled_graph = reconciled_graph.model_copy(update={"metadata": metadata})

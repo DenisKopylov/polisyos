@@ -30,7 +30,18 @@ as causal source authority. All selected source references retain their actual
 manifest view for CAS resolution. Newly
 supplied source content follows reconciliation instead of the old shortcut.
 
-The reconciler supports known contemporaneous directed and bidirected relations.
+The prior reconciler and fragment composer admit the declared static DAG/ADMG
+graph families before confidence filtering, edge merging, cycle rewrites or
+persistence. CPDAG, PAG and MGraph are distinct semantic profiles; even empty or
+fully oriented edges cannot authorize conversion into DAG/ADMG. They receive
+the existing typed `ValueError` refusal. An original MGraph remains readable by
+its missingness consumer; refusal publishes no reconciled graph. This support
+boundary applies equally to direct input, supplied method-result content and
+selected cached graph references. Other partial/missingness consumers retain
+their own contracts; this is not a global ban on partial graphs.
+
+Within its admitted families the reconciler supports known contemporaneous
+directed and bidirected relations.
 Reverse-stored arrows are normalized by exchanging their endpoints; bidirected
 relations remain bidirected, including parallel directed and bidirected edges.
 Unresolved circle/tail-tail endpoints and compact nonzero lags raise the existing

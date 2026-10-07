@@ -114,3 +114,18 @@ exact finite-law mean and population spread with its own approximate normal
 interval, rather than reinterpret the original equal-tail posterior interval.
 Pull-back remains constraint-only and drops posterior authority. These changes
 apply to Profile2; Profile1 and unprofiled composition retain their legacy behavior.
+
+Raw Profile2 declarations are admitted at the common envelope DTO inlet before
+numeric coercion, covering legacy CAS loading and direct raw model validation.
+Boolean and numeric-string carrier/functionals refuse before public map callbacks
+or derived-law publication. Unsupported/incomplete profile declarations cannot
+downgrade to generic input; existing composition readers independently reconcile
+carrier/context/joint digests. Literal Profile1 replay and unprofiled Envelope1.1
+retain their prior raw numeric decoder.
+
+`join_envelopes` returns a singleton unchanged and retains generic joins, but
+refuses every multi-envelope join involving Profile2 before generic lowering.
+No implicit equal mixture or pooled-row posterior semantics is selected.
+`combine_envelopes` remains a lossy, non-gating diagnostic interval summary:
+multiple Profile2 inputs lose their carrier, context and named functionals, so
+the output is not an admitted posterior law for new law-dependent computations.

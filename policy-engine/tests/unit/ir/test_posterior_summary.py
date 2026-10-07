@@ -339,7 +339,9 @@ def test_profile_raw_cas_types_refuse_before_legacy_coercion(tmp_path, raw_value
         record.model_dump(include={"artifact_id", "kind", "media_type"})
     )
     assert store.verify(record).ok
-    # Exact old decode loses the raw type and leaves the same functional/hash.
-    assert load_uncertainty_envelope(store, ref).distribution_payload == env.distribution_payload
+    # The common DTO inlet now guards raw Profile2 before either public loader
+    # can erase its raw type; literal Profile1/unprofiled replay is separate.
+    with pytest.raises(ValueError, match="real non-bool"):
+        load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
     with pytest.raises(ValueError, match="real non-bool"):
         load_posterior_summary_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)

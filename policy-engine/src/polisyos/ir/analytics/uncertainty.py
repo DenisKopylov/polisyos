@@ -1381,6 +1381,37 @@ class UncertaintyEnvelope(BaseModel):
             return value
         if not isinstance(value, dict):
             return value
+        # Profile2 raw types are part of its declared law. Admit them before
+        # float()/carrier coercion can erase a bool or numeric-string defect.
+        # The literal Profile1 and unprofiled v1.1 compatibility paths retain
+        # their existing numeric decoder; unsupported declarations do not.
+        from .posterior_summary import (
+            PROFILE_ID,
+            PROFILE_KEY,
+            _profile_declared,
+            validate_raw_posterior_summary_envelope,
+        )
+
+        metadata = value.get("metadata")
+        if isinstance(metadata, dict) and _profile_declared(metadata):
+            declaration = metadata.get(PROFILE_KEY)
+            literal_profile1 = (
+                isinstance(declaration, dict)
+                and declaration.get("profile_id") == PROFILE_ID
+                and declaration.get("profile_version") == "1.0"
+            )
+            if not literal_profile1:
+                raw_payload = value
+                carrier = value.get("distribution_payload")
+                if isinstance(carrier, PosteriorSamplesCarrier):
+                    # A typed internal composition carrier is already decoded;
+                    # dump only that carrier, leaving raw dictionaries untouched.
+                    raw_payload = {
+                        **value,
+                        "distribution_payload": carrier.model_dump(mode="python"),
+                    }
+                validate_raw_posterior_summary_envelope(raw_payload)
+
         payload = dict(value)
         policy = NumericPolicySpec.model_validate(payload.get("numeric_policy", {}))
         payload["numeric_policy"] = policy.model_dump(mode="python")
@@ -1496,13 +1527,21 @@ def join_envelopes(
     representation: str = "best_available_outer_hull",
     source: UncertaintySource = UncertaintySource.ENSEMBLE,
 ) -> UncertaintyEnvelope:
-    """Build the smallest representable outer hull over several envelopes."""
+    """Build a generic outer hull; refuse undeclared Profile2 mixtures.
+
+    A singleton is an identity. Multiple Profile2 laws cannot be concatenated
+    without declared mixture masses, units and context, including mixed joins.
+    """
 
     normalized = tuple(envelopes)
     if not normalized:
         raise ValueError("join_envelopes requires at least one envelope")
     if len(normalized) == 1:
         return normalized[0]
+    if any(_ratio_composition_profile(envelope) is not None for envelope in normalized):
+        raise UncertaintyCompatibilityError(
+            "Profile2 multi-envelope join requires an explicit mixture contract"
+        )
 
     lows = [envelope.ci_lower for envelope in normalized]
     highs = [envelope.ci_upper for envelope in normalized]
@@ -2221,7 +2260,12 @@ def combine_envelopes(
     method: EnvelopeCombinationMethod = EnvelopeCombinationMethod.CONSERVATIVE_UNION,
     source: UncertaintySource = UncertaintySource.ENSEMBLE,
 ) -> UncertaintyEnvelope:
-    """Combine compatible envelopes through one shared contract layer."""
+    """Combine compatible interval summaries, without preserving a posterior law.
+
+    Multiple Profile2 inputs lose carriers, context and named functionals here.
+    Their result remains non-gating; it is a diagnostic summary, not a mixture
+    or an admitted posterior law for downstream stochastic computation.
+    """
     normalized = tuple(envelopes)
     if not normalized:
         raise ValueError("combine_envelopes requires at least one envelope")

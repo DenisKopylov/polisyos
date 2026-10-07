@@ -316,7 +316,6 @@ def summarize_bayesian_calibration_posterior(
                 "posterior_basis": "posterior_draws",
                 "emulator_diagnostics": emulator_info,
                 "posterior_diagnostics": diagnostics,
-                "posterior_summary_profile_required": True,
                 "point_functional": "median",
                 "interval_functional": "equal_tail_inverse_cdf",
             },
@@ -385,6 +384,7 @@ def summarize_bayesian_calibration_posterior(
             update={
                 "metadata": {
                     **envelope.metadata,
+                    "posterior_summary_profile_required": True,
                     "posterior_summary_profile_id": profile.profile_id,
                     "posterior_summary_profile_version": profile.profile_version,
                     "joint_sample_id": joint_digest,

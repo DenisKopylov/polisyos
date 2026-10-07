@@ -12451,6 +12451,7 @@ def _s10_calibration_evidence_from_report(report: object | None) -> dict[str, ob
         and not isinstance(interval, str | bytes | bytearray)
         and len(interval) == 2
         and all(_is_finite_number(item) for item in interval)
+        and float(interval[0]) <= float(interval[1])
     )
     finite_se = standard_error is None or _is_finite_number(standard_error)
     diagnostics_pass = all(bool(_object_get(item, "passed", True)) for item in diagnostics)
@@ -12471,15 +12472,16 @@ def _s10_calibration_evidence_from_report(report: object | None) -> dict[str, ob
     )
     if not credible:
         false_clear_counts["uncalibrated_observable_promotion_false_clear_count"] = 1
-    interval_width = 0.0
-    relative_uncertainty = 1.0
+    interval_width: float | None = None
+    relative_uncertainty: float | None = None
     nominal_confidence_level = _object_get(report, "confidence_level")
     if finite_interval and isinstance(interval, Sequence):
         lower = float(interval[0])
         upper = float(interval[1])
         interval_width = abs(upper - lower)
-        scale = max(abs(float(point or 0.0)), 1.0)
-        relative_uncertainty = interval_width / scale
+        if finite_point:
+            scale = max(abs(float(point)), 1.0)
+            relative_uncertainty = interval_width / scale
     # A finite estimator report describes the estimate's shape only.  It does
     # not contain held-out predicted/observed outcomes or an independently
     # bound calibration evaluation, so it cannot supply the calibration
@@ -12500,6 +12502,9 @@ def _s10_calibration_evidence_from_report(report: object | None) -> dict[str, ob
         "false_clear_counts": false_clear_counts,
         "estimator_shape_diagnostics": {
             "finite_point": finite_point,
+            "point_value_status": (
+                "missing" if point is None else "known" if finite_point else "invalid"
+            ),
             "finite_interval": finite_interval,
             "finite_standard_error": finite_se,
             "diagnostics_pass": diagnostics_pass,
@@ -12509,7 +12514,9 @@ def _s10_calibration_evidence_from_report(report: object | None) -> dict[str, ob
             "pre_periods": pre_periods,
             "post_periods": post_periods,
             "nominal_confidence_level": nominal_confidence_level,
-            "relative_interval_width": min(relative_uncertainty, 1.0),
+            "relative_interval_width": (
+                min(relative_uncertainty, 1.0) if relative_uncertainty is not None else None
+            ),
         },
         "ci_width": interval_width,
         "standard_error": float(standard_error) if _is_finite_number(standard_error) else None,
@@ -12517,7 +12524,8 @@ def _s10_calibration_evidence_from_report(report: object | None) -> dict[str, ob
             "S10 estimator-shape diagnostics derived from Foundry CausalEffectReport; "
             "empirical calibration evidence remains unestablished "
             f"(finite_ci={finite_interval}, diagnostics_pass={diagnostics_pass}, "
-            f"sample_size={sample_size}, ci_width={interval_width:.6g})."
+            f"sample_size={sample_size}, ci_width="
+            f"{format(interval_width, '.6g') if interval_width is not None else 'unknown'})."
         ),
     }
 
@@ -13041,6 +13049,16 @@ def _value_outer_set_from_foundry_result(
     interval = getattr(report, "confidence_interval", None)
     if point is None or interval is None:
         raise ValueError("foundry_method_refused_value:uncertainty_missing")
+    if not _is_finite_number(point):
+        raise ValueError("foundry_method_refused_value:point_invalid")
+    if (
+        not isinstance(interval, Sequence)
+        or isinstance(interval, str | bytes | bytearray)
+        or len(interval) != 2
+        or not all(_is_finite_number(item) for item in interval)
+        or float(interval[0]) > float(interval[1])
+    ):
+        raise ValueError("foundry_method_refused_value:uncertainty_invalid")
     point_value = float(point)
     lower_ci, upper_ci = (float(interval[0]), float(interval[1]))
     identification_status = _derive_value_identification_status(

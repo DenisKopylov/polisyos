@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -114,11 +115,18 @@ def _s10_consumer_result(
 
 
 @pytest.mark.parametrize(
-    "point_estimate",
-    [None, True, float("nan"), float("inf"), -float("inf")],
+    ("point_estimate", "point_value_status"),
+    [
+        pytest.param(None, "missing", id="missing-point"),
+        pytest.param(True, "invalid", id="bool-point"),
+        pytest.param(float("nan"), "invalid", id="nan-point"),
+        pytest.param(float("inf"), "invalid", id="positive-infinity-point"),
+        pytest.param(-float("inf"), "invalid", id="negative-infinity-point"),
+    ],
 )
 def test_s10_shape_diagnostic_keeps_relative_width_unknown_for_invalid_point(
     point_estimate: Any,
+    point_value_status: str,
 ) -> None:
     evidence = generation_cycle._s10_calibration_evidence_from_report(
         _report(point_estimate=point_estimate)
@@ -126,6 +134,7 @@ def test_s10_shape_diagnostic_keeps_relative_width_unknown_for_invalid_point(
 
     shape = evidence["estimator_shape_diagnostics"]
     assert shape["finite_point"] is False
+    assert shape["point_value_status"] == point_value_status
     assert shape["relative_interval_width"] is None
     assert evidence["ci_width"] == 0.5
     assert evidence["calibration_status"] == "limit"
@@ -140,10 +149,23 @@ def test_s10_zero_point_uses_scale_floor_without_promoting_calibration() -> None
 
     shape = evidence["estimator_shape_diagnostics"]
     assert shape["finite_point"] is True
+    assert shape["point_value_status"] == "known"
     assert shape["relative_interval_width"] == 0.5
     assert evidence["calibration_status"] == "limit"
     assert evidence["denominator"] == 0
     assert evidence["pass_rate"] is None
+
+
+def test_s10_missing_interval_keeps_width_and_relative_width_unknown() -> None:
+    evidence = generation_cycle._s10_calibration_evidence_from_report(
+        _report(point_estimate=0.0, confidence_interval=None)
+    )
+
+    shape = evidence["estimator_shape_diagnostics"]
+    assert shape["finite_interval"] is False
+    assert shape["point_value_status"] == "known"
+    assert shape["relative_interval_width"] is None
+    assert evidence["ci_width"] is None
 
 
 @pytest.mark.parametrize(
@@ -169,7 +191,8 @@ def test_s10_cas_readback_preserves_unknown_vs_zero_diagnostics_and_limitation(
     tmp_path: Path,
 ) -> None:
     from polisyos.core.artifacts import FileSystemCAS
-    from polisyos.ir.artifacts import get_json_artifact, put_json_artifact
+    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.artifacts.store import PutOptions
 
     store_root = tmp_path / "e02-estimator-candidate-cas"
     store = FileSystemCAS(store_root)
@@ -194,17 +217,25 @@ def test_s10_cas_readback_preserves_unknown_vs_zero_diagnostics_and_limitation(
             "report": report_payload,
             "estimator_calibration_evidence": evidence,
         }
-        ref = put_json_artifact(
-            store,
+        candidate_bytes = json.dumps(
             candidate_payload,
-            kind="test.json",
-            schema_name="tests.E02EstimatorCandidate",
-            schema_version="1.0",
+            allow_nan=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+        ref = store.put_bytes(
+            candidate_bytes,
+            PutOptions(
+                kind="test.json",
+                media_type="application/json",
+                schema=SchemaInfo(name="tests.E02EstimatorCandidate", version="1.0"),
+            ),
         )
 
-        assert ref["artifact_id"]
+        assert store.verify(ref.artifact_id).ok is True
         read_store = FileSystemCAS(store_root)
-        loaded = get_json_artifact(read_store, ref["artifact_id"])
+        loaded_bytes = read_store.get_bytes(ref.artifact_id)
+        loaded = json.loads(loaded_bytes.decode("utf-8"))
         loaded_report = SimpleNamespace(**loaded["report"])
         recomputed_evidence = generation_cycle._s10_calibration_evidence_from_report(
             loaded_report

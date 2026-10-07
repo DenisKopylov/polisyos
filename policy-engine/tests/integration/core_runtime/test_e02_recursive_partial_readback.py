@@ -259,7 +259,7 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
         assert response.status_code == 200, response.text
         run = response.json()["run"]
         checkpoint = run["recursive_cycle_checkpoint"]
-        assert checkpoint["schema_version"] == partial_result.schema_version
+        assert checkpoint["schema_version"] == "policyos.runtime.recursive_cycle_checkpoint.v1"
         assert checkpoint["status"] == "partial"
         assert checkpoint["pending_frontier"] == list(partial_result.frontier_node_refs)
         assert checkpoint["completed_design_refs"] == [
@@ -286,6 +286,7 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
             canon.from_canonical_bytes(raw)
         )
         assert type(persisted.recursive_run) is RecursiveGenerationCyclePartialRunV2
+        assert persisted.recursive_run.schema_version == partial_result.schema_version
         assert persisted.recursive_run.content_hash == partial_result.content_hash
         assert persisted.recursive_run.terminal is None
         assert persisted.recursive_run.frontier_node_refs == partial_result.frontier_node_refs

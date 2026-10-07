@@ -106,7 +106,7 @@ async def test_actual_default_n5_n8_interaction_history_is_versioned_and_replaya
             generation._DefaultSimulationBoundFoundryValuePort,
         )
 
-        with tenant_scope(None, tenant_id="tenant-e02-history", cell_id="cell-e02-history"):
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
             run = await controller.run(
                 witness.problem,
                 budget_state=BudgetState(
@@ -115,13 +115,14 @@ async def test_actual_default_n5_n8_interaction_history_is_versioned_and_replaya
                 min_cycles=1,
                 max_cycles=1,
             )
+            result_ref = run.cycles[-1].simulation.simulation_result_ref
+            assert result_ref is not None
+            assert witness.store.verify(result_ref.artifact_id).ok
 
         assert run.schema_version == "policyos.runtime.generation_cycle_controller.v5"
         assert run.source_custody_limitation is None
         assert run.cycles[-1].simulation.status == "joint_simulated"
-        result_ref = run.cycles[-1].simulation.simulation_result_ref
         assert result_ref is not None
-        assert witness.store.verify(result_ref.artifact_id).ok
         assert run.value_port.status == "value_conditional"
         assert run.value_port.evaluation_mode == "simulate_only"
         assert run.value_port.decision_grade == "low"

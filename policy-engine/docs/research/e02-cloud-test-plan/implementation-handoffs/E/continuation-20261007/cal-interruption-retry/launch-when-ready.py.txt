@@ -1,0 +1,42 @@
+"""Exec the unchanged canonical runner with an admitted one-group argv."""
+import hashlib
+import json
+import os
+import subprocess
+import time
+from pathlib import Path
+
+out = Path('/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946')
+admission_path = out/'retry-admission.json'
+admission = json.loads(admission_path.read_text())
+assert hashlib.sha256(admission_path.read_bytes()).hexdigest() == '054abd501722634289e8f7c88106a236e2900c531d5836c65668dd1b5d6af221'
+root = '/workspace/e02-E-continuation-20261006'
+head = subprocess.check_output(['git','-C',root,'rev-parse','HEAD']).decode().strip()
+tree = subprocess.check_output(['git','-C',root,'rev-parse','HEAD^{tree}']).decode().strip()
+dirty = subprocess.check_output(['git','-C',root,'status','--porcelain','--untracked-files=no']).decode()
+assert head == admission['candidate_sha'] and tree == admission['candidate_tree_sha'] and not dirty
+cgroup = Path('/sys/fs/cgroup')
+while True:
+    current = int((cgroup/'memory.current').read_text())
+    maximum = int((cgroup/'memory.max').read_text())
+    sample = {'time_unix':time.time(),'memory_current_bytes':current,'memory_max_bytes':maximum,'headroom_bytes':maximum-current,'memory_events':(cgroup/'memory.events').read_text(),'minimum_observed_headroom_bytes':2400000000,'actual_backend_launched':False}
+    with (out/'launch-resource-observations.jsonl').open('a') as handle: handle.write(json.dumps(sample)+'\n')
+    if maximum-current >= 2400000000:
+        break
+    time.sleep(5)
+head = subprocess.check_output(['git','-C',root,'rev-parse','HEAD']).decode().strip()
+tree = subprocess.check_output(['git','-C',root,'rev-parse','HEAD^{tree}']).decode().strip()
+dirty = subprocess.check_output(['git','-C',root,'status','--porcelain','--untracked-files=no']).decode()
+assert head == admission['candidate_sha'] and tree == admission['candidate_tree_sha'] and not dirty
+runner = Path(admission['canonical_runner']['path'])
+assert hashlib.sha256(runner.read_bytes()).hexdigest() == admission['canonical_runner']['sha256']
+original = Path(admission['original_receipt']['path'])
+assert hashlib.sha256(original.read_bytes()).hexdigest() == admission['original_receipt']['sha256']
+env = dict(os.environ)
+for name,value in admission['environment']['selected_variables'].items():
+    if value is None: env.pop(name,None)
+    else: env[name] = value
+started = {'schema':'policyos.e02.interruption_retry_start.v1','time_unix':time.time(),'candidate_sha':head,'candidate_tree_sha':tree,'tracked_dirty':dirty,'admission':{'path':str(admission_path),'sha256':hashlib.sha256(admission_path.read_bytes()).hexdigest()},'memory_current_bytes':current,'memory_max_bytes':maximum,'headroom_bytes':maximum-current,'cgroup_memory_events':(cgroup/'memory.events').read_text(),'launcher_pid':os.getpid(),'runner_argv':admission['runner_argv'],'environment_selected_variables':admission['environment']['selected_variables'],'artificial_caps':admission['artificial_caps'],'scope':'Only interrupted original CAL group; unchanged canonical run_check.py enforces full source/config before/after; no new test engine'}
+with (out/'retry-started.json').open('x') as handle: handle.write(json.dumps(started,indent=2)+'\n')
+print(json.dumps({'started':str(out/'retry-started.json'),'headroom_bytes':maximum-current,'runner_pid':os.getpid()}),flush=True)
+os.execve(admission['runner_argv'][0],admission['runner_argv'],env)

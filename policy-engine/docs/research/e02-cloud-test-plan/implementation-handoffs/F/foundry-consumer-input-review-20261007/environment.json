@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-c",
+    "import importlib.metadata as m,json,platform,sys; import numpy,scipy,sklearn; print(json.dumps({\"python\":sys.version,\"executable\":sys.executable,\"platform\":platform.platform(),\"versions\":{x:m.version(x) for x in [\"numpy\",\"scipy\",\"scikit-learn\",\"pytest\",\"pydantic\"]},\"module_origins\":{x.__name__:x.__file__ for x in [numpy,scipy,sklearn]},\"baseline_optional_profile\":\"Python3.14 DoWhy/EconML exclusions are not positive backend witness; no shim\", \"global_orchestration_quota_introduced\":False},sort_keys=True))"
+  ],
+  "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+  "environment": {
+    "app_python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "stdlib_baseline_python": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "stdlib_baseline_version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "inherited_numeric_options": {},
+    "new_quota": false
+  },
+  "exit_code": 0,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/environment.stdout.json",
+    "bytes": 841,
+    "sha256": "e5140c18f08a721f90d0f8dfc8ae27ba1a4e81e39e3102f7a785099e2b2265ab"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/environment.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

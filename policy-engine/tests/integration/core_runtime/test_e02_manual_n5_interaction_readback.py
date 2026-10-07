@@ -663,10 +663,10 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
                 "cell_id": "cell-b",
             }
         )
-        from polisyos.runtime.http import jwt_auth_middleware
+        from polisyos.runtime.http import dev_identity_middleware
 
         monkeypatch.setattr(
-            jwt_auth_middleware,
+            dev_identity_middleware,
             "build_fixture_identity_claims",
             lambda: foreign_claims,
         )

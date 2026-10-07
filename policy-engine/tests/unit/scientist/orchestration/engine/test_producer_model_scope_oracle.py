@@ -33,7 +33,10 @@ from polisyos.scientist.orchestration.engine.idempotency import NodeResultCache
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import mutation_journal_for_state
+from polisyos.scientist.orchestration.engine.state_branching import (
+    branch_state,
+    mutation_journal_for_state,
+)
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 
@@ -93,10 +96,20 @@ class _CompletionConsumer:
 
 
 class _ModelNode:
-    def __init__(self, *, field: str, writes: list[str], shared: bool, append: bool = False):
+    def __init__(
+        self,
+        *,
+        field: str,
+        writes: list[str],
+        shared: bool,
+        append: bool = False,
+        copy_alias: bool = False,
+    ):
         self.field = field
         self.shared = shared
         self.append = append
+        self.copy_alias = copy_alias
+        self.copy_observation: dict[str, bool] | None = None
         self.calls = 0
         self.view: ExperimentState | None = None
         self.before: Any = None
@@ -124,6 +137,27 @@ class _ModelNode:
         assert isinstance(holder.leaf, _Leaf)
         if self.shared:
             assert holder.leaf is holder.rows[0] is state.params["readonly"]
+        if self.copy_alias:
+            copied = holder.model_copy(deep=False)
+            self.copy_observation = {
+                "copy_is_distinct": copied is not holder,
+                "copy_shares_leaf": copied.leaf is holder.leaf,
+                "copy_shares_list": copied.rows is holder.rows,
+            }
+            assert all(self.copy_observation.values())
+            state.params["readonly_holder"] = copied
+            # Parent assignment grants its descendants under the original
+            # prefix law. Ordinary nested branching now attenuates that grant;
+            # the copied holder becomes an actually undeclared live owner.
+            narrowed = branch_state(state, write_paths=[f"params.holder.leaf.{self.field}"])
+            state = narrowed.state
+            holder = state.params["holder"]
+            self.copy_observation["narrowed_shared_leaf"] = (
+                holder.leaf is state.params["readonly_holder"].leaf
+            )
+            assert self.copy_observation["narrowed_shared_leaf"]
+            self.view = state
+            self.before = _snapshot(state.params)
         if self.append:
             holder.rows.append(_Leaf(count=7, tag="appended"))
         else:
@@ -183,6 +217,7 @@ def _measure(tmp_path: Path, *, store, node, state, before, consumer, result) ->
         "producer_after": _snapshot(node.view.params) if node.view is not None else None,
         "producer_calls": node.calls,
         "producer_journal": node.journal_after,
+        "shallow_copy_observation": node.copy_observation,
         "result_status": result.report.status,
         "physical_effects": [
             {
@@ -326,3 +361,38 @@ def test_model_owned_list_child_records_real_append_and_preserves_base(
         row["path"] == "params.holder.rows" and row["operation"] == "append"
         for row in observed["producer_journal"]
     )
+
+
+@pytest.mark.parametrize("mode", ["sync", "async"])
+def test_ordinary_shallow_model_copy_retains_child_owner_after_scope_attenuation(
+    tmp_path: Path, mode: str
+) -> None:
+    state = _state("R_model_copy_owner")
+    before = _snapshot(state.params)
+    node = _ModelNode(
+        field="count",
+        writes=["params.holder.leaf.count", "params.readonly_holder"],
+        shared=False,
+        copy_alias=True,
+    )
+    store, _run, consumer, result = _execute(tmp_path, mode=mode, node=node, state=state)
+    observed = _measure(
+        tmp_path,
+        store=store,
+        node=node,
+        state=state,
+        before=before,
+        consumer=consumer,
+        result=result,
+    )
+    assert observed["producer_calls"] == 1
+    assert observed["shallow_copy_observation"] == {
+        "copy_is_distinct": True,
+        "copy_shares_leaf": True,
+        "copy_shares_list": True,
+        "narrowed_shared_leaf": True,
+    }
+    assert observed["base_after"] == before
+    assert observed["producer_after"] == observed["producer_before"]
+    assert observed["result_status"] == "fail"
+    assert observed["physical_effects"] == observed["physical_completion_callbacks"] == []

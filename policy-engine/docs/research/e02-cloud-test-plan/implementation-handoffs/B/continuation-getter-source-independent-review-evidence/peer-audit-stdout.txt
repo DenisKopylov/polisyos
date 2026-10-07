@@ -1,0 +1,194 @@
+{
+  "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+  "source_tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+  "canonical_peer_receipt": {
+    "git_sha": "f6a3e0c8a6e6b4393dc81bb8f15b19815b48638b",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-final.json",
+    "bytes": 10081,
+    "sha256": "8c37c0f7a93ef789652d90a3b5323a2f099b568d4e7e43a83fe80128b5faa1f6",
+    "tree": "89738350586548dec36b7caf68ff774a77866e93"
+  },
+  "checked_artifact_count": 10,
+  "full_junit_cases": [
+    {
+      "classname": "",
+      "name": "test_real_two_output_getter_compiled_handles_preserve_dynamic_values[False]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_real_two_output_getter_compiled_handles_preserve_dynamic_values[True]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_real_compiler_refuses_captured_module_getter_before_physical_body",
+      "outcome": "PASS"
+    }
+  ],
+  "actual_loaded_filebacked_origin_count": 152,
+  "numeric_recomputation": [
+    {
+      "jit": false,
+      "label": "cold",
+      "actual_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "expected_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    },
+    {
+      "jit": false,
+      "label": "warm",
+      "actual_score": [
+        2.25,
+        0.0,
+        4.25
+      ],
+      "expected_score": [
+        2.25,
+        0.0,
+        4.25
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    },
+    {
+      "jit": false,
+      "label": "override",
+      "actual_score": [
+        5.0,
+        23.0,
+        -11.0
+      ],
+      "expected_score": [
+        5.0,
+        23.0,
+        -11.0
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    },
+    {
+      "jit": false,
+      "label": "cold_again",
+      "actual_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "expected_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    },
+    {
+      "jit": true,
+      "label": "cold",
+      "actual_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "expected_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    },
+    {
+      "jit": true,
+      "label": "warm",
+      "actual_score": [
+        2.25,
+        0.0,
+        4.25
+      ],
+      "expected_score": [
+        2.25,
+        0.0,
+        4.25
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    },
+    {
+      "jit": true,
+      "label": "override",
+      "actual_score": [
+        5.0,
+        23.0,
+        -11.0
+      ],
+      "expected_score": [
+        5.0,
+        23.0,
+        -11.0
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    },
+    {
+      "jit": true,
+      "label": "cold_again",
+      "actual_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "expected_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    }
+  ],
+  "reviewer_runtime": "UNRUN",
+  "audit_errors": []
+}

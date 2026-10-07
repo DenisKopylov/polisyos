@@ -1,0 +1,393 @@
+{
+  "schema": "c5_publication_readback.v1",
+  "unit": "C",
+  "created_at_utc": "2026-10-07T20:55:01.763389+00:00",
+  "receipt_scope": "Committed independent review and remote publication readback of the immutable C5 carrier. This receipt does not adjudicate findings or accept a common runtime.",
+  "published_carrier": {
+    "branch": "codex/e02-C-continuation-20261006",
+    "commit": "245c474795c517922b2472cf7b6a81d8d5f45aa4",
+    "tree": "b12c5e9f8fc311e89477a119168fbe77e0ef3aab",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261007-C5.json",
+    "bytes": 15729,
+    "sha256": "46c6f9f02c1ea973b29455b71fda8fb760157f26d5f72591ff23ee9193335b4f"
+  },
+  "independent_review": {
+    "reviewer": "/root/fed_writer",
+    "role": "Independent read-only binding reviewer, not author of Root carrier/source slices.",
+    "candidate_commit": "245c474795c517922b2472cf7b6a81d8d5f45aa4",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-closeout/root-final-independent-review.json",
+    "bytes": 56239,
+    "sha256": "1eff2a35539954f96a59f5a91d665c01c14c954cc098c7e9ebb362233645a840",
+    "disposition": "GO for bounded C5 binding delivery only; product/runtime admission not established"
+  },
+  "published_C_topics": {
+    "codex/e02-C-dfk-lifecycle-20261007": "4576f67b1ff1f8d09b6a4223779b53fff9b369ae",
+    "codex/e02-C-dfk-review-20261007": "341f92fb2b18e163778ab28db13b6b67a90e7d44",
+    "codex/e02-C-legal-query-20261007": "51609922447716115c22287ac79c218d13cd9067",
+    "codex/e02-C-legal-review-20261007": "77c5cd319c92e52932b1bf15c342b24a41e7b051",
+    "codex/e02-C-c54-bindings-20261007": "980d91b36452307d683283ddcf1e89a653af3ce2",
+    "codex/e02-C-c54-review-20261007": "04eb30817d16f270feae316650994f2e2f273a44",
+    "codex/e02-C-continuation-20261006": "245c474795c517922b2472cf7b6a81d8d5f45aa4"
+  },
+  "carrier_publication_commands": [
+    {
+      "name": "attachment",
+      "argv": [
+        "git",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "refs/heads/codex/e02-C-continuation-20261006\n",
+      "stderr": ""
+    },
+    {
+      "name": "clean",
+      "argv": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "push",
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "push",
+        "origin",
+        "245c474795c517922b2472cf7b6a81d8d5f45aa4:refs/heads/codex/e02-C-continuation-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "To https://github.com/DenisKopylov/polisyos.git\n   6dcca1d49..245c47479  245c474795c517922b2472cf7b6a81d8d5f45aa4 -> codex/e02-C-continuation-20261006\n"
+    },
+    {
+      "name": "remote",
+      "argv": [
+        "git",
+        "ls-remote",
+        "origin",
+        "refs/heads/codex/e02-C-continuation-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "245c474795c517922b2472cf7b6a81d8d5f45aa4\trefs/heads/codex/e02-C-continuation-20261006\n",
+      "stderr": ""
+    }
+  ],
+  "all_topics_remote_readback_command": {
+    "argv": [
+      "git",
+      "ls-remote",
+      "origin",
+      "refs/heads/codex/e02-C-dfk-lifecycle-20261007",
+      "refs/heads/codex/e02-C-dfk-review-20261007",
+      "refs/heads/codex/e02-C-legal-query-20261007",
+      "refs/heads/codex/e02-C-legal-review-20261007",
+      "refs/heads/codex/e02-C-c54-bindings-20261007",
+      "refs/heads/codex/e02-C-c54-review-20261007",
+      "refs/heads/codex/e02-C-continuation-20261006",
+      "refs/heads/main",
+      "refs/heads/codex/e02-integration"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "seconds": 0.5378984999842942,
+    "stdout": "980d91b36452307d683283ddcf1e89a653af3ce2\trefs/heads/codex/e02-C-c54-bindings-20261007\n04eb30817d16f270feae316650994f2e2f273a44\trefs/heads/codex/e02-C-c54-review-20261007\n245c474795c517922b2472cf7b6a81d8d5f45aa4\trefs/heads/codex/e02-C-continuation-20261006\n4576f67b1ff1f8d09b6a4223779b53fff9b369ae\trefs/heads/codex/e02-C-dfk-lifecycle-20261007\n341f92fb2b18e163778ab28db13b6b67a90e7d44\trefs/heads/codex/e02-C-dfk-review-20261007\n51609922447716115c22287ac79c218d13cd9067\trefs/heads/codex/e02-C-legal-query-20261007\n77c5cd319c92e52932b1bf15c342b24a41e7b051\trefs/heads/codex/e02-C-legal-review-20261007\ndac9d700fe684d5b4c0ae3fbcff66f5d05b2f6f2\trefs/heads/codex/e02-integration\n198076863e143dea9f89f02734b13d50dae3eed5\trefs/heads/main\n",
+    "stderr": ""
+  },
+  "late_G_fetch_commands": [
+    {
+      "argv": [
+        "git",
+        "fetch",
+        "origin",
+        "main",
+        "codex/e02-integration"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "seconds": 0.5441479579894803,
+      "stdout": "",
+      "stderr": "From https://github.com/DenisKopylov/polisyos\n * branch                main       -> FETCH_HEAD\n * branch                codex/e02-integration -> FETCH_HEAD\n"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/codex/e02-integration"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "seconds": 0.006422124977689236,
+      "stdout": "dac9d700fe684d5b4c0ae3fbcff66f5d05b2f6f2\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "dac9d700fe684d5b4c0ae3fbcff66f5d05b2f6f2^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "seconds": 0.0068626669817604125,
+      "stdout": "9ae98d6f3ff63daff3a4ecf9f4e556de2ed3c1e0\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-status",
+        "2abc17f46a033a7879663486ff9946a95786601f",
+        "dac9d700fe684d5b4c0ae3fbcff66f5d05b2f6f2"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "seconds": 0.00860929099144414,
+      "stdout": "M\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/A-resume-after-2605-delta.md\nM\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/README.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/README.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/admission.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/cleanup-receipt.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/cleanup.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/consumer-surface.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/final-links-output-review.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/final-semantic-review.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/history-divergence.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/history-divergence.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/identity-receipts.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/native-checks.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/native-receipt.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/native-report.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs-manifest.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-attempt2-closure-harness-error/junit.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-attempt2-closure-harness-error/stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-attempt2-closure-harness-error/stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-attempt3-tool-import-harness-error/junit.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-attempt3-tool-import-harness-error/stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-attempt3-tool-import-harness-error/stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-attempt4-incomplete-tools-harness-error/junit.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-attempt4-incomplete-tools-harness-error/stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-attempt4-incomplete-tools-harness-error/stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-repair1-registry/junit.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-repair1-registry/receipt.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-repair1-registry/stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-repair1-registry/stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-repair1-source-supplement.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection/junit.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection/receipt.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection/stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection/stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history-attempt2-closure-harness-error/junit.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history-attempt2-closure-harness-error/stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history-attempt2-closure-harness-error/stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history-attempt3-tool-import-harness-error/junit.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history-attempt3-tool-import-harness-error/stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history-attempt3-tool-import-harness-error/stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history-attempt4-incomplete-tools-harness-error/junit.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history-attempt4-incomplete-tools-harness-error/stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history-attempt4-incomplete-tools-harness-error/stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history/junit.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history/receipt.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history/stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history/stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt1-unpinned-harness-error/junit.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt1-unpinned-harness-error/stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt1-unpinned-harness-error/stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt2-closure-harness-error/junit.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt2-closure-harness-error/stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt2-closure-harness-error/stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt3-tool-import-harness-error/junit.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt3-tool-import-harness-error/stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt3-tool-import-harness-error/stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt4-incomplete-tools-harness-error/junit.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt4-incomplete-tools-harness-error/stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt4-incomplete-tools-harness-error/stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile/junit.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile/receipt.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile/stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile/stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/import-only-collection/receipt-verified.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/import-only-collection/receipt.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/import-only-collection/stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/import-only-collection/stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/pins.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/runtime-property.md\n",
+      "stderr": ""
+    }
+  ],
+  "late_G_reconciliation": {
+    "previous_G": "2abc17f46a033a7879663486ff9946a95786601f",
+    "latest_G": "dac9d700fe684d5b4c0ae3fbcff66f5d05b2f6f2",
+    "latest_G_tree": "9ae98d6f3ff63daff3a4ecf9f4e556de2ed3c1e0",
+    "delta_docs_only": true,
+    "changed_path_count": 69,
+    "all_seven_C54_inputs_unchanged": true,
+    "inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "git_blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf",
+        "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+        "matches_frozen_input": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/allocation.json",
+        "git_blob": "dbf94aec21acbccf5429bb7a1d6cafd6451025c7",
+        "sha256": "a1fe5cad509e32606df9710e5cbf942313a243341f58ccb0708692204d15c253",
+        "matches_frozen_input": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+        "git_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+        "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+        "matches_frozen_input": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+        "git_blob": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b",
+        "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75",
+        "matches_frozen_input": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md",
+        "git_blob": "eb335a62bc1f8bce2cddfcf59f649980a08e88c4",
+        "sha256": "8a2697280ff17913847806fa09cfa932a6260ce5053a2d293c5f6878ccf3b990",
+        "matches_frozen_input": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/C54-decisions.json",
+        "git_blob": "dd9cdf341a798ed1e23deb31a26beb05a4ca6173",
+        "sha256": "4f4e0d91670455e474df18e9368b6ee797af62f9c4297e1c912d92b5ee7553f9",
+        "matches_frozen_input": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/C54-actions.md",
+        "git_blob": "4ad2ac1af30a775b4db8a49300b831759e188fa0",
+        "sha256": "a6435384cd27f8b30a23bade1c7f9267e9531c9cfd12a4a7c317010fd004d742",
+        "matches_frozen_input": true
+      }
+    ],
+    "commands": [
+      {
+        "argv": [
+          "git",
+          "rev-parse",
+          "dac9d700fe684d5b4c0ae3fbcff66f5d05b2f6f2:policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "rev-parse",
+          "dac9d700fe684d5b4c0ae3fbcff66f5d05b2f6f2:policy-engine/docs/research/e02-cloud-test-plan/execution-organization/allocation.json"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "dbf94aec21acbccf5429bb7a1d6cafd6451025c7\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "rev-parse",
+          "dac9d700fe684d5b4c0ae3fbcff66f5d05b2f6f2:policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "515c70d29f59f3175521642e72d04f1aaffc72d7\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "rev-parse",
+          "dac9d700fe684d5b4c0ae3fbcff66f5d05b2f6f2:policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "rev-parse",
+          "dac9d700fe684d5b4c0ae3fbcff66f5d05b2f6f2:policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "eb335a62bc1f8bce2cddfcf59f649980a08e88c4\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "rev-parse",
+          "dac9d700fe684d5b4c0ae3fbcff66f5d05b2f6f2:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/C54-decisions.json"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "dd9cdf341a798ed1e23deb31a26beb05a4ca6173\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "rev-parse",
+          "dac9d700fe684d5b4c0ae3fbcff66f5d05b2f6f2:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/C54-actions.md"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "4ad2ac1af30a775b4db8a49300b831759e188fa0\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--name-only",
+          "2abc17f46a033a7879663486ff9946a95786601f",
+          "dac9d700fe684d5b4c0ae3fbcff66f5d05b2f6f2"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/A-resume-after-2605-delta.md\npolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/README.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/README.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/admission.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/cleanup-receipt.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/cleanup.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/consumer-surface.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/final-links-output-review.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/final-semantic-review.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/history-divergence.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/history-divergence.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/identity-receipts.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/native-checks.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/native-receipt.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/native-report.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs-manifest.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-attempt2-closure-harness-error/junit.xml\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-attempt2-closure-harness-error/stderr.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-attempt2-closure-harness-error/stdout.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-attempt3-tool-import-harness-error/junit.xml\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-attempt3-tool-import-harness-error/stderr.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-attempt3-tool-import-harness-error/stdout.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-attempt4-incomplete-tools-harness-error/junit.xml\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-attempt4-incomplete-tools-harness-error/stderr.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-attempt4-incomplete-tools-harness-error/stdout.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-repair1-registry/junit.xml\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-repair1-registry/receipt.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-repair1-registry/stderr.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-repair1-registry/stdout.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection-repair1-source-supplement.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection/junit.xml\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection/receipt.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection/stderr.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/core_voi_projection/stdout.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history-attempt2-closure-harness-error/junit.xml\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history-attempt2-closure-harness-error/stderr.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history-attempt2-closure-harness-error/stdout.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history-attempt3-tool-import-harness-error/junit.xml\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history-attempt3-tool-import-harness-error/stderr.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history-attempt3-tool-import-harness-error/stdout.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history-attempt4-incomplete-tools-harness-error/junit.xml\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history-attempt4-incomplete-tools-harness-error/stderr.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history-attempt4-incomplete-tools-harness-error/stdout.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history/junit.xml\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history/receipt.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history/stderr.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/default_cycle_simulation_history/stdout.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt1-unpinned-harness-error/junit.xml\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt1-unpinned-harness-error/stderr.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt1-unpinned-harness-error/stdout.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt2-closure-harness-error/junit.xml\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt2-closure-harness-error/stderr.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt2-closure-harness-error/stdout.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt3-tool-import-harness-error/junit.xml\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt3-tool-import-harness-error/stderr.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt3-tool-import-harness-error/stdout.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt4-incomplete-tools-harness-error/junit.xml\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt4-incomplete-tools-harness-error/stderr.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile-attempt4-incomplete-tools-harness-error/stdout.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile/junit.xml\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile/receipt.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile/stderr.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/direct_sparse_owner_profile/stdout.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/import-only-collection/receipt-verified.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/import-only-collection/receipt.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/import-only-collection/stderr.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/outputs/import-only-collection/stdout.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/pins.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/runtime-property.md\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "rev-parse",
+          "origin/main"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "198076863e143dea9f89f02734b13d50dae3eed5\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "merge-base",
+          "--is-ancestor",
+          "2abc17f46a033a7879663486ff9946a95786601f",
+          "dac9d700fe684d5b4c0ae3fbcff66f5d05b2f6f2"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "rev-parse",
+          "dac9d700fe684d5b4c0ae3fbcff66f5d05b2f6f2^{tree}"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "9ae98d6f3ff63daff3a4ecf9f4e556de2ed3c1e0\n",
+        "stderr": ""
+      }
+    ]
+  },
+  "late_G_documentation_readback": {
+    "commit": "dac9d700fe684d5b4c0ae3fbcff66f5d05b2f6f2",
+    "read_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/README.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/A-resume-after-2605-delta.md"
+    ],
+    "effect_on_C": "A-only source review documentation; no C finding adjudication, C-owned runtime delta, or run_profile/provider supplier contract supplied. Frozen C54 inputs remain byte-identical."
+  },
+  "gate_basis": {
+    "remote_commit_identity": "recomputed",
+    "source_ref_bindings": "independently_reconciled",
+    "new_product_runtime_acceptance": "not_established",
+    "G_formal_closure": "not_established"
+  },
+  "status_boundary": {
+    "C5_recommendations": {
+      "closed": 31,
+      "limited": 12,
+      "held": 11
+    },
+    "C4_historical_recommendations": {
+      "closed": 31,
+      "limited": 9,
+      "held": 14
+    },
+    "G_statuses_in_frozen_C54": {
+      "not_adjudicated": 54
+    },
+    "denominator": {
+      "bundles": 33,
+      "findings": 54,
+      "criterion_occurrences": 59
+    },
+    "source": "C54 table and independent C54 review at immutable refs in Root carrier; no ledger update performed"
+  },
+  "publication_boundaries": {
+    "own_C_topics_only": true,
+    "main_observed": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "main_push_performed": false,
+    "integration_push_performed": false,
+    "history_rewritten": false,
+    "other_user_chats_messaged": false,
+    "hook_status": "Pre-push checks UNRUN: documented missing worktree hook binary; command-scoped core.hooksPath=/dev/null ordinary pushes, no global hook configuration change or hook-PASS claim."
+  },
+  "limitations": [
+    "Source slices have bounded independent source/test GO; G admission and individual finding closure remain separate.",
+    "Exact non-editable DFK/Legal/CAN e3 wheel layers remain UNRUN without available local Hatchling backend.",
+    "DFK/Legal invocation audits are partial static diagnostics; runtime_invocation_established=false.",
+    "LA-040 remains held for paired persisted generation/assets and serving encoder provider; DB present and minimal read-only criterion work already authorized.",
+    "This receipt records publication of carrier 245c474; the subsequent receipt-only commit is verified by a separate final remote readback, avoiding a self-referential commit assertion."
+  ],
+  "cleanup_boundary": "Native Trash only; deciding evidence and own ignored audit reports preserved. Trash not emptied; no permanent deletion or disk-space recovery claim."
+}

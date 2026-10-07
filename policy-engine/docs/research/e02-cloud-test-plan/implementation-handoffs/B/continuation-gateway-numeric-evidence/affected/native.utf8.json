@@ -1,0 +1,7 @@
+{
+  "schema": "e02.lossless_utf8/v1",
+  "original_name": "affected/native.txt",
+  "original_bytes": 1149,
+  "original_sha256": "b0be868bb7280022ac40a3e4812664100d7302a68094c043456a27bab77c24a5",
+  "text": "ERROR: file or directory not found: tests/core/observability/test_cost_metrics.py\n\n============================= test session starts ==============================\nplatform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0\ncachedir: /workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected/pytest-cache\nbenchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)\ntest taxonomy enabled; active pytest quarantines=0\nrootdir: /workspace/e02-B-current-adapters/policy-engine\nconfigfile: pytest.ini\nplugins: benchmark-5.2.3, hypothesis-6.151.2, anyio-4.12.0, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, jaxtyping-0.3.4\nasyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items\n\n- generated xml file: /workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected/native.xml -\n============================ no tests ran in 0.01s =============================\n"
+}

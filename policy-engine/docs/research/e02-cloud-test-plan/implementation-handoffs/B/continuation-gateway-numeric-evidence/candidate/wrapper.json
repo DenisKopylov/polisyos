@@ -1,0 +1,54 @@
+{
+  "schema": "e02-independent-native-capture/v1",
+  "state": "EXECUTED",
+  "setup_failure": null,
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/capture.py",
+    "child",
+    "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+    "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/candidate/profile.json",
+    "-v",
+    "-s",
+    "--tb=short",
+    "--cache-clear",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/candidate/pytest-cache",
+    "--basetemp=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/candidate/fixtures",
+    "--junitxml=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/candidate/native.xml",
+    "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+  ],
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+  "target_tree": "bd3d76242c3c222b0bee7dd2c81bc73c2ecb374f",
+  "head_after": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+  "tree_after": "bd3d76242c3c222b0bee7dd2c81bc73c2ecb374f",
+  "status_before": "",
+  "status_after": "",
+  "actual_exit": 0,
+  "wall_s": 1.775847351003904,
+  "max_rss_kib": 109520,
+  "environment": {
+    "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+  },
+  "driver_sha256": "019528af29cbfa4f5959e394a1b79b3736c8a741289edf8cef399ba947ba96b0",
+  "outputs": {
+    "native.txt": {
+      "path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/candidate/native.txt",
+      "sha256": "f1357c51c26490e5c26d170c2ec30f0f24d1d5298f2c8a7e21ec08844c8f5513",
+      "bytes": 3325
+    },
+    "native.xml": {
+      "path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/candidate/native.xml",
+      "sha256": "dc93eb3c9362550391b5c02b57299c8f742aaf0bd5b8330b47d60ad8fbc53834",
+      "bytes": 5806
+    },
+    "profile.json": {
+      "path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/candidate/profile.json",
+      "sha256": "db0b4d1371247c9b01c4d72e4f71ecd692ba3719652033fe111a985a9896b96b",
+      "bytes": 57196
+    }
+  }
+}

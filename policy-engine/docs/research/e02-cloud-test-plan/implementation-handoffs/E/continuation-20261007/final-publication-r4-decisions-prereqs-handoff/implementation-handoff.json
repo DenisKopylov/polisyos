@@ -1186,11 +1186,66 @@
     "generated_input_owner": "canonical G fixture/generator writer with exact native caller provenance; root pending trace, no manual restore by this DOC carrier"
   },
   "predicate_basis": {
-    "selector_identity": "five actual fixed selectors and two separate qualifier companions, exact byte/hash pin and complete typed vector",
-    "member_law": "redecode each actual selector and exact Counter of all selected primary/alias/role fields;230 selected memberships+5selectors+2qualifiers237",
-    "carrier": "168 first-content carriers/8218180B and69 logical aliases, exact source byte/hash and portable collision/role",
-    "claims": "recursive strict typed comparison of complete qualification/header/source-before-after/flags and summary/count fields; bool/int/float are distinct",
-    "limitations": "same source/output identity, historical check/finding outcomes and scoped new source observations remain separate"
+    "selector_identity": {
+      "basis": "recomputed",
+      "explanation": "five actual fixed selectors and two separate qualifier companions, exact byte/hash pin and complete typed vector"
+    },
+    "member_law": {
+      "basis": "recomputed",
+      "explanation": "redecode each actual selector and exact Counter of all selected primary/alias/role fields;230 selected memberships+5selectors+2qualifiers237"
+    },
+    "carrier": {
+      "basis": "recomputed",
+      "explanation": "168 first-content carriers/8218180B and69 logical aliases, exact source byte/hash and portable collision/role"
+    },
+    "claims": {
+      "basis": "recomputed",
+      "explanation": "recursive strict typed comparison of complete qualification/header/source-before-after/flags and summary/count fields; bool/int/float are distinct"
+    },
+    "literal_original_and_immutable_Git_custody": {
+      "basis": "independently_reconciled",
+      "explanation": "Independent final e233 qualified receipt52266d59333ea126540b59e40bb45a5378ea8f63751ac449306af3ac7404bb9e rechecks all183 Git blobs,237 member occurrences and168 original-content carriers; literal334 handoff copies separately bound by copy-index."
+    },
+    "independent_observations": {
+      "basis": "independently_reconciled",
+      "explanation": "Complete actual normal/-O2healthy+44negative controls and3 effective removals preserved in the fixed independent selector; old72049/header guardERROR remain historical records."
+    },
+    "ROOT_HEAD_tree_and_observed_product_test_delta": {
+      "basis": "recomputed",
+      "explanation": "Read-only Git HEAD/tree and src/tests changed-path observation captured before/after handoff construction;64d/aef and observed empty product/test source delta only. Observation is temporal and non-atomic, with29 generatedJSON modifications."
+    },
+    "ROOT_full_input_identity_and_mutating_native_caller": {
+      "basis": "not_established",
+      "explanation": "Full backend input immutability is false after observed29 generatedJSON changes; exact native mutating caller attribution awaits independentDOE tracing. No whole-worktree-clean or source-freeze waiver is asserted."
+    },
+    "canonical_semantic_choices": {
+      "basis": "institutionally_supplied",
+      "explanation": "Tracked appointed E semantic owner and four recorded decisions cdaea067935c8062a6a13fab8d7ffb53ae5fd401 are existing inputs; this DOC carrier does not amend or ratify them."
+    },
+    "historical_finding_and_proposal_records": {
+      "basis": "institutionally_supplied",
+      "explanation": "Exact old ledger49partial/4held/1closed, frozen43/9/2 proposals and separate pre-fix41/9/2/2 technical-open snapshot retained literally. Accountable owner and G acceptance are distinct future decisions."
+    },
+    "actual_ca17_and_CanonSpec_scoped_checks": {
+      "basis": "independently_reconciled",
+      "explanation": "Literal ca17 finite-law/CAS review and separate3vs1 typed DTO result (+2new errors), and CanonSpec33vs35 scoped result, retain their actual source/scope identities. Later3932 source acceptance is not conferred here."
+    },
+    "installation_and_declared_native_preflight": {
+      "basis": "independently_reconciled",
+      "explanation": "Closed author and independent install custody receipts preserve declared203→207 metadata/protected stack/four dependencies and bounded preflight outcomes; this DOC carrier does not rerun backend or installation."
+    },
+    "new_consumer_or_public_surface_authority": {
+      "basis": "not_established",
+      "explanation": "CanonSpec public export proposal remains unapplied; no native consumer/source acceptance, configured production authority or generated surface completion is granted by evidence custody."
+    },
+    "finding_and_global_gate_authority": {
+      "basis": "not_established",
+      "explanation": "Code custody GO, preserved checks and their counts do not establish original finding closure, production law or globalPASS. G accepts source separately and is sole integration publisher."
+    },
+    "publication_scope": {
+      "basis": "independently_reconciled",
+      "explanation": "same source/output identity, historical check/finding outcomes and scoped new source observations remain separate"
+    }
   },
   "independent_oracle": {
     "closed_selection": "independent/publication-selection.json",
@@ -1346,12 +1401,12 @@
     "E_source_author_imports_and_oracle": "Publish separate3932 source/handoff and defining-property DTO/source review; do not infer G original finding closure.",
     "G": "Only integration publisher; code acceptance and original finding closure remain separate. Canonical generated-input fixture owner needs native mutating-caller provenance and isolated/repeatable mutable-input boundary; no manual ROOT restore performed."
   },
-  "copied_handoff_files": 334,
-  "copied_handoff_bytes": 1033929,
+  "copied_handoff_files": 335,
+  "copied_handoff_bytes": 1040026,
   "copy_index": {
     "path": "copy-index.json",
-    "bytes": 153027,
-    "sha256": "d6cfa90d5eb9d9a49b8c7f942ad91e829270f5425fc4250bf96b7c606fbd6a26"
+    "bytes": 153410,
+    "sha256": "ecbf7822563788d03cf91a61fa8ca47fbfb89ac9009bc7c8b10f5b974d117b7c"
   },
   "ROOT_before": {
     "head": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
@@ -1440,6 +1495,7 @@
   "handoff_footprint": [
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs-handoff/README.md",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs-handoff/author/ROOT-generated-input-drift-observation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs-handoff/author/add-predicate-basis.py.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs-handoff/author/attempt1-build-handoff.py.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs-handoff/author/attempt1-build-handoff.stderr.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs-handoff/author/attempt1-build-handoff.stdout.txt",
@@ -1777,10 +1833,11 @@
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs-handoff/independent/reviewer/review_final_e233.py.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs-handoff/independent/reviewer/review_final_e233_v2.py.txt"
   ],
-  "handoff_path_count": 338,
+  "handoff_path_count": 339,
   "full_footprint": [
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs-handoff/README.md",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs-handoff/author/ROOT-generated-input-drift-observation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs-handoff/author/add-predicate-basis.py.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs-handoff/author/attempt1-build-handoff.py.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs-handoff/author/attempt1-build-handoff.stderr.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs-handoff/author/attempt1-build-handoff.stdout.txt",
@@ -2301,6 +2358,19 @@
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs/selectors/install-selection.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs/selectors/postpublication-selection.json"
   ],
-  "full_path_count": 521,
-  "cleanup": "No cleanup by this DOC carrier; unique evidence/code/data kept, repeatable test overlays listed for owner-controlled cleanup only."
+  "full_path_count": 522,
+  "cleanup": "No cleanup by this DOC carrier; unique evidence/code/data kept, repeatable test overlays listed for owner-controlled cleanup only.",
+  "predicate_basis_explanation": {
+    "selector_identity": "five actual fixed selectors and two separate qualifier companions, exact byte/hash pin and complete typed vector",
+    "member_law": "redecode each actual selector and exact Counter of all selected primary/alias/role fields;230 selected memberships+5selectors+2qualifiers237",
+    "carrier": "168 first-content carriers/8218180B and69 logical aliases, exact source byte/hash and portable collision/role",
+    "claims": "recursive strict typed comparison of complete qualification/header/source-before-after/flags and summary/count fields; bool/int/float are distinct",
+    "limitations": "same source/output identity, historical check/finding outcomes and scoped new source observations remain separate"
+  },
+  "protocol_metadata_correction": {
+    "historical_handoff_commit": "98e913252845384f275092d86714c3d18a647218",
+    "historical_gap": "Predicate explanations lacked the mandatory exact P37 classification labels.",
+    "correction": "Append-only structured label+explanation for every load-bearing predicate; all334 historical copied assets and original implementation e233 unchanged.",
+    "source_numeric_or_gate_reexecution": false
+  }
 }

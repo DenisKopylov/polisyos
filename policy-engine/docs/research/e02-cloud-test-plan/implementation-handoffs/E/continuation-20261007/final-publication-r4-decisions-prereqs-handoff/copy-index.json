@@ -4,8 +4,8 @@
   "candidate_tree_sha": "6f541e58830bb760c2885921d58d6dfae4e6b01a",
   "verification_source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
   "verification_source_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
-  "copied_files": 334,
-  "copied_bytes": 1033929,
+  "copied_files": 335,
+  "copied_bytes": 1040026,
   "copies": [
     {
       "source_path": "/tmp/e02-E-decisions-prereqs-custody-independent/review_final_e233.py.txt",
@@ -2344,6 +2344,13 @@
       "role": "exact executed effective property-removal utility snapshot",
       "bytes": 11611,
       "sha256": "5e75596188c6743d168e31a38279e6d66a4feb3b732ebb947f00d32d739bcbbb"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/add-predicate-basis.py.txt",
+      "portable_path": "author/add-predicate-basis.py.txt",
+      "role": "exact executed DOC-only P37 predicate basis correction; no source/native/gate execution",
+      "bytes": 6097,
+      "sha256": "df6794e53d93a9a8b236dd89d137fd77e1e99202d73befe4b2fbe6fa1ccc9c27"
     }
   ],
   "original_bytes_rewritten": false,

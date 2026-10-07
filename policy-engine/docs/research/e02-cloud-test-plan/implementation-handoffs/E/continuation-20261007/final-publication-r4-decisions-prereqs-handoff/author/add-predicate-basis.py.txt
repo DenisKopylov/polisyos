@@ -1,0 +1,40 @@
+import hashlib,json
+from pathlib import Path
+R=Path('/workspace/e02-E-frc-20261006')
+P='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs-handoff'
+D=R/P
+h=json.loads((D/'implementation-handoff.json').read_text());ix=json.loads((D/'copy-index.json').read_text())
+if h['candidate_sha']!='e233efcd0e5a4bb4c5b280f86a12ec7d0a264d62' or len(ix['copies'])!=334:raise ValueError('fixed previous handoff guard')
+old=h['predicate_basis']
+if not all(isinstance(v,str) for v in old.values()):raise ValueError('preserved original prose required')
+rows={k:{'basis':'recomputed','explanation':v} for k,v in old.items() if k!='limitations'}
+rows.update({
+ 'literal_original_and_immutable_Git_custody':{'basis':'independently_reconciled','explanation':'Independent final e233 qualified receipt52266d59333ea126540b59e40bb45a5378ea8f63751ac449306af3ac7404bb9e rechecks all183 Git blobs,237 member occurrences and168 original-content carriers; literal334 handoff copies separately bound by copy-index.'},
+ 'independent_observations':{'basis':'independently_reconciled','explanation':'Complete actual normal/-O2healthy+44negative controls and3 effective removals preserved in the fixed independent selector; old72049/header guardERROR remain historical records.'},
+ 'ROOT_HEAD_tree_and_observed_product_test_delta':{'basis':'recomputed','explanation':'Read-only Git HEAD/tree and src/tests changed-path observation captured before/after handoff construction;64d/aef and observed empty product/test source delta only. Observation is temporal and non-atomic, with29 generatedJSON modifications.'},
+ 'ROOT_full_input_identity_and_mutating_native_caller':{'basis':'not_established','explanation':'Full backend input immutability is false after observed29 generatedJSON changes; exact native mutating caller attribution awaits independentDOE tracing. No whole-worktree-clean or source-freeze waiver is asserted.'},
+ 'canonical_semantic_choices':{'basis':'institutionally_supplied','explanation':'Tracked appointed E semantic owner and four recorded decisions cdaea067935c8062a6a13fab8d7ffb53ae5fd401 are existing inputs; this DOC carrier does not amend or ratify them.'},
+ 'historical_finding_and_proposal_records':{'basis':'institutionally_supplied','explanation':'Exact old ledger49partial/4held/1closed, frozen43/9/2 proposals and separate pre-fix41/9/2/2 technical-open snapshot retained literally. Accountable owner and G acceptance are distinct future decisions.'},
+ 'actual_ca17_and_CanonSpec_scoped_checks':{'basis':'independently_reconciled','explanation':'Literal ca17 finite-law/CAS review and separate3vs1 typed DTO result (+2new errors), and CanonSpec33vs35 scoped result, retain their actual source/scope identities. Later3932 source acceptance is not conferred here.'},
+ 'installation_and_declared_native_preflight':{'basis':'independently_reconciled','explanation':'Closed author and independent install custody receipts preserve declared203→207 metadata/protected stack/four dependencies and bounded preflight outcomes; this DOC carrier does not rerun backend or installation.'},
+ 'new_consumer_or_public_surface_authority':{'basis':'not_established','explanation':'CanonSpec public export proposal remains unapplied; no native consumer/source acceptance, configured production authority or generated surface completion is granted by evidence custody.'},
+ 'finding_and_global_gate_authority':{'basis':'not_established','explanation':'Code custody GO, preserved checks and their counts do not establish original finding closure, production law or globalPASS. G accepts source separately and is sole integration publisher.'},
+ 'publication_scope':{'basis':'independently_reconciled','explanation':old['limitations']},
+})
+allowed={'recomputed','independently_reconciled','consumer_asserted','institutionally_supplied','not_established'}
+if any(set(v)!={'basis','explanation'} or v['basis'] not in allowed for v in rows.values()):raise ValueError('exact P37 basis vocabulary')
+h['predicate_basis_explanation']=old
+h['predicate_basis']=rows
+h['protocol_metadata_correction']={'historical_handoff_commit':'98e913252845384f275092d86714c3d18a647218','historical_gap':'Predicate explanations lacked the mandatory exact P37 classification labels.','correction':'Append-only structured label+explanation for every load-bearing predicate; all334 historical copied assets and original implementation e233 unchanged.','source_numeric_or_gate_reexecution':False}
+b=Path(__file__).read_bytes();target='author/add-predicate-basis.py.txt'
+if (D/target).exists():raise ValueError('new correction companion must not exist')
+(D/target).write_bytes(b)
+ix['copies'].append({'source_path':str(Path(__file__)),'portable_path':target,'role':'exact executed DOC-only P37 predicate basis correction; no source/native/gate execution','bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+ix['copied_files']=len(ix['copies']);ix['copied_bytes']=sum(a['bytes'] for a in ix['copies'])
+(D/'copy-index.json').write_text(json.dumps(ix,ensure_ascii=False,indent=2)+'\n')
+i=(D/'copy-index.json').read_bytes();h['copy_index']={'path':'copy-index.json','bytes':len(i),'sha256':hashlib.sha256(i).hexdigest()}
+h['copied_handoff_files']=ix['copied_files'];h['copied_handoff_bytes']=ix['copied_bytes']
+h['handoff_footprint']=sorted(h['handoff_footprint']+[P+'/'+target]);h['handoff_path_count']=len(h['handoff_footprint'])
+h['full_footprint']=sorted(h['implementation_footprint']+h['handoff_footprint']);h['full_path_count']=len(h['full_footprint'])
+(D/'implementation-handoff.json').write_text(json.dumps(h,ensure_ascii=False,indent=2)+'\n')
+print(json.dumps({'predicate_count':len(rows),'labels':sorted({v['basis'] for v in rows.values()}),'copied_files':ix['copied_files'],'copied_bytes':ix['copied_bytes'],'handoff_paths':h['handoff_path_count'],'full_paths':h['full_path_count'],'metadata':{n:{'bytes':len((D/n).read_bytes()),'sha256':hashlib.sha256((D/n).read_bytes()).hexdigest()} for n in ('copy-index.json','implementation-handoff.json')}},indent=2))

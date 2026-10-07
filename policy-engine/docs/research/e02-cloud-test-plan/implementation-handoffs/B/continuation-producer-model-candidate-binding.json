@@ -1,0 +1,208 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "continuation-producer-model-candidate-binding",
+  "closure_ids": [],
+  "bundle_ids": [
+    "STA-01",
+    "EXE-01",
+    "WIRE-01"
+  ],
+  "slice_base_sha": "587eda2d11a2193123a6d862fb6fcea6539cfc4e",
+  "implementation_commits": [
+    "5194cb6577df0a8b631538a8ed9c48356024ebda"
+  ],
+  "candidate_tree_sha": "e990b209841e4d0e3663ef7437429677a63394fc",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-candidate-binding-evidence/readback.json"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": {
+        "method": "GitHub MCP read-only",
+        "actual_calls": [
+          "GET git/commits/0bf788ac2e57533b08be9172d64c19705a3af30d",
+          "fetch_file(ref=0bf788ac2e57533b08be9172d64c19705a3af30d) for each of ten exact source/protected paths in the committed audit",
+          "fetch_file(ref=ed065a94069aed53cd5e7f7c7031e27fc86e6462) independent oracle",
+          "Read exact earlier198/B/G/590 protected blob map from ancestry-audit.json@27f5ddbab8adae08458733535ff627648c731abc"
+        ]
+      },
+      "target_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+      "environment": {
+        "access": "GitHub MCP approved Git commit and file endpoints; no candidate imports",
+        "cloud_observation": {
+          "observations_current": true,
+          "connectivity": "offline",
+          "observed_phase": "running",
+          "desired_phase": "running"
+        },
+        "local_execution": "Minimal cgroup command pending/no output; no new local archive or native command executed by reviewer",
+        "quota_added": false,
+        "reviewer": "Foreign EXE source/candidate identity only"
+      },
+      "input_closure": {
+        "candidate_tree": "2e069f18e02175dd0d6f7acd6573a4c0b071c766",
+        "candidate_parent_order": "Exact eight parents recorded in readback.json",
+        "owner_source": "d18fe09b5bc0367c966011144a5418f836b9a4b7/d4faa64e884c863bdd8c4692432bff4bbd102c54",
+        "independent_test_source": "ed065a94069aed53cd5e7f7c7031e27fc86e6462/21c09c5b6ba5c2df6312a5489065cc7f9392eb53",
+        "ten_literal_files": {
+          "git_sha": "5194cb6577df0a8b631538a8ed9c48356024ebda",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-candidate-binding-evidence/readback.json",
+          "blob_sha": "6d88710042de27aabd066c358bf996e239ac637c",
+          "bytes": 11049,
+          "sha256": "65906af5b87b13a386cc76fdd738cc053777a008a978ac4c80bf28610b4b7eaa"
+        },
+        "foreign_source_review": "587eda2d11a2193123a6d862fb6fcea6539cfc4e:B/continuation-producer-model-source-independent-review.json"
+      },
+      "outcome": "PASS",
+      "output": {
+        "full_audit": {
+          "git_sha": "5194cb6577df0a8b631538a8ed9c48356024ebda",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-candidate-binding-evidence/readback.json",
+          "blob_sha": "6d88710042de27aabd066c358bf996e239ac637c",
+          "bytes": 11049,
+          "sha256": "65906af5b87b13a386cc76fdd738cc053777a008a978ac4c80bf28610b4b7eaa"
+        },
+        "complete_concise_result": "Exact remote0bf tree2e069 and parent order confirmed. Four owner source/companion/test blobs matchd18; independent oracle matchsed065. All five protected A/C blobs match immutable198/B/G/590 map. All ten literal reads have SHA256/byte/blob identities in the audit. Finite source review NONBLOCKING; no complete all-path physical projection or runtime acceptance from these reads."
+      }
+    },
+    {
+      "command": "GitHub MCP GET https://api.github.com/repos/DenisKopylov/polisyos/commits/ed065",
+      "target_sha": "ed065a94069aed53cd5e7f7c7031e27fc86e6462",
+      "environment": {
+        "access": "GitHub MCP approved Git commit and file endpoints; no candidate imports",
+        "cloud_observation": {
+          "observations_current": true,
+          "connectivity": "offline",
+          "observed_phase": "running",
+          "desired_phase": "running"
+        },
+        "local_execution": "Minimal cgroup command pending/no output; no new local archive or native command executed by reviewer",
+        "quota_added": false,
+        "reviewer": "Foreign EXE source/candidate identity only"
+      },
+      "input_closure": "Abbreviated commit selector used only for immutable navigation; full parent SHA was then read from actual candidate Git header.",
+      "outcome": "ERROR",
+      "output": {
+        "complete_concise_result": "GitHub API422: No commit found for SHA: ed065. Full actual parent ed065a94069aed53cd5e7f7c7031e27fc86e6462 commit/file reads succeeded; original navigation error retained in the committed audit.",
+        "full_audit": {
+          "git_sha": "5194cb6577df0a8b631538a8ed9c48356024ebda",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-candidate-binding-evidence/readback.json",
+          "blob_sha": "6d88710042de27aabd066c358bf996e239ac637c",
+          "bytes": 11049,
+          "sha256": "65906af5b87b13a386cc76fdd738cc053777a008a978ac4c80bf28610b4b7eaa"
+        }
+      },
+      "qualification": "Metadata navigation error; not a source/runtime defect or inherited gate."
+    },
+    {
+      "command": {
+        "status": "NOT EXECUTED",
+        "required_receiver_check": "Regenerate complete6b87 tracked NUL tree list with per-command Git pack cache1m if required; stream every regular/symlink blob+Git-normalized mode and missing/extra path census; stream archiveSHA256<=128KiB with stable identity. No persistent configuration, runtime quotas or full largefile read_bytes."
+      },
+      "target_sha": "6b87fcd2471191acf2c879356e7fd0129fc9a2ee",
+      "environment": {
+        "access": "GitHub MCP approved Git commit and file endpoints; no candidate imports",
+        "cloud_observation": {
+          "observations_current": true,
+          "connectivity": "offline",
+          "observed_phase": "running",
+          "desired_phase": "running"
+        },
+        "local_execution": "Minimal cgroup command pending/no output; no new local archive or native command executed by reviewer",
+        "quota_added": false,
+        "reviewer": "Foreign EXE source/candidate identity only"
+      },
+      "input_closure": {
+        "expected_tree": "2e069f18e02175dd0d6f7acd6573a4c0b071c766",
+        "declared19038_role": "ROOT-supplied expected denominator; not measured by this packet",
+        "projection": "/tmp/e02-B-tenth-wave-20261007/fulltracked-source-6b87fcd24711",
+        "archive": "/dev/shm/e02-B-fulltracked-native-6b87fcd24711.tar",
+        "physical_bytes": "not_established"
+      },
+      "outcome": "UNRUN",
+      "output": "No new physical projection or archive bytes read by this reviewer after actual cloud offline observation. Remote tree equality cannot prove all19038 files/modes or archive custody; completed admission remains required before native."
+    },
+    {
+      "command": {
+        "status": "NOT EXECUTED",
+        "required_receiver_check": "Run owner whole module, independent ordinary model consumer whole module and matched material removal on the same admitted integrated immutable source after fulltracked custody; preserve complete profiles/stdout/JUnit/real CAS/cache/completion fixtures."
+      },
+      "target_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+      "environment": {
+        "access": "GitHub MCP approved Git commit and file endpoints; no candidate imports",
+        "cloud_observation": {
+          "observations_current": true,
+          "connectivity": "offline",
+          "observed_phase": "running",
+          "desired_phase": "running"
+        },
+        "local_execution": "Minimal cgroup command pending/no output; no new local archive or native command executed by reviewer",
+        "quota_added": false,
+        "reviewer": "Foreign EXE source/candidate identity only"
+      },
+      "input_closure": {
+        "actual_owner_test_blob": "476026dd34b5da75689b88de1a43958c73ddbdfd",
+        "actual_independent_test_blob": "e4116da90128cb85c1736ed470fd08487b6c2f74",
+        "declared_owner59_independent20": "Planned ROOT input quantities only, not executions or results"
+      },
+      "outcome": "UNRUN",
+      "output": "New candidate author59, independent20 and material removal remain UNRUN. Historical four imported-checkpoint and fifteen Gateway consumer PASS are only590 evidence and are not restamped onto0bf. B59 OPEN verification_required; other59 decisions are not reviewed or changed by this packet."
+    }
+  ],
+  "property": {
+    "statement": "The delivered root candidate preserves exact independently reviewed ordinary-model source, separate defining consumer input and protected source identities, while physical execution admission and actual effects remain independently required.",
+    "runtime_path": [
+      "Remote append-only root Git commit/parents",
+      "Exact canonical EXE source/README/release/owner test plus separate CMP consumer oracle",
+      "Protected A/C byte identities remain unchanged",
+      "Fresh complete physical source projection/archive admission -> actual producer/live graph/journal/cache/publication/completion consumers (UNRUN)"
+    ],
+    "proxy_divergence": "A correct candidate tree/selected file markers can coexist with an incomplete physical runtime projection or an undeclared model mutation changing publication bytes. Parent merge success and a historical590 PASS do not establish a new0bf runtime effect.",
+    "negative_controls": [
+      "Preserve actual abbreviated selector422 separately from successful full-SHA metadata resolution.",
+      "Demand missing/extra file and mode/corruption adversaries in the physical projection admission; API source reads alone cannot close it.",
+      "Demand same generic model grant removal with actual physical mutation/body/publication divergence; no new removal execution is claimed.",
+      "All new runtime/archive checks remain UNRUN; no code/finding closure or inherited-P41 waiver."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "per_premise_basis": {
+    "actual_remote_ten_files_parent_order": "independently_reconciled",
+    "foreign_source_acceptance": "finite source-only NONBLOCKING from587, independent of EXE/CMP authors",
+    "physical_projection_native_and_negative": "not_established; UNRUN",
+    "planned_counts": "consumer_asserted ROOT planned inputs only",
+    "full_B_finding_closure": "not_established; formal_closure=false"
+  },
+  "capability_state_or_finding_state": "PASS bounded remote candidate input/source identity. Source finite NONBLOCKING; new archive/native/removal UNRUN; B59 OPEN verification_required; closure_ids empty.",
+  "limitations_and_next_owner": [
+    "No source/test writes, new checkout/helper agents, cleanup/ref repair, runtime/gate/collection reruns, main/force push or quota.",
+    "Ten selected literal source/protected file reads are not an all-path footprint or full19038 physical projection census.",
+    "New0bf is a delivered append-only same-tree source candidate; local6b87 tree relationship was supplied by ROOT, and physical archive remains unmeasured by this reviewer.",
+    "OriginalG/B ancestry supplies transport context, not authorization law. A/C canonical files stay under their exclusive owners.",
+    "Ordinary declared BaseModel/RootModel finite graph bounds from587 remain; arbitrary reflection/base mutators/custom validator effects/model-class cache reconstruction are outside the profile.",
+    "ROOT/G must obtain actual fulltracked custody then source-specific owner/independent/material consumer effects. EXE owns any mechanism repair, CMP owns independent oracle.",
+    "Old590 peer4/15 and old2be effects remain at exact historical refs. No whole-B grades, other59 current decisions or P41 inherited waiver are inferred."
+  ],
+  "reviewed_root_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+  "reviewed_root_tree": "2e069f18e02175dd0d6f7acd6573a4c0b071c766",
+  "independent_readback": {
+    "git_sha": "5194cb6577df0a8b631538a8ed9c48356024ebda",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-candidate-binding-evidence/readback.json",
+    "blob_sha": "6d88710042de27aabd066c358bf996e239ac637c",
+    "bytes": 11049,
+    "sha256": "65906af5b87b13a386cc76fdd738cc053777a008a978ac4c80bf28610b4b7eaa"
+  },
+  "canonical_owner_row": {
+    "source_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+    "finding_id": "B59",
+    "source_closure_owner": "STA-01",
+    "source_bundle_ids": "STA-01",
+    "source_status": "closed",
+    "role": "Canonical baseline/source routing identity only; this source status is not evidence of current candidate effects and does not override the current verification_required recommendation."
+  }
+}

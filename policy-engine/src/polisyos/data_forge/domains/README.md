@@ -27,7 +27,12 @@ The internal catalog resource owner `catalog/_resources.py` resolves the four
 curated defaults authored under `data/dataset_catalog`. Source checkouts retain
 those original paths; unpacked installations use exact Hatch projections in the
 private catalog `_resources/` directory. Raw observations and mutable batch
-outputs remain external. See [catalog defaults](../../../../docs/reference/data-forge/catalog-default-resources.md).
+outputs remain external. The nested runtime function
+`polisyos.data_forge.read_api.catalog.catalog_default_resource_path` is an additive
+`public_experimental` facade contract: one canonical function, four allowed names,
+a durable `Path`, and `ValueError` for other names. Explicit loader paths still
+override defaults; the provider remains internal and no root export is added.
+See [catalog defaults](../../../../docs/reference/data-forge/catalog-default-resources.md).
 
 ## Extension Points
 

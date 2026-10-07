@@ -15,8 +15,20 @@ neighbouring checkout, and no temporary extraction context behind a returned pat
 
 Variable alignment, proxy penalties, core source ingestion, the catalog harvester,
 batch metrics configuration and Fabric WVS all use this owner. Fabric reaches it
-through the existing Data Forge runtime read facade. Explicit caller paths keep
-their original behavior. `repo_root`, raw WVS CSV/XLSX paths and mutable output
+through the existing Data Forge runtime read facade.
+
+`polisyos.data_forge.read_api.catalog.catalog_default_resource_path(name)` is an
+additive `public_experimental` runtime function within the existing Data Forge
+supported window. The catalog resolver module remains an internal provider. The
+lazy facade exposes the same canonical function object, whose FQN is
+`polisyos.data_forge.domains.catalog._resources.catalog_default_resource_path`;
+it accepts exactly the four filenames above, returns a durable `Path`, and raises
+`ValueError` for names outside that profile. It adds no root package export or
+resource registry. Existing loader path arguments and the batch configuration's
+explicit `metrics_map_path` continue to override defaults through their existing
+caller contracts.
+
+Explicit caller paths keep their original behavior. `repo_root`, raw WVS CSV/XLSX paths and mutable output
 directories retain their existing ownership; those inputs are not bundled.
 
 Missing seed files and metrics maps still fail their required reads. Proxy and

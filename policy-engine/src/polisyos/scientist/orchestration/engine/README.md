@@ -183,6 +183,22 @@ grant. Local synchronous, asynchronous and remote worker entries enforce the sam
 scope. After settlement, the executor returns a detached editable completed state;
 the original producer view retains its guard.
 
+The same live-path grant covers ordinary mutable Pydantic `BaseModel` and
+`RootModel` fields, including typed artifact references, nested model children
+and shallow-copy aliases. Producer `model_copy(update=...)` checks the original
+grant before making a copy; it cannot replace an undeclared state field. Copy,
+deepcopy and completion preserve field membership and rebind tracked children
+to their actual current parents. Frozen models retain their frozen assignment
+and copy contracts. Neutral public consumers keep the existing editable model
+behavior.
+
+This profile admits declared ordinary model fields and their finite container
+graph. Custom mutation/copy hooks, private or extra runtime model state, new
+undeclared model attributes and cyclic attachments are refused. Model-field
+deletion is refused because the replay consumer does not support it. It does not
+claim custody of arbitrary custom runtime objects, explicit base-class mutators
+or reflection, and does not reconstruct arbitrary model classes from cache JSON.
+
 Legacy `1.0` and `1.1` cache journals admit only direct primitive model or mapping
 set/delete operations. Nested or container intents become cache misses, allowing
 the producer to execute against current state. This compatibility boundary does

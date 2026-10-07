@@ -146,6 +146,8 @@ def execute(
             observations["advance_calls"] += 1
             if split:
                 observations["split_partial"] = super().advance(ticket, policy="stage_a")
+                observations["split_partial_calls"] = list(calls)
+                observations["split_partial_snapshot"] = FileBudgetLedger(ledger_path).snapshot()
             result = super().advance(ticket, **kwargs)
             observations["outcome"] = result
             return result
@@ -170,7 +172,10 @@ def execute(
     )
     fresh_state = ExperimentState.model_validate_json(FileSystemCAS(cas).get_bytes(ref))
     projected = fresh_state.params["_funnel_outcome"]
-    assert projected == json.loads(json.dumps(output.state.params["_funnel_outcome"]))
+    # Compare the canonical JSON-safe returned view: failed stage sentinels
+    # become null in ExperimentState serialization, rather than JSON Infinity.
+    canonical_returned = json.loads(output.state.model_dump_json())["params"]["_funnel_outcome"]
+    assert projected == canonical_returned
     (tmp_path / "node-consumer-observations.json").write_text(
         json.dumps(
             {
@@ -216,7 +221,13 @@ def test_literal_node_configured_paid_or_zero_settlement_fresh_cas(
     assert projected["final_action"] == "defer_to_human"
     if split:
         assert observations["split_partial"].evaluation_status == "partial"
-        assert observations["split_partial"].provider_spend_usd == Decimal(str(cost))
+        # The ordinary Node uses its default Stage A cap of L2. The physical
+        # L3/L4 workers have not run at that boundary; absent debit stays None.
+        assert observations["split_partial"].provider_spend_usd is None
+        assert observations["split_partial"].resource_event_ids == ()
+        assert observations["split_partial_calls"] == []
+        assert observations["split_partial_snapshot"].state.spent == {}
+        assert observations["split_partial_snapshot"].spend_receipts == {}
 
 
 @pytest.mark.parametrize("empty", ["stages", "cap"])
@@ -234,7 +245,9 @@ def test_literal_node_empty_has_no_numeric_positive_no_resource(monkeypatch, tmp
         ("broken", "ci_width_invalid", 1.0),
         (float("nan"), "ci_width_invalid", 1.0),
         (0.0, "full_fidelity_bootstrap", 0.0),
-        (0.4, "full_fidelity_bootstrap", 0.1),
+        # This full-Node fixture declares ATE=0. A finite positive-width
+        # interval is maximally uncertain; true width zero remains measured 0.
+        (0.4, "full_fidelity_bootstrap", 1.0),
     ],
 )
 def test_literal_node_width_retains_available_scores_and_money(

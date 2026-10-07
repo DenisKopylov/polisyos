@@ -1,0 +1,301 @@
+{
+  "schema": "policyos.e02.foreign_packet_custody.v1",
+  "source_sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+  "source_tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+  "canonical_peer_receipt": {
+    "git_sha": "0bf268e7860831241e3fd193b3da46086d5893cc",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-lexical-final.json",
+    "bytes": 11396,
+    "sha256": "99815bffc0311d3fe0f68cbb82ec64c89cc05b661ec39fdc17178e20fa031846",
+    "tree": "e039e83bd594e2c9d40347d0bc63937a2ceee363"
+  },
+  "distinct_declared_artifacts": [
+    {
+      "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/test_independent_getter_consumer.source.txt",
+      "git_blob": "f71509b17b0321f86fab69fe33413d70cb3d7d11",
+      "bytes": 5272,
+      "sha256": "c60de7f76a3671961b44c830e6e1632f4be3c787ccc13eec49947e8e495b5559"
+    },
+    {
+      "git_sha": "5f4148559a62b1491b9d80dc207163b61828763c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-final-evidence/run-native.source.txt",
+      "git_blob": "7c76103d7685c71e1bec272b95cb2ed6e60e7793",
+      "bytes": 4634,
+      "sha256": "a2f31be166bca3eac46ab2c43c1073e707641ebbb72580dc1ba64cc23c56663f"
+    },
+    {
+      "git_sha": "5f4148559a62b1491b9d80dc207163b61828763c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-final-evidence/profile.json",
+      "git_blob": "e76e244ba09b6690ce6a1ceecdc1441e93fc1883",
+      "bytes": 38615,
+      "sha256": "0ebe4aab023f8ad3e568dd213cdfa474399b09ec8fc8c96e9ed7318ebdd498b2"
+    },
+    {
+      "git_sha": "5f4148559a62b1491b9d80dc207163b61828763c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-final-evidence/native.txt",
+      "git_blob": "650a12273facf51e005ce40642602f08adeef7bd",
+      "bytes": 3034,
+      "sha256": "721eb5eefa9d245905f008a3f8eba21ff70cb3bcf74dcf967867eb0886d2b6cb"
+    },
+    {
+      "git_sha": "5f4148559a62b1491b9d80dc207163b61828763c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-final-evidence/native.xml",
+      "git_blob": "8c790fdb6a22b2396d5c8173dabb46c803faeb8b",
+      "bytes": 605,
+      "sha256": "405043ccd0980d2a82aad0c1d6cdca0e0cfa1e700560c97d2010a40856c00628"
+    },
+    {
+      "git_sha": "5f4148559a62b1491b9d80dc207163b61828763c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-final-evidence/wrapper.json",
+      "git_blob": "ee89b97c55cd4b4ee50e24a7ab20d40b0f587b1d",
+      "bytes": 1175,
+      "sha256": "584b64e114c2158caacea28148b2e2447b93b871c540ec24d216dd52ea7c948c"
+    },
+    {
+      "git_sha": "637b821971f8d9a6413c5f8e93a7d416a30dbc65",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent.json",
+      "git_blob": "448ff9c63fbb124fdbd5adb08725c5a9b5aeb118",
+      "bytes": 18270,
+      "sha256": "f5fc67f6fd6a76939ef23caab28eecd2e53e1e75a02ba85f1f37e3fbefc83f06"
+    },
+    {
+      "git_sha": "66863a0d89e7acffde8deef79f47ab0b96061ccf",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-successor.json",
+      "git_blob": "2ea9f4f2f539eae36943c390389c846ee5f44133",
+      "bytes": 9415,
+      "sha256": "830fc61f4852e9605279a887c92bee331f69795f2f9d07b7a24c6012dd3c7fe1"
+    },
+    {
+      "git_sha": "f6a3e0c8a6e6b4393dc81bb8f15b19815b48638b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-final.json",
+      "git_blob": "8c24c6d0a7c7f4d2c8e575baee55d6a5f6f59afb",
+      "bytes": 10081,
+      "sha256": "8c37c0f7a93ef789652d90a3b5323a2f099b568d4e7e43a83fe80128b5faa1f6"
+    },
+    {
+      "git_sha": "e3e8cab05a24ee00341a43b5f99588e48bd5bc52",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-lexical.json",
+      "git_blob": "28f7999bd1df1e1188faa712da0ca48fbe75accf",
+      "bytes": 10765,
+      "sha256": "917b2f1f9a1217f7ce15e019a44cbe46c56165a0e0a9e02a1ba0ff1bf67ad9ee"
+    },
+    {
+      "git_sha": "5f4148559a62b1491b9d80dc207163b61828763c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-final-evidence/index.json",
+      "git_blob": "e2072bdf91149a4e0de077a87902bbcf951c0701",
+      "bytes": 1780,
+      "sha256": "dba1e2dc7a0ab9f54a95bcb15e0ddb870d7da9c42dc7a544f231dc624b211632"
+    },
+    {
+      "git_sha": "5f4148559a62b1491b9d80dc207163b61828763c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-final-evidence/review.json",
+      "git_blob": "89f37f7c7fef22fefae9496c44ceaa08b7cac688",
+      "bytes": 3230,
+      "sha256": "502cd079072ae0535b7df3590e3451ebe8178feeead1d80e4921faebbd89ea49"
+    }
+  ],
+  "checked_artifact_count": 12,
+  "full_junit_cases": [
+    {
+      "classname": "",
+      "name": "test_real_two_output_getter_compiled_handles_preserve_dynamic_values[False]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_real_two_output_getter_compiled_handles_preserve_dynamic_values[True]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_real_compiler_refuses_captured_module_getter_before_physical_body",
+      "outcome": "PASS"
+    }
+  ],
+  "actual_loaded_filebacked_origin_count": 152,
+  "numeric_recomputation": [
+    {
+      "jit": false,
+      "label": "cold",
+      "actual_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "expected_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    },
+    {
+      "jit": false,
+      "label": "warm",
+      "actual_score": [
+        2.25,
+        0.0,
+        4.25
+      ],
+      "expected_score": [
+        2.25,
+        0.0,
+        4.25
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    },
+    {
+      "jit": false,
+      "label": "override",
+      "actual_score": [
+        5.0,
+        23.0,
+        -11.0
+      ],
+      "expected_score": [
+        5.0,
+        23.0,
+        -11.0
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    },
+    {
+      "jit": false,
+      "label": "cold_again",
+      "actual_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "expected_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    },
+    {
+      "jit": true,
+      "label": "cold",
+      "actual_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "expected_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    },
+    {
+      "jit": true,
+      "label": "warm",
+      "actual_score": [
+        2.25,
+        0.0,
+        4.25
+      ],
+      "expected_score": [
+        2.25,
+        0.0,
+        4.25
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    },
+    {
+      "jit": true,
+      "label": "override",
+      "actual_score": [
+        5.0,
+        23.0,
+        -11.0
+      ],
+      "expected_score": [
+        5.0,
+        23.0,
+        -11.0
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    },
+    {
+      "jit": true,
+      "label": "cold_again",
+      "actual_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "expected_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    }
+  ],
+  "typed_refusal_observation": [
+    {
+      "type": "CompilationError",
+      "reason": "Compilation failed for tests.independent_getter_consumer.captured_module_reflection@1.0.0: source identity is unavailable for builtin_function_or_method",
+      "physical_body_exists": false,
+      "path": "/tmp/e02-dur-getter-oracle-7c05686dbd84/fixtures-final/test_real_compiler_refuses_cap0/reflective-method-effect.txt"
+    }
+  ],
+  "foreign_wrapper_status": 0,
+  "reviewer_runtime": "UNRUN",
+  "predicate_basis": "independently_reconciled",
+  "per_premise_basis": {
+    "hashes_xml_source_origins_and_arithmetic": "independently_reconciled",
+    "physical_body_absence_and_handle_identity": "consumer_asserted by independently authored actual native fixture"
+  },
+  "qualifications": [
+    "Native is the peer actual final7c run, not replayed by this reviewer.",
+    "152 denotes loaded local Polisyos filebacked origins; no all-dependency or scientific authority closure.",
+    "Three PASS arithmetic/refusal cases do not erase the separate admitted frame namespace counterexample.",
+    "No global quality/cohort/B74 acceptance or inherited grade."
+  ],
+  "audit_errors": []
+}

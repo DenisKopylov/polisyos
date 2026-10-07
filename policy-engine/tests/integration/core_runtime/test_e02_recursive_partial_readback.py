@@ -11,6 +11,7 @@ claim.
 
 from __future__ import annotations
 
+import copy
 from dataclasses import replace
 from decimal import Decimal
 from pathlib import Path
@@ -49,6 +50,9 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
         CompiledRecursiveGenerationCycleRun,
     )
     from polisyos.runtime.quality import substrate_registry
+    from polisyos.runtime.quality.generation_cycle import (
+        validate_generation_cycle_run_history,
+    )
     from polisyos.runtime.quality.recursive_generation_cycle import (
         RecursiveCycleNode,
         RecursiveGenerationCyclePartialRunV2,
@@ -123,6 +127,7 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
     compiled = CompiledRecursiveGenerationCycleRun.model_validate(
         {**compiled_payload, "content_hash": gy_content_hash(compiled_payload)}
     )
+    compiled_wire = compiled.model_dump(mode="json")
     leaf_promotion_statuses = {
         node.node_ref: node.cycle_run.promotion_port.status
         for node in partial_result.leaf_nodes
@@ -165,6 +170,7 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
             expected_job_id: str,
             expected_tenant_id: str,
             expected_cell_id: str,
+            artifact_payload: dict[str, Any] | None = None,
         ) -> None:
             admission = owner_service._control_store.current_execution_job_admission()
             job = admission.job
@@ -183,7 +189,7 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
                     execution_scope=scope,
                 )
                 compiled_ref = owner_service._put_json_artifact_ref(
-                    compiled.model_dump(mode="json"),
+                    compiled_wire if artifact_payload is None else artifact_payload,
                     kind="runtime.compiled_recursive_generation_cycle",
                     schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
                 )
@@ -292,6 +298,112 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
         assert persisted.recursive_run.content_hash == partial_result.content_hash
         assert persisted.recursive_run.terminal is None
         assert persisted.recursive_run.frontier_node_refs == partial_result.frontier_node_refs
+
+        # The controller fixture emits an authentic stop projection on the
+        # budget-stopped leaf. Each negative below changes one valid-enum
+        # sibling projection while keeping the stop marker and terminal intact.
+        stop_leaf_wire = next(
+            node
+            for node in compiled_wire["recursive_run"]["nodes"]
+            if node["node_ref"] == partial_result.budget_stop_node_ref
+        )
+        stop_leaf_run = stop_leaf_wire["cycle_run"]
+        stop_cycle = stop_leaf_run["cycles"][-1]
+        assert stop_cycle["voi_decision"]["next_action"] == "stop"
+        assert stop_cycle["refinement_decision"]["decision"] in {"stop", "abstain"}
+        assert stop_cycle["search_iteration"]["status"] in {"stopped", "abstained"}
+        assert validate_generation_cycle_run_history(stop_leaf_run) == ()
+
+        def persist_corrupt_projection(
+            *,
+            projection_name: str,
+            expected_history_issue: str,
+            mutate: Any,
+        ) -> None:
+            corrupt_wire = copy.deepcopy(compiled_wire)
+            recursive_wire = corrupt_wire["recursive_run"]
+            corrupt_leaf = next(
+                node
+                for node in recursive_wire["nodes"]
+                if node["node_ref"] == partial_result.budget_stop_node_ref
+            )
+            corrupt_cycle = corrupt_leaf["cycle_run"]["cycles"][-1]
+            mutate(corrupt_cycle)
+
+            # The terminal marker and the other projection remain authentic;
+            # only one valid-enum nested N6 history field diverges.
+            assert corrupt_cycle["voi_decision"]["next_action"] == "stop"
+            assert corrupt_cycle["terminal_kind"] == stop_cycle["terminal_kind"]
+            assert (
+                validate_generation_cycle_run_history(corrupt_leaf["cycle_run"])[0]["code"]
+                == expected_history_issue
+            )
+
+            partial_hash_payload = {
+                key: value for key, value in recursive_wire.items() if key != "content_hash"
+            }
+            recursive_wire["content_hash"] = gy_content_hash(partial_hash_payload)
+            compiled_hash_payload = {
+                key: value for key, value in corrupt_wire.items() if key != "content_hash"
+            }
+            corrupt_wire["content_hash"] = gy_content_hash(compiled_hash_payload)
+
+            negative_response = fresh_client.post(
+                "/api/v1/control/runs/nl",
+                json={
+                    "request": "Read back a bounded recursive history refusal.",
+                    "llm_model": "simulated-qwen",
+                    "context": {
+                        "evaluation_safety_attempt": _valid_intake_for_mode(
+                            "simulate_only"
+                        ).model_dump(mode="json")
+                    },
+                },
+            )
+            assert negative_response.status_code == 200, negative_response.text
+            negative_job_id = negative_response.json()["job_id"]
+            negative_service = fresh_app.state._control_service
+            assert (
+                dispatch_one_control_job(
+                    store=negative_service._control_store,
+                    handler=lambda _snapshot: persist_manual_partial_for_owned_job(
+                        negative_service,
+                        expected_job_id=negative_job_id,
+                        expected_tenant_id=TENANT_ID,
+                        expected_cell_id=CELL_ID,
+                        artifact_payload=corrupt_wire,
+                    ),
+                    expected_job_id=negative_job_id,
+                )
+                == negative_job_id
+            )
+            negative_job = negative_service._control_store.get_job(negative_job_id)
+            assert negative_job is not None and negative_job.state == "completed"
+            negative_run_id = str(negative_job.progress["core_run_id"])
+            negative_get = fresh_client.get(f"/api/v1/runs/{negative_run_id}")
+            assert negative_get.status_code == 200, negative_get.text
+            negative_run = negative_get.json()["run"]
+            assert negative_run.get("recursive_cycle_checkpoint") is None, (
+                f"fresh GET projected a checkpoint after nested {projection_name} "
+                "diverged while outer and recursive hashes remained valid"
+            )
+
+        persist_corrupt_projection(
+            projection_name="SearchIteration.status",
+            expected_history_issue="generation_cycle_terminal_projection_mismatch",
+            mutate=lambda cycle: cycle["search_iteration"].__setitem__(
+                "status",
+                "abstained" if stop_cycle["search_iteration"]["status"] == "stopped" else "stopped",
+            ),
+        )
+        persist_corrupt_projection(
+            projection_name="RefinementDecision.decision",
+            expected_history_issue="generation_cycle_terminal_projection_mismatch",
+            mutate=lambda cycle: cycle["refinement_decision"].__setitem__(
+                "decision",
+                "abstain" if stop_cycle["refinement_decision"]["decision"] == "stop" else "stop",
+            ),
+        )
 
         # Create a real completed Core attempt under another tenant, using the
         # same bounded typed checkpoint only as foreign-owner input. The target

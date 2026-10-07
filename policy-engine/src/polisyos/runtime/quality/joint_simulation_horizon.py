@@ -24,12 +24,14 @@ from polisyos.foundry.execute.executor import (
     apply_state_delta,
     execute_program_graph,
 )
+from polisyos.foundry.methods import SlotType
 from polisyos.foundry.methods.catalog.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.catalog.causal.protocols import NCMQueryData
 from polisyos.foundry.methods.catalog.simulation import (
     StockFlowSystemDynamicsEstimator,
     ensure_simulation_methods_registered,
 )
+from polisyos.foundry.methods.components.io import validate_value_for_slot
 from polisyos.foundry.methods.selection.registry import MethodRegistry
 from polisyos.ir.analytics.ncm import NCMSpec  # noqa: TC001 - Pydantic validates at runtime.
 from polisyos.pdc import gy_content_hash, gy_recorded_content_hash
@@ -1672,6 +1674,14 @@ class JointSimulationHorizonController:
             decision = selector(plan)
             decision = self._resolve_engine_semantics(plan, decision)
             if decision.decision == "selected":
+                input_issue = self._registered_system_dynamics_input_issue(request, plan, decision)
+                if input_issue is not None:
+                    decision = _unsupported(
+                        plan,
+                        "engine_input_contract_failed",
+                        (input_issue,),
+                    )
+            if decision.decision == "selected":
                 execution_conflict = _execution_assignment_conflict(request, plan)
                 if execution_conflict is not None:
                     decision = _unsupported(
@@ -1709,6 +1719,57 @@ class JointSimulationHorizonController:
             plan=fallback_plan,
             decisions=tuple(decisions),
         )
+
+    def _registered_system_dynamics_input_issue(
+        self,
+        request: JointSimulationRequest,
+        plan: EnginePlan,
+        decision: EngineDecision,
+    ) -> str | None:
+        """Validate effective numeric state against the registered input slots.
+
+        Every physical subset must satisfy the same declared shapes before
+        selection. This does not establish units, time-grid meaning, or input
+        constraints absent from the registered signature.
+        """
+
+        if decision.engine_kind != "system_dynamics" and not (
+            decision.engine_kind == "method_registry_estimator" and plan.system_dynamics_state
+        ):
+            return None
+        entry = self._registry.get_entry(decision.method_fqn or "")
+        if entry is None:
+            return "registered_input_signature_missing"
+        try:
+            for _run_level, subset in _atom_subsets(request.intervention_atoms):
+                state = _system_dynamics_state_for_subset(plan, subset)
+                dimensions: dict[object, int] = {}
+                for slot in sorted(entry.signature.input_slots, key=lambda item: item.name):
+                    if slot.name not in state:
+                        return f"registered_input_missing:{slot.name}"
+                    value = state[slot.name]
+                    if slot.shape or slot.slot_type in {SlotType.VECTOR, SlotType.MATRIX}:
+                        if _contains_invalid_original_numeric_element(value):
+                            return f"registered_input_non_numeric:{slot.name}"
+                        value = np.asarray(value, dtype=float)
+                        if not np.all(np.isfinite(value)):
+                            return f"registered_input_non_finite:{slot.name}"
+                    validate_value_for_slot(
+                        slot,
+                        value,
+                        method_fqn=entry.signature.fqn,
+                        label="input",
+                    )
+                    for axis, dimension in enumerate(slot.shape):
+                        if dimension is None or isinstance(dimension, int):
+                            continue
+                        size = int(value.shape[axis])
+                        if dimension in dimensions and dimensions[dimension] != size:
+                            return f"registered_input_dimension_mismatch:{slot.name}:{dimension}"
+                        dimensions[dimension] = size
+        except Exception as exc:
+            return f"registered_input_validation_failed:{type(exc).__name__}:{exc}"
+        return None
 
     def _validate_selected_trajectories(
         self,
@@ -2732,20 +2793,73 @@ def _execution_assignment_conflict(
     request: JointSimulationRequest,
     plan: EnginePlan,
 ) -> str | None:
-    """Return a plan-specific variable collision before its first physical run."""
+    """Refuse conflicting raw writes before the first physical run.
 
-    writes: dict[str, float | None] = {}
+    Compatible overrides must have the same content-bound typed value; this
+    does not infer equivalence from a method's later coercion or imply an atom
+    sequence. State-path prefixes also conflict across atoms because replacing
+    a container and editing its child have no declared unordered merge law.
+    """
+
+    writes: list[tuple[tuple[str, ...], str, str | None]] = []
     for atom in request.intervention_atoms:
+        atom_writes: list[tuple[tuple[str, ...], object, bool]] = []
         for assignment in atom.causal_do_expr.assignments:
             target = _engine_variable(assignment.variable, plan)
             value = _numeric_assignment_value(assignment)
-            if target in writes:
-                previous_value = writes[target]
-                if value is None or previous_value is None or value != previous_value:
-                    return target
-            else:
-                writes[target] = value
+            atom_writes.append((("engine_state", *target.split(".")), value, value is not None))
+        if plan.engine_kind == "program_graph":
+            for node_id, values in plan.program_parameter_overrides_by_atom.get(
+                atom.intervention_id, {}
+            ).items():
+                atom_writes.extend(
+                    (("program_parameter", str(node_id), str(name)), value, True)
+                    for name, value in values.items()
+                )
+        if plan.engine_kind == "system_dynamics" or (
+            plan.engine_kind == "method_registry_estimator" and plan.system_dynamics_state
+        ):
+            atom_writes.extend(
+                (("engine_state", *path), value, True)
+                for path, value in _state_override_writes(
+                    plan.system_dynamics_state_overrides_by_atom.get(atom.intervention_id, {})
+                )
+            )
+        for target, value, established in atom_writes:
+            identity = (
+                gy_recorded_content_hash(_typed_execution_payload(value)) if established else None
+            )
+            for previous_target, previous_atom, previous_identity in writes:
+                if previous_atom == atom.intervention_id:
+                    continue
+                shared_prefix = min(len(target), len(previous_target))
+                if target[:shared_prefix] != previous_target[:shared_prefix]:
+                    continue
+                if target != previous_target or identity is None or identity != previous_identity:
+                    variable = ".".join(target[1:])
+                    return (
+                        f"program_parameter:{variable}"
+                        if target[0] == "program_parameter"
+                        else variable
+                    )
+            writes.append((target, atom.intervention_id, identity))
     return None
+
+
+def _state_override_writes(
+    values: Mapping[str, Any],
+    prefix: tuple[str, ...] = (),
+) -> list[tuple[tuple[str, ...], object]]:
+    """Enumerate the leaf writes of the existing recursive mapping merge."""
+
+    writes: list[tuple[tuple[str, ...], object]] = []
+    for name, value in values.items():
+        path = (*prefix, str(name))
+        if isinstance(value, Mapping) and value:
+            writes.extend(_state_override_writes(value, path))
+        else:
+            writes.append((path, value))
+    return writes
 
 
 def _numeric_assignment_value(assignment: CausalAssignmentProjection) -> float | None:

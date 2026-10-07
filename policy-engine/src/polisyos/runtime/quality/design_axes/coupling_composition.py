@@ -486,7 +486,7 @@ def classify_coupling(
             reason="coupling graph is absent; defaulting toward more coupling",
         )
     elif (
-        graph.evidence_state == "absent"
+        graph.evidence_state != "observed"
         or graph.module_discovery_ref is None
         or not graph.interaction_edges
     ):
@@ -496,10 +496,7 @@ def classify_coupling(
             module_discovery_ref=graph.module_discovery_ref,
             rule_version_ref=graph.rule_version_ref,
             coupling_graph_ref=graph.graph_ref,
-            reason=(
-                "coupling evidence, an observed boundary, or module discovery proof "
-                "is absent"
-            ),
+            reason=("coupling evidence, an observed boundary, or module discovery proof is absent"),
         )
     else:
         classification = _classify_observed_graph(graph)

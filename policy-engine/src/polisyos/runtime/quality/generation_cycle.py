@@ -32,6 +32,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from enum import Enum
 from functools import cache
+from numbers import Real
 from pathlib import Path
 from types import UnionType
 from typing import TYPE_CHECKING, Any, Literal, Protocol, Union, get_args, get_origin
@@ -11337,13 +11338,9 @@ def _s10_empirical_projection(
         return None, "empirical_evidence_authority_denials_mismatch"
 
     scalar_refs = {
-        "observed_outcome_ref": _s10_artifact_ref_id(
-            _object_get(evidence, "observed_outcome_ref")
-        ),
+        "observed_outcome_ref": _s10_artifact_ref_id(_object_get(evidence, "observed_outcome_ref")),
         "prediction_ref": _s10_artifact_ref_id(_object_get(evidence, "prediction_ref")),
-        "historical_implementation_ref": _s10_artifact_ref_id(
-            _object_get(evidence, "report_ref")
-        ),
+        "historical_implementation_ref": _s10_artifact_ref_id(_object_get(evidence, "report_ref")),
         "evaluation_design_ref": _s10_artifact_ref_id(
             _object_get(evidence, "evaluation_design_ref")
         ),
@@ -11361,37 +11358,36 @@ def _s10_empirical_projection(
     if source_lineage_refs is None or method_lineage_refs is None:
         return None, "empirical_evidence_nested_ref_missing"
 
-    temporal_values = {
-        key: _object_get(evidence, key) for key in _S10_TEMPORAL_ROLE_KEYS
-    }
+    temporal_values = {key: _object_get(evidence, key) for key in _S10_TEMPORAL_ROLE_KEYS}
     if _bound_s10_temporal_roles(temporal_values) is None:
         return None, "empirical_evidence_time_mismatch"
 
     denominator_raw = _object_get(evidence, "recomputed_denominator")
     numerator_raw = _object_get(evidence, "recomputed_numerator")
-    try:
-        denominator = int(denominator_raw)
-        numerator = int(numerator_raw)
-    except (TypeError, ValueError):
+    if type(denominator_raw) is not int or type(numerator_raw) is not int:
         return None, "empirical_evidence_metrics_mismatch"
+    denominator = denominator_raw
+    numerator = numerator_raw
     if denominator < 0 or numerator < 0 or numerator > denominator:
         return None, "empirical_evidence_metrics_mismatch"
     pass_rate_raw = _object_get(evidence, "recomputed_pass_rate")
-    try:
-        pass_rate = 0.0 if pass_rate_raw is None else float(pass_rate_raw)
-    except (TypeError, ValueError):
-        return None, "empirical_evidence_metrics_mismatch"
-    if not math.isfinite(pass_rate) or not 0.0 <= pass_rate <= 1.0:
-        return None, "empirical_evidence_metrics_mismatch"
-    if denominator and abs(pass_rate - numerator / denominator) > 0.000001:
-        return None, "empirical_evidence_metrics_mismatch"
+    pass_rate: float | None = None
+    if denominator == 0:
+        if pass_rate_raw is not None:
+            return None, "empirical_evidence_metrics_mismatch"
+    else:
+        if not _is_finite_number(pass_rate_raw):
+            return None, "empirical_evidence_metrics_mismatch"
+        pass_rate = float(pass_rate_raw)
+        if not 0.0 <= pass_rate <= 1.0 or abs(pass_rate - numerator / denominator) > 0.000001:
+            return None, "empirical_evidence_metrics_mismatch"
 
     context_bound = bool(_object_get(evidence, "context_bound", False))
     usable = bool(_object_get(evidence, "usable_for_calibration", False))
     floor_passed = bool(_object_get(evidence, "floor_passed", False))
     calibration_status = (
         "pass"
-        if usable and floor_passed
+        if context_bound and denominator > 0 and usable and floor_passed
         else "limit"
         if context_bound and denominator
         else "blocked"
@@ -11542,13 +11538,17 @@ def _build_s10_forecast_inputs(
         and temporal_roles is not None
         and calibration_refs is not None
     )
+    calibration_record_available = (
+        calibration_bound
+        and type(evidence.get("denominator")) is int
+        and evidence["denominator"] > 0
+        and _is_finite_number(evidence.get("pass_rate"))
+    )
     effective_calibration_status = (
         str(evidence.get("calibration_status")) if calibration_bound else None
     )
     effective_forecast_tier = (
-        str(evidence.get("forecast_tier"))
-        if calibration_bound
-        else forecast_tier
+        str(evidence.get("forecast_tier")) if calibration_bound else forecast_tier
     )
     if empirical_evidence_error is not None or (
         calibration_status is not None and not calibration_bound
@@ -11566,10 +11566,12 @@ def _build_s10_forecast_inputs(
     )
     authority = _s10_value_authority_boundary(predictive=method_family == "foundry_forecast")
     calibration_ref = (
-        f"s10://n8/{report_ref.removeprefix('sha256:')}/calibration" if calibration_bound else None
+        f"s10://n8/{report_ref.removeprefix('sha256:')}/calibration"
+        if calibration_record_available
+        else None
     )
     calibration = None
-    if calibration_bound:
+    if calibration_record_available:
         if temporal_roles is None:  # pragma: no cover - guarded above.
             raise ValueError("s10_calibration_temporal_roles_unbound")
         calibration = build_forecast_calibration_record(
@@ -11595,9 +11597,9 @@ def _build_s10_forecast_inputs(
             calibration_window_start=temporal_roles["calibration_window_start"],
             calibration_window_end=temporal_roles["calibration_window_end"],
             metric_name="observable_subset_calibration",
-            denominator=int(evidence.get("denominator") or 0),
-            numerator=int(evidence.get("numerator") or 0),
-            pass_rate=float(evidence.get("pass_rate") or 0.0),
+            denominator=int(evidence["denominator"]),
+            numerator=int(evidence["numerator"]),
+            pass_rate=float(evidence["pass_rate"]),
             calibration_threshold_ref=str(calibration_refs["calibration_threshold_ref"]),
             floor_passed=bool(evidence.get("floor_passed", False)),
             calibration_status=str(effective_calibration_status),
@@ -11744,7 +11746,7 @@ def _s10_calibration_evidence_from_report(report: object | None) -> dict[str, ob
             "calibration_status": "blocked",
             "denominator": 0,
             "numerator": 0,
-            "pass_rate": 0.0,
+            "pass_rate": None,
             "floor_passed": False,
             "interval_coverage_metric": None,
             "calibration_error_metric": None,
@@ -11805,7 +11807,7 @@ def _s10_calibration_evidence_from_report(report: object | None) -> dict[str, ob
         "calibration_status": "limit",
         "denominator": denominator,
         "numerator": numerator,
-        "pass_rate": 0.0,
+        "pass_rate": None,
         "floor_passed": False,
         "interval_coverage_metric": None,
         "calibration_error_metric": None,
@@ -11914,9 +11916,11 @@ def _bound_s10_temporal_roles(
 
 
 def _is_finite_number(value: object) -> bool:
+    if isinstance(value, bool) or not isinstance(value, Real | Decimal):
+        return False
     try:
         return math.isfinite(float(value))
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):
         return False
 
 
@@ -11944,16 +11948,15 @@ def _s10_limitation_refs(
     if not calibration_bound:
         return (
             ["s10://calibration/fail-closed/insufficient-history"]
-            if (
-                evidence.get("calibration_status") is not None
-                or calibration_status is not None
-            )
+            if (evidence.get("calibration_status") is not None or calibration_status is not None)
             else []
         )
     if str(evidence.get("calibration_status")) == "pass":
         return []
     failures = tuple(str(item) for item in _sequence(evidence.get("failure_codes")))
-    return [f"s10://calibration/{failures[0] if failures else 'insufficient-history'}"]
+    return [f"s10://calibration/{code}" for code in failures] or [
+        "s10://calibration/insufficient-history"
+    ]
 
 
 def _s10_value_authority_boundary(*, predictive: bool = False) -> dict[str, Any]:

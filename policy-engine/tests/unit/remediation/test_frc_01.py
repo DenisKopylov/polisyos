@@ -2,7 +2,7 @@
 
 These tests keep estimator-shape output separate from observed interval
 evidence. The persisted bridge fixture exercises the old typed DTO path only;
-it is not a production ETS run or a C-admitted source series, and its bounded
+it is not a production run or a C-admitted source series, and its bounded
 result does not establish the configured production S10 route.
 """
 
@@ -52,7 +52,7 @@ def _persisted_bridge_fixture(
 
     This is a synthetic old-contract forecast-bridge fixture. It exercises CAS
     persistence, the strict E DTO/loader, and A's independent resolver path; it
-    does not represent a production ETS run or a C-admitted source series.
+    does not represent a production run or a C-admitted source series.
     """
 
     import importlib
@@ -69,7 +69,7 @@ def _persisted_bridge_fixture(
 
     bridge = importlib.import_module("polisyos.calibration.forecast_bridge")
     store = FileSystemCAS(tmp_path / "frc01-typed-evidence-cas")
-    report_id = "frc01-s10-all-hit"
+    report_id = "frc01-s10-synthetic-interval-report"
     model_ref = "model://frc01/ets/v1"
     policy_ref = "policy://frc01/ets/v1"
     estimand = "predictive_interval_coverage"
@@ -190,7 +190,7 @@ def _persisted_bridge_fixture(
         scenarios=[
             BacktestScenario(
                 scenario_id="frc01-s10-scenario",
-                scenario_label="persisted FRC-01 ETS predictive comparisons",
+                scenario_label="persisted FRC-01 synthetic interval comparisons",
                 data_source="held-out-observations",
                 outcome_comparisons=comparisons,
                 requested_count=len(observations),
@@ -450,7 +450,7 @@ def test_finite_estimator_report_without_observations_cannot_pass_calibration() 
     assert evidence["calibration_status"] in {"limit", "insufficient_history", "blocked"}
     assert evidence["denominator"] == 0
     assert evidence["numerator"] == 0
-    assert evidence["pass_rate"] == 0.0
+    assert evidence["pass_rate"] is None
     assert evidence["floor_passed"] is False
     assert evidence["counterfactual_credibility"] != "credible"
 
@@ -480,6 +480,7 @@ def test_missing_report_remains_blocked_and_records_false_clear() -> None:
 
     assert evidence["calibration_status"] == "blocked"
     assert evidence["floor_passed"] is False
+    assert evidence["pass_rate"] is None
     assert evidence["counterfactual_credibility"] != "credible"
     assert (
         evidence["false_clear_counts"]["uncalibrated_observable_promotion_false_clear_count"] >= 1
@@ -496,7 +497,7 @@ def test_failed_estimator_diagnostic_remains_limited() -> None:
     assert evidence["calibration_status"] != "pass"
     assert evidence["floor_passed"] is False
     assert evidence["numerator"] == 0
-    assert evidence["pass_rate"] == 0.0
+    assert evidence["pass_rate"] is None
 
 
 def test_calibration_time_roles_are_preserved_from_bound_evidence(

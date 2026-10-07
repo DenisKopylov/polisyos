@@ -22,6 +22,7 @@ from polisyos.runtime.http.services.control.nl_pipeline import (
     NaturalLanguagePipelineRefusalError,
     NaturalLanguageRunMixin,
     _build_scientist_context_params,
+    _NLProductionAuthorityStamp,
     _preflight_design_problem_model,
     _production_materialization_failure,
     build_design_problem_from_nl_request,
@@ -100,7 +101,12 @@ def test_production_nl_pipeline_never_injects_contract_agents(
     )
 
     assert result["nl_authority"]["authority_scope"] == "production"
-    assert result["nl_authority"]["production_promotable"] is True
+    assert result["nl_authority"]["production_promotable"] is False
+
+
+def test_production_nl_stamp_cannot_be_promotable() -> None:
+    with pytest.raises(ValueError):
+        _NLProductionAuthorityStamp(production_promotable=True)  # type: ignore[arg-type]
 
 
 def test_contract_testing_nl_stamp_cannot_be_promotable() -> None:

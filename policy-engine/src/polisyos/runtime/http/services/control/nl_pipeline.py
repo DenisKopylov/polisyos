@@ -116,7 +116,7 @@ class _NLProductionAuthorityStamp(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     authority_scope: Literal["production"] = "production"
-    production_promotable: Literal[True] = True
+    production_promotable: Literal[False] = False
 
 
 class _DesignProblemCompilerOutputPolicy(BaseModel):

@@ -1,0 +1,14 @@
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom0/response.bin' does not exist in '91651c5e2b8b2f35a7e0cf3294550ad0487504cb'
+Traceback (most recent call last):
+  File "/tmp/e02-B-cas-tenth-wave-review-20261007/peer-packet-audit.source.txt", line 173, in <module>
+    assert raw(idxsha, folder + '/response.bin') == case['raw'].encode()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-B-cas-tenth-wave-review-20261007/peer-packet-audit.source.txt", line 24, in raw
+    cache[key] = subprocess.check_output(['git', 'show', sha + ':' + path], cwd=ROOT)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', 'show', '91651c5e2b8b2f35a7e0cf3294550ad0487504cb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom0/response.bin']' returned non-zero exit status 128.

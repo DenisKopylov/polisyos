@@ -1,0 +1,1209 @@
+{
+  "reviewer": "B cas_probe independent immutable output/source custodian",
+  "runtime_by_reviewer": "UNRUN",
+  "peers": {
+    "checkpoint": {
+      "receipt": {
+        "git_sha": "3dd221a83dbfa4a9f900b4a2d9338f14ce0a1f29",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth.json",
+        "bytes": 21310,
+        "sha256": "c926e0e7ef7de4f9587552f34767f67b57d3bb07903f59359868c89b7785b244"
+      },
+      "implementation_commits": [
+        "2fffbf940509d220050694957bfff2b85f930b83"
+      ],
+      "implementation_tree": "7314a8fd32af872fd9d43b166c0d3f165dedf683",
+      "implementation_union_paths": 16,
+      "source_or_test_changed": [],
+      "declared_distinct_artifacts": [
+        {
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/configuration-custody.json",
+          "bytes": 3641,
+          "sha256": "b0e5d57cd47131da9c33ef85c4a849709e02164c8b8b1512d796efef4ada193c"
+        },
+        {
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/index.json",
+          "bytes": 4640,
+          "sha256": "678bfc734982fb6aa88dca37c925439e99e1fc0ec6776bc97080df3a136e3ae6"
+        },
+        {
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/native.stdout.json",
+          "bytes": 8362,
+          "sha256": "563c86245407ef3c77d71415af501ccd765709275a0249cb11e6322c1b9f3552"
+        },
+        {
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/native.xml",
+          "bytes": 997,
+          "sha256": "d9324305685c39b803a5a6a51b4834301e732195a3229ea7a824a65999ddceec"
+        },
+        {
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/physical-fixtures.json",
+          "bytes": 287380,
+          "sha256": "e380f2a62acb141b2571c01c97e8b2473c88626570e2271876dd6f15a8303d25"
+        },
+        {
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/profile.json",
+          "bytes": 46556,
+          "sha256": "5569da0b88be11e4a34ad602c165a023d286b970e6ec742186cb0a15ccd7999c"
+        },
+        {
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/wrapper.json",
+          "bytes": 1527,
+          "sha256": "9a6f6b6aaa55732713823a9e4d6eccbc424b75c4ddfad93a28a433f03b66a61b"
+        },
+        {
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/projection-input.json",
+          "bytes": 712,
+          "sha256": "378ead77b138af7355d34573ac755cfba320762ab7e224a0dd21f5c87bbf099a"
+        },
+        {
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/native.stdout.json",
+          "bytes": 5205,
+          "sha256": "8e1c3601a7a5c6a82d7aacae5fad1d856afa376bf196fc42e1750c2efea1ed1f"
+        },
+        {
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/native.xml",
+          "bytes": 1239,
+          "sha256": "daff2d6d069946c4fa4923d53466f93fb63f563c426c1e6bcd533d6913b0e44d"
+        },
+        {
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/physical-fixtures.json",
+          "bytes": 92621,
+          "sha256": "15054302c0d4c27862e1511fddb82b7a648afd874046fedd9f2b82650b6bd950"
+        },
+        {
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/profile.json",
+          "bytes": 44126,
+          "sha256": "2824e974f7379f0f23fe840ad22f1f0f289e530b78a3e0756f27a95512a1f7e8"
+        },
+        {
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/wrapper.json",
+          "bytes": 1530,
+          "sha256": "b579af2728c05a10ea38886c0e938d2b8921971298fc4698c34deb9a1ff97bf2"
+        },
+        {
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/resources-after.json",
+          "bytes": 2067,
+          "sha256": "f76303f7d02c6cf9440644f3351db53f9683db3692c9a0c30822a5c0c1a0399b"
+        },
+        {
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/review.json",
+          "bytes": 3658,
+          "sha256": "4cfcf66379cdcc08e67ed9f2112971a5ea8be0eadb5966bf732060a7ff7732b2"
+        },
+        {
+          "git_sha": "2fffbf940509d220050694957bfff2b85f930b83",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/run-checkpoint.source.txt",
+          "bytes": 9168,
+          "sha256": "f5099e0b9ac5cf4861d93d2b8f2d7d1bc8c55c258d7164fff5c4e5e1e66075c7"
+        },
+        {
+          "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+          "path": "policy-engine/tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+          "bytes": 11096,
+          "sha256": "1c22fd256f2038def925ed5467c5bc842d680bfa0669cee202a75ea881cc71f8"
+        }
+      ],
+      "index": {
+        "git_sha": "2fffbf940509d220050694957bfff2b85f930b83",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/index.json",
+        "bytes": 4640,
+        "sha256": "678bfc734982fb6aa88dca37c925439e99e1fc0ec6776bc97080df3a136e3ae6"
+      },
+      "index_payloads": 15,
+      "index_payload_bytes": 508789,
+      "closure_ids": [],
+      "current_checks": [
+        {
+          "id": "native-real-imported-checkpoint-consumer",
+          "target_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+          "outcome": "PASS",
+          "actual_cases": [
+            {
+              "name": "test_unchanged_imported_member_resumes_real_persisted_prefix",
+              "status": "PASS"
+            },
+            {
+              "name": "test_same_version_imported_member_change_refuses_before_replacement_effect",
+              "status": "PASS"
+            },
+            {
+              "name": "test_unchanged_imported_builtin_has_real_cold_resume_parity",
+              "status": "PASS"
+            },
+            {
+              "name": "test_dynamic_import_is_refused_before_any_checkpoint_consumer_effect",
+              "status": "PASS"
+            }
+          ],
+          "counts": {
+            "PASS": 4
+          },
+          "decoded_stdout": {
+            "bytes": 8362,
+            "sha256": "563c86245407ef3c77d71415af501ccd765709275a0249cb11e6322c1b9f3552"
+          },
+          "wrapper_exit": 0,
+          "wall_s": 4.84515096899122,
+          "max_rss_kib": 175792,
+          "origin_count": 166,
+          "phases": [
+            {
+              "phase": "call",
+              "outcome": "passed",
+              "count": 4
+            },
+            {
+              "phase": "setup",
+              "outcome": "passed",
+              "count": 4
+            },
+            {
+              "phase": "teardown",
+              "outcome": "passed",
+              "count": 4
+            }
+          ],
+          "physical_files_count": 40,
+          "effect_files": [
+            {
+              "path": "test_same_version_imported_mem0/effects.txt",
+              "text": "original\nreplacement\n",
+              "sha256": "76318d4adb08521d96d85bcbe0d46786c331e44f00e478991a6c718d2c74f360"
+            },
+            {
+              "path": "test_unchanged_imported_member0/effects.txt",
+              "text": "original\noriginal\n",
+              "sha256": "ebca852b000d45943876ec22b9223201e963737c0ddf96e7e3249bf3d7b78773"
+            }
+          ],
+          "observable_refusal_before_cold_control": true,
+          "observable_false_resume107": false
+        },
+        {
+          "id": "removal-real-imported-checkpoint-consumer",
+          "target_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+          "outcome": "FAIL",
+          "actual_cases": [
+            {
+              "name": "test_same_version_imported_member_change_refuses_before_replacement_effect",
+              "status": "FAIL"
+            }
+          ],
+          "counts": {
+            "FAIL": 1
+          },
+          "decoded_stdout": {
+            "bytes": 5205,
+            "sha256": "8e1c3601a7a5c6a82d7aacae5fad1d856afa376bf196fc42e1750c2efea1ed1f"
+          },
+          "wrapper_exit": 1,
+          "wall_s": 3.3194523010170087,
+          "max_rss_kib": 175744,
+          "origin_count": 166,
+          "phases": [
+            {
+              "phase": "call",
+              "outcome": "failed",
+              "count": 1
+            },
+            {
+              "phase": "setup",
+              "outcome": "passed",
+              "count": 1
+            },
+            {
+              "phase": "teardown",
+              "outcome": "passed",
+              "count": 1
+            }
+          ],
+          "physical_files_count": 12,
+          "effect_files": [
+            {
+              "path": "test_same_version_imported_mem0/effects.txt",
+              "text": "original\nreplacement\n",
+              "sha256": "76318d4adb08521d96d85bcbe0d46786c331e44f00e478991a6c718d2c74f360"
+            }
+          ],
+          "observable_refusal_before_cold_control": false,
+          "observable_false_resume107": true
+        }
+      ],
+      "historical_checks": []
+    },
+    "gateway": {
+      "receipt": {
+        "git_sha": "2d0f65266a9b42f56bcc73264c43e0f296e10ac5",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-numeric-custody.json",
+        "bytes": 69980,
+        "sha256": "7ba3fcd7c49b24dde88255bdd8ebc8564d595006aa1f1657f6e6f006883bd9fd"
+      },
+      "implementation_commits": [
+        "ba473500c385142919c3520090acf0fd607f0458",
+        "91651c5e2b8b2f35a7e0cf3294550ad0487504cb"
+      ],
+      "implementation_tree": "47026c744cc1a02aa3a3ee50fc6d38bc3076f897",
+      "implementation_union_paths": 86,
+      "source_or_test_changed": [],
+      "declared_distinct_artifacts": [
+        {
+          "git_sha": "13767a65faac74f363058d8e57551bad54e5e740",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-D-controller-independent.json",
+          "bytes": 46040,
+          "sha256": "9d887a9a089c8deed139ee7c204f5348ed66ba18e80f2985f80ebc56f9fd1af2"
+        },
+        {
+          "git_sha": "29024b9537b46376957350c9e12f648c0bfb2d63",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent.json",
+          "bytes": 112840,
+          "sha256": "e228737f65b0578b32d9a5a0261149549f1f4fa9bd6b56da37a39df32eeaae38"
+        },
+        {
+          "git_sha": "595a2595316e3bd2aa791f2769b12f1180beba62",
+          "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+          "bytes": 12567,
+          "sha256": "5d73103dac73c60d2db247c12dd114ae9f433e8d5d759f58f96259789007a015"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.utf8.json",
+          "bytes": 17638,
+          "sha256": "e76e2e408c125444bc493cd36480d350330e77f49baa80a9fcf011189d26df35"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.xml",
+          "bytes": 21202,
+          "sha256": "8e3dae12496d50ccbfca098b3ec1799eab79848f75a20b74e783ad34600d697f"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/profile.json",
+          "bytes": 57196,
+          "sha256": "7082178cf401efcaad1fe0813569371f7d92a9386323545dd0766f7ed6d35e87"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/wrapper.json",
+          "bytes": 2769,
+          "sha256": "3e410d93f8a7fb5e6bade775a94bc5d84e3b320a2cb0b926cebbb8f719099c18"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.utf8.json",
+          "bytes": 3563,
+          "sha256": "3fbafd85927717643110fe8c6880094cda50629b701320c80f61ae1023574652"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.xml",
+          "bytes": 6219,
+          "sha256": "883fd7a27b2b5bcce8ebd0aeb0da83cbe090ae670572a1eeaa014b19aa0cd59e"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/profile.json",
+          "bytes": 57196,
+          "sha256": "db0b4d1371247c9b01c4d72e4f71ecd692ba3719652033fe111a985a9896b96b"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/wrapper.json",
+          "bytes": 2787,
+          "sha256": "898da0968630d33b5372c1f1dd2fa3252684ea0fbd83cc4300fcd7f4ab0f21ec"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/capture-current.source.txt",
+          "bytes": 5873,
+          "sha256": "720e981ec657d17b1d26b022bf2ad64f7f1b6dabc89441313e30a07e00e8a596"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/capture-original.source.txt",
+          "bytes": 4609,
+          "sha256": "019528af29cbfa4f5959e394a1b79b3736c8a741289edf8cef399ba947ba96b0"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.utf8.json",
+          "bytes": 17641,
+          "sha256": "f96e75375dfc4f1cabe0a389a566e25ac36e26b75541af1631c30db7ad36dbc8"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.xml",
+          "bytes": 21203,
+          "sha256": "6db6dd1ee5807a9d104ffc05099478f34c2602e462d1bf3b33eb4e761bed3219"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/profile.json",
+          "bytes": 57474,
+          "sha256": "0cdac3f2d5dc4092dbaf89602e33b205892366231b4ea50acdfb55399f9dc57d"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/wrapper.json",
+          "bytes": 2776,
+          "sha256": "dc5bc1de2d792ab53fd783cd13aef9c33310d705e4a34688b0429b2fa22cfa42"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json",
+          "bytes": 14473,
+          "sha256": "e5edd9174777e863c0adfb07281eb124b7dea9843cfdbdfbfb0a8c20fec04dec"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/status-partition.json",
+          "bytes": 399350,
+          "sha256": "7a0063732bb721b298c3da00ea548dfa70dfca51aea5ee0fb051522c19d46155"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/actual-case-partition.json",
+          "bytes": 374841,
+          "sha256": "397868f31bd78c0b60605b0c69e9008eb627abe89170dacbe0532adef53dbbdd"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/candidate-590/native.txt.lossless.json",
+          "bytes": 3799665,
+          "sha256": "bc70196e2d63bb56d1ab0bf5d1d79621540e55022d1f00b50048ae5e14dc9e57"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/candidate-590/native.xml.lossless.json",
+          "bytes": 3378,
+          "sha256": "b1250ddaa8ae77e1e54da7089f7499c4050b5f02b0e0d5346423507f5f6c7bac"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/candidate-590/profile.json",
+          "bytes": 31398,
+          "sha256": "af2c39a677f863007c2caf5c07c885aacb005544e6ab4420f878f430e1b6f373"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/candidate-590/wrapper.json",
+          "bytes": 2793,
+          "sha256": "ab70c14f3e7dfec918940f5beb51f4927f647fcc156808f34587de7d65a546de"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/index.json",
+          "bytes": 26390,
+          "sha256": "1490118981b334c19305e52c5d8734c8e423e53431677c23decf97d2af1d3d43"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/package.source.txt",
+          "bytes": 7150,
+          "sha256": "704ec0e2c40590d008bdc5cef25ee10b3239a001557fefcefb3b9fa1bcffd742"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/read-notes.md",
+          "bytes": 3375,
+          "sha256": "92f0629247b2a310cab63caa5f8556ae82c5ea76fa1f1cadcf6f7dec30581ed0"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/source-custody.json",
+          "bytes": 270955,
+          "sha256": "defb142d778724da6532d9d7a26a6cd15934fbe13a926008b8ff912af44ff0ab"
+        },
+        {
+          "git_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/source-custody.source.txt",
+          "bytes": 7252,
+          "sha256": "76a460260e1e47bbf076041696ea3cb52c0cf1750fadb83de3e21b3bd2ccaeb3"
+        },
+        {
+          "git_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/native.txt",
+          "bytes": 3720260,
+          "sha256": "f5ce589095c5c2ee4cdf11773feaaf94e8dc08e6b6dd8d930f28045f78ea5bac"
+        },
+        {
+          "git_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/native.xml",
+          "bytes": 6047,
+          "sha256": "40e0e90dfb233eee8a35e15ddc10542321d298b7deb9a4fb24fffc8aea933a68"
+        },
+        {
+          "git_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/wrapper.json",
+          "bytes": 2207,
+          "sha256": "a5a280cd1cb45d9fd91975af7dbc8eb77f91d53eda395e3e30a0250689d9ae9e"
+        },
+        {
+          "git_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/native.txt",
+          "bytes": 3613492,
+          "sha256": "a08b0354ac1428026cf0ee223b0dbb69ff874891a7d1f16a1b8b5fadaceab124"
+        },
+        {
+          "git_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/native.xml",
+          "bytes": 3063,
+          "sha256": "c067e68fd69e289594aad0aca96eb1b132044e899befed5ffb89a0d1e1982707"
+        },
+        {
+          "git_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/wrapper.json",
+          "bytes": 2176,
+          "sha256": "be1050e19813f47f662d2178c597ca61143068236fbea4eb0739da402e9e9f90"
+        },
+        {
+          "git_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/native.txt",
+          "bytes": 490994,
+          "sha256": "ca80d2df9bde5388102086a8acabb989e5d6a703b214262ae13f1de58a96603a"
+        },
+        {
+          "git_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/native.xml",
+          "bytes": 3706,
+          "sha256": "b0c166b0af9aa552ec362bccf62aa8c74a18622942eb6257392fdb1a111c825d"
+        },
+        {
+          "git_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/wrapper.json",
+          "bytes": 2261,
+          "sha256": "a2c548afe2a3ab5730aeaac7e802166c79eec134b4e7f369ed30aa0f64c6128a"
+        },
+        {
+          "git_sha": "f0111fefcb6fa48e8ccb4aab213a14694dc206ad",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/profile.json",
+          "bytes": 57196,
+          "sha256": "db0b4d1371247c9b01c4d72e4f71ecd692ba3719652033fe111a985a9896b96b"
+        },
+        {
+          "git_sha": "f0111fefcb6fa48e8ccb4aab213a14694dc206ad",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric.json",
+          "bytes": 142264,
+          "sha256": "1e4553f6a101ad327f614085687bff8de88e5956d2aefbe2bea12c23cf9db191"
+        }
+      ],
+      "index": {
+        "source_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/index.json",
+        "bytes": 26390,
+        "sha256": "1490118981b334c19305e52c5d8734c8e423e53431677c23decf97d2af1d3d43"
+      },
+      "index_payloads": 85,
+      "index_payload_bytes": 7797566,
+      "closure_ids": [],
+      "current_checks": [
+        {
+          "id": "historical-loaded-source-custody-delta",
+          "target_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+          "outcome": "PASS"
+        },
+        {
+          "id": "guarded-http-ledger-fresh-reader15",
+          "target_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+          "outcome": "PASS",
+          "actual_cases": [
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[tiny-positive]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[tiny-negative]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[missing]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[null]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[integer-zero]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[decimal-zero]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[negative-integer-zero]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[negative-decimal-zero]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[ordinary-positive]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[ordinary-negative]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[boolean-true]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[boolean-false]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[nan]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[positive-infinity]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[negative-infinity]",
+              "status": "PASS"
+            }
+          ],
+          "counts": {
+            "PASS": 15
+          },
+          "decoded_stdout": {
+            "bytes": 3614595,
+            "sha256": "91fea34e244bf89d6a0feb8308d99a863062477ab4059af4303f7237034f5956"
+          },
+          "wrapper_exit": 0,
+          "wall_s": 158.67525674402714,
+          "max_rss_kib": 599720
+        },
+        {
+          "id": "deciding-byte-package-reconciliation",
+          "target_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+          "outcome": "PASS"
+        }
+      ],
+      "historical_checks": [
+        {
+          "id": "before",
+          "target_sha": "81abcf87803270ed1463157d4149722d7b04ab42",
+          "outcome": "FAIL"
+        },
+        {
+          "id": "candidate",
+          "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+          "outcome": "PASS"
+        },
+        {
+          "id": "removal",
+          "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+          "outcome": "FAIL"
+        },
+        {
+          "id": "foreign-exe-3",
+          "target_sha": "595a2595316e3bd2aa791f2769b12f1180beba62",
+          "outcome": "FAIL"
+        },
+        {
+          "id": "foreign-exe-4",
+          "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+          "outcome": "PASS"
+        },
+        {
+          "id": "foreign-exe-5",
+          "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+          "outcome": "FAIL"
+        }
+      ],
+      "numeric_cases": [
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[tiny-positive]",
+          "lexeme": "1e-1000",
+          "cost_status": "invalid",
+          "amount": null,
+          "result_error": "LLMAccountingError",
+          "fresh_admission_error": "BudgetLedgerCompletionRequiredError",
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0.0000225",
+          "receipt_count": 0,
+          "obligation_count": 1,
+          "should_stop": true,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.state.limits.run.soft_limit_usd",
+            "snapshot.completion_obligations.llm-producer:ea63a832bc7b4a95969d7fbf8669b784.required_action"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[tiny-negative]",
+          "lexeme": "-1e-1000",
+          "cost_status": "invalid",
+          "amount": null,
+          "result_error": "LLMAccountingError",
+          "fresh_admission_error": "BudgetLedgerCompletionRequiredError",
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0.0000225",
+          "receipt_count": 0,
+          "obligation_count": 1,
+          "should_stop": true,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.state.limits.run.soft_limit_usd",
+            "snapshot.completion_obligations.llm-producer:813d5383ba2244db98493b8ef055f23a.required_action"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[missing]",
+          "lexeme": null,
+          "cost_status": "missing",
+          "amount": null,
+          "result_error": "LLMAccountingError",
+          "fresh_admission_error": "BudgetLedgerCompletionRequiredError",
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0.0000225",
+          "receipt_count": 0,
+          "obligation_count": 1,
+          "should_stop": true,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.state.limits.run.soft_limit_usd",
+            "snapshot.completion_obligations.llm-producer:57b5ddd4e9e34d26bf80a9b9ea8c2769.required_action"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[null]",
+          "lexeme": "null",
+          "cost_status": "missing",
+          "amount": null,
+          "result_error": "LLMAccountingError",
+          "fresh_admission_error": "BudgetLedgerCompletionRequiredError",
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0.0000225",
+          "receipt_count": 0,
+          "obligation_count": 1,
+          "should_stop": true,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.state.limits.run.soft_limit_usd",
+            "snapshot.completion_obligations.llm-producer:05afe4165e544086b20a8b5684cc09a3.required_action"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[integer-zero]",
+          "lexeme": "0",
+          "cost_status": "known",
+          "amount": "0.0",
+          "result_error": null,
+          "fresh_admission_error": null,
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0",
+          "receipt_count": 1,
+          "obligation_count": 0,
+          "should_stop": false,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.recent_mutations[3].reserved",
+            "snapshot.recent_mutations[4].amount",
+            "snapshot.recent_mutations[4].provider",
+            "snapshot.recent_mutations[4].applied_amount",
+            "snapshot.recent_mutations[4].key",
+            "snapshot.recent_mutations[4].reserved",
+            "snapshot.recent_mutations[5].reserved",
+            "snapshot.recent_mutations[5].provider",
+            "snapshot.recent_mutations[6].amount",
+            "snapshot.recent_mutations[6].provider",
+            "snapshot.recent_mutations[6].applied_amount",
+            "snapshot.recent_mutations[6].key",
+            "snapshot.recent_mutations[6].reserved",
+            "snapshot.state.limits.run.soft_limit_usd"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[decimal-zero]",
+          "lexeme": "0.0",
+          "cost_status": "known",
+          "amount": "0.0",
+          "result_error": null,
+          "fresh_admission_error": null,
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0",
+          "receipt_count": 1,
+          "obligation_count": 0,
+          "should_stop": false,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.recent_mutations[3].reserved",
+            "snapshot.recent_mutations[4].amount",
+            "snapshot.recent_mutations[4].provider",
+            "snapshot.recent_mutations[4].applied_amount",
+            "snapshot.recent_mutations[4].key",
+            "snapshot.recent_mutations[4].reserved",
+            "snapshot.recent_mutations[5].reserved",
+            "snapshot.recent_mutations[5].provider",
+            "snapshot.recent_mutations[6].amount",
+            "snapshot.recent_mutations[6].provider",
+            "snapshot.recent_mutations[6].applied_amount",
+            "snapshot.recent_mutations[6].key",
+            "snapshot.recent_mutations[6].reserved",
+            "snapshot.state.limits.run.soft_limit_usd"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[negative-integer-zero]",
+          "lexeme": "-0",
+          "cost_status": "known",
+          "amount": "0.0",
+          "result_error": null,
+          "fresh_admission_error": null,
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0",
+          "receipt_count": 1,
+          "obligation_count": 0,
+          "should_stop": false,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.recent_mutations[3].reserved",
+            "snapshot.recent_mutations[4].amount",
+            "snapshot.recent_mutations[4].provider",
+            "snapshot.recent_mutations[4].applied_amount",
+            "snapshot.recent_mutations[4].key",
+            "snapshot.recent_mutations[4].reserved",
+            "snapshot.recent_mutations[5].reserved",
+            "snapshot.recent_mutations[5].provider",
+            "snapshot.recent_mutations[6].amount",
+            "snapshot.recent_mutations[6].provider",
+            "snapshot.recent_mutations[6].applied_amount",
+            "snapshot.recent_mutations[6].key",
+            "snapshot.recent_mutations[6].reserved",
+            "snapshot.state.limits.run.soft_limit_usd"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[negative-decimal-zero]",
+          "lexeme": "-0.0",
+          "cost_status": "known",
+          "amount": "-0.0",
+          "result_error": null,
+          "fresh_admission_error": null,
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0",
+          "receipt_count": 1,
+          "obligation_count": 0,
+          "should_stop": false,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.recent_mutations[3].reserved",
+            "snapshot.recent_mutations[4].amount",
+            "snapshot.recent_mutations[4].provider",
+            "snapshot.recent_mutations[4].applied_amount",
+            "snapshot.recent_mutations[4].key",
+            "snapshot.recent_mutations[4].reserved",
+            "snapshot.recent_mutations[5].reserved",
+            "snapshot.recent_mutations[5].provider",
+            "snapshot.recent_mutations[6].amount",
+            "snapshot.recent_mutations[6].provider",
+            "snapshot.recent_mutations[6].applied_amount",
+            "snapshot.recent_mutations[6].key",
+            "snapshot.recent_mutations[6].reserved",
+            "snapshot.state.limits.run.soft_limit_usd"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[ordinary-positive]",
+          "lexeme": "0.02",
+          "cost_status": "known",
+          "amount": "0.02",
+          "result_error": null,
+          "fresh_admission_error": null,
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0",
+          "receipt_count": 1,
+          "obligation_count": 0,
+          "should_stop": false,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.recent_mutations[3].reserved",
+            "snapshot.recent_mutations[4].amount",
+            "snapshot.recent_mutations[4].provider",
+            "snapshot.recent_mutations[4].applied_amount",
+            "snapshot.recent_mutations[4].key",
+            "snapshot.recent_mutations[4].reserved",
+            "snapshot.recent_mutations[5].reserved",
+            "snapshot.recent_mutations[5].provider",
+            "snapshot.recent_mutations[6].amount",
+            "snapshot.recent_mutations[6].provider",
+            "snapshot.recent_mutations[6].applied_amount",
+            "snapshot.recent_mutations[6].key",
+            "snapshot.recent_mutations[6].reserved",
+            "snapshot.state.limits.run.soft_limit_usd"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[ordinary-negative]",
+          "lexeme": "-0.02",
+          "cost_status": "invalid",
+          "amount": null,
+          "result_error": "LLMAccountingError",
+          "fresh_admission_error": "BudgetLedgerCompletionRequiredError",
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0.0000225",
+          "receipt_count": 0,
+          "obligation_count": 1,
+          "should_stop": true,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.state.limits.run.soft_limit_usd",
+            "snapshot.completion_obligations.llm-producer:d972890bfdfa48ba8fd63d0a111c39ea.required_action"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[boolean-true]",
+          "lexeme": "true",
+          "cost_status": "invalid",
+          "amount": null,
+          "result_error": "LLMAccountingError",
+          "fresh_admission_error": "BudgetLedgerCompletionRequiredError",
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0.0000225",
+          "receipt_count": 0,
+          "obligation_count": 1,
+          "should_stop": true,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.state.limits.run.soft_limit_usd",
+            "snapshot.completion_obligations.llm-producer:9bfe35cbf85448f484235bf8cc939e2a.required_action"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[boolean-false]",
+          "lexeme": "false",
+          "cost_status": "invalid",
+          "amount": null,
+          "result_error": "LLMAccountingError",
+          "fresh_admission_error": "BudgetLedgerCompletionRequiredError",
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0.0000225",
+          "receipt_count": 0,
+          "obligation_count": 1,
+          "should_stop": true,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.state.limits.run.soft_limit_usd",
+            "snapshot.completion_obligations.llm-producer:0941688830904fc99390c070a75dda8e.required_action"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[nan]",
+          "lexeme": "NaN",
+          "cost_status": "invalid",
+          "amount": null,
+          "result_error": "LLMAccountingError",
+          "fresh_admission_error": "BudgetLedgerCompletionRequiredError",
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0.0000225",
+          "receipt_count": 0,
+          "obligation_count": 1,
+          "should_stop": true,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.state.limits.run.soft_limit_usd",
+            "snapshot.completion_obligations.llm-producer:892558bb989240e0adb76fb37803da6c.required_action"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[positive-infinity]",
+          "lexeme": "Infinity",
+          "cost_status": "invalid",
+          "amount": null,
+          "result_error": "LLMAccountingError",
+          "fresh_admission_error": "BudgetLedgerCompletionRequiredError",
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0.0000225",
+          "receipt_count": 0,
+          "obligation_count": 1,
+          "should_stop": true,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.state.limits.run.soft_limit_usd",
+            "snapshot.completion_obligations.llm-producer:20a2e6a941124cf298ebc909d9737d72.required_action"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[negative-infinity]",
+          "lexeme": "-Infinity",
+          "cost_status": "invalid",
+          "amount": null,
+          "result_error": "LLMAccountingError",
+          "fresh_admission_error": "BudgetLedgerCompletionRequiredError",
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0.0000225",
+          "receipt_count": 0,
+          "obligation_count": 1,
+          "should_stop": true,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.state.limits.run.soft_limit_usd",
+            "snapshot.completion_obligations.llm-producer:46819adb4c514736adcdce3c00a52c67.required_action"
+          ]
+        }
+      ],
+      "numeric_valid_cases": 5,
+      "numeric_unknown_invalid_cases": 10,
+      "source_census": {
+        "parent_hook_origins": 46,
+        "per_case_parent_child_origin_observations": 14369,
+        "distinct_B_paths": 871,
+        "distinct_external_D_paths": 3,
+        "mismatches": 0,
+        "boundary": "captured file-backed loaded origins only; not universal reads/calls or post-finalization imports"
+      },
+      "source_rows_distinct": 874,
+      "guarded_D_boundary": "Actual explicit B middleware pre_check result determines {} versus cumulative_cost_usd passed to real three D8f module CostBudgetStopping.check. This is not D evaluator/controller/default factory retry/cache-ledger integration."
+    }
+  },
+  "errors": [],
+  "outcome": "PASS"
+}

@@ -51,7 +51,152 @@
           "bytes": 8217,
           "sha256": "9a630e9b7fe737dc8c897f8ea773cd3911471866dbba3803a4962967fd0f75ba"
         },
-        "retained_root_raw_refs": [],
+        "retained_root_raw_refs": [
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-ruff.json",
+            "bytes": 28807,
+            "sha256": "999f98dba01a9ee832d24b58b0847e50537c4c250ad69d7eb7d2a100cd8422ea",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/ruff/profile.json",
+            "bytes": 124591,
+            "sha256": "526dee0fa7fdba5761959218336e9c0ab0c3ae2c5357d7ab79d278840b3b9d2e",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/ruff/resource-after.json",
+            "bytes": 1871,
+            "sha256": "2bed57d31773404db95750eba8533e9325a94750bba04d3759c6480e5bb54f04",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-ruff.txt",
+            "bytes": 2915042,
+            "sha256": "ee7a72ea4f57a21f3b7cd5ac2c8b1fd34c5a2a08aaf5cd0b97a8c9384c2cf8ac",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-format.json",
+            "bytes": 28808,
+            "sha256": "6bacc498b026d6427792da18efe7a60c0dcd89e2445ed9ccc2b33c4f58187a7b",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/format/profile.json",
+            "bytes": 124591,
+            "sha256": "f7e7c62063aef2682874d3cc811ed9ea44c1febf35c5daafa1199dc8e109493f",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/format/resource-after.json",
+            "bytes": 1871,
+            "sha256": "081ae447034777c752f40027fb89363d9270050abf5783bdf6263f0b7500a811",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-format.txt",
+            "bytes": 13457,
+            "sha256": "9d0355f38487e3549a8ce015ed036beb90329edd328a02b20647dae519313b99",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-mypy.json",
+            "bytes": 5664,
+            "sha256": "e7df706514ab628c92a08cafaa8d24cb670d07aa67d3a249fd894ee770fed969",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/mypy/profile.json",
+            "bytes": 74652,
+            "sha256": "f53abbb3f6a644b447a9b1f763c8c08ccd417d2163d625ef84c71d814859ccc7",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/mypy/resource-after.json",
+            "bytes": 1859,
+            "sha256": "9774f02dd191637074030bfef0e6e9051a4596e62c999740b7740cd6a058ff56",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-mypy.txt",
+            "bytes": 6584,
+            "sha256": "7061fc1eb406b182ba5bcea18902ae2b1485f299141349a40ee756295a60ea10",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-runtime-api.json",
+            "bytes": 2521,
+            "sha256": "d0f6d472f748cd64a81d12bfed55f213527c01c0648e61114e5d44166dbe9a30",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/runtime-api/profile.json",
+            "bytes": 4145,
+            "sha256": "04ea38a3ccd7df6777783d378c168ccc8315e9d30274a2b9f6bbbd2d816794b2",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/runtime-api/resource-after.json",
+            "bytes": 1853,
+            "sha256": "c8bc15cd9ac24bfd573e799dcaea7c77698de44d2ebcea578eeeb9b2c24a0b78",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-runtime-api.txt",
+            "bytes": 6755,
+            "sha256": "87db5f736256073906ba6c308d5f6d89a9b8192d096800935c4c9e6a29794013",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-production-invocation.json",
+            "bytes": 2750,
+            "sha256": "cc2dbc4a5e237483f1256392e990d9393e49594ce45c688012fa029e7ec7e572",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/production-invocation/profile.json",
+            "bytes": 4438,
+            "sha256": "da60ca94240c5f728a890c9df36a540ae7e4fc3ace8a1e10fe93132a081fe707",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/production-invocation/resource-after.json",
+            "bytes": 1863,
+            "sha256": "a6e50ae1ca545bfc2939773b38ddc0c248104cc2ff7312ffa8dadbb34d880d33",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-production-invocation.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-architecture.json",
+            "bytes": 2643,
+            "sha256": "c1a5ccc88e0e754a3238dcee47977e58940fbded68f2bd7f6f2c1ae83e612f71",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/architecture/profile.json",
+            "bytes": 5883,
+            "sha256": "dd918a1b050225fce97ba69aed524e0979637c4c0fb49ba697636e7275492e11",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/architecture/resource-after.json",
+            "bytes": 1864,
+            "sha256": "ab0542f63db7d46bb69371bd25a4c3954c9de4b8d7cff07c2e7d04f44056ea03",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-architecture.txt",
+            "bytes": 136179,
+            "sha256": "a2b68b4ec11e89d3b6146b9e7c7194a2157625a097836ad33141a0ea42169b49",
+            "receiver_git_availability": "not_established"
+          }
+        ],
         "actual_output_input_custody": "Full original root logs/profiles read/hash-bound in the audit result. Root original large-byte Git/receiver availability is not established by this leaf."
       },
       "outcome": "PASS",
@@ -272,7 +417,44 @@
           "bytes": 4665,
           "sha256": "ba75af2928b3137fcf1ccc74198620f0f552fa1cb92b7a8803632f32483f786b"
         },
-        "retained_root_raw_refs": [],
+        "retained_root_raw_refs": [
+          {
+            "path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/verify/receipt.json",
+            "bytes": 6328,
+            "sha256": "0daf9eec0aab8f80c596f41727c67a096be4cea02ed31457c0b40363ae8e6714",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/verify/profile-before-exec.json",
+            "bytes": 5343,
+            "sha256": "5f7a4d2bd3aab8f90391fe472d19bef600c4117ea7d9cfdbe08d1bd87426172d",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/verify/stdout.txt",
+            "bytes": 11929,
+            "sha256": "aaef65cff6a336618cbf333c3dcb047379b0cd224600366bc7eb92d0b1c511cd",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/parity/receipt.json",
+            "bytes": 6330,
+            "sha256": "03e826c3df0b9f65e6b4d7a3f1a3415cab82fb0a6eb3862d60e456c1bca5b3f1",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/parity/profile-before-exec.json",
+            "bytes": 5346,
+            "sha256": "29c414a06521b5adf4cce87c83d544fabb7382d8e5f8f6c683040f3ba73f4f3f",
+            "receiver_git_availability": "not_established"
+          },
+          {
+            "path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/parity/stdout.txt",
+            "bytes": 29681,
+            "sha256": "9782911a518ee99db0b11364cdff543e61145976fd13e4f3921c8b31f9ce1593",
+            "receiver_git_availability": "not_established"
+          }
+        ],
         "actual_output_input_custody": "Full original root logs/profiles read/hash-bound in the audit result. Root original large-byte Git/receiver availability is not established by this leaf."
       },
       "outcome": "PASS",
@@ -295,8 +477,7 @@
     {
       "command": [
         "python3",
-        "-c",
-        "from pathlib import Path; import hashlib; p=Path('/tmp/e02-B-continuation-external-6fa9b7142ba5/external-gates.py'); b=p.read_bytes(); print(len(b),hashlib.sha256(b).hexdigest()); print(b.decode())"
+        "-"
       ],
       "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
       "environment": {
@@ -312,7 +493,8 @@
           "sha256": "3fe86143a9b124b78d89fdafe42757d7f521680aea99de731e20ab2c5a6f82d9"
         },
         "canonical_admission_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py@6fa9b7142ba590c3173f1cd3be097286db5acc4d",
-        "canonical_constituent_runner": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py@6fa9b7142ba590c3173f1cd3be097286db5acc4d"
+        "canonical_constituent_runner": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py@6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+        "actual_stdin_literal": "from pathlib import Path\nimport hashlib\np=Path('/tmp/e02-B-continuation-external-6fa9b7142ba5/external-gates.py');b=p.read_bytes();print(len(b),hashlib.sha256(b).hexdigest());print(b.decode())\n"
       },
       "outcome": "PASS",
       "output": {
@@ -323,7 +505,7 @@
           "sha256": "b66600bf10fec8d852b3fc94d364c6f2af276961d11511097e496f788e73b7a1"
         }
       },
-      "qualification": "Actual source-read tool command body retained verbatim here. Narrow caller/capture NONBLOCKING only; no reviewer runtime/backend/fixture-sufficiency finding verdict."
+      "qualification": "Exact Python stdin source-read tool command, not invented native/review CLI. Narrow capture/source NONBLOCKING only; complete helper input bytes archived, no reviewer gate/backend execution."
     }
   ],
   "property": {
@@ -376,6 +558,7 @@
     "own_attached_head": "a058426e743e8ce8c88c0b4469451b3180458915",
     "external_objects": "/tmp/e02-B-cas-output-audit-20261007/gitobjects",
     "external_index": "/tmp/e02-B-cas-output-audit-20261007/git-index",
-    "preservation": "No source checkout/reset/rebase/worktree/ref rewrite; append-only remote parent chain and original SHA objects created in /tmp, branch ref will update normally."
+    "preservation": "No source checkout/reset/rebase/worktree/ref rewrite; append-only remote parent chain and original SHA objects created in /tmp, branch ref will update normally.",
+    "forward_custody_correction": "Prior unpushed c7dc handoff object retained; append exact stdin source-read command and24+6 actual raw refs to the same checks. No audit/run/source/output change."
   }
 }

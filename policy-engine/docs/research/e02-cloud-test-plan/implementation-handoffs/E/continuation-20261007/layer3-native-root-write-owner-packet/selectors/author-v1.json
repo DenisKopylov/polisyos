@@ -1,0 +1,347 @@
+{
+  "source_commit": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "source_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "outcome": "owner-ready read-only packet, individual P41 not_established; full native fixture selectors UNRUN",
+  "assets": [
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/additional-layer3-default-root-callers.json",
+      "portable_path": "additional-layer3-default-root-callers.json",
+      "bytes": 11625,
+      "sha256": "2a339d936616820d3e42732c72fbd4218d76e15cf28f9ea7c557be3e7e839b4e",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/all-29-writer-membership.json",
+      "portable_path": "all-29-writer-membership.json",
+      "bytes": 16544,
+      "sha256": "0ba47ced6af36be8fa5289c9b8961f1d02dc5922d2cdf56f3e318437ab012c60",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/canonical-owner-test-isolation.patch",
+      "portable_path": "canonical-owner-test-isolation.patch",
+      "bytes": 4884,
+      "sha256": "9f041635d8ce8be972e68019bf902bbad0a8d8e9791e16c63a1857696c80a7e1",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/close.stderr.txt",
+      "portable_path": "close.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/close.stdout.txt",
+      "portable_path": "close.stdout.txt",
+      "bytes": 216,
+      "sha256": "82763216bd2ef3de335eda4387f7187ab081377af7341ce39272ab05036e719c",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/close_packet.py",
+      "portable_path": "close_packet.py.txt",
+      "bytes": 11285,
+      "sha256": "b00ff34e3fcaf9e13f86dfaecbe8863618c9cfd2ae4f2313777a8e202111a48b",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/git-status-observed.txt",
+      "portable_path": "git-status-observed.txt",
+      "bytes": 2775,
+      "sha256": "8c62a15d3f0775c673f3166a997195c6486b250780283fd2132d01c536c4a8bd",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/owner-packet.json",
+      "portable_path": "owner-packet.json",
+      "bytes": 6255,
+      "sha256": "c5979ea7d2954bb7066a98bb975107961f908630674465e18eacf6674de21410",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/packet-preparation.json",
+      "portable_path": "packet-preparation.json",
+      "bytes": 1636,
+      "sha256": "d20646a64be85a359436259c4acd8d1313cb80bfbe3f14e8bc21abd450b39e04",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/parent-observation.json",
+      "portable_path": "parent-observation.json",
+      "bytes": 24848,
+      "sha256": "617baab627ee4280808a27ccc5cdc7d4b82cb7acd85575e1d14c6960cd367ce0",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/parent-snapshot-custody.json",
+      "portable_path": "parent-snapshot-custody.json",
+      "bytes": 855,
+      "sha256": "e1dc919eae6246fdd0ef5b402160596b0d4111721045b9c1270ba212d3621d0b",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/patch-apply-check.json",
+      "portable_path": "patch-apply-check.json",
+      "bytes": 511,
+      "sha256": "dbe2c3763103b5f504db693cde8643894e16681993b59cc3282000555ce51765",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/patch-apply-check.stderr.txt",
+      "portable_path": "patch-apply-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/patch-apply-check.stdout.txt",
+      "portable_path": "patch-apply-check.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/prepare.stderr.txt",
+      "portable_path": "prepare.stderr.txt",
+      "bytes": 339,
+      "sha256": "b230e514e1bf446cda7039b639b8feedc0f78946b42c5093c328b4f133c46840",
+      "role": "historical observer ERROR"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/prepare.stdout.txt",
+      "portable_path": "prepare.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/prepare.v1.stderr.txt",
+      "portable_path": "prepare.v1.stderr.txt",
+      "bytes": 339,
+      "sha256": "b230e514e1bf446cda7039b639b8feedc0f78946b42c5093c328b4f133c46840",
+      "role": "historical observer ERROR"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/prepare.v2.stderr.txt",
+      "portable_path": "prepare.v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/prepare.v2.stdout.txt",
+      "portable_path": "prepare.v2.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/prepare_packet.py",
+      "portable_path": "prepare_packet.py.txt",
+      "bytes": 9324,
+      "sha256": "eea11f955b824c39968bf58836c8bac9062b16d7ef8a676602fdd64be3124b34",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/prepare_packet.v1.py.txt",
+      "portable_path": "prepare_packet.v1.py.txt",
+      "bytes": 9017,
+      "sha256": "afccc06d283f0f8f21ba60a56cc4640c962a178ae9f2204869078a1e9660ae79",
+      "role": "historical observer ERROR"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/probe_writer_boundary.py",
+      "portable_path": "probe_writer_boundary.py.txt",
+      "bytes": 7390,
+      "sha256": "da6ee4c9cef220c704a9fd99d892bd7a81aafc75a4880235e19f780c01791f78",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/proc-536940-cmdline.txt",
+      "portable_path": "proc-536940-cmdline.txt",
+      "bytes": 676,
+      "sha256": "f06d23e4b523e3c19db19e9ce1a9b09c4aa77d0415068e353933948942e28bd9",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/proc-536940-status.txt",
+      "portable_path": "proc-536940-status.txt",
+      "bytes": 1184,
+      "sha256": "79459d118f90872932d1cd86e05d8d44d474a2598401c9f83cb6fddd6bc9e1bb",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/proc-observation.json",
+      "portable_path": "proc-observation.json",
+      "bytes": 520,
+      "sha256": "adada9ae0fddf40baef22368d1d800b6aa5cd3a163ef2d3909864bcedcc4e56f",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/proposed-sources/policy-engine/tests/repo_quality/conftest.py.txt",
+      "portable_path": "proposed-sources/policy-engine/tests/repo_quality/conftest.py.txt",
+      "bytes": 2439,
+      "sha256": "f12ac8248f32fd826cb7289109119fef55cb8dc113d163bcca4454a2124cf048",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/proposed-sources/policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py.txt",
+      "portable_path": "proposed-sources/policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py.txt",
+      "bytes": 12964,
+      "sha256": "413fba3ec58061ab616da08dca6e814bc178b8049527fb1564254578686bdd7a",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/proposed-sources/policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py.txt",
+      "portable_path": "proposed-sources/policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py.txt",
+      "bytes": 17296,
+      "sha256": "e87a41c39603fd278659bfc8b2ae00f4f2c8bb1ac252028bda36a36dde679b3a",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/proposed-sources/policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py.txt",
+      "portable_path": "proposed-sources/policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py.txt",
+      "bytes": 7827,
+      "sha256": "635b2b0dc9a6d393732f8158319c13babaa91f3cf035b8c787790837ce9c417f",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/source-index.json",
+      "portable_path": "source-index.json",
+      "bytes": 5409,
+      "sha256": "1684d9974321da3d3fde8a31967393397a3cf5d49e71d2f28f26743749e1f21a",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/sources/policy-engine/pytest.ini.txt",
+      "portable_path": "sources/policy-engine/pytest.ini.txt",
+      "bytes": 1021,
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/sources/policy-engine/src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py.txt",
+      "portable_path": "sources/policy-engine/src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py.txt",
+      "bytes": 173858,
+      "sha256": "0675e4d0398c532e744af931816cbfcb91fb41b06cacd6af2eff8d3605cd82d1",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/sources/policy-engine/src/polisyos/runtime/quality/proving_ground/health_metric_governance.py.txt",
+      "portable_path": "sources/policy-engine/src/polisyos/runtime/quality/proving_ground/health_metric_governance.py.txt",
+      "bytes": 135710,
+      "sha256": "2b3d59ddcd65efea21163935dc570e90bf45673968f55863fca7fce4b4a96324",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/sources/policy-engine/src/polisyos/runtime/quality/proving_ground/region_widening.py.txt",
+      "portable_path": "sources/policy-engine/src/polisyos/runtime/quality/proving_ground/region_widening.py.txt",
+      "bytes": 211289,
+      "sha256": "02eff4feb5d4d60fa4a16a3f3ccdc0dc6843e8c5e110497ab61d331da2b75bcd",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/sources/policy-engine/tests/conftest.py.txt",
+      "portable_path": "sources/policy-engine/tests/conftest.py.txt",
+      "bytes": 9664,
+      "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/sources/policy-engine/tests/repo_quality/conftest.py.txt",
+      "portable_path": "sources/policy-engine/tests/repo_quality/conftest.py.txt",
+      "bytes": 588,
+      "sha256": "48dbbacf5d48bdbc012c5bfa817c37edbe17ebdad416d4d2a18f916ee6a37126",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/sources/policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py.txt",
+      "portable_path": "sources/policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py.txt",
+      "bytes": 12746,
+      "sha256": "371ac66d1e32d7e5b3c65a18d93588073c243fef5f1e30939255bdf92a9007ae",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/sources/policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py.txt",
+      "portable_path": "sources/policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py.txt",
+      "bytes": 17078,
+      "sha256": "31a6e918fe41cf8ca722e0bb72fba6b0f56c31c4df15582101ad36f377fa0c08",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/sources/policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py.txt",
+      "portable_path": "sources/policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py.txt",
+      "bytes": 7609,
+      "sha256": "5d8db50ec87df1f8aa5fe7322c1a8f13df02b4e596c7d2ddc839dcecbf5f93f3",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/sources/policy-engine/tools/lib/fs.py.txt",
+      "portable_path": "sources/policy-engine/tools/lib/fs.py.txt",
+      "bytes": 13108,
+      "sha256": "d0ec5e12b7762027051614290cf4e21b09dc3602e371a040f9d7ffcd38a8193f",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/sources/policy-engine/tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py.txt",
+      "portable_path": "sources/policy-engine/tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py.txt",
+      "bytes": 54509,
+      "sha256": "17c104057101e08cd532f535d4c6ad2d54036830d919cee6077cc63554d31301",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/sources/policy-engine/tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py.txt",
+      "portable_path": "sources/policy-engine/tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py.txt",
+      "bytes": 48805,
+      "sha256": "3b5c1ae0eb080b6dcba19120a02b3d68f19e8ae7e18928613819b8235d542063",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/sources/policy-engine/tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py.txt",
+      "portable_path": "sources/policy-engine/tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py.txt",
+      "bytes": 28310,
+      "sha256": "e8f9a3d8f7c321c76d16db19a577624e180bd7ddaa4ffc85b654fbbcaeafbc8f",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/write-true-callmap.json",
+      "portable_path": "write-true-callmap.json",
+      "bytes": 8383,
+      "sha256": "007afa917e6efe8157b786f5b0fa27e449585f831ba4914c626bf3e243c26edb",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/writer-controls.normal.json",
+      "portable_path": "writer-controls.normal.json",
+      "bytes": 43728,
+      "sha256": "b40c2e74b12931b3a92867b04a94c0abfad97bdb3681fa832b3fe4bc00ce3f91",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/writer-controls.normal.stderr.txt",
+      "portable_path": "writer-controls.normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/writer-controls.optimized.json",
+      "portable_path": "writer-controls.optimized.json",
+      "bytes": 43728,
+      "sha256": "36045450a08a0f940974d6ef8e8bd94610840274c9e9935e97fae751937ae359",
+      "role": "current source/owner packet or complete bounded deciding output"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/writer-controls.optimized.stderr.txt",
+      "portable_path": "writer-controls.optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "current source/owner packet or complete bounded deciding output"
+    }
+  ],
+  "asset_count": 48,
+  "total_bytes": 966292,
+  "excluded": "/tmp writer fixture catalogs are repeatable bounded control inputs; full parent58snapshots retained at exact original refs; no production data",
+  "all_capture_streams_closed_before_selection": true
+}

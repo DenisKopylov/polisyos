@@ -1,0 +1,16 @@
+{
+  "disposition": "GO owner-ready bounded V2 write-confinement/admission proposal; full nativefixture/runtimeinput acceptance UNRUN",
+  "writer_controls_per_mode": 15,
+  "writer_declared_outputs": 81,
+  "fresh_fixture_controls": 6,
+  "old_late_refusal_real_file_mutations": 2,
+  "v2_malicious_admissions_refuse_before_archive": true,
+  "v2_removal_inside_standin_file_mutations": 2,
+  "mode": false,
+  "receipt": {
+    "path": "/tmp/e02-E-layer3-owner-independent-64d/independent-owner-review-normal.json",
+    "bytes": 13849,
+    "sha256": "9478bdc83bacbf5690abfe73f2960807d2c77dc8f0420d7f917a2ec36efd8404"
+  },
+  "ROOT_writes": 0
+}

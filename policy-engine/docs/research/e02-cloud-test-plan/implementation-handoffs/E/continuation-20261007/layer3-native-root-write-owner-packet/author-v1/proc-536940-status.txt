@@ -1,0 +1,59 @@
+Name:	pytest
+Umask:	0077
+State:	R (running)
+Tgid:	536940
+Ngid:	0
+Pid:	536940
+PPid:	536937
+TracerPid:	0
+Uid:	1000	1000	1000	1000
+Gid:	1000	1000	1000	1000
+FDSize:	64
+Groups:	 
+NStgid:	536940
+NSpid:	536940
+NSpgid:	536899
+NSsid:	536899
+Kthread:	0
+VmPeak:	 7601024 kB
+VmSize:	 7570260 kB
+VmLck:	       0 kB
+VmPin:	       0 kB
+VmHWM:	 2185976 kB
+VmRSS:	 2072648 kB
+RssAnon:	 1777804 kB
+RssFile:	  294844 kB
+RssShmem:	       0 kB
+VmData:	 4455012 kB
+VmStk:	     280 kB
+VmExe:	   30300 kB
+VmLib:	  438504 kB
+VmPTE:	    6532 kB
+VmSwap:	       0 kB
+HugetlbPages:	       0 kB
+CoreDumping:	0
+THP_enabled:	1
+untag_mask:	0xffffffffffffffff
+Threads:	46
+SigQ:	2/71955
+SigPnd:	0000000000000000
+ShdPnd:	0000000000000000
+SigBlk:	0000000000000000
+SigIgn:	0000000001001000
+SigCgt:	00000001080004ea
+CapInh:	0000000000000000
+CapPrm:	0000000000000000
+CapEff:	0000000000000000
+CapBnd:	000001ffffffffff
+CapAmb:	0000000000000000
+NoNewPrivs:	0
+Seccomp:	0
+Seccomp_filters:	0
+Speculation_Store_Bypass:	vulnerable
+SpeculationIndirectBranch:	always enabled
+Cpus_allowed:	1f
+Cpus_allowed_list:	0-4
+Mems_allowed:	00000000,00000001
+Mems_allowed_list:	0
+voluntary_ctxt_switches:	665269
+nonvoluntary_ctxt_switches:	42785

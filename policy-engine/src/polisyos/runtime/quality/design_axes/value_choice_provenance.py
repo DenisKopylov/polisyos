@@ -784,7 +784,7 @@ class NormativeValueScheduleOwner:
                 kind=NORMATIVE_GENERATION_SOURCE_KIND,
                 schema=GENERATION_CYCLE_SCHEMA_VERSION,
             )
-            source_run = GenerationCycleRun.model_validate(source_payload)
+            source_run = GenerationCycleRun.from_persisted_payload(source_payload)
             case_id = (
                 source_run.cycles[0].revision_request.revised_problem.design_problem_id
                 if source_run.cycles
@@ -1322,7 +1322,7 @@ class NormativeValueScheduleOwner:
             inspect_generation_cycle_run,
         )
 
-        run = GenerationCycleRun.model_validate(
+        run = GenerationCycleRun.from_persisted_payload(
             self._read(
                 binding.source_run_ref,
                 kind=NORMATIVE_GENERATION_SOURCE_KIND,

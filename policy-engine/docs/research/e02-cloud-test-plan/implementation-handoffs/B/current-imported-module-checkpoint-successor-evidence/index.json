@@ -1,0 +1,152 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "objects": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/README.md",
+      "sha256": "1c86fe9199b25765a19f17e27c2d8f94da79b6a709cd0c1c0ff8d204312b5297",
+      "bytes": 1907
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/dynamic-first-5bb-e02_b74_input_custody.py.txt",
+      "sha256": "976e728809ce9fbe085c98ae9c2537920e1c0a73eedfbc81e9678b960287537e",
+      "bytes": 625
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/dynamic-first-5bb-input-custody.json",
+      "sha256": "20b6fb8867c6627cce31ca1647a41e46970502ba532842260f32f67711fab181",
+      "bytes": 1545
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/dynamic-first-5bb-module-origins.json",
+      "sha256": "3c8375f3af3f6d7b69f7d2b6ea553d9f4301c51a1aeb1c8073623a25de183f9a",
+      "bytes": 44211
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/dynamic-first-5bb-native.txt",
+      "sha256": "fb28f1a71fde1615efdc1b8c37f255d79929a3e0d7c2b9a5fe0a3e3718848b2d",
+      "bytes": 5966
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/dynamic-first-5bb-native.xml",
+      "sha256": "550b37eeab7c01c17c5ce149b11727dffdd76e087e2ba59e4328808d05fee526",
+      "bytes": 2917
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/dynamic-first-5bb-profile.json",
+      "sha256": "fa45cbe20f73cfd83c20f8ab0c93b3a9af5a91c5ff8c059de594d2193067c15d",
+      "bytes": 1708
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/dynamic-first-5bb-result.json",
+      "sha256": "49e92950cdb3889226164ccb6d0a6531f08daff6b0aecb76177253e53c5db135",
+      "bytes": 668
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-e02_b74_input_custody.py.txt",
+      "sha256": "8489c4b0e7cfe19d3474019776c89ca855edf62f001765330b606703897fa765",
+      "bytes": 617
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-input-custody.json",
+      "sha256": "943f142ef786bb99fa1216e89cbfcce7bab122f8b0be1dfea27af360bfa3a298",
+      "bytes": 1521
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-module-origins.json",
+      "sha256": "826843e4678ddbd49612c99e7c0260312c9b504ca47a5f8b58e579fad7b9f54c",
+      "bytes": 44211
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-native.txt",
+      "sha256": "aafd42e6fc2ad41da57ab9b038b8e1ae06e673a2df3cb236e464fb9c9e99b1fa",
+      "bytes": 7074
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-native.xml",
+      "sha256": "a65cba0c486e51bd0940ef9a7afec069858b038c9a3446c36c338b0bb75d9e43",
+      "bytes": 997
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-profile.json",
+      "sha256": "aa543275c3dc9ee1d06db5202e23b7d9f764cd931a273e2b8626cc6493967a74",
+      "bytes": 1590
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-result.json",
+      "sha256": "faf129b3e8fce8840e3ad761be335cdec7e6e0a9bd678b3f727c4d67ca92133d",
+      "bytes": 640
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/format-corrected.txt",
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "bytes": 25
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/native-removal.py.txt",
+      "sha256": "8af1fcd497f524a93e44feb577131f5d1c50ab8b56eecbb32b3d26c7d5fd005f",
+      "bytes": 4907
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/native.py.txt",
+      "sha256": "e411f7554ed691f73061da58e2fcb06195b201d2c92b6764df02e36f0b680f03",
+      "bytes": 3916
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-e02_b74_input_custody.py.txt",
+      "sha256": "af0f477fb61fdafbffd1a84341349a1ab5f29f9979d1968bc3baaf0bc265ff8e",
+      "bytes": 619
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-input-custody.json",
+      "sha256": "62a01bab00cfefa1b63345e98caae58387acd171d9b07a91f258fe39e1c659b1",
+      "bytes": 1527
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-module-origins.json",
+      "sha256": "826843e4678ddbd49612c99e7c0260312c9b504ca47a5f8b58e579fad7b9f54c",
+      "bytes": 44211
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-mutation.py.txt",
+      "sha256": "db7dea6c9817daa5eb2a254bf1047e110fd9c71ef7a8e78732521bfb9fa4f100",
+      "bytes": 598
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-native.txt",
+      "sha256": "97b2402c846cca2278e2d72b1c15337e13efdb81f086b2a969470b734f2b419b",
+      "bytes": 5145
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-native.xml",
+      "sha256": "bf8fcd15a9ec282b17ef5cbde956c3569a079baf16e8d17286236429a6635ce0",
+      "bytes": 2268
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-profile.json",
+      "sha256": "2ba7d4a52e40e771e52be2ae3dafc9d85e6a8a9ba5e065f2ec503a65ef5768d2",
+      "bytes": 2107
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-result.json",
+      "sha256": "1170c61676ef8e1ee0a7d4920845700a0353abf196ada35ea80b2c3e6af6ca6a",
+      "bytes": 645
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/ruff-corrected.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/ruff-introduced.txt",
+      "sha256": "ad54cef321b0eee3cc98af7af840b2ef8c89800151c974ce9bea2bdbccc44b45",
+      "bytes": 1070
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/source-review.json",
+      "sha256": "044a18a98bbe4ca90250b9058b7e96d97ee5db7eab04bc4e426f723b46985df4",
+      "bytes": 10286
+    }
+  ],
+  "object_count": 29,
+  "payload_bytes": 193540
+}

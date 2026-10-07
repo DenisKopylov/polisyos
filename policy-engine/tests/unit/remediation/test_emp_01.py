@@ -67,6 +67,18 @@ def _project_value_outer_set(
 
 
 class _RowsCursor:
+    description = tuple(
+        (name,)
+        for name in (
+            "unit_id",
+            "period_id",
+            "value",
+            "dataset_id",
+            "observation_id",
+            "condition_json",
+        )
+    )
+
     def __init__(self, rows: tuple[tuple[Any, ...], ...]) -> None:
         self._rows = rows
 
@@ -83,7 +95,12 @@ class _RowsConnection:
         self.calls.append((statement, tuple(parameters or ())))
         rows = self._rows
         if "country_code = ?" in statement:
-            scope_region = tuple(parameters or ())[1]
+            selected_parameters = tuple(parameters or ())
+            scope_region = (
+                selected_parameters[3]
+                if len(selected_parameters) > 3
+                else selected_parameters[1]
+            )
             rows = tuple(row for row in rows if row[0] == scope_region)
         return _RowsCursor(rows)
 
@@ -159,7 +176,7 @@ def test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed(
     assert connection.calls[0][1][0] == "outcome"
     statement = connection.calls[0][0]
     assert statement.index("country_code = ?") < statement.index("LIMIT")
-    assert connection.calls[0][1][1] == "UA"
+    assert connection.calls[0][1][3] == "UA"
 
 
 def test_scope_filter_excludes_other_regions_before_profile_limit(
@@ -223,7 +240,8 @@ def test_scope_filter_excludes_other_regions_before_profile_limit(
     assert all(row.unit_id == "UA" for row in profile.rows)
     assert all(len(row.source_row_content_hashes) == 1 for row in profile.rows)
     assert connection.calls
-    assert connection.calls[0][1] == ("outcome", "UA")
+    assert connection.calls[0][1][0] == "outcome"
+    assert connection.calls[0][1][3] == "UA"
 
 
 def test_cross_period_mixed_dataset_units_fail_closed(
@@ -396,6 +414,110 @@ def test_empty_selected_profile_returns_no_profile_before_unit_binding(
         )
         is None
     )
+
+    monkeypatch.setattr(
+        data_state_substrate,
+        "l1_dcat_variable_availability",
+        lambda *_args, **_kwargs: SimpleNamespace(
+            status="available",
+            coverage_ref="catalog://emp01/outcome",
+            dataset_count=1,
+            metric_binding_count=1,
+            observation_count=0,
+        ),
+    )
+    with pytest.raises(generation_cycle.ValueOwnerAccessError) as exc_info:
+        generation_cycle.RealValueOwnerGateway(repo_root=tmp_path).load_value_data_profile(
+            candidate=SimpleNamespace(
+                atom=SimpleNamespace(target_world_slots=("outcome",)),
+            ),
+            problem=SimpleNamespace(
+                outcome_of_interest=SimpleNamespace(target_variable="outcome"),
+                jurisdiction_time=SimpleNamespace(region="UA"),
+                runtime_hints={},
+            ),
+            world_record=SimpleNamespace(),
+        )
+    assert exc_info.value.code == "acquire_data:value_owner_rows_missing"
+
+
+@pytest.mark.parametrize("row_count", (1, 2, 3))
+def test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    row_count: int,
+) -> None:
+    """Three selected rows are insufficient, distinct from empty and truncated."""
+
+    catalog_path = tmp_path / "l1.duckdb"
+    catalog_path.touch()
+    rows = tuple(
+        (
+            "UA",
+            2020 + index,
+            10.0 + index,
+            "dataset-ratio",
+            f"obs-ua-{2020 + index}",
+            '{"unit":"ratio"}',
+        )
+        for index in range(row_count)
+    )
+    connection = _RowsConnection(rows)
+    monkeypatch.setattr(
+        substrate_registry,
+        "default_substrate_catalog_paths",
+        lambda _repo_root: SimpleNamespace(l1_dcat_path=catalog_path),
+    )
+    monkeypatch.setattr(
+        read_api.catalog,
+        "default_acquisition_overlay_path",
+        lambda _repo_root: None,
+    )
+    monkeypatch.setattr(
+        read_api.catalog,
+        "open_catalog_read_session",
+        lambda _path, overlay_path=None: connection,
+    )
+    monkeypatch.setattr(
+        data_state_substrate,
+        "l1_dcat_variable_availability",
+        lambda *_args, **_kwargs: SimpleNamespace(
+            status="available",
+            coverage_ref="catalog://emp01/outcome",
+            dataset_count=1,
+            metric_binding_count=1,
+            observation_count=len(rows),
+        ),
+    )
+
+    loader_kwargs = {
+        "repo_root": tmp_path,
+        "outcome": "outcome",
+        "owner_access_ref": "catalog://emp01/outcome",
+        "scope_region": "UA",
+    }
+    with pytest.raises(generation_cycle.ValueOwnerAccessError) as loader_exc_info:
+        generation_cycle._load_value_data_profile_from_l1_dcat(**loader_kwargs)
+    assert loader_exc_info.value.code == "acquire_data:value_owner_rows_insufficient"
+
+    with pytest.raises(generation_cycle.ValueOwnerAccessError) as exc_info:
+        generation_cycle.RealValueOwnerGateway(repo_root=tmp_path).load_value_data_profile(
+            candidate=SimpleNamespace(
+                atom=SimpleNamespace(target_world_slots=("outcome",)),
+            ),
+            problem=SimpleNamespace(
+                outcome_of_interest=SimpleNamespace(target_variable="outcome"),
+                jurisdiction_time=SimpleNamespace(region="UA"),
+                runtime_hints={},
+            ),
+            world_record=SimpleNamespace(),
+        )
+
+    assert exc_info.value.code == "acquire_data:value_owner_rows_insufficient"
+    assert len(connection.calls) == 2
+    assert all("LIMIT 20001" in statement for statement, _ in connection.calls)
+    assert all(parameters[0] == "outcome" for _, parameters in connection.calls)
+    assert all(parameters[3] == "UA" for _, parameters in connection.calls)
 
 
 def test_identification_set_and_statistical_uncertainty_remain_separate() -> None:

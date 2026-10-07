@@ -1,0 +1,5 @@
+{
+  "checkpoint_format": "generation-v1",
+  "snapshot_ref": ".checkpoint_5618c4f9_0000_20261007T075208.json.generations/0596efa9b5b2456094b98d2f23711662/snapshot.json",
+  "snapshot_sha256": "a6cbc0ba054a8eadfd2e037b5e747cf8a2aa53f931401f62ded65fd57ad3624a"
+}

@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "mypy",
+    "--follow-imports=normal",
+    "src/polisyos/foundry/methods/artifacts/_implementation_identity.py"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "exit_code": 1,
+  "wall_seconds": 41.631754610018106,
+  "source_sha": "5bbbc90d7aa7f5bdf0c07517a17a7a03d2656197",
+  "source_identity_bytes_dirty": false,
+  "own_test_file_dirty": true,
+  "stdout_path": "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/mypy-5bb.txt",
+  "stdout_sha256": "6eaff989a7af7e7ac0a7a7a6524dc9c8d214f81b680e79796f92e337b184e475"
+}

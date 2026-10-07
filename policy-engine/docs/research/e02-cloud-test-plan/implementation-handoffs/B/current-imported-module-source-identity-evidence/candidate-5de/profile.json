@@ -1,0 +1,72 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/pytest-child.py",
+    "/workspace/e02-B-current-composition",
+    "5deffd11efd0bba0db6e78d47259601149d3ae0b",
+    "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/candidate-5de/module-origins.json",
+    "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+    "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+    "tests/unit/foundry/methods/test_compiler_e02.py",
+    "tests/unit/foundry/methods/test_compiler.py",
+    "-vv",
+    "--tb=short",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/dev/shm/e02-B-module-candidate-5de-703059",
+    "--junitxml",
+    "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/candidate-5de/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_before": {
+    "sha": "5deffd11efd0bba0db6e78d47259601149d3ae0b",
+    "tree": "2ab20eed4d4d3ceeb59332f9bcaa5512518f6f0e",
+    "status": ""
+  },
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-composition/policy-engine/src:/workspace/e02-B-current-composition/policy-engine/product",
+    "POLISYOS_METRICS_PORT": "0",
+    "XLA_FLAGS": null,
+    "JAX_NUM_THREADS": null,
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "BLIS_NUM_THREADS": null,
+    "VECLIB_MAXIMUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "RAYON_NUM_THREADS": null,
+    "TF_NUM_INTEROP_THREADS": null,
+    "TF_NUM_INTRAOP_THREADS": null,
+    "NUMBA_NUM_THREADS": null,
+    "LOKY_MAX_CPU_COUNT": null,
+    "PYTEST_XDIST_AUTO_NUM_WORKERS": null
+  },
+  "python_version": "Python 3.14.2",
+  "fixture": "/dev/shm/e02-B-module-candidate-5de-703059",
+  "fixtures_preserved": true,
+  "no_caps_added": true,
+  "test_input_bytes": [
+    {
+      "path": "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+      "bytes": 10336,
+      "sha256": "a7e304187010ae6514c3ef908f9c7771c0fbb421bf6e664062263722e3b3118a"
+    },
+    {
+      "path": "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+      "bytes": 33264,
+      "sha256": "23f3a815adb38d2b18ef9f68b320300788941a45e4d32bac2e9e2cfe734d13fd"
+    },
+    {
+      "path": "tests/unit/foundry/methods/test_compiler_e02.py",
+      "bytes": 11608,
+      "sha256": "75673416c70a2f82ca72194c015a8a1c1e5d0372ffeeb103c4658667121ba462"
+    },
+    {
+      "path": "tests/unit/foundry/methods/test_compiler.py",
+      "bytes": 34246,
+      "sha256": "a015d14b41eb7bce0ab0b9ed96e79663be29e71aebd1f19f1f7801e646a5805f"
+    }
+  ]
+}

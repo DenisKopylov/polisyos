@@ -40,6 +40,22 @@ boundary applies equally to direct input, supplied method-result content and
 selected cached graph references. Other partial/missingness consumers retain
 their own contracts; this is not a global ban on partial graphs.
 
+The declared family must also agree with known typed profile contracts. The
+reserved `metadata["mgraph"]` payload is an MGraph contract, so static DAG/ADMG
+reconciliation refuses it even after a caller retags the graph. A malformed or
+null supplied payload receives the same refusal; it cannot become an absent
+input. The original metadata is retained, never deleted to make admission pass.
+This check uses the existing MGraph contract, not `R_`/`_star` node names or
+arbitrary metadata as a missingness classifier. A clean ADMG with those names
+and no MGraph contract remains supported. Unknown metadata stays uninterpreted;
+this boundary does not establish its semantics or scientific authority.
+
+When discovery requests prior/hint reconciliation for an unsupported graph
+profile, it retains the discovered graph and reports the unapplied request in
+`DiscoveryPipelineReport.warnings` and its reconciliation metadata. Report
+readers must retain that limitation; the request is not successful reconciliation.
+Discovery without a reconciliation request receives no reconciliation warning.
+
 Within its admitted families the reconciler supports known contemporaneous
 directed and bidirected relations.
 Reverse-stored arrows are normalized by exchanging their endpoints; bidirected

@@ -80,16 +80,27 @@ _SUPPORTED_CYCLE_TYPES = {
 
 
 def _validate_reconciliation_profile(graph: CausalGraphModel) -> None:
-    """Admit the declared DAG/ADMG family before any semantic projection.
+    """Admit a consistent declared DAG/ADMG profile before semantic projection.
 
     Resolved endpoint marks alone cannot establish this profile: MGraph,
     CPDAG and PAG carry distinct semantics even with the same visible edges.
-    This boundary does not constrain their other supported consumers.
+    A supplied reserved MGraph contract contradicts a DAG/ADMG declaration,
+    even if malformed. Unknown metadata and node names are not classifiers.
+    This boundary does not constrain other profiles' supported consumers.
     """
     if graph.graph_type not in {GraphType.DAG, GraphType.ADMG}:
         raise ValueError(
             "Unsupported graph reconciliation profile: "
             f"graph_type={graph.graph_type.value}; requires declared static DAG/ADMG"
+        )
+    # The canonical MGraphMetadata contract belongs to GraphType.MGRAPH.
+    # Refuse its supplied namespace, rather than parsing invalid content as
+    # absence or erasing the contract to make an unsupported retag pass.
+    if "mgraph" in graph.metadata:
+        raise ValueError(
+            "Unsupported graph reconciliation profile: "
+            f"graph_type={graph.graph_type.value} contradicts reserved MGraph metadata; "
+            "requires static DAG/ADMG without a supplied MGraph contract"
         )
     _validate_static_admg(graph)
 

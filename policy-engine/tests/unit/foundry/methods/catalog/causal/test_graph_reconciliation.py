@@ -49,6 +49,7 @@ from polisyos.ir.analytics.latent_bridge_synthesis import (
     persist_latent_bridge_hypothesis,
 )
 from polisyos.ir.analytics.literature import LiteratureCausalPrior, LiteratureEdgePrior
+from polisyos.ir.analytics.mgraph import MissingnessKind, build_mgraph
 from polisyos.ir.registry.refs import LatentBridgeHypothesisRef
 from polisyos.scientist.cross_graph.compiler import (
     _verify_fragment_bundle_alignment_with_governance,
@@ -383,6 +384,30 @@ def test_compose_scm_fragments_refuses_other_semantic_profiles(graph_type) -> No
         }
     )
     with pytest.raises(ValueError, match="Unsupported graph reconciliation profile"):
+        ComposeSCMFragments.pure_step(payload, params={})
+
+
+def test_compose_scm_fragments_refuses_retagged_known_profile() -> None:
+    """Fragment composition shares the prior/Node profile-consistency boundary."""
+    fragments = [_fragment(name, interface_variables=["X"]) for name in ("a", "b")]
+    report, mapping = verify_fragment_bundle_alignment(fragments)
+    value = build_mgraph(
+        substantive_vars=["X", "Y"],
+        directed_edges=[("X", "Y")],
+        missingness_map={"X": MissingnessKind.MCAR},
+    ).model_dump(mode="json")
+    value["graph_type"] = "dag"
+    # The actual DTO accepts declared DAG with this known conflicting contract.
+    payload = FragmentCompositionData(
+        fragments=fragments,
+        fragment_graphs={
+            "a": CausalGraphModel.model_validate(value),
+            "b": _graph(["X", "Z"], [_data_edge("X", "Z", confidence=0.9)]),
+        },
+        alignment_report=report,
+        interface_mapping=mapping,
+    )
+    with pytest.raises(ValueError, match="contradicts reserved MGraph metadata"):
         ComposeSCMFragments.pure_step(payload, params={})
 
 

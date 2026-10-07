@@ -124,6 +124,24 @@ statistic or p-value and `passed=False`. Standard DiD with no preperiod remains
 `INPUT_INVALID` before diagnostic computation. Neither diagnostic non-rejection
 nor this provenance contract establishes parallel-trends identification.
 
+### Static reconciliation and discovery limitations
+
+Prior reconciliation, fragment composition and Scientist graph intake share the
+existing static DAG/ADMG admission boundary. Declared MGraph/CPDAG/PAG families,
+unresolved endpoints and compact lags refuse before filtering or projection.
+A supplied reserved `metadata["mgraph"]` contract also refuses under a DAG/ADMG
+tag, including malformed/null payloads. Retagging does not reconcile that typed
+contract. Clean DAG/ADMG graphs with missingness-looking names and opaque metadata
+remain supported; no missingness classification by node names is performed.
+
+Discovery retains an unsupported graph when requested prior/hint reconciliation
+cannot apply. Its existing `DiscoveryPipelineReport` carries the warning and
+machine-readable reconciliation result; persisted report readers retain them.
+An absent request produces no reconciliation limitation. Neither the retained
+graph nor a successful supported reconciliation establishes identification or
+scientific authority. See the
+[current intake contract](../../../../../../docs/reference/scientist/causal-graph-intake.md).
+
 ### Causal engine and interference compatibility surface (LA-020)
 
 The existing `causal_engine` package explicitly exports `CausalEngine` and

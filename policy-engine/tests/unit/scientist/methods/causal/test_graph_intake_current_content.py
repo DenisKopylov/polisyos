@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 
 import pytest
@@ -146,15 +147,96 @@ def test_mgraph_producer_and_node_refuse_without_retyping_or_publishing(context)
 
 
 def test_same_admg_shape_has_real_producer_node_and_fresh_reader(context):
-    """Graph family, rather than metadata names or endpoint shape, decides intake."""
+    """Names and geometry alone do not imply a missingness contract."""
     value = scored_mgraph().model_dump(mode="json")
     value["graph_type"] = "admg"
+    value["metadata"] = {"opaque_note": {"label": "missingness candidate"}}
     source_graph = CausalGraphModel.model_validate(value)
     job, _ = produce(context, source_graph)
     _, reopened = fresh(context, ReconcileCausalGraphNode().execute(context, state_for(job)))
     assert reopened.graph_type.value == "admg"
     assert relations(reopened) == relations(source_graph)
-    assert reopened.metadata["mgraph"] == source_graph.metadata["mgraph"]
+    assert "mgraph" not in reopened.metadata
+    assert reopened.metadata["opaque_note"] == source_graph.metadata["opaque_note"]
+    with pytest.raises(ValueError, match="requires graph_type=MGRAPH"):
+        extract_mgraph_metadata(reopened)
+
+
+@pytest.mark.parametrize("encoding", ["dict", "json"])
+def test_retagged_mgraph_refuses_all_current_intakes_without_publication(context, encoding):
+    """A genuine typed contract cannot be hidden by changing only its type tag."""
+    original_graph = scored_mgraph()
+    original = persist_causal_graph_model(context.store, original_graph)
+    value = original_graph.model_dump(mode="json")
+    value["graph_type"] = "admg"
+    if encoding == "json":
+        value["metadata"]["mgraph"] = json.dumps(value["metadata"]["mgraph"])
+    source_graph = CausalGraphModel.model_validate(value)
+    # The profile is genuine, independently of the reconciliation gate.
+    assert extract_mgraph_metadata(
+        source_graph.model_copy(update={"graph_type": original_graph.graph_type})
+    ) == extract_mgraph_metadata(original_graph)
+    job, _ = produce(context, source_graph)
+    assert job.issues and job.method_result_ref is None, job
+    supplied = context.store.put_json(
+        {"graph": source_graph.model_dump(mode="json")},
+        PutOptions(
+            kind="scientist.method_result.causal.discovery",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.MethodResult", version="0.1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    selected = persist_causal_graph_model(context.store, source_graph)
+    states = [
+        ExperimentState(run_id="graph-content", params={"data_causal_graph": value}),
+        ExperimentState(
+            run_id="graph-content", artifacts_index={ARTIFACT_CAUSAL_METHOD_RESULT_REF: supplied}
+        ),
+        ExperimentState(
+            run_id="graph-content",
+            params={"data_causal_graph": value},
+            artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: selected},
+        ),
+        ExperimentState(
+            run_id="graph-content", artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: selected}
+        ),
+        ExperimentState(
+            run_id="graph-content",
+            params={"data_causal_graph": value, "reconciliation_min_edge_confidence": 0.99},
+        ),
+    ]
+    for state in states:
+        outcome = ReconcileCausalGraphNode().execute(context, state)
+        assert outcome.status == "fail" and not outcome.artifacts
+        assert "contradicts reserved MGraph metadata" in outcome.error.message
+        assert outcome.state.artifacts_index.get(
+            ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF
+        ) == state.artifacts_index.get(ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF)
+    reopened = load_causal_graph_model(FileSystemCAS(context.store.root), original)
+    assert reopened == original_graph
+    assert extract_mgraph_metadata(reopened) == extract_mgraph_metadata(original_graph)
+    assert load_causal_graph_model(FileSystemCAS(context.store.root), selected) == source_graph
+
+
+@pytest.mark.parametrize("payload", [None, False, "not-json", {"unrecognized": True}, {}])
+@pytest.mark.parametrize("graph_type", ["dag", "admg"])
+def test_supplied_reserved_profile_never_becomes_absence(context, payload, graph_type):
+    """Invalid and empty claimed profiles refuse before the filtering fallback."""
+    value = graph({"src": "X", "dst": "Y"}, graph_type=graph_type).model_dump(mode="json")
+    value["metadata"] = {"mgraph": payload}
+    source_graph = CausalGraphModel.model_validate(value)
+    with pytest.raises(ValueError, match="contradicts reserved MGraph metadata"):
+        ReconcileCausalGraph.pure_step(GraphReconciliationData(data_graph=source_graph), params={})
+    outcome = ReconcileCausalGraphNode().execute(
+        context,
+        ExperimentState(
+            run_id="graph-content",
+            params={"data_causal_graph": value, "reconciliation_min_edge_confidence": 0.99},
+        ),
+    )
+    assert outcome.status == "fail" and not outcome.artifacts
+    assert "contradicts reserved MGraph metadata" in outcome.error.message
 
 
 @pytest.mark.parametrize("source_type", ["cpdag", "pag", "mgraph"])

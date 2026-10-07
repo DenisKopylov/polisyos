@@ -8,6 +8,7 @@ claim that the board or ordinary run-details API displays these nested statuses.
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -23,6 +24,7 @@ from polisyos.runtime.quality.generation_cycle import (
 )
 from polisyos.runtime.quality.workspace.loop import WorkspaceLoop
 from tests.unit.runtime.quality.test_generation_cycle import (
+    _AlwaysLowGrounding,
     _budget,
     _BudgetExhaustedValuePort,
     _CounterexampleAwareGenerator,
@@ -72,14 +74,9 @@ async def test_n6_terminal_decision_and_iteration_survive_history_readback(
     # representation, then inspect the parsed consumer result rather than the
     # source DTO. This file is a test fixture, not an artifact-store authority.
     persisted_path = tmp_path / "generation-cycle-run.json"
-    persisted_path.write_text(
-        json.dumps(run.model_dump(mode="json")), encoding="utf-8"
-    )
+    persisted_path.write_text(json.dumps(run.model_dump(mode="json")), encoding="utf-8")
     persisted = json.loads(persisted_path.read_text(encoding="utf-8"))
-    assert (
-        persisted["schema_version"]
-        == "policyos.runtime.generation_cycle_controller.v4"
-    )
+    assert persisted["schema_version"] == "policyos.runtime.generation_cycle_controller.v4"
     assert persisted["source_custody_limitation"] is not None
     history_issues = validate_generation_cycle_run_history(persisted)
     assert history_issues == (), history_issues
@@ -105,9 +102,7 @@ async def test_n6_terminal_decision_and_iteration_survive_history_readback(
 
     def diverge_terminal_from_voi(cycle: dict[str, Any]) -> None:
         cycle["terminal_kind"] = (
-            "budget_exhausted"
-            if expected_terminal != "budget_exhausted"
-            else "frontier_stable"
+            "budget_exhausted" if expected_terminal != "budget_exhausted" else "frontier_stable"
         )
 
     mismatched_projections = (
@@ -134,6 +129,109 @@ async def test_n6_terminal_decision_and_iteration_survive_history_readback(
         assert any(issue.get("code") == expected_issue for issue in refusal), (
             f"history replay did not report {expected_issue!r} after changing only "
             f"the {projection_name} projection: {refusal!r}"
+        )
+
+
+@pytest.mark.asyncio
+async def test_repeated_candidate_hash_stop_block_projection_survives_history_readback(
+    tmp_path: Path,
+) -> None:
+    """A repeated-hash block may supersede the final cycle's real stop."""
+
+    class _RepeatedHashGenerator:
+        def __init__(self) -> None:
+            self._delegate = _CounterexampleAwareGenerator()
+            self._first_content_hash: str | None = None
+
+        async def __call__(self, problem: Any, *, cycle_index: int) -> Any:
+            generated = await self._delegate(problem, cycle_index=cycle_index)
+            if cycle_index == 0:
+                self._first_content_hash = generated.candidates[0].atom.content_hash
+                return generated
+            assert self._first_content_hash is not None
+            repeated_candidates = tuple(
+                replace(
+                    candidate,
+                    atom=replace(
+                        candidate.atom,
+                        content_hash=self._first_content_hash,
+                    ),
+                )
+                for candidate in generated.candidates
+            )
+            return replace(generated, candidates=repeated_candidates)
+
+    class _RepairThenStableGrounding:
+        def __init__(self) -> None:
+            self._repair = _AlwaysLowGrounding()
+            self._stable = _StableShadowGrounding()
+
+        def __call__(self, **kwargs: Any) -> Any:
+            grounding = self._repair if kwargs["cycle_index"] == 0 else self._stable
+            return grounding(**kwargs)
+
+    run = await GenerationCycleController(
+        generation_port=_RepeatedHashGenerator(),
+        grounding_port=_RepairThenStableGrounding(),
+        value_port=PendingN8ValuePort(),
+    ).run(
+        _problem("e02_b29_repeated_candidate_stop_block"),
+        budget_state=_budget(),
+        min_cycles=2,
+        max_cycles=2,
+    )
+
+    # This fixture repeats the candidate content hash only; it does not claim
+    # that the full candidate payload bytes match. The source-limited record is
+    # not evidence of N9 promotion or candidate authority.
+    assert len(run.cycles) == 2
+    assert run.schema_version == "policyos.runtime.generation_cycle_controller.v4"
+    assert run.source_custody_limitation is not None
+    assert run.promotion_port.status == "not_promoted"
+    assert run.cycles[0].voi_decision.next_action == "advance"
+    final_cycle = run.cycles[-1]
+    assert (
+        final_cycle.selected_candidate_content_hash == run.cycles[0].selected_candidate_content_hash
+    )
+    assert final_cycle.voi_decision.next_action == "stop"
+    assert run.terminal_status == "blocked"
+    assert run.blocked_reason == "fake_cycle_same_candidate_repeated"
+    assert final_cycle.refinement_decision.decision == "block_candidate"
+    assert final_cycle.refinement_decision.reason == run.blocked_reason
+    assert final_cycle.search_iteration.status == "blocked_no_retry"
+
+    persisted_path = tmp_path / "repeated-candidate-blocked-run.json"
+    persisted_path.write_text(json.dumps(run.model_dump(mode="json")), encoding="utf-8")
+    persisted = json.loads(persisted_path.read_text(encoding="utf-8"))
+    history_issues = validate_generation_cycle_run_history(persisted)
+    history_issue_codes = {issue.get("code") for issue in history_issues}
+    assert history_issue_codes == {"fake_cycle_same_candidate_repeated"}, history_issues
+    assert "generation_cycle_terminal_projection_mismatch" not in history_issue_codes
+    replayed = GenerationCycleRun.from_persisted_payload(persisted)
+    assert replayed.terminal_status == "blocked"
+    assert replayed.cycles[-1].voi_decision.next_action == "stop"
+    assert replayed.cycles[-1].refinement_decision.decision == "block_candidate"
+    assert replayed.cycles[-1].search_iteration.status == "blocked_no_retry"
+
+    mismatched_block_projections = (
+        (
+            "blocked terminal projection",
+            "generation_cycle_blocked_terminal_projection_mismatch",
+            lambda cycle: cycle["refinement_decision"].__setitem__("decision", "stop"),
+        ),
+        (
+            "blocked reason projection",
+            "generation_cycle_blocked_reason_projection_mismatch",
+            lambda cycle: cycle["refinement_decision"].__setitem__("reason", "forged_block_reason"),
+        ),
+    )
+    for projection_name, expected_issue, mutate_cycle in mismatched_block_projections:
+        corrupted = json.loads(persisted_path.read_text(encoding="utf-8"))
+        mutate_cycle(corrupted["cycles"][-1])
+        refusal = validate_generation_cycle_run_history(corrupted)
+        assert any(issue.get("code") == expected_issue for issue in refusal), (
+            f"history replay did not report {expected_issue!r} for the corrupted "
+            f"{projection_name}: {refusal!r}"
         )
 
 

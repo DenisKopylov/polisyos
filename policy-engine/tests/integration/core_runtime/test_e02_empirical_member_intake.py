@@ -11,12 +11,12 @@ from typing import Any
 import duckdb
 import pytest
 
-from polisyos.fabric.data_plane import content_sha256
 from polisyos.data_forge.domains.catalog.knowledge.overlay import (
     ActivatedAcquisitionObservationProjection,
     CanonicalAcquisitionObservation,
 )
 from polisyos.data_forge.read_api import catalog as catalog_read_api
+from polisyos.fabric.data_plane import content_sha256
 from polisyos.runtime.quality import (
     data_state_substrate,
     substrate_registry,
@@ -393,12 +393,12 @@ def _model_copy_projection_with_recomputed_digest(
 
 @pytest.mark.parametrize(
     ("case", "expected_code"),
-    (
+    [
         ("malformed_digest", "acquire_data:active_observation_projection_invalid"),
         ("wrong_target", "acquire_data:active_observation_projection_invalid"),
         ("tampered_c_ref", "acquire_data:active_observation_projection_drift"),
         ("foreign_projection", "acquire_data:active_observation_passport_unresolved"),
-    ),
+    ],
 )
 def test_non_none_projection_is_c_verified_before_availability(
     tmp_path: Path,

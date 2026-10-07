@@ -264,6 +264,13 @@ team that receives it. A closure record is exactly where this lands, because a c
 that nothing is outstanding; attributing your own red to someone else converts that claim into a
 false one while every individual receipt in it stays true.
 
+- P40 cached-producer discriminator: does a reused graph/report still return the old
+  admission result when current alignment/source semantics change but graph bytes stay
+  equal? Compare the complete producer basis and persisted result bodies, and recompute
+  operational query caches from current sources. Graph equality or a cached certificate
+  status alone is a proxy; retain unsupported-profile refusal and run the same-graph,
+  changed-basis negative through the actual fresh consumer.
+
 ## Grounding Anchors
 
 These are navigation hints, not complete examples. Keep long analysis in ADRs,

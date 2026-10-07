@@ -1,0 +1,48 @@
+{
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/README.md",
+      "bytes": 1408,
+      "sha256": "e1512b0b23386aa6d17d488b138beb66423f305a1eac4f4cf7f86fa88e4f7018"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/inventory.json",
+      "bytes": 907386,
+      "sha256": "c39a54bcbf1b0c3b82ad265541a6bd341dbd8aa64920804a5dc711fd0e5834fa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/inventory.py.source.txt",
+      "bytes": 11315,
+      "sha256": "8bc0e98f2d16905b854596942d6014c235c3b0e022c68507d1efece70ec6dc01"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/legacy-inventory.py.source.txt",
+      "bytes": 2460,
+      "sha256": "fedfc22a9ba590e8534c797b8d8d9a9fdac603b5e7c66fec5c0a3eaeb1f4da92"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/package.py.source.txt",
+      "bytes": 6098,
+      "sha256": "afe06f5101c5e0288e9b3e1994667083b169fbc8e7e70db3a276879e77a1a2c6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/stdout.txt",
+      "bytes": 16692,
+      "sha256": "7c1b5f4e375778b4911d24e02eeafd05c9f2566568a90fe08bf23af339ec1b67"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cleanup-inventory-20261007-evidence/symlink-sharing.json",
+      "bytes": 3557630,
+      "sha256": "1d9bfed6ebbf6dcb23ebcff692a768e72ff3298150a6435e16912c81521b0b7a"
+    }
+  ],
+  "artifact_count": 8,
+  "payload_bytes": 4502989,
+  "source_execution_sha": "050136941152ef975c7e4c393197b1575419c0af",
+  "metadata_only": true
+}

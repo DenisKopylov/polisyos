@@ -1,9 +1,41 @@
 {
   "c4_status_snapshot": {
-    "commit": "613cfb589df239dc0b62e0ab1a5ed60eab42c17e",
-    "g_formal_status": "not_adjudicated for the four findings",
-    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c4-v4.json",
-    "tree": "a21a01c1b87dc1a02b49747414a1018a9ab05fa3"
+    "bytes": 24445,
+    "canonical_table": {
+      "bytes": 671142,
+      "commit": "613cfb589df239dc0b62e0ab1a5ed60eab42c17e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c4-v4.json",
+      "role": "canonical v4 data referenced from the final C4 handoff; 613 is not the final handoff commit",
+      "sha256": "4c15e33ea012250934a28d80392fa8483674a5e04b5f3072b4bfc49d087faa84",
+      "tree": "a21a01c1b87dc1a02b49747414a1018a9ab05fa3"
+    },
+    "commit": "847929e3e0cac30fb49ff61a47ecaf46d41ac94d",
+    "g_formal_status": "not_adjudicated for all 54 C findings per final C4 handoff",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-c54-c4-final-handoff-20261007.json",
+    "sha256": "164e5662a0dc689f4e5f4c8dd6964b387280258642d2a954c9575ddade395f9e",
+    "tree": "c4c392e8ecad5f1fb33297d8cbaa28597b22357c"
+  },
+  "census_counts": {
+    "full_tree": {
+      "command_manifest": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/.tmp/e02-C5/raw/dfk/full-census-v2.command.json",
+      "command_manifest_sha256": "14ba4bbff96c18f5390b66e2dbf199b7a4f3a3bdbc6fa89ef7b43ca223069843",
+      "literal_target": 558,
+      "stdout": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/.tmp/e02-C5/raw/dfk/full-census-v2.stdout.json",
+      "stdout_sha256": "f8621ccc45e89a2289bdea914346cb42150e40d5c00caa172111055c59175a96",
+      "total_dynamic_loader_sites": 878,
+      "unresolved_nonliteral_target": 320
+    },
+    "historical_comparison": "The previous C4 table carries 317 unresolved nonliteral loader destinations as a historical source count; it is not the current C5 census count.",
+    "product_root": {
+      "command_manifest": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/.tmp/e02-C5/raw/dfk/product-census-v2.command.json",
+      "command_manifest_sha256": "a8b544749eb60751b8f2c37c6c95906adbaf4cd5e3bc5f6b22695e508049ee55",
+      "literal_target": 558,
+      "stdout": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/.tmp/e02-C5/raw/dfk/product-census-v2.stdout.json",
+      "stdout_sha256": "68e1c4243bde3a9349c4eedaa499351748fe57be3e2265842a60f8d5561ddc4c",
+      "total_dynamic_loader_sites": 878,
+      "unresolved_nonliteral_target": 320
+    },
+    "scope": "Current C5 author census v2 outputs; bounded selected local UTF-8 inputs, pre-removal source snapshot"
   },
   "criteria": [
     {
@@ -16,7 +48,7 @@
       "c4_snapshot": "limited",
       "id": "LA-006",
       "original_card": "C/DKF-01 at slice base; CD02 lines 225-253; source SHA 4bc6fa503bce03a1516620c492168088242d61e0ba90697a9377480c13d189fe",
-      "review": "tracked tombstone is already absent in the pinned source path; exact import/resource negatives and canonical registry/dispatcher plus agent-simulation runner controls are present. 317 nonliteral loader destinations, external callers, and archive behavior remain not_established/UNRUN; retain limited."
+      "review": "The exact tracked package is absent at both pinned trees; exact import/resource negatives and canonical registry/dispatcher plus agent-simulation controls are present. Current C5 full and product census views each count 320 unresolved nonliteral loader destinations (558 literal, 878 total); the 317 value in the prior C4 record is historical only. External callers and archive behavior remain not_established/UNRUN; retain limited."
     },
     {
       "c4_snapshot": "held",
@@ -31,6 +63,13 @@
       "review": "alias remains an identity-preserving re-export and the canonical consumer is exercised. The proposed relative notice window starts only when the notice is published; no actual release date/sunset is assigned and external support remains not_established. This supports at most limited compatibility evidence, not alias retirement or closure."
     }
   ],
+  "portable_deciding_outputs": {
+    "manifest_bytes": 11659,
+    "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-independent-review-20261007/outputs/outputs-manifest.json",
+    "manifest_sha256": "24d057ca3fed132c6d18efe1fd909124ef0475621f4fcea2b5b65926841c94db",
+    "output_count": 24,
+    "retention": "Small deciding command stdout/stderr and argv manifests are committed under outputs/. The 7,405,038-byte and 6,584,331-byte census JSON outputs remain ignored and are cited by absolute path/SHA; source footprints are already Git-bound and not copied."
+  },
   "raw_evidence": [
     {
       "bytes": 2345,
@@ -237,7 +276,7 @@
     "All 8 changed paths reviewed. The source changes remove only the exact early Foundry DTO module and the three-string GeneratedSchemaModule placeholder; no fields were copied into a new owner.",
     "The compatibility alias remains and preserves object identity for CompatibilityMode, SchemaRegistry, and SchemaVersion. Foundry plugin SimulationConfig remains the actual plugin type.",
     "The scanner v2 tests exercise module-file, package-initializer, and package-resource candidates, a restored-package negative import control, outside-root rejection, and partial unreadable-input behavior.",
-    "The source census is a pre-removal snapshot bound to slice-base tracked inputs; it is not represented as a post-removal tree census. It read 13,678 of 13,678 selected full-tree UTF-8 inputs from 13,773 tracked paths and 13,651 selected product-root inputs from 13,745 paths. Its 317 nonliteral loader destinations remain unresolved.",
+    "The source census is a pre-removal snapshot bound to slice-base tracked inputs; it is not represented as a post-removal tree census. It read 13,678 of 13,678 selected full-tree UTF-8 inputs from 13,773 tracked paths and 13,651 selected product-root inputs from 13,745 paths. Its 320 unresolved nonliteral loader destinations (558 literal; 878 total) in both the full-tree and product-root current census views remain unresolved.",
     "The release-fragment checker exited 1 with two Lex fragment public-surface errors; the DFK fragment had no findings/errors. No base replay/full-input disjointness proof was performed, so P41 attribution for those errors is not_established.",
     "Hatchling was unavailable in the review environment; wheel/sdist build and installed-package membership remain UNRUN. External clients and persisted historical payloads remain not_established.",
     "The final a13 delta only changes the test fixture from unlink to a byte-preserving rename and assertion. That exact test passed independently on the final candidate; source/runtime checks from bd4 carry because the only intervening candidate change is this test-only diff."

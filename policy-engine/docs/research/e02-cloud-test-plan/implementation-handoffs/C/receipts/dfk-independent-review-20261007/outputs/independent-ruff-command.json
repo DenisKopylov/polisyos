@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "tools/quality/validation/schema_fqn_census.py",
+    "tests/unit/remediation/test_dfk_01.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine",
+  "exit_code": 0,
+  "pythonhome": null,
+  "pythonpath": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine:/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/src",
+  "source_candidate": "bd4e96536ac6ed3e5084b3ab924d1bd2dc668fdb",
+  "source_tree": "8ef2819c4542dde83112cff73e057114abee8046",
+  "stderr_bytes": 0,
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_bytes": 19,
+  "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+}

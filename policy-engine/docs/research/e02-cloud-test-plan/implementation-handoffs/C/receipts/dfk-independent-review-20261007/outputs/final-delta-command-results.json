@@ -1,0 +1,51 @@
+{
+  "candidate_commit": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+  "candidate_tree": "35d9c02156f8a27335b858bfe8053d7cbc6a54f2",
+  "commands": [
+    {
+      "argv": [
+        "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_observes_module_and_package_source_variants"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine",
+      "environment_overrides": {
+        "PYTHONHOME": null,
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine:/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/src"
+      },
+      "exit_code": 0,
+      "name": "preserved-fixture-targeted-test",
+      "stderr_bytes": 0,
+      "stderr_path": ".tmp/e02-C5/raw/dfk-review-final/preserved-fixture-test.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 80,
+      "stdout_path": ".tmp/e02-C5/raw/dfk-review-final/preserved-fixture-test.stdout",
+      "stdout_sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "tests/unit/remediation/test_dfk_01.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine",
+      "environment_overrides": {
+        "PYTHONHOME": null,
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine:/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/src"
+      },
+      "exit_code": 0,
+      "name": "ruff-affected-test",
+      "stderr_bytes": 0,
+      "stderr_path": ".tmp/e02-C5/raw/dfk-review-final/ruff-test.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 19,
+      "stdout_path": ".tmp/e02-C5/raw/dfk-review-final/ruff-test.stdout",
+      "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    }
+  ],
+  "schema": "policyos.e02.c5.independent_command_results.v1"
+}

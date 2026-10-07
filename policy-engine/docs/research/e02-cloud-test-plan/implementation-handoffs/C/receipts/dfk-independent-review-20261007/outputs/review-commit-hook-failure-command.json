@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "git",
+    "commit",
+    "-m",
+    "docs(e02): record independent DFK review"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos",
+  "exit_code": 1,
+  "result": "hook blocked commit; no commit was created; lefthook binary absent in review worktree",
+  "stderr_bytes": 230,
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/.tmp/e02-C5/raw/dfk-review-final/commit-hook-failure.stderr",
+  "stderr_sha256": "7492a8c61b08778a8ccd72c3308b71d3548e688b4825d40f6c250ee52b8d9c59",
+  "stdout_path": null
+}

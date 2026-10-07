@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+    "-c",
+    "\nimport importlib, json, sys\nfrom pathlib import Path\nsrc = Path(sys.path[1]).resolve()\ncanonical = importlib.import_module(\"polisyos.data_forge.kernel.schemas\")\nalias = importlib.import_module(\"polisyos.data_forge.kernel.pipeline.schemas\")\napi = importlib.import_module(\"polisyos.foundry.plugins.api\")\nnames = (\"CompatibilityMode\", \"SchemaRegistry\", \"SchemaVersion\")\nassert all(getattr(canonical, name) is getattr(alias, name) for name in names)\nassert api.SimulationConfig.__module__ == \"polisyos.foundry.plugins.api\"\nmissing = {}\nfor name in (\n    \"polisyos.foundry.domain.schema\",\n    \"polisyos.data_forge.kernel.schemas.codegen\",\n):\n    try:\n        importlib.import_module(name)\n    except ModuleNotFoundError as error:\n        missing[name] = error.name\n    else:\n        raise AssertionError(f\"retired module unexpectedly imported: {name}\")\nassert missing == {\n    \"polisyos.foundry.domain.schema\": \"polisyos.foundry.domain.schema\",\n    \"polisyos.data_forge.kernel.schemas.codegen\": \"polisyos.data_forge.kernel.schemas.codegen\",\n}\nprint(json.dumps({\n    \"sys_path_prefix\": sys.path[:4],\n    \"canonical_origin\": canonical.__file__,\n    \"alias_origin\": alias.__file__,\n    \"plugin_api_origin\": api.__file__,\n    \"canonical_objects\": {name: f\"{getattr(canonical, name).__module__}.{name}\" for name in names},\n    \"alias_identity\": {name: getattr(canonical, name) is getattr(alias, name) for name in names},\n    \"retired_module_missing_names\": missing,\n}, sort_keys=True))\n"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine",
+  "exit_code": 0,
+  "interpreter_version": "Python 3.14.0",
+  "pythonhome": null,
+  "pythonpath": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine:/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/src",
+  "source_candidate": "bd4e96536ac6ed3e5084b3ab924d1bd2dc668fdb",
+  "source_tree": "8ef2819c4542dde83112cff73e057114abee8046",
+  "stderr_bytes": 0,
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_bytes": 1339,
+  "stdout_sha256": "9494702c8841a4176f63481439056f8b93397e439f53255462adaefa30d3d32a"
+}

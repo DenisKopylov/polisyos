@@ -1,0 +1,10 @@
+{
+  "source_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+  "encoding": "gzip",
+  "path": "/workspace/e02-F-20261006-receipts/fry/production-invocation.raw.json.gz",
+  "sha256": "0eac90d0ddfc2aca5321ded8002d4a7eb4cfcf9baa7b038491ed25fc2d2de7f9",
+  "bytes": 5985614,
+  "decoded_sha256": "e48ddecbf9ffda1f584cc47a7a35140bcd878fbada13c50b4bea94b030c08993",
+  "decoded_bytes": 170879136,
+  "scope": "Complete actual source03bb static invocation result; partial UNRESOLVED not runtime acceptance"
+}

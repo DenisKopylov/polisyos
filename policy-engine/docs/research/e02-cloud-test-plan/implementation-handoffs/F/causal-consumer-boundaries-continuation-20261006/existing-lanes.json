@@ -1,0 +1,56 @@
+[
+  {
+    "lane": "cau",
+    "branch": "codex/e02-F-cau-20261006",
+    "root": "/workspace/e02-F-cau-20261006",
+    "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+    "tree": "209c9f0a6a9127286884c5faff3e813de465c6f6",
+    "admission_status": "admitted",
+    "admission_path": "/tmp/e02-F-continuation-20261006/cau-admission-resume-corrected.json"
+  },
+  {
+    "lane": "graph_scm",
+    "branch": "codex/e02-F-graph-20261006",
+    "root": "/workspace/e02-F-graph-20261006",
+    "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+    "tree": "6dc2d0dae35d4e9152bbfaf9914f34193dbf2f21",
+    "admission_status": "admitted",
+    "admission_path": "/tmp/e02-F-continuation-20261006/graph_scm-admission-resume-corrected.json"
+  },
+  {
+    "lane": "economics",
+    "branch": "codex/e02-F-economics-20261006",
+    "root": "/workspace/e02-F-economics-20261006",
+    "head": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+    "tree": "f432371c0745de7e30df8892b0a2e563c8bbdd23",
+    "admission_status": "admitted",
+    "admission_path": "/tmp/e02-F-continuation-20261006/economics-admission-resume-corrected.json"
+  },
+  {
+    "lane": "fit_tmle",
+    "branch": "codex/e02-F-tmle-20261006",
+    "root": "/workspace/e02-F-tmle-20261006",
+    "head": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+    "tree": "3a392defad301686740f27a246e747540b55332a",
+    "admission_status": "admitted",
+    "admission_path": "/tmp/e02-F-continuation-20261006/fit_tmle-admission-resume-corrected.json"
+  },
+  {
+    "lane": "foundry",
+    "branch": "codex/e02-F-fry-20261006",
+    "root": "/workspace/e02-F-fry-20261006",
+    "head": "f4fa51e6dd247cfd967450263579d67233a743d6",
+    "tree": "fbc864a0cd5da1246683673ee3d145c76469ee32",
+    "admission_status": "admitted",
+    "admission_path": "/tmp/e02-F-continuation-20261006/foundry-admission-resume-corrected.json"
+  },
+  {
+    "lane": "causal_api",
+    "branch": "codex/e02-F-api-20261006",
+    "root": "/workspace/e02-F-api-20261006",
+    "head": "449d32909928caf39382f4ff02ac74b0adf277eb",
+    "tree": "bbb4a9a6e4256d850a47f16c00321b57fa1bc80d",
+    "admission_status": "admitted",
+    "admission_path": "/tmp/e02-F-continuation-20261006/causal_api-admission-resume-corrected.json"
+  }
+]

@@ -1,0 +1,178 @@
+{
+  "role": "independent_read_only_documentation_semantic_review",
+  "reviewer": "graph_scm",
+  "check": "PASS",
+  "decision": "GO_bounded_docs_only",
+  "outcome": "limited",
+  "candidate_sha": "99f196be45dec7acabdc05f0cb3af5430ec94c9e",
+  "candidate_tree": "18711c5732863a4e50672112c7f3c5ba4a1b229b",
+  "slice_base_sha": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+  "source_refs": [
+    {
+      "source_sha": "99f196be45dec7acabdc05f0cb3af5430ec94c9e",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+      "bytes": 20726,
+      "sha256": "a654c049c83a0133503926f47e77950bea3817443fc317eccdc685d9e52be38b"
+    },
+    {
+      "source_sha": "99f196be45dec7acabdc05f0cb3af5430ec94c9e",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+      "bytes": 104210,
+      "sha256": "47993533fca8f262817dac4e93805d208c42efb63de797ef083668e30f1566a2"
+    },
+    {
+      "source_sha": "99f196be45dec7acabdc05f0cb3af5430ec94c9e",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+      "bytes": 34592,
+      "sha256": "09a9d58d24e39a79f62c71548498a2eb96d763b45c2778d22bc974e284973cc0"
+    }
+  ],
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md"
+  ],
+  "findings": [],
+  "property": "Three F closure-decision documents reconcile their explicit current bounded scientific/consumer recommendations to actual immutable original criteria/source-specific receipts while preserving historical G97/C–E and separating acceptance/authority/unavailable inputs.",
+  "predicate_basis": "independently_reconciled",
+  "source_begin_end_stable": true,
+  "semantic_decisions": [
+    {
+      "subject": "Original LA004 vs new Gini property",
+      "check": "PASS",
+      "basis": "Original LA_r09:167–197 explicitly distinguishes fiscal/labor model laws; document requires equal regimes/deliberate divergence/accounting/seed/outputs and keeps Gini current-domain semantics separate. No welfare choice or Gini law substitutes for LA004. LA035 formula/intent held; LA003 fiscal decimal precision limited."
+    },
+    {
+      "subject": "F-M5 fixed estimand, estimated shares, Mammen/null/test inversion",
+      "check": "PASS",
+      "basis": "Pinned cebe source score ratio term, decimal integer threshold and actual closed effect-scale tail inversion inspected. Real head-DGP rawdecoded result has160datasets/arm,154covered/arm,6nullrejects and160alternativerejects. Source0b diagnostic/caller work is explicitly not a new160-DGP wave."
+    },
+    {
+      "subject": "F-M6 actual native RDD vs external development oracle",
+      "check": "PASS",
+      "basis": "Full immutable RDD15a source/output JSON and product source inspected. Clean-room native module imports no rdrobust;4036actualdifferentialcases,1879/2000 and1877/2000coverage, maxCI3.658229275060876e-11. Corrected noRBC removal full4036has12108differencefailures and1687/1676coverage. Native .8/.95/.99 consumer profile bound; no invented .90/external mandatory runtime extra. GPL concerns external product bundling only."
+    },
+    {
+      "subject": "B225 independent stochastic-tail oracle",
+      "check": "PASS",
+      "basis": "Exact6d test uses math.erfc NormalCDF and positive-tail survival differences, includes8..9 and-12..-10. Independent of SciPy sampler, no same-library-CDF independence assertion."
+    },
+    {
+      "subject": "Historical G97 and nonF sections/anchors",
+      "check": "PASS",
+      "basis": "All3base blobs match root53afa776. Full C/D/E method and runtime section bytes unchanged; C/D/E profile rows unchanged; all16F-M anchors/17Fbundleanchors retained. Historical34partial+B219held plan is explicitly historical, no backdated acceptance."
+    },
+    {
+      "subject": "Current criterion/source bindings and residual split",
+      "check": "PASS",
+      "basis": "Exact35IDs/36originalbindings/35uniqueblocks; tablecurrent21closed/13limited/1held matches complete draft. Technical26/8/1 recommendation remains separately labelled. All10registryJSONs/148checks byte/tree-bound;16explicit receipt carriers plus graph-cache explicit samecarrier context actuallyread. No prefix-only source inference."
+    },
+    {
+      "subject": "Pending API/TMLE, native profiles, G and real authority",
+      "check": "PASS",
+      "basis": "Pending new packets never promoted toPASS; Python3.14DoWhy/EconML marker omissions notwitnesses; installed profiles retainedexactsource; G_acceptance=UNRUN all35. SyntheticDGP and cache/ABI outcomes do not acquire real data/causal authority."
+    }
+  ],
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/review_docs.py"
+      ],
+      "target_sha": "99f196be45dec7acabdc05f0cb3af5430ec94c9e",
+      "environment": "SystemPython scratch read-onlyGit/docs/JSON; no imported numericalbackend/sourcewrites",
+      "input_closure": "Complete3changed docs, full35originalcard hashes,10current148checkreceipts,17citation bindings, actualDID/RDD rawoutputs and exactoracle source",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/deciding-output.json",
+      "execution_stdout": {
+        "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/reconciliation.stdout.txt",
+        "bytes": 474,
+        "sha256": "5e9ad30ff6f71ba0b7b041d0551a76c5b25badf9948e5db8f35ff7b2f5b1a2b5",
+        "full": true
+      },
+      "execution_stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/reconciliation.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "full": true
+      }
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/validate_coverage.py",
+        "--self-check"
+      ],
+      "target_sha": "99f196be45dec7acabdc05f0cb3af5430ec94c9e",
+      "environment": "Readonly applicationPython3.14.7; PYTHONDONTWRITEBYTECODE1; cwd /workspace/e02-F-economics-20261006",
+      "input_closure": "Existing full canonical planningcoverage127bundles282IDs291sourcebindings +all6taskdocs; bookkeeping only, not scientificproof",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/coverage.stdout.txt",
+      "stdout_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/coverage.stdout.txt",
+        "bytes": 435,
+        "sha256": "46a173fcb04644e1f1c9ff0e7753b5f41d1360fe68204299eb58e91fbd86623a",
+        "full": true
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/coverage.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "full": true
+      },
+      "count_preserving_controls_rejected": 4
+    }
+  ],
+  "complete_deciding_output_ref": {
+    "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/deciding-output.json",
+    "bytes": 36794,
+    "sha256": "bb473ea653133231678dec64f0e988a55f2c394050b5e150b55e318c02ce0f61",
+    "full": true
+  },
+  "harness_history": [
+    {
+      "check": "ERROR",
+      "scope": "Initial reviewer whole-worktree cleanliness assertion wrongly included newly untracked author receipt pack; frozen3tracked doc bytes/HEAD/tree remained99f196. Corrected tracked-source admission only; source mutation not alleged.",
+      "stdout_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/reconciliation-initial.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "full": true
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/reconciliation-initial.stderr.txt",
+        "bytes": 386,
+        "sha256": "08ca6d7e47342ad4ff6c960c1b4b2ebbab3703d50e09a23e03d5c45dfcff58f4",
+        "full": true
+      }
+    },
+    {
+      "check": "ERROR",
+      "scope": "Reviewer guessed17literalpath@SHA citations; actual16plus docexplicit graph-cache samecarrier context. Corrected all16literal actualrefs+1named samecarrier locator; no dropped reference or author documentation defect.",
+      "stdout_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/reconciliation-citation-harness.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "full": true
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/reconciliation-citation-harness.stderr.txt",
+        "bytes": 210,
+        "sha256": "0b18057e9366e8d00647e53cb247b1f22904110b6be30b1693d64de69cd3a2be",
+        "full": true
+      }
+    }
+  ],
+  "scientific_reruns": false,
+  "product_writes": false,
+  "environment_mutations": false,
+  "closure_ids": [],
+  "limits": [
+    "Docs-only source99f196 recommendation; no new composed-runtime or CI/architecture/schema/productionPASS.",
+    "No ledgerGclosure or real causal/semantic owner adjudication.",
+    "Portable originalCAU235804/full9companion pack is author-owned separate append; this review binds its actual original scratch bytes but does not claim publication accepted before carrier receipt readback.",
+    "Existing scientific waves stay source-specific and are not relabelled on this docs branch.",
+    "No global P41 inherited-red assertion inferred."
+  ],
+  "author_hold_release": "Frozen3document source reads complete. Author may append own receipt/portable transport as authorized; no new scientific execution requested."
+}

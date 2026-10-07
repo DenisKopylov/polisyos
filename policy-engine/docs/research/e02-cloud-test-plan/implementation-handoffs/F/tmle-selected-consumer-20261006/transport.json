@@ -1,0 +1,319 @@
+{
+  "schema": "policyos.e02.output_transport.v1",
+  "path_translation": {
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/transfer-selection.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/transfer-selection.json",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/artifact-audit.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/artifact-audit.json",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/environment.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/environment.json",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/environment_replay.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/environment_replay.py",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/final-import-delta.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/final-import-delta.json",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/final-import.execution.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/final-import.execution.json",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/final-import.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/final-import.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/final-import.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/final-import.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/final_import_replay.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/final_import_replay.py",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/native-corrected.execution.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/native-corrected.execution.json",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/native-corrected.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/native-corrected.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/native-corrected.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/native-corrected.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/native.execution.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/native.execution.json",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/native.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/native.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/native.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/native.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal-projection.execution.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/removal-projection.execution.json",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal-projection.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/removal-projection.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal-projection.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/removal-projection.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal-source.execution.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/removal-source.execution.json",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal-source.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/removal-source.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal-source.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/removal-source.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/removal.py",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/review.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/review.json",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/run_review.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/run_review.py",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/run_review_initial.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/run_review_initial.py",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/static-scope.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/static-scope.json",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/test_independent_tmle_node.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/test_independent_tmle_node.py",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/test_independent_tmle_node_initial.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/test_independent_tmle_node_initial.py",
+    "/tmp/e02-F-continuation-20261006/root-tmle-consumer/receipt.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-consumer/receipt.json",
+    "/tmp/e02-F-continuation-20261006/root-tmle-consumer/stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-consumer/stderr",
+    "/tmp/e02-F-continuation-20261006/root-tmle-consumer/stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-consumer/stdout",
+    "/tmp/e02-F-continuation-20261006/root-tmle-consumer-canonical/receipt.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-consumer-canonical/receipt.json",
+    "/tmp/e02-F-continuation-20261006/root-tmle-consumer-canonical/stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-consumer-canonical/stderr",
+    "/tmp/e02-F-continuation-20261006/root-tmle-consumer-canonical/stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-consumer-canonical/stdout",
+    "/tmp/e02-F-continuation-20261006/root-tmle-consumer-selected-worker/receipt.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-consumer-selected-worker/receipt.json",
+    "/tmp/e02-F-continuation-20261006/root-tmle-consumer-selected-worker/stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-consumer-selected-worker/stderr",
+    "/tmp/e02-F-continuation-20261006/root-tmle-consumer-selected-worker/stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-consumer-selected-worker/stdout",
+    "/tmp/e02-F-continuation-20261006/root-tmle-public-import.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-public-import.json",
+    "/tmp/e02-F-continuation-20261006/original-cards/B54.md": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/original-cards/B54.md",
+    "/tmp/e02-F-continuation-20261006/original-cards/B56.md": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/original-cards/B56.md"
+  },
+  "companions": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/transfer-selection.json",
+      "bytes": 6191,
+      "sha256": "8f879f0516edae457b2dfd5bf80ce38f3f3d3225105650f3904693bc95637432",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/transfer-selection.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/artifact-audit.json",
+      "bytes": 8185,
+      "sha256": "8c00cbb51bf6b8556596bcd29f2deecdabbeb893b46b92d5e2937a409c8706ab",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/artifact-audit.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/environment.json",
+      "bytes": 26155,
+      "sha256": "b7fbc6b99899014e5c7f25478ca511d0b2e926efb12094d3b7d5e8225b2d13f9",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/environment.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/environment_replay.py",
+      "bytes": 1588,
+      "sha256": "76131437103fd6dc0e3e83bdf4096ac7cd9a1b01aa8083c5ff5e7e4e7bbadb7d",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/environment_replay.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/final-import-delta.json",
+      "bytes": 1376,
+      "sha256": "d3cb6e204920e69432131b37862054e0d52e250a674901e9ac9569234a7a89ee",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/final-import-delta.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/final-import.execution.json",
+      "bytes": 2709,
+      "sha256": "be5729b971cac91ddd97526a55956c4f8f29088e6ec1598b1a23d96cba6073b9",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/final-import.execution.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/final-import.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/final-import.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/final-import.stdout.txt",
+      "bytes": 451,
+      "sha256": "b3ee74fac443d4e7ccf3224a7cede8ea6e3c1d74e8dc4f341f23364be453517a",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/final-import.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/final_import_replay.py",
+      "bytes": 2480,
+      "sha256": "58df92bcac6a5636816822868d9febe44b1bb63be6b544f7e660c03291f69d13",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/final_import_replay.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/native-corrected.execution.json",
+      "bytes": 9656,
+      "sha256": "cb263b12808474d77ec56a7cb03478829e39832176ffea25d56565739039386d",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/native-corrected.execution.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/native-corrected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/native-corrected.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/native-corrected.stdout.txt",
+      "bytes": 1459,
+      "sha256": "9255586f0289996f3e46e95851020f8b8bc6990a2f0a870125a914f7d253dab2",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/native-corrected.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/native.execution.json",
+      "bytes": 10490,
+      "sha256": "3b5b87cbd8045ebdda806221ff288c0326d13e2c6d811ca949797582eb78e649",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/native.execution.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/native.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/native.stdout.txt",
+      "bytes": 10959,
+      "sha256": "1f2da8b74740d742ff3b35ece627eb83ee690b19af69d40cfa68ccd0a0ceb50a",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/native.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/removal-projection.execution.json",
+      "bytes": 10193,
+      "sha256": "0db3d53145b2197fd1c19d2616c3ddc0feda152123fc3a9b8825b1111ca0cc92",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal-projection.execution.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/removal-projection.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal-projection.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/removal-projection.stdout.txt",
+      "bytes": 4940,
+      "sha256": "b34f44025440e2e602899ae36f64d742aa39db8181aa450be9f6e00d82a1b62a",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal-projection.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/removal-source.execution.json",
+      "bytes": 10162,
+      "sha256": "7ef4d0498cc8744ff59b8bcffa30fd0467878b913906825d395fc032e6a7defd",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal-source.execution.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/removal-source.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal-source.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/removal-source.stdout.txt",
+      "bytes": 2589,
+      "sha256": "7ebc88315c7cc2d860197c00daea84ea18bcb44bf7e60ad9242472afcf989206",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal-source.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/removal.py",
+      "bytes": 1885,
+      "sha256": "ce427cb7ab5bb2346f346b7b7e5d31b33c640fd6654d5854bec71d7f7420055c",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/review.json",
+      "bytes": 12046,
+      "sha256": "bc218631d6264f2dccf1789592c1c69999653ed6e3a97e46583323355e3863b2",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/review.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/run_review.py",
+      "bytes": 4620,
+      "sha256": "0f3892851f9d7501b24ec5f28f1d2a5a3299838a90f02d58cd30c410442f8264",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/run_review.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/run_review_initial.py",
+      "bytes": 4383,
+      "sha256": "848ece220d4f67a98c023ba964c67b2ded19a06e4ad102312870f7fd897f98f0",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/run_review_initial.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/static-scope.json",
+      "bytes": 2686,
+      "sha256": "b864a3b3c6b8e83f14531ac495a7dc118536a080ed16505f0214b036282f190a",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/static-scope.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/test_independent_tmle_node.py",
+      "bytes": 5601,
+      "sha256": "cf77ae326271f0ea887588680ae1afbc3acdbfe19cded48b3559a3e872f7f54a",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/test_independent_tmle_node.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/test_independent_tmle_node_initial.py",
+      "bytes": 5470,
+      "sha256": "5c93709e699d0d069fadf781720baf6034eb4fc8e81c755ef3fef99c7fa74eee",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/test_independent_tmle_node_initial.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-consumer/receipt.json",
+      "bytes": 1479,
+      "sha256": "60c80cc738479da69b568c2a5a6508cf5cf7fae73712e3261bfc085b7ccca0d5",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-tmle-consumer/receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-consumer/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-tmle-consumer/stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-consumer/stdout",
+      "bytes": 12181,
+      "sha256": "0b6f02f474860f091738a47e591cd6dd4eaea047e834bd48392ec14a2aaae931",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-tmle-consumer/stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-consumer-canonical/receipt.json",
+      "bytes": 1605,
+      "sha256": "1c3f77ac50c3b3c7bcbecc949d8be6afd36c3a6fe5c8ccca22f67f59b4672a2b",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-tmle-consumer-canonical/receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-consumer-canonical/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-tmle-consumer-canonical/stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-consumer-canonical/stdout",
+      "bytes": 11356,
+      "sha256": "4112e56bae9015b92b16d7f5836c54874e1514c0a8130641883b9ba3fbe4f6a3",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-tmle-consumer-canonical/stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-consumer-selected-worker/receipt.json",
+      "bytes": 1748,
+      "sha256": "2c54b28ac61ec2891eda46089e5fdf600da5b450dcaf784418ea188b6d9031c7",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-tmle-consumer-selected-worker/receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-consumer-selected-worker/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-tmle-consumer-selected-worker/stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-consumer-selected-worker/stdout",
+      "bytes": 1027,
+      "sha256": "5e04ccaef05cc5d4c9a3d9b347e7fd3ef48366b74f38bb1fc8bd641f37a2e8c8",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-tmle-consumer-selected-worker/stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-public-import.json",
+      "bytes": 550,
+      "sha256": "b45f581c33fc2bab248e827e2ac1b10644dabcda8fe9f45760cb57d443e5d6e0",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-tmle-public-import.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/original-cards/B54.md",
+      "bytes": 5315,
+      "sha256": "ea5c3023d7b4bec4ee7a1a32b5a258dcceb5c67e3e4f47d28dac84b84f149c9d",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/original-cards/B54.md"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/original-cards/B56.md",
+      "bytes": 4524,
+      "sha256": "5b45e8c8b6ace1a66b9acdd9be541750cfac8c10558f6b21c6f6ec122743e77b",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/original-cards/B56.md"
+    }
+  ],
+  "complete_implementation_diffs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/diffs/3e0c9595cf61cdb9b11292a40987f4b1f1c1ab30.patch",
+      "bytes": 14703,
+      "sha256": "09dfa58887f1df4f0c595017b714a8ed0268fb3a5cc59d85de47b4873a7f2ece",
+      "implementation_sha": "3e0c9595cf61cdb9b11292a40987f4b1f1c1ab30"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/diffs/336a59650ea035b3505e2334568ff85ed1ca8b95.patch",
+      "bytes": 3952,
+      "sha256": "aea1755fe359f981c7cf67e4c90a4ab9b89ec69914849867ce606e6cabc50d92",
+      "implementation_sha": "336a59650ea035b3505e2334568ff85ed1ca8b95"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/diffs/d09e2b546f5ccf2ed1c297e9578661358270f92b.patch",
+      "bytes": 1131,
+      "sha256": "817837d7052b38320a286885524bc7f4ccb1c04d68875f46116acc9b202b3be2",
+      "implementation_sha": "d09e2b546f5ccf2ed1c297e9578661358270f92b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/diffs/8f69812ec28098385b2063db89f7e04d354c18cb.patch",
+      "bytes": 1449,
+      "sha256": "e54360e1f038dd26dfe18a73f7530032aa9220c2dbfd9ffe5b7248b88d86fb39",
+      "implementation_sha": "8f69812ec28098385b2063db89f7e04d354c18cb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/diffs/12dce5675edfd345663591fd3219f2f8ea5e4fc2.patch",
+      "bytes": 1363,
+      "sha256": "ebd3362a3a46885ffd10892a0adeb4241b1de6f69339d9a70f034db42d92d4b2",
+      "implementation_sha": "12dce5675edfd345663591fd3219f2f8ea5e4fc2"
+    }
+  ]
+}

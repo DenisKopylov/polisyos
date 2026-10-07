@@ -1,0 +1,128 @@
+{
+  "finding_id": "B206",
+  "scope": "Supplemental RDD requested-level property for original DiD+RDD criterion; primary CAU/DiD source stays cebe and no B210/B211/family-wide coverage claim is inferred.",
+  "primary_bundle": "CAU-01",
+  "supplemental_owner": "F RDD/CAU-03",
+  "check": "PASS",
+  "receipt": {
+    "head": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+    "ref": "refs/heads/codex/e02-F-rdd-20261006",
+    "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json",
+    "receipt_bytes": 68616,
+    "receipt_sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60"
+  },
+  "implementation_sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+  "candidate_tree_sha": "bee112b9284e11b78c96d2f91660f330d68b26c7",
+  "actual_selector": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py::test_rbc_interval_uses_robust_se_and_requested_level",
+  "actual_levels": [
+    0.8,
+    0.95,
+    0.99
+  ],
+  "actual_invalid_selector": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py::test_unsupported_rbc_settings_do_not_emit_inference",
+  "native_source_equivalence": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py",
+      "measured_native_source": {
+        "artifact_git_ref": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py",
+        "bytes": 26555,
+        "sha256": "1e13e98fa6238f76b545c8597b03ae1eff648807e17609713ad084c21701e009"
+      },
+      "final_scientific_source": {
+        "artifact_git_ref": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py",
+        "bytes": 26555,
+        "sha256": "1e13e98fa6238f76b545c8597b03ae1eff648807e17609713ad084c21701e009"
+      },
+      "bytes_identical": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py",
+      "measured_native_source": {
+        "artifact_git_ref": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py",
+        "bytes": 10770,
+        "sha256": "b9d4ca99f4ddce7b3f298b2ba186c21a174843f9cc856f3912d5f2b64a9fe63d"
+      },
+      "final_scientific_source": {
+        "artifact_git_ref": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py",
+        "bytes": 10770,
+        "sha256": "b9d4ca99f4ddce7b3f298b2ba186c21a174843f9cc856f3912d5f2b64a9fe63d"
+      },
+      "bytes_identical": true
+    }
+  ],
+  "deciding_checks": [
+    {
+      "check_index": 0,
+      "full_check": {
+        "name": "native-causal-profile",
+        "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py tests/unit/remediation/test_cau_03.py tests/unit/foundry/methods/catalog/causal/test_rdd.py -o addopts= -q -ra",
+        "target_sha": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+        "environment": "PYTHONPATH=src:.; readonly root application Python3.14.7 (native), isolated locked Python3.14.2/rdrobust2.1.0 (external reference); no process/worker/CPU quota",
+        "input_closure": "declared deterministic native/synthetic fixtures and exact source bindings; no admitted production data",
+        "outcome": "PASS",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/native-final.stdout",
+        "passed": 57,
+        "failed": 0,
+        "skipped": 0,
+        "errors": 0,
+        "warnings": 10,
+        "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/native-final.execution.json"
+      },
+      "full_output": {
+        "artifact_git_ref": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/native-final.stdout",
+        "bytes": 2448,
+        "sha256": "90ea07ad963da01917a8d52b1f60b7b97b7fbfe22505574ef4d6621112f4f6ee"
+      },
+      "receipt_json_pointer": "/checks/0"
+    },
+    {
+      "check_index": 5,
+      "full_check": {
+        "name": "independent-scientific-and-canonical-component-consumer",
+        "command": "CAU reviewer exact argv/cwd/source before/after in native/parity/canonical consumer JSON",
+        "target_sha": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+        "environment": "PYTHONPATH=src:.; readonly root application Python3.14.7 (native), isolated locked Python3.14.2/rdrobust2.1.0 (external reference); no process/worker/CPU quota",
+        "input_closure": "declared deterministic native/synthetic fixtures and exact source bindings; no admitted production data",
+        "outcome": "PASS",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-review.json",
+        "reviewer": "F CAU direct leaf, independent from author",
+        "native_passed": 57,
+        "independent_nonpolynomial_parity_cases": 36,
+        "canonical_consumer": "dematerialize_method_output emits exactly declared causal_effect_report slot retaining actual report identity"
+      },
+      "full_output": {
+        "artifact_git_ref": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-review.json",
+        "bytes": 4343,
+        "sha256": "efe97105f165e16467b95d2bfe985e9c4162a8b8964012ba5e732c42f6f44da2"
+      },
+      "receipt_json_pointer": "/checks/5"
+    },
+    {
+      "check_index": 12,
+      "full_check": {
+        "name": "independent-final-delta-review",
+        "command": "CAU read-only exact cdede69..fb022aa 3path diff/modulehash/freshfull4036removal receipt reconciliation",
+        "target_sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+        "environment": "independent CAU reviewer; exact Git objects plus decidingrawbytes",
+        "input_closure": "entire3path delta and full numeric removaloutputs; nativeproductmodule identical1e13e98",
+        "outcome": "PASS",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-delta-review.json",
+        "limits": "no independent4000repeat claimed; priorcomplete independent57native+36freshnonpolynomialparity remains sourcecdede"
+      },
+      "full_output": {
+        "artifact_git_ref": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-delta-review.json",
+        "bytes": 2708,
+        "sha256": "eb77c093fa0e92cc536a101acff33e950baec55caa7a9ce5dbce378d3d38b5bb"
+      },
+      "receipt_json_pointer": "/checks/12"
+    }
+  ],
+  "root_specification_correction": "No fresh root90/95 RBC test exists or is asserted. Actual native .8/.95/.99 levels plus invalid-profile refusal cover the requested original criterion; no new test needed."
+}

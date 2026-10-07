@@ -1,0 +1,5 @@
+runtime source: /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-b-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py
+retained fixtures: /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-b-durability/policy-engine/_build/e02-g-b37-oracle/e02-b37-oracle-wggdthq3
+{"probe": "unsupported_schema_version", "load_accepted": false, "error_type": "ValueError", "bytes_rewritten": false}
+valid-shaped foreign contract: refused
+B37 scoped discriminator passed; valid-content identity remains a separate not_established boundary

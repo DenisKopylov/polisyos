@@ -1,0 +1,435 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "F",
+  "reviewer": "F/causal_api",
+  "source_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+  "source_tree": "d9c6ba34e1a4cfae1b06d8b5d8d26e28a165b7e5",
+  "source_base_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+  "decision": "GO bounded numeric-domain/current-population + distinct-profile consumer slice",
+  "reviewed_paths": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-economic-gini-domain.toml",
+      "blob": "8fdc61383912e1a94dc5936b304104598270680a",
+      "bytes": 2613,
+      "sha256": "6e12826ba159cdd975a83d4e8a2bbb3e65a197280412acc5514be56cac4a0a51"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/analysis.py",
+      "blob": "1199369c787b2966cf4b7493a7163687121f9d1c",
+      "bytes": 9267,
+      "sha256": "9797e4f20c8cff01b4739e6b804dca0ce0cd0e17556a2ab2010550730dbaf53e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/credit_assignment.py",
+      "blob": "8bf4f3ecfb849a19c4e274be2960e3c4657bd4ab",
+      "bytes": 6354,
+      "sha256": "a02de06376ebbba07ab2c726d211c5b709f98bbaf9a3198e99fd44054a058b63"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+      "blob": "dd04bb213a314984dcacb9137d634b1a54a22f9e",
+      "bytes": 29812,
+      "sha256": "1ba48e44496458401ca36e7b89d6f0fcad862d43531d0c7e4a32610c0162f3e1"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/government_policy.py",
+      "blob": "97076f3c8c5e87eae53f3e59e56a032c947000ca",
+      "bytes": 7100,
+      "sha256": "fbeb8b4183ad654f1efe8bdc9e1cc871480b65bf3c34e29bf5d0f6afce6d23aa"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/metrics.py",
+      "blob": "83994d09c8f1ce91f7e5245f717e051103a3b641",
+      "bytes": 9293,
+      "sha256": "5b8f5016cad408eaf6bc26851d8588175445cc3fb95a759351f9b67258bb95cc"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/modes.py",
+      "blob": "4a984428d135845c91c8cad7db464e7820ebceb0",
+      "bytes": 12598,
+      "sha256": "9c4926795d7960b2a2c20a50446a1c7e05f0f39949d3f2b5d5951010c844e249"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+      "blob": "26db61e0be81e97c550a822cfcefafa004ed3a0a",
+      "bytes": 37839,
+      "sha256": "63a2e796d1a279a4191b267599d1f344a36e3e944e1c238c2935b06aca132c96"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/README.md",
+      "blob": "8ddb7408488a6ef9aaa8745cdc16eeb54f15a317",
+      "bytes": 6781,
+      "sha256": "df743c95cccea7819eefc6d748c27204eb14f0635b78330ea941d391ceb6ff12"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/objectives.py",
+      "blob": "66852d5f23e1baf9542679a04931824b478b6926",
+      "bytes": 4208,
+      "sha256": "753d0c12ba10312fdf428bcd898072535d291581446381c46f4116fd51d620a3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/plugin.py",
+      "blob": "f6f05130cadf4397129a3c4a0ed11320e70d68e2",
+      "bytes": 6966,
+      "sha256": "ff61358038184967b9039d8cc0e6bd05bf653e0ba26124ac37182aa4c9db08c5"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/agent_sim/test_gini_consumers.py",
+      "blob": "bb8e791a844689e529582a1d573324fa446b6496",
+      "bytes": 8553,
+      "sha256": "c540c4bb621f076a3a98377c55a932781325f182a17906922f89f28efd445df1"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/agent_sim/test_gini_domain.py",
+      "blob": "e4e75a82ac381db09fa4b93c608b22e1d57b95fa",
+      "bytes": 7130,
+      "sha256": "e076b7e0f996d579d711e4f3fb20e4171f7933001e64ba08050e48db5ba8bed0"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/agent_sim/test_gini_science.py",
+      "blob": "22c77bb7fd74a9960d031c3e31b5963d5983f284",
+      "bytes": 8660,
+      "sha256": "226fcfed7c9b7ab818147d01795cfcb6d8b7368cecba9e6cc696563f31dc166c"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/execute/mechanisms/test_fiscal_labor_replay.py",
+      "blob": "625846b3fe724553f28120a7a730a0f901d79542",
+      "bytes": 6222,
+      "sha256": "c28802cfbebd494c323bfc8de61c7f902b6fe8a201d409b66c1ca06a39e54872"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/plugins/test_economic_profile_consumers.py",
+      "blob": "fe5bd1e8b00e3c1ae01013469296add8441d4a23",
+      "bytes": 10844,
+      "sha256": "0d9fa74a4e4fa35946a4a36d11541fc48d14edc121b3652b29a7e162745abed4"
+    }
+  ],
+  "checks": [
+    {
+      "command_argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_measure_current_population_despite_valid_stale_snapshot",
+        "tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication",
+        "tests/unit/foundry/agent_sim/test_gini_consumers.py::test_non_gini_rewards_continue_to_allow_signed_resource_simulation",
+        "tests/unit/foundry/agent_sim/test_gini_consumers.py::test_social_welfare_uses_current_gini_with_original_sign_and_weight",
+        "tests/unit/foundry/agent_sim/test_gini_consumers.py::test_distribution_executor_exposes_dated_snapshot_not_current_population",
+        "tests/unit/foundry/plugins/test_economic_profile_consumers.py",
+        "tests/unit/foundry/execute/mechanisms/test_fiscal_labor_replay.py",
+        "-q",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+      "environment": {
+        "PYTHONPATH": "src:tools:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "target_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "scope": "79 actual current-reader, signed-without-Gini, dated-snapshot, registered-plugin and compiler/PatchMap/freshCAS cases",
+      "output": "/tmp/e02-F-continuation-20261006/api/eco-independent/native.stdout",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/native.stdout",
+        "bytes": 700,
+        "sha256": "1338e02762b4ba65c86a5307b9f1192b5ff7bb9cb8894df419229734c2eddd9e"
+      },
+      "metadata_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/native.json",
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/native.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "command_argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "/tmp/e02-F-continuation-20261006/api/eco-independent/test_current_reader_independent.py",
+        "-q",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+      "environment": {
+        "PYTHONPATH": "src:tools:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "target_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "scope": "2 reviewer precondition failures +1PASS, incorrect presumed zero snapshot for seeded EconomicState.empty; no product deciding verdict",
+      "output": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles.stdout",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles.stdout",
+        "bytes": 3817,
+        "sha256": "4856d53ce18110e32194a1b203050868f3e8cf428f0420fcd52a54594f5f1e33"
+      },
+      "metadata_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles.json",
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "command_argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "/tmp/e02-F-continuation-20261006/api/eco-independent/test_current_reader_independent.py",
+        "-q",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+      "environment": {
+        "PYTHONPATH": "src:tools:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "target_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "scope": "3 independent masked pairwise/current-cached/negative/unavailable-report/historical-loss oracles",
+      "output": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles-corrected.stdout",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles-corrected.stdout",
+        "bytes": 98,
+        "sha256": "2cd599857581c394be2851bc475648e12476e7e3ad73daa7ee11b34f2bf90d02"
+      },
+      "metadata_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles-corrected.json",
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles-corrected.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "command_argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/economics/replay_economic_controls.py",
+        "cache-removal",
+        "-q",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+      "environment": {
+        "PYTHONPATH": "src:tools:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "target_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "scope": "7 expected behavioral failures; actual registered objective replaced by cached scalar while name/maximize preserved",
+      "output": "/tmp/e02-F-continuation-20261006/api/eco-independent/cache-removal.stdout",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/cache-removal.stdout",
+        "bytes": 9873,
+        "sha256": "92bb1f7689f8114189e67b84ae931ec7d30666ab1c0954bb482f65bf6a47f77b"
+      },
+      "metadata_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/cache-removal.json",
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/cache-removal.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "command_argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/agent_sim/test_gini_domain.py::test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric",
+        "tests/unit/foundry/agent_sim/test_gini_domain.py::test_composite_interaction_current_population_is_admitted_at_registered_objective",
+        "tests/unit/foundry/agent_sim/test_gini_consumers.py::test_social_welfare_uses_current_gini_with_original_sign_and_weight",
+        "-q",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+      "environment": {
+        "PYTHONPATH": "src:tools:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "target_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "scope": "same seven original consumer oracles on unchanged frozen source",
+      "output": "/tmp/e02-F-continuation-20261006/api/eco-independent/restored-control-native.stdout",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/restored-control-native.stdout",
+        "bytes": 618,
+        "sha256": "cc6ac3f27664b989d6032bb078bbab876869c1c258ece6713cb3ba9788184d90"
+      },
+      "metadata_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/restored-control-native.json",
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/restored-control-native.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "original_criterion": {
+    "finding_id": "LA-004",
+    "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+    "lines": [
+      167,
+      197
+    ],
+    "excerpt_bytes": 3498,
+    "excerpt_sha256": "6e02db40071d978f1bb642bfff99ad1eb8102a565e90238a90259ed15f5acf4a",
+    "scope": "fiscal/labor state, units, timestep, taxbase, RNG and budget non-equivalence; not normative Gini preference"
+  },
+  "mechanism": {
+    "canonical_owner": "polisyos.foundry.agent_sim.distributions.compute_gini_hard",
+    "domain": "Existing classical-Gini nonnegative/finite active population; eqx.error_if remains linked to returned values in eager/JIT/scans. Inactive invalid padding excluded.",
+    "current_consumers": "Gini/SocialWelfare objective, critic wealth/income, trainingmetric, mode/government reward, distribution reward, counterfactual analyzer, population simulation method, real plot title recompute current resources rather than admit changed resources by old scalar.",
+    "dated_snapshot": "DistributionAwareExecutor scheduled pre-transition metrics, last_update_step/frequency and compact snapshots deliberately retained; true ConsumptionMechanism makes current Gini differ.",
+    "fiscal_labor": "Live registry->spec/compiler->PatchMap->execute->freshCAS full-state replay; explicit native reported-income/debit/budget/RNG vs plugin progressive-wealth/no-counteraccount/per-call units/domainclock, matched zero-employment and divergent regime remain separated."
+  },
+  "p40": "One canonical admission class + current-vs-captured scalar class; no new authority/owner shim. Code and exact consumers reviewed, marker-only proxies falsified.",
+  "limitations": [
+    "GO is not whole LA-004/LA-035 closure, production calibration or optimizer/caller equivalence. Historical normalized_income_budget_loss formula/sign/weights unchanged; arbitrary normative preference remains unissued.",
+    "49/70 full author counts not adopted as my own independent count; exact79+3+7 outputs and seven expected removal failures are bound.",
+    "App Python3.14.7 JAX/Equinox native checks; this is not DoWhy/EconML/backend admission.",
+    "No broad CI PASS or inherited-P41 classification. No production-data/runtime authority admission invented.",
+    "First own2FAIL precondition attempt is transported alongside corrected3PASS; source did not change."
+  ],
+  "source_status": "",
+  "companions": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/LA-004-original-card.txt",
+      "bytes": 3498,
+      "sha256": "6e02db40071d978f1bb642bfff99ad1eb8102a565e90238a90259ed15f5acf4a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/cache-removal-spec.json",
+      "bytes": 678,
+      "sha256": "7e0c48f794fee2e264a43bde67be1059830183345ce7da608f856e8313a45ca5"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/cache-removal.json",
+      "bytes": 1267,
+      "sha256": "3c96649af6b3cbf9f5fb34ec95567a24a4635549ef3ee1558221f7e9433d05ba"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/cache-removal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/cache-removal.stdout",
+      "bytes": 9873,
+      "sha256": "92bb1f7689f8114189e67b84ae931ec7d30666ab1c0954bb482f65bf6a47f77b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles-corrected-spec.json",
+      "bytes": 687,
+      "sha256": "3cd8c7510d6d684599f7093cc86aca4a78af5a238c3491f288532b1b2d702f48"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles-corrected.json",
+      "bytes": 1306,
+      "sha256": "bb6f90ad00181567982ddc1cdef3bb0e411ee5652a413f6cca118dfabf7d0df1"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles-corrected.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles-corrected.stdout",
+      "bytes": 98,
+      "sha256": "2cd599857581c394be2851bc475648e12476e7e3ad73daa7ee11b34f2bf90d02"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles-spec.json",
+      "bytes": 677,
+      "sha256": "26b4030abbae13b519c8017937496a2b777d093d4e903d4513820a8c5dd9132a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles.json",
+      "bytes": 1278,
+      "sha256": "cdc8f8b80d6a1e77135cf55b16e91b624f3079f1f9b8fafb6b129e47c9309d58"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles.stdout",
+      "bytes": 3817,
+      "sha256": "4856d53ce18110e32194a1b203050868f3e8cf428f0420fcd52a54594f5f1e33"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/native-spec.json",
+      "bytes": 1371,
+      "sha256": "a814291b6bef899cbc52b0731fa771152bfbd3631c56c400a0caf7b9cd5b8b79"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/native.json",
+      "bytes": 1943,
+      "sha256": "6194c29f767a9045a2591facf68de1d7cb04905364a132490b249830163a4164"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/native.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/native.stdout",
+      "bytes": 700,
+      "sha256": "1338e02762b4ba65c86a5307b9f1192b5ff7bb9cb8894df419229734c2eddd9e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/restored-control-native-spec.json",
+      "bytes": 998,
+      "sha256": "43bbde8cd147e820ed0c5e0279abfdf5bc37cf7cae718a4d52f179646514e8dc"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/restored-control-native.json",
+      "bytes": 1606,
+      "sha256": "5df11e5c5b83317e6fd49b0c3150d7c5350a6f30aeaab92b40e2265b1afad772"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/restored-control-native.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/restored-control-native.stdout",
+      "bytes": 618,
+      "sha256": "cc6ac3f27664b989d6032bb078bbab876869c1c258ece6713cb3ba9788184d90"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/test_current_reader_first_harness_error.py",
+      "bytes": 3104,
+      "sha256": "529d7343f50c290a2c216992b62fc1f7ac37c64bb57a879c174130f3afedabcf"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/test_current_reader_independent.py",
+      "bytes": 3360,
+      "sha256": "d847d6e8c09370f35c9a7c47cb024f0d17fb9570bd9dde38e2786f3973a13b77"
+    }
+  ]
+}

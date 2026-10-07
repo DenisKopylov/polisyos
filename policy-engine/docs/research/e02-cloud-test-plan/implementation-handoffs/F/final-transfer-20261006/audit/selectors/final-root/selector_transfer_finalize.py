@@ -1,0 +1,25 @@
+import argparse,collections,hashlib,json,re,subprocess
+from pathlib import Path
+parser=argparse.ArgumentParser();parser.add_argument('--repo',default='/workspace/polisyos');parser.add_argument('--scratch',default='/workspace/e02-F-20261006-receipts/final-root');args=parser.parse_args();root=Path(args.scratch)
+head='bf335dd687c313fda9001fa3bb1365df6bc5ae1f';prefix='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/'
+def h(raw):return hashlib.sha256(raw).hexdigest()
+def bind(path):
+ raw=path.read_bytes();return {'path':str(path),'relative_path':str(path.relative_to(root)),'bytes':len(raw),'sha256':h(raw),'required':True,'sanitation':'none; complete deciding bytes retained'}
+core=['selector-equivalence-audit.json','selector-original-source-cards.json','selector-audit-navigation.json','selector-audit-owner-snapshot.json','selector_audit_replayer.py','selector_equivalence_finalize.py','coverage-selector-generator.json','coverage-selector-generator.stdout.txt','coverage-selector-generator.stderr.txt','graph-selector-source-equivalence.json','b220-author-evidence/build-handoff.py','selector-finalize-current-components.stdout.txt','selector-finalize-current-components.stderr.txt','selector_transfer_finalize.py']
+files=[bind(root/n) for n in core]
+# Complete B220 bytes already transported in the published component are explicit Git references.
+# Do not flatten duplicate author/independent basenames or substitute summaries for these bytes.
+existing=[];buffers=[(str(root/n),(root/n).read_bytes()) for n in core]
+for folder,role in [('b220-author-evidence','author'),('b220-independent-review','independent')]:
+ for path in sorted((root/folder).iterdir()):
+  if not path.is_file() or path.name=='build-handoff.py':continue
+  target=prefix+role+'/'+path.name;raw=subprocess.check_output(['git','show',head+':'+target],cwd=args.repo);assert raw==path.read_bytes(),path
+  existing.append({'git_ref':head,'path':target,'git_blob':subprocess.check_output(['git','rev-parse',head+':'+target],cwd=args.repo,text=True).strip(),'bytes':len(raw),'sha256':h(raw),'original_path':str(path),'original_relative_path':str(path.relative_to(root)),'required':True,'transport':'existing complete committed bytes; do not copy/reconstruct summary','sanitation':'none'})
+  buffers.append((head+':'+target,raw))
+assert len(existing)==36,len(existing)
+assert len({Path(r['path']).name for r in files})==len(files)
+patterns={'github_token':r'\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})\b','aws_access_key':r'\b(?:AKIA|ASIA)[A-Z0-9]{16}\b','private_key':r'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----','signed_query':r'[?&](?:X-Amz-Signature|X-Goog-Signature|sig|signature|access_token|api_key)=[A-Za-z0-9%_+/-]{12,}'}
+hits={k:[name for name,raw in buffers if re.search(pat,raw.decode(errors='replace'))] for k,pat in patterns.items()};assert not any(hits.values()),hits
+result={'schema':'policyos.e02.F.selector-audit-transfer-selection.v3','audit_sha256':h((root/'selector-equivalence-audit.json').read_bytes()),'base':'198076863e143dea9f89f02734b13d50dae3eed5','scope':'Complete17/35 selector/card/source denominator plus published newB220source213 and source5cd installed independent36PASS companion, preserving historical gaps/FAIL/UNRUN. No G97 or production admission.','files':files,'existing_git_files':existing,'total_bytes':sum(r['bytes'] for r in files),'existing_git_bytes':sum(r['bytes'] for r in existing),'unique_copy_files':len(files),'complete_existing_git_files':len(existing),'checks':[{'name':'complete committed B220 byte-reference transport binding','outcome':'PASS','output':'All36 author/reviewer complete files read from pinned bf335 Git and equal exact scratch originals; same blob/hash/size, no summary substitution.','command':'python3 selector_transfer_finalize.py --repo <fetched-repo> --scratch <full-audit-scratch>'},{'name':'coverage-defined selector generator','outcome':'ERROR','output':'coverage.json omits test_paths; exact documented generator KeyError occurs before pytest. Full stderr and execution source are unique copied files.'},{'name':'credential and signedquery scan','outcome':'PASS','output':'Complete50 copied/Git-referenced files: no matched credential/signedquery patterns; no sanitation.'}],'sanitation':{'patterns':patterns,'hits':hits,'action':'none; all bytes unchanged'},'G_rerun_guidance':'Fetch each owning topic/PR and pinned existing_git_files refs; read all complete byte-bound files. Bind native selectors to the actual composed candidate/provider SHA before fresh run. Missing proposed filenames were never executed; installed caller ABI does not establish real-data causal authority.'}
+(root/'selector-audit-transfer-selection.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
+print(json.dumps({'output':bind(root/'selector-audit-transfer-selection.json'),'audit':bind(root/'selector-equivalence-audit.json'),'unique_files':len(files),'existing_git_files':len(existing),'copy_bytes':result['total_bytes'],'existing_git_bytes':result['existing_git_bytes']},indent=2))

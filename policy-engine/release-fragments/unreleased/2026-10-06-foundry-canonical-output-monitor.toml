@@ -1,0 +1,30 @@
+id = "2026-10-06-foundry-canonical-output-monitor"
+title = "Validate method output names after canonical normalization"
+type = "fixed"
+component = "foundry-methods"
+owner = "team-polisyos"
+summary = "Shared dispatch monitoring checks canonical slot names while retaining numeric diagnostics in raw backend outputs."
+evidence = ["tests/unit/foundry/methods/backends/test_dispatch_output_contract.py", "tests/unit/foundry/methods/test_output_monitor.py", "src/polisyos/foundry/methods/lifecycle/README.md"]
+compatibility = "Method signatures, normalized slot contents, raw backend payloads, and existing AnomalyFlag types keep their identities. Valid aliases and empty untyped diagnostic collections stop producing false anomalies; actual missing slots, malformed shapes, NaN/Inf, and explicitly typed empty arrays retain diagnostics."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry.methods backend dispatch and lifecycle monitoring"
+migration = "Consume normalized slot_outputs for the declared method contract; raw output aliases and diagnostic sidecars remain accessible. Use explicitly typed arrays when an empty numeric output is intended."
+api = "MethodOutputMonitor.check_basic retains its key-validation API; dispatch uses check_output_contract for the canonical and raw views."
+limitations = "Monitoring does not establish causal identification, scientific estimator validity, production admission, or optional backend availability."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/foundry/methods/lifecycle/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "canonical-output-monitor"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "public_stable: polisyos.foundry.methods backend dispatch and lifecycle monitoring"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Declared keys are validated on canonical slots; numeric backend diagnostics retain warnings and metrics."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/foundry/methods/lifecycle/README.md"]
+runbook_docs = []

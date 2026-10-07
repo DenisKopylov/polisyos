@@ -1,0 +1,74 @@
+{
+  "source_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+  "peer_implementation": "729d137279b7d6334230045e420255762fe55f08",
+  "peer_final_head": "6825b6a83e13ec9187a08794bcd34379d7e64a31",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/59",
+  "outcome": "PASS",
+  "scope": "Existing layout/family/IC source-byte identity with actual installed wheel/sdist companion; not installation of new FRY seed source",
+  "source_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/ir/kernel/slots.py",
+      "bytes": 18445,
+      "sha256": "6f24e435089d0c7d0cbb3b52fde1e2cb8f3b042c41f6b69adb37bb91620d4c81",
+      "api_sha256": "6f24e435089d0c7d0cbb3b52fde1e2cb8f3b042c41f6b69adb37bb91620d4c81",
+      "same_bytes": true,
+      "api_blob": "1d656cc5b6643f6378f8dc54f4cc4272895cb6b8",
+      "fry_blob": "1d656cc5b6643f6378f8dc54f4cc4272895cb6b8"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/layout.py",
+      "bytes": 350,
+      "sha256": "fb528428135bf40ddf36336bbdac7043b049d4ef9bf7e954ada1c9727100a69b",
+      "api_sha256": "fb528428135bf40ddf36336bbdac7043b049d4ef9bf7e954ada1c9727100a69b",
+      "same_bytes": true,
+      "api_blob": "a48ecff22baec80ddaf8d2939417f48086a00555",
+      "fry_blob": "a48ecff22baec80ddaf8d2939417f48086a00555"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/compiler/layout.py",
+      "bytes": 220,
+      "sha256": "d0f981b9d24ed767107a9238f5bc9a16c6f5b45ed533a01adf0c35e52cd6f1b7",
+      "api_sha256": "d0f981b9d24ed767107a9238f5bc9a16c6f5b45ed533a01adf0c35e52cd6f1b7",
+      "same_bytes": true,
+      "api_blob": "a732c7945a25c09de05ee0a7be8f1a8ec8c90fe3",
+      "fry_blob": "a732c7945a25c09de05ee0a7be8f1a8ec8c90fe3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/families.py",
+      "bytes": 3839,
+      "sha256": "f2d93bcbf6af0623f2d3b7290cb6dddcf3b776ef235ee37072fb26e3686cd019",
+      "api_sha256": "f2d93bcbf6af0623f2d3b7290cb6dddcf3b776ef235ee37072fb26e3686cd019",
+      "same_bytes": true,
+      "api_blob": "82b0dfa3b8b1bc34e038f37e567562f8bed2c6d0",
+      "fry_blob": "82b0dfa3b8b1bc34e038f37e567562f8bed2c6d0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/validation/verification/ic/service.py",
+      "bytes": 87657,
+      "sha256": "8c29a0639c5ccadefd69cda575e690bbb846bc3a770dcd0f2345ef9df049497d",
+      "api_sha256": "8c29a0639c5ccadefd69cda575e690bbb846bc3a770dcd0f2345ef9df049497d",
+      "same_bytes": true,
+      "api_blob": "c248f5e1c7fa1ec91aafbf3fef960a335d85580d",
+      "fry_blob": "c248f5e1c7fa1ec91aafbf3fef960a335d85580d"
+    }
+  ],
+  "peer_receipt_refs": [
+    {
+      "git_commit": "6825b6a83e13ec9187a08794bcd34379d7e64a31",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006.json",
+      "sha256": "3074b55444d938334b29ff14e827c8f47c89ab4744582af725ce4cba8f7405a1",
+      "bytes": 32415
+    },
+    {
+      "git_commit": "6825b6a83e13ec9187a08794bcd34379d7e64a31",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/outputs.json",
+      "sha256": "8e5ef6cf4e50777a1c53be041f4cb5cc5aea8ae2cd23fa7db4bb8723a5f4f6b1",
+      "bytes": 41779
+    }
+  ],
+  "finding_state": "limited",
+  "limits": [
+    "Family certificate-to-state activation remains unavailable.",
+    "Installed layout source/ABI corroboration does not prove installed newTreasuryprofile or replace docs-build acceptance."
+  ]
+}

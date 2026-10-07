@@ -1,0 +1,33 @@
+{
+  "command": [
+    "python3",
+    "/workspace/e02-F-20261006-receipts/cau/final_transfer_G_source_review.py"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 0.42497920989990234,
+  "oracle": {
+    "path": "/workspace/e02-F-20261006-receipts/cau/final_transfer_G_source_review.py",
+    "bytes": 3015,
+    "sha256": "10dccbcf241312c5176c3689e7c3da59c44df6622e99854fdfaedf8f1d68f9e8"
+  },
+  "stdout": {
+    "path": "/workspace/e02-F-20261006-receipts/cau/final-transfer-G-source-review.stdout",
+    "bytes": 269,
+    "sha256": "080278faff032ffc7d8acc6b360aed579ba6ed07c8809cbd29aa6bc4aea4c68d"
+  },
+  "stderr": {
+    "path": "/workspace/e02-F-20261006-receipts/cau/final-transfer-G-source-review.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "dependencies": "stdlib only"
+  },
+  "previous_profile": "78fullfile bindings measured by v1; now includes six separately bounded original source-card blocks, no runtime/data profile expansion",
+  "prior_oracle_transport": {
+    "path": "/workspace/e02-F-20261006-receipts/cau/final_transfer_G_source_review.v1.py",
+    "bytes": 2731,
+    "sha256": "073267f3eaaa2260e4a65ea1933b5d3a2b886990c2950ac833b95ae75d371518"
+  }
+}

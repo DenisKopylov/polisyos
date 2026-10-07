@@ -102,9 +102,14 @@ def build_government_welfare_reward(
     social_weight_scale = float(config.social_weight_scale)
 
     def welfare_reward(state: GlobalState) -> jnp.ndarray:
+        from polisyos.foundry.agent_sim.distributions import compute_gini_hard
+
         total = jnp.array(0.0, dtype=jnp.float32)
         total = total + welfare_weights.get("gdp", 0.0) * state.aggregates.total_wealth
-        total = total - welfare_weights.get("neg_gini", 0.0) * state.distributions.gini_wealth
+        if "neg_gini" in welfare_weights:
+            total = total - welfare_weights["neg_gini"] * compute_gini_hard(
+                state.agents.wealth, state.agents.active
+            ).astype(state.distributions.gini_wealth.dtype)
         total = (
             total
             + welfare_weights.get("bottom_50_share", 0.0) * state.distributions.bottom_50_share

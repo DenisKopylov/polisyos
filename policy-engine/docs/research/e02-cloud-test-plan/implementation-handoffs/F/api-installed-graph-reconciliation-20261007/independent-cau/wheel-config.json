@@ -1,0 +1,9 @@
+{
+  "source_root": "/workspace/e02-F-api-20261006",
+  "cwd": "/tmp/e02-F-continuation-20261007/api/wheel-consumer",
+  "bindings_manifest": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/archive-installed-source-bindings.json",
+  "test_carrier": "/tmp/e02-F-continuation-20261007/api/wheel-consumer/test_installed_graph_contract_reconciliation.py",
+  "test_carrier_sha": "7f0161c6d8c197e548327df90ff33c2ecc8bde31",
+  "test_sha256": "15ec966d4146e663b55ff782006af0fb275fa8940631b3ab44b8334ae532a8d6",
+  "proof_prefix": "/tmp/e02-F-continuation-20261007/cau/api-review/wheel-proof"
+}

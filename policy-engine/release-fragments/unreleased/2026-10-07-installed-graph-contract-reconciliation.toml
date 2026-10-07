@@ -1,0 +1,28 @@
+id = "2026-10-07-installed-graph-contract-reconciliation"
+title = "Reconcile installed graph source contracts"
+type = "fixed"
+component = "foundry-causal"
+owner = "team-policyos-runtime"
+summary = "Bind competing evidence histories to the canonical graph contract and exercise detached-row, CSV, and fresh CAS readers in installed profiles."
+change_class = "internal"
+surface_classification = "internal: causal graph installed-consumer verification"
+compatibility = "No graph model, schema, public export, or runtime implementation changes. Distribution source and new test-carrier identities are recorded separately."
+migration = "Use the canonical source-bound graph contract; do not transfer a whole-head PASS from a different evidence carrier."
+generated_client_compatibility = "not_required"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/reference/foundry/causal-installed-source-reconciliation.md"]
+runbook_docs = ["docs/reference/foundry/causal-installed-source-reconciliation.md"]
+evidence = ["tests/unit/foundry/methods/catalog/causal/test_installed_graph_contract_reconciliation.py"]
+
+[[compatibility_change]]
+id = "installed-graph-source-reconciliation"
+change_class = "internal"
+impact = "compatible"
+surface = "internal: installed graph contract verification"
+owner = "team-policyos-runtime"
+version_owner = "team-ir"
+deprecation_window = "not_applicable"
+release_note = "Graph source reconciliation and fresh installed CAS reader controls preserve the existing runtime contract."
+generated_client_compatibility = "declared_compatible"
+migration_docs = ["docs/reference/foundry/causal-installed-source-reconciliation.md"]
+runbook_docs = ["docs/reference/foundry/causal-installed-source-reconciliation.md"]

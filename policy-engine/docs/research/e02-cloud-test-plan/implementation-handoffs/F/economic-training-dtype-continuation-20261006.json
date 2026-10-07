@@ -1,0 +1,992 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "economic-training-dtype-continuation-20261006",
+  "closure_ids": [],
+  "related_finding_ids": [
+    "LA-003",
+    "LA-004",
+    "LA-035"
+  ],
+  "bundle_ids": [
+    "ECO-01",
+    "FRY-03"
+  ],
+  "slice_base_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+  "companion_entry_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+  "implementation_commits": [
+    "c003bd673fd672726db18773bf888357a468d901"
+  ],
+  "candidate_tree_sha": "16927b18be300fc6c1723c2af4bb8a421ccac357",
+  "branch": "codex/e02-F-economics-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-economic-training-state-dtype.toml",
+    "policy-engine/src/polisyos/foundry/agent_sim/jit_training.py",
+    "policy-engine/src/polisyos/foundry/agent_sim/metrics.py",
+    "policy-engine/src/polisyos/foundry/agent_sim/temporal_mechanisms.py",
+    "policy-engine/tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py",
+    "policy-engine/tests/unit/foundry/agent_sim/test_training_dtype.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py",
+        "tests/unit/foundry/agent_sim/test_training_dtype.py",
+        "tests/unit/foundry/agent_sim/test_agent_simulation_step6.py::test_jit_trainer_compiles",
+        "tests/unit/foundry/agent_sim/test_agent_simulation_step6.py::test_es_runs",
+        "tests/unit/foundry/agent_sim/test_jit_training.py",
+        "-q",
+        "-ra",
+        "--tb=short",
+        "--junitxml=/tmp/e02-F-continuation-20261006/economics/training-dtype-c003.xml"
+      ],
+      "target_sha": "c003bd673fd672726db18773bf888357a468d901",
+      "environment": "Readonly Python3.14.7/JAX0.8.2 CPU, JAX_ENABLE_X64=true and explicit x64/default contexts; PYTHONDONTWRITEBYTECODE=1; PYTHONPATH=src:tools:.; finite native profiles only.",
+      "input_closure": "Exact committed37native cases: temporal10 +training/storage22 +actualJITtrainer/ES2 +existingbothtrainer3. All0skip/error. Bothfactories,model32/64/mixed,state32/64,gradient,parameterupdates,keyreplay,FutureWarning-as-error.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-c003.stdout",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-c003.stdout",
+        "bytes": 776,
+        "sha256": "0bf5b3ff6f819acc2ae3e448fe371872c51157abfc571aceefb88f40d04dbeb2",
+        "raw_bytes": 776,
+        "raw_sha256": "0bf5b3ff6f819acc2ae3e448fe371872c51157abfc571aceefb88f40d04dbeb2",
+        "encoding": "raw"
+      },
+      "counts": {
+        "tests": 37,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_seconds": 56.468
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-c003.xml",
+        "bytes": 7093,
+        "sha256": "8d9e95b440d98683a6607a7a339591dc78cc1937142ff5df60bdce7068bedbf8",
+        "raw_bytes": 7093,
+        "raw_sha256": "8d9e95b440d98683a6607a7a339591dc78cc1937142ff5df60bdce7068bedbf8",
+        "encoding": "raw"
+      },
+      "measurement_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-c003.json",
+        "bytes": 1914,
+        "sha256": "48457b8271bb743134edb8287847908ebef72daf66c08d4e014daa80871b945b",
+        "raw_bytes": 1914,
+        "raw_sha256": "48457b8271bb743134edb8287847908ebef72daf66c08d4e014daa80871b945b",
+        "encoding": "raw"
+      },
+      "wall_seconds": 67.97505474090576,
+      "max_rss_kib": 1377712
+    },
+    {
+      "command": "python replay_training_dtype.py temporal -q -ra --tb=short",
+      "target_sha": "c003bd673fd672726db18773bf888357a468d901",
+      "environment": "Readonly Python3.14.7/JAX0.8.2 CPU, JAX_ENABLE_X64=true and explicit x64/default contexts; PYTHONDONTWRITEBYTECODE=1; PYTHONPATH=src:tools:.; finite native profiles only.",
+      "input_closure": "Exact native source412 function restoration in canonical modules. Function/class/field/storage names and samplinglaw preserved; forward numerical encoding mechanism removed. Expected distinguishing FAIL.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-removal-temporal.stdout.txt",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-removal-temporal.stdout.txt",
+        "bytes": 5807,
+        "sha256": "ff522c3efc30c2d8101b4708834f16a9174874899b9e2f2115348ff91e0712c5",
+        "raw_bytes": 5807,
+        "raw_sha256": "ff522c3efc30c2d8101b4708834f16a9174874899b9e2f2115348ff91e0712c5",
+        "encoding": "raw"
+      },
+      "counts": {
+        "tests": 10,
+        "failures": 5,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_seconds": 13.43
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-removal-temporal.xml",
+        "bytes": 7241,
+        "sha256": "3477a87fd86c76e893437e4ceb0118bff72d71a44a22c81a2f1b04afae9d08ec",
+        "raw_bytes": 7241,
+        "raw_sha256": "3477a87fd86c76e893437e4ceb0118bff72d71a44a22c81a2f1b04afae9d08ec",
+        "encoding": "raw"
+      },
+      "restored_source_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "expected_outcome": "FAIL"
+    },
+    {
+      "command": "python replay_training_dtype.py carry -q -ra --tb=short",
+      "target_sha": "c003bd673fd672726db18773bf888357a468d901",
+      "environment": "Readonly Python3.14.7/JAX0.8.2 CPU, JAX_ENABLE_X64=true and explicit x64/default contexts; PYTHONDONTWRITEBYTECODE=1; PYTHONPATH=src:tools:.; finite native profiles only.",
+      "input_closure": "Exact native source412 function restoration in canonical modules. Function/class/field/storage names and samplinglaw preserved; forward numerical encoding mechanism removed. Expected distinguishing FAIL.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-removal-carry.stdout.txt",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-removal-carry.stdout.txt",
+        "bytes": 25743,
+        "sha256": "5c260d89f3209ff76f1d3f818c58d6df63d5fc0d3be3a51d6f435e3060fd96a5",
+        "raw_bytes": 25743,
+        "raw_sha256": "5c260d89f3209ff76f1d3f818c58d6df63d5fc0d3be3a51d6f435e3060fd96a5",
+        "encoding": "raw"
+      },
+      "counts": {
+        "tests": 14,
+        "failures": 12,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_seconds": 15.32
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-removal-carry.xml",
+        "bytes": 28981,
+        "sha256": "00b4384ab18963380edbbb89dd0ee5026e1116e8fa0ec6b7b6bf845aa876a5ab",
+        "raw_bytes": 28981,
+        "raw_sha256": "00b4384ab18963380edbbb89dd0ee5026e1116e8fa0ec6b7b6bf845aa876a5ab",
+        "encoding": "raw"
+      },
+      "restored_source_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "expected_outcome": "FAIL"
+    },
+    {
+      "command": "python replay_training_dtype.py storage -q -ra --tb=short",
+      "target_sha": "c003bd673fd672726db18773bf888357a468d901",
+      "environment": "Readonly Python3.14.7/JAX0.8.2 CPU, JAX_ENABLE_X64=true and explicit x64/default contexts; PYTHONDONTWRITEBYTECODE=1; PYTHONPATH=src:tools:.; finite native profiles only.",
+      "input_closure": "Exact native source412 function restoration in canonical modules. Function/class/field/storage names and samplinglaw preserved; forward numerical encoding mechanism removed. Expected distinguishing FAIL.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-removal-storage.stdout.txt",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-removal-storage.stdout.txt",
+        "bytes": 7807,
+        "sha256": "2951df5bbef2f4e991f810b02e8668a1ca1f17e19cf5472310788be1aa631f9b",
+        "raw_bytes": 7807,
+        "raw_sha256": "2951df5bbef2f4e991f810b02e8668a1ca1f17e19cf5472310788be1aa631f9b",
+        "encoding": "raw"
+      },
+      "counts": {
+        "tests": 8,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_seconds": 1.676
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-removal-storage.xml",
+        "bytes": 8668,
+        "sha256": "abfaaae29e1a7a43f3bde02bcbf93fe4d61c472e7fe3aff835dc1cc0127f35de",
+        "raw_bytes": 8668,
+        "raw_sha256": "abfaaae29e1a7a43f3bde02bcbf93fe4d61c472e7fe3aff835dc1cc0127f35de",
+        "encoding": "raw"
+      },
+      "restored_source_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "expected_outcome": "FAIL"
+    },
+    {
+      "command": "Independent API exact native37 and readonly sixpath/source review; full specs/measurements transported",
+      "target_sha": "c003bd673fd672726db18773bf888357a468d901",
+      "environment": "Readonly Python3.14.7/JAX0.8.2 CPU, JAX_ENABLE_X64=true and explicit x64/default contexts; PYTHONDONTWRITEBYTECODE=1; PYTHONPATH=src:tools:.; finite native profiles only.",
+      "input_closure": "Independent author/reviewer separation; immutable sourcec003; same-class type seams and actual state/trainer/storage consumers.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/independent-api/training-delta-review.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/independent-api/training-delta-review.json",
+        "bytes": 7282,
+        "sha256": "c6994baf12d44ef077ea563be23f113850c302d3de1f8752e3b0e11d43d98729",
+        "raw_bytes": 7282,
+        "raw_sha256": "c6994baf12d44ef077ea563be23f113850c302d3de1f8752e3b0e11d43d98729",
+        "encoding": "raw"
+      },
+      "review_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/independent-api/training-delta-review.json",
+        "bytes": 7282,
+        "sha256": "c6994baf12d44ef077ea563be23f113850c302d3de1f8752e3b0e11d43d98729",
+        "raw_bytes": 7282,
+        "raw_sha256": "c6994baf12d44ef077ea563be23f113850c302d3de1f8752e3b0e11d43d98729",
+        "encoding": "raw"
+      }
+    },
+    {
+      "command": "python -m ruff check <three ownedsource+two ownedtests>",
+      "target_sha": "c003bd673fd672726db18773bf888357a468d901",
+      "environment": "Readonly Python3.14.7/JAX0.8.2 CPU, JAX_ENABLE_X64=true and explicit x64/default contexts; PYTHONDONTWRITEBYTECODE=1; PYTHONPATH=src:tools:.; finite native profiles only.",
+      "input_closure": "Owned source/test lint, not a substitute for native behavior.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-frozen-lint.stdout.txt",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-frozen-lint.stdout.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "raw_bytes": 19,
+        "raw_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "encoding": "raw"
+      }
+    },
+    {
+      "command": "python -m ruff format --check <three ownedsource+two ownedtests>",
+      "target_sha": "c003bd673fd672726db18773bf888357a468d901",
+      "environment": "Readonly Python3.14.7/JAX0.8.2 CPU, JAX_ENABLE_X64=true and explicit x64/default contexts; PYTHONDONTWRITEBYTECODE=1; PYTHONPATH=src:tools:.; finite native profiles only.",
+      "input_closure": "Exact committed native source/test formatting.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-frozen-format.stdout.txt",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-frozen-format.stdout.txt",
+        "bytes": 26,
+        "sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1",
+        "raw_bytes": 26,
+        "raw_sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1",
+        "encoding": "raw"
+      }
+    },
+    {
+      "command": "python tools/ops_runners/release/check_compatibility_release_gates.py --repo-root . --json-output <training-dtype-compatibility.json>",
+      "target_sha": "c003bd673fd672726db18773bf888357a468d901",
+      "environment": "Readonly Python3.14.7/JAX0.8.2 CPU, JAX_ENABLE_X64=true and explicit x64/default contexts; PYTHONDONTWRITEBYTECODE=1; PYTHONPATH=src:tools:.; finite native profiles only.",
+      "input_closure": "Completed report84fragments/109structuredchanges:2other-fragment errors, ownedfragment0errors. Process exit0 does not mean whole semantic PASS.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-compatibility.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-compatibility.json",
+        "bytes": 1265,
+        "sha256": "e52cda55e16efee5c28738372958bd1d3fb39ee3adebbc4ce6e86cd30c59ef6a",
+        "raw_bytes": 1265,
+        "raw_sha256": "e52cda55e16efee5c28738372958bd1d3fb39ee3adebbc4ce6e86cd30c59ef6a",
+        "encoding": "raw"
+      },
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "tools/quality/validation/check_production_invocation.py",
+        "--repo-root",
+        ".",
+        "--base",
+        "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+        "--receipt",
+        "/tmp/e02-F-continuation-20261006/economics/production-invocation-c003.json"
+      ],
+      "target_sha": "c003bd673fd672726db18773bf888357a468d901",
+      "environment": "Readonly Python3.14.7/JAX0.8.2 CPU, JAX_ENABLE_X64=true and explicit x64/default contexts; PYTHONDONTWRITEBYTECODE=1; PYTHONPATH=src:tools:.; finite native profiles only.",
+      "input_closure": "Completed full static partialFAIL exit1,6regressions/12newunresolved. Fulltrackeddenominator/current/basebytes in report. Staticroots do not measure callback/runtime/authority; exactnative37 is separate boundedconsumer evidence.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/production-invocation-c003.json.xz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/production-invocation-c003.json.xz",
+        "bytes": 3830172,
+        "sha256": "f69b4e643e3184cd3411487e0dfd33de480225b7e2db8b3f73e7f45a878b1b2c",
+        "raw_bytes": 170888621,
+        "raw_sha256": "1f8e7b23ed9d12681b8f0996c2d0e4e59ac38f833623abb296727f74eee4ed06",
+        "encoding": "xz",
+        "decode": "Builtin Python lzma.decompress(read_bytes()); verify raw_bytes/raw_sha256 before parsing."
+      },
+      "stdout_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/production-invocation-c003-run.stdout",
+        "bytes": 2707,
+        "sha256": "2d9462826a47f9c69b9c2fc736beb9d3afd72332e75c3f7ecf1ea283a1b16860",
+        "raw_bytes": 2707,
+        "raw_sha256": "2d9462826a47f9c69b9c2fc736beb9d3afd72332e75c3f7ecf1ea283a1b16860",
+        "encoding": "raw"
+      },
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/production-invocation-c003-run.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw"
+      },
+      "measurement_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/production-invocation-c003-run.json",
+        "bytes": 1411,
+        "sha256": "504514f30fac45156a99ffd6aeedc462e76dd8921b67a80691d7ca649b7e6900",
+        "raw_bytes": 1411,
+        "raw_sha256": "504514f30fac45156a99ffd6aeedc462e76dd8921b67a80691d7ca649b7e6900",
+        "encoding": "raw"
+      },
+      "returncode": 1,
+      "runtime_invocation_established": false
+    },
+    {
+      "command": "/usr/bin/time <same exact37 pytestcommand>",
+      "target_sha": "c003bd673fd672726db18773bf888357a468d901",
+      "environment": "Readonly Python3.14.7/JAX0.8.2 CPU, JAX_ENABLE_X64=true and explicit x64/default contexts; PYTHONDONTWRITEBYTECODE=1; PYTHONPATH=src:tools:.; finite native profiles only.",
+      "input_closure": "First timing wrapper unavailablebinary exit127; no tests executed. Corrected standard Python time/resource runner exact37PASS separately.",
+      "outcome": "ERROR",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-frozen.stderr.txt",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-frozen.stderr.txt",
+        "bytes": 60,
+        "sha256": "3e737f6a9117cec194b02103b357f8668fae9adb86a8a8cd0bf25efab8948548",
+        "raw_bytes": 60,
+        "raw_sha256": "3e737f6a9117cec194b02103b357f8668fae9adb86a8a8cd0bf25efab8948548",
+        "encoding": "raw"
+      },
+      "returncode": 127
+    },
+    {
+      "command": "Local G admitted production profile on sourcec003",
+      "target_sha": "c003bd673fd672726db18773bf888357a468d901",
+      "environment": "Readonly Python3.14.7/JAX0.8.2 CPU, JAX_ENABLE_X64=true and explicit x64/default contexts; PYTHONDONTWRITEBYTECODE=1; PYTHONPATH=src:tools:.; finite native profiles only.",
+      "input_closure": "Cloud finite numeric evidence only; no admitted real-data/profilecalibration or protected productionauthority.",
+      "outcome": "UNRUN",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-census.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-census.json",
+        "bytes": 5167,
+        "sha256": "aa1841accb980f9d254206b0ed7289df6e28fc0908e336433f432b2b5305ac19",
+        "raw_bytes": 5167,
+        "raw_sha256": "aa1841accb980f9d254206b0ed7289df6e28fc0908e336433f432b2b5305ac19",
+        "encoding": "raw"
+      }
+    }
+  ],
+  "property": {
+    "statement": "Temporal neural transitions preserve each corresponding incoming state-field dtype. Both PPO scan initializers derive loss-carry type from the actual abstract native rollout/PPO result. Every canonical MetricsBuffer numeric write explicitly encodes only its declared destination dtype. Equations, weights, model IDs and random-law ordering are unchanged.",
+    "runtime_path": [
+      "Actual ActorCritic parameter/state profiles",
+      "TemporalConsumption.apply→PureExecutor rollout/scan",
+      "Native PPOupdate→bothtraincarrys",
+      "MetricsBuffer scalar/histogram→actual MetricsCollector histories"
+    ],
+    "proxy_divergence": "Model32/state32 under x64 still yields float64 PPOloss because the existing continuous-action sampler has default float64 normal draws. A guessed modeldtype is not the actual lossdtype. Computation64 and storage32 are different contracts; destination encoding keeps declared precision rather than changing equations.",
+    "negative_controls": [
+      "Temporal encoding removal5FAIL5PASS",
+      "Bothcarryinitializer removal12FAIL2PASS",
+      "Bothmetricwriter removal4FAIL4PASS"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "limited",
+  "per_id_outcomes": [],
+  "environment": {
+    "python": "3.14.7",
+    "jax": "0.8.2",
+    "jaxlib": "0.8.2",
+    "equinox": "0.13.2",
+    "numpy": "2.3.5",
+    "pytest": "9.0.2",
+    "backend": "cpu",
+    "x64": "enabled native run; test float32 default context explicitly disabled for controls",
+    "production_inputs": "none; finite profiles only"
+  },
+  "source_identity": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-economic-training-state-dtype.toml",
+      "bytes": 1559,
+      "sha256": "c6ac5d383f523d7b000020e74d9464bf535336bf50765d4d2a714929f142952a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/jit_training.py",
+      "bytes": 21803,
+      "sha256": "c892a8aead3b0e6666734794544ebf43916e4a2a929ff999f855cf66dc5dff7f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/metrics.py",
+      "bytes": 9411,
+      "sha256": "199a51c29ed308f6a95eacc921c2ad0041c413d538e54c06b41ba492732caed0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/temporal_mechanisms.py",
+      "bytes": 3825,
+      "sha256": "d95192dfca2183a8f82d69c38797e17c81b4f883e79df581fd7923cf8858d0bc"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py",
+      "bytes": 4760,
+      "sha256": "2744fc2f2430252b5fb7142dcce6ef3f794ccc67ca2bdf6e04682e1232349313"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/agent_sim/test_training_dtype.py",
+      "bytes": 7172,
+      "sha256": "d59e87686c7ce6729bce9f8bab7044b1019b8432b9c3959bcde1ba62123ba83f"
+    }
+  ],
+  "evidence_transfer": {
+    "manifest": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/production-invocation-c003-run.json",
+        "bytes": 1411,
+        "sha256": "504514f30fac45156a99ffd6aeedc462e76dd8921b67a80691d7ca649b7e6900",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/production-invocation-c003-run.json",
+        "raw_bytes": 1411,
+        "raw_sha256": "504514f30fac45156a99ffd6aeedc462e76dd8921b67a80691d7ca649b7e6900",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/production-invocation-c003-run.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/production-invocation-c003-run.stderr",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/production-invocation-c003-run.stdout",
+        "bytes": 2707,
+        "sha256": "2d9462826a47f9c69b9c2fc736beb9d3afd72332e75c3f7ecf1ea283a1b16860",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/production-invocation-c003-run.stdout",
+        "raw_bytes": 2707,
+        "raw_sha256": "2d9462826a47f9c69b9c2fc736beb9d3afd72332e75c3f7ecf1ea283a1b16860",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/production-invocation-c003-spec.json",
+        "bytes": 764,
+        "sha256": "99db52ebfb9acd3751e7cef5830de1d7b1b20bd5d9e350a93a8744344e029744",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/production-invocation-c003-spec.json",
+        "raw_bytes": 764,
+        "raw_sha256": "99db52ebfb9acd3751e7cef5830de1d7b1b20bd5d9e350a93a8744344e029744",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/production-invocation-c003.json.xz",
+        "bytes": 3830172,
+        "sha256": "f69b4e643e3184cd3411487e0dfd33de480225b7e2db8b3f73e7f45a878b1b2c",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/production-invocation-c003.json",
+        "raw_bytes": 170888621,
+        "raw_sha256": "1f8e7b23ed9d12681b8f0996c2d0e4e59ac38f833623abb296727f74eee4ed06",
+        "normalization": "none",
+        "encoding": "xz",
+        "decode": "Builtin Python lzma.decompress(read_bytes()); verify raw_bytes/raw_sha256 before parsing."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/receipt-storage-boundary.json",
+        "bytes": 831,
+        "sha256": "eceaf01ec6152b74b540b4b46abc6d498bc2b575590e920c79198dcbd21cff63",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/receipt-storage-boundary.json",
+        "raw_bytes": 831,
+        "raw_sha256": "eceaf01ec6152b74b540b4b46abc6d498bc2b575590e920c79198dcbd21cff63",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/replay_training_dtype.py",
+        "bytes": 1999,
+        "sha256": "172b97782c981369b1f566f634147ce4a9665b4daed56ad72c0bb21e66dca753",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/replay_training_dtype.py",
+        "raw_bytes": 1999,
+        "raw_sha256": "172b97782c981369b1f566f634147ce4a9665b4daed56ad72c0bb21e66dca753",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/run_economic_check.py",
+        "bytes": 1781,
+        "sha256": "1d4f19d0bbcbd03c5a97aca5ed42deef5526ce18d045dddb85381747c1969903",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/run_economic_check.py",
+        "raw_bytes": 1781,
+        "raw_sha256": "1d4f19d0bbcbd03c5a97aca5ed42deef5526ce18d045dddb85381747c1969903",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/temporal-actual-train-es-x64.stdout.txt",
+        "bytes": 2681,
+        "sha256": "58dfc11db899d6d47a7ef2865d7d3e567b56bfaa8a9b05408fb315004db8d583",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/temporal-actual-train-es-x64.stdout.txt",
+        "raw_bytes": 2681,
+        "raw_sha256": "58dfc11db899d6d47a7ef2865d7d3e567b56bfaa8a9b05408fb315004db8d583",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/temporal-actual-train-es-x64.xml",
+        "bytes": 2060,
+        "sha256": "ff6c77416f738a0357d8619db5c8c97a442785da050bd55b5923694384b90892",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/temporal-actual-train-es-x64.xml",
+        "raw_bytes": 2060,
+        "raw_sha256": "ff6c77416f738a0357d8619db5c8c97a442785da050bd55b5923694384b90892",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/temporal-dtype-corrected.stdout.txt",
+        "bytes": 2385,
+        "sha256": "e7b36be07521b2f78688038d943d37a98e5962088c74fd2f6a80946d09ab903c",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/temporal-dtype-corrected.stdout.txt",
+        "raw_bytes": 2385,
+        "raw_sha256": "e7b36be07521b2f78688038d943d37a98e5962088c74fd2f6a80946d09ab903c",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/temporal-dtype-corrected.xml",
+        "bytes": 4277,
+        "sha256": "856f1daf476d3a86fdee4d56e2ce3dec282dc1e982039d9e9e55e8a015307f25",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/temporal-dtype-corrected.xml",
+        "raw_bytes": 4277,
+        "raw_sha256": "856f1daf476d3a86fdee4d56e2ce3dec282dc1e982039d9e9e55e8a015307f25",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/temporal-dtype-final-pre-freeze.stdout.txt",
+        "bytes": 577,
+        "sha256": "955ba770d474f090b3587116862561d39c5f55681d90e81bb1f8874e31ccb3da",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/temporal-dtype-final-pre-freeze.stdout.txt",
+        "raw_bytes": 577,
+        "raw_sha256": "955ba770d474f090b3587116862561d39c5f55681d90e81bb1f8874e31ccb3da",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/temporal-dtype-final-pre-freeze.xml",
+        "bytes": 2160,
+        "sha256": "992e65f7a0dd6a9fd320ed89e88cb2e7d7a3de6c8a5ee5dd626f3e85c51d5239",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/temporal-dtype-final-pre-freeze.xml",
+        "raw_bytes": 2160,
+        "raw_sha256": "992e65f7a0dd6a9fd320ed89e88cb2e7d7a3de6c8a5ee5dd626f3e85c51d5239",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/temporal-dtype-pre-freeze.stdout.txt",
+        "bytes": 2311,
+        "sha256": "acf2c42b2fa75980e18dca913131afbaee8334d96eb078fecbe21bda543a7f2c",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/temporal-dtype-pre-freeze.stdout.txt",
+        "raw_bytes": 2311,
+        "raw_sha256": "acf2c42b2fa75980e18dca913131afbaee8334d96eb078fecbe21bda543a7f2c",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/temporal-dtype-pre-freeze.xml",
+        "bytes": 3964,
+        "sha256": "577b5d8f3d2fb0fedc149c667f7e9b234f58c5a890591abb34f1a451a08ef407",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/temporal-dtype-pre-freeze.xml",
+        "raw_bytes": 3964,
+        "raw_sha256": "577b5d8f3d2fb0fedc149c667f7e9b234f58c5a890591abb34f1a451a08ef407",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-all-profiles.stdout.txt",
+        "bytes": 565,
+        "sha256": "a68ac5e810248d24d156ed0a1a59948d70c22dee4c27f6d3bb1e7ceda0d1a912",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-all-profiles.stdout.txt",
+        "raw_bytes": 565,
+        "raw_sha256": "a68ac5e810248d24d156ed0a1a59948d70c22dee4c27f6d3bb1e7ceda0d1a912",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-all-profiles.xml",
+        "bytes": 4500,
+        "sha256": "cb28073f7dbcb1a2e067d170c756c45b8863b890f913cbe10184782075ef954a",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-all-profiles.xml",
+        "raw_bytes": 4500,
+        "raw_sha256": "cb28073f7dbcb1a2e067d170c756c45b8863b890f913cbe10184782075ef954a",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-c003-spec.json",
+        "bytes": 1087,
+        "sha256": "0b832eae39a6a7fa925b3b7434104ce5d43f9314e08572c5ee66f67b5fe581e3",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-dtype-c003-spec.json",
+        "raw_bytes": 1087,
+        "raw_sha256": "0b832eae39a6a7fa925b3b7434104ce5d43f9314e08572c5ee66f67b5fe581e3",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-c003.json",
+        "bytes": 1914,
+        "sha256": "48457b8271bb743134edb8287847908ebef72daf66c08d4e014daa80871b945b",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-dtype-c003.json",
+        "raw_bytes": 1914,
+        "raw_sha256": "48457b8271bb743134edb8287847908ebef72daf66c08d4e014daa80871b945b",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-c003.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-dtype-c003.stderr",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-c003.stdout",
+        "bytes": 776,
+        "sha256": "0bf5b3ff6f819acc2ae3e448fe371872c51157abfc571aceefb88f40d04dbeb2",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-dtype-c003.stdout",
+        "raw_bytes": 776,
+        "raw_sha256": "0bf5b3ff6f819acc2ae3e448fe371872c51157abfc571aceefb88f40d04dbeb2",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-c003.xml",
+        "bytes": 7093,
+        "sha256": "8d9e95b440d98683a6607a7a339591dc78cc1937142ff5df60bdce7068bedbf8",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-dtype-c003.xml",
+        "raw_bytes": 7093,
+        "raw_sha256": "8d9e95b440d98683a6607a7a339591dc78cc1937142ff5df60bdce7068bedbf8",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-census.json",
+        "bytes": 5167,
+        "sha256": "aa1841accb980f9d254206b0ed7289df6e28fc0908e336433f432b2b5305ac19",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-dtype-census.json",
+        "raw_bytes": 5167,
+        "raw_sha256": "aa1841accb980f9d254206b0ed7289df6e28fc0908e336433f432b2b5305ac19",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-compatibility.json",
+        "bytes": 1265,
+        "sha256": "e52cda55e16efee5c28738372958bd1d3fb39ee3adebbc4ce6e86cd30c59ef6a",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-dtype-compatibility.json",
+        "raw_bytes": 1265,
+        "raw_sha256": "e52cda55e16efee5c28738372958bd1d3fb39ee3adebbc4ce6e86cd30c59ef6a",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-compatibility.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-dtype-compatibility.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-compatibility.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-dtype-compatibility.stdout.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-format.txt",
+        "bytes": 123,
+        "sha256": "d3aa1c0caba3f149473bb3aa2a09a2be2b8b611737a8b7b76d6fb9c276ca7c32",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-dtype-format.txt",
+        "raw_bytes": 123,
+        "raw_sha256": "d3aa1c0caba3f149473bb3aa2a09a2be2b8b611737a8b7b76d6fb9c276ca7c32",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-frozen-format.stdout.txt",
+        "bytes": 26,
+        "sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-dtype-frozen-format.stdout.txt",
+        "raw_bytes": 26,
+        "raw_sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-frozen-lint.stdout.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-dtype-frozen-lint.stdout.txt",
+        "raw_bytes": 19,
+        "raw_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-frozen.stderr.txt",
+        "bytes": 60,
+        "sha256": "3e737f6a9117cec194b02103b357f8668fae9adb86a8a8cd0bf25efab8948548",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-dtype-frozen.stderr.txt",
+        "raw_bytes": 60,
+        "raw_sha256": "3e737f6a9117cec194b02103b357f8668fae9adb86a8a8cd0bf25efab8948548",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-frozen.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-dtype-frozen.stdout.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-dtype-lint.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-dtype-lint.txt",
+        "raw_bytes": 19,
+        "raw_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-profiles-pre-freeze.stdout.txt",
+        "bytes": 14337,
+        "sha256": "34540658f391a4985596daeb5060f824010f319a263450e649d586c93eeebafc",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-profiles-pre-freeze.stdout.txt",
+        "raw_bytes": 14337,
+        "raw_sha256": "34540658f391a4985596daeb5060f824010f319a263450e649d586c93eeebafc",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-profiles-pre-freeze.xml",
+        "bytes": 17241,
+        "sha256": "a7b8afee513030931baf4785449d785ec6e58cc2d924e7c3983ee2157174c652",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-profiles-pre-freeze.xml",
+        "raw_bytes": 17241,
+        "raw_sha256": "a7b8afee513030931baf4785449d785ec6e58cc2d924e7c3983ee2157174c652",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-removal-carry.stdout.txt",
+        "bytes": 25743,
+        "sha256": "5c260d89f3209ff76f1d3f818c58d6df63d5fc0d3be3a51d6f435e3060fd96a5",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-removal-carry.stdout.txt",
+        "raw_bytes": 25743,
+        "raw_sha256": "5c260d89f3209ff76f1d3f818c58d6df63d5fc0d3be3a51d6f435e3060fd96a5",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-removal-carry.xml",
+        "bytes": 28981,
+        "sha256": "00b4384ab18963380edbbb89dd0ee5026e1116e8fa0ec6b7b6bf845aa876a5ab",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-removal-carry.xml",
+        "raw_bytes": 28981,
+        "raw_sha256": "00b4384ab18963380edbbb89dd0ee5026e1116e8fa0ec6b7b6bf845aa876a5ab",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-removal-storage.stdout.txt",
+        "bytes": 7807,
+        "sha256": "2951df5bbef2f4e991f810b02e8668a1ca1f17e19cf5472310788be1aa631f9b",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-removal-storage.stdout.txt",
+        "raw_bytes": 7807,
+        "raw_sha256": "2951df5bbef2f4e991f810b02e8668a1ca1f17e19cf5472310788be1aa631f9b",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-removal-storage.xml",
+        "bytes": 8668,
+        "sha256": "abfaaae29e1a7a43f3bde02bcbf93fe4d61c472e7fe3aff835dc1cc0127f35de",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-removal-storage.xml",
+        "raw_bytes": 8668,
+        "raw_sha256": "abfaaae29e1a7a43f3bde02bcbf93fe4d61c472e7fe3aff835dc1cc0127f35de",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-removal-temporal.stdout.txt",
+        "bytes": 5807,
+        "sha256": "ff522c3efc30c2d8101b4708834f16a9174874899b9e2f2115348ff91e0712c5",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-removal-temporal.stdout.txt",
+        "raw_bytes": 5807,
+        "raw_sha256": "ff522c3efc30c2d8101b4708834f16a9174874899b9e2f2115348ff91e0712c5",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-removal-temporal.xml",
+        "bytes": 7241,
+        "sha256": "3477a87fd86c76e893437e4ceb0118bff72d71a44a22c81a2f1b04afae9d08ec",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-removal-temporal.xml",
+        "raw_bytes": 7241,
+        "raw_sha256": "3477a87fd86c76e893437e4ceb0118bff72d71a44a22c81a2f1b04afae9d08ec",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-result-profiles.stdout.txt",
+        "bytes": 8946,
+        "sha256": "e11c1f3e59baa6ce6c3d497c3e6fdca553d8523548ba86fe0ff5a4db85893a8b",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-result-profiles.stdout.txt",
+        "raw_bytes": 8946,
+        "raw_sha256": "e11c1f3e59baa6ce6c3d497c3e6fdca553d8523548ba86fe0ff5a4db85893a8b",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-result-profiles.xml",
+        "bytes": 12402,
+        "sha256": "c1884155d8518efc4c376d30347fa33be7117e7b83a84d60439cdda80dcc99e9",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-result-profiles.xml",
+        "raw_bytes": 12402,
+        "raw_sha256": "c1884155d8518efc4c376d30347fa33be7117e7b83a84d60439cdda80dcc99e9",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-x64-fixed.stdout.txt",
+        "bytes": 634,
+        "sha256": "f518684be62922c1e67d9cc4dbd8f7f2d5bb3f8de6fce5cb7b7bcb4da504963e",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-x64-fixed.stdout.txt",
+        "raw_bytes": 634,
+        "raw_sha256": "f518684be62922c1e67d9cc4dbd8f7f2d5bb3f8de6fce5cb7b7bcb4da504963e",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/training-x64-fixed.xml",
+        "bytes": 932,
+        "sha256": "3325b237c3dbe2eac3679be29bc04a342422fb1e57959ea79d61398960c5a262",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/training-x64-fixed.xml",
+        "raw_bytes": 932,
+        "raw_sha256": "3325b237c3dbe2eac3679be29bc04a342422fb1e57959ea79d61398960c5a262",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/independent-api/run_check.py",
+        "bytes": 1697,
+        "sha256": "4ce67fea4d76423165ba42c13cbaf9dfec58486a0bf3878a4f4c0425bc8cc363",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/run_check.py",
+        "raw_bytes": 1697,
+        "raw_sha256": "4ce67fea4d76423165ba42c13cbaf9dfec58486a0bf3878a4f4c0425bc8cc363",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/independent-api/training-delta-native-spec.json",
+        "bytes": 714,
+        "sha256": "7bcdd0d69a6a246b8f73d6861dfba614189c9d784291bdb412a9a7eab8d4d7ff",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/training-delta-native-spec.json",
+        "raw_bytes": 714,
+        "raw_sha256": "7bcdd0d69a6a246b8f73d6861dfba614189c9d784291bdb412a9a7eab8d4d7ff",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/independent-api/training-delta-native.json",
+        "bytes": 1337,
+        "sha256": "dcd2b84978326bc45de3eccc0ad105e4634c99a1002af61e9f812732a11d706c",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/training-delta-native.json",
+        "raw_bytes": 1337,
+        "raw_sha256": "dcd2b84978326bc45de3eccc0ad105e4634c99a1002af61e9f812732a11d706c",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/independent-api/training-delta-native.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/training-delta-native.stderr",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/independent-api/training-delta-native.stdout",
+        "bytes": 1031,
+        "sha256": "cfdd749354f3d83c402168f9c7140fce199cf23e1945a3b18a111b16b8d07bb0",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/training-delta-native.stdout",
+        "raw_bytes": 1031,
+        "raw_sha256": "cfdd749354f3d83c402168f9c7140fce199cf23e1945a3b18a111b16b8d07bb0",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/independent-api/training-delta-review.json",
+        "bytes": 7282,
+        "sha256": "c6994baf12d44ef077ea563be23f113850c302d3de1f8752e3b0e11d43d98729",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/training-delta-review.json",
+        "raw_bytes": 7282,
+        "raw_sha256": "c6994baf12d44ef077ea563be23f113850c302d3de1f8752e3b0e11d43d98729",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/independent-api/training-existing-native-spec.json",
+        "bytes": 849,
+        "sha256": "35651b859d0acdb50c42c3b50899f651de355067f475a26cecc4ed169d1e5620",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/training-existing-native-spec.json",
+        "raw_bytes": 849,
+        "raw_sha256": "35651b859d0acdb50c42c3b50899f651de355067f475a26cecc4ed169d1e5620",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/independent-api/training-existing-native.json",
+        "bytes": 1478,
+        "sha256": "4d08f61ef08eb703cb8add4e201b6a233da1a1550a260079c9c37843c2708ab7",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/training-existing-native.json",
+        "raw_bytes": 1478,
+        "raw_sha256": "4d08f61ef08eb703cb8add4e201b6a233da1a1550a260079c9c37843c2708ab7",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/independent-api/training-existing-native.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/training-existing-native.stderr",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/independent-api/training-existing-native.stdout",
+        "bytes": 1022,
+        "sha256": "ffdc59cf7849bef9e53bce5fd8fe51d2f9cf069cd18c075afc5bdbafd295f078",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/training-existing-native.stdout",
+        "raw_bytes": 1022,
+        "raw_sha256": "ffdc59cf7849bef9e53bce5fd8fe51d2f9cf069cd18c075afc5bdbafd295f078",
+        "normalization": "none",
+        "encoding": "raw"
+      }
+    ],
+    "decode_verified_members": 55,
+    "reason": "Root recovered canonical active Git object storage losslessly after measured0Boverlay. Full moderate logs/JUnit/specs/replayers are committed as normal bytes alongside receipt. Huge complete scanner uses explicitlosslessXZ; raw/encodedsize/hash/decoding are bound. No excerpts or whitespace normalization.",
+    "prepublication_storage_boundary": "Source c003 had already been published before storage preflightERROR; no lost or rewritten commits. Root verification retained4583Gitobjects/217064927B and allHEAD/trees/refs."
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/independent-api/training-delta-review.json",
+    "bytes": 7282,
+    "sha256": "c6994baf12d44ef077ea563be23f113850c302d3de1f8752e3b0e11d43d98729",
+    "raw_bytes": 7282,
+    "raw_sha256": "c6994baf12d44ef077ea563be23f113850c302d3de1f8752e3b0e11d43d98729",
+    "encoding": "raw"
+  },
+  "dependency_receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json",
+    "implementation_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+    "candidate_tree_sha": "134aca5ad6bac87da8d2f3d18a4be0ab20652251",
+    "scope": "Canonical live Gini/currentreader dtype policy unchanged in this delta; original LA004 re-adjudication belongs to this separate preceding receipt."
+  },
+  "authority_purpose": "Scientific native state/carry/storage type mechanism evidence; no new findingID or automatic historical finding closure. G integration/admittedrealdata acceptance pending.",
+  "limitations_and_next_owner": [
+    "Finite native CPU profiles, not admitted real data or calibration.",
+    "Stored metric precision/range remains destination dtype; no float64 metric storage promotion, no claim lossless numerical representation for values outside float32 range.",
+    "Custom unknown metric names retain the existing no-op behavior.",
+    "Histogram filters nonfinite samples with existing zero weights; finite stored profiles tested, not a new numeric authority gate.",
+    "Unrelated fiscal decimal-rate precision unchanged; broader97 P41 label not established.",
+    "No equations, policy weights, RNG draw law, model IDs or fingerprints changed.",
+    "Original broad97 gate had93PASS3FAIL1SKIP at exactbase and964. This forward delta replays affected actualtrainer/ES cases, does not relabel old fullgatePASS or establish P41 disjointness.",
+    "Scalar and histogram storage retain declared float32 default precision/range; no claim all float64 values encode losslessly.",
+    "Unrelated fiscal .10 representational assertion1000.0000149011612 vs1000 remains owner limitation; no decimal/tolerance/law change.",
+    "Staticproductioninvocation remains completedpartialFAIL; runtime/nativeconsumer proof is separate.",
+    "Root common35indices/closuredecisions remain root-owned; this companion closure_ids/per_id empty."
+  ]
+}

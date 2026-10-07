@@ -1,0 +1,86 @@
+{"mode": "fiscal-removal", "class_name": "IncomeTax", "preserved_patch_keys": ["agents.income", "government.balance"]}
+FF..FFF                                                                  [100%]
+=================================== FAILURES ===================================
+_ test_registered_fiscal_producer_full_patch_reaches_state_consumer[income_tax-IncomeTaxMechanismMethod-expected_delta0-30.0-eager] _
+tests/unit/foundry/plugins/test_economic_profiles.py:103: in test_registered_fiscal_producer_full_patch_reaches_state_consumer
+    _assert_full_patch(patch, expected_patch)
+tests/unit/foundry/plugins/test_economic_profiles.py:69: in _assert_full_patch
+    np.testing.assert_array_equal(np.asarray(lhs[field]), np.asarray(rhs[field]))
+E   AssertionError: 
+E   Arrays are not equal
+E   
+E   Mismatched elements: 2 / 4 (50%)
+E   Max absolute difference among violations: 20.
+E   Max relative difference among violations: 1.
+E    ACTUAL: array([0., 0., 0., 0.], dtype=float32)
+E    DESIRED: array([-20.,   0.,   0., -10.])
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 15:23:29 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.adaptive_agent@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['adaptive-agent', 'builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-06 15:23:29 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.income_tax@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'tax'] version=1.0.0
+2026-10-06 15:23:29 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.labor_market@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'labor', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-06 15:23:29 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.queue@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'queue', 'runtime', 'structural'] version=1.0.0
+2026-10-06 15:23:29 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.tax_subsidy@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'subsidy'] version=1.0.0
+_ test_registered_fiscal_producer_full_patch_reaches_state_consumer[income_tax-IncomeTaxMechanismMethod-expected_delta0-30.0-jit] _
+tests/unit/foundry/plugins/test_economic_profiles.py:103: in test_registered_fiscal_producer_full_patch_reaches_state_consumer
+    _assert_full_patch(patch, expected_patch)
+tests/unit/foundry/plugins/test_economic_profiles.py:69: in _assert_full_patch
+    np.testing.assert_array_equal(np.asarray(lhs[field]), np.asarray(rhs[field]))
+E   AssertionError: 
+E   Arrays are not equal
+E   
+E   Mismatched elements: 2 / 4 (50%)
+E   Max absolute difference among violations: 20.
+E   Max relative difference among violations: 1.
+E    ACTUAL: array([0., 0., 0., 0.], dtype=float32)
+E    DESIRED: array([-20.,   0.,   0., -10.])
+_ test_registered_progressive_tax_complete_state_budget_and_step_profile[0.0] __
+tests/unit/foundry/plugins/test_economic_profile_consumers.py:103: in test_registered_progressive_tax_complete_state_budget_and_step_profile
+    np.testing.assert_array_equal(result.agents.income, income - debit)
+E   AssertionError: 
+E   Arrays are not equal
+E   
+E   Mismatched elements: 8 / 12 (66.7%)
+E   Max absolute difference among violations: 7500.
+E   Max relative difference among violations: 0.14285715
+E    ACTUAL: array([ 5000., 20000., 60000.,  5000., 20000., 60000.,  5000., 20000.,
+E          60000.,  5000., 20000., 60000.], dtype=float32)
+E    DESIRED: array([ 4375., 20000., 52500.,  4375., 20000., 52500.,  4375., 20000.,
+E          52500.,  4375., 20000., 52500.], dtype=float32)
+_ test_registered_progressive_tax_complete_state_budget_and_step_profile[0.25] _
+tests/unit/foundry/plugins/test_economic_profile_consumers.py:103: in test_registered_progressive_tax_complete_state_budget_and_step_profile
+    np.testing.assert_array_equal(result.agents.income, income - debit)
+E   AssertionError: 
+E   Arrays are not equal
+E   
+E   Mismatched elements: 8 / 12 (66.7%)
+E   Max absolute difference among violations: 7500.
+E   Max relative difference among violations: 0.14285715
+E    ACTUAL: array([ 5000., 20000., 60000.,  5000., 20000., 60000.,  5000., 20000.,
+E          60000.,  5000., 20000., 60000.], dtype=float32)
+E    DESIRED: array([ 4375., 20000., 52500.,  4375., 20000., 52500.,  4375., 20000.,
+E          52500.,  4375., 20000., 52500.], dtype=float32)
+_ test_registered_progressive_tax_complete_state_budget_and_step_profile[0.5] __
+tests/unit/foundry/plugins/test_economic_profile_consumers.py:103: in test_registered_progressive_tax_complete_state_budget_and_step_profile
+    np.testing.assert_array_equal(result.agents.income, income - debit)
+E   AssertionError: 
+E   Arrays are not equal
+E   
+E   Mismatched elements: 8 / 12 (66.7%)
+E   Max absolute difference among violations: 7500.
+E   Max relative difference among violations: 0.14285715
+E    ACTUAL: array([ 5000., 20000., 60000.,  5000., 20000., 60000.,  5000., 20000.,
+E          60000.,  5000., 20000., 60000.], dtype=float32)
+E    DESIRED: array([ 4375., 20000., 52500.,  4375., 20000., 52500.,  4375., 20000.,
+E          52500.,  4375., 20000., 52500.], dtype=float32)
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/plugins/test_economic_profiles.py::test_registered_fiscal_producer_full_patch_reaches_state_consumer[income_tax-IncomeTaxMechanismMethod-expected_delta0-30.0-eager]
+FAILED tests/unit/foundry/plugins/test_economic_profiles.py::test_registered_fiscal_producer_full_patch_reaches_state_consumer[income_tax-IncomeTaxMechanismMethod-expected_delta0-30.0-jit]
+FAILED tests/unit/foundry/plugins/test_economic_profile_consumers.py::test_registered_progressive_tax_complete_state_budget_and_step_profile[0.0]
+FAILED tests/unit/foundry/plugins/test_economic_profile_consumers.py::test_registered_progressive_tax_complete_state_budget_and_step_profile[0.25]
+FAILED tests/unit/foundry/plugins/test_economic_profile_consumers.py::test_registered_progressive_tax_complete_state_budget_and_step_profile[0.5]

@@ -1,0 +1,49 @@
+{
+  "source_sha": "fd36b2f66d7226e001b4e96bf78f019841da6541",
+  "source_tree": "c441031428cc5039f84eef188936a6a904c21f71",
+  "source_path": "policy-engine/tools/devx/architecture/guardrails.py",
+  "source_sha256": "3d3a28a9b1816a12d232c9dc3c62830d7191609a59d3256e6f547de9dbf9cf06",
+  "cases": {
+    "unknown_call_receives_mapping": {
+      "state": "UNRESOLVED",
+      "reason": "Unresolved export binding consumer: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/__static_exports__.py:M",
+      "actual_controlled_fixture_all": [
+        "x",
+        "y"
+      ]
+    },
+    "mapping_alias_mutation": {
+      "state": "UNRESOLVED",
+      "reason": "Unresolved export binding consumer: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/__static_exports__.py:M",
+      "actual_controlled_fixture_all": [
+        "x",
+        "y"
+      ]
+    },
+    "unknown_call_receives_all": {
+      "state": "UNRESOLVED",
+      "reason": "Unresolved export binding consumer: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/__static_exports__.py:__all__",
+      "actual_controlled_fixture_all": [
+        "x",
+        "y"
+      ]
+    },
+    "builtin_shadow": {
+      "state": "UNRESOLVED",
+      "reason": "Unresolved shadowed export builtin: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/__static_exports__.py:sorted",
+      "actual_controlled_fixture_all": [
+        "wrong"
+      ]
+    },
+    "supported_literal": {
+      "result": [
+        "x"
+      ],
+      "state": "RESOLVED",
+      "actual_controlled_fixture_all": [
+        "x"
+      ]
+    }
+  },
+  "scope": "Finite wholly authored fixture execution only; pinned product static reader via exact Git source. No external input/module execution by reader."
+}

@@ -1,0 +1,325 @@
+.....FF........FF.........F.........F........FF........FF.........F..... [ 85%]
+....F...FF..                                                             [100%]
+=================================== FAILURES ===================================
+_ test_current_population_gini_preserves_existing_consumer_dtype_abi[eager-float32-float32-reward] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:245: in test_current_population_gini_preserves_existing_consumer_dtype_abi
+    assert actual.dtype == expected_dtype
+E   AssertionError: assert dtype('float64') == <class 'jax.numpy.float32'>
+E    +  where dtype('float64') = Array(0.24999999, dtype=float64).dtype
+_ test_current_population_gini_preserves_existing_consumer_dtype_abi[eager-float32-float32-analysis] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:239: in test_current_population_gini_preserves_existing_consumer_dtype_abi
+    actual = evaluate(argument)
+             ^^^^^^^^^^^^^^^^^^
+tests/unit/foundry/agent_sim/test_gini_consumers.py:70: in <lambda>
+    return lambda s: BehaviorAnalyzer.counterfactual_analysis(None, s, {}, executor, n_steps=2)[
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/analysis.py:230: in counterfactual_analysis
+    baseline_final, _ = executor.run(state, n_steps)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:103: in run
+    final_state, all_metrics = jax.lax.scan(
+src/polisyos/foundry/agent_sim/executor.py:100: in scan_fn
+    new_state, metrics = self.step(state, fidelity)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:87: in step
+    state = self._maybe_update_aggregates(state)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:120: in _maybe_update_aggregates
+    return jax.lax.cond(should_update, _update, lambda s: s, state)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E   
+E   true_fun is _update at /workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/executor.py:115
+E   false_fun is <lambda> at /workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/executor.py:120
+E   
+E   The output of true_fun at path .aggregates.mean_consumption has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E   
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_current_population_gini_preserves_existing_consumer_dtype_abi[eager-float32-float64-reward] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:245: in test_current_population_gini_preserves_existing_consumer_dtype_abi
+    assert actual.dtype == expected_dtype
+E   AssertionError: assert dtype('float64') == <class 'jax.numpy.float32'>
+E    +  where dtype('float64') = Array(0.25, dtype=float64).dtype
+_ test_current_population_gini_preserves_existing_consumer_dtype_abi[eager-float32-float64-analysis] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:239: in test_current_population_gini_preserves_existing_consumer_dtype_abi
+    actual = evaluate(argument)
+             ^^^^^^^^^^^^^^^^^^
+tests/unit/foundry/agent_sim/test_gini_consumers.py:70: in <lambda>
+    return lambda s: BehaviorAnalyzer.counterfactual_analysis(None, s, {}, executor, n_steps=2)[
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/analysis.py:230: in counterfactual_analysis
+    baseline_final, _ = executor.run(state, n_steps)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:103: in run
+    final_state, all_metrics = jax.lax.scan(
+src/polisyos/foundry/agent_sim/executor.py:100: in scan_fn
+    new_state, metrics = self.step(state, fidelity)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:87: in step
+    state = self._maybe_update_aggregates(state)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:120: in _maybe_update_aggregates
+    return jax.lax.cond(should_update, _update, lambda s: s, state)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E   
+E   true_fun is _update at /workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/executor.py:115
+E   false_fun is <lambda> at /workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/executor.py:120
+E   
+E     * the output of true_fun at path .aggregates.mean_consumption has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match;
+E     * the output of true_fun at path .aggregates.total_wealth has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E   
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_current_population_gini_preserves_existing_consumer_dtype_abi[eager-float64-float32-analysis] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:239: in test_current_population_gini_preserves_existing_consumer_dtype_abi
+    actual = evaluate(argument)
+             ^^^^^^^^^^^^^^^^^^
+tests/unit/foundry/agent_sim/test_gini_consumers.py:70: in <lambda>
+    return lambda s: BehaviorAnalyzer.counterfactual_analysis(None, s, {}, executor, n_steps=2)[
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/analysis.py:230: in counterfactual_analysis
+    baseline_final, _ = executor.run(state, n_steps)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:103: in run
+    final_state, all_metrics = jax.lax.scan(
+src/polisyos/foundry/agent_sim/executor.py:100: in scan_fn
+    new_state, metrics = self.step(state, fidelity)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:87: in step
+    state = self._maybe_update_aggregates(state)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:120: in _maybe_update_aggregates
+    return jax.lax.cond(should_update, _update, lambda s: s, state)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E   
+E   true_fun is _update at /workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/executor.py:115
+E   false_fun is <lambda> at /workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/executor.py:120
+E   
+E   The output of true_fun at path .aggregates.mean_consumption has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E   
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_current_population_gini_preserves_existing_consumer_dtype_abi[eager-float64-float64-analysis] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:239: in test_current_population_gini_preserves_existing_consumer_dtype_abi
+    actual = evaluate(argument)
+             ^^^^^^^^^^^^^^^^^^
+tests/unit/foundry/agent_sim/test_gini_consumers.py:70: in <lambda>
+    return lambda s: BehaviorAnalyzer.counterfactual_analysis(None, s, {}, executor, n_steps=2)[
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/analysis.py:230: in counterfactual_analysis
+    baseline_final, _ = executor.run(state, n_steps)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:103: in run
+    final_state, all_metrics = jax.lax.scan(
+src/polisyos/foundry/agent_sim/executor.py:100: in scan_fn
+    new_state, metrics = self.step(state, fidelity)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:87: in step
+    state = self._maybe_update_aggregates(state)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:120: in _maybe_update_aggregates
+    return jax.lax.cond(should_update, _update, lambda s: s, state)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E   
+E   true_fun is _update at /workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/executor.py:115
+E   false_fun is <lambda> at /workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/executor.py:120
+E   
+E     * the output of true_fun at path .aggregates.mean_consumption has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match;
+E     * the output of true_fun at path .aggregates.total_wealth has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E   
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_current_population_gini_preserves_existing_consumer_dtype_abi[jit-float32-float32-reward] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:245: in test_current_population_gini_preserves_existing_consumer_dtype_abi
+    assert actual.dtype == expected_dtype
+E   AssertionError: assert dtype('float64') == <class 'jax.numpy.float32'>
+E    +  where dtype('float64') = Array(0.24999999, dtype=float64).dtype
+_ test_current_population_gini_preserves_existing_consumer_dtype_abi[jit-float32-float32-analysis] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:239: in test_current_population_gini_preserves_existing_consumer_dtype_abi
+    actual = evaluate(argument)
+             ^^^^^^^^^^^^^^^^^^
+tests/unit/foundry/agent_sim/test_gini_consumers.py:70: in <lambda>
+    return lambda s: BehaviorAnalyzer.counterfactual_analysis(None, s, {}, executor, n_steps=2)[
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/analysis.py:230: in counterfactual_analysis
+    baseline_final, _ = executor.run(state, n_steps)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:103: in run
+    final_state, all_metrics = jax.lax.scan(
+src/polisyos/foundry/agent_sim/executor.py:100: in scan_fn
+    new_state, metrics = self.step(state, fidelity)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:87: in step
+    state = self._maybe_update_aggregates(state)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:120: in _maybe_update_aggregates
+    return jax.lax.cond(should_update, _update, lambda s: s, state)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E   
+E   true_fun is _update at /workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/executor.py:115
+E   false_fun is <lambda> at /workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/executor.py:120
+E   
+E   The output of true_fun at path .aggregates.mean_consumption has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E   
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_current_population_gini_preserves_existing_consumer_dtype_abi[jit-float32-float64-reward] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:245: in test_current_population_gini_preserves_existing_consumer_dtype_abi
+    assert actual.dtype == expected_dtype
+E   AssertionError: assert dtype('float64') == <class 'jax.numpy.float32'>
+E    +  where dtype('float64') = Array(0.25, dtype=float64).dtype
+_ test_current_population_gini_preserves_existing_consumer_dtype_abi[jit-float32-float64-analysis] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:239: in test_current_population_gini_preserves_existing_consumer_dtype_abi
+    actual = evaluate(argument)
+             ^^^^^^^^^^^^^^^^^^
+tests/unit/foundry/agent_sim/test_gini_consumers.py:70: in <lambda>
+    return lambda s: BehaviorAnalyzer.counterfactual_analysis(None, s, {}, executor, n_steps=2)[
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/analysis.py:230: in counterfactual_analysis
+    baseline_final, _ = executor.run(state, n_steps)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:103: in run
+    final_state, all_metrics = jax.lax.scan(
+src/polisyos/foundry/agent_sim/executor.py:100: in scan_fn
+    new_state, metrics = self.step(state, fidelity)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:87: in step
+    state = self._maybe_update_aggregates(state)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:120: in _maybe_update_aggregates
+    return jax.lax.cond(should_update, _update, lambda s: s, state)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E   
+E   true_fun is _update at /workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/executor.py:115
+E   false_fun is <lambda> at /workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/executor.py:120
+E   
+E     * the output of true_fun at path .aggregates.mean_consumption has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match;
+E     * the output of true_fun at path .aggregates.total_wealth has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E   
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_current_population_gini_preserves_existing_consumer_dtype_abi[jit-float64-float32-analysis] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:239: in test_current_population_gini_preserves_existing_consumer_dtype_abi
+    actual = evaluate(argument)
+             ^^^^^^^^^^^^^^^^^^
+tests/unit/foundry/agent_sim/test_gini_consumers.py:70: in <lambda>
+    return lambda s: BehaviorAnalyzer.counterfactual_analysis(None, s, {}, executor, n_steps=2)[
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/analysis.py:230: in counterfactual_analysis
+    baseline_final, _ = executor.run(state, n_steps)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:103: in run
+    final_state, all_metrics = jax.lax.scan(
+src/polisyos/foundry/agent_sim/executor.py:100: in scan_fn
+    new_state, metrics = self.step(state, fidelity)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:87: in step
+    state = self._maybe_update_aggregates(state)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:120: in _maybe_update_aggregates
+    return jax.lax.cond(should_update, _update, lambda s: s, state)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E   
+E   true_fun is _update at /workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/executor.py:115
+E   false_fun is <lambda> at /workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/executor.py:120
+E   
+E   The output of true_fun at path .aggregates.mean_consumption has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E   
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_current_population_gini_preserves_existing_consumer_dtype_abi[jit-float64-float64-analysis] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:239: in test_current_population_gini_preserves_existing_consumer_dtype_abi
+    actual = evaluate(argument)
+             ^^^^^^^^^^^^^^^^^^
+tests/unit/foundry/agent_sim/test_gini_consumers.py:70: in <lambda>
+    return lambda s: BehaviorAnalyzer.counterfactual_analysis(None, s, {}, executor, n_steps=2)[
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/analysis.py:230: in counterfactual_analysis
+    baseline_final, _ = executor.run(state, n_steps)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:103: in run
+    final_state, all_metrics = jax.lax.scan(
+src/polisyos/foundry/agent_sim/executor.py:100: in scan_fn
+    new_state, metrics = self.step(state, fidelity)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:87: in step
+    state = self._maybe_update_aggregates(state)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:120: in _maybe_update_aggregates
+    return jax.lax.cond(should_update, _update, lambda s: s, state)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E   
+E   true_fun is _update at /workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/executor.py:115
+E   false_fun is <lambda> at /workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/executor.py:120
+E   
+E     * the output of true_fun at path .aggregates.mean_consumption has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match;
+E     * the output of true_fun at path .aggregates.total_wealth has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E   
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_actual_executor_reward_and_welfare_scan_preserves_prior_carry_dtype[float32-float32] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:280: in test_actual_executor_reward_and_welfare_scan_preserves_prior_carry_dtype
+    (final, reward, welfare), history = jax.jit(
+tests/unit/foundry/agent_sim/test_gini_consumers.py:281: in <lambda>
+    lambda c: jax.lax.scan(step, c, None, length=3)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: scan body function carry input and carry output must have equal types, but they differ:
+E   
+E   The input carry component carry[1] has type float32[2] but the corresponding output carry component has type float64[2], so the dtypes do not match.
+E   
+E   Revise the function so that all output types match the corresponding input types.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_actual_executor_reward_and_welfare_scan_preserves_prior_carry_dtype[float32-float64] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:280: in test_actual_executor_reward_and_welfare_scan_preserves_prior_carry_dtype
+    (final, reward, welfare), history = jax.jit(
+tests/unit/foundry/agent_sim/test_gini_consumers.py:281: in <lambda>
+    lambda c: jax.lax.scan(step, c, None, length=3)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: scan body function carry input and carry output must have equal types, but they differ:
+E   
+E   The input carry component carry[1] has type float32[2] but the corresponding output carry component has type float64[2], so the dtypes do not match.
+E   
+E   Revise the function so that all output types match the corresponding input types.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+=============================== warnings summary ===============================
+tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi[eager-float32-float64-metric]
+tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi[eager-float64-float64-metric]
+tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi[jit-float32-float64-metric]
+tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi[jit-float64-float64-metric]
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:104: FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi[eager-float32-float32-reward]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi[eager-float32-float32-analysis]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi[eager-float32-float64-reward]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi[eager-float32-float64-analysis]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi[eager-float64-float32-analysis]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi[eager-float64-float64-analysis]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi[jit-float32-float32-reward]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi[jit-float32-float32-analysis]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi[jit-float32-float64-reward]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi[jit-float32-float64-analysis]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi[jit-float64-float32-analysis]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi[jit-float64-float64-analysis]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_actual_executor_reward_and_welfare_scan_preserves_prior_carry_dtype[float32-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_actual_executor_reward_and_welfare_scan_preserves_prior_carry_dtype[float32-float64]

@@ -1,0 +1,7 @@
+{
+  "schema": "policyos.e02.lossless_text.v1",
+  "encoding": "utf-8 JSON string",
+  "decoded_bytes": 186,
+  "decoded_sha256": "1086b86bf2a7ddef72180edac0958c260018f42634a189e076514731a7561f6a",
+  "text": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/staged-raw-diff-check.stdout.txt:2: trailing whitespace.\n++E     \n"
+}

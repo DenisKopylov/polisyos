@@ -1,0 +1,14 @@
+{
+  "source_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+  "mode": "manifest_stale_hash",
+  "outcome": "FAIL",
+  "expected_rejection_met": true,
+  "canonical_check_errors": [
+    "snapshot out of date: /workspace/e02-F-graph-20261006/policy-engine/schemas/snapshots/ir/_manifest.json"
+  ],
+  "property_removed": "current default/version/native-schema digest",
+  "markers_retained": "schema names, field names, model keys, original provider code, other98 manifest entries",
+  "source_writes": false,
+  "target_path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+  "original_source_sha256": "0fa78f82d255b20801be81c7d739714e4e9f0f2b17bd2675be1448c3f6b44617"
+}

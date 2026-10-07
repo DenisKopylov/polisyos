@@ -1,0 +1,49 @@
+mode row_isolation source /workspace/e02-F-graph-20261006/policy-engine/src/polisyos/ir/analytics/causal_graph.py sha256 b8cc85501f67668b61b6265abe7970026b5124dd9c2204205251697988bfb5cc frozen_marker True
+private_immutable_cache_marker True actual_adjacency_cache_marker True
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_returned_rows_cannot_change_cached_graph_export[base_alias-kuzu_edge_rows] _
+
+rows_name = 'kuzu_edge_rows', mutation = 'base_alias'
+
+    @pytest.mark.parametrize("rows_name", ["kuzu_node_rows", "kuzu_edge_rows"])
+    @pytest.mark.parametrize("mutation", ["overwrite", "base_alias", "clear", "add_nested"])
+    def test_returned_rows_cannot_change_cached_graph_export(rows_name: str, mutation: str) -> None:
+        graph = _graph()
+        canonical = graph.model_dump(mode="json")
+        rows = getattr(graph, rows_name)
+        assert type(rows) is tuple
+        assert all(type(row) is dict for row in rows)
+        expected = deepcopy(rows)
+        key = "name" if rows_name == "kuzu_node_rows" else "src"
+        if mutation == "overwrite":
+            rows[0][key] = "hostile"
+        elif mutation == "base_alias":
+            dict.__setitem__(rows[0], key, "hostile")
+        elif mutation == "clear":
+            rows[0].clear()
+        else:
+            rows[0]["extra"] = {"nested": ["hostile"]}
+            rows[0]["extra"]["nested"].append("again")
+        cold = CausalGraphModel.model_validate(canonical)
+>       assert getattr(graph, rows_name) == getattr(cold, rows_name) == expected
+E       assert ({'combined_c... 'dag', ...},) == ({'combined_c... 'dag', ...},)
+E         
+E         At index 0 diff: {'src': 'hostile', 'dst': 'Y', 'mark_src': 'tail', 'mark_dst': 'arrow', 'lag': None, 'combined_confidence': None, 'graph_type': 'dag', 'sources': '[]', 'evidence_refs': '[]', 'metadata_json': '{"nested": {"tags": ["source"]}}'} != {'src': 'X', 'dst': 'Y', 'mark_src': 'tail', 'mark_dst': 'arrow', 'lag': None, 'combined_confidence': None, 'graph_type': 'dag', 'sources': '[]', 'evidence_refs': '[]', 'metadata_json': '{"nested": {"tags": ["source"]}}'}
+E         Use -v to get more diff
+
+tests/unit/ir/test_causal_graph_cache_rows.py:48: AssertionError
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/ir/test_causal_graph_cache_rows.py::test_returned_rows_cannot_change_cached_graph_export[base_alias-kuzu_edge_rows]
+1 failed, 2 warnings in 0.15s

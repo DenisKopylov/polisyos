@@ -1,0 +1,94 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_______________ test_real_worker_job_cas_fresh_python314_reader ________________
+
+tmp_path = PosixPath('/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/tmp/test_real_worker_job_cas_fresh0')
+selected_worker = None
+
+    def test_real_worker_job_cas_fresh_python314_reader(tmp_path, selected_worker):
+        data = dgp()
+        store, source = admit(tmp_path, data)
+        MethodRegistry.get_instance().register(DoWhyIdentifyEstimate, override=True)
+        spec = JobSpec(
+            job_kind="method",
+            method_fqn=DoWhyIdentifyEstimate.signature.fqn,
+            seed=13,
+            input_refs={"dowhy_observational_data": source},
+        )
+        with bridge.worker_execution_context(store=store, source_ref=source):
+            result = run_job(spec, cas_root=tmp_path, method_state=data)
+        assert not result.issues
+        assert result.method_result_ref is not None
+        payload = from_canonical_bytes(store.get_bytes(result.method_result_ref))
+        report = payload["report"]
+        assert report["status"] == "success", report
+        worker = report["metadata"]["worker"]
+        assert worker["python"].startswith("3.12.") and worker["versions"]["dowhy"] == "0.14"
+        assert worker["source"]["content_sha256"] == hashlib.sha256(store.get_bytes(source)).hexdigest()
+        assert payload["envelope"]["confidence_level"] == 0.95
+        evidence = from_canonical_bytes(store.get_bytes(result.method_evidence_ref))
+        assert evidence["may_not_use_for"] == ["governance_admissibility", "method_validity"]
+        assert str(source.artifact_id) in {
+            str(ref.artifact_id) for ref in store.get_manifest(result.method_result_ref).inputs
+        }
+        reader = """
+    import hashlib,json,sys
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.ir.analytics.causal import CausalEffectReport
+    from polisyos.foundry.methods.catalog.causal.protocols import GraphCausalData
+    from polisyos.foundry.methods.catalog.causal._dowhy_worker import validate_persisted_worker_response
+    from polisyos.foundry.methods.causal import DoWhyIdentifyEstimate
+    store=FileSystemCAS(sys.argv[1])
+    result_ref=ArtifactRef.model_validate(json.loads(sys.argv[2]))
+    source=ArtifactRef.model_validate(json.loads(sys.argv[3]))
+    payload=from_canonical_bytes(store.get_bytes(result_ref))
+    report=CausalEffectReport.model_validate(payload['report'])
+    worker=report.metadata['worker']
+    state=GraphCausalData.model_validate(from_canonical_bytes(store.get_bytes(source)))
+    validate_persisted_worker_response(response=worker,state=state,store=store,source_ref=source)
+    assert report==DoWhyIdentifyEstimate.report_from_worker_result(data=state,params={},response=worker)
+    assert sys.version_info[:2]==(3,14)
+    assert worker['source']['artifact_ref']==source.model_dump(mode='json')
+    assert worker['source']['content_sha256']==hashlib.sha256(store.get_bytes(source)).hexdigest()
+    assert report.confidence_level==.95 and abs(report.point_estimate-2.016134929864521)<1e-10
+    assert list(report.confidence_interval)==worker['result']['interval']
+    envelope=report.to_uncertainty_envelope()
+    assert not envelope.gate_eligible
+    assert envelope.metadata['gate_eligibility_reason']=='causal_identification_admission_not_established'
+    assert envelope.confidence_level==.95 and list(envelope.confidence_interval)==worker['result']['interval']
+    print(json.dumps({'python':sys.version,'report':report.model_dump(mode='json')},sort_keys=True))
+    """
+        fresh = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                reader,
+                str(tmp_path),
+                result.method_result_ref.model_dump_json(),
+                source.model_dump_json(),
+            ],
+            capture_output=True,
+            text=True,
+            env=os.environ.copy(),
+            check=False,
+        )
+>       assert fresh.returncode == 0, fresh.stdout + fresh.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "<string>", line 27, in <module>
+E             assert envelope.confidence_level==.95 and list(envelope.confidence_interval)==worker['result']['interval']
+E                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E         AssertionError
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python', '-c', "\nimport hashlib,js...^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n').returncode
+
+tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py:197: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 16:13:52 [info     ] method_registered              backend=numpy fqn=causal.inference.dowhy_identify_estimate@2.0.0 lazy=False namespace=causal.inference override=True tags=['causal', 'cross-section', 'dowhy', 'estimate', 'estimation', 'identification', 'identify', 'structural', 'tabular'] version=2.0.0
+2026-10-06 16:13:52 [debug    ] method_dispatch_start          backend=numpy fqn=causal.inference.dowhy_identify_estimate@2.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 16:13:55 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=2511.63 fqn=causal.inference.dowhy_identify_estimate@2.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_worker_job_cas_fresh_python314_reader
+1 failed in 14.17s

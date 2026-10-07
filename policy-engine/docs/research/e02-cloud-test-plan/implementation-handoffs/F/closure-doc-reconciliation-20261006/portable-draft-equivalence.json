@@ -1,0 +1,17 @@
+{
+  "outcome": "PASS",
+  "compared": "all35 full row objects, all10 receipt registry objects and full denominator",
+  "original_draft_sha256": "f9b89e45ec7d349716385bb44879121b737d24dd929fb5ccd8629eda9543ebf0",
+  "portable_draft_sha256": "748a1b486b47b885d4a77c1f1c0fb44fc93075dd9177935a4b68b3f5b0b7d5cf",
+  "only_top_identity_differences": {
+    "document_slice_base_sha": [
+      "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+      "99f196be45dec7acabdc05f0cb3af5430ec94c9e"
+    ],
+    "input_reconciliation_path": [
+      "/tmp/e02-F-continuation-20261006/cau/original35-reconciliation.json",
+      "/workspace/e02-F-economics-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/original-inputs/original35-reconciliation.json"
+    ]
+  },
+  "original_draft_remains_scratch_only": true
+}

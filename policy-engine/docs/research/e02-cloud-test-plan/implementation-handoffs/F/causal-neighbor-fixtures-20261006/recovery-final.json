@@ -1,0 +1,11 @@
+{
+  "entry_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+  "custody_commit": "50bedb80d4436e65ea249151e955274a012a8e9f",
+  "approved_dependency_sha": "7185572917f7a3db5e93385a176cb611b35aff42",
+  "merged_head": "b52c64c36504e17da9ae3f70f5551bfd1e01a5d5",
+  "merged_tree": "90fbdfba15cbc22e8cee477b2c21260c08e09197",
+  "expected_target_tree": "90fbdfba15cbc22e8cee477b2c21260c08e09197",
+  "tree_equal": true,
+  "verified_partial_files": 947,
+  "index_clean": true
+}

@@ -1,0 +1,93 @@
+{
+  "source_sha": "df5057dd3816885fc5bfacd9a9f1ee772df9ac51",
+  "source_tree": "e49bf230bbf7b6a52da0243693ef700620a82e03",
+  "verdict": "GO",
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/review.json",
+      "sha256": "9dda520eaf4cfa12b1e263160aac9413980574ba5a657ad563dc09a6e395582b",
+      "size_bytes": 9383
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/finish_review.py",
+      "sha256": "1b9973f2a8542a32f35680897b8e7fd73438710c91967003a75741c7583954c1",
+      "size_bytes": 5319
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/capture_review.py",
+      "sha256": "c8ed626fefba0e9f6f6b669681e788c742cd9923527b8d3187604bcc236acdc6",
+      "size_bytes": 2715
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/test_mixed_refs.py",
+      "sha256": "3dcfc0962b154e1c656d7e60797b07ba22de8a825fd14553f7dfdcbfaec422b4",
+      "size_bytes": 4339
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/remove_retention.py",
+      "sha256": "b265eaa66a94ac6145af5e5e8d9b70ba20e5b7e97c299f779f467b3281334037",
+      "size_bytes": 1890
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/native.json",
+      "sha256": "6385c49af3179ef6c9755f693dba4c438fd35328288be2a8a2a0a8bdafbf43af",
+      "size_bytes": 1821
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/native.stdout.txt",
+      "sha256": "d1b5ef9453784a53b87928abad5f8daacace9b082374a5d4247518d449bb9659",
+      "size_bytes": 615
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/native.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/mixed-initial.json",
+      "sha256": "4f008b23137ec61fa662b89a260a2c0ee3ccc9414f75553166348e5f8d7e1c00",
+      "size_bytes": 1707
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/mixed-initial.stdout.txt",
+      "sha256": "564b27b76465e4a06678ca74ab2d04b416d5833ad790f6ca4829700973b22301",
+      "size_bytes": 3821
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/mixed-initial.stderr.txt",
+      "sha256": "70a4d774191f7a4e2a9ae9a306a9f87b938938bb33ea3a3e2ab993880778c4d6",
+      "size_bytes": 633
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/mixed-corrected.json",
+      "sha256": "730386d89e4156d6931889edb6876caabfce73404357a78153883b0fc13dfbe4",
+      "size_bytes": 1748
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/mixed-corrected.stdout.txt",
+      "sha256": "bc60b8b13eaf33fef31eca5e083498fd93abfa0c32f84bdd6ca24155a6d659fd",
+      "size_bytes": 3231
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/mixed-corrected.stderr.txt",
+      "sha256": "48721eb5cca777fd3a9206cdbe3ff4defee20b65cbcb2dcc7ddc6be569508902",
+      "size_bytes": 2828
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/removal.json",
+      "sha256": "700feb4c058c2ef553a03b7e44ba57b4e1b27c05c4bf85460fd32412d7305001",
+      "size_bytes": 1439
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/removal.stdout.txt",
+      "sha256": "125e4047bea89130599632bdd5fe8b2ea6616bf41e983e127cb064520b9fbd6b",
+      "size_bytes": 1774
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/removal.stderr.txt",
+      "sha256": "ea3f816ae4377b95d27e900f6ed5f51a8def547ace624c77055350f6fbbba61b",
+      "size_bytes": 786
+    }
+  ],
+  "total_bytes": 44049
+}

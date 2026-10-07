@@ -1,0 +1,35 @@
+{
+  "source_root": "/workspace/e02-F-api-20261006",
+  "target_sha": "5484db7a25014953bdab7cb2418df735f972ff93",
+  "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:tools:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "python3",
+    "/workspace/e02-F-api-20261006/policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py",
+    "--root",
+    "/workspace/e02-F-api-20261006",
+    "--ref",
+    "5484db7a25014953bdab7cb2418df735f972ff93",
+    "--output",
+    "/tmp/e02-F-continuation-20261006/api/census-final.json"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/api/census-final",
+  "tree_sha": "0406094722182749d3f7b9a64fa00c5337a9b391",
+  "source_status_before": "",
+  "elapsed_seconds": 75.45591688156128,
+  "exit_code": 0,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/api/census-final.stdout",
+    "bytes": 1510,
+    "sha256": "5c39d5e38f1c98ed13176ea10a08c309933c6669f78cc9bd8ee8def763bfadbe"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/api/census-final.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_status_after": ""
+}

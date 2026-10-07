@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/run-current-f-lex-fresh-reader.py", line 36, in <module>
+    exec(compile(adapted,str(helper),'exec'),{'__name__':'__main__','__file__':str(helper)})
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-f-lex/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/fresh_reader.py", line 16, in <module>
+    a=subprocess.run([sys.executable,'-c',code,str(root),r.cas_artifact_id],capture_output=True,text=True);print(a.stdout,end='');print(a.stderr,end='',file=sys.stderr);raise SystemExit(a.returncode)
+                                                                                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SystemExit: 0
+

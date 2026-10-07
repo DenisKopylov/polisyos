@@ -1,0 +1,28 @@
+id = "2026-10-06-economic-gini-domain"
+title = "Refuse unsupported active populations before classical Gini publication"
+type = "fixed"
+component = "foundry"
+owner = "team-policyos-runtime"
+summary = "Apply the existing Foundry nonnegative classical-Gini domain at the canonical active-population owner and real aggregate/executor/plugin consumers. Negative or nonfinite active resources raise a runtime refusal under eager execution, JIT and scans; inactive invalid padding is excluded. Preserve fiscal/labor laws and historical normalized-income loss."
+compatibility = "Names, supported nonnegative numerical results, dtype promotion and signed simulation laws remain unchanged. Unsupported active signed/nonfinite Gini inputs now refuse rather than publish a finite out-of-domain value or NaN."
+surface_classification = "internal: agent_sim distribution owners; public_stable: existing Foundry execution outputs"
+change_class = "python-public-api"
+migration = "Keep signed resources in simulation states, but do not request classical Gini for those populations. The existing distributional-report API exposes an unavailable metric as None. This is numeric admission, not economic or policy authority."
+limitations = "Finite synthetic profile evidence does not establish admitted real-data calibration, a normative welfare objective or an external caller migration. Fiscal PatchMap and EconomicState plugin laws remain distinct."
+evidence = ["tests/unit/foundry/agent_sim/test_gini_domain.py", "tests/unit/foundry/agent_sim/test_gini_consumers.py", "tests/unit/foundry/plugins/test_economic_profile_consumers.py", "tests/unit/foundry/execute/mechanisms/test_fiscal_labor_replay.py"]
+public_surface_inventory_reviewed = true
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "classical-gini-active-domain"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "internal: canonical Gini helpers; public_stable: existing execution results"
+owner = "team-policyos-runtime"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable: enforce the documented unsupported negative-resource domain"
+release_note = "Classical Gini refuses negative or nonfinite active resources before a scalar reaches aggregate/executor/plugin consumers. Finite nonnegative pairwise/scale/dtype behavior and signed simulation transitions are preserved."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/foundry/plugins/economics/README.md", "docs/reference/foundry/numeric-guardrails.md"]
+runbook_docs = []

@@ -220,6 +220,7 @@ class BehaviorAnalyzer:
         n_steps: int = 100,
     ) -> dict[str, jnp.ndarray]:
         del actor
+        from polisyos.foundry.agent_sim.distributions import compute_gini_hard
         from polisyos.foundry.agent_sim.state import PolicyState
 
         def _gdp(current_state: GlobalState) -> jnp.ndarray:
@@ -239,13 +240,18 @@ class BehaviorAnalyzer:
 
         baseline_gdp = _gdp(baseline_final)
         counterfactual_gdp = _gdp(cf_final)
+        baseline_gini = compute_gini_hard(
+            baseline_final.agents.wealth, baseline_final.agents.active
+        ).astype(baseline_final.distributions.gini_wealth.dtype)
+        counterfactual_gini = compute_gini_hard(
+            cf_final.agents.wealth, cf_final.agents.active
+        ).astype(cf_final.distributions.gini_wealth.dtype)
 
         return {
             "baseline_gdp": baseline_gdp,
             "counterfactual_gdp": counterfactual_gdp,
-            "baseline_gini": baseline_final.distributions.gini_wealth,
-            "counterfactual_gini": cf_final.distributions.gini_wealth,
+            "baseline_gini": baseline_gini,
+            "counterfactual_gini": counterfactual_gini,
             "gdp_change": counterfactual_gdp - baseline_gdp,
-            "gini_change": cf_final.distributions.gini_wealth
-            - baseline_final.distributions.gini_wealth,
+            "gini_change": counterfactual_gini - baseline_gini,
         }

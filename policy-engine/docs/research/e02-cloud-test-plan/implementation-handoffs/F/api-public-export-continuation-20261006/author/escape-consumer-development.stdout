@@ -1,0 +1,49 @@
+F..................................................                      [100%]
+=================================== FAILURES ===================================
+____________ test_actual_analytics_mapping_is_not_reported_as_empty ____________
+
+    def test_actual_analytics_mapping_is_not_reported_as_empty() -> None:
+        from polisyos.ir import analytics
+        from polisyos.ir.api import ANALYTICS_FACADE_EXPORTS
+    
+>       result = guardrails._entrypoint_inventory("polisyos.ir.analytics")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/repo_quality/architecture/test_public_surface_export_resolution.py:35: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/devx/architecture/guardrails.py:850: in _entrypoint_inventory
+    exports = _extract_exports(tree, source_file)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/devx/architecture/guardrails.py:813: in _extract_exports
+    resolver.audit_consumers()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <tools.devx.architecture.guardrails._StaticExportResolver object at 0x7f67efa49010>
+
+    def audit_consumers(self) -> None:
+        """A finite binding must not escape the selected declaration grammar."""
+        for source in {path for path, _ in self._resolved}:
+            symbols = {symbol for path, symbol in self._resolved if path == source}
+            first_bound_line = min(
+                line for (path, _), line in self._resolved.items() if path == source
+            )
+            for node in _module_level_nodes(self._tree(source)):
+                if (
+                    isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load)
+                    and node.id in symbols and (source, id(node)) not in self._allowed_reads
+                ):
+>                   raise ValueError(f"Unresolved export binding consumer: {source}:{node.id}")
+E                   ValueError: Unresolved export binding consumer: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/ir/api.py:ANALYTICS_FACADE_EXPORTS
+E                   {"complete_verdict": false, "finding_coverage": "explicit file-reader operations only", "inputs": [{"operation": "is_file", "path": "src/polisyos/ir/analytics.py", "result": false, "status": "absent"}, {"operation": "is_file", "path": "src/polisyos/ir/analytics/__init__.py", "result": true, "status": "present"}, {"bytes": 1152, "operation": "read_bytes", "path": "src/polisyos/ir/analytics/__init__.py", "sha256": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174", "status": "read"}, {"operation": "is_file", "path": "src/polisyos/ir/api.py", "result": true, "status": "present"}, {"operation": "is_file", "path": "src/polisyos/ir/api/__init__.py", "result": false, "status": "absent"}, {"bytes": 47862, "operation": "read_bytes", "path": "src/polisyos/ir/api.py", "sha256": "50eef6b0cb043705d1bd03069e6e1ecd5cfe995575faedb2c5af1fd4e544e384", "status": "read"}], "unresolved_by_construction": ["Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."]}
+
+tools/devx/architecture/guardrails.py:742: ValueError
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/repo_quality/architecture/test_public_surface_export_resolution.py::test_actual_analytics_mapping_is_not_reported_as_empty
+1 failed, 50 passed, 1 warning in 0.86s

@@ -1,0 +1,27 @@
+{
+  "frozen_source": "05f86c84a3cc9720fc5d7eb86a6b0c1b7090c282",
+  "frozen_source_sha256": "4ffdae21af04092cb8fdaf10d33c3a9335fa68984003a91e1e3fb963967b9029",
+  "native_owner_origin": "05f86c84a3cc9720fc5d7eb86a6b0c1b7090c282:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+  "dependency_root": "root readonly providers; rootHEAD21ca differs05f only DiD producer/request paths, Core/CAS/PDC unchanged",
+  "default_ref": {
+    "artifact_id": "sha256:9b69163663ccca647c014fad01bad4c1582ff3b01756c1d06ad01a51fb904a46",
+    "kind": "ir.observation_method_input",
+    "media_type": "application/json"
+  },
+  "selected_ref": {
+    "artifact_id": "sha256:9b69163663ccca647c014fad01bad4c1582ff3b01756c1d06ad01a51fb904a46",
+    "kind": "ir.observational_data",
+    "media_type": "application/json",
+    "manifest_profile_sha256": "sha256:23f3c1cac1dc543e0c9d2d648442e2d10aca4ea716601a1952292c78a0aa922f"
+  },
+  "default_manifest_kind": "ir.observation_method_input",
+  "selected_manifest_kind": "ir.observational_data",
+  "actual_byte_resolver": "PASS",
+  "identities": [
+    [
+      "sha256:9b69163663ccca647c014fad01bad4c1582ff3b01756c1d06ad01a51fb904a46",
+      "sha256:9b69163663ccca647c014fad01bad4c1582ff3b01756c1d06ad01a51fb904a46"
+    ]
+  ]
+}
+{"actual_loader": "REFUSED_VALID_SELECTED_VIEW", "exception_type": "ValueError", "reason": "observational_envelope_artifact_identity_mismatch", "scope": "Availability/typed-view continuity discriminator only; no Runtime authority fabricated."}

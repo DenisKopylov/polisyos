@@ -1,0 +1,6 @@
+{
+  "encoding": "utf8-json-string",
+  "raw_stdout_or_stderr": "..........                                                               [100%]\n=============================== warnings summary ===============================\n../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428\n  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir\n  \n    self._warn_or_fail_if_strict(f\"Unknown config option: {key}\\n\")\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n10 passed, 1 warning in 25.46s\n",
+  "raw_sha256": "482890e95120afc4462bb1c392a2b6da58865e2d714c4089634bef284fb3051d",
+  "raw_bytes": 620
+}

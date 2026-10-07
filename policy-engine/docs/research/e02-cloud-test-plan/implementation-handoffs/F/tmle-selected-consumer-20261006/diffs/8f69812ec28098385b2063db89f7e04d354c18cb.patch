@@ -1,0 +1,23 @@
+commit 8f69812ec28098385b2063db89f7e04d354c18cb
+Author:     Денис Копылов <skvidvard167m@gmail.com>
+AuthorDate: Tue Oct 6 16:48:35 2026 +0000
+Commit:     Денис Копылов <skvidvard167m@gmail.com>
+CommitDate: Tue Oct 6 16:48:35 2026 +0000
+
+    Keep selected consumer refusal witness at the earlier diagnostic boundary
+
+diff --git a/policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py b/policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py
+index 33cb0de43..cf2325c31 100644
+--- a/policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py
++++ b/policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py
+@@ -367,7 +367,9 @@ def test_selected_did_peer_and_actual_source_must_match(
+     monkeypatch.setattr(owner, "run_job", lambda *args, **kwargs: genuine)
+     changed = data.model_copy(deep=True)
+     changed.outcome[0, -1] += 0.25
+-    with pytest.raises(ValueError, match="target does not bind"):
++    # Full diagnostic reconciliation now precedes the independent target check.
++    # The dedicated target discriminator above still exercises its own refusal.
++    with pytest.raises(ValueError, match="diagnostic basis/result does not bind"):
+         _run_primary_causal_job(
+             ctx=execution_context, state=state, spec=spec, observational_data=changed
+         )

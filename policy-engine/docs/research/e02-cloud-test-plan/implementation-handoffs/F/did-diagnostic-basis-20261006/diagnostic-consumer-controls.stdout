@@ -1,0 +1,97 @@
+{
+  "producer_module": "/workspace/e02-F-cau-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+  "current_input_positive": "PASS",
+  "actual_CAS_fresh_reader_positive": "PASS",
+  "rejections": [
+    {
+      "control": "time_treatment-only stale report with same scalar markers",
+      "outcome": "REFUSED",
+      "reason": "selected DiD diagnostic basis/result does not bind current panel"
+    },
+    {
+      "control": "diagnostic-only statistic",
+      "outcome": "REFUSED",
+      "reason": "selected DiD diagnostics do not project the current panel"
+    },
+    {
+      "control": "diagnostic-only p_value",
+      "outcome": "REFUSED",
+      "reason": "selected DiD diagnostics do not project the current panel"
+    },
+    {
+      "control": "diagnostic-only passed",
+      "outcome": "REFUSED",
+      "reason": "selected DiD diagnostics do not project the current panel"
+    },
+    {
+      "control": "diagnostic-only details",
+      "outcome": "REFUSED",
+      "reason": "selected DiD diagnostics do not project the current panel"
+    },
+    {
+      "control": "coherent diagnostic forged-result hashes",
+      "outcome": "REFUSED",
+      "reason": "selected DiD diagnostic basis/result does not bind current panel"
+    }
+  ],
+  "independent_actual_statsmodels_oracles": [
+    {
+      "t0": 3,
+      "slope": -0.15000000000000002,
+      "HC1_se": 0.2653613888015109,
+      "normal_p": 0.571892263597918,
+      "owner_diagnostic": {
+        "test_name": "pre_trend_parallelism",
+        "statistic": -0.15000000000000005,
+        "p_value": 0.5718922635979181,
+        "passed": true,
+        "details": {
+          "identification_authority": false,
+          "limitation": "Non-rejection cannot establish untreated potential-outcome parallel trends.",
+          "status": "no_detected_pretrend",
+          "slope_se": 0.265361388801511,
+          "z_score": -0.5652668637191951
+        }
+      }
+    },
+    {
+      "t0": 4,
+      "slope": 0.1300000000000001,
+      "HC1_se": 0.15345357604174628,
+      "normal_p": 0.396904970394935,
+      "owner_diagnostic": {
+        "test_name": "pre_trend_parallelism",
+        "statistic": 0.13000000000000003,
+        "p_value": 0.39690497039493555,
+        "passed": true,
+        "details": {
+          "identification_authority": false,
+          "limitation": "Non-rejection cannot establish untreated potential-outcome parallel trends.",
+          "status": "no_detected_pretrend",
+          "slope_se": 0.1534535760417464,
+          "z_score": 0.8471617498482674
+        }
+      }
+    },
+    {
+      "t0": 5,
+      "slope": 0.5100000000000001,
+      "HC1_se": 0.22899781658347745,
+      "normal_p": 0.02594089389322264,
+      "owner_diagnostic": {
+        "test_name": "pre_trend_parallelism",
+        "statistic": 0.5100000000000001,
+        "p_value": 0.02594089389322279,
+        "passed": false,
+        "details": {
+          "identification_authority": false,
+          "limitation": "Non-rejection cannot establish untreated potential-outcome parallel trends.",
+          "status": "evidence_of_violation",
+          "slope_se": 0.2289978165834777,
+          "z_score": 2.2270954702054433
+        }
+      }
+    }
+  ],
+  "limitation": "Portable proposed root function only, not whole admitted Scientist Node; nonrejection and content binding confer no identification authority."
+}

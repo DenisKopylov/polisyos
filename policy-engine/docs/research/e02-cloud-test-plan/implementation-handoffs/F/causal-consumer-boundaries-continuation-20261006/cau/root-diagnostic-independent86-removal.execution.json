@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-removal.py"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "source_sha": "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+  "source_tree": "1c5151f1f97d2c81b2b1599fedd904d8cba839f3",
+  "utc": "2026-10-06T15:34:26.876344+00:00",
+  "elapsed_s": 14.167142464997596,
+  "exit_code": 1,
+  "environment": {
+    "python": "3.14.7",
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/tmp/e02-F-continuation-20261006/cau/frozen-import:/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine:."
+  },
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-removal.stdout",
+    "bytes": 24280,
+    "sha256": "21e4e1da7fe154c6e2de5896620862de6121db63f268b863e5113bbf3b88d97b"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-removal.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

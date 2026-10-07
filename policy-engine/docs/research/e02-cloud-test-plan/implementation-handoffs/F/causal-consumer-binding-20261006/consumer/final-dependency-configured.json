@@ -1,0 +1,28 @@
+{
+  "source_start": "7450e7ece415490cbf70a59871bdf1e17fb25abd",
+  "tree_start": "36f5f6dfc94e0990069204a90d539685e75864cb",
+  "status_start": "",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-F-20261006-receipts/consumer/final_dependency_replay.py"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "source_sha": "7450e7ece415490cbf70a59871bdf1e17fb25abd",
+  "tree": "36f5f6dfc94e0990069204a90d539685e75864cb",
+  "status": "",
+  "exit": 1,
+  "wall_s": 7.023944180997205,
+  "pythonpath": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/consumer/final-dependency-configured.stdout",
+      "sha256": "bc0ad5fd905aa9eed4ad7c24e18fda680ca311dbaeb859e1d188bee98fbcff1f",
+      "bytes": 58
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/consumer/final-dependency-configured.stderr",
+      "sha256": "bf87cb36f0d8e1f0398a3d9b3b27cdf1784b24ec8a715a4f4e9c5149c136fbcc",
+      "bytes": 482
+    }
+  }
+}

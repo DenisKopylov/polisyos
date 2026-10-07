@@ -1,0 +1,33 @@
+{
+  "command_argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py"
+  ],
+  "cwd": "/workspace/e02-B-current-durability/policy-engine",
+  "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "test_overlay": {
+    "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+    "sha256": "8e453452940679ad5242cf712625eef756f3773de071c248d207fd7b08c054ee",
+    "tracked_at_run": false
+  },
+  "environment": {
+    "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "src",
+    "child_source_origin_asserted": true
+  },
+  "input_closure": "Complete current actual ledger/schema + new real-subprocess regression; isolated pytest temp directory, no production data/external services; complete current test serialization schema walk.",
+  "exit_code": 1,
+  "wall_s": 8.199916306999512,
+  "max_rss_kib": 88036,
+  "outcome": "FAIL",
+  "output": {
+    "path": "B37-before-formatted.txt",
+    "bytes": 5698,
+    "sha256": "416c134a20b60f871ef73b7c00be6fd4e8528e6f20b08ac93d90affb3bd70727"
+  }
+}

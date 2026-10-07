@@ -1,0 +1,4 @@
+{
+  "schema": "policyos.e02.lossless_utf8_output.v1",
+  "text": "{\"public_catalog_class_identity\": true, \"factory_identity_pickle\": true, \"fqn\": \"causal.treatment_effects.tmle@1.0.0\", \"factory_signature\": \"(*, data: 'HTEObservationalData | Mapping[str, Any]', params: 'Mapping[str, Any]', result: 'Mapping[str, Any]') -> 'CausalEffectReport'\", \"native_parameter_count\": 32, \"output_slots\": [\"result\", \"report\", \"envelope\"]}\n"
+}

@@ -1,0 +1,139 @@
+{
+  "check": "PASS",
+  "controls": [
+    {
+      "graph": "bow",
+      "condition": [],
+      "latent_dag_separated": false,
+      "native_separated": false
+    },
+    {
+      "graph": "bow",
+      "consumer": "sid",
+      "status": "hedge_found",
+      "proof_rules": [
+        "HEDGE"
+      ]
+    },
+    {
+      "graph": "bow",
+      "consumer": "conditional",
+      "status": "hedge_found",
+      "proof_rules": [
+        "HEDGE"
+      ]
+    },
+    {
+      "graph": "old_observed_U_collider",
+      "condition": [],
+      "latent_dag_separated": true,
+      "native_separated": true
+    },
+    {
+      "graph": "old_observed_U_collider",
+      "condition": [
+        "U"
+      ],
+      "latent_dag_separated": false,
+      "native_separated": false
+    },
+    {
+      "graph": "old_observed_U_collider",
+      "consumer": "sid",
+      "status": "identified",
+      "proof_rules": [
+        "SID_POLICY_WRAP",
+        "ANCESTRAL_COLLAPSE",
+        "C_COMPONENT"
+      ]
+    },
+    {
+      "graph": "old_observed_U_collider",
+      "consumer": "conditional",
+      "status": "identified",
+      "proof_rules": [
+        "SID_CONDITIONAL",
+        "ANCESTRAL_COLLAPSE",
+        "C_COMPONENT"
+      ]
+    },
+    {
+      "independent_nonidentification_oracle": {
+        "observed_covariance": [
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            2
+          ]
+        ],
+        "observed_determinant": 1,
+        "two_nonzero_structural_beta_gamma_pairs": [
+          [
+            "1/2",
+            "1/2"
+          ],
+          [
+            "3/2",
+            "-1/2"
+          ]
+        ],
+        "do_X_1_Y_mean": [
+          "1/2",
+          "3/2"
+        ]
+      }
+    },
+    {
+      "AMN_chain_condition": [],
+      "oracle": false,
+      "native": false
+    },
+    {
+      "AMN_chain_condition": [
+        "X__w1"
+      ],
+      "oracle": true,
+      "native": true
+    },
+    {
+      "independent_AMN_covariance": {
+        "Cov(X0,Y1)": 2,
+        "Cov(X0,X1)": 2,
+        "Var(X1)": 3,
+        "Cov(X1,Y1)": 3,
+        "conditional_covariance": 0,
+        "scope": "derived AMN graph, not numerical intervention validation"
+      }
+    },
+    {
+      "compiler_actual_rule_walk": {
+        "rewrite_rules": [
+          "RULE1"
+        ],
+        "variables": [
+          [
+            "Z"
+          ]
+        ],
+        "compiled_rules": [
+          "RULE1"
+        ],
+        "executor_nodes": [
+          "causal.diagnostics.positivity_check",
+          "causal.nuisance.propensity_model",
+          "causal.nuisance.propensity_model",
+          "causal.compiler.fold_aggregator",
+          "causal.nuisance.outcome_model",
+          "causal.nuisance.outcome_model",
+          "causal.compiler.fold_aggregator",
+          "causal.treatment_effects.aipw",
+          "causal.refutation.dowhy_refute",
+          "causal.sensitivity.sensitivity_metrics"
+        ]
+      }
+    }
+  ]
+}

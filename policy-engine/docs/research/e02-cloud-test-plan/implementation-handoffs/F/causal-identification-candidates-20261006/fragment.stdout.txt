@@ -1,0 +1,6 @@
+{
+  "fragments": 1,
+  "records": 1,
+  "contract_errors": [],
+  "findings": []
+}

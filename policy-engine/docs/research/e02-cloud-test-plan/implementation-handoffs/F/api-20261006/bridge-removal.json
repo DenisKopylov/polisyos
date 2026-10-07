@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/workspace/e02-F-20261006-receipts/api/wheel-env/bin/python",
+    "-I",
+    "/workspace/e02-F-20261006-receipts/api/removal_replayer.py",
+    "bridge"
+  ],
+  "cwd": "/workspace/e02-F-20261006-receipts/api/wheel-consumer",
+  "source_sha_start": "729d137279b7d6334230045e420255762fe55f08",
+  "source_sha_end": "729d137279b7d6334230045e420255762fe55f08",
+  "environment": {
+    "PYTHONPATH": "src:."
+  },
+  "exit": 1,
+  "wall_s": 11.556441705994075,
+  "rss_kib": 581656
+}

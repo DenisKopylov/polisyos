@@ -6,7 +6,7 @@
     "release_fragment_change_class": "persisted-artifact-format",
     "version_owner": "team-ir"
   },
-  "content_hash": "2d2db2e781510e085cd466d1721f30d5c0989d2f36f16340fc4af039a06fc5bb",
+  "content_hash": "f0fb5b7e7fd92570cf46fa834835702ff9b36e8954ced8adab1e84ffd8e769bc",
   "generated_at": "2026-09-22T16:59:24+00:00",
   "generator_version": "1.0.0",
   "models": {
@@ -126,8 +126,8 @@
       "priority": "p1",
       "schema_file": "causal_effect_report.schema.json",
       "schema_version": "1.0",
-      "sha256_full": "194030c176abf384616a457089b80a832a7c5b6c6a4b548c707e0132a0e4a560",
-      "sha256_semantic": "6170ecdca3f6391e014f016046b4c9636551259146c6dd19f4153081d6b27dc3",
+      "sha256_full": "9b3c61fab918cd1291ed3fef560c78bd8172a9db42e66b621af4f2bb0b66ef70",
+      "sha256_semantic": "7aab181a683314bb4a5911c32dc7bb69bb6783c4aa60b6f35a654b737ceca3b3",
       "version_field": "schema_version"
     },
     "causal_graph_model": {
@@ -185,9 +185,9 @@
       "lifecycle": "active",
       "priority": "p1",
       "schema_file": "causal_query_result.schema.json",
-      "schema_version": "1.1",
-      "sha256_full": "89839685cab2e24d958674c179c1aee2f11ac078b36a9943923b38a64f8e2c34",
-      "sha256_semantic": "feff2e577f8676b22029ab69447f4ba8606856588ed773a4fc7150f6eefcee82",
+      "schema_version": "1.2",
+      "sha256_full": "1f6abcfcd37e031090a75e78d3e81c03207b42b280ffee7d937c6395c460e06d",
+      "sha256_semantic": "010d5c6fbf5d426ff6717e047e839bde00e57da58274b6f1e79c596c3a4677ac",
       "version_field": "schema_version"
     },
     "causal_sensitivity_result": {
@@ -546,8 +546,8 @@
       "priority": "p1",
       "schema_file": "hte_result.schema.json",
       "schema_version": "1.0",
-      "sha256_full": "f6adb9ae7fb2e83e64e2774aea018936e5bd551f72673e888ea85708e54bd69d",
-      "sha256_semantic": "f43b01f9a2ec97502f6dcc8fa134d593053f82401d42f11ccd2163208bc4ac5e",
+      "sha256_full": "6aa800d87fc38c2c060cb5c61ed56b060e0747ee4f5f7dbae08a6eca77960288",
+      "sha256_semantic": "e226880a23c5f4f8aaf0d1465cb148021723517ed1c1d4244655e1f50d2c6c30",
       "version_field": "schema_version"
     },
     "identification_mode": {
@@ -1085,9 +1085,9 @@
       "lifecycle": "active",
       "priority": "p1",
       "schema_file": "structural_causal_model_spec.schema.json",
-      "schema_version": "1.0",
-      "sha256_full": "c7680c25a3da8f42ed67ed69451f3e96f8520ef83142bc7c16673965806717e8",
-      "sha256_semantic": "75abdff17b13acb5c8c9ab13c2a93eb715c0b744e428c67a51690613c9549f94",
+      "schema_version": "1.1",
+      "sha256_full": "699017daf1e4e5b848c24489197dd839eda9a34012cdf9a81146b78f62675ee5",
+      "sha256_semantic": "8ce5963b79c8be7dcf7e3a8493242023a8fcf990db72d364f0d80eec0bdf1613",
       "version_field": "schema_version"
     },
     "survival_data_bundle_manifest": {

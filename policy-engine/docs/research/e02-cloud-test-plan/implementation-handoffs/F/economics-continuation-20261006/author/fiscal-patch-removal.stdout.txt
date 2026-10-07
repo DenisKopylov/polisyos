@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261006/economics/replay_economic_controls.py", line 68, in <module>
+    original=mod.IncomeTaxMechanism.emit_patches
+             ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'polisyos.foundry.execute.mechanisms.fiscal' has no attribute 'IncomeTaxMechanism'

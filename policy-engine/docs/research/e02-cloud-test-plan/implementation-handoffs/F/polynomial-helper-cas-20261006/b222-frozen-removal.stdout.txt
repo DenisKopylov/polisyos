@@ -1,0 +1,93 @@
+{"source_path": "/workspace/e02-F-graph-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py", "source_sha256": "f9a826aa9659d261153aaa577b417041cb14748afd888d500935d0d39bc87a87", "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9", "removal": "early None from actual polynomial evaluator; complete original function body remains unreachable; polynomial fit fields and method signatures unchanged", "filesystem_changed": false}
+2026-10-06 15:41:21 [info     ] method_registered              backend=numpy fqn=causal.structural.gcm_query@1.0.0 lazy=False namespace=causal.structural override=True tags=['causal', 'estimation', 'gcm', 'query', 'structural'] version=1.0.0
+2026-10-06 15:41:21 [debug    ] method_dispatch_start          backend=numpy fqn=causal.structural.gcm_query@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 15:41:21 [error    ] method_dispatch_error          attempts=[('numpy', 'ValueError')] backend=numpy elapsed_ms=0.76 exc=ValueError fqn=causal.structural.gcm_query@1.0.0 requested_backend=numpy
+F2026-10-06 15:41:21 [info     ] method_registered              backend=numpy fqn=causal.structural.gcm_query@1.0.0 lazy=False namespace=causal.structural override=True tags=['causal', 'estimation', 'gcm', 'query', 'structural'] version=1.0.0
+2026-10-06 15:41:21 [debug    ] method_dispatch_start          backend=numpy fqn=causal.structural.gcm_query@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 15:41:21 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=13.37 fqn=causal.structural.gcm_query@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{"fresh_mean": 7.0, "persisted_mean": 7.0, "family": "linear", "selected_backend_claim": false}
+.2026-10-06 15:41:29 [info     ] method_registered              backend=numpy fqn=causal.structural.twin_network_query@1.0.0 lazy=False namespace=causal.structural override=True tags=['causal', 'counterfactual', 'estimation', 'structural', 'twin_network'] version=1.0.0
+2026-10-06 15:41:29 [debug    ] method_dispatch_start          backend=numpy fqn=causal.structural.twin_network_query@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 15:41:29 [error    ] method_dispatch_error          attempts=[('numpy', 'ValueError')] backend=numpy elapsed_ms=0.22 exc=ValueError fqn=causal.structural.twin_network_query@1.0.0 requested_backend=numpy
+F
+=================================== FAILURES ===================================
+_ test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader[additive_noise-4.0] _
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py:143: in test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader
+    job, payload = _actual_job(
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py:122: in _actual_job
+    assert not job.issues, json.dumps(job.issues, indent=2)
+E   AssertionError: [
+E       {
+E         "loc": [
+E           "method_runner"
+E         ],
+E         "message": "invalid additive_noise polynomial payload for node 'Y'",
+E         "error_type": "runtime",
+E         "input_value": null,
+E         "path": null,
+E         "code": null,
+E         "expected": null,
+E         "actual": null,
+E         "severity": null
+E       }
+E     ]
+E   assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]
+E    +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:44e819a9dce4789a2da0e7bff5bc87a3ecd85d5d116019450c65be379442ff4f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues
+_ test_existing_polynomial_fit_helper_shared_residual_twin_cas_and_fresh_reader _
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py:198: in test_existing_polynomial_fit_helper_shared_residual_twin_cas_and_fresh_reader
+    job, payload = _actual_job(store, TwinNetworkQuery, state, "twin_network_query_data")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py:122: in _actual_job
+    assert not job.issues, json.dumps(job.issues, indent=2)
+E   AssertionError: [
+E       {
+E         "loc": [
+E           "method_runner"
+E         ],
+E         "message": "invalid additive_noise polynomial payload for node 'Y'",
+E         "error_type": "runtime",
+E         "input_value": null,
+E         "path": null,
+E         "code": null,
+E         "expected": null,
+E         "actual": null,
+E         "severity": null
+E       }
+E     ]
+E   assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]
+E    +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:37e1dc0a38721b94124dfa80f049df82c7b95a8b3d2ab0328b45882637731e0f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader[linear-7.0]
+  /workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] warnings: unexpected_key — Key 'warnings' not declared in output slots
+    result = backend.run(
+
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader[linear-7.0]
+  /workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] query_result: unexpected_key — Key 'query_result' not declared in output slots
+    result = backend.run(
+
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader[linear-7.0]
+  /workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] envelope: unexpected_key — Key 'envelope' not declared in output slots
+    result = backend.run(
+
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader[linear-7.0]
+  /workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] estimator_envelope: unexpected_key — Key 'estimator_envelope' not declared in output slots
+    result = backend.run(
+
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader[linear-7.0]
+  /workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    result = backend.run(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader[additive_noise-4.0]
+FAILED tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_fit_helper_shared_residual_twin_cas_and_fresh_reader
+2 failed, 1 passed, 7 warnings in 8.30s

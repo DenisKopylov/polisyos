@@ -1,0 +1,27 @@
+{
+  "outcome": "ERROR",
+  "scope": "author harness did not catch expected registered RateValue contract refusal for ndarray producer; direct ndarray constructor is distinct API",
+  "source_unchanged": true,
+  "artifacts": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/trace_fiscal_precision.third.py",
+      "bytes": 11241,
+      "sha256": "81593c196b72afff0c04ea5750da9ad3cfbd27dda92511ede299da771106bcf4"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-precision-trace-third.stdout",
+      "bytes": 1536,
+      "sha256": "493eb05c3748479704971e83614b85dad463ed213c72021a27eb1ada0af04b3e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-precision-trace-third.stderr",
+      "bytes": 1042,
+      "sha256": "5140e2095b8bb457509b5eb1201cd4bad427397ec1884e5a4a54f86177e9dbcc"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-precision-trace-third-spec.json",
+      "bytes": 765,
+      "sha256": "1453a1189c15934526440ddd507285750a99e26b534f3fe6beaadaced8daf570"
+    }
+  ]
+}

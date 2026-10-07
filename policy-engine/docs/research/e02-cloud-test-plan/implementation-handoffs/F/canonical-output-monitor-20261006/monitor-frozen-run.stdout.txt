@@ -1,0 +1,41 @@
+{
+  "receipt": "/tmp/e02-F-continuation-20261006/foundry/monitor-frozen-checks.json",
+  "all_deciding_expectations_met": true,
+  "checks": [
+    {
+      "name": "monitor-frozen-native",
+      "outcome": "PASS",
+      "wall_seconds": 12.404563888005214
+    },
+    {
+      "name": "monitor-removal-raw_keys",
+      "outcome": "FAIL",
+      "wall_seconds": 21.945781764006824
+    },
+    {
+      "name": "monitor-removal-no_raw_numeric",
+      "outcome": "FAIL",
+      "wall_seconds": 17.25897644899669
+    },
+    {
+      "name": "monitor-removal-no_slot_keys",
+      "outcome": "FAIL",
+      "wall_seconds": 15.31110525999975
+    },
+    {
+      "name": "monitor-removal-no_array_types",
+      "outcome": "FAIL",
+      "wall_seconds": 17.33579984800599
+    },
+    {
+      "name": "monitor-removal-metadata_float",
+      "outcome": "FAIL",
+      "wall_seconds": 22.498178306996124
+    },
+    {
+      "name": "monitor-removal-no_flags",
+      "outcome": "FAIL",
+      "wall_seconds": 21.66532890200324
+    }
+  ]
+}

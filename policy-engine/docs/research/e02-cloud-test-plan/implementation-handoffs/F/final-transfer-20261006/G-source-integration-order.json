@@ -1,0 +1,939 @@
+{
+  "schema": "policyos.e02.G_source_integration_order.v1",
+  "recorded_at": "2026-10-06T12:39:15.124902+00:00",
+  "scope": "Read-only source ownership/overlap and finite conditional proposal. No checkout/source mutation, no G integration/publication, no code/finding acceptance, no main mutation.",
+  "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "base_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "actual_remote_ref_snapshot": {
+    "refs/heads/codex/e02-F-api-20261006": "449d32909928caf39382f4ff02ac74b0adf277eb",
+    "refs/heads/codex/e02-F-cau-20261006": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+    "refs/heads/codex/e02-F-closeout-20261006": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+    "refs/heads/codex/e02-F-dowhy-20261006": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+    "refs/heads/codex/e02-F-economics-20261006": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+    "refs/heads/codex/e02-F-fry-20261006": "f4fa51e6dd247cfd967450263579d67233a743d6",
+    "refs/heads/codex/e02-F-graph-20261006": "2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+    "refs/heads/codex/e02-F-graph-intake-20261006": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+    "refs/heads/codex/e02-F-installed-worker-20261006": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+    "refs/heads/codex/e02-F-lex-20261006": "77166daa0ff8b9659e3978447f9016c691694266",
+    "refs/heads/codex/e02-F-rdd-20261006": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+    "refs/heads/codex/e02-F-tmle-20261006": "f460bd81b8124be58f890f59a53e2aba9e7ceb76"
+  },
+  "topics": {
+    "api": {
+      "branch": "codex/e02-F-api-20261006",
+      "published_head": "449d32909928caf39382f4ff02ac74b0adf277eb",
+      "published_tree": "bbb4a9a6e4256d850a47f16c00321b57fa1bc80d",
+      "initial_observed_head": "449d32909928caf39382f4ff02ac74b0adf277eb",
+      "observed_head_drift": false,
+      "receipt": {
+        "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006.json@449d32909928caf39382f4ff02ac74b0adf277eb",
+        "bytes": 33029,
+        "sha256": "6729aabae4bd540d2b1e3077e5f7f39a007868d30fb1f265ced62f6798e8ce99"
+      },
+      "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source": "729d137279b7d6334230045e420255762fe55f08",
+      "source_tree": "7ced77fdbd83e65efbd14d4bd518de2f786b1e9a",
+      "own_source_commits": [
+        "729d137279b7d6334230045e420255762fe55f08"
+      ],
+      "own_paths_authority": "Exact scoped paths in this receipt; for graph use author_only_implementation_commits, for installed use owned_changed_paths.",
+      "own_path_count": 3,
+      "declared_path_count": 3,
+      "owned_delta": {
+        "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source": "729d137279b7d6334230045e420255762fe55f08",
+        "path_scope": "own_paths_authority",
+        "bytes": 32006,
+        "sha256": "b78f22defc87d5adc78103395fc787ac0075698ff547c66af1d75d79620d74f9"
+      },
+      "cumulative_delta": {
+        "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source": "729d137279b7d6334230045e420255762fe55f08",
+        "bytes": 32006,
+        "sha256": "b78f22defc87d5adc78103395fc787ac0075698ff547c66af1d75d79620d74f9",
+        "path_count": 3,
+        "note": "Includes carried dependencies and any receipt companions; never an own source transfer."
+      },
+      "source_tree_matches_receipt": true,
+      "published_owned_blobs_match_source": true,
+      "own_commits_touch_only_owned_paths": true
+    },
+    "cau": {
+      "branch": "codex/e02-F-cau-20261006",
+      "published_head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "published_tree": "209c9f0a6a9127286884c5faff3e813de465c6f6",
+      "initial_observed_head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "observed_head_drift": false,
+      "receipt": {
+        "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json@4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "bytes": 216928,
+        "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73"
+      },
+      "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+      "source_tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+      "own_source_commits": [
+        "fc0d896e86ffb346381bbcc95b81d24c84e1a351",
+        "c7d33a223e467964c589f61c8b097eb9175335c5",
+        "0a25f3afee4c12ba8079c781618229589ef8af75",
+        "cebe94d8134a4652bbfc1ae4d74ec6403940ced5"
+      ],
+      "own_paths_authority": "Exact scoped paths in this receipt; for graph use author_only_implementation_commits, for installed use owned_changed_paths.",
+      "own_path_count": 8,
+      "declared_path_count": 8,
+      "owned_delta": {
+        "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "path_scope": "own_paths_authority",
+        "bytes": 76296,
+        "sha256": "b4610c6a890b2b7764bce678d12bd29b00c865543df52627e4c5e4b72a4a9310"
+      },
+      "cumulative_delta": {
+        "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "bytes": 76296,
+        "sha256": "b4610c6a890b2b7764bce678d12bd29b00c865543df52627e4c5e4b72a4a9310",
+        "path_count": 8,
+        "note": "Includes carried dependencies and any receipt companions; never an own source transfer."
+      },
+      "source_tree_matches_receipt": true,
+      "published_owned_blobs_match_source": true,
+      "own_commits_touch_only_owned_paths": true
+    },
+    "consumer": {
+      "branch": "codex/e02-F-closeout-20261006",
+      "published_head": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "published_tree": "3dcda191a4c436d18de3b3dcf48af58f886a3e96",
+      "initial_observed_head": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "observed_head_drift": false,
+      "receipt": {
+        "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-binding-20261006.json@92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "bytes": 162224,
+        "sha256": "1f4b740e02d77c66e13704c72535fc2e38b207ee307ccc063168d59b44309a6d"
+      },
+      "slice_base": "e67860362fdf9f891755d8f7b3401147039e68fa",
+      "source": "74f754bd6a3388aef83188dac00e24b12ab3feb6",
+      "source_tree": "ae08d98787075b7ea3e0ae7d276a2b19cbfe5a65",
+      "own_source_commits": [
+        "93eed731088175fd244c5c66532ab6bd54e793b2",
+        "2c46736112c6cbf552490748dc086fea85c6363a",
+        "60cd548afd16ad52843fd29f3aa8bf79a3f9c027",
+        "e2f91935fb96adacad8ccee027150878cbae1373",
+        "d550a8980ec32fc5cf6186c253b409fdc75ec47e",
+        "5f432d6e749e5bba05b0d3bc35426f46a9f462b8",
+        "74f754bd6a3388aef83188dac00e24b12ab3feb6"
+      ],
+      "own_paths_authority": "Exact scoped paths in this receipt; for graph use author_only_implementation_commits, for installed use owned_changed_paths.",
+      "own_path_count": 7,
+      "declared_path_count": 7,
+      "owned_delta": {
+        "base": "e67860362fdf9f891755d8f7b3401147039e68fa",
+        "source": "74f754bd6a3388aef83188dac00e24b12ab3feb6",
+        "path_scope": "own_paths_authority",
+        "bytes": 37697,
+        "sha256": "9b4829fea860a8ee49a704e6e0b1101332216fd320ec066fa15fa4897d9731d2"
+      },
+      "cumulative_delta": {
+        "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source": "74f754bd6a3388aef83188dac00e24b12ab3feb6",
+        "bytes": 682845,
+        "sha256": "326bb4640718958fd75fbb27f902bdc1fc9079b91410e4c5fbb04e758e361721",
+        "path_count": 72,
+        "note": "Includes carried dependencies and any receipt companions; never an own source transfer."
+      },
+      "source_tree_matches_receipt": true,
+      "published_owned_blobs_match_source": true,
+      "own_commits_touch_only_owned_paths": true
+    },
+    "dowhy": {
+      "branch": "codex/e02-F-dowhy-20261006",
+      "published_head": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+      "published_tree": "c0d9b034e374010de11c66eb460b2bf097749d2d",
+      "initial_observed_head": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+      "observed_head_drift": false,
+      "receipt": {
+        "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json@c8c2319d6c48f23f90103322da8cd63bc959da6f",
+        "bytes": 93732,
+        "sha256": "0a60ca2fa939fb480a989bd87f11312c9543ac458381c197a7288060a3a53833"
+      },
+      "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source": "423165322e508a293ffd23918c039c99fb37e7a7",
+      "source_tree": "191a4c8997b4bee61a1045d4825bd98759ce0ca8",
+      "own_source_commits": [
+        "70f160c943fd878190479cb81fe80bf710cecb07",
+        "85cba8f4f40360cd213c66c344300d5e826aff00",
+        "d86a085f07a2d49855f465fe762ef20259b67dc3",
+        "cbb2015e3c96e6442a965e40c779a9c525e5060f",
+        "24ed1ec2063b0f2f6b937d5dab72b5fd821ee8d1",
+        "a7308b727fe61a4b4e3239964c558332b131f02f",
+        "0e5c2e0999fce2464228439908953a771ba5383c",
+        "e5895da2ebbb5f6108e398d78258b973dbdc7b68",
+        "f6e80c4cb812f2e561791df9d323ebfbe40f7dd9",
+        "66c46c32a2a99a4f218a5853174671139252e0db",
+        "423165322e508a293ffd23918c039c99fb37e7a7"
+      ],
+      "own_paths_authority": "Exact scoped paths in this receipt; for graph use author_only_implementation_commits, for installed use owned_changed_paths.",
+      "own_path_count": 14,
+      "declared_path_count": 14,
+      "owned_delta": {
+        "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source": "423165322e508a293ffd23918c039c99fb37e7a7",
+        "path_scope": "own_paths_authority",
+        "bytes": 186613,
+        "sha256": "13dffea4513524a565f6b8ca51f4d9be594b8bffa0366d720597753a5f0a4f7b"
+      },
+      "cumulative_delta": {
+        "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source": "423165322e508a293ffd23918c039c99fb37e7a7",
+        "bytes": 186613,
+        "sha256": "13dffea4513524a565f6b8ca51f4d9be594b8bffa0366d720597753a5f0a4f7b",
+        "path_count": 14,
+        "note": "Includes carried dependencies and any receipt companions; never an own source transfer."
+      },
+      "source_tree_matches_receipt": true,
+      "published_owned_blobs_match_source": true,
+      "own_commits_touch_only_owned_paths": true
+    },
+    "economics": {
+      "branch": "codex/e02-F-economics-20261006",
+      "published_head": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "published_tree": "f432371c0745de7e30df8892b0a2e563c8bbdd23",
+      "initial_observed_head": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "observed_head_drift": false,
+      "receipt": {
+        "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json@fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+        "bytes": 109240,
+        "sha256": "cd005af9bf2e45edcd88f54b4bb223636351abefc991a52828167f2070aead1e"
+      },
+      "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+      "source_tree": "e157c672ee734a700795bbf921f2e3657aa8e9eb",
+      "own_source_commits": [
+        "3f4ebe5641f68535ce5dbdf57db859bffc241bb3",
+        "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6"
+      ],
+      "own_paths_authority": "Exact scoped paths in this receipt; for graph use author_only_implementation_commits, for installed use owned_changed_paths.",
+      "own_path_count": 6,
+      "declared_path_count": 6,
+      "owned_delta": {
+        "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+        "path_scope": "own_paths_authority",
+        "bytes": 36633,
+        "sha256": "d988511a1e2fe31c50faa5a95f020246ac661c11e768b980ab8e8f54b6368d6e"
+      },
+      "cumulative_delta": {
+        "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+        "bytes": 36633,
+        "sha256": "d988511a1e2fe31c50faa5a95f020246ac661c11e768b980ab8e8f54b6368d6e",
+        "path_count": 6,
+        "note": "Includes carried dependencies and any receipt companions; never an own source transfer."
+      },
+      "source_tree_matches_receipt": true,
+      "published_owned_blobs_match_source": true,
+      "own_commits_touch_only_owned_paths": true
+    },
+    "fry": {
+      "branch": "codex/e02-F-fry-20261006",
+      "published_head": "f4fa51e6dd247cfd967450263579d67233a743d6",
+      "published_tree": "fbc864a0cd5da1246683673ee3d145c76469ee32",
+      "initial_observed_head": "f4fa51e6dd247cfd967450263579d67233a743d6",
+      "observed_head_drift": false,
+      "receipt": {
+        "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json@f4fa51e6dd247cfd967450263579d67233a743d6",
+        "bytes": 77903,
+        "sha256": "ff8a8f2b2689fb9793c5ab03f29fde1412eb5fe03dae961656fad722a108176e"
+      },
+      "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source": "63425f734946979cfc990e9cb91b00163f051898",
+      "source_tree": "dab61c3e7a161e00837f5a128fc2768a36e9b19a",
+      "own_source_commits": [
+        "03bbfe14225d64a9977b77775c200e83eb717c5f",
+        "63425f734946979cfc990e9cb91b00163f051898"
+      ],
+      "own_paths_authority": "Exact scoped paths in this receipt; for graph use author_only_implementation_commits, for installed use owned_changed_paths.",
+      "own_path_count": 8,
+      "declared_path_count": 8,
+      "owned_delta": {
+        "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source": "63425f734946979cfc990e9cb91b00163f051898",
+        "path_scope": "own_paths_authority",
+        "bytes": 49089,
+        "sha256": "67ae9cf0f66f23a4d8fd980ff31f0d637bfc424b00d2bb6e87b85a128ca3aaa5"
+      },
+      "cumulative_delta": {
+        "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source": "63425f734946979cfc990e9cb91b00163f051898",
+        "bytes": 49089,
+        "sha256": "67ae9cf0f66f23a4d8fd980ff31f0d637bfc424b00d2bb6e87b85a128ca3aaa5",
+        "path_count": 8,
+        "note": "Includes carried dependencies and any receipt companions; never an own source transfer."
+      },
+      "source_tree_matches_receipt": true,
+      "published_owned_blobs_match_source": true,
+      "own_commits_touch_only_owned_paths": true
+    },
+    "graph": {
+      "branch": "codex/e02-F-graph-20261006",
+      "published_head": "2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+      "published_tree": "9fd2bd6d9aebdb48d1a2bed266483a8b4ab1974e",
+      "initial_observed_head": "a0a050d24c137b4893a7b52b2f83ea710da46471",
+      "observed_head_drift": true,
+      "receipt": {
+        "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json@2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+        "bytes": 147818,
+        "sha256": "ff33acf653c10acb9476d33f1ca258d2d3daf4d79302b13afd62dd217d679d2e"
+      },
+      "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "source_tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+      "own_source_commits": [
+        "07beb7c2986770e1b9901f3061a4768251c5a154",
+        "581673b96ca26ccb2475d0f6c4675cdf039c9ff6",
+        "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "1e70434b8e5a04661bb22c02362854ca14714436",
+        "0b6d2f779dbf8b0c2abe53448906f32d719696b1",
+        "b69208e65b9dcfa4c7de690ace071abdc9c1fed6"
+      ],
+      "own_paths_authority": "Exact scoped paths in this receipt; for graph use author_only_implementation_commits, for installed use owned_changed_paths.",
+      "own_path_count": 35,
+      "declared_path_count": 49,
+      "owned_delta": {
+        "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "path_scope": "own_paths_authority",
+        "bytes": 217567,
+        "sha256": "5249582cd58135e765f43036c7473db34744848f370ebc1c6df1c524d4d6eed9"
+      },
+      "cumulative_delta": {
+        "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "bytes": 519653,
+        "sha256": "b15fc63496b93964ed1a8d99c5e6d239a5fe291224adb038012539d0276a295c",
+        "path_count": 65,
+        "note": "Includes carried dependencies and any receipt companions; never an own source transfer."
+      },
+      "source_tree_matches_receipt": true,
+      "published_owned_blobs_match_source": true,
+      "own_commits_touch_only_owned_paths": true
+    },
+    "graph_intake": {
+      "branch": "codex/e02-F-graph-intake-20261006",
+      "published_head": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+      "published_tree": "56a3f7b51371c59939db000dd0f74b44015f862c",
+      "initial_observed_head": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+      "observed_head_drift": false,
+      "receipt": {
+        "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json@2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+        "bytes": 150755,
+        "sha256": "78b07ba01cf9b483ff23d08c8144fc55b9ab678412b46fa8f170c775a3f1f05e"
+      },
+      "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "source_tree": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+      "own_source_commits": [
+        "c1f3a3733e528608ac8e36f2f11d960c95d5f109",
+        "6321dc33476b0fad24d97ebb140c373608d30019"
+      ],
+      "own_paths_authority": "Exact scoped paths in this receipt; for graph use author_only_implementation_commits, for installed use owned_changed_paths.",
+      "own_path_count": 8,
+      "declared_path_count": 8,
+      "owned_delta": {
+        "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source": "6321dc33476b0fad24d97ebb140c373608d30019",
+        "path_scope": "own_paths_authority",
+        "bytes": 50143,
+        "sha256": "2eddffb5999e0b22748ce31a5c3ca6d7b4c5ba1cccfae202c2d0bbadf817402f"
+      },
+      "cumulative_delta": {
+        "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source": "6321dc33476b0fad24d97ebb140c373608d30019",
+        "bytes": 50143,
+        "sha256": "2eddffb5999e0b22748ce31a5c3ca6d7b4c5ba1cccfae202c2d0bbadf817402f",
+        "path_count": 8,
+        "note": "Includes carried dependencies and any receipt companions; never an own source transfer."
+      },
+      "source_tree_matches_receipt": true,
+      "published_owned_blobs_match_source": true,
+      "own_commits_touch_only_owned_paths": true
+    },
+    "installed": {
+      "branch": "codex/e02-F-installed-worker-20261006",
+      "published_head": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+      "published_tree": "df2eab2343e5a305740517f9cae1d708a9c61151",
+      "initial_observed_head": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+      "observed_head_drift": false,
+      "receipt": {
+        "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json@e9bd25f05f063dd823d27a44b3c1c740e940751c",
+        "bytes": 71310,
+        "sha256": "00617d32afdafcff3f986fb53043580f6a4a360c4c3f191c3867ed0631357fde"
+      },
+      "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+      "source_tree": "bcb403872a3b1e3e6cac5b7624ab80136ca12b4e",
+      "own_source_commits": [
+        "1ebca076a6afb453096409d8b3d91bab94a8ac39",
+        "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5"
+      ],
+      "own_paths_authority": "Exact scoped paths in this receipt; for graph use author_only_implementation_commits, for installed use owned_changed_paths.",
+      "own_path_count": 4,
+      "declared_path_count": 56,
+      "owned_delta": {
+        "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+        "path_scope": "own_paths_authority",
+        "bytes": 19437,
+        "sha256": "7f67cda94e3eef3c72d1d335fd75f3d9114dac8d6aa0227fab890b98d9c09315"
+      },
+      "cumulative_delta": {
+        "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+        "bytes": 455513,
+        "sha256": "0e1c6dcb5557dbd2babdc9a3cc7def6dd82ff297cc35f5f89754ab5c0802939e",
+        "path_count": 56,
+        "note": "Includes carried dependencies and any receipt companions; never an own source transfer."
+      },
+      "source_tree_matches_receipt": true,
+      "published_owned_blobs_match_source": true,
+      "own_commits_touch_only_owned_paths": true
+    },
+    "lex": {
+      "branch": "codex/e02-F-lex-20261006",
+      "published_head": "77166daa0ff8b9659e3978447f9016c691694266",
+      "published_tree": "23ac1cacae3444166ee3f421e35c177c49f87c07",
+      "initial_observed_head": "77166daa0ff8b9659e3978447f9016c691694266",
+      "observed_head_drift": false,
+      "receipt": {
+        "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-20261006.json@77166daa0ff8b9659e3978447f9016c691694266",
+        "bytes": 24363,
+        "sha256": "0d6e1e2bde0a76edfe74fed0ed278df7c73fc209c982cbfcf54fbb7347631f1a"
+      },
+      "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source": "00a6eda114b903bc5abe86902cd8372426f739a1",
+      "source_tree": "e84f7a4d1cb91c624264e6c95f5d0c07fb3510f3",
+      "own_source_commits": [
+        "6fb011374d8ec60780cf6acd0259de724d73ced5",
+        "00a6eda114b903bc5abe86902cd8372426f739a1"
+      ],
+      "own_paths_authority": "Exact scoped paths in this receipt; for graph use author_only_implementation_commits, for installed use owned_changed_paths.",
+      "own_path_count": 3,
+      "declared_path_count": 3,
+      "owned_delta": {
+        "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source": "00a6eda114b903bc5abe86902cd8372426f739a1",
+        "path_scope": "own_paths_authority",
+        "bytes": 5562,
+        "sha256": "cff3aa0211801c162ccb219214fd5234db3306bb7278010044ba55100bde806a"
+      },
+      "cumulative_delta": {
+        "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source": "00a6eda114b903bc5abe86902cd8372426f739a1",
+        "bytes": 5562,
+        "sha256": "cff3aa0211801c162ccb219214fd5234db3306bb7278010044ba55100bde806a",
+        "path_count": 3,
+        "note": "Includes carried dependencies and any receipt companions; never an own source transfer."
+      },
+      "source_tree_matches_receipt": true,
+      "published_owned_blobs_match_source": true,
+      "own_commits_touch_only_owned_paths": true
+    },
+    "rdd": {
+      "branch": "codex/e02-F-rdd-20261006",
+      "published_head": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+      "published_tree": "3ff65b90327db01a9d38efe3771358d4cabde555",
+      "initial_observed_head": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+      "observed_head_drift": false,
+      "receipt": {
+        "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json@15a04c4400497374416e167a5f61ebc12f61b8e4",
+        "bytes": 68616,
+        "sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60"
+      },
+      "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+      "source_tree": "bee112b9284e11b78c96d2f91660f330d68b26c7",
+      "own_source_commits": [
+        "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+        "fb022aa12599ee1617f83d154cd9a8027b2a58b8"
+      ],
+      "own_paths_authority": "Exact scoped paths in this receipt; for graph use author_only_implementation_commits, for installed use owned_changed_paths.",
+      "own_path_count": 9,
+      "declared_path_count": 9,
+      "owned_delta": {
+        "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+        "path_scope": "own_paths_authority",
+        "bytes": 134585,
+        "sha256": "6ce474adde5030ed70cdd434da02ef34bd2abef702046e833b4881c13256e8bd"
+      },
+      "cumulative_delta": {
+        "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+        "bytes": 134585,
+        "sha256": "6ce474adde5030ed70cdd434da02ef34bd2abef702046e833b4881c13256e8bd",
+        "path_count": 9,
+        "note": "Includes carried dependencies and any receipt companions; never an own source transfer."
+      },
+      "source_tree_matches_receipt": true,
+      "published_owned_blobs_match_source": true,
+      "own_commits_touch_only_owned_paths": true
+    },
+    "fit": {
+      "branch": "codex/e02-F-tmle-20261006",
+      "published_head": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+      "published_tree": "3a392defad301686740f27a246e747540b55332a",
+      "initial_observed_head": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+      "observed_head_drift": false,
+      "receipt": {
+        "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json@f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+        "bytes": 28486,
+        "sha256": "5870aaedd4d4eb83a1f40c392c5cec79660d28927a5846981e8a363702945429"
+      },
+      "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+      "source_tree": "4d87ce0690e001967b245ce18217cb36fff3c988",
+      "own_source_commits": [
+        "55d2e14755bda6af31c41acd4fe1dcb76f3814b1"
+      ],
+      "own_paths_authority": "Exact scoped paths in this receipt; for graph use author_only_implementation_commits, for installed use owned_changed_paths.",
+      "own_path_count": 3,
+      "declared_path_count": 3,
+      "owned_delta": {
+        "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+        "path_scope": "own_paths_authority",
+        "bytes": 41655,
+        "sha256": "22c71d757014ebeb637adee21d0e793c2b590c2e8688ebb4d17add87f76faa38"
+      },
+      "cumulative_delta": {
+        "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+        "bytes": 41655,
+        "sha256": "22c71d757014ebeb637adee21d0e793c2b590c2e8688ebb4d17add87f76faa38",
+        "path_count": 3,
+        "note": "Includes carried dependencies and any receipt companions; never an own source transfer."
+      },
+      "source_tree_matches_receipt": true,
+      "published_owned_blobs_match_source": true,
+      "own_commits_touch_only_owned_paths": true
+    }
+  },
+  "owned_overlap_gate": {
+    "outcome": "PASS_BOUNDED_SOURCE_CUSTODY",
+    "topics": 12,
+    "own_scope_overlap_pairs": [],
+    "integration_actions": 0
+  },
+  "graph_scope": {
+    "declared": 49,
+    "author_owned": 35,
+    "canonical_DW_carried": 14,
+    "additional_old_native_receipt_companions": 16
+  },
+  "consumer_assembled_scope": {
+    "slice_base": "e67860362fdf9f891755d8f7b3401147039e68fa",
+    "source": "7450e7ece415490cbf70a59871bdf1e17fb25abd",
+    "tree": "36f5f6dfc94e0990069204a90d539685e75864cb",
+    "total_paths": 50,
+    "own": 7,
+    "dependencies": 43,
+    "path_authority": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-binding-20261006.json@92148340601ac6ea69f0dbd4764aae7428ad83d7"
+  },
+  "dependency_carry_comparisons": [
+    {
+      "label": "DW423→graph6d",
+      "left_source": "423165322e508a293ffd23918c039c99fb37e7a7",
+      "right_source": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "complete_path_count": 14,
+      "different_paths": [],
+      "comparison": "Every path in the relevant provider receipt changed_paths; B220 uses its two source commit deltas. Equal blobs are not copied as derived views."
+    },
+    {
+      "label": "DW423→installedab56",
+      "left_source": "423165322e508a293ffd23918c039c99fb37e7a7",
+      "right_source": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+      "complete_path_count": 14,
+      "different_paths": [
+        "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml"
+      ],
+      "comparison": "Every path in the relevant provider receipt changed_paths; B220 uses its two source commit deltas. Equal blobs are not copied as derived views."
+    },
+    {
+      "label": "graph6d→installedab56",
+      "left_source": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "right_source": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+      "complete_path_count": 49,
+      "different_paths": [
+        "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py"
+      ],
+      "comparison": "Every path in the relevant provider receipt changed_paths; B220 uses its two source commit deltas. Equal blobs are not copied as derived views."
+    },
+    {
+      "label": "graph6d→consumerassembled745",
+      "left_source": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "right_source": "7450e7ece415490cbf70a59871bdf1e17fb25abd",
+      "complete_path_count": 49,
+      "different_paths": [],
+      "comparison": "Every path in the relevant provider receipt changed_paths; B220 uses its two source commit deltas. Equal blobs are not copied as derived views."
+    },
+    {
+      "label": "API729→installedab56",
+      "left_source": "729d137279b7d6334230045e420255762fe55f08",
+      "right_source": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+      "complete_path_count": 3,
+      "different_paths": [],
+      "comparison": "Every path in the relevant provider receipt changed_paths; B220 uses its two source commit deltas. Equal blobs are not copied as derived views."
+    },
+    {
+      "label": "DW423→latestinstalled5cd",
+      "left_source": "423165322e508a293ffd23918c039c99fb37e7a7",
+      "right_source": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "complete_path_count": 14,
+      "different_paths": [],
+      "comparison": "Every path in the relevant provider receipt changed_paths; B220 uses its two source commit deltas. Equal blobs are not copied as derived views."
+    },
+    {
+      "label": "graph6d→latestinstalled5cd",
+      "left_source": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "right_source": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "complete_path_count": 49,
+      "different_paths": [],
+      "comparison": "Every path in the relevant provider receipt changed_paths; B220 uses its two source commit deltas. Equal blobs are not copied as derived views."
+    },
+    {
+      "label": "B220source213→latestinstalled5cd",
+      "left_source": "2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+      "right_source": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "complete_path_count": 4,
+      "different_paths": [],
+      "comparison": "Every path in the relevant provider receipt changed_paths; B220 uses its two source commit deltas. Equal blobs are not copied as derived views."
+    }
+  ],
+  "DW_mirror_reconciliation": [
+    {
+      "owner": "F/causal_api",
+      "original_author_sha": "70f160c943fd878190479cb81fe80bf710cecb07",
+      "carried_sha": "bea13d4e77a958dea15ff36b3758887441a16beb",
+      "original_patch_id": "8b0dee9fd75e7d32561700e6367a4cb908cdbb8c",
+      "carried_patch_id": "8b0dee9fd75e7d32561700e6367a4cb908cdbb8c",
+      "equal": true
+    },
+    {
+      "owner": "F/causal_api",
+      "original_author_sha": "85cba8f4f40360cd213c66c344300d5e826aff00",
+      "carried_sha": "c76b8550c3c858b32a75fa4ef202f7165a15819c",
+      "original_patch_id": "14b349b68a21d32b2d06011a6a2eca0f0630892b",
+      "carried_patch_id": "14b349b68a21d32b2d06011a6a2eca0f0630892b",
+      "equal": true
+    },
+    {
+      "owner": "F/causal_api",
+      "original_author_sha": "d86a085f07a2d49855f465fe762ef20259b67dc3",
+      "carried_sha": "66e8ab2ffaa5cd1a73cfb76fa50f3f3ec75aa2a2",
+      "original_patch_id": "49eeb638d5965e56152130abba0cba6520af3d8f",
+      "carried_patch_id": "49eeb638d5965e56152130abba0cba6520af3d8f",
+      "equal": true
+    },
+    {
+      "owner": "F/causal_api",
+      "original_author_sha": "cbb2015e3c96e6442a965e40c779a9c525e5060f",
+      "carried_sha": "9ca3a8b7a9a76ef2a46f904352c76b54366560f6",
+      "original_patch_id": "72dde5ab77c379b22f7309f174e64dd68e9a2a5a",
+      "carried_patch_id": "72dde5ab77c379b22f7309f174e64dd68e9a2a5a",
+      "equal": true
+    },
+    {
+      "owner": "F/causal_api",
+      "original_author_sha": "24ed1ec2063b0f2f6b937d5dab72b5fd821ee8d1",
+      "carried_sha": "c1452438c7f2271ba10f0c6b31bc747dca25a4e7",
+      "original_patch_id": "239874d630ff630889b4acea73e7ca52fa60e8b3",
+      "carried_patch_id": "239874d630ff630889b4acea73e7ca52fa60e8b3",
+      "equal": true
+    },
+    {
+      "owner": "F/causal_api",
+      "original_author_sha": "a7308b727fe61a4b4e3239964c558332b131f02f",
+      "carried_sha": "2875f5c87b8a4ac2dddc478adb0c601437a9cb4f",
+      "original_patch_id": "1b8183fac5b8bdbb39ab3357a91eb671b816fc2e",
+      "carried_patch_id": "1b8183fac5b8bdbb39ab3357a91eb671b816fc2e",
+      "equal": true
+    },
+    {
+      "owner": "F/causal_api",
+      "original_author_sha": "0e5c2e0999fce2464228439908953a771ba5383c",
+      "carried_sha": "3046581d98e789ebad2b99bad86de87f6e02b963",
+      "original_patch_id": "c42b634aee97c0e2c65f6be2bbfe0b63116c520e",
+      "carried_patch_id": "c42b634aee97c0e2c65f6be2bbfe0b63116c520e",
+      "equal": true
+    },
+    {
+      "owner": "F/causal_api",
+      "original_author_sha": "e5895da2ebbb5f6108e398d78258b973dbdc7b68",
+      "carried_sha": "eb93738fb4cd0b302b4e6735e5bb5732324eceed",
+      "original_patch_id": "b24506e5d50c908a013bf95ba2e144abae71b1b7",
+      "carried_patch_id": "b24506e5d50c908a013bf95ba2e144abae71b1b7",
+      "equal": true
+    },
+    {
+      "owner": "F/causal_api",
+      "original_author_sha": "f6e80c4cb812f2e561791df9d323ebfbe40f7dd9",
+      "carried_sha": "914c7b4bed31e2b6e518fca3b9e9be53b74e6762",
+      "original_patch_id": "3bb1cc9d61c18a8de2d1ba18164e9d1f58ccf784",
+      "carried_patch_id": "3bb1cc9d61c18a8de2d1ba18164e9d1f58ccf784",
+      "equal": true
+    },
+    {
+      "owner": "F/causal_api",
+      "original_author_sha": "66c46c32a2a99a4f218a5853174671139252e0db",
+      "carried_sha": "eb1599936093ae897c3cb743cf5dd00e4729fcbd",
+      "original_patch_id": "59fb94218d572208abc4801944cf0de3c4c333ec",
+      "carried_patch_id": "59fb94218d572208abc4801944cf0de3c4c333ec",
+      "equal": true
+    },
+    {
+      "owner": "F/causal_api",
+      "original_author_sha": "423165322e508a293ffd23918c039c99fb37e7a7",
+      "carried_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "original_patch_id": "d876f9b06825c1d7b67cca1f09b902fc24633218",
+      "carried_patch_id": "d876f9b06825c1d7b67cca1f09b902fc24633218",
+      "equal": true
+    }
+  ],
+  "latest_installed": {
+    "source": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+    "tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+    "new_installed_build_replay": "PENDING/UNRUN; no new installed PASS claimed",
+    "owned_four_source_locators": [
+      "policy-engine/docs/research/e02-cloud-test-plan/verification/F/installed-worker-20261006/README.md@5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "policy-engine/hatch.toml@5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "policy-engine/release-fragments/unreleased/2026-10-06-installed-dowhy-profile.toml@5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py@5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6"
+    ],
+    "owned_blobs_identical_to_ab56": true,
+    "portable_owned_four_delta": {
+      "bytes": 19437,
+      "sha256": "7f67cda94e3eef3c72d1d335fd75f3d9114dac8d6aa0227fab890b98d9c09315",
+      "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "application": "Only four owned paths after canonical dependencies; never apply full cumulative source diff.",
+      "canonical_diff_argv": [
+        "git",
+        "diff",
+        "--binary",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+        "--",
+        "policy-engine/docs/research/e02-cloud-test-plan/verification/F/installed-worker-20261006/README.md",
+        "policy-engine/hatch.toml",
+        "policy-engine/release-fragments/unreleased/2026-10-06-installed-dowhy-profile.toml",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py"
+      ],
+      "transport": "No copied tracked source required. G reconstructs these exact patch bytes from the four immutable source paths at5cd and verifies size/SHA256 before applying; scratch patch is not an admitted companion."
+    },
+    "full_cumulative_delta": {
+      "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "path_count": 160,
+      "bytes": 11510594,
+      "sha256": "b058143a435080f5e8911f0e54aa78776b83827076f9ffd7d845bc2b32cc39b5"
+    },
+    "source_carry_map": [
+      {
+        "canonical": "b69208e65b9dcfa4c7de690ace071abdc9c1fed6",
+        "mirror": "ac03ec44e0d1074fb609f35221b0c088522cdbd2",
+        "actual_stable_patch_id_equal": true
+      },
+      {
+        "canonical": "423165322e508a293ffd23918c039c99fb37e7a7",
+        "mirror": "7fb1f5c243c18de89fb11a0f664ae07cb0801eb2",
+        "actual_stable_patch_id_equal": true
+      },
+      {
+        "canonical": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+        "mirror": "74c0355f07834c28527200f5827ac2ab352ac313",
+        "actual_stable_patch_id_equal": true
+      },
+      {
+        "canonical": "2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+        "mirror": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+        "actual_stable_patch_id_equal": true
+      }
+    ],
+    "publication": "Exact observed remote installed head is above; local source reachability does not establish publication."
+  },
+  "proposed_source_order": [
+    {
+      "stage": 1,
+      "owner": "cau",
+      "mode": "Review then cherry-pick only these implementation commits; source-only path fingerprint must match the scoped receipt. Do not cherry-pick metadata/receipt heads as source.",
+      "depends_on": [
+        "base198"
+      ],
+      "limitations": "Scientific/authority outcome stays per owner receipt; successful source transfer is not finding acceptance.",
+      "commit_authority": "topics.cau.own_source_commits"
+    },
+    {
+      "stage": 2,
+      "owner": "fit",
+      "mode": "Review then cherry-pick only these implementation commits; source-only path fingerprint must match the scoped receipt. Do not cherry-pick metadata/receipt heads as source.",
+      "depends_on": [
+        "base198"
+      ],
+      "limitations": "Scientific/authority outcome stays per owner receipt; successful source transfer is not finding acceptance.",
+      "commit_authority": "topics.fit.own_source_commits"
+    },
+    {
+      "stage": 3,
+      "owner": "rdd",
+      "mode": "Review then cherry-pick only these implementation commits; source-only path fingerprint must match the scoped receipt. Do not cherry-pick metadata/receipt heads as source.",
+      "depends_on": [
+        "base198"
+      ],
+      "limitations": "Scientific/authority outcome stays per owner receipt; successful source transfer is not finding acceptance.",
+      "commit_authority": "topics.rdd.own_source_commits"
+    },
+    {
+      "stage": 4,
+      "owner": "economics",
+      "mode": "Review then cherry-pick only these implementation commits; source-only path fingerprint must match the scoped receipt. Do not cherry-pick metadata/receipt heads as source.",
+      "depends_on": [
+        "base198"
+      ],
+      "limitations": "Scientific/authority outcome stays per owner receipt; successful source transfer is not finding acceptance.",
+      "commit_authority": "topics.economics.own_source_commits"
+    },
+    {
+      "stage": 5,
+      "owner": "fry",
+      "mode": "Review then cherry-pick only these implementation commits; source-only path fingerprint must match the scoped receipt. Do not cherry-pick metadata/receipt heads as source.",
+      "depends_on": [
+        "base198"
+      ],
+      "limitations": "Scientific/authority outcome stays per owner receipt; successful source transfer is not finding acceptance.",
+      "commit_authority": "topics.fry.own_source_commits"
+    },
+    {
+      "stage": 6,
+      "owner": "lex",
+      "mode": "Review then cherry-pick only these implementation commits; source-only path fingerprint must match the scoped receipt. Do not cherry-pick metadata/receipt heads as source.",
+      "depends_on": [
+        "base198"
+      ],
+      "limitations": "Scientific/authority outcome stays per owner receipt; successful source transfer is not finding acceptance.",
+      "commit_authority": "topics.lex.own_source_commits"
+    },
+    {
+      "stage": 7,
+      "owner": "api",
+      "mode": "Review then cherry-pick only these implementation commits; source-only path fingerprint must match the scoped receipt. Do not cherry-pick metadata/receipt heads as source.",
+      "depends_on": [
+        "base198"
+      ],
+      "limitations": "Scientific/authority outcome stays per owner receipt; successful source transfer is not finding acceptance.",
+      "commit_authority": "topics.api.own_source_commits"
+    },
+    {
+      "stage": 8,
+      "owner": "dowhy",
+      "depends_on": [
+        "base198"
+      ],
+      "mode": "Use the canonical eleven author commits through423 exactly once. Do not also take equivalent mirrored DW commits from graph/installed/consumer.",
+      "commit_authority": "topics.dowhy.own_source_commits"
+    },
+    {
+      "stage": 9,
+      "owner": "graph/SCM",
+      "depends_on": [
+        "dowhy423"
+      ],
+      "mode": "Apply only six author commits (07beb plus five SCM/facade commits); skip eleven DW carry commits with reconciled patch IDs. Whole scope35 paths, not49.",
+      "commit_authority": "topics.graph.own_source_commits"
+    },
+    {
+      "stage": 10,
+      "owner": "consumer",
+      "depends_on": [
+        "CAU selectedDiD",
+        "dowhy423",
+        "graph/SCMb692"
+      ],
+      "mode": "Apply only seven own commits or source-bound portable patch. The twelve own scopes do not overlap; downstream provider contracts still require assembled-source checks.",
+      "portable_patch": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-binding-20261006/patches/own-seven-paths.patch.text.json",
+      "assembled_source": "7450e7ece415490cbf70a59871bdf1e17fb25abd",
+      "commit_authority": "topics.consumer.own_source_commits"
+    },
+    {
+      "stage": 11,
+      "owner": "installed",
+      "depends_on": [
+        "API729",
+        "dowhy423",
+        "graph/SCMb692"
+      ],
+      "mode": "Only1ebca076a6afb453096409d8b3d91bab94a8ac39 andab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5, or the source5cd owned-four portable patch (same four owned blobs). Three formerly stale dependency blobs are fixed in5cd by carried commits; still skip these redundant carries after canonical provider admission. Rebuild wheel/sdist on the assembled G candidate; neither ab56 nor pending5cd receipts prove newFRY installation.",
+      "latest_packaging_source": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "commit_authority": "topics.installed.own_source_commits; alternatively latest_installed.portable_owned_four_delta"
+    },
+    {
+      "stage": 12,
+      "owner": "graph_intake",
+      "depends_on": [
+        "reviewed graph/SCM interfaces"
+      ],
+      "mode": "Apply only two canonical intake author commits and eight own paths; original bounded synthetic intake is distinct from pending B220 provider consumer.",
+      "commit_authority": "topics.graph_intake.own_source_commits"
+    },
+    {
+      "stage": 13,
+      "owner": "pending narrowB220 provider",
+      "depends_on": [
+        "explicit exact-source independent GO",
+        "graph/SCM",
+        "graph_intake"
+      ],
+      "mode": "LAST, conditional on exact independent GO. Canonical sourcee2c4 plus213compatibility fragment is identified and already carried into localinstalled5cd as74c035/5cd. Presence in an installed carrier is not provider acceptance; do not apply the duplicate carrier commits as well.",
+      "outcome": "UNRUN/pending",
+      "source_commits": [
+        "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+        "2137961b0d3a2b39b85c5a57bf774777d2a4204e"
+      ]
+    }
+  ],
+  "separate_receipt_transport": "Copy each exact authored receipt and content companions under its source-bound path separately after source review; preserve implementation SHA fields. Do not import complete cumulative source branches merely to obtain receipts.",
+  "acceptance_guards": [
+    "G re-fetches frozen refs; metadata-head drift requires receipt reread, source drift requires a new exact-source review.",
+    "Before each source action check G branch attachment/cleanliness and complete owned diff; unexpected base or overlap is returned to canonical owner, never reset/rebase/force.",
+    "Shared generated schema/public-surface and package docs are integrated from the combined source once; no old generated snapshot overwrites newer accepted owners.",
+    "After upstream source contracts are assembled, rerun affected consumers and installed wheel/sdist checks on that exact new G SHA. Previous standalone/ab56 receipts stay bounded to their own source.",
+    "All global FAIL/UNRUN/P41not_established, raw output warnings, real data gaps and production authority limits survive successful source integration."
+  ],
+  "audit_commands": {
+    "cwd": "/workspace/e02-F-fry-20261006",
+    "observed_git_command_count": 1092,
+    "observed_nonzero_git_commands": 0,
+    "exact_recipes": [
+      "git ls-remote --heads origin refs/heads/codex/e02-F-*20261006*",
+      "git show <published_head>:<receipt_path>",
+      "git diff --binary <slice_base> <source> -- <receipt-scoped-own-paths>",
+      "git diff --binary <base198> <source>",
+      "git show --format= --name-only <own-source-commit>",
+      "git rev-parse <source>:<complete-provider-path>",
+      "git show --format= --binary <canonical-or-carry-commit> | git patch-id --stable"
+    ],
+    "retention": "Complete deciding audit output is retained separately. Recomputable tracked receipts, source copies, equal-blob maps and individual rev-parse derived views are intentionally omitted."
+  },
+  "retention_revision": {
+    "discarded_duplicate_scratch_manifest_sha256": "8d83db1dd561cf2d556637ea8e88b1363a069517bb52d4f1b1812ee2f8bb9752",
+    "tracked_receipt_or_source_copies_retained": false,
+    "individual_recomputable_equal_blob_maps_retained": false,
+    "unique_read_only_replayer": {
+      "locator": "scratch/fry/audit_G_source_order.py",
+      "bytes": 27724,
+      "sha256": "6b5b51f77b21d1e60dfe03192cda3dc06fdb964cface1a016acda66bfcd17715"
+    },
+    "source_mutations": 0
+  }
+}

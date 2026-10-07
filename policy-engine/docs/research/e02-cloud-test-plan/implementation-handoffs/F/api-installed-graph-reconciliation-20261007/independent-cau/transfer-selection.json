@@ -1,0 +1,128 @@
+{
+  "schema": "scratch-full-transfer-selection/1",
+  "candidate_test_sha": "6f39b0edc48ec59db3731fa917c615b9f97e4dc0",
+  "distribution_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "items": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/api-review/independent-review.json",
+      "bytes": 9464,
+      "sha256": "2aed54bf598618110f073923d27fb2560301299db963bb2ba8460003d8b7b93b",
+      "role": "complete independent deciding or historical execution/replayer/config/proof"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/api-review/review_reconciliation.py",
+      "bytes": 5425,
+      "sha256": "ffe7a42a46c252d6da000f78bc227f53d80ac6bb5cee8acacfa563bcfffacba4",
+      "role": "complete independent deciding or historical execution/replayer/config/proof"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/api-review/review.stdout",
+      "bytes": 363,
+      "sha256": "063da6241aafac0753d9b95f3321b57ade98672fede1eb5b045680620f5d1f20",
+      "role": "complete independent deciding or historical execution/replayer/config/proof"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/api-review/review.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete independent deciding or historical execution/replayer/config/proof"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/api-review/positive.execution.json",
+      "bytes": 992,
+      "sha256": "2109c8bac5f4a8ef16a680edcf64146d9ebd01d53e8db7c53331fd6a040a689d",
+      "role": "complete independent deciding or historical execution/replayer/config/proof"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/api-review/positive.stdout",
+      "bytes": 13329,
+      "sha256": "7a0a55ee3457e38b75ba1059bf24cff743bc5adb6d6f0b77a6eb395271e008d8",
+      "role": "complete independent deciding or historical execution/replayer/config/proof"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/api-review/positive.stderr",
+      "bytes": 3110,
+      "sha256": "41f1e43ac1c3db06834fe1883f64bb301d67efb75f972c75ecf31263d24d9e10",
+      "role": "complete independent deciding or historical execution/replayer/config/proof"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/api-review/wheel-proof-positive.json",
+      "bytes": 149325,
+      "sha256": "ecdac677ced5ab03d3aec70b0f0c767420f80520877bc76136ca95b3f6ebb10f",
+      "role": "complete independent deciding or historical execution/replayer/config/proof"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/api-review/wheel-config.json",
+      "bytes": 593,
+      "sha256": "da8c4ef9350b989e9e6e845b26fc9d6c2b6d6ac8b08e93165847106e2bdcc767",
+      "role": "complete independent deciding or historical execution/replayer/config/proof"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/api-review/final-positive.execution.json",
+      "bytes": 1007,
+      "sha256": "8fa5681fb3a2ff668c2a00e04ee7e38d404db88cad72f3df54b82576f4084c76",
+      "role": "complete independent deciding or historical execution/replayer/config/proof"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/api-review/final-positive.stdout",
+      "bytes": 291819,
+      "sha256": "f44b046630496ab6c4eaaf41687e1657dde6e8ca4fbd4be0c06df7851d102989",
+      "role": "complete independent deciding or historical execution/replayer/config/proof"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/api-review/final-positive.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete independent deciding or historical execution/replayer/config/proof"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/api-review/final-removal.execution.json",
+      "bytes": 3076,
+      "sha256": "3b57e537d3833c613ab3560c5fa5ff90a033ea20963591f678293d023ad7d947",
+      "role": "complete independent deciding or historical execution/replayer/config/proof"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/api-review/final-removal.stdout",
+      "bytes": 6777,
+      "sha256": "942c37f25dc353e22d4a879f1ee3cb8427c40b770a50e22ad7a452866a0d99b9",
+      "role": "complete independent deciding or historical execution/replayer/config/proof"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/api-review/final-removal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete independent deciding or historical execution/replayer/config/proof"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/api-review/final-removal-config.json",
+      "bytes": 926,
+      "sha256": "020f1bd067714fd02b6b7cf0a1612bcd72a339d654797d671cd87e371f68eb35",
+      "role": "complete independent deciding or historical execution/replayer/config/proof"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/api-review/final-wheel-config.json",
+      "bytes": 599,
+      "sha256": "2ee59bd2c37dcc6832d309506ae84c98ff90b095f61f28f820a0701ab47fc5cb",
+      "role": "complete independent deciding or historical execution/replayer/config/proof"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/api-review/final-wheel-proof-positive.json",
+      "bytes": 149325,
+      "sha256": "dce154a7f818b1147efd0e538827d2d612193726b662b576028b51b20afc28d8",
+      "role": "complete independent deciding or historical execution/replayer/config/proof"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/api-review/final-wheel-proof-remove_row_isolation.json",
+      "bytes": 149432,
+      "sha256": "0b9044d81e8926748f9bc8a73517c97e2659ae8a4d4404f0b90a6723be473089",
+      "role": "complete independent deciding or historical execution/replayer/config/proof"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/run_review_check.py",
+      "bytes": 1921,
+      "sha256": "963247de5c28f0cb38071e4ec0744ca565cc7ea8a944742ff8b453cba9a7017f",
+      "role": "complete independent native sourceguard capture replayer"
+    }
+  ],
+  "total_bytes": 787483
+}

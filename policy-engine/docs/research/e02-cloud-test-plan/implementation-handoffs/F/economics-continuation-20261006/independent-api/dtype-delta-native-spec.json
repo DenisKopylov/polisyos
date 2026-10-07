@@ -1,0 +1,23 @@
+{
+  "source_root": "/workspace/e02-F-economics-20261006",
+  "target_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:tools:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi",
+    "tests/unit/foundry/agent_sim/test_gini_consumers.py::test_actual_executor_reward_and_welfare_scan_preserves_prior_carry_dtype",
+    "-q",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/api/eco-independent/dtype-delta-native"
+}

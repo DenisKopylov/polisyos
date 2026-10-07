@@ -1,0 +1,3952 @@
+{
+  "schema": "policyos.e02.F.final_transfer.v1",
+  "unit": "F",
+  "scope": "F technical findings decisions and Git transfer; no G integration or main publication",
+  "common_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "common_base_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "published_anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "G97_audit_only": {
+    "sha": "97c85fae2d4505ec8248540d98b9556296244208",
+    "tree": "e77c0741d3b19acb43e07a0de2bdb97c8fa98ee3"
+  },
+  "finding_count": 35,
+  "bundle_count": 17,
+  "original_card_bindings": 36,
+  "unique_original_card_blocks": 35,
+  "summary": {
+    "component_counts": {
+      "primary": 10,
+      "ancillary_historical_native": 1,
+      "companion": 4
+    },
+    "canonical_components_all": 15,
+    "unique_topic_count": 12,
+    "finding_bearing_components": 14,
+    "check_counts": {
+      "PASS": 33,
+      "UNRUN": 2
+    },
+    "outcome_counts": {
+      "closed": 17,
+      "limited": 16,
+      "held": 2
+    },
+    "duplicate_primary_ids": [],
+    "missing_primary_ids": [],
+    "bounded_narrow_intake_source": "6321dc33476b0fad24d97ebb140c373608d30019",
+    "bounded_narrow_intake_tree": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+    "limited_intake_related_finding_ids": [
+      "B214",
+      "B218"
+    ],
+    "intake_independent_review_check": "PASS",
+    "intake_independent_review_ref": {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/intake-independent-review.json",
+      "bytes": 26013,
+      "sha256": "6a80a2f39d25a12f272b68d4e823840f67e58fe7455589d3bfb1646f275cd5b8"
+    },
+    "b220_replacement_receipt": {
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006.json",
+      "receipt_bytes": 66228,
+      "receipt_sha256": "b36bac6bf8f01a2821d8077e34166acdda487d21467a8c06a706177747177b6b"
+    },
+    "intake_receipt_pending": false,
+    "intake_reverse_profile_boundary_ref": {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/intake-reverse-profile-boundary.json",
+      "bytes": 8841,
+      "sha256": "036d13298e31cbc30f96bdc23cdfaa8364496438c0d5c0d1171c60460765bddd"
+    }
+  },
+  "authority": "F per-original-criterion technical recommendations. G alone integrates and accepts formal ledger updates. All topic heads are unmerged drafts.",
+  "finding_rows": [
+    {
+      "finding_id": "B204",
+      "primary_bundle": "CAU-01",
+      "implementation_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+      "candidate_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "closed",
+      "receipt_ref": {
+        "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "branch": "refs/heads/codex/e02-F-cau-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+        "bytes": 216928,
+        "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+        "table": "per_finding",
+        "per_id": "B204"
+      },
+      "predicate_basis": "recomputed",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B204",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5094,
+            5105
+          ],
+          "bytes": 3579,
+          "sha256": "4604b95f70da45f417834b0b73cce792ba92c2709c35021952fc50cccb3e655a",
+          "title": "## B204. Стандартный DiD принимает отсутствие предшествующего периода за пригодный дизайн"
+        }
+      ],
+      "receipt_registry_index": 1,
+      "deciding_check_registry_indices": [
+        1,
+        7
+      ],
+      "criterion_short_ru": "Идентифицированный DiD; ATT=3; preperiod invalid/not_testable",
+      "actual_consumer": "StandardDifferenceInDifferences.pure_step",
+      "code_shas": [
+        "cebe94d8134a4652bbfc1ae4d74ec6403940ced5"
+      ],
+      "limit_next_owner_short_ru": "Реальные parallel trends остаются предпосылкой.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B204"
+      }
+    },
+    {
+      "finding_id": "B205",
+      "primary_bundle": "CAU-01",
+      "implementation_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+      "candidate_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "closed",
+      "receipt_ref": {
+        "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "branch": "refs/heads/codex/e02-F-cau-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+        "bytes": 216928,
+        "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+        "table": "per_finding",
+        "per_id": "B205"
+      },
+      "predicate_basis": "recomputed",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B205",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5106,
+            5119
+          ],
+          "bytes": 4088,
+          "sha256": "ac0680b5d70af76383c9aac15ab1c58437abd9118b0c7dba427dfe837ba3d5dc",
+          "title": "## B205. Запрошенная covariance не исполняется: HC1 считает повторные периоды новой информацией"
+        }
+      ],
+      "receipt_registry_index": 1,
+      "deciding_check_registry_indices": [
+        1,
+        8
+      ],
+      "criterion_short_ru": "Фактические HC1 iid и unit-cluster CR0",
+      "actual_consumer": "StandardDifferenceInDifferences.pure_step",
+      "code_shas": [
+        "cebe94d8134a4652bbfc1ae4d74ec6403940ced5"
+      ],
+      "limit_next_owner_short_ru": "Small-cluster coverage не установлена.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B205"
+      }
+    },
+    {
+      "finding_id": "B206",
+      "primary_bundle": "CAU-01",
+      "implementation_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+      "candidate_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "closed",
+      "receipt_ref": {
+        "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "branch": "refs/heads/codex/e02-F-cau-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+        "bytes": 216928,
+        "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+        "table": "per_finding",
+        "per_id": "B206"
+      },
+      "predicate_basis": "recomputed",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B206",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5120,
+            5131
+          ],
+          "bytes": 2372,
+          "sha256": "f405d3e2327c1cc0d64e6de308412c81eebe210af6ae5968af830b7e032fa0a1",
+          "title": "## B206. В DiD и RDD уровень интервала меняет подпись, но не границы"
+        }
+      ],
+      "receipt_registry_index": 1,
+      "deciding_check_registry_indices": [
+        1,
+        9
+      ],
+      "criterion_short_ru": "Confidence level изменяет DiD/RDD границы",
+      "actual_consumer": "StandardDifferenceInDifferences / RegressionDiscontinuity → CAS",
+      "code_shas": [
+        "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "fb022aa12599ee1617f83d154cd9a8027b2a58b8"
+      ],
+      "supplementary_code_receipt": {
+        "original_path": "/workspace/e02-F-20261006-receipts/economics/final35/B206-rdd-supplemental-source-binding.json",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/B206-rdd-supplemental-source-binding.json",
+        "bytes": 7183,
+        "sha256": "210625ddded2fbbf2cd8b0cecc742f5f623c045af7ec29508eac01d74d308d18",
+        "encoding": "unchanged complete original bytes"
+      },
+      "limit_next_owner_short_ru": "RDD RBC: отдельный clean-room fixed profile.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B206"
+      }
+    },
+    {
+      "finding_id": "B207",
+      "primary_bundle": "CAU-02",
+      "implementation_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+      "candidate_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "limited",
+      "receipt_ref": {
+        "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "branch": "refs/heads/codex/e02-F-cau-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+        "bytes": 216928,
+        "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+        "table": "per_finding",
+        "per_id": "B207"
+      },
+      "predicate_basis": "recomputed",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B207",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5132,
+            5145
+          ],
+          "bytes": 3913,
+          "sha256": "5b23dffbebbbaafe40934fedd710b77b0143fffb0073bbf58d1c5ca57d6ad6ca",
+          "title": "## B207. Bootstrap готовых ATT(g,t) не восстанавливает неопределённость панельных наблюдений"
+        }
+      ],
+      "receipt_registry_index": 1,
+      "deciding_check_registry_indices": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "criterion_short_ru": "θsel, cohort-share ratio IF, общий unit multiplier",
+      "actual_consumer": "StaggeredDifferenceInDifferences → MethodJob → CAS → Scientist reconciler",
+      "code_shas": [
+        "cebe94d8134a4652bbfc1ae4d74ec6403940ced5"
+      ],
+      "limit_next_owner_short_ru": "G: полный admitted run_causal_evaluation и fresh consumer.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B207"
+      }
+    },
+    {
+      "finding_id": "B208",
+      "primary_bundle": "CAU-02",
+      "implementation_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+      "candidate_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "limited",
+      "receipt_ref": {
+        "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "branch": "refs/heads/codex/e02-F-cau-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+        "bytes": 216928,
+        "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+        "table": "per_finding",
+        "per_id": "B208"
+      },
+      "predicate_basis": "recomputed",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B208",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5146,
+            5157
+          ],
+          "bytes": 2624,
+          "sha256": "2df281351c22b1e79c6b0400c5ca6ccb312fc43666fd3ebc9e4e66031381d78d",
+          "title": "## B208. Staggered p-value сравнивает bootstrap с самой оценкой, а не с нулевой гипотезой"
+        }
+      ],
+      "receipt_registry_index": 1,
+      "deciding_check_registry_indices": [
+        1,
+        3,
+        6
+      ],
+      "criterion_short_ru": "Centered studentized null и CI inversion той же проверки",
+      "actual_consumer": "StaggeredDifferenceInDifferences → CAS → Scientist reconciler",
+      "code_shas": [
+        "cebe94d8134a4652bbfc1ae4d74ec6403940ced5"
+      ],
+      "limit_next_owner_short_ru": "G: полный admitted consumer; synthetic coverage не real-data вывод.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B208"
+      }
+    },
+    {
+      "finding_id": "B209",
+      "primary_bundle": "CAU-02",
+      "implementation_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+      "candidate_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "limited",
+      "receipt_ref": {
+        "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "branch": "refs/heads/codex/e02-F-cau-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+        "bytes": 216928,
+        "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+        "table": "per_finding",
+        "per_id": "B209"
+      },
+      "predicate_basis": "recomputed",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B209",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5158,
+            5169
+          ],
+          "bytes": 2656,
+          "sha256": "b774fd7cd4f1653c0771ee5e20e7d3ee990c14bb47cc698b284e581ac75cc44f",
+          "title": "## B209. Anticipation учитывается в baseline treated-группы, но не при выборе not-yet-treated controls"
+        }
+      ],
+      "receipt_registry_index": 1,
+      "deciding_check_registry_indices": [
+        1,
+        4
+      ],
+      "criterion_short_ru": "Anticipation-safe controls; без cell drops/renormalization",
+      "actual_consumer": "StaggeredDifferenceInDifferences → CAS → Scientist reconciler",
+      "code_shas": [
+        "cebe94d8134a4652bbfc1ae4d74ec6403940ced5"
+      ],
+      "limit_next_owner_short_ru": "G: production admission/authority и точные refs.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B209"
+      }
+    },
+    {
+      "finding_id": "B210",
+      "primary_bundle": "CAU-03",
+      "implementation_sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+      "candidate_tree_sha": "bee112b9284e11b78c96d2f91660f330d68b26c7",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "closed",
+      "receipt_ref": {
+        "head": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+        "branch": "refs/heads/codex/e02-F-rdd-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json",
+        "bytes": 68616,
+        "sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60",
+        "table": "criterion_decisions",
+        "per_id": "B210"
+      },
+      "predicate_basis": "recomputed",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B210",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5170,
+            5181
+          ],
+          "bytes": 3218,
+          "sha256": "3b72bb59c40ef347388195b3309dd81f188e96d3bb205b3e3be72c77b76ac010",
+          "title": "## B210. RDD сообщает включённую bias correction без её вычисления"
+        }
+      ],
+      "receipt_registry_index": 10,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "criterion_short_ru": "Sharp RDD CCT RBC tau_bc/se.rb/CI",
+      "actual_consumer": "RegressionDiscontinuity → MethodJob → CAS → fresh reader",
+      "code_shas": [
+        "fb022aa12599ee1617f83d154cd9a8027b2a58b8"
+      ],
+      "limit_next_owner_short_ru": "Fixed p/q/kernel/HC0 profile; fuzzy до typed treatment limited.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B210"
+      }
+    },
+    {
+      "finding_id": "B211",
+      "primary_bundle": "CAU-03",
+      "implementation_sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+      "candidate_tree_sha": "bee112b9284e11b78c96d2f91660f330d68b26c7",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "closed",
+      "receipt_ref": {
+        "head": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+        "branch": "refs/heads/codex/e02-F-rdd-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json",
+        "bytes": 68616,
+        "sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60",
+        "table": "criterion_decisions",
+        "per_id": "B211"
+      },
+      "predicate_basis": "recomputed",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B211",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5182,
+            5193
+          ],
+          "bytes": 2695,
+          "sha256": "cf651667294eca28d2feef026f185292e15f443e1d3f4e8d515b40b67835b674",
+          "title": "## B211. Локальная RDD-подгонка материализует квадратичную диагональную матрицу весов"
+        }
+      ],
+      "receipt_registry_index": 10,
+      "deciding_check_registry_indices": [
+        0,
+        4
+      ],
+      "criterion_short_ru": "RDD O(np) weighted design; без n×n diagonal",
+      "actual_consumer": "RegressionDiscontinuity → MethodJob → CAS",
+      "code_shas": [
+        "fb022aa12599ee1617f83d154cd9a8027b2a58b8"
+      ],
+      "limit_next_owner_short_ru": "Row permutation и resource oracle — finite native profile.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B211"
+      }
+    },
+    {
+      "finding_id": "B212",
+      "primary_bundle": "CAU-04",
+      "implementation_sha": "423165322e508a293ffd23918c039c99fb37e7a7",
+      "candidate_tree_sha": "191a4c8997b4bee61a1045d4825bd98759ce0ca8",
+      "check": "PASS",
+      "check_scope": "Bounded verified mechanism/criterion checks only; author has no canonical aggregate per-ID check. Residual subcriteria not promoted.",
+      "outcome": "limited",
+      "receipt_ref": {
+        "head": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+        "branch": "refs/heads/codex/e02-F-dowhy-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json",
+        "bytes": 93732,
+        "sha256": "0a60ca2fa939fb480a989bd87f11312c9543ac458381c197a7288060a3a53833",
+        "table": "per_finding",
+        "per_id": "B212"
+      },
+      "predicate_basis": "recomputed",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B212",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5194,
+            5205
+          ],
+          "bytes": 2849,
+          "sha256": "dd369570f1235d66729b8c5526f88a5968905343594089f5a4c00da90631238f",
+          "title": "## B212. Point-only ответ DoWhy превращается в почти точный доверительный интервал"
+        }
+      ],
+      "receipt_registry_index": 2,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "criterion_short_ru": "Point-only DoWhy не создаёт estimator CI",
+      "actual_consumer": "DoWhyIdentifyEstimate → genuine 3.12 worker → CAS → 3.14 reader",
+      "code_shas": [
+        "423165322e508a293ffd23918c039c99fb37e7a7"
+      ],
+      "limit_next_owner_short_ru": "G: полный admitted Node; getter None остаётся nongating point-only.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B212"
+      }
+    },
+    {
+      "finding_id": "B213",
+      "primary_bundle": "CAU-04",
+      "implementation_sha": "423165322e508a293ffd23918c039c99fb37e7a7",
+      "candidate_tree_sha": "191a4c8997b4bee61a1045d4825bd98759ce0ca8",
+      "check": "PASS",
+      "check_scope": "Bounded verified mechanism/criterion checks only; author has no canonical aggregate per-ID check. Residual subcriteria not promoted.",
+      "outcome": "limited",
+      "receipt_ref": {
+        "head": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+        "branch": "refs/heads/codex/e02-F-dowhy-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json",
+        "bytes": 93732,
+        "sha256": "0a60ca2fa939fb480a989bd87f11312c9543ac458381c197a7288060a3a53833",
+        "table": "per_finding",
+        "per_id": "B213"
+      },
+      "predicate_basis": "recomputed",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B213",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5206,
+            5217
+          ],
+          "bytes": 2615,
+          "sha256": "6684013f61227644563e3dd6ac181b2546b5797168cd0b93fef3ef1bf75fe243",
+          "title": "## B213. Запрошенный estimand_type остаётся только подписью отчёта DoWhy"
+        }
+      ],
+      "receipt_registry_index": 2,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "criterion_short_ru": "Реальный identified estimand/contrast/target binding",
+      "actual_consumer": "DoWhyIdentifyEstimate → worker → CAS → canonical report factory",
+      "code_shas": [
+        "423165322e508a293ffd23918c039c99fb37e7a7"
+      ],
+      "limit_next_owner_short_ru": "G: полный admitted Node; ATE/backdoor linear profile.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B213"
+      }
+    },
+    {
+      "finding_id": "B214",
+      "primary_bundle": "GRF-03",
+      "implementation_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "candidate_tree_sha": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "limited",
+      "receipt_ref": {
+        "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "branch": "refs/heads/codex/e02-F-graph-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "table": "per_id",
+        "per_id": "B214"
+      },
+      "predicate_basis": "independently_reconciled",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B214",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5218,
+            5229
+          ],
+          "bytes": 3537,
+          "sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+          "title": "## B214. Проекция PAG/CPDAG разворачивает известное направление и может создать цикл"
+        }
+      ],
+      "receipt_registry_index": 7,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "criterion_short_ru": "Известные marks/direction; cycle/unresolved refusal",
+      "actual_consumer": "ReconcileCausalGraph → CAS → ReconcileCausalGraphNode / static GCM",
+      "code_shas": [
+        "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181"
+      ],
+      "limit_next_owner_short_ru": "Широкий policy-gate intake/PAG identification UNRUN; G/A/C.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B214"
+      }
+    },
+    {
+      "finding_id": "B215",
+      "primary_bundle": "SCM-02",
+      "implementation_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "candidate_tree_sha": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "closed",
+      "receipt_ref": {
+        "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "branch": "refs/heads/codex/e02-F-graph-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "table": "per_id",
+        "per_id": "B215"
+      },
+      "predicate_basis": "independently_reconciled",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B215",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5230,
+            5243
+          ],
+          "bytes": 3763,
+          "sha256": "285a9f3f9267aaf97e7844c252fffd271febbc5cfb5212bcbbdefd7252f119a9",
+          "title": "## B215. Абдукция принимает подставленное среднее скрытого родителя за наблюдённый факт"
+        }
+      ],
+      "receipt_registry_index": 7,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "criterion_short_ru": "Gaussian abduction mean/cov, singular evidence, row IDs",
+      "actual_consumer": "GCMQuery → source-bound model → fresh CAS reader",
+      "code_shas": [
+        "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181"
+      ],
+      "limit_next_owner_short_ru": "Declared linear Gaussian profile; unknown law typed limited.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B215"
+      }
+    },
+    {
+      "finding_id": "B216",
+      "primary_bundle": "GRF-01",
+      "implementation_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "candidate_tree_sha": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "closed",
+      "receipt_ref": {
+        "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "branch": "refs/heads/codex/e02-F-graph-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "table": "per_id",
+        "per_id": "B216"
+      },
+      "predicate_basis": "independently_reconciled",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B216",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5333,
+            5346
+          ],
+          "bytes": 5017,
+          "sha256": "5da65926eb9350c67aa4c305de165e0919a8ab5eff319562d1fa3d3b499bdcd2",
+          "title": "## B216. Общий m-separation неверно обрабатывает вилку и collider; двусторонняя проверка не устраняет ошибку"
+        }
+      ],
+      "receipt_registry_index": 7,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "criterion_short_ru": "m-separation: fork/collider независимый exhaustive oracle",
+      "actual_consumer": "Actual m-separation / Rule 1 → graph consumer",
+      "code_shas": [
+        "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181"
+      ],
+      "limit_next_owner_short_ru": "Конечный small-graph oracle, без общего identification обещания.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B216"
+      }
+    },
+    {
+      "finding_id": "B217",
+      "primary_bundle": "GRF-01",
+      "implementation_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "candidate_tree_sha": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "closed",
+      "receipt_ref": {
+        "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "branch": "refs/heads/codex/e02-F-graph-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "table": "per_id",
+        "per_id": "B217"
+      },
+      "predicate_basis": "independently_reconciled",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B217",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5347,
+            5360
+          ],
+          "bytes": 3662,
+          "sha256": "347b041bb8cdd642f730dda6caa9fb11367ebb047cfe11abf095166f8730c443",
+          "title": "## B217. Perfect do оставляет связь скрытого родителя с вмешиваемой переменной"
+        }
+      ],
+      "receipt_registry_index": 7,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "criterion_short_ru": "Perfect do удаляет latent incoming relation",
+      "actual_consumer": "Actual Rule 3 / do surgery → graph consumer",
+      "code_shas": [
+        "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181"
+      ],
+      "limit_next_owner_short_ru": "Конечный latent-DAG surgery oracle.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B217"
+      }
+    },
+    {
+      "finding_id": "B218",
+      "primary_bundle": "GRF-03",
+      "implementation_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "candidate_tree_sha": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "limited",
+      "receipt_ref": {
+        "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "branch": "refs/heads/codex/e02-F-graph-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "table": "per_id",
+        "per_id": "B218"
+      },
+      "predicate_basis": "independently_reconciled",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B218",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5361,
+            5374
+          ],
+          "bytes": 3861,
+          "sha256": "8ce1868ddb2663580547f475288d03502e03ae6a4bc38923313bc069efb0a40a",
+          "title": "## B218. Временной граф теряет лаги при экспорте, а лаговая самозависимость отвергается как обычный self-loop"
+        }
+      ],
+      "receipt_registry_index": 7,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "criterion_short_ru": "Lag export сохраняется; static GCM отказывает",
+      "actual_consumer": "CausalGraphModel export → fresh reader / static GCM intake",
+      "code_shas": [
+        "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181"
+      ],
+      "limit_next_owner_short_ru": "Временная identification/readiness не установлена; G/A/C.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B218"
+      }
+    },
+    {
+      "finding_id": "B219",
+      "primary_bundle": "GRF-02",
+      "implementation_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "candidate_tree_sha": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "closed",
+      "receipt_ref": {
+        "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "branch": "refs/heads/codex/e02-F-graph-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "table": "per_id",
+        "per_id": "B219"
+      },
+      "predicate_basis": "independently_reconciled",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B219",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5375,
+            5388
+          ],
+          "bytes": 3117,
+          "sha256": "c3c2613bd397c8dd5d252ccb15562a6aa2f4bee46e36fa86eff1b12bf7c30009",
+          "title": "## B219. Простое DiGraph-представление перезаписывает параллельные причинные отношения"
+        }
+      ],
+      "receipt_registry_index": 7,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "criterion_short_ru": "NetworkX 3.6.1 mixed MultiDiGraph parallel readback",
+      "actual_consumer": "CausalGraphModel.to_networkx → MultiDiGraph → fresh CAS reader",
+      "code_shas": [
+        "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181"
+      ],
+      "limit_next_owner_short_ru": "Actual backend witness снимает прежний held только для этого свойства.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B219"
+      }
+    },
+    {
+      "finding_id": "B220",
+      "primary_bundle": "GRF-02",
+      "implementation_sha": "2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+      "candidate_tree_sha": "9fd2bd6d9aebdb48d1a2bed266483a8b4ab1974e",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "closed",
+      "receipt_ref": {
+        "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "branch": "refs/heads/codex/e02-F-graph-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006.json",
+        "bytes": 66228,
+        "sha256": "b36bac6bf8f01a2821d8077e34166acdda487d21467a8c06a706177747177b6b",
+        "table": "per_id",
+        "per_id": "B220"
+      },
+      "predicate_basis": "recomputed",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B220",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5389,
+            5402
+          ],
+          "bytes": 3831,
+          "sha256": "d0c39288b089bc7e1a85c4eec40ffd1c4fa3273293734b758729b4bb7dc54b71",
+          "title": "## B220. Frozen-модель не обеспечивает неизменность topology; кэш и копия расходятся с текущим графом"
+        }
+      ],
+      "receipt_registry_index": 5,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "criterion_short_ru": "Deep immutability, cold/warm/copy cache и weakref cleanup",
+      "actual_consumer": "CausalGraphModel → cached node/edge rows → real export/readback",
+      "code_shas": [
+        "2137961b0d3a2b39b85c5a57bf774777d2a4204e"
+      ],
+      "limit_next_owner_short_ru": "Первичный mutation FAIL сохранён; окончательное решение связано с narrow fix и независимым consumer/control receipt.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B220"
+      }
+    },
+    {
+      "finding_id": "B221",
+      "primary_bundle": "SCM-01",
+      "implementation_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "candidate_tree_sha": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "closed",
+      "receipt_ref": {
+        "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "branch": "refs/heads/codex/e02-F-graph-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "table": "per_id",
+        "per_id": "B221"
+      },
+      "predicate_basis": "independently_reconciled",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B221",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5403,
+            5416
+          ],
+          "bytes": 3594,
+          "sha256": "e22ca23d5d49e736162b73f80d43ae77719ada061f0898f1ba083a31e54943e4",
+          "title": "## B221. Fitting игнорирует наблюдаемые корни, а query придумывает для них стандартный Normal"
+        }
+      ],
+      "receipt_registry_index": 7,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "criterion_short_ru": "Real GCM assignment/fit, persisted source/row-bound model",
+      "actual_consumer": "HybridSCMFit → DoWhy gcm.fit → CAS model → fresh GCM reader",
+      "code_shas": [
+        "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181"
+      ],
+      "limit_next_owner_short_ru": "Fully observed static linear DAG; не NumPy fallback witness.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B221"
+      }
+    },
+    {
+      "finding_id": "B222",
+      "primary_bundle": "SCM-01",
+      "implementation_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "candidate_tree_sha": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "closed",
+      "receipt_ref": {
+        "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "branch": "refs/heads/codex/e02-F-graph-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "table": "per_id",
+        "per_id": "B222"
+      },
+      "predicate_basis": "independently_reconciled",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B222",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5417,
+            5430
+          ],
+          "bytes": 3359,
+          "sha256": "b13339d3c9e2d80995027a0f1acbaf09ccad855a643deb0b283c065bc4232aa5",
+          "title": "## B222. Сохранённый полином исполняется как линейная аппроксимация с шумом от более точной модели"
+        }
+      ],
+      "receipt_registry_index": 7,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "criterion_short_ru": "Сохранённый polynomial исполняется точно",
+      "actual_consumer": "GCMQuery / TwinNetworkQuery → CAS → fresh reader",
+      "code_shas": [
+        "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181"
+      ],
+      "limit_next_owner_short_ru": "Declared mechanism profile; unknown law typed limited.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B222"
+      }
+    },
+    {
+      "finding_id": "B223",
+      "primary_bundle": "SCM-02",
+      "implementation_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "candidate_tree_sha": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "closed",
+      "receipt_ref": {
+        "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "branch": "refs/heads/codex/e02-F-graph-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "table": "per_id",
+        "per_id": "B223"
+      },
+      "predicate_basis": "independently_reconciled",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B223",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5431,
+            5444
+          ],
+          "bytes": 3092,
+          "sha256": "2f7406d0704ebafed25947c6ebdc6e7e910da062e19fc8b62aed081343ffefcf",
+          "title": "## B223. Attribution вычитает одно и то же вмешательство из самого себя"
+        }
+      ],
+      "receipt_registry_index": 7,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "criterion_short_ru": "Same-arm=0, do(2)-do(0)=6; interval kind/refit",
+      "actual_consumer": "GCMQuery → RunCausalQueriesNode → CAS → fresh reader",
+      "code_shas": [
+        "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181"
+      ],
+      "limit_next_owner_short_ru": "Distribution/posterior interval не estimator CI; iid full-refit bootstrap.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B223"
+      }
+    },
+    {
+      "finding_id": "B224",
+      "primary_bundle": "SCM-03",
+      "implementation_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "candidate_tree_sha": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "closed",
+      "receipt_ref": {
+        "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "branch": "refs/heads/codex/e02-F-graph-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "table": "per_id",
+        "per_id": "B224"
+      },
+      "predicate_basis": "independently_reconciled",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B224",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5445,
+            5458
+          ],
+          "bytes": 3959,
+          "sha256": "854f9eab140c71438e188c91ef3d9792895b0402ab22c5866de3584683596ca1",
+          "title": "## B224. Идеальное do сначала выполняет заменяемый механизм; нерелевантные узлы расходуют работу и память"
+        }
+      ],
+      "receipt_registry_index": 7,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "criterion_short_ru": "Exact do surgery; replaced/irrelevant mechanism не исполняется",
+      "actual_consumer": "GCMQuery → actual surgical sampler → CAS reader",
+      "code_shas": [
+        "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181"
+      ],
+      "limit_next_owner_short_ru": "Static declared graph/law; lagged query typed refusal.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B224"
+      }
+    },
+    {
+      "finding_id": "B225",
+      "primary_bundle": "SCM-03",
+      "implementation_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "candidate_tree_sha": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "closed",
+      "receipt_ref": {
+        "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "branch": "refs/heads/codex/e02-F-graph-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "table": "per_id",
+        "per_id": "B225"
+      },
+      "predicate_basis": "independently_reconciled",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B225",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5459,
+            5472
+          ],
+          "bytes": 3659,
+          "sha256": "9fc38772c0cd77e8bb8da7abd1d8423345cf151f598107387b177b4900860879",
+          "title": "## B225. Ошибка стохастической политики меняет вмешательство; хвостовой truncnorm превращается в атом"
+        }
+      ],
+      "receipt_registry_index": 7,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "criterion_short_ru": "Normal/Uniform/TruncatedNormal support/CDF, tails",
+      "actual_consumer": "GCMQuery → declared stochastic intervention → CAS reader",
+      "code_shas": [
+        "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181"
+      ],
+      "limit_next_owner_short_ru": "Unknown law и unsupported profile — typed limited/refusal.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B225"
+      }
+    },
+    {
+      "finding_id": "B54",
+      "primary_bundle": "FIT-01",
+      "implementation_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+      "candidate_tree_sha": "4d87ce0690e001967b245ce18217cb36fff3c988",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "closed",
+      "receipt_ref": {
+        "head": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+        "branch": "refs/heads/codex/e02-F-tmle-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json",
+        "bytes": 28486,
+        "sha256": "5870aaedd4d4eb83a1f40c392c5cec79660d28927a5846981e8a363702945429",
+        "table": "finding_decisions",
+        "per_id": "B54"
+      },
+      "predicate_basis": "recomputed",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B54",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            1379,
+            1394
+          ],
+          "bytes": 5315,
+          "sha256": "ea5c3023d7b4bec4ee7a1a32b5a258dcceb5c67e3e4f47d28dac84b84f149c9d",
+          "title": "## B54. Кэш вспомогательной оценки сохраняет старую политику диагностики и возвращает общий изменяемый объект"
+        }
+      ],
+      "receipt_registry_index": 11,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "criterion_short_ru": "Recompute cache identity; caller key не bypass",
+      "actual_consumer": "fit_crossfit_nuisance_bundle → fit_tmle_ate",
+      "code_shas": [
+        "55d2e14755bda6af31c41acd4fe1dcb76f3814b1"
+      ],
+      "limit_next_owner_short_ru": "Binary [0,1]; EIF CI только regular iid profile.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B54"
+      }
+    },
+    {
+      "finding_id": "B56",
+      "primary_bundle": "FIT-01",
+      "implementation_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+      "candidate_tree_sha": "4d87ce0690e001967b245ce18217cb36fff3c988",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "limited",
+      "receipt_ref": {
+        "head": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+        "branch": "refs/heads/codex/e02-F-tmle-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json",
+        "bytes": 28486,
+        "sha256": "5870aaedd4d4eb83a1f40c392c5cec79660d28927a5846981e8a363702945429",
+        "table": "finding_decisions",
+        "per_id": "B56"
+      },
+      "predicate_basis": "recomputed",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "B56",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            1409,
+            1424
+          ],
+          "bytes": 4524,
+          "sha256": "5b45e8c8b6ace1a66b9acdd9be541750cfac8c10558f6b21c6f6ec122743e77b",
+          "title": "## B56. Внутренняя параллельность folds не связана с общим ресурсом исследования"
+        }
+      ],
+      "receipt_registry_index": 11,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "criterion_short_ru": "Все folds исполняются в existing worker budget",
+      "actual_consumer": "LocalWorkerPool → MethodJob → TMLE folds → CAS reader",
+      "code_shas": [
+        "55d2e14755bda6af31c41acd4fe1dcb76f3814b1"
+      ],
+      "limit_next_owner_short_ru": "G: общий production budget/admission consumer UNRUN.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "B56"
+      }
+    },
+    {
+      "finding_id": "LA-001",
+      "primary_bundle": "FRY-01",
+      "implementation_sha": "63425f734946979cfc990e9cb91b00163f051898",
+      "candidate_tree_sha": "dab61c3e7a161e00837f5a128fc2768a36e9b19a",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "closed",
+      "receipt_ref": {
+        "head": "f4fa51e6dd247cfd967450263579d67233a743d6",
+        "branch": "refs/heads/codex/e02-F-fry-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json",
+        "bytes": 77903,
+        "sha256": "ff8a8f2b2689fb9793c5ab03f29fde1412eb5fe03dae961656fad722a108176e",
+        "table": "criterion_decisions",
+        "per_id": "LA-001"
+      },
+      "predicate_basis": "independently_reconciled",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "LA-001",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            82,
+            108
+          ],
+          "bytes": 3007,
+          "sha256": "35f63e8bacf3c27cd4148db8119837ff30df91a5de9f73d52ead6e4fc73d9dd0",
+          "title": "## LA-001. Treasury: инфраструктура случайности под предметным названием"
+        }
+      ],
+      "receipt_registry_index": 4,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "criterion_short_ru": "Seed → persisted Treasury salts → actual RNG",
+      "actual_consumer": "compile.api.compile → compile_trinity → TreasuryPlan → execute.api.execute → execute_program_graph → adaptive_agent",
+      "code_shas": [
+        "63425f734946979cfc990e9cb91b00163f051898"
+      ],
+      "limit_next_owner_short_ru": "Selected versioned salt profile; legacy default сохранён.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "LA-001"
+      }
+    },
+    {
+      "finding_id": "LA-002",
+      "primary_bundle": "FRY-01",
+      "implementation_sha": "63425f734946979cfc990e9cb91b00163f051898",
+      "candidate_tree_sha": "dab61c3e7a161e00837f5a128fc2768a36e9b19a",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "limited",
+      "receipt_ref": {
+        "head": "f4fa51e6dd247cfd967450263579d67233a743d6",
+        "branch": "refs/heads/codex/e02-F-fry-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json",
+        "bytes": 77903,
+        "sha256": "ff8a8f2b2689fb9793c5ab03f29fde1412eb5fe03dae961656fad722a108176e",
+        "table": "criterion_decisions",
+        "per_id": "LA-002"
+      },
+      "predicate_basis": "independently_reconciled",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "LA-002",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            109,
+            135
+          ],
+          "bytes": 2982,
+          "sha256": "3acebb36bff2fda1f1ec71e0afc3f42f8aa1b2c160bc41ab564f03004893a336",
+          "title": "## LA-002. Design: каталог семейств рядом с исполняемыми механизмами"
+        }
+      ],
+      "receipt_registry_index": 4,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "criterion_short_ru": "Family certificate → actual state mechanism consumer",
+      "actual_consumer": "Family catalog / native certificate → state verifier",
+      "code_shas": [
+        "63425f734946979cfc990e9cb91b00163f051898"
+      ],
+      "limit_next_owner_short_ru": "4 реальных catalog families без runtime state mapping; owner C/G.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "LA-002"
+      }
+    },
+    {
+      "finding_id": "LA-003",
+      "primary_bundle": "FRY-03",
+      "implementation_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+      "candidate_tree_sha": "e157c672ee734a700795bbf921f2e3657aa8e9eb",
+      "check": "PASS",
+      "check_scope": "Bounded verified mechanism/criterion checks only; author has no canonical aggregate per-ID check. Residual subcriteria not promoted.",
+      "outcome": "limited",
+      "receipt_ref": {
+        "head": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+        "branch": "refs/heads/codex/e02-F-economics-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json",
+        "bytes": 109240,
+        "sha256": "cd005af9bf2e45edcd88f54b4bb223636351abefc991a52828167f2070aead1e",
+        "table": "finding_outcomes",
+        "per_id": "LA-003"
+      },
+      "predicate_basis": "independently_reconciled",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "LA-003",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            136,
+            166
+          ],
+          "bytes": 3450,
+          "sha256": "8e52a4ec93513e106070221058490c2c1c1d337ff27ddd7c453bb655e44710d5",
+          "title": "## LA-003. Fiscal/labor: живые kernels ранних базовых моделей"
+        }
+      ],
+      "receipt_registry_index": 3,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "criterion_short_ru": "Equivalent fiscal/labor/plugin real patch fixtures",
+      "actual_consumer": "Registered fiscal/labor kernels → apply_patch_map → GlobalState",
+      "code_shas": [
+        "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6"
+      ],
+      "limit_next_owner_short_ru": "Units/laws различия сохранены; полная migration/admission — G/C.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "LA-003"
+      }
+    },
+    {
+      "finding_id": "LA-004",
+      "primary_bundle": "ECO-01",
+      "implementation_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+      "candidate_tree_sha": "e157c672ee734a700795bbf921f2e3657aa8e9eb",
+      "check": "PASS",
+      "check_scope": "Bounded verified mechanism/criterion checks only; author has no canonical aggregate per-ID check. Residual subcriteria not promoted.",
+      "outcome": "held",
+      "receipt_ref": {
+        "head": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+        "branch": "refs/heads/codex/e02-F-economics-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json",
+        "bytes": 109240,
+        "sha256": "cd005af9bf2e45edcd88f54b4bb223636351abefc991a52828167f2070aead1e",
+        "table": "finding_outcomes",
+        "per_id": "LA-004"
+      },
+      "predicate_basis": "independently_reconciled",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "LA-004",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            167,
+            197
+          ],
+          "bytes": 3498,
+          "sha256": "6e02db40071d978f1bb642bfff99ad1eb8102a565e90238a90259ed15f5acf4a",
+          "title": "## LA-004. Две экономические реализации: согласовать, но не подменять"
+        }
+      ],
+      "receipt_registry_index": 3,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "criterion_short_ru": "Independent Gini pairwise/scale/dtype; economic meaning",
+      "actual_consumer": "foundry.agent_sim.executor.PureExecutor / EconomicsPlugin → compute_aggregates",
+      "code_shas": [
+        "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6"
+      ],
+      "limit_next_owner_short_ru": "G/экономический owner: исходная welfare norm не задана; held.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "LA-004"
+      }
+    },
+    {
+      "finding_id": "LA-007",
+      "primary_bundle": "GRF-01",
+      "implementation_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "candidate_tree_sha": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+      "check": "UNRUN",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "limited",
+      "receipt_ref": {
+        "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "branch": "refs/heads/codex/e02-F-graph-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "table": "per_id",
+        "per_id": "LA-007"
+      },
+      "predicate_basis": "independently_reconciled",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "LA-007",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            254,
+            280
+          ],
+          "bytes": 2383,
+          "sha256": "f0b3ae2a0552d0b28a06b02d50dad0aaefb418a5cf7bcd52d6a1664edd9c90e0",
+          "title": "## LA-007. id_engine.py рядом с id_engine/: пустая тень, не адаптер"
+        }
+      ],
+      "receipt_registry_index": 7,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "criterion_short_ru": "Удаление id_engine.py с полным importer census",
+      "actual_consumer": "Installed package preserved; external dynamic loaders UNRUN",
+      "code_shas": [
+        "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181"
+      ],
+      "limit_next_owner_short_ru": "G/C: full computed/external import denominator; не importability closure.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "LA-007"
+      }
+    },
+    {
+      "finding_id": "LA-016",
+      "primary_bundle": "CAU-05",
+      "implementation_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+      "candidate_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "limited",
+      "receipt_ref": {
+        "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "branch": "refs/heads/codex/e02-F-cau-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+        "bytes": 216928,
+        "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+        "table": "per_finding",
+        "per_id": "LA-016"
+      },
+      "predicate_basis": "recomputed",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "LA-016",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            513,
+            539
+          ],
+          "bytes": 3048,
+          "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+          "title": "## LA-016. DiD umbrella-wrapper удерживает метаданные новых методов"
+        },
+        {
+          "criterion_id": "LA-016",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            513,
+            539
+          ],
+          "bytes": 3048,
+          "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+          "title": "## LA-016. DiD umbrella-wrapper удерживает метаданные новых методов"
+        }
+      ],
+      "receipt_registry_index": 1,
+      "deciding_check_registry_indices": [
+        1,
+        2,
+        10,
+        17
+      ],
+      "criterion_short_ru": "Legacy DiD umbrella → dedicated causal methods/callers",
+      "actual_consumer": "DifferenceInDifferences dispatcher → public method facades",
+      "code_shas": [
+        "cebe94d8134a4652bbfc1ae4d74ec6403940ced5"
+      ],
+      "limit_next_owner_short_ru": "Два maintained callers; full migration/admitted inputs — G/C.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "LA-016"
+      }
+    },
+    {
+      "finding_id": "LA-017",
+      "primary_bundle": "LEX-01",
+      "implementation_sha": "00a6eda114b903bc5abe86902cd8372426f739a1",
+      "candidate_tree_sha": "e84f7a4d1cb91c624264e6c95f5d0c07fb3510f3",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "limited",
+      "receipt_ref": {
+        "head": "77166daa0ff8b9659e3978447f9016c691694266",
+        "branch": "refs/heads/codex/e02-F-lex-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-20261006.json",
+        "bytes": 24363,
+        "sha256": "0d6e1e2bde0a76edfe74fed0ed278df7c73fc209c982cbfcf54fbb7347631f1a",
+        "table": "decisions",
+        "per_id": "LA-017"
+      },
+      "predicate_basis": "recomputed",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "LA-017",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            540,
+            570
+          ],
+          "bytes": 3335,
+          "sha256": "6d9ba04eca544917e9fce398fa9fce7a17ef81b1ae7f44216d74892c35ed072c",
+          "title": "## LA-017. Lex simulator: норм-различия, проверки и эвристика воздействия смешаны"
+        }
+      ],
+      "receipt_registry_index": 9,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "criterion_short_ru": "Duplicate pass refs; actual legal plan blockers/topics",
+      "actual_consumer": "LegalPass → frozen plan → blockers/CAS/CLI render",
+      "code_shas": [
+        "00a6eda114b903bc5abe86902cd8372426f739a1"
+      ],
+      "limit_next_owner_short_ru": "G/legal owner: current-law corpus/source authority local-only UNRUN.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "LA-017"
+      }
+    },
+    {
+      "finding_id": "LA-019",
+      "primary_bundle": "GRF-01",
+      "implementation_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "candidate_tree_sha": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+      "check": "UNRUN",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "limited",
+      "receipt_ref": {
+        "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "branch": "refs/heads/codex/e02-F-graph-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "table": "per_id",
+        "per_id": "LA-019"
+      },
+      "predicate_basis": "independently_reconciled",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "LA-019",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            930,
+            959
+          ],
+          "bytes": 3647,
+          "sha256": "cbc1ce3fc94f7590d343300b41db34e53ac4b87e2a9c242ff20859423665c3aa",
+          "title": "## LA-019. Ещё два пустых файла после выделения причинных пакетов"
+        }
+      ],
+      "receipt_registry_index": 7,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "criterion_short_ru": "Две retired causal shadows и реальные loader consumers",
+      "actual_consumer": "Installed preserved causal packages; external loaders UNRUN",
+      "code_shas": [
+        "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181"
+      ],
+      "limit_next_owner_short_ru": "G/C: полный external/computed consumer denominator.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "LA-019"
+      }
+    },
+    {
+      "finding_id": "LA-020",
+      "primary_bundle": "API-01",
+      "implementation_sha": "729d137279b7d6334230045e420255762fe55f08",
+      "candidate_tree_sha": "7ced77fdbd83e65efbd14d4bd518de2f786b1e9a",
+      "check": "PASS",
+      "check_scope": "Bounded verified mechanism/criterion checks only; author has no canonical aggregate per-ID check. Residual subcriteria not promoted.",
+      "outcome": "limited",
+      "receipt_ref": {
+        "head": "449d32909928caf39382f4ff02ac74b0adf277eb",
+        "branch": "refs/heads/codex/e02-F-api-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006.json",
+        "bytes": 33029,
+        "sha256": "6729aabae4bd540d2b1e3077e5f7f39a007868d30fb1f265ced62f6798e8ce99",
+        "table": "per_id",
+        "per_id": "LA-020"
+      },
+      "predicate_basis": "recomputed",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "LA-020",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            960,
+            989
+          ],
+          "bytes": 4138,
+          "sha256": "f87876bc9a834d23256c57f6aee11b5a6483cd8d159d816081db9404110ef3d5",
+          "title": "## LA-020. Фасады причинных пакетов сохраняют устройство старого монолита"
+        }
+      ],
+      "receipt_registry_index": 0,
+      "deciding_check_registry_indices": [],
+      "criterion_short_ru": "Public FQN/docs/monkeypatch/default identity и installs",
+      "actual_consumer": "Canonical public facade → wheel/sdist → neutral-cwd consumer",
+      "code_shas": [
+        "729d137279b7d6334230045e420255762fe55f08"
+      ],
+      "limit_next_owner_short_ru": "182 computed expressions/external clients unresolved; G/C.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "LA-020"
+      }
+    },
+    {
+      "finding_id": "LA-035",
+      "primary_bundle": "ECO-01",
+      "implementation_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+      "candidate_tree_sha": "e157c672ee734a700795bbf921f2e3657aa8e9eb",
+      "check": "PASS",
+      "check_scope": "Bounded verified mechanism/criterion checks only; author has no canonical aggregate per-ID check. Residual subcriteria not promoted.",
+      "outcome": "held",
+      "receipt_ref": {
+        "head": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+        "branch": "refs/heads/codex/e02-F-economics-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json",
+        "bytes": 109240,
+        "sha256": "cd005af9bf2e45edcd88f54b4bb223636351abefc991a52828167f2070aead1e",
+        "table": "finding_outcomes",
+        "per_id": "LA-035"
+      },
+      "predicate_basis": "independently_reconciled",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "LA-035",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            2066,
+            2102
+          ],
+          "bytes": 7176,
+          "sha256": "59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69",
+          "title": "## LA-035. policy_loss_fn: ранний экономический baseline у общего method-владельца"
+        }
+      ],
+      "receipt_registry_index": 3,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "criterion_short_ru": "Historical normalized-income score и optimizer owner",
+      "actual_consumer": "normalized_income_budget_loss → legacy aliases → GlobalState/JIT/grad",
+      "code_shas": [
+        "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6"
+      ],
+      "limit_next_owner_short_ru": "income≥1 score=−1 сохранён; actual production optimizer/norm — G, held.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "LA-035"
+      }
+    },
+    {
+      "finding_id": "LA-037",
+      "primary_bundle": "FRY-01",
+      "implementation_sha": "63425f734946979cfc990e9cb91b00163f051898",
+      "candidate_tree_sha": "dab61c3e7a161e00837f5a128fc2768a36e9b19a",
+      "check": "PASS",
+      "check_scope": "Canonical author per-ID check",
+      "outcome": "limited",
+      "receipt_ref": {
+        "head": "f4fa51e6dd247cfd967450263579d67233a743d6",
+        "branch": "refs/heads/codex/e02-F-fry-20261006",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json",
+        "bytes": 77903,
+        "sha256": "ff8a8f2b2689fb9793c5ab03f29fde1412eb5fe03dae961656fad722a108176e",
+        "table": "criterion_decisions",
+        "per_id": "LA-037"
+      },
+      "predicate_basis": "independently_reconciled",
+      "original_source_criterion_refs": [
+        {
+          "criterion_id": "LA-037",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            2146,
+            2178
+          ],
+          "bytes": 5602,
+          "sha256": "79dc9efe37fc67c6b481db97f51d50a38d4aea4cff051ce0ffcf864ce049589c",
+          "title": "## LA-037. Slot layout: две последовательные compatibility-обёртки после переноса в IR"
+        }
+      ],
+      "receipt_registry_index": 4,
+      "deciding_check_registry_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "criterion_short_ru": "IR slot layout → consumer → installed layout",
+      "actual_consumer": "Native IR slot layout / installed public package consumers",
+      "code_shas": [
+        "63425f734946979cfc990e9cb91b00163f051898"
+      ],
+      "limit_next_owner_short_ru": "Полный compatibility-wrapper retirement/caller census — G/C.",
+      "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+      "complete_decision_oracle_negative_and_companions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+        "finding_id": "LA-037"
+      }
+    }
+  ],
+  "receipt_registry": [
+    {
+      "lane": "api",
+      "head": "449d32909928caf39382f4ff02ac74b0adf277eb",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006.json",
+      "receipt_bytes": 33029,
+      "receipt_sha256": "6729aabae4bd540d2b1e3077e5f7f39a007868d30fb1f265ced62f6798e8ce99",
+      "slice": "api-20261006",
+      "bundle_ids": [
+        "API-01"
+      ],
+      "implementation_sha": "729d137279b7d6334230045e420255762fe55f08",
+      "candidate_tree_sha": "7ced77fdbd83e65efbd14d4bd518de2f786b1e9a"
+    },
+    {
+      "lane": "cau",
+      "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+      "receipt_bytes": 216928,
+      "receipt_sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+      "slice": "did-selected-cohort-20261006",
+      "bundle_ids": [
+        "CAU-01",
+        "CAU-02",
+        "CAU-05"
+      ],
+      "implementation_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+      "candidate_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9"
+    },
+    {
+      "lane": "dowhy",
+      "head": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json",
+      "receipt_bytes": 93732,
+      "receipt_sha256": "0a60ca2fa939fb480a989bd87f11312c9543ac458381c197a7288060a3a53833",
+      "slice": "dowhy-worker-20261006",
+      "bundle_ids": [
+        "CAU-04"
+      ],
+      "implementation_sha": "423165322e508a293ffd23918c039c99fb37e7a7",
+      "candidate_tree_sha": "191a4c8997b4bee61a1045d4825bd98759ce0ca8"
+    },
+    {
+      "lane": "economics",
+      "head": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json",
+      "receipt_bytes": 109240,
+      "receipt_sha256": "cd005af9bf2e45edcd88f54b4bb223636351abefc991a52828167f2070aead1e",
+      "slice": "economic-science-profiles-20261006",
+      "bundle_ids": [
+        "ECO-01",
+        "FRY-03"
+      ],
+      "implementation_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+      "candidate_tree_sha": "e157c672ee734a700795bbf921f2e3657aa8e9eb"
+    },
+    {
+      "lane": "fry",
+      "head": "f4fa51e6dd247cfd967450263579d67233a743d6",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json",
+      "receipt_bytes": 77903,
+      "receipt_sha256": "ff8a8f2b2689fb9793c5ab03f29fde1412eb5fe03dae961656fad722a108176e",
+      "slice": "treasury-execution-20261006",
+      "bundle_ids": [
+        "FRY-01"
+      ],
+      "implementation_sha": "63425f734946979cfc990e9cb91b00163f051898",
+      "candidate_tree_sha": "dab61c3e7a161e00837f5a128fc2768a36e9b19a"
+    },
+    {
+      "lane": "graph",
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006.json",
+      "receipt_bytes": 66228,
+      "receipt_sha256": "b36bac6bf8f01a2821d8077e34166acdda487d21467a8c06a706177747177b6b",
+      "slice": "graph-cache-immutability-20261006",
+      "bundle_ids": [
+        "GRF-02"
+      ],
+      "implementation_sha": "2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+      "candidate_tree_sha": "9fd2bd6d9aebdb48d1a2bed266483a8b4ab1974e"
+    },
+    {
+      "lane": "graph",
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006.json",
+      "receipt_bytes": 30467,
+      "receipt_sha256": "fc4185ba629d9cedeedbd27a3cc3f184844665be53dc056d526ae436582a7a06",
+      "slice": "graph-native-20261006",
+      "bundle_ids": [
+        "GRF-01",
+        "GRF-02",
+        "GRF-03",
+        "SCM-01",
+        "SCM-02",
+        "SCM-03"
+      ],
+      "implementation_sha": "07beb7c2986770e1b9901f3061a4768251c5a154",
+      "candidate_tree_sha": "94ee1936893827c13316ee537e286d0791cd4854"
+    },
+    {
+      "lane": "graph",
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+      "receipt_bytes": 150139,
+      "receipt_sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+      "slice": "scm-source-bound-20261006",
+      "bundle_ids": [
+        "GRF-01",
+        "GRF-02",
+        "GRF-03",
+        "SCM-01",
+        "SCM-02",
+        "SCM-03"
+      ],
+      "implementation_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "candidate_tree_sha": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4"
+    },
+    {
+      "lane": "graph-intake",
+      "head": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json",
+      "receipt_bytes": 150755,
+      "receipt_sha256": "78b07ba01cf9b483ff23d08c8144fc55b9ab678412b46fa8f170c775a3f1f05e",
+      "slice": "graph-intake-native-20261006",
+      "bundle_ids": [
+        "GRF-03"
+      ],
+      "implementation_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "candidate_tree_sha": "f01888ab31984d1b4b801cfab87b9f1ac08d9756"
+    },
+    {
+      "lane": "lex",
+      "head": "77166daa0ff8b9659e3978447f9016c691694266",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-20261006.json",
+      "receipt_bytes": 24363,
+      "receipt_sha256": "0d6e1e2bde0a76edfe74fed0ed278df7c73fc209c982cbfcf54fbb7347631f1a",
+      "slice": "lex-pass-plan-deduplication",
+      "bundle_ids": [
+        "LEX-01"
+      ],
+      "implementation_sha": "00a6eda114b903bc5abe86902cd8372426f739a1",
+      "candidate_tree_sha": "e84f7a4d1cb91c624264e6c95f5d0c07fb3510f3"
+    },
+    {
+      "lane": "rdd",
+      "head": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json",
+      "receipt_bytes": 68616,
+      "receipt_sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60",
+      "slice": "rdd-sharp-rbc-20261006",
+      "bundle_ids": [
+        "CAU-03"
+      ],
+      "implementation_sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+      "candidate_tree_sha": "bee112b9284e11b78c96d2f91660f330d68b26c7"
+    },
+    {
+      "lane": "tmle",
+      "head": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json",
+      "receipt_bytes": 28486,
+      "receipt_sha256": "5870aaedd4d4eb83a1f40c392c5cec79660d28927a5846981e8a363702945429",
+      "slice": "tmle-20261006",
+      "bundle_ids": [
+        "FIT-01"
+      ],
+      "implementation_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+      "candidate_tree_sha": "4d87ce0690e001967b245ce18217cb36fff3c988"
+    },
+    {
+      "lane": "installed-worker",
+      "head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json",
+      "receipt_bytes": 209475,
+      "receipt_sha256": "1ebacf5377764b5c0958d7e6597e10eab56536c570aacea64d25be3ee7cff908",
+      "slice": "installed-latest-dependencies-20261006",
+      "bundle_ids": [
+        "CAU-04",
+        "SCM-01",
+        "SCM-02",
+        "API-01",
+        "GRF-02"
+      ],
+      "implementation_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "candidate_tree_sha": "c75afd88c27037708844f48d7789fbcbe84a4797"
+    },
+    {
+      "lane": "installed-worker",
+      "head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json",
+      "receipt_bytes": 71310,
+      "receipt_sha256": "00617d32afdafcff3f986fb53043580f6a4a360c4c3f191c3867ed0631357fde",
+      "slice": "installed-worker-20261006",
+      "bundle_ids": [
+        "CAU-04",
+        "SCM-01",
+        "SCM-02",
+        "API-01"
+      ],
+      "implementation_sha": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+      "candidate_tree_sha": "bcb403872a3b1e3e6cac5b7624ab80136ca12b4e"
+    },
+    {
+      "lane": "closeout",
+      "head": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-binding-20261006.json",
+      "receipt_bytes": 162224,
+      "receipt_sha256": "1f4b740e02d77c66e13704c72535fc2e38b207ee307ccc063168d59b44309a6d",
+      "slice": "causal-consumer-binding-20261006",
+      "bundle_ids": [
+        "CAU-02",
+        "CAU-04",
+        "FIT-01"
+      ],
+      "implementation_sha": "74f754bd6a3388aef83188dac00e24b12ab3feb6",
+      "candidate_tree_sha": "ae08d98787075b7ea3e0ae7d276a2b19cbfe5a65"
+    }
+  ],
+  "topics": [
+    {
+      "lane": "api",
+      "branch": "codex/e02-F-api-20261006",
+      "published_receipt_head": "449d32909928caf39382f4ff02ac74b0adf277eb",
+      "pr": "https://github.com/DenisKopylov/polisyos/pull/59",
+      "components": [
+        {
+          "lane": "api",
+          "slice": "api-20261006",
+          "branch": "codex/e02-F-api-20261006",
+          "published_receipt_head": "449d32909928caf39382f4ff02ac74b0adf277eb",
+          "pr": "https://github.com/DenisKopylov/polisyos/pull/59",
+          "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "implementation_commits": [
+            "729d137279b7d6334230045e420255762fe55f08"
+          ],
+          "implementation_candidate_sha": "729d137279b7d6334230045e420255762fe55f08",
+          "implementation_candidate_tree": "7ced77fdbd83e65efbd14d4bd518de2f786b1e9a",
+          "receipt": {
+            "git_ref": "449d32909928caf39382f4ff02ac74b0adf277eb",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006.json",
+            "bytes": 33029,
+            "sha256": "6729aabae4bd540d2b1e3077e5f7f39a007868d30fb1f265ced62f6798e8ce99"
+          },
+          "owned_paths": [
+            "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/README.md",
+            "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py"
+          ],
+          "full_base_to_implementation_diff": {
+            "paths": [
+              "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/README.md",
+              "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py"
+            ],
+            "sha256": "b78f22defc87d5adc78103395fc787ac0075698ff547c66af1d75d79620d74f9",
+            "command": [
+              "git",
+              "diff",
+              "--binary",
+              "198076863e143dea9f89f02734b13d50dae3eed5",
+              "729d137279b7d6334230045e420255762fe55f08"
+            ]
+          },
+          "closure_ids": [],
+          "status": "draft PR; G integration and formal ledger acceptance pending"
+        }
+      ]
+    },
+    {
+      "lane": "cau",
+      "branch": "codex/e02-F-cau-20261006",
+      "published_receipt_head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "pr": "https://github.com/DenisKopylov/polisyos/pull/57",
+      "components": [
+        {
+          "lane": "cau",
+          "slice": "did-selected-cohort-20261006",
+          "branch": "codex/e02-F-cau-20261006",
+          "published_receipt_head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "pr": "https://github.com/DenisKopylov/polisyos/pull/57",
+          "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "implementation_commits": [
+            "fc0d896e86ffb346381bbcc95b81d24c84e1a351",
+            "c7d33a223e467964c589f61c8b097eb9175335c5",
+            "0a25f3afee4c12ba8079c781618229589ef8af75",
+            "cebe94d8134a4652bbfc1ae4d74ec6403940ced5"
+          ],
+          "implementation_candidate_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+          "implementation_candidate_tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+          "receipt": {
+            "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+            "bytes": 216928,
+            "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73"
+          },
+          "owned_paths": [
+            "policy-engine/benchmarks/interference/policy_did_interference.py",
+            "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py",
+            "policy-engine/release-fragments/unreleased/2026-10-06-did-selected-cohort.toml",
+            "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py",
+            "policy-engine/tests/unit/remediation/test_cau_02.py",
+            "policy-engine/tests/unit/remediation/test_cau_05.py"
+          ],
+          "full_base_to_implementation_diff": {
+            "paths": [
+              "policy-engine/benchmarks/interference/policy_did_interference.py",
+              "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py",
+              "policy-engine/release-fragments/unreleased/2026-10-06-did-selected-cohort.toml",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py",
+              "policy-engine/tests/unit/remediation/test_cau_02.py",
+              "policy-engine/tests/unit/remediation/test_cau_05.py"
+            ],
+            "sha256": "b4610c6a890b2b7764bce678d12bd29b00c865543df52627e4c5e4b72a4a9310",
+            "command": [
+              "git",
+              "diff",
+              "--binary",
+              "198076863e143dea9f89f02734b13d50dae3eed5",
+              "cebe94d8134a4652bbfc1ae4d74ec6403940ced5"
+            ]
+          },
+          "closure_ids": [
+            "B204",
+            "B205",
+            "B206"
+          ],
+          "status": "draft PR; G integration and formal ledger acceptance pending"
+        }
+      ]
+    },
+    {
+      "lane": "dowhy",
+      "branch": "codex/e02-F-dowhy-20261006",
+      "published_receipt_head": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+      "pr": "https://github.com/DenisKopylov/polisyos/pull/61",
+      "components": [
+        {
+          "lane": "dowhy",
+          "slice": "dowhy-worker-20261006",
+          "branch": "codex/e02-F-dowhy-20261006",
+          "published_receipt_head": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+          "pr": "https://github.com/DenisKopylov/polisyos/pull/61",
+          "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "implementation_commits": [
+            "70f160c943fd878190479cb81fe80bf710cecb07",
+            "85cba8f4f40360cd213c66c344300d5e826aff00",
+            "d86a085f07a2d49855f465fe762ef20259b67dc3",
+            "cbb2015e3c96e6442a965e40c779a9c525e5060f",
+            "24ed1ec2063b0f2f6b937d5dab72b5fd821ee8d1",
+            "a7308b727fe61a4b4e3239964c558332b131f02f",
+            "0e5c2e0999fce2464228439908953a771ba5383c",
+            "e5895da2ebbb5f6108e398d78258b973dbdc7b68",
+            "f6e80c4cb812f2e561791df9d323ebfbe40f7dd9",
+            "66c46c32a2a99a4f218a5853174671139252e0db",
+            "423165322e508a293ffd23918c039c99fb37e7a7"
+          ],
+          "implementation_candidate_sha": "423165322e508a293ffd23918c039c99fb37e7a7",
+          "implementation_candidate_tree": "191a4c8997b4bee61a1045d4825bd98759ce0ca8",
+          "receipt": {
+            "git_ref": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json",
+            "bytes": 93732,
+            "sha256": "0a60ca2fa939fb480a989bd87f11312c9543ac458381c197a7288060a3a53833"
+          },
+          "owned_paths": [
+            "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+            "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+            "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+            "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+            "policy-engine/tests/unit/remediation/test_cau_04.py",
+            "policy-engine/workers/dowhy-014/.python-version",
+            "policy-engine/workers/dowhy-014/README.md",
+            "policy-engine/workers/dowhy-014/protocol.py",
+            "policy-engine/workers/dowhy-014/pyproject.toml",
+            "policy-engine/workers/dowhy-014/tests/test_worker.py",
+            "policy-engine/workers/dowhy-014/uv.lock",
+            "policy-engine/workers/dowhy-014/worker.py"
+          ],
+          "full_base_to_implementation_diff": {
+            "paths": [
+              "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+              "policy-engine/tests/unit/remediation/test_cau_04.py",
+              "policy-engine/workers/dowhy-014/.python-version",
+              "policy-engine/workers/dowhy-014/README.md",
+              "policy-engine/workers/dowhy-014/protocol.py",
+              "policy-engine/workers/dowhy-014/pyproject.toml",
+              "policy-engine/workers/dowhy-014/tests/test_worker.py",
+              "policy-engine/workers/dowhy-014/uv.lock",
+              "policy-engine/workers/dowhy-014/worker.py"
+            ],
+            "sha256": "13dffea4513524a565f6b8ca51f4d9be594b8bffa0366d720597753a5f0a4f7b",
+            "command": [
+              "git",
+              "diff",
+              "--binary",
+              "198076863e143dea9f89f02734b13d50dae3eed5",
+              "423165322e508a293ffd23918c039c99fb37e7a7"
+            ]
+          },
+          "closure_ids": [],
+          "status": "draft PR; G integration and formal ledger acceptance pending"
+        }
+      ]
+    },
+    {
+      "lane": "economics",
+      "branch": "codex/e02-F-economics-20261006",
+      "published_receipt_head": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "pr": "https://github.com/DenisKopylov/polisyos/pull/56",
+      "components": [
+        {
+          "lane": "economics",
+          "slice": "economic-science-profiles-20261006",
+          "branch": "codex/e02-F-economics-20261006",
+          "published_receipt_head": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+          "pr": "https://github.com/DenisKopylov/polisyos/pull/56",
+          "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "implementation_commits": [
+            "3f4ebe5641f68535ce5dbdf57db859bffc241bb3",
+            "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6"
+          ],
+          "implementation_candidate_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+          "implementation_candidate_tree": "e157c672ee734a700795bbf921f2e3657aa8e9eb",
+          "receipt": {
+            "git_ref": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json",
+            "bytes": 109240,
+            "sha256": "cd005af9bf2e45edcd88f54b4bb223636351abefc991a52828167f2070aead1e"
+          },
+          "owned_paths": [
+            "policy-engine/release-fragments/unreleased/2026-10-06-economic-gini-science.toml",
+            "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+            "policy-engine/src/polisyos/foundry/agent_sim/state.py",
+            "policy-engine/src/polisyos/foundry/plugins/economics/README.md",
+            "policy-engine/tests/unit/foundry/agent_sim/test_gini_science.py",
+            "policy-engine/tests/unit/foundry/plugins/test_economic_profiles.py"
+          ],
+          "full_base_to_implementation_diff": {
+            "paths": [
+              "policy-engine/release-fragments/unreleased/2026-10-06-economic-gini-science.toml",
+              "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+              "policy-engine/src/polisyos/foundry/agent_sim/state.py",
+              "policy-engine/src/polisyos/foundry/plugins/economics/README.md",
+              "policy-engine/tests/unit/foundry/agent_sim/test_gini_science.py",
+              "policy-engine/tests/unit/foundry/plugins/test_economic_profiles.py"
+            ],
+            "sha256": "d988511a1e2fe31c50faa5a95f020246ac661c11e768b980ab8e8f54b6368d6e",
+            "command": [
+              "git",
+              "diff",
+              "--binary",
+              "198076863e143dea9f89f02734b13d50dae3eed5",
+              "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6"
+            ]
+          },
+          "closure_ids": [],
+          "status": "draft PR; G integration and formal ledger acceptance pending"
+        }
+      ]
+    },
+    {
+      "lane": "fry",
+      "branch": "codex/e02-F-fry-20261006",
+      "published_receipt_head": "f4fa51e6dd247cfd967450263579d67233a743d6",
+      "pr": "https://github.com/DenisKopylov/polisyos/pull/60",
+      "components": [
+        {
+          "lane": "fry",
+          "slice": "treasury-execution-20261006",
+          "branch": "codex/e02-F-fry-20261006",
+          "published_receipt_head": "f4fa51e6dd247cfd967450263579d67233a743d6",
+          "pr": "https://github.com/DenisKopylov/polisyos/pull/60",
+          "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "implementation_commits": [
+            "03bbfe14225d64a9977b77775c200e83eb717c5f",
+            "63425f734946979cfc990e9cb91b00163f051898"
+          ],
+          "implementation_candidate_sha": "63425f734946979cfc990e9cb91b00163f051898",
+          "implementation_candidate_tree": "dab61c3e7a161e00837f5a128fc2768a36e9b19a",
+          "receipt": {
+            "git_ref": "f4fa51e6dd247cfd967450263579d67233a743d6",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json",
+            "bytes": 77903,
+            "sha256": "ff8a8f2b2689fb9793c5ab03f29fde1412eb5fe03dae961656fad722a108176e"
+          },
+          "owned_paths": [
+            "policy-engine/docs/reference/foundry/randomization-profile.md",
+            "policy-engine/release-fragments/unreleased/2026-10-06-foundry-treasury-salts.toml",
+            "policy-engine/src/polisyos/foundry/compile/randomization.py",
+            "policy-engine/src/polisyos/foundry/compile/trinity_compiler.py",
+            "policy-engine/src/polisyos/foundry/execute/_internal/graph/README.md",
+            "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+            "policy-engine/tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+            "policy-engine/tests/unit/foundry/compile/test_treasury_execution.py"
+          ],
+          "full_base_to_implementation_diff": {
+            "paths": [
+              "policy-engine/docs/reference/foundry/randomization-profile.md",
+              "policy-engine/release-fragments/unreleased/2026-10-06-foundry-treasury-salts.toml",
+              "policy-engine/src/polisyos/foundry/compile/randomization.py",
+              "policy-engine/src/polisyos/foundry/compile/trinity_compiler.py",
+              "policy-engine/src/polisyos/foundry/execute/_internal/graph/README.md",
+              "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+              "policy-engine/tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+              "policy-engine/tests/unit/foundry/compile/test_treasury_execution.py"
+            ],
+            "sha256": "67ae9cf0f66f23a4d8fd980ff31f0d637bfc424b00d2bb6e87b85a128ca3aaa5",
+            "command": [
+              "git",
+              "diff",
+              "--binary",
+              "198076863e143dea9f89f02734b13d50dae3eed5",
+              "63425f734946979cfc990e9cb91b00163f051898"
+            ]
+          },
+          "closure_ids": [
+            "LA-001"
+          ],
+          "status": "draft PR; G integration and formal ledger acceptance pending"
+        }
+      ]
+    },
+    {
+      "lane": "graph",
+      "branch": "codex/e02-F-graph-20261006",
+      "published_receipt_head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "pr": "https://github.com/DenisKopylov/polisyos/pull/62",
+      "components": [
+        {
+          "lane": "graph",
+          "slice": "graph-cache-immutability-20261006",
+          "branch": "codex/e02-F-graph-20261006",
+          "published_receipt_head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "pr": "https://github.com/DenisKopylov/polisyos/pull/62",
+          "slice_base_sha": "a0a050d24c137b4893a7b52b2f83ea710da46471",
+          "implementation_commits": [
+            "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+            "2137961b0d3a2b39b85c5a57bf774777d2a4204e"
+          ],
+          "implementation_candidate_sha": "2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+          "implementation_candidate_tree": "9fd2bd6d9aebdb48d1a2bed266483a8b4ab1974e",
+          "receipt": {
+            "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006.json",
+            "bytes": 66228,
+            "sha256": "b36bac6bf8f01a2821d8077e34166acdda487d21467a8c06a706177747177b6b"
+          },
+          "owned_paths": [
+            "policy-engine/docs/reference/ir/causal-graph-cache-rows.md",
+            "policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-cache-rows.toml",
+            "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+            "policy-engine/tests/unit/ir/test_causal_graph_cache_rows.py"
+          ],
+          "full_base_to_implementation_diff": {
+            "paths": [
+              "policy-engine/docs/reference/ir/causal-graph-cache-rows.md",
+              "policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-cache-rows.toml",
+              "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+              "policy-engine/tests/unit/ir/test_causal_graph_cache_rows.py"
+            ],
+            "sha256": "363e1ea048ff38b85df80ecfa61aa64d998ffc45d89bb51bdb9cedfc8b7ee8e5",
+            "command": [
+              "git",
+              "diff",
+              "--binary",
+              "a0a050d24c137b4893a7b52b2f83ea710da46471",
+              "2137961b0d3a2b39b85c5a57bf774777d2a4204e"
+            ]
+          },
+          "closure_ids": [
+            "B220"
+          ],
+          "status": "draft PR; G integration and formal ledger acceptance pending"
+        },
+        {
+          "lane": "graph",
+          "slice": "graph-native-20261006",
+          "branch": "codex/e02-F-graph-20261006",
+          "published_receipt_head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "pr": "https://github.com/DenisKopylov/polisyos/pull/62",
+          "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "implementation_commits": [
+            "07beb7c2986770e1b9901f3061a4768251c5a154"
+          ],
+          "implementation_candidate_sha": "07beb7c2986770e1b9901f3061a4768251c5a154",
+          "implementation_candidate_tree": "94ee1936893827c13316ee537e286d0791cd4854",
+          "receipt": {
+            "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006.json",
+            "bytes": 30467,
+            "sha256": "fc4185ba629d9cedeedbd27a3cc3f184844665be53dc056d526ae436582a7a06"
+          },
+          "owned_paths": [
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+            "policy-engine/tests/unit/ir/test_causal_graph_networkx_roundtrip.py"
+          ],
+          "full_base_to_implementation_diff": {
+            "paths": [
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+              "policy-engine/tests/unit/ir/test_causal_graph_networkx_roundtrip.py"
+            ],
+            "sha256": "ac85c70cf5d85c83f4420d9f177c037b3baf50dba3a791d1400f29ed747d17f3",
+            "command": [
+              "git",
+              "diff",
+              "--binary",
+              "198076863e143dea9f89f02734b13d50dae3eed5",
+              "07beb7c2986770e1b9901f3061a4768251c5a154"
+            ]
+          },
+          "closure_ids": [],
+          "status": "draft PR; G integration and formal ledger acceptance pending"
+        },
+        {
+          "lane": "graph",
+          "slice": "scm-source-bound-20261006",
+          "branch": "codex/e02-F-graph-20261006",
+          "published_receipt_head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "pr": "https://github.com/DenisKopylov/polisyos/pull/62",
+          "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "implementation_commits": [
+            "07beb7c2986770e1b9901f3061a4768251c5a154",
+            "bea13d4e77a958dea15ff36b3758887441a16beb",
+            "c76b8550c3c858b32a75fa4ef202f7165a15819c",
+            "66e8ab2ffaa5cd1a73cfb76fa50f3f3ec75aa2a2",
+            "9ca3a8b7a9a76ef2a46f904352c76b54366560f6",
+            "c1452438c7f2271ba10f0c6b31bc747dca25a4e7",
+            "581673b96ca26ccb2475d0f6c4675cdf039c9ff6",
+            "2875f5c87b8a4ac2dddc478adb0c601437a9cb4f",
+            "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+            "3046581d98e789ebad2b99bad86de87f6e02b963",
+            "eb93738fb4cd0b302b4e6735e5bb5732324eceed",
+            "1e70434b8e5a04661bb22c02362854ca14714436",
+            "0b6d2f779dbf8b0c2abe53448906f32d719696b1",
+            "b69208e65b9dcfa4c7de690ace071abdc9c1fed6",
+            "914c7b4bed31e2b6e518fca3b9e9be53b74e6762",
+            "eb1599936093ae897c3cb743cf5dd00e4729fcbd",
+            "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181"
+          ],
+          "implementation_candidate_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+          "implementation_candidate_tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+          "receipt": {
+            "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+            "bytes": 150139,
+            "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17"
+          },
+          "owned_paths": [
+            "policy-engine/architecture/public_surface/inventory.json",
+            "policy-engine/docs/reference/foundry/structural-causal-models.md",
+            "policy-engine/docs/reference/ir/schema-catalog.md",
+            "policy-engine/docs/reference/public-surface.md",
+            "policy-engine/docs/reference/schemas.md",
+            "policy-engine/docs/reference/scientist/structural-causal-queries.md",
+            "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+            "policy-engine/release-fragments/unreleased/structural-causal-result-semantics.toml",
+            "policy-engine/schemas/snapshots/ir/_manifest.json",
+            "policy-engine/schemas/snapshots/ir/causal_query_result.schema.json",
+            "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+            "policy-engine/src/polisyos/foundry/README.md",
+            "policy-engine/src/polisyos/foundry/__init__.py",
+            "policy-engine/src/polisyos/foundry/methods/README.md",
+            "policy-engine/src/polisyos/foundry/methods/api.py",
+            "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+            "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+            "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+            "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+            "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+            "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+            "policy-engine/src/polisyos/ir/README.md",
+            "policy-engine/src/polisyos/ir/__init__.py",
+            "policy-engine/src/polisyos/ir/analytics/README.md",
+            "policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+            "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+            "policy-engine/src/polisyos/ir/analytics/twin_network.py",
+            "policy-engine/src/polisyos/ir/api.py",
+            "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_scm_result_semantics.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_network_query.py",
+            "policy-engine/tests/unit/ir/test_causal_graph_networkx_roundtrip.py",
+            "policy-engine/tests/unit/ir/test_causal_queries_contract.py",
+            "policy-engine/tests/unit/remediation/test_cau_04.py",
+            "policy-engine/tests/unit/remediation/test_scm_01.py",
+            "policy-engine/tests/unit/remediation/test_scm_02.py",
+            "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_run_causal_queries.py",
+            "policy-engine/workers/dowhy-014/.python-version",
+            "policy-engine/workers/dowhy-014/README.md",
+            "policy-engine/workers/dowhy-014/protocol.py",
+            "policy-engine/workers/dowhy-014/pyproject.toml",
+            "policy-engine/workers/dowhy-014/tests/test_worker.py",
+            "policy-engine/workers/dowhy-014/uv.lock",
+            "policy-engine/workers/dowhy-014/worker.py"
+          ],
+          "full_base_to_implementation_diff": {
+            "paths": [
+              "policy-engine/architecture/public_surface/inventory.json",
+              "policy-engine/docs/reference/foundry/structural-causal-models.md",
+              "policy-engine/docs/reference/ir/schema-catalog.md",
+              "policy-engine/docs/reference/public-surface.md",
+              "policy-engine/docs/reference/schemas.md",
+              "policy-engine/docs/reference/scientist/structural-causal-queries.md",
+              "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006.json",
+              "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/do_operator.json",
+              "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/do_operator.stderr.txt",
+              "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/do_operator.stdout.txt",
+              "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01-base198.txt",
+              "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01.json",
+              "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01.stderr.txt",
+              "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01.stdout.txt",
+              "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/independent-review.json",
+              "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/m_separation.json",
+              "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/m_separation.stderr.txt",
+              "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/m_separation.stdout.txt",
+              "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/native.json",
+              "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/native.stderr.txt",
+              "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/native.stdout.txt",
+              "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/removal_replayer.py",
+              "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+              "policy-engine/release-fragments/unreleased/structural-causal-result-semantics.toml",
+              "policy-engine/schemas/snapshots/ir/_manifest.json",
+              "policy-engine/schemas/snapshots/ir/causal_query_result.schema.json",
+              "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+              "policy-engine/src/polisyos/foundry/README.md",
+              "policy-engine/src/polisyos/foundry/__init__.py",
+              "policy-engine/src/polisyos/foundry/methods/README.md",
+              "policy-engine/src/polisyos/foundry/methods/api.py",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+              "policy-engine/src/polisyos/ir/README.md",
+              "policy-engine/src/polisyos/ir/__init__.py",
+              "policy-engine/src/polisyos/ir/analytics/README.md",
+              "policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+              "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+              "policy-engine/src/polisyos/ir/analytics/twin_network.py",
+              "policy-engine/src/polisyos/ir/api.py",
+              "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_scm_result_semantics.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_network_query.py",
+              "policy-engine/tests/unit/ir/test_causal_graph_networkx_roundtrip.py",
+              "policy-engine/tests/unit/ir/test_causal_queries_contract.py",
+              "policy-engine/tests/unit/remediation/test_cau_04.py",
+              "policy-engine/tests/unit/remediation/test_scm_01.py",
+              "policy-engine/tests/unit/remediation/test_scm_02.py",
+              "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_run_causal_queries.py",
+              "policy-engine/workers/dowhy-014/.python-version",
+              "policy-engine/workers/dowhy-014/README.md",
+              "policy-engine/workers/dowhy-014/protocol.py",
+              "policy-engine/workers/dowhy-014/pyproject.toml",
+              "policy-engine/workers/dowhy-014/tests/test_worker.py",
+              "policy-engine/workers/dowhy-014/uv.lock",
+              "policy-engine/workers/dowhy-014/worker.py"
+            ],
+            "sha256": "b15fc63496b93964ed1a8d99c5e6d239a5fe291224adb038012539d0276a295c",
+            "command": [
+              "git",
+              "diff",
+              "--binary",
+              "198076863e143dea9f89f02734b13d50dae3eed5",
+              "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181"
+            ]
+          },
+          "closure_ids": [
+            "B215",
+            "B216",
+            "B217",
+            "B219",
+            "B221",
+            "B222",
+            "B223",
+            "B224",
+            "B225"
+          ],
+          "status": "draft PR; G integration and formal ledger acceptance pending"
+        }
+      ]
+    },
+    {
+      "lane": "graph-intake",
+      "branch": "codex/e02-F-graph-intake-20261006",
+      "published_receipt_head": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+      "pr": "https://github.com/DenisKopylov/polisyos/pull/66",
+      "components": [
+        {
+          "lane": "graph-intake",
+          "slice": "graph-intake-native-20261006",
+          "branch": "codex/e02-F-graph-intake-20261006",
+          "published_receipt_head": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+          "pr": "https://github.com/DenisKopylov/polisyos/pull/66",
+          "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "implementation_commits": [
+            "c1f3a3733e528608ac8e36f2f11d960c95d5f109",
+            "6321dc33476b0fad24d97ebb140c373608d30019"
+          ],
+          "implementation_candidate_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+          "implementation_candidate_tree": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+          "receipt": {
+            "git_ref": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json",
+            "bytes": 150755,
+            "sha256": "78b07ba01cf9b483ff23d08c8144fc55b9ab678412b46fa8f170c775a3f1f05e"
+          },
+          "owned_paths": [
+            "policy-engine/docs/reference/foundry/causal-graph-reconciliation.md",
+            "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+            "policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-intake.toml",
+            "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+            "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+            "policy-engine/tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+            "policy-engine/tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py",
+            "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py"
+          ],
+          "full_base_to_implementation_diff": {
+            "paths": [
+              "policy-engine/docs/reference/foundry/causal-graph-reconciliation.md",
+              "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+              "policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-intake.toml",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+              "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+              "policy-engine/tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+              "policy-engine/tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py",
+              "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py"
+            ],
+            "sha256": "2eddffb5999e0b22748ce31a5c3ca6d7b4c5ba1cccfae202c2d0bbadf817402f",
+            "command": [
+              "git",
+              "diff",
+              "--binary",
+              "198076863e143dea9f89f02734b13d50dae3eed5",
+              "6321dc33476b0fad24d97ebb140c373608d30019"
+            ]
+          },
+          "closure_ids": [],
+          "status": "draft PR; G integration and formal ledger acceptance pending"
+        }
+      ]
+    },
+    {
+      "lane": "lex",
+      "branch": "codex/e02-F-lex-20261006",
+      "published_receipt_head": "77166daa0ff8b9659e3978447f9016c691694266",
+      "pr": "https://github.com/DenisKopylov/polisyos/pull/48",
+      "components": [
+        {
+          "lane": "lex",
+          "slice": "lex-pass-plan-deduplication",
+          "branch": "codex/e02-F-lex-20261006",
+          "published_receipt_head": "77166daa0ff8b9659e3978447f9016c691694266",
+          "pr": "https://github.com/DenisKopylov/polisyos/pull/48",
+          "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "implementation_commits": [
+            "6fb011374d8ec60780cf6acd0259de724d73ced5",
+            "00a6eda114b903bc5abe86902cd8372426f739a1"
+          ],
+          "implementation_candidate_sha": "00a6eda114b903bc5abe86902cd8372426f739a1",
+          "implementation_candidate_tree": "e84f7a4d1cb91c624264e6c95f5d0c07fb3510f3",
+          "receipt": {
+            "git_ref": "77166daa0ff8b9659e3978447f9016c691694266",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-20261006.json",
+            "bytes": 24363,
+            "sha256": "0d6e1e2bde0a76edfe74fed0ed278df7c73fc209c982cbfcf54fbb7347631f1a"
+          },
+          "owned_paths": [
+            "policy-engine/release-fragments/unreleased/2026-10-06-lex-pass-plan-deduplication.toml",
+            "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+            "policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py"
+          ],
+          "full_base_to_implementation_diff": {
+            "paths": [
+              "policy-engine/release-fragments/unreleased/2026-10-06-lex-pass-plan-deduplication.toml",
+              "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+              "policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py"
+            ],
+            "sha256": "cff3aa0211801c162ccb219214fd5234db3306bb7278010044ba55100bde806a",
+            "command": [
+              "git",
+              "diff",
+              "--binary",
+              "198076863e143dea9f89f02734b13d50dae3eed5",
+              "00a6eda114b903bc5abe86902cd8372426f739a1"
+            ]
+          },
+          "closure_ids": [],
+          "status": "draft PR; G integration and formal ledger acceptance pending"
+        }
+      ]
+    },
+    {
+      "lane": "rdd",
+      "branch": "codex/e02-F-rdd-20261006",
+      "published_receipt_head": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+      "pr": "https://github.com/DenisKopylov/polisyos/pull/53",
+      "components": [
+        {
+          "lane": "rdd",
+          "slice": "rdd-sharp-rbc-20261006",
+          "branch": "codex/e02-F-rdd-20261006",
+          "published_receipt_head": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+          "pr": "https://github.com/DenisKopylov/polisyos/pull/53",
+          "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "implementation_commits": [
+            "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+            "fb022aa12599ee1617f83d154cd9a8027b2a58b8"
+          ],
+          "implementation_candidate_sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+          "implementation_candidate_tree": "bee112b9284e11b78c96d2f91660f330d68b26c7",
+          "receipt": {
+            "git_ref": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json",
+            "bytes": 68616,
+            "sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60"
+          },
+          "owned_paths": [
+            "policy-engine/dev-oracles/rdd-cct/README.md",
+            "policy-engine/dev-oracles/rdd-cct/compare.py",
+            "policy-engine/dev-oracles/rdd-cct/pyproject.toml",
+            "policy-engine/dev-oracles/rdd-cct/uv.lock",
+            "policy-engine/docs/reference/foundry/causal-rdd-profile.md",
+            "policy-engine/release-fragments/unreleased/2026-10-06-rdd-sharp-rbc.toml",
+            "policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py",
+            "policy-engine/tests/unit/remediation/test_cau_03.py"
+          ],
+          "full_base_to_implementation_diff": {
+            "paths": [
+              "policy-engine/dev-oracles/rdd-cct/README.md",
+              "policy-engine/dev-oracles/rdd-cct/compare.py",
+              "policy-engine/dev-oracles/rdd-cct/pyproject.toml",
+              "policy-engine/dev-oracles/rdd-cct/uv.lock",
+              "policy-engine/docs/reference/foundry/causal-rdd-profile.md",
+              "policy-engine/release-fragments/unreleased/2026-10-06-rdd-sharp-rbc.toml",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py",
+              "policy-engine/tests/unit/remediation/test_cau_03.py"
+            ],
+            "sha256": "6ce474adde5030ed70cdd434da02ef34bd2abef702046e833b4881c13256e8bd",
+            "command": [
+              "git",
+              "diff",
+              "--binary",
+              "198076863e143dea9f89f02734b13d50dae3eed5",
+              "fb022aa12599ee1617f83d154cd9a8027b2a58b8"
+            ]
+          },
+          "closure_ids": [
+            "B210",
+            "B211"
+          ],
+          "status": "draft PR; G integration and formal ledger acceptance pending"
+        }
+      ]
+    },
+    {
+      "lane": "tmle",
+      "branch": "codex/e02-F-tmle-20261006",
+      "published_receipt_head": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+      "pr": "https://github.com/DenisKopylov/polisyos/pull/50",
+      "components": [
+        {
+          "lane": "tmle",
+          "slice": "tmle-20261006",
+          "branch": "codex/e02-F-tmle-20261006",
+          "published_receipt_head": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "pr": "https://github.com/DenisKopylov/polisyos/pull/50",
+          "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "implementation_commits": [
+            "55d2e14755bda6af31c41acd4fe1dcb76f3814b1"
+          ],
+          "implementation_candidate_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+          "implementation_candidate_tree": "4d87ce0690e001967b245ce18217cb36fff3c988",
+          "receipt": {
+            "git_ref": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json",
+            "bytes": 28486,
+            "sha256": "5870aaedd4d4eb83a1f40c392c5cec79660d28927a5846981e8a363702945429"
+          },
+          "owned_paths": [
+            "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py"
+          ],
+          "full_base_to_implementation_diff": {
+            "paths": [
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py"
+            ],
+            "sha256": "22c71d757014ebeb637adee21d0e793c2b590c2e8688ebb4d17add87f76faa38",
+            "command": [
+              "git",
+              "diff",
+              "--binary",
+              "198076863e143dea9f89f02734b13d50dae3eed5",
+              "55d2e14755bda6af31c41acd4fe1dcb76f3814b1"
+            ]
+          },
+          "closure_ids": [
+            "B54"
+          ],
+          "status": "draft PR; G integration and formal ledger acceptance pending"
+        }
+      ]
+    },
+    {
+      "lane": "installed-worker",
+      "branch": "codex/e02-F-installed-worker-20261006",
+      "published_receipt_head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "pr": "https://github.com/DenisKopylov/polisyos/pull/63",
+      "components": [
+        {
+          "lane": "installed-worker",
+          "slice": "installed-latest-dependencies-20261006",
+          "branch": "codex/e02-F-installed-worker-20261006",
+          "published_receipt_head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "pr": "https://github.com/DenisKopylov/polisyos/pull/63",
+          "slice_base_sha": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+          "implementation_commits": [
+            "ac03ec44e0d1074fb609f35221b0c088522cdbd2",
+            "7fb1f5c243c18de89fb11a0f664ae07cb0801eb2",
+            "74c0355f07834c28527200f5827ac2ab352ac313",
+            "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6"
+          ],
+          "implementation_candidate_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+          "implementation_candidate_tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+          "receipt": {
+            "git_ref": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json",
+            "bytes": 209475,
+            "sha256": "1ebacf5377764b5c0958d7e6597e10eab56536c570aacea64d25be3ee7cff908"
+          },
+          "owned_paths": [
+            "policy-engine/docs/reference/ir/causal-graph-cache-rows.md",
+            "policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-cache-rows.toml",
+            "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+            "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+            "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+            "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+            "policy-engine/tests/unit/ir/test_causal_graph_cache_rows.py"
+          ],
+          "full_base_to_implementation_diff": {
+            "paths": [
+              "policy-engine/docs/reference/ir/causal-graph-cache-rows.md",
+              "policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-cache-rows.toml",
+              "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+              "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+              "policy-engine/tests/unit/ir/test_causal_graph_cache_rows.py"
+            ],
+            "sha256": "139b75ef0f1b9af5f949f2962c87b65142bbdeac1126597926ca0d0804ab8452",
+            "command": [
+              "git",
+              "diff",
+              "--binary",
+              "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+              "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6"
+            ]
+          },
+          "closure_ids": [],
+          "status": "draft PR; G integration and formal ledger acceptance pending"
+        },
+        {
+          "lane": "installed-worker",
+          "slice": "installed-worker-20261006",
+          "branch": "codex/e02-F-installed-worker-20261006",
+          "published_receipt_head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "pr": "https://github.com/DenisKopylov/polisyos/pull/63",
+          "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "implementation_commits": [
+            "157ee9e96477e67f0e3962c1114909ccc51c03c0",
+            "a02590326060d0f071693a4e99334a3debf13641",
+            "ea90b8f314c316d4a4460ec948aea0f4c311b7b7",
+            "736179db05fcce7c928cf7cb8bfd4531fc691c99",
+            "23ba331382f5d9eb1dd63b93f0ea808c88d8efe7",
+            "1ed5de613966e07515f809a1ca5e2d37639311d9",
+            "2873986cbbf42afe45a7a9b97ba7bd41cf3119c0",
+            "07b08423a09c44bab6c93dcd666e7b25ea69c859",
+            "564e1646923371ffa0d1d5c0119df7d35795a5f6",
+            "b95f2d2d5a0d96e3616059203565fe5eff40f47d",
+            "b14536b66843005be0e668e6a0ef8dc394f7e960",
+            "8d7d240a9f56e07e6d8418845d5e8162f40a1b92",
+            "838845d98c47318d1a669d1594de91cbc9153e95",
+            "d3961a101ca6bb0aa9d3e927cc6d62eae09c403d",
+            "850c97defd07beb738ddb42266ce8e2e6c4c7898",
+            "153ca918b1c35bd4ffbf6218a28b7e1ac98d4b6b",
+            "1ebca076a6afb453096409d8b3d91bab94a8ac39",
+            "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5"
+          ],
+          "implementation_candidate_sha": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+          "implementation_candidate_tree": "bcb403872a3b1e3e6cac5b7624ab80136ca12b4e",
+          "receipt": {
+            "git_ref": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json",
+            "bytes": 71310,
+            "sha256": "00617d32afdafcff3f986fb53043580f6a4a360c4c3f191c3867ed0631357fde"
+          },
+          "owned_paths": [
+            "policy-engine/architecture/public_surface/inventory.json",
+            "policy-engine/docs/reference/foundry/structural-causal-models.md",
+            "policy-engine/docs/reference/ir/schema-catalog.md",
+            "policy-engine/docs/reference/public-surface.md",
+            "policy-engine/docs/reference/schemas.md",
+            "policy-engine/docs/reference/scientist/structural-causal-queries.md",
+            "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/README.md",
+            "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py",
+            "policy-engine/docs/research/e02-cloud-test-plan/verification/F/installed-worker-20261006/README.md",
+            "policy-engine/hatch.toml",
+            "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+            "policy-engine/release-fragments/unreleased/2026-10-06-installed-dowhy-profile.toml",
+            "policy-engine/release-fragments/unreleased/structural-causal-result-semantics.toml",
+            "policy-engine/schemas/snapshots/ir/_manifest.json",
+            "policy-engine/schemas/snapshots/ir/causal_query_result.schema.json",
+            "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+            "policy-engine/src/polisyos/foundry/README.md",
+            "policy-engine/src/polisyos/foundry/__init__.py",
+            "policy-engine/src/polisyos/foundry/methods/README.md",
+            "policy-engine/src/polisyos/foundry/methods/api.py",
+            "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+            "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+            "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+            "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+            "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+            "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+            "policy-engine/src/polisyos/ir/README.md",
+            "policy-engine/src/polisyos/ir/__init__.py",
+            "policy-engine/src/polisyos/ir/analytics/README.md",
+            "policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+            "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+            "policy-engine/src/polisyos/ir/analytics/twin_network.py",
+            "policy-engine/src/polisyos/ir/api.py",
+            "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_scm_result_semantics.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_network_query.py",
+            "policy-engine/tests/unit/ir/test_causal_graph_networkx_roundtrip.py",
+            "policy-engine/tests/unit/ir/test_causal_queries_contract.py",
+            "policy-engine/tests/unit/remediation/test_cau_04.py",
+            "policy-engine/tests/unit/remediation/test_scm_01.py",
+            "policy-engine/tests/unit/remediation/test_scm_02.py",
+            "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_run_causal_queries.py",
+            "policy-engine/workers/dowhy-014/.python-version",
+            "policy-engine/workers/dowhy-014/README.md",
+            "policy-engine/workers/dowhy-014/protocol.py",
+            "policy-engine/workers/dowhy-014/pyproject.toml",
+            "policy-engine/workers/dowhy-014/tests/test_worker.py",
+            "policy-engine/workers/dowhy-014/uv.lock",
+            "policy-engine/workers/dowhy-014/worker.py"
+          ],
+          "full_base_to_implementation_diff": {
+            "paths": [
+              "policy-engine/architecture/public_surface/inventory.json",
+              "policy-engine/docs/reference/foundry/structural-causal-models.md",
+              "policy-engine/docs/reference/ir/schema-catalog.md",
+              "policy-engine/docs/reference/public-surface.md",
+              "policy-engine/docs/reference/schemas.md",
+              "policy-engine/docs/reference/scientist/structural-causal-queries.md",
+              "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/README.md",
+              "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py",
+              "policy-engine/docs/research/e02-cloud-test-plan/verification/F/installed-worker-20261006/README.md",
+              "policy-engine/hatch.toml",
+              "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+              "policy-engine/release-fragments/unreleased/2026-10-06-installed-dowhy-profile.toml",
+              "policy-engine/release-fragments/unreleased/structural-causal-result-semantics.toml",
+              "policy-engine/schemas/snapshots/ir/_manifest.json",
+              "policy-engine/schemas/snapshots/ir/causal_query_result.schema.json",
+              "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+              "policy-engine/src/polisyos/foundry/README.md",
+              "policy-engine/src/polisyos/foundry/__init__.py",
+              "policy-engine/src/polisyos/foundry/methods/README.md",
+              "policy-engine/src/polisyos/foundry/methods/api.py",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+              "policy-engine/src/polisyos/ir/README.md",
+              "policy-engine/src/polisyos/ir/__init__.py",
+              "policy-engine/src/polisyos/ir/analytics/README.md",
+              "policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+              "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+              "policy-engine/src/polisyos/ir/analytics/twin_network.py",
+              "policy-engine/src/polisyos/ir/api.py",
+              "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_scm_result_semantics.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_network_query.py",
+              "policy-engine/tests/unit/ir/test_causal_graph_networkx_roundtrip.py",
+              "policy-engine/tests/unit/ir/test_causal_queries_contract.py",
+              "policy-engine/tests/unit/remediation/test_cau_04.py",
+              "policy-engine/tests/unit/remediation/test_scm_01.py",
+              "policy-engine/tests/unit/remediation/test_scm_02.py",
+              "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_run_causal_queries.py",
+              "policy-engine/workers/dowhy-014/.python-version",
+              "policy-engine/workers/dowhy-014/README.md",
+              "policy-engine/workers/dowhy-014/protocol.py",
+              "policy-engine/workers/dowhy-014/pyproject.toml",
+              "policy-engine/workers/dowhy-014/tests/test_worker.py",
+              "policy-engine/workers/dowhy-014/uv.lock",
+              "policy-engine/workers/dowhy-014/worker.py"
+            ],
+            "sha256": "0e1c6dcb5557dbd2babdc9a3cc7def6dd82ff297cc35f5f89754ab5c0802939e",
+            "command": [
+              "git",
+              "diff",
+              "--binary",
+              "198076863e143dea9f89f02734b13d50dae3eed5",
+              "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5"
+            ]
+          },
+          "closure_ids": [],
+          "status": "draft PR; G integration and formal ledger acceptance pending"
+        }
+      ]
+    },
+    {
+      "lane": "closeout",
+      "branch": "codex/e02-F-closeout-20261006",
+      "published_receipt_head": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "pr": "https://github.com/DenisKopylov/polisyos/pull/65",
+      "components": [
+        {
+          "lane": "closeout",
+          "slice": "causal-consumer-binding-20261006",
+          "branch": "codex/e02-F-closeout-20261006",
+          "published_receipt_head": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+          "pr": "https://github.com/DenisKopylov/polisyos/pull/65",
+          "slice_base_sha": "e67860362fdf9f891755d8f7b3401147039e68fa",
+          "implementation_commits": [
+            "93eed731088175fd244c5c66532ab6bd54e793b2",
+            "2c46736112c6cbf552490748dc086fea85c6363a",
+            "60cd548afd16ad52843fd29f3aa8bf79a3f9c027",
+            "e2f91935fb96adacad8ccee027150878cbae1373",
+            "d550a8980ec32fc5cf6186c253b409fdc75ec47e",
+            "5f432d6e749e5bba05b0d3bc35426f46a9f462b8",
+            "74f754bd6a3388aef83188dac00e24b12ab3feb6"
+          ],
+          "implementation_candidate_sha": "74f754bd6a3388aef83188dac00e24b12ab3feb6",
+          "implementation_candidate_tree": "ae08d98787075b7ea3e0ae7d276a2b19cbfe5a65",
+          "receipt": {
+            "git_ref": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-binding-20261006.json",
+            "bytes": 162224,
+            "sha256": "1f4b740e02d77c66e13704c72535fc2e38b207ee307ccc063168d59b44309a6d"
+          },
+          "owned_paths": [
+            "policy-engine/docs/reference/foundry/causal-statistical-validity.md",
+            "policy-engine/docs/reference/scientist/causal-selected-consumers.md",
+            "policy-engine/release-fragments/unreleased/2026-10-06-causal-consumer-binding.toml",
+            "policy-engine/src/polisyos/scientist/nodes/README.md",
+            "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+            "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py",
+            "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py"
+          ],
+          "full_base_to_implementation_diff": {
+            "paths": [
+              "policy-engine/architecture/public_surface/inventory.json",
+              "policy-engine/docs/reference/foundry/causal-statistical-validity.md",
+              "policy-engine/docs/reference/foundry/structural-causal-models.md",
+              "policy-engine/docs/reference/ir/schema-catalog.md",
+              "policy-engine/docs/reference/public-surface.md",
+              "policy-engine/docs/reference/schemas.md",
+              "policy-engine/docs/reference/scientist/causal-selected-consumers.md",
+              "policy-engine/docs/reference/scientist/structural-causal-queries.md",
+              "policy-engine/release-fragments/unreleased/2026-10-06-causal-consumer-binding.toml",
+              "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+              "policy-engine/release-fragments/unreleased/structural-causal-result-semantics.toml",
+              "policy-engine/schemas/snapshots/ir/_manifest.json",
+              "policy-engine/schemas/snapshots/ir/causal_query_result.schema.json",
+              "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+              "policy-engine/src/polisyos/foundry/README.md",
+              "policy-engine/src/polisyos/foundry/__init__.py",
+              "policy-engine/src/polisyos/foundry/methods/README.md",
+              "policy-engine/src/polisyos/foundry/methods/api.py",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+              "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+              "policy-engine/src/polisyos/ir/README.md",
+              "policy-engine/src/polisyos/ir/__init__.py",
+              "policy-engine/src/polisyos/ir/analytics/README.md",
+              "policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+              "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+              "policy-engine/src/polisyos/ir/analytics/twin_network.py",
+              "policy-engine/src/polisyos/ir/api.py",
+              "policy-engine/src/polisyos/scientist/nodes/README.md",
+              "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+              "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_scm_result_semantics.py",
+              "policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_network_query.py",
+              "policy-engine/tests/unit/ir/test_causal_graph_networkx_roundtrip.py",
+              "policy-engine/tests/unit/ir/test_causal_queries_contract.py",
+              "policy-engine/tests/unit/remediation/test_scm_01.py",
+              "policy-engine/tests/unit/remediation/test_scm_02.py",
+              "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_run_causal_queries.py",
+              "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py",
+              "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py",
+              "policy-engine/workers/dowhy-014/README.md",
+              "policy-engine/workers/dowhy-014/tests/test_worker.py",
+              "policy-engine/workers/dowhy-014/worker.py"
+            ],
+            "sha256": "197bab46569c367e052dec2103b44e6f4333ec3b79cc4386b8eda43d26fe2ea1",
+            "command": [
+              "git",
+              "diff",
+              "--binary",
+              "e67860362fdf9f891755d8f7b3401147039e68fa",
+              "74f754bd6a3388aef83188dac00e24b12ab3feb6"
+            ]
+          },
+          "closure_ids": [],
+          "status": "draft PR; G integration and formal ledger acceptance pending"
+        }
+      ]
+    }
+  ],
+  "complete_input_and_audit_refs": {
+    "full_cards_and_registry": {
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/final35/F-final35-index-audit-draft.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+      "bytes": 1907435,
+      "sha256": "d0247643ec46aeb4d3d0812ae9000a957f8b3caf5b2d65f2627d3b7f12676a5a",
+      "encoding": "unchanged complete original bytes"
+    },
+    "protocol": {
+      "original_path": "/workspace/e02-F-20261006-receipts/protocol-audit/F-published-protocol-audit.json.gz",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/published-protocol-audit.json.gz",
+      "bytes": 1567719,
+      "sha256": "95698a9ad239be857b5f130e78898fe5fd9900445374038c1b0caddc8d0e5bfe",
+      "encoding": "unchanged complete original bytes",
+      "content_encoding": "gzip",
+      "decoded_bytes": 23635982,
+      "decoded_sha256": "4bcb574a49feaef3ad6c87d9843e754dcdf6f58ec4a091c6c8d48b343929e286",
+      "decoded_original_path": "/workspace/e02-F-20261006-receipts/protocol-audit/F-published-protocol-audit.json"
+    },
+    "protocol_text": {
+      "original_path": "/workspace/e02-F-20261006-receipts/protocol-audit/F-published-protocol-audit.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/published-protocol-audit.txt",
+      "bytes": 6015,
+      "sha256": "d8cca894963813b2a37df45e06d67af5c0dccae379ed6325cad0a3d72f0cf4e7",
+      "encoding": "unchanged complete original bytes"
+    },
+    "G_local_reruns": {
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/G-local-causal-reruns.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/G-local-causal-reruns.json",
+      "bytes": 113434,
+      "sha256": "8ff0a7758c216bf66b60ac9b1b7008b6bcb37fdbe4942f35e4c9c82ab676de43",
+      "encoding": "unchanged complete original bytes"
+    },
+    "reverse_profile_boundary": {
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/intake-reverse-profile-boundary.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/intake-reverse-profile-boundary.json",
+      "bytes": 8841,
+      "sha256": "036d13298e31cbc30f96bdc23cdfaa8364496438c0d5c0d1171c60460765bddd",
+      "encoding": "unchanged complete original bytes"
+    },
+    "base_refresh": {
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/base-results-refresh.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/base-results-refresh.json",
+      "bytes": 1016,
+      "sha256": "a7786e66811837a77dd051cbd08536bd02fe1f62f4ab1454891b92ca2e77e2f4",
+      "encoding": "unchanged complete original bytes"
+    },
+    "B206_RDD_supplement": {
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/final35/B206-rdd-supplemental-source-binding.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/B206-rdd-supplemental-source-binding.json",
+      "bytes": 7183,
+      "sha256": "210625ddded2fbbf2cd8b0cecc742f5f623c045af7ec29508eac01d74d308d18",
+      "encoding": "unchanged complete original bytes"
+    },
+    "G_source_order": {
+      "original_path": "/workspace/e02-F-20261006-receipts/fry/G-source-integration-order.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/G-source-integration-order.json",
+      "bytes": 47193,
+      "sha256": "633e411bf7b88874e7ae24da4b8e7546edfcceb465f016d1e5d0561744483e0c",
+      "encoding": "unchanged complete original bytes"
+    },
+    "trash_availability": {
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/trash-availability.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/trash-availability.json",
+      "bytes": 257,
+      "sha256": "ec8bd444cea22cce4c9926378d23534274bfed1adac642bf1d8f9e3c123071c1",
+      "encoding": "unchanged complete original bytes"
+    }
+  },
+  "current_deciding_reference_check": "PASS",
+  "all_reference_custody_check": "UNRUN",
+  "historical_non_deciding_custody": {
+    "check": "UNRUN",
+    "git_blob": "175c1ed4db37589e8adaf14af6700ad639edb2c8",
+    "occurrences": 4,
+    "distinct_blobs": 1,
+    "local_git_object": "absent",
+    "github_read_only_probe": "HTTP404",
+    "probe_outputs": [
+      "historical-blob-probe.json",
+      "historical-blob-gh-response.json",
+      "historical-blob-gh-stderr.txt",
+      "historical-blob-local-git.stdout.txt",
+      "historical-blob-local-git.stderr.txt"
+    ],
+    "scope": "Explicit historical N-card provenance only; canonical record expressly says it is not current finding-status or behavior evidence. No missing input is converted to PASS. Excluded only from current deciding scope; full custody remains UNRUN.",
+    "next_owner": "Historical N-card citation/source custodian (G/D) if that historical audit is invoked; no F35 closure basis uses this unavailable blob.",
+    "root_authorized_scope": "Current15/35criteria/runtime-byte hash custody checked separately from this one historical blob; no ledger ownership changes.",
+    "probe_binding": {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/historical-blob-probe.json",
+      "name": "historical-blob-probe.json",
+      "bytes": 2337,
+      "sha256": "25767918b5fbc363238842eaf09906e361cdbb4be08b1d8fe78b1b2254ebe71d",
+      "role": "complete historical blob probe execution and original full-output bindings"
+    }
+  },
+  "derived_inputs_not_copied": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/selector-original-source-cards.json",
+      "relative_path": "selector-original-source-cards.json",
+      "bytes": 152393,
+      "sha256": "1c8999227ca187eb33eff2e3b392f96a2a7cba244e251625d51dd0ac790d42f4",
+      "required": true,
+      "sanitation": "none; complete deciding bytes retained",
+      "disposition": "not copied: tracked source/derived input, no unique deciding observation",
+      "source_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "reconstruction": "Use selector_audit_replayer.py and selector_equivalence_finalize.py with pinned coverage/manifest/card Git objects and preserved selector-audit-owner-snapshot.json. Exact output hashes are retained here; actual gate stdout/stderr and measured selector audit remain transferred."
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/selector-audit-navigation.json",
+      "relative_path": "selector-audit-navigation.json",
+      "bytes": 1102419,
+      "sha256": "f2ec925aea3a375a2bdd27d7a68a30b09a2ece12410e70155d369cbdc000ce38",
+      "required": true,
+      "sanitation": "none; complete deciding bytes retained",
+      "disposition": "not copied: tracked source/derived input, no unique deciding observation",
+      "source_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "reconstruction": "Use selector_audit_replayer.py and selector_equivalence_finalize.py with pinned coverage/manifest/card Git objects and preserved selector-audit-owner-snapshot.json. Exact output hashes are retained here; actual gate stdout/stderr and measured selector audit remain transferred."
+    }
+  ],
+  "transport_rule": "Absolute scratch paths in preserved original receipts are provenance only. Resolve exact unchanged bytes through artifact-transports.json; scientific outputs are resolved at their pinned published Git ref/path, not at the transfer branch.",
+  "P38": "Behavioral property-removal controls preserve markers; exact full outputs are in per-slice immutable receipts.",
+  "P40": "Whole canonical worker/report/model bindings widened after repeated projection escapes. Final B220 cached-row escape is a same-class finding and requires full node/edge deep immutability plus weakref controls, not a marker fix.",
+  "P41": {
+    "check": "UNRUN",
+    "predicate_basis": "not_established",
+    "reason": "No complete exact slice-base replay with full disjoint denominator for whole architecture/static/EMP gates. FAIL/ERROR/SKIP and unavailable prerequisites remain explicit, never inherited PASS."
+  },
+  "runtime_limits": {
+    "baseline": "Python 3.14; DoWhy/EconML excluded markers are not backend witnesses",
+    "dowhy": "Real pinned Python 3.12 DoWhy 0.14 locked worker, strict versioned JSON, no worker PolicyOS/CAS/authority",
+    "rdd": "Clean-room CCT production implementation; rdrobust 2.1.0 numerical dev oracle only; no GPL distribution conclusion from subprocess",
+    "graph": "Actual NetworkX 3.6.1 mixed MultiDiGraph readback",
+    "production": "No production data loaded; intrinsically source/law/history/authority-dependent inputs unavailable and typed UNRUN/limited/held"
+  },
+  "G_integration": {
+    "publisher": "G only",
+    "main_authorized": false,
+    "steps": [
+      "Fetch the exact 12 topic refs and verify receipt bytes/SHAs/trees before use.",
+      "Review the canonical source implementations with one writer per shared mechanism. Do not cherry-pick whole cumulative branches blindly: consumer, graph and installed lanes explicitly include separately owned dependencies.",
+      "Use source-only owned commits/portable patches and canonical dependency chronology from each receipt. Start from fresh main containing the anchor; previously accepted anchor code is already present.",
+      "Include final B220 cache-row implementation and its native/ABI controls; rebuild installed artifacts after composing graph source.",
+      "After graph contract integration rerun A EMP-01; after E uncertainty integration rerun F CAU-04/SCM-01. E retains propagate_uncertainty.py ownership.",
+      "At G composed candidate SHA run the documented generic selectors and exact local read-only reruns with owner-issued real refs. Capture the composed candidate/tree, source/row identity, actual backend versions and fresh consumers.",
+      "Keep accepted code and formal closed findings distinct; amend integration ledger only after original criterion acceptance. Main publication requires new explicit user authorization."
+    ],
+    "local_inputs": [
+      "B207–209/B212–213/B56: owner-issued observation, graph, admitted assessment/challenge/runtime context; exact recipe is committed.",
+      "LA-004/LA-035: economic norm and actual historical optimizer/consumer owner decision; preserve historical income score.",
+      "LA-017: current-law corpus and legal authority inputs remain local-only; lexical topics are source-bound, not causal KPI/legal authority.",
+      "LA-002/003/007/016/019/020/037 and B214/218: complete external/computed consumer migration and protected graph admission denominator."
+    ]
+  },
+  "cleanup": "No native Trash available: exact candidates listed, nothing permanently deleted, no git prune."
+}

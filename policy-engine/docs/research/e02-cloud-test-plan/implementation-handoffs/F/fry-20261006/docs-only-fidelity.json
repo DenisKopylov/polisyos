@@ -1,0 +1,129 @@
+{
+  "source_sha": "63425f734946979cfc990e9cb91b00163f051898",
+  "scientific_implementation_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+  "outcome": "PASS",
+  "scope": "Doc-only source fidelity and canonical OWN README path-presence discriminator; not full documentation gate",
+  "changed_paths": [
+    "docs/reference/foundry/randomization-profile.md",
+    "release-fragments/unreleased/2026-10-06-foundry-treasury-salts.toml",
+    "src/polisyos/foundry/compile/randomization.py",
+    "src/polisyos/foundry/compile/trinity_compiler.py",
+    "src/polisyos/foundry/execute/_internal/graph/README.md",
+    "src/polisyos/foundry/execute/_internal/graph/__init__.py",
+    "tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+    "tests/unit/foundry/compile/test_treasury_execution.py"
+  ],
+  "original7bindings": [
+    {
+      "path": "policy-engine/docs/reference/foundry/randomization-profile.md",
+      "sha256": "8744e0f5885f99ff8d356acd37b4c9b34b135d5a1614893e4c8e97f7374cf22d",
+      "bytes": 3406,
+      "identical": true
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-foundry-treasury-salts.toml",
+      "sha256": "2da3ae89196b0b1fb026db5be8fbaaae2c171745f34a9a62051a0ec9bfc743e2",
+      "bytes": 2112,
+      "identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/compile/randomization.py",
+      "sha256": "8b49c7b17d328aa8c117de72410cd11ce489c305a9f46294ebb0ac5a1aa07a4a",
+      "bytes": 2179,
+      "identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/compile/trinity_compiler.py",
+      "sha256": "7608e9476321519fe9f8a024dc483caf909d97cefb185a7ec491fc21651bbe07",
+      "bytes": 17693,
+      "identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+      "sha256": "db3f2630e0c7ca4ad159a4d4b1d8ed99892189b0d76e00ff8c669a0992d8625a",
+      "bytes": 46124,
+      "identical": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+      "sha256": "867f43def30b6a27fd780718ca502c69f7c617246f160b09e827dfff8928f5be",
+      "bytes": 8018,
+      "identical": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/compile/test_treasury_execution.py",
+      "sha256": "98a9a099cfe96f674e64161e1ffa4d5b9853dc6b526be7b4924e76248cf3efc9",
+      "bytes": 22267,
+      "identical": true
+    }
+  ],
+  "plan_findings": [],
+  "plan_commands": [
+    {
+      "key": "public_surface",
+      "label": "verify public-surface and README freshness guardrails",
+      "argv": [
+        "uv",
+        "run",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check"
+      ]
+    },
+    {
+      "key": "docs_accuracy",
+      "label": "verify docs freshness baseline",
+      "argv": [
+        "uv",
+        "run",
+        "polisyos-tools",
+        "validation",
+        "check-docs-freshness-baseline"
+      ]
+    },
+    {
+      "key": "strict_docs_build",
+      "label": "build documentation site in strict mode",
+      "argv": [
+        "uv",
+        "run",
+        "--extra",
+        "docs",
+        "python",
+        "-m",
+        "mkdocs",
+        "build",
+        "--strict"
+      ]
+    },
+    {
+      "key": "semantic_docstrings",
+      "label": "verify semantic public-surface docstrings for changed modules",
+      "argv": [
+        "uv",
+        "run",
+        "polisyos-tools",
+        "validation",
+        "check-docstring-quality",
+        "--repo-root",
+        ".",
+        "--allowlist",
+        "tools/quality/validation/docstring_quality_allowlist.txt",
+        "--coverage-scope",
+        "public-surface",
+        "--minimum-coverage",
+        "85",
+        "--module-prefix",
+        "polisyos.foundry.execute._internal.graph"
+      ]
+    }
+  ],
+  "without_readme_negative": [
+    {
+      "rule_id": "readme_freshness",
+      "message": "Public package-facade changes require the matching package README to stay fresh or an impact note to be recorded. Expected one of: `src/polisyos/foundry/execute/_internal/graph/README.md`, `docs/reference/documentation-inventory.md`."
+    }
+  ],
+  "numeric_replay": "No repeat: all7original product/test/profile/release bytes identical; actual original76native/independent78 target03bb preserved"
+}

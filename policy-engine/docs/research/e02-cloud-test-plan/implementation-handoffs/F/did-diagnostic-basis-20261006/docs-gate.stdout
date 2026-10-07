@@ -1,0 +1,8 @@
+Docs drift gate
+- changed files: 4
+- change window: `release-fragments/unreleased/2026-10-06-did-diagnostic-basis.toml`, `src/polisyos/foundry/methods/catalog/causal/README.md`, `src/polisyos/foundry/methods/catalog/causal/did.py`, `tests/unit/foundry/methods/catalog/causal/test_did_diagnostic_binding.py`
+[docs-gate] verify docs freshness baseline
+[docs-gate] $ uv run polisyos-tools validation check-docs-freshness-baseline
+Docs drift gate FAILED:
+- [foundry_docs] Foundry compile/execute/method/calibration changes require Foundry reference, benchmark docs, or an impact note. Touched: `src/polisyos/foundry/methods/catalog/causal/README.md`, `src/polisyos/foundry/methods/catalog/causal/did.py`. Expected one of: `docs/reference/foundry/**`, `docs/benchmarks/**`, `docs/explanation/causal-engine.md`, `docs/reference/documentation-inventory.md`.
+- [command_failure] verify docs freshness baseline failed with exit code 1: uv run polisyos-tools validation check-docs-freshness-baseline

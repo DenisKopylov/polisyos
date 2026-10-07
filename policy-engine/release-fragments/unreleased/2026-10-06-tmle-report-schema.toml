@@ -1,0 +1,25 @@
+id = "2026-10-06-tmle-report-schema"
+title = "Synchronize causal method enum readers with native TMLE reports"
+type = "fixed"
+component = "ir-analytics-schema"
+owner = "team-ir"
+summary = "Canonical CausalEffectReport and HTEResult snapshots and their manifest entries include the existing scientific TMLE method value; the reflection catalog adds the matching enum row."
+change_class = "persisted-artifact-format"
+surface_classification = "public_stable: CausalMethod and causal analytics JSON Schema snapshots"
+compatibility = "Only the CausalMethod enum expands from36to37 values and the previously admitted CausalEffectReport documentation description refreshes. Existing fields, schema versions, manifest headers and unrelated model entries remain unchanged. HTEResult schema synchronization does not add a TMLE HTEResult producer."
+migration = "Deploy the native TMLE producer, enum readers and generated schema/catalog outputs coherently. Readers without the tmle enum value cannot parse new TMLE-labeled reports. Existing method values remain supported. Numerical SUCCESS/CI remains non-gating without accepted identification authority."
+limitations = "Selected generated outputs are verified separately from the full generator; unrelated FeedbackSolveResult/Core ArtifactRef snapshot drift remains outside this slice. Actual admitted production TMLE workload and budget authority remain UNRUN/limited."
+evidence = ["schemas/snapshots/ir/causal_effect_report.schema.json", "schemas/snapshots/ir/hte_result.schema.json", "docs/reference/ir/schema-catalog.md"]
+migration_docs = ["docs/reference/foundry/tmle-common-report.md"]
+public_surface_inventory_reviewed = true
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "causal-method-tmle-snapshot-reader-window"
+change_class = "persisted-artifact-format"
+impact = "additive"
+surface = "public_stable: CausalMethod enums in CausalEffectReport and HTEResult snapshots"
+owner = "team-ir"
+version_owner = "team-ir"
+deprecation_window = "not_applicable"
+release_note = "The tmle enum value requires synchronized producer/schema/readers. This companion adds no field or schema version and preserves every unrelated manifest entry, including StructuralCausalModelSpec1.1. Existing labels remain readable; HTEResult does not gain a new TMLE producer."

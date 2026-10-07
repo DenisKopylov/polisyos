@@ -1,0 +1,45 @@
+Using Python 3.14.7 environment at: /tmp/e02-F-continuation-20261006/foundry/docs-venv
+Resolved 33 packages in 1.34s
+Downloading mkdocs (3.7MiB)
+Downloading babel (9.7MiB)
+Downloading pygments (1.2MiB)
+Downloading mkdocs-material (8.9MiB)
+ Downloaded mkdocs
+ Downloaded pygments
+ Downloaded babel
+ Downloaded mkdocs-material
+Prepared 33 packages in 4.63s
+Installed 33 packages in 55ms
+ + babel==2.17.0
+ + backrefs==6.2
+ + certifi==2025.11.12
+ + charset-normalizer==3.4.4
+ + click==8.3.1
+ + colorama==0.4.6
+ + ghp-import==2.1.0
+ + griffelib==2.0.2
+ + idna==3.11
+ + jinja2==3.1.6
+ + markdown==3.10.2
+ + markupsafe==3.0.3
+ + mergedeep==1.3.4
+ + mkdocs==1.6.1
+ + mkdocs-autorefs==1.4.4
+ + mkdocs-get-deps==0.2.2
+ + mkdocs-material==9.7.6
+ + mkdocs-material-extensions==1.3.1
+ + mkdocstrings==1.0.3
+ + mkdocstrings-python==2.0.3
+ + packaging==25.0
+ + paginate==0.5.7
+ + pathspec==0.12.1
+ + platformdirs==4.5.1
+ + pygments==2.19.2
+ + pymdown-extensions==10.21.2
+ + python-dateutil==2.9.0.post0
+ + pyyaml==6.0.3
+ + pyyaml-env-tag==1.1
+ + requests==2.32.5
+ + six==1.17.0
+ + urllib3==2.6.2
+ + watchdog==6.0.0

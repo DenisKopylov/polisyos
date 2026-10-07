@@ -67,8 +67,62 @@ broader `polisyos.foundry.methods` facade.
   recourse, strategic response, and space-time DSCM.
 - Optional backend adapters such as `_econml_adapter.py` and
   `_sklearn_compat.py` must degrade by explicit capability contract.
+- `_dowhy_worker.py` owns the selected source-resolved cross-interpreter bridge
+  inside the existing method job. The separate pinned Python 3.12
+  [DoWhy worker profile](../../../../../../workers/dowhy-014/README.md) executes
+  actual DoWhy 0.14 linear ATE identification/estimation and explicit GCM fitting;
+  it imports no PolicyOS code and owns neither CAS nor scientific authority.
+  The Python 3.14 parent requires an actual resolved source context, validates
+  aligned input and result bindings, and persists the typed result. Native
+  synthetic-DGP tests establish bounded implementation properties; they do not
+  establish admitted real-data assumptions or Scientist evaluation authority.
+  `DoWhyIdentifyEstimate.report_from_worker_result` is the complete pure report
+  projection shared by the actual producer and source-validating consumers.
+  It derives parameter defaults from the registered signature and preserves
+  default diagnostics, assumptions and absent p-values; it launches no backend
+  and grants no authority. The existing class facades retain the same object and
+  pickle addresses, and their supported method override reaches the producer.
 
 ## Extension Points
+
+### Installed selected-worker profile
+
+The wheel projects the six canonical files from `workers/dowhy-014/` into the
+private causal `_dowhy_profile` resource directory. The sdist retains those
+same source paths so rebuilding its wheel uses the same mappings. The fixed
+worker script and protocol have one source owner; packaging does not create a
+second implementation or add DoWhy to the Python 3.14 application dependencies.
+
+Configure `POLISYOS_DOWHY_WORKER_PYTHON` with the server-owned absolute Python
+3.12 interpreter containing the separately locked worker dependencies. The
+parent validates the complete profile before invoking the worker; missing
+resources or interpreter configuration remain typed unavailability. Installed
+consumer tests exercise a real method job, CAS persistence and a fresh reader,
+then retire and restore a private resource to distinguish execution from a
+profile marker. Their known-DGP results establish bounded numerical and ABI
+properties; production input admission and scientific authority remain separate.
+
+### DiD diagnostic basis
+
+The dedicated Standard and Staggered DiD producers attach a separate
+`diagnostic_contract` and `diagnostic_binding` to computed reports. The contract
+binds the complete outcome, treatment membership and `time_treatment`, and the
+complete typed diagnostic list under the declared group-mean linear HC1/normal
+pretrend profile. These fields are separate from the staggered scalar target:
+changing only `time_treatment` can change diagnostics while leaving the fixed
+cohort target and its estimate unchanged.
+
+The internal `_diagnostic_contract` class method recomputes this projection for
+the Scientist consumer. A consumer must compare both metadata and the actual
+typed `report.diagnostics` against current-input recomputation. Hash presence or
+matching scalar-target markers alone does not validate a diagnostic. Historical
+reports remain readable; a current-input validator must recompute or refuse a
+report without its diagnostic contract.
+
+Insufficient preperiods and missing groups remain `not_testable`, with no test
+statistic or p-value and `passed=False`. Standard DiD with no preperiod remains
+`INPUT_INVALID` before diagnostic computation. Neither diagnostic non-rejection
+nor this provenance contract establishes parallel-trends identification.
 
 ### Causal engine and interference compatibility surface (LA-020)
 
@@ -95,6 +149,26 @@ The interference facade similarly retains `_ReductionErrorBoundPlan`,
 New internal tests should import helpers from their leaf owners. Retiring these
 compatibility names requires an API-owner decision and a consumer migration;
 adding a service import to a leaf does not extend the package API.
+
+The measured compatibility window retains these existing package bindings;
+this continuation retires no public or historical patch target. Ordinary
+internal helper callers use `causal_engine.artifacts`, while dedicated ABI
+controls still exercise the historical facade aliases. The repository public
+surface manifest determines which broader entrypoints are `public_stable`;
+retained test helpers are not promoted to that classification. A future removal
+requires the existing owner/deprecation process and its supported caller basis.
+
+Use qualified package imports and canonical owner FQNs for loader/config/docs
+consumers. The former `id_engine.py`, `causal_engine.py`, and `interference.py`
+sibling files were already absent at the E02 base; no filename shim is supplied.
+`find_spec` and its normal Python loader resolve the nonempty packages. A
+`runpy`/`spec_from_file_location` client opening a retired filename receives the
+normal missing-file error and must migrate its explicit configuration. These
+libraries do not declare command-line `__main__` entrypoints. Runtime method
+discovery and third-party plugin loading retain their separate maintained
+contracts; a computed import AST candidate is not evidence that such a client
+actually invoked this facade. Wheel/sdist tests must run outside the checkout
+and bind archive, installed resource and canonical-object identities.
 
 The native `test_api_01.py` checks imports, explicit exports, incidental names,
 and reload cleanup. `test_facade_consumers.py` exercises a real Scientist

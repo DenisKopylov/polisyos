@@ -324,6 +324,8 @@ class CausalGraphModel(BaseModel):
         copied._freeze_collections()
         copied.__dict__.pop("kuzu_node_rows", None)
         copied.__dict__.pop("kuzu_edge_rows", None)
+        copied.__dict__.pop("_kuzu_node_rows_json", None)
+        copied.__dict__.pop("_kuzu_edge_rows_json", None)
         return copied
 
     @staticmethod
@@ -352,10 +354,7 @@ class CausalGraphModel(BaseModel):
                 # Keep compact temporal edges distinguishable in the serialized
                 # representation. Static consumers must reject these edges before
                 # handing the DOT text to a backend that ignores attributes.
-                lines.append(
-                    f'  "{src}" -> "{dst}" '
-                    f'[lag="{edge.lag}", temporal="true"];'
-                )
+                lines.append(f'  "{src}" -> "{dst}" [lag="{edge.lag}", temporal="true"];')
         lines.append("}")
         return "\n".join(lines)
 
@@ -402,9 +401,7 @@ class CausalGraphModel(BaseModel):
 
         for relation, edges in grouped_edges.items():
             src, dst, mark_src, mark_dst, lag = relation
-            for ordinal, (_, edge_payload) in enumerate(
-                sorted(edges, key=lambda item: item[0])
-            ):
+            for ordinal, (_, edge_payload) in enumerate(sorted(edges, key=lambda item: item[0])):
                 # NetworkX keys are scoped to (src, dst). Typed marks and lag
                 # identify the relation class; payload ordinals separate distinct
                 # payloads and exact duplicates without hash collisions.
@@ -418,15 +415,27 @@ class CausalGraphModel(BaseModel):
         return graph
 
     @cached_property
+    def _kuzu_node_rows_json(self) -> tuple[str, ...]:
+        """Cache immutable serialized node rows for this graph version."""
+        return tuple(json.dumps({"name": node}) for node in self.nodes)
+
+    @property
     def kuzu_node_rows(self) -> tuple[dict[str, str], ...]:
-        """Prepared node rows reused by Kuzu emitters."""
-        return tuple({"name": node} for node in self.nodes)
+        """Return detached node rows backed by an immutable preparation cache."""
+        return tuple(json.loads(row) for row in self._kuzu_node_rows_json)
 
     @cached_property
-    def kuzu_edge_rows(self) -> tuple[dict[str, Any], ...]:
-        """Prepared edge rows reused by Kuzu emitters and CSV exporters."""
+    def _kuzu_edge_rows_json(self) -> tuple[str, ...]:
+        """Cache immutable serialized edge rows for this graph version."""
         graph_type = self.graph_type.value
-        return tuple(_serialize_kuzu_edge_row(edge, graph_type=graph_type) for edge in self.edges)
+        return tuple(
+            json.dumps(_serialize_kuzu_edge_row(edge, graph_type=graph_type)) for edge in self.edges
+        )
+
+    @property
+    def kuzu_edge_rows(self) -> tuple[dict[str, Any], ...]:
+        """Return detached edge rows backed by an immutable preparation cache."""
+        return tuple(json.loads(row) for row in self._kuzu_edge_rows_json)
 
     def to_kuzu(self, kuzu_conn: Any) -> None:
         for row in self.kuzu_node_rows:

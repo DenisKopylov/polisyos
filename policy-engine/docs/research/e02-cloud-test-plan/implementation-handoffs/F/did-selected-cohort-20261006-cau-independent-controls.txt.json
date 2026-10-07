@@ -1,0 +1,6 @@
+{
+  "encoding": "utf8-json-string",
+  "decoded_bytes": 658,
+  "decoded_sha256": "a28e3285199d5a8a42f83e312987cf7e78f2ac8b22af2861aeba3a1153694b80",
+  "text": "{\"boundary_records\": [{\"null\": 2.464925449068859, \"p_value\": 0.05, \"outside_closed_ci\": false, \"reject_literal_alpha_05\": false, \"reject_declared_one_minus_confidence\": true, \"declared_alpha\": 0.050000000000000044}, {\"null\": 3.980994393365098, \"p_value\": 0.05, \"outside_closed_ci\": false, \"reject_literal_alpha_05\": false, \"reject_declared_one_minus_confidence\": true, \"declared_alpha\": 0.050000000000000044}], \"point\": 3.2229599212169786, \"standard_error\": 0.41494128872656477, \"row_permutation_point_and_standard_error\": \"PASS\", \"limits\": \"Inference is pointwise large-independent-unit and known fixture only; diagnostics never identify parallel trends.\"}\n"
+}

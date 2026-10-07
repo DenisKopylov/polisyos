@@ -731,9 +731,7 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
             assert "conditional_simulation_replay_refused" in observation[
                 "authority_blockers"
             ], observation
-            assert ArtifactRef.model_validate(row["n5_result_ref"]).artifact_id == (
-                n5_result_ref.artifact_id
-            )
+            assert row.get("n5_result_ref") is None
 
             # The public RunDetails projection refuses a conditional value, while
             # its Core-owned compiled output retains the exact N5 refusal. Read it

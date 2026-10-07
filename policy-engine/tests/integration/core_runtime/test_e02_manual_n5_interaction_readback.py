@@ -39,11 +39,17 @@ CELL_ID = "cell-a"
 
 
 @pytest.mark.integration
+@pytest.mark.parametrize(
+    "n5_refusal_case",
+    [False, True],
+    ids=("conditional-result", "static-engine-refusal"),
+)
 def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    n5_refusal_case: bool,
 ) -> None:
-    """Fresh GET replays the actual one-atom N5 trajectory and its bounded grid."""
+    """Fresh GET preserves either N5's conditional result or typed engine refusal."""
 
     limiter_removal_probe = os.environ.get(
         "POLISYOS_E02_CANDIDATE_LIMITER_REMOVAL"
@@ -73,6 +79,8 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
         CandidateSimulationContextHandoff,
         CandidateSimulationContextOffer,
         CandidateSimulationN5InputV5,
+        CandidateSimulationScenarioProfile,
+        CandidateSimulationSyntheticModelDeclarationV1,
         candidate_simulation_profile_ref,
     )
     from polisyos.runtime.quality.cycle_substrate import (
@@ -102,7 +110,10 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
         load_joint_simulation_result,
         validate_generation_cycle_run_history,
     )
-    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationResult
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationResult,
+        verify_simulation_receipt,
+    )
     from polisyos.runtime.quality.recursive_generation_cycle import (
         RecursiveCycleBudget,
         RecursiveGenerationCycleController,
@@ -162,6 +173,28 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
         cell_id=CELL_ID,
         intervention_substrate=_candidate_only_procurement_intervention_bundle(),
     )
+    if n5_refusal_case:
+        profile_payload = profile.model_dump(mode="json", exclude={"content_hash"})
+        profile_payload["n5"]["horizon"] = {"start": 0, "end": 1, "step": 1}
+        profile = CandidateSimulationScenarioProfile.model_validate(
+            {
+                **profile_payload,
+                "content_hash": gy_content_hash(profile_payload),
+            }
+        )
+        declaration_payload = model_declaration.model_dump(
+            mode="json", exclude={"content_hash"}
+        )
+        declaration_payload["profile_config_ref"] = candidate_simulation_profile_ref(
+            profile
+        )
+        declaration_payload["profile_content_hash"] = profile.content_hash
+        model_declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+            {
+                **declaration_payload,
+                "content_hash": gy_content_hash(declaration_payload),
+            }
+        )
     assert profile.profile_selection_ref == cycle_job_profile_selection_ref(problem)
     assert profile.context_inputs.intervention_substrate is not None
 
@@ -185,7 +218,7 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
         n5_calls.append(str(getattr(candidate, "candidate_id", "")))
         observation = original_n5(port, *args, **kwargs)
         assert type(observation) is SimulationPortObservation
-        if limiter_removal_probe == "1":
+        if limiter_removal_probe == "1" and not n5_refusal_case:
             blockers = observation.authority_blockers
             assert blockers.count("candidate_scenario_n5_only") == 1
             stripped = observation.model_copy(
@@ -237,6 +270,7 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
         assert admission_owner.store is first_context.store
 
         compiled_refs: dict[str, ArtifactRef] = {}
+        node_refs: dict[str, str] = {}
         produced_inputs: dict[str, CandidateSimulationN5InputV5] = {}
         produced_results: dict[str, JointSimulationResult] = {}
         produced_world_model_ids: dict[str, str] = {}
@@ -441,8 +475,12 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
                 leaf = recursive_run.leaf_nodes[0]
                 assert leaf.cycle_run is not None
                 cycle = leaf.cycle_run.cycles[0]
-                assert cycle.simulation.status == "joint_simulated"
-                assert cycle.value_port.status == "value_conditional"
+                assert cycle.simulation.status == (
+                    "simulation_blocked" if n5_refusal_case else "joint_simulated"
+                )
+                assert cycle.value_port.status == (
+                    "value_blocked" if n5_refusal_case else "value_conditional"
+                )
                 assert not leaf.cycle_run.promotion_port.receipts
                 assert not leaf.cycle_run.promotion_port.certified_candidate_ids
                 assert not any(
@@ -462,14 +500,41 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
                     )
                     result_ref = cycle.simulation.simulation_result_ref
                     assert result_ref is not None
-                    result = load_joint_simulation_result(
-                        result_ref,
-                        store=service._artifact_store,
-                    )
+                    if n5_refusal_case:
+                        result_payload = canon.from_canonical_bytes(
+                            service._artifact_store.get_bytes(result_ref)
+                        )
+                        assert isinstance(result_payload, dict)
+                        result = JointSimulationResult.model_validate(result_payload)
+                        receipt_payload = {
+                            key: value
+                            for key, value in result_payload.items()
+                            if key != "receipt"
+                        }
+                        verify_simulation_receipt(result.receipt, receipt_payload)
+                    else:
+                        result = load_joint_simulation_result(
+                            result_ref,
+                            store=service._artifact_store,
+                        )
                 assert result.atom_ids == (
                     input_record.materialization.derived_n5_atom.intervention_id,
                 )
                 assert result.selected_outcomes == (input_record.outcome_variable,)
+                if n5_refusal_case:
+                    assert result.horizon == profile.n5.horizon
+                    assert result.trajectories == ()
+                    assert result.interaction_terms == ()
+                    assert result.higher_order_residuals == {}
+                    assert result.diagnostics["engine_run_claimed"] is False
+                    assert len(result.engine_decisions) == 1
+                    refusal = result.engine_decisions[0]
+                    assert refusal.engine_kind == "ncm_parallel_worlds"
+                    assert refusal.decision == "unsupported"
+                    assert refusal.reason == "static_engine_cannot_ground_dynamic_horizon"
+                    assert cycle.simulation.authority_blockers
+                    assert cycle.value_port.value_ref is None
+                    assert not cycle.value_port.conditional_interaction_evidence
                 compiled_payload: dict[str, object] = {
                     "schema_version": COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
                     "design_problem_ref": gy_content_hash(
@@ -508,7 +573,9 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
                 assert source_binding.compiled_run_ref == str(compiled_ref.artifact_id)
                 assert source_binding.node_ref == leaf.node_ref
                 assert leaf.cycle_run.schema_version == (
-                    "policyos.runtime.generation_cycle_controller.v5"
+                    "policyos.runtime.generation_cycle_controller.v3"
+                    if n5_refusal_case
+                    else "policyos.runtime.generation_cycle_controller.v5"
                 )
                 source_ref = ArtifactID.model_validate(source_binding.source_run_ref)
                 with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
@@ -574,6 +641,7 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
                     progress=progress,
                 )
                 compiled_refs[job.job_id] = compiled_ref
+                node_refs[job.job_id] = leaf.node_ref
                 produced_inputs[job.job_id] = input_record
                 produced_results[job.job_id] = result
                 produced_world_model_ids[job.job_id] = (
@@ -604,15 +672,18 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
             "compiled_recursive_generation_cycle_ref"
         ]
         input_record = produced_inputs[completed.job_id]
+        node_ref = node_refs[completed.job_id]
         n5_result = produced_results[completed.job_id]
         world_model_record_id = produced_world_model_ids[completed.job_id]
         n5_result_ref = produced_result_refs[completed.job_id]
 
     assert len(n5_calls) == 1
-    assert len(n8_calls) == 1
+    assert len(n8_calls) == (0 if n5_refusal_case else 1)
     assert n5_calls[0] == input_record.original_candidate_id
     assert limiter_removal_applied == (
-        ["candidate_scenario_n5_only"] if limiter_removal_probe == "1" else []
+        ["candidate_scenario_n5_only"]
+        if limiter_removal_probe == "1" and not n5_refusal_case
+        else []
     )
 
     fresh_context = build_runtime_api_context(
@@ -637,23 +708,106 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
         assert run["control_job_id"] == completed.job_id
         readback_manifest_ref = ArtifactRef.model_validate(run["manifest_ref"])
         assert readback_manifest_ref.artifact_id == core_manifest_ref.artifact_id
+        core_outputs = tuple(
+            ArtifactRef.model_validate(ref) for ref in run["root_artifacts"]
+        )
+        assert any(ref.artifact_id == compiled_ref.artifact_id for ref in core_outputs)
         rows = run["conditional_simulation_values"]
         assert len(rows) == 1
         row = rows[0]
         assert row["job_id"] == completed.job_id
         assert row["run_id"] == core_run_id
         assert row["candidate_id"] == input_record.original_candidate_id
-        assert row["profile_config_ref"] == input_record.profile_config_ref
-        assert row["profile_config_ref"] == candidate_simulation_profile_ref(profile)
-        assert ArtifactRef.model_validate(row["n5_result_ref"]).artifact_id == (
-            n5_result_ref.artifact_id
-        )
-        assert row["world_model_record_content_hash"] == (
-            input_record.materialization.world_model_record_hash
-        )
-        assert row["world_model_record_id"] == str(world_model_record_id)
         observation = row["observation"]
-        if limiter_removal_probe == "1":
+        if n5_refusal_case:
+            assert observation["status"] == "value_blocked", observation
+            assert observation["value_ref"] is None
+            assert observation["predicate_basis"] == "not_established"
+            assert observation["evaluation_mode"] == "simulate_only"
+            assert observation["authority_purpose"] == "conditional_simulation_only"
+            assert observation.get("conditional_interaction_evidence") is None
+            assert "conditional_simulation_replay_refused" in observation[
+                "authority_blockers"
+            ], observation
+            assert ArtifactRef.model_validate(row["n5_result_ref"]).artifact_id == (
+                n5_result_ref.artifact_id
+            )
+
+            # The public RunDetails projection refuses a conditional value, while
+            # its Core-owned compiled output retains the exact N5 refusal. Read it
+            # through the ordinary artifact-content surface before checking CAS.
+            artifact_response = fresh_client.get(
+                f"/api/v1/artifacts/{compiled_ref.artifact_id}/content",
+                params={"max_bytes": 2_000_000},
+                headers={"Accept": "application/json"},
+            )
+            assert artifact_response.status_code == 200, artifact_response.text
+            public_content = artifact_response.json()["artifact"]
+            assert public_content["artifact_id"] == str(compiled_ref.artifact_id)
+            assert public_content["mode"] == "json"
+            assert public_content["truncated"] is False
+            public_payload = public_content["preview"]
+            assert isinstance(public_payload, dict)
+            public_compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+                public_payload
+            )
+            public_run = public_compiled.recursive_run
+            assert type(public_run) is RecursiveGenerationCycleRun
+            public_leaf = next(
+                node for node in public_run.leaf_nodes if node.node_ref == node_ref
+            )
+            assert public_leaf.cycle_run is not None
+            public_cycle = public_leaf.cycle_run.cycles[0]
+            assert public_cycle.simulation.status == "simulation_blocked"
+            assert public_cycle.value_port.status == "value_blocked"
+            assert public_cycle.simulation.simulation_result_ref == n5_result_ref
+            assert public_cycle.simulation.diagnostics["engine_decisions"][0][
+                "reason"
+            ] == (
+                "static_engine_cannot_ground_dynamic_horizon"
+            )
+
+            # The same fresh app's store agrees with the API-visible artifact.
+            with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
+                persisted_compiled_payload = canon.from_canonical_bytes(
+                    fresh_context.store.get_bytes(compiled_ref)
+                )
+                persisted_result_payload = canon.from_canonical_bytes(
+                    fresh_context.store.get_bytes(n5_result_ref)
+                )
+            assert persisted_compiled_payload == public_payload
+            assert isinstance(persisted_result_payload, dict)
+            persisted_result = JointSimulationResult.model_validate(
+                persisted_result_payload
+            )
+            receipt_payload = {
+                key: value
+                for key, value in persisted_result_payload.items()
+                if key != "receipt"
+            }
+            verify_simulation_receipt(persisted_result.receipt, receipt_payload)
+            assert persisted_result.model_dump(mode="json") == n5_result.model_dump(
+                mode="json"
+            )
+            assert persisted_result.atom_ids == (
+                input_record.materialization.derived_n5_atom.intervention_id,
+            )
+            assert persisted_result.selected_outcomes == (input_record.outcome_variable,)
+            assert persisted_result.world_model_record_content_hash == (
+                input_record.materialization.world_model_record_hash
+            )
+            assert persisted_result.horizon == profile.n5.horizon
+            assert persisted_result.trajectories == ()
+            assert persisted_result.interaction_terms == ()
+            assert persisted_result.higher_order_residuals == {}
+            assert persisted_result.diagnostics["engine_run_claimed"] is False
+            assert len(persisted_result.engine_decisions) == 1
+            refusal = persisted_result.engine_decisions[0]
+            assert refusal.engine_kind == "ncm_parallel_worlds"
+            assert refusal.decision == "unsupported"
+            assert refusal.reason == "static_engine_cannot_ground_dynamic_horizon"
+            expected_n8_calls = 0
+        elif limiter_removal_probe == "1":
             assert observation["status"] == "value_blocked", observation
             assert observation["predicate_basis"] == "not_established", observation
             assert observation.get("conditional_interaction_evidence") is None, observation
@@ -662,6 +816,15 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
             ], observation
             expected_n8_calls = 1
         else:
+            assert row["profile_config_ref"] == input_record.profile_config_ref
+            assert row["profile_config_ref"] == candidate_simulation_profile_ref(profile)
+            assert ArtifactRef.model_validate(row["n5_result_ref"]).artifact_id == (
+                n5_result_ref.artifact_id
+            )
+            assert row["world_model_record_content_hash"] == (
+                input_record.materialization.world_model_record_hash
+            )
+            assert row["world_model_record_id"] == str(world_model_record_id)
             assert observation["status"] == "value_conditional", observation
             assert observation["value_ref"] == str(n5_result_ref.artifact_id), observation
             assert "candidate_scenario_n5_only" in observation["authority_blockers"]
@@ -700,7 +863,7 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
 
         assert len(n5_calls) == 1
         assert len(n8_calls) == expected_n8_calls
-        if limiter_removal_probe is None:
+        if limiter_removal_probe is None and not n5_refusal_case:
             readback_evidence = n8_calls[1].conditional_interaction_evidence
             assert readback_evidence is not None
             assert readback_evidence.model_dump(mode="json") == evidence

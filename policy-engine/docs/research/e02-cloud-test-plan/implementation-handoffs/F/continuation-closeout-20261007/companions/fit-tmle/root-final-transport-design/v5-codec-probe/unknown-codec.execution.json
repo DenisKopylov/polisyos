@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+    "--seed-selection",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/seed.json",
+    "--prior-manifest",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/prior.json",
+    "--prior-staging-root",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/oldstage",
+    "--repository",
+    "/workspace/e02-F-closeout-20261006",
+    "--final-source-sha",
+    "cdf61b4500e355a27db14260e80ce673ddf8869e",
+    "--include-selection",
+    "probe=/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/unknown-codec.json",
+    "--output",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/unknown-codec-output.json"
+  ],
+  "cwd": "/workspace",
+  "exit_code": 1,
+  "expected_exit": 1,
+  "wall_s": 0.06488288100808859,
+  "scope": "Synthetic transport metadata only; no source/domain/backend test."
+}

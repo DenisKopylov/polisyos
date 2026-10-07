@@ -1,0 +1,44 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/tmp/e02-F-continuation-20261007/cau/root-current35-review/validate_root_current35.py",
+    "--repo",
+    "/workspace/e02-F-closeout-20261006",
+    "--target",
+    "da59adf7cb2ae781f162f060d8c7424060c21306",
+    "--output",
+    "/tmp/e02-F-continuation-20261007/cau/root-current35-review/da59-material-review.json",
+    "--negative-controls"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261007/cau/root-current35-review",
+  "exit": 1,
+  "elapsed_s": 3.0845139026641846,
+  "environment": {
+    "python": "3.12.14",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "purpose": "stdlib immutable Git metadata verification only"
+  },
+  "target": {
+    "sha": "da59adf7cb2ae781f162f060d8c7424060c21306",
+    "tree": "5f8a047da1ad7341d64efd82eeb668aa2885a7c3"
+  },
+  "mutable_author_lane_begin": {
+    "HEAD": "6a39465ee29bb50efcd431089deb8f043e26d762",
+    "status": "?? policy-engine/workers/dowhy-014/.venv\n"
+  },
+  "mutable_author_lane_end": {
+    "HEAD": "6a39465ee29bb50efcd431089deb8f043e26d762",
+    "status": "?? policy-engine/workers/dowhy-014/.venv\n"
+  },
+  "scope_guard": "All deciding reads use immutabletargetGitshow, not mutable files; no repo writes",
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/da59-material.stdout",
+    "bytes": 612,
+    "sha256": "ca7c2f02b955f341a148c36b929e3c914264b2f56c86a486636dd37042fd3f34"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/da59-material.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

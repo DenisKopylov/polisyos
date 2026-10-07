@@ -1,0 +1,1 @@
+Reviewer scratch additional_output_bindings.py first invocation exit1: own regex incorrectly required comma after 244 passed. Full original pytest summary was 244 passed in 49.97s. Actual source run not repeated, full captured bytes unchanged; corrected regex admits old summary form. This is reviewer metadata assertion failure, not product/test failure.

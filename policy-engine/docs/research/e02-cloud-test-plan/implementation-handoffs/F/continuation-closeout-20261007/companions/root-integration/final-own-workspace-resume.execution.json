@@ -1,0 +1,14 @@
+{
+  "command": [
+    "bash",
+    "-c",
+    "E02_TOPIC_BRANCH=codex/e02-F-closeout-20261006\nE02_WORKTREE_ROOT=/workspace/e02-F-closeout-20261006\n(cd policy-engine && uv run --no-sync polisyos-tools workspace doctor --worktree-admission resume --branch \"${E02_TOPIC_BRANCH:?set actual branch}\" --path \"${E02_WORKTREE_ROOT:?set absolute worktree root}\")"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006",
+  "exit_code": 0,
+  "wall_s": 2.2374022006988525,
+  "branch": "codex/e02-F-closeout-20261006",
+  "absolute_path": "/workspace/e02-F-closeout-20261006",
+  "full_stdout": "/tmp/e02-F-continuation-20261007/root-integration/final-own-workspace-resume.stdout",
+  "full_stderr": "/tmp/e02-F-continuation-20261007/root-integration/final-own-workspace-resume.stderr"
+}

@@ -1,0 +1,19 @@
+{
+  "output": {
+    "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/selected.json",
+    "bytes": 9694,
+    "sha256": "91f0470031a9de534b4e7a7ffbfad83ed1312664cc89ff706c2c10a3df5b6abc"
+  },
+  "counts": {
+    "logical_files": 7,
+    "unique_transport_files": 6,
+    "aliases": 0,
+    "existing_git_files": 1,
+    "changed_prior_inputs": 0,
+    "unique_raw_transport_bytes": 31527
+  },
+  "pending_extensions": [],
+  "root_source_writes": false,
+  "Git_writes": false,
+  "tests_run": false
+}

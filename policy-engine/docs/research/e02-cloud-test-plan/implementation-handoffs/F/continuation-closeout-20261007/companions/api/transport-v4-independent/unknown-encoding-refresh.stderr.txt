@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v4.py", line 187, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v4.py", line 121, in main
+    else:raise ValueError('unknown selected input encoding')
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: unknown selected input encoding

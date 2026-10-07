@@ -1,0 +1,12 @@
+{
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/a.gz",
+      "bytes": 36,
+      "sha256": "02dc5d5c9c26f2885574f19adfe8fcf7ae1a9dc7aa2b2fc0b113f29d2d87ce71",
+      "encoding": "gzip",
+      "decoded_bytes": 15,
+      "decoded_sha256": "30f8c589a5fd32a1b081cbeb75e4579120b39cebd3dd61af958e36cd104a68ee"
+    }
+  ]
+}

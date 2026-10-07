@@ -1,0 +1,241 @@
+{
+  "schema": "e02.independent-review-transfer-selection.v1",
+  "target": {
+    "sha": "d8334672f44d24dd32113264f96ca3f7954dace4",
+    "tree": "a68dbc3ecf4ccf9a5a59fa4b830464e32d81dd8f"
+  },
+  "items": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/6a39-material-review.json",
+      "bytes": 568773,
+      "sha256": "bd2a83e427f64d8b6a5cf1b0123fb4c443f0c1a6847869b288c31d7326d9bad3",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/6a39-material-v2-review.json",
+      "bytes": 634032,
+      "sha256": "a930a6af1c4bad1d32b68b0526f7b7c20538b84108bd115566c08fb6afc17ac9",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/6a39-material-v2.execution.json",
+      "bytes": 1508,
+      "sha256": "f0d662653cf388552cc4615f71b5c707c6e0a17a8034cf2a5f02b56842ad9fca",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/6a39-material-v2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/6a39-material-v2.stdout",
+      "bytes": 1619,
+      "sha256": "8f05ca22f8748029e79044423ebd40f092e7b0bae0f5b7d327656f8d16e00f05",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/6a39-material.execution.json",
+      "bytes": 1498,
+      "sha256": "958eeb7c114f536a3aba4c30ef95c1720ded9ca35e8e6ca177888116e58b6f9a",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/6a39-material.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/6a39-material.stdout",
+      "bytes": 740,
+      "sha256": "7152cb322d553c00fc02a8fe4e9daf65eebd9873daf1f0f67e1335ae944b9185",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/build_review_selection.py",
+      "bytes": 6945,
+      "sha256": "a8753b25ef8164c04039fdee7eae421e23cf56b5b4838e73fcc7b72175c548dd",
+      "role": "unique reviewer replayer/version; no tracked source copy"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/capture_metadata_check.py",
+      "bytes": 1628,
+      "sha256": "0eb3653d46c5587432f882ca1ef8d6c6e91102e0d50e081a11512cd2a1864a11",
+      "role": "unique reviewer replayer/version; no tracked source copy"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/d833-complete-material-final-review.json",
+      "bytes": 785366,
+      "sha256": "2f7b4d04645a63a044d05e6e76f5b646c9ab6125c5d2ccc67f95eba53b962228",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/d833-complete-material-final.execution.json",
+      "bytes": 1678,
+      "sha256": "8ec8f3a82819de33dd89d954bfa96c77a910e84fa39d8d0516e2d063dd413fa2",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/d833-complete-material-final.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/d833-complete-material-final.stdout",
+      "bytes": 1667,
+      "sha256": "6d33fb0b5e4bc6724af655449e5e19cb230eafd084dd79e1c257e9bfa5f90043",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/d833-complete-material-review.json",
+      "bytes": 784894,
+      "sha256": "433f2df061f7508e8d38da0bf346ef3ef2d63f1213d8853287f2b9c56e61f626",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/d833-complete-material.execution.json",
+      "bytes": 1660,
+      "sha256": "42746cd0a3579c92b3da55d6f9a7d4277212dfd451b9ff2b21a6dffa071056fa",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/d833-complete-material.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/d833-complete-material.stdout",
+      "bytes": 1661,
+      "sha256": "14aa077e9d1f23f12e8b516743490125dd62e562d7cc0389440764b72f29210b",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/d833-source-order-captions-review.json",
+      "bytes": 45869,
+      "sha256": "072ccdf87c4634a6bc1a8384de5da31dfa83689ce04a691d635630650308de80",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/d833-source-order-captions.execution.json",
+      "bytes": 1474,
+      "sha256": "12c3e6dbe1ebfac76f7632fecc88f582c60e4ad6e4e3f8103dd521393d6696a6",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/d833-source-order-captions.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/d833-source-order-captions.stdout",
+      "bytes": 496,
+      "sha256": "2f19eb5ec2bd1eb0ec0c53c2fea70d594d1b1d650b1d4cceefde00d7f79b55c7",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/da59-material-review.json",
+      "bytes": 247412,
+      "sha256": "6c75fb03bedc1d80b664d3809975cf92a11f609d3ba8a1fdf5e27d74d381fd1e",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/da59-material-v2-review.json",
+      "bytes": 266899,
+      "sha256": "cfd3010fc08060ca82cdcdea8e4a678534f7b4686e32d598b3c872abbc415266",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/da59-material-v2.execution.json",
+      "bytes": 1508,
+      "sha256": "c9650b1d469b01f99196dca74a5bf0f7a6044aa9e7951571839ad63284c99c67",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/da59-material-v2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/da59-material-v2.stdout",
+      "bytes": 639,
+      "sha256": "ca56b2e2d61c5bc86ccf56b958d48b266bd1066c057cc7a7f790c2e53b8841ea",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/da59-material.execution.json",
+      "bytes": 1737,
+      "sha256": "f69a0145ae99655260e1b7de4a43549c643e3449893e70d6b509aba4ae52c208",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/da59-material.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/da59-material.stdout",
+      "bytes": 612,
+      "sha256": "ca7c2f02b955f341a148c36b929e3c914264b2f56c86a486636dd37042fd3f34",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/independent-root-current35-review.json",
+      "bytes": 11346,
+      "sha256": "9c6d008e29b82588958863a2022e564912dc844e9cc34599a0385d4c8c840012",
+      "role": "unique independent reviewer full structured observation, raw stream, execution or source replayer; historical attempts preserved"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/review_source_order_and_caps.py",
+      "bytes": 12489,
+      "sha256": "f096d1b19120ffc51df5f98b5754ac771257d990ef661d490e9c1a8ec8e59252",
+      "role": "unique reviewer replayer/version; no tracked source copy"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/validate_root_current35.py",
+      "bytes": 21486,
+      "sha256": "8ed487013cf0a43ca5c4c5fa752e86cf161b300037aaa96f6cb39829340d5297",
+      "role": "unique reviewer replayer/version; no tracked source copy"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/versions/2cefcba05160076d8239ddaf25aa3142d9a7b0b7a52513bc2b1f9c110acadc48.py",
+      "bytes": 20186,
+      "sha256": "2cefcba05160076d8239ddaf25aa3142d9a7b0b7a52513bc2b1f9c110acadc48",
+      "role": "unique reviewer replayer/version; no tracked source copy"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/versions/6e71f5f4a3e183d206518a25d8a0be829bbf4eed40fe5f530443b6af69cffe69.py",
+      "bytes": 20828,
+      "sha256": "6e71f5f4a3e183d206518a25d8a0be829bbf4eed40fe5f530443b6af69cffe69",
+      "role": "unique reviewer replayer/version; no tracked source copy"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/versions/validate_root_current35-156b01145e740825492a2adc921687e918868973120c102cc4489b9b47fc3ba4.py",
+      "bytes": 20127,
+      "sha256": "156b01145e740825492a2adc921687e918868973120c102cc4489b9b47fc3ba4",
+      "role": "unique reviewer replayer/version; no tracked source copy"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/versions/validate_root_current35-3f4114f7eead6bedbd41f0f27cf0efb0b1acd3c10af22f6e409162b198cb3f1e.py",
+      "bytes": 18556,
+      "sha256": "3f4114f7eead6bedbd41f0f27cf0efb0b1acd3c10af22f6e409162b198cb3f1e",
+      "role": "unique reviewer replayer/version; no tracked source copy"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/versions/validate_root_current35-71e2158e363441246da203030a109ff726aea6831fb1c71a4ded186207435789.py",
+      "bytes": 18898,
+      "sha256": "71e2158e363441246da203030a109ff726aea6831fb1c71a4ded186207435789",
+      "role": "unique reviewer replayer/version; no tracked source copy"
+    }
+  ],
+  "files": 38,
+  "stored_bytes": 3504231,
+  "scope": "Complete unique reviewer observations/replayers/streams/executions only. No copied ROOT index/card/source footprint or running status. Full prior FAIL/harness attempts and partial measured denominators preserved.",
+  "no_source_writes": true
+}

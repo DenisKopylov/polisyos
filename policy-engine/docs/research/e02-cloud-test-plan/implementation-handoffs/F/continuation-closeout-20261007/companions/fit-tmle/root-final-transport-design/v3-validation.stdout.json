@@ -1,0 +1,30 @@
+{
+  "mode": "validation_only",
+  "validated_logical_files": 429,
+  "checks": "PASS",
+  "science_tests_run": false,
+  "git_writes": false,
+  "pending_extensions": [
+    {
+      "id": "new-final-root-quality",
+      "status": "UNRUN",
+      "git_ref": null,
+      "path": null,
+      "reason": "New source/resource fix has not frozen with exact final quality receipt; append only after publication and byte readback."
+    },
+    {
+      "id": "new-final-installed-composition",
+      "status": "UNRUN",
+      "git_ref": null,
+      "path": null,
+      "reason": "Repaired actual wheel/sdist final composition receipt not available yet; no future SHA or pass carry."
+    },
+    {
+      "id": "packaged-resource-owner-receipt",
+      "status": "UNRUN",
+      "git_ref": null,
+      "path": null,
+      "reason": "Root assigned canonical Graph author. Reference author published resource proposal/diagnostics/own review instead of duplicate transfer. Existing FIT resource proposal review/selection and Graph diagnosis are not copied by this root transport."
+    }
+  ]
+}

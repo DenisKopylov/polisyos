@@ -1,0 +1,1361 @@
+{
+  "grade": "source_reported_compact_text_only; candidate_routes",
+  "matching_cells": 1,
+  "displayed_cells": 1,
+  "states": {
+    "PASS": 1
+  },
+  "cells": [
+    {
+      "id": "F03-P032",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/compile/test_trinity_compiler.py",
+      "state": "PASS",
+      "collected": "9",
+      "calls": "9",
+      "call_pass": "9",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "11.04",
+      "rss_kib": "523472.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "162",
+      "extra_json": "{}"
+    }
+  ],
+  "finding_routes": [
+    {
+      "finding_id": "LA-001",
+      "unit": "F",
+      "cell_id": "F03-P032",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "research_main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#LA-001"
+    },
+    {
+      "finding_id": "LA-002",
+      "unit": "F",
+      "cell_id": "F03-P032",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "research_main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#LA-002"
+    },
+    {
+      "finding_id": "LA-037",
+      "unit": "F",
+      "cell_id": "F03-P032",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "research_main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#LA-037"
+    }
+  ],
+  "finding_basis": [
+    {
+      "finding_id": "LA-001",
+      "bundle_ids": [
+        "FRY-01"
+      ],
+      "recorded_ledger_status": "partial",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "discriminator_ref": "bundle-catalog.md#fry-01; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRY-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:LA-001",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#LA-001",
+      "assigned_routes": [
+        {
+          "job": "F01",
+          "ref": "research_main",
+          "cell_ids": [
+            "F01-P063"
+          ]
+        },
+        {
+          "job": "F03",
+          "ref": "research_main",
+          "cell_ids": [
+            "F03-P032",
+            "F03-P068",
+            "F03-P069",
+            "F03-P076"
+          ]
+        },
+        {
+          "job": "F04",
+          "ref": "research_main",
+          "cell_ids": [
+            "F04-P060"
+          ]
+        },
+        {
+          "job": "F06",
+          "ref": "e02_execution_base",
+          "cell_ids": [
+            "F06-P052",
+            "F06-P087"
+          ]
+        },
+        {
+          "job": "F07",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F07-P069"
+          ]
+        },
+        {
+          "job": "F08",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F08-P039",
+            "F08-P066",
+            "F08-P070"
+          ]
+        },
+        {
+          "job": "F10",
+          "ref": "main",
+          "cell_ids": [
+            "F10-P066"
+          ]
+        },
+        {
+          "job": "F11",
+          "ref": "main",
+          "cell_ids": [
+            "F11-P040"
+          ]
+        },
+        {
+          "job": "F13",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F13-P079"
+          ]
+        },
+        {
+          "job": "F14",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F14-P039",
+            "F14-P076",
+            "F14-P089"
+          ]
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-002",
+      "bundle_ids": [
+        "FRY-01"
+      ],
+      "recorded_ledger_status": "partial",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "discriminator_ref": "bundle-catalog.md#fry-01; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRY-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:LA-002",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#LA-002",
+      "assigned_routes": [
+        {
+          "job": "F01",
+          "ref": "research_main",
+          "cell_ids": [
+            "F01-P063"
+          ]
+        },
+        {
+          "job": "F03",
+          "ref": "research_main",
+          "cell_ids": [
+            "F03-P032",
+            "F03-P068",
+            "F03-P069",
+            "F03-P076"
+          ]
+        },
+        {
+          "job": "F04",
+          "ref": "research_main",
+          "cell_ids": [
+            "F04-P060"
+          ]
+        },
+        {
+          "job": "F06",
+          "ref": "e02_execution_base",
+          "cell_ids": [
+            "F06-P052",
+            "F06-P087"
+          ]
+        },
+        {
+          "job": "F07",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F07-P069"
+          ]
+        },
+        {
+          "job": "F08",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F08-P039",
+            "F08-P066",
+            "F08-P070"
+          ]
+        },
+        {
+          "job": "F10",
+          "ref": "main",
+          "cell_ids": [
+            "F10-P066"
+          ]
+        },
+        {
+          "job": "F11",
+          "ref": "main",
+          "cell_ids": [
+            "F11-P040"
+          ]
+        },
+        {
+          "job": "F13",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F13-P079"
+          ]
+        },
+        {
+          "job": "F14",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F14-P039",
+            "F14-P076",
+            "F14-P089"
+          ]
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-037",
+      "bundle_ids": [
+        "FRY-01"
+      ],
+      "recorded_ledger_status": "partial",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "discriminator_ref": "bundle-catalog.md#fry-01; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRY-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:LA-037",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#LA-037",
+      "assigned_routes": [
+        {
+          "job": "F01",
+          "ref": "research_main",
+          "cell_ids": [
+            "F01-P063"
+          ]
+        },
+        {
+          "job": "F03",
+          "ref": "research_main",
+          "cell_ids": [
+            "F03-P032",
+            "F03-P068",
+            "F03-P069",
+            "F03-P076"
+          ]
+        },
+        {
+          "job": "F04",
+          "ref": "research_main",
+          "cell_ids": [
+            "F04-P060"
+          ]
+        },
+        {
+          "job": "F06",
+          "ref": "e02_execution_base",
+          "cell_ids": [
+            "F06-P052",
+            "F06-P087"
+          ]
+        },
+        {
+          "job": "F07",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F07-P069"
+          ]
+        },
+        {
+          "job": "F08",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F08-P039",
+            "F08-P066",
+            "F08-P070"
+          ]
+        },
+        {
+          "job": "F10",
+          "ref": "main",
+          "cell_ids": [
+            "F10-P066"
+          ]
+        },
+        {
+          "job": "F11",
+          "ref": "main",
+          "cell_ids": [
+            "F11-P040"
+          ]
+        },
+        {
+          "job": "F13",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F13-P079"
+          ]
+        },
+        {
+          "job": "F14",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F14-P039",
+            "F14-P076",
+            "F14-P089"
+          ]
+        }
+      ]
+    }
+  ],
+  "unrouted_findings": [],
+  "matching_source_blocks": 0,
+  "source_blocks": [],
+  "referenced_messages": [],
+  "available_job_context_blocks": 65,
+  "job_dictionary_or_context_blocks": [
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 284,
+      "line_end": 288,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 357,
+      "line_end": 357,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 358,
+      "line_end": 358,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 359,
+      "line_end": 359,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 360,
+      "line_end": 360,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 361,
+      "line_end": 361,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 362,
+      "line_end": 362,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 363,
+      "line_end": 363,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 364,
+      "line_end": 364,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 365,
+      "line_end": 365,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 366,
+      "line_end": 366,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 367,
+      "line_end": 367,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 368,
+      "line_end": 368,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 369,
+      "line_end": 369,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 370,
+      "line_end": 370,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 371,
+      "line_end": 371,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 372,
+      "line_end": 372,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 373,
+      "line_end": 373,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 374,
+      "line_end": 374,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 375,
+      "line_end": 375,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 376,
+      "line_end": 376,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 377,
+      "line_end": 377,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 378,
+      "line_end": 378,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 379,
+      "line_end": 379,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 380,
+      "line_end": 380,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 381,
+      "line_end": 381,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 382,
+      "line_end": 382,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 383,
+      "line_end": 383,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 384,
+      "line_end": 384,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 385,
+      "line_end": 385,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 386,
+      "line_end": 386,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 387,
+      "line_end": 387,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 388,
+      "line_end": 388,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 389,
+      "line_end": 389,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 390,
+      "line_end": 390,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 391,
+      "line_end": 391,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 392,
+      "line_end": 392,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 393,
+      "line_end": 393,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 394,
+      "line_end": 394,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 395,
+      "line_end": 395,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 396,
+      "line_end": 396,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 397,
+      "line_end": 397,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 398,
+      "line_end": 398,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 399,
+      "line_end": 399,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "junit_case",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 400,
+      "line_end": 400,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 401,
+      "line_end": 401,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 402,
+      "line_end": 402,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 403,
+      "line_end": 403,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 404,
+      "line_end": 404,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 405,
+      "line_end": 405,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 406,
+      "line_end": 406,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 407,
+      "line_end": 407,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 408,
+      "line_end": 408,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 409,
+      "line_end": 409,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 410,
+      "line_end": 410,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 411,
+      "line_end": 411,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 412,
+      "line_end": 412,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 413,
+      "line_end": 413,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 414,
+      "line_end": 414,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 415,
+      "line_end": 415,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 416,
+      "line_end": 416,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 417,
+      "line_end": 417,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 418,
+      "line_end": 418,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 419,
+      "line_end": 419,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F03",
+      "source_file": "received/F03.txt",
+      "line_start": 420,
+      "line_end": 420,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "phase",
+        "outcome",
+        "error",
+        "values",
+        "occurrences"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    }
+  ],
+  "matching_route_cells": 1,
+  "raw_archives_received": 0,
+  "limitations": "Locators are structured source blocks, not a normalized event census. PASS does not establish semantic adequacy or finding closure."
+}

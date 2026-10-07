@@ -1,0 +1,368 @@
+{
+  "path_denominator": 9,
+  "source_denominator": 2,
+  "all_sources_and_matches": [
+    {
+      "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+      "git_blob": "bfe0e18813d014b977005f62ffe91ff4363fc387",
+      "bytes": 26857,
+      "sha256": "724f37608e3f3cbd3ff3445f7bcbd26f90c916c51bb50016ce7389a0c1fd77f4",
+      "present": true,
+      "matches": [
+        {
+          "line": 46,
+          "text": "| LA-004 | DISTINCT economic models, paired regimes and deliberate divergence; closed | ECO412 checks0/4/6/8; state/units/step/taxbase/RNG/budget/outputs. Welfare norm не prerequisite. |"
+        },
+        {
+          "line": 52,
+          "text": "| LA-035 | Equivalent normalized-income/budget historical baseline relocation; closed | ECO532/412 + new193; actual GlobalState formula/aliases/native guards/JIT/gradient/callers match original. New optimizer/normative objective не prerequisite unchanged relocation. |"
+        },
+        {
+          "line": 65,
+          "text": "| <a id=\"bundle-eco-01\"></a> ECO-01 | Distinct real native/plugin profiles; canonical current Gini/domain; preserved normalized baseline. | LA-004 finite inequivalence и LA-035 equivalent historical relocation recommended closed; signed active Gini отдельно typed-refuses на actual C/PPO route. |"
+        },
+        {
+          "line": 98,
+          "text": "- **ECOfa53**: `F/economic-baseline-consumer-proof-20261007.json@fa53da2812eaa8578f79ec914b3b2abe4c491f3d`; scientific test candidate `193b3582a72c640c1d06a131f93502654a77a36a`, doc-only `c0084cd530c1dbe01eedfb9b5c24f055954a97be`. Original LA-035 equivalence/guards/JIT/grad and actual C/PPO signed-wealth→requested Gini refusal: author83PASS; independent28+55PASS,64Fraction cases/2analytic gradients, actual property removalsFAIL. No runtime economic law or objective changed; LA-004 distinct model criterion is preserved."
+        }
+      ]
+    },
+    {
+      "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+      "git_blob": "6cf49c2adff9d3f42c1f79c424295ac052ba7e9b",
+      "bytes": 106381,
+      "sha256": "1dce4ad02656b5c9d873c2ed6066264a7b3ec3f02766001f437920a789e3f3ca",
+      "present": true,
+      "matches": [
+        {
+          "line": 594,
+          "text": "**Current evidence.** ECO412 actual registry→compile→CAS→execute→apply_patch_map/load snapshot and adapter→native consumers compare complete patches/masks/accounting/count/key under finite equivalent fixtures; deliberate plugin-law divergences are LA-004, not relocation failure. Fiscal debit removal5FAIL/2outsidecontrolsPASS. Historical decimal .10 escape1000.0000149011612 vs1000 corrected FISCAL132 by incoming-state dtype at actual ParamDecimal/compiler/CAS consumer. Original bounded relocation recommended closed; 24defaultfloat32 profiles byte-identical, separate40lower/int/x64 profiles disclose dtype/reduction differences. ABM diagnostic FAIL и P41 not_established сохраняются, law/tolerance не изменены для сокрытия результата."
+        },
+        {
+          "line": 600,
+          "text": "### F-M14 — LA-004 distinct models; LA-035 equivalent historical baseline"
+        },
+        {
+          "line": 602,
+          "text": "**LA-004 original acceptance, closed finite profile.** Native reported-income flat tax updates income/government.balance and threshold labor/employer/count/key; EconomicsPlugin progressive wealth tax and find/separation/wage dynamics operate on EconomicState. ECO412 full state/units/time-step/taxbase/RNG/budget mapping, deliberately equal regimes **and** deliberate divergence, accounting/seed/observables actual producer→consumer proofs satisfy this criterion. Richer plugin is not drop-in replacement; no welfare normative choice is needed to establish inequivalence."
+        },
+        {
+          "line": 604,
+          "text": "**LA-035 original equivalent relocation, recommended closed.** Original `-mean(income)/max(mean(abs(income)),1)+10·budget_penalty`, min_balance−1000, all population entries, aliases/nativeGlobalState/JIT/grad/numeric guards preserved. Positive income≥1 remains exactly−1 at every scale; это normalized historical baseline, не raw-income maximization. ECO193 actual state/guard/JIT/gradient/literal caller tests: author83PASS, independent28+55PASS, 64Fraction evaluations/2analytic gradients and actual sign/guard removals FAIL. Existing formula unchanged; new optimizer or normative welfare packet не требуется исходной карточкой. New ranking/objective intent, если будет запрошен, требует отдельного owner decision/version. ROOT072 hold сохранён исторически."
+        },
+        {
+          "line": 606,
+          "text": "**Separate Gini property, no new ID.** Existing @foundry-owners numeric-guardrails decision admits classical Gini only on finite nonnegative active resources. Current canonical hard calculator/admission used by aggregate/PureExecutor, objectives, plugin/report API and enumerated live readers; signed simulations remain allowed with Gini disabled. Stale finite cache does not license current[-2,1]/[-1,2]. Dated DistributionAwareExecutor snapshot retains last_update_step and historical meaning. Current dtype metadata/float32storage precision preserved, equations/norm/weights/RNG unchanged. New193 actual EconomicsTrainingAdapter→actor/temporal consumption→registered labor/tax/transfers/savings→active signed wealth проверен: eager bridge и requested JIT PPO metrics refuse classical Gini before aggregate/API; nonnegative active population positive. Plain trajectory without requested Gini may retain signed wealth. Это отдельная property, не новый ID, welfare convention или замена historical LA-035."
+        }
+      ]
+    },
+    {
+      "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+      "git_blob": "13e5721ee56793000c206e67c42fa3d0e8c9dab2",
+      "bytes": 35578,
+      "sha256": "ad7b68c4f9a35086e7492bfe84fb4f6a854e1d4f27f6addef07d562c06bd42d1",
+      "present": true,
+      "matches": [
+        {
+          "line": 124,
+          "text": "FAMILY7f/docs3e181 real four-family IC service/certificate CAS, five runtime descriptors, typed missing mappings, native IR compiler/patch/state/page consumer and reconciled byte-identical installed wrappers satisfy original LA-002/037. A family specification is not required to be a new executable kernel. ECO412 distinct native/plugin profiles close original LA-004 without welfare norm; FISCAL132 closes bounded LA-003 actual decimal/CAS precision with declared x64 boundary; LA-035 original unchanged normalized baseline relocation recommended closed on ECO193 state/guard/JIT/gradient/caller proof. No new optimizer/normative review prerequisite. Requested Gini on actual signed C/PPO wealth typed-refuses; signed trajectory without Gini remains supported. CARRYc003 native37/independent37 actual temporal/train/ES storage/carry tests have own source; they do not change fiscal law or cause a broad97PASS."
+        }
+      ]
+    },
+    {
+      "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "policy-engine/docs/reference/foundry/economic-baseline-profile.md",
+      "git_blob": "781e8d960361e0e06d95d1533f91502c8d7cbd87",
+      "bytes": 3819,
+      "sha256": "15adc343cc2f252c82d94bd026d5a6fa0384af0c597fb19698b3c5722fd12922",
+      "present": true,
+      "matches": [
+        {
+          "line": 3,
+          "text": "`polisyos.foundry.plugins.economics.baselines.normalized_income_budget_loss`"
+        },
+        {
+          "line": 5,
+          "text": "`polisyos.foundry.methods.loss.policy_loss_fn` and the corresponding internal"
+        },
+        {
+          "line": 23,
+          "text": "welfare or income-maximizing objective. The original LA035 acceptance concerns"
+        },
+        {
+          "line": 30,
+          "text": "The original LA035 equivalent relocation is technically closed by the native"
+        },
+        {
+          "line": 44,
+          "text": "LA004 compares deliberately matched and divergent fiscal/labor regimes,"
+        }
+      ]
+    },
+    {
+      "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/REPORT.md",
+      "git_blob": "0274ca87644598d3a911a84559aad0c76cb4c66a",
+      "bytes": 26187,
+      "sha256": "f45a2e848b4ccd57b0bf44d6fb61332f0231a082edc7d2f6d9fc3e7966c9eac0",
+      "present": true,
+      "matches": [
+        {
+          "line": 38,
+          "text": "| [LA-004](per-ID/LA-004.json) / ECO-01 | Two distinct native/plugin economic models: state/unit/time/tax-base/RNG/budget mapping, matched regime equivalence and deliberately different regime non-equivalence, accounting and observable outputs. LA_r09_original.md:167–197; 3498B/6e02db40071d978f1bb642bfff99ad1eb8102a565e90238a90259ed15f5acf4a | 532ca1f5ff78dad58ac00d261aeabff3a99f9aa6 | Registry-created native fiscal/labor → PatchMap/apply_patch_map/GlobalState versus EconomicsPlugin.get_mechanisms → CompositeExecutor/EconomicState; actual matched and deliberately distinct finite laws. | PASS | closed | Bounded supported profile established; G acceptance separate. No fullmodel calibration/replacement/migration or externaleconomicnorm implied. |"
+        },
+        {
+          "line": 44,
+          "text": "| [LA-035](per-ID/LA-035.json) / ECO-01 | Equivalent named GlobalState normalized-income/budget baseline relocation preserving ORIGINAL formula/sign/scale/size/min_balance/breach/NaNInf, native State/guardrail/JIT-grad promised paths, caller census and import side effects. New optimizer/welfare ratification is separate. LA_r09_original.md:2066–2102; 7176B/59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69 | 532ca1f5ff78dad58ac00d261aeabff3a99f9aa6 | named economics.baselines.normalized_income_budget_loss → exact public/internal policy_loss_fn aliases → native GlobalState/real finite_loss_or_inf → eager/JIT/grad and supported native caller tests; actual C/G9a ActorCritic→labor/tax producer reaches F canonical current metrics/PPO Gini refusal as a separate property | PASS | closed | Bounded supported profile established; G acceptance separate. Unchanged historical normalized baseline needs no new optimizer/normative packet. Any future changed ranking/objective requires accountable economic semantic owner/versioned intent. Actual signed Gini property is separately typed-refused before aggregate/API. |"
+        },
+        {
+          "line": 49,
+          "text": "LA-004 compares deliberately matched and divergent native/plugin fiscal/labor laws. LA-035 preserves historical GlobalState normalized-income/budget objective, guards, aliases, JIT/gradient and supported callers; a new optimizer/welfare normative packet is not an original prerequisite. Actual C/PPO signed active wealth refuses standard Gini on requested metric path; no clamp/signed-functional invention."
+        }
+      ]
+    },
+    {
+      "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/index.json",
+      "git_blob": "5c43c1d31e9149fe8d6f73b3176f84d84f60b1ef",
+      "bytes": 197648,
+      "sha256": "635e5de919cbe66fdd28a4d67609ba0171c810ec311cbc7525615faff567c18e",
+      "present": true,
+      "matches": [
+        {
+          "line": 2089,
+          "text": "      \"finding_id\": \"LA-004\","
+        },
+        {
+          "line": 2092,
+          "text": "          \"criterion_id\": \"LA-004\","
+        },
+        {
+          "line": 2102,
+          "text": "          \"title\": \"## LA-004. Две экономические реализации: согласовать, но не подменять\","
+        },
+        {
+          "line": 2117,
+          "text": "        \"path\": \"policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/LA-004.json\","
+        },
+        {
+          "line": 2657,
+          "text": "      \"finding_id\": \"LA-035\","
+        },
+        {
+          "line": 2660,
+          "text": "          \"criterion_id\": \"LA-035\","
+        },
+        {
+          "line": 2670,
+          "text": "          \"title\": \"## LA-035. policy_loss_fn: ранний экономический baseline у общего method-владельца\","
+        },
+        {
+          "line": 2676,
+          "text": "        \"producer\": \"economics.baselines.normalized_income_budget_loss\","
+        },
+        {
+          "line": 2681,
+          "text": "      \"actual_recorded_consumer\": \"named economics.baselines.normalized_income_budget_loss → exact public/internal policy_loss_fn aliases → native GlobalState/real finite_loss_or_inf → eager/JIT/grad and supported native caller tests; actual C/G9a ActorCritic→labor/tax producer reaches F canonical current metrics/PPO Gini refusal as a separate property\","
+        },
+        {
+          "line": 2685,
+          "text": "        \"path\": \"policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/LA-035.json\","
+        },
+        {
+          "line": 2731,
+          "text": "      \"consumer\": \"named economics.baselines.normalized_income_budget_loss → exact public/internal policy_loss_fn aliases → native GlobalState/real finite_loss_or_inf → eager/JIT/grad and supported native caller tests; actual C/G9a ActorCritic→labor/tax producer reaches F canonical current metrics/PPO Gini refusal as a separate property\","
+        },
+        {
+          "line": 3123,
+          "text": "      \"finding_id\": \"LA-004\","
+        },
+        {
+          "line": 3124,
+          "text": "      \"path\": \"policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-004.json\","
+        },
+        {
+          "line": 3159,
+          "text": "      \"finding_id\": \"LA-035\","
+        },
+        {
+          "line": 3160,
+          "text": "      \"path\": \"policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-035.json\","
+        }
+      ]
+    },
+    {
+      "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/full-audit.json",
+      "git_blob": "f7eb3e763d35fb8883641206377e38a3c8c2fa28",
+      "bytes": 20867,
+      "sha256": "c6d552319d84c88065f61bf557af3d69b9bad8d712b5d78268ebcdad2ffce64f",
+      "present": true,
+      "matches": [
+        {
+          "line": 233,
+          "text": "      \"finding_id\": \"LA-004\","
+        },
+        {
+          "line": 234,
+          "text": "      \"path\": \"policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-004.json\","
+        },
+        {
+          "line": 269,
+          "text": "      \"finding_id\": \"LA-035\","
+        },
+        {
+          "line": 270,
+          "text": "      \"path\": \"policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-035.json\","
+        }
+      ]
+    },
+    {
+      "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/F.md",
+      "present": false
+    },
+    {
+      "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/F-criteria-correction.md",
+      "present": false
+    },
+    {
+      "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+      "git_blob": "c370f70e8d63e05cf5dea80544e9f4f0f2eefb73",
+      "bytes": 37207,
+      "sha256": "0ce262811ae316de4d493477f7894a76066c0b906baa266dd969a25aee58c454",
+      "present": true,
+      "matches": [
+        {
+          "line": 32,
+          "text": "| <a id=\"bundle-eco-01\"></a> ECO-01 / LA-004, LA-035 | Frozen F receipts cover the 60-case JAX hard-Gini/median dtype branch and a bounded paired comparison of the legacy and plugin fiscal/labor profiles. The profiles differ in state, units, tax base, balance and stochastic law; selected matched and deliberately divergent regimes test that boundary. No whole-model or production-caller equivalence is established. A possible C/PPO negative-wealth input into strict Gini is a separate cross-edge without a combined runtime witness. | Preserve profile identity. LA-004 is the bounded comparison of declared state/units, timestep, tax, balance and RNG semantics across matched and divergent regimes; it does not require Gini or welfare sign-off. LA-035 concerns relocation of the unchanged historical score with its native state, guards, JIT/gradient path and aliases; a normative owner is needed only for a changed score/ranking or new objective. Keep compatibility aliases while external/computed caller retirement remains unestablished. cd policy-engine && uv run pytest tests/unit/foundry/plugins/test_economics_dtype.py tests/unit/foundry/plugins/test_economics.py -q plus exact fiscal/labor tests. |"
+        },
+        {
+          "line": 58,
+          "text": "**ECO/FRY/Lex/API.** Dtype correctness≠normative welfare. `normalized_income_budget_loss` divides `-mean(income)` by `max(mean(abs(income)),1)` and adds a budget penalty; for nonnegative mean income ≥1 the income term is exactly `-1`, independent of scale. Preserve it as the unchanged historical score on its native `GlobalState` formula, retaining the legacy aliases and guards/JIT/gradient path; moving the same score does not require new normative approval. A normative owner is required for a changed score/ranking or new welfare objective. The frozen F comparison covers selected matched and divergent legacy/plugin fiscal-labor regimes, not whole-model or production-caller equivalence. External/computed caller retirement remains unestablished. A possible C/PPO negative-wealth input into strict Gini is a separate cross-edge, with no combined runtime witness. In the compiler, `ExecPlan.random_seed=17` can coexist with `TreasuryPlan.root_seed=0`; persisted salts are not evidence a runtime mechanism consumes the same seed. Catalog descriptor≠kernel/certificate. LA-007/019 placeholders are absent in G97, but packages remain; external loader and installed distribution are unverified. Slot layout ends in `ir/kernel/slots.py`; full public addresses/defaults/docs need mapping. Lex legal diff/pass is useful; `affected_kpis` is topic similarity, not an effect or legal authority. Synthetic packs/StubBackend do not attest real law."
+        },
+        {
+          "line": 87,
+          "text": "Exact finding set: B54, B56, B204, B205, B206, B207, B208, B209, B210, B211, B212, B213, B214, B215, B216, B217, B218, B219, B220, B221, B222, B223, B224, B225, LA-001, LA-002, LA-003, LA-004, LA-007, LA-016, LA-017, LA-019, LA-020, LA-035, LA-037 (35 IDs: 24 B and 11 LA). Полные canonical cards, включая exact line ranges/byte hashes, доступны по coverage.json:criterion_refs. Source/receipt pins — в input-identity.json. Исходный workflow — [F execution prompt](../execution-prompts/F.md) и [HANDOFF](../execution-prompts/HANDOFF.md); новые выбранные архитектурные профили оформлены как конкретное продолжение поручения пользователя. Patterns P02, P04–05, P08, P10, P14, P29, P32–38, P40–41 apply."
+        }
+      ]
+    },
+    {
+      "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+      "git_blob": "f55769e2d4dafd9b90aecc6b1167017747b7d8ab",
+      "bytes": 146346,
+      "sha256": "490dd9f23d5b82b9ae5f3243fb3e66886217f29eae19c0b1365cdc8c0d2aa612",
+      "present": true,
+      "matches": [
+        {
+          "line": 820,
+          "text": "**Finding IDs.** LA-004; LA-035"
+        },
+        {
+          "line": 824,
+          "text": "**Сегодняшнее расхождение.** `normalized_income_budget_loss` uses `-mean(income)/max(mean(abs(income)),1)+10*budget_penalty`. For nonnegative mean income >=1 the income term is exactly -1 at every income scale. The frozen F receipts compare selected legacy and plugin fiscal/labor profiles across matched and divergent regimes; the state, units, tax/balance path and stochastic semantics differ, so the comparison does not establish whole-model or production-caller equivalence."
+        },
+        {
+          "line": 826,
+          "text": "**Выбранная реализация.** Keep the unchanged formula canonical as the historical `normalized_income_budget_loss` on its native `GlobalState`, preserving the existing `_internal.loss.policy_loss_fn` and public `methods.loss` aliases plus its guards/JIT/gradient behavior. No normative-owner approval is required to preserve or relocate that same score. Require a named normative owner and actual consumer only for changing its sign/scale/ranking or introducing a new welfare/income objective. Keep the plugin and world-execution profiles distinct where their laws differ."
+        }
+      ]
+    },
+    {
+      "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+      "git_blob": "e939b0ef5f8ee2553648e1537268c70dc29a2b20",
+      "bytes": 46944,
+      "sha256": "35e15ee0f92a76df0af8cbef16cda9bc3d6b21838a7f81c868c71db3e1d317f0",
+      "present": true,
+      "matches": []
+    },
+    {
+      "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "path": "policy-engine/docs/reference/foundry/economic-baseline-profile.md",
+      "present": false
+    },
+    {
+      "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/REPORT.md",
+      "present": false
+    },
+    {
+      "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/index.json",
+      "present": false
+    },
+    {
+      "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/full-audit.json",
+      "present": false
+    },
+    {
+      "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/F.md",
+      "git_blob": "50f28afeb9267a82c3c2466551bb466352c81b3d",
+      "bytes": 17214,
+      "sha256": "6fcc13f11194d20e7a3bbadb2d70397da0b2c16e9695f43375a69c8bf222d89b",
+      "present": true,
+      "matches": [
+        {
+          "line": 30,
+          "text": "Это историческое распределение на старой F публикации; не использовать как финальный recomputed ledger. Прежний список current-continuation closed включал B204–B206, B210–B211, B215–B217, B219–B225, B54, LA-001–LA-004, LA-007, LA-016, LA-019–LA-020, LA-037; limited — B207–B209, B212–B214, B218, B56, LA-017; held — LA-035. В техническом original lens B207–B209 и B212–B213 закрыты по finite criteria, B214/B218/B56/LA-017 limited. LA-016 — один ID. Корректируй LA-035 по оригинальному критерию и свежему source-bound receipt; затем пересчитай обе суммы."
+        },
+        {
+          "line": 45,
+          "text": "5. Перейти к review доступных leaf refs по immutable candidate SHA. Новые handoffs адресуют прежние shared-boundary concerns: graph/CAS endpoint handling и четыре catalog resources; TMLE actual ConfidencePass/value consumer; API/IR/loader surface; ECO signed-wealth refusal и objective semantics; CAU original criterion ledger. Повторять тесты только для изменившегося source/dependency и нужных consumers. B214 по-прежнему требует точного bounded partial/conditional graph scope; B56 — actual admitted shared-study workload/budget. LA-035 проверяй по исходной карте: эквивалентный перенос неизменённого historical score не требует optimizer/norm approval packet; ограничение — неизвестность constructed/external callers и отсутствие доказательства production use. Owner/objective version нужен лишь если меняются score/ranking/sign/scale или вводится новая welfare цель. Не превращать эти остатки в global causal closure."
+        },
+        {
+          "line": 46,
+          "text": "6. LA-004 остаётся original finite comparison разных fiscal/labor implementations, уже с bounded PASS; это не Gini/welfare. Не требуй повторять неизменённый Gini oracle: independent Fraction pairwise oracle в `test_gini_science.py` уже прошёл в source-bound 244-PASS run на exact `532ca1f5ff78dad58ac00d261aeabff3a99f9aa6` / tree `e157c672ee734a700795bbf921f2e3657aa8e9eb`, покрыв small populations и rescaling. Положительный pairwise oracle и соответствующая hard-Gini арифметика сохранены через `8236...`; это не equivalence всех source/test blobs и не перенос полного 244-case результата на поздний source. Отдельный `fa53...` ECO receipt покрывает bounded synthetic C/PPO→producer/consumer route, включая typed refusal для signed active wealth; это не production calibration и не G acceptance. 64 Fraction panels в этом receipt относятся к LA-035, не к Gini. Формула F source `8236...` корректно нормализована; epsilon divergence остаётся в G source `767...` и является G integration/admission delta, не повторной F oracle задачей. Не создавать новый finding ID и не приписывать Gini LA-004."
+        },
+        {
+          "line": 51,
+          "text": "Рецензия `R/incoming-20261007-1008/F-prompt-criteria-review.md` сверена. Для unchanged LA-035 ориентир — original criterion + `closure-decisions/F.md@767...` + F-M14, не held row из старого отчёта. Она также подтверждает G epsilon formula на `767` против корректной нормализации F source `8236`, prior 244-PASS pairwise Gini oracle, exact `fa53` 83-PASS LA-035 compatibility suite и actual C/PPO refusal path; соответствующие receipts различать по SHA."
+        }
+      ]
+    },
+    {
+      "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/F-criteria-correction.md",
+      "git_blob": "c2e41bc3a1fbc28e0cbc8f05779da7eba8f02825",
+      "bytes": 6784,
+      "sha256": "c1afc93ce7dc62b0dbc7c1489e7d5dd113b60c9d2a5d2487e44a40fcda7d7d11",
+      "present": true,
+      "matches": [
+        {
+          "line": 1,
+          "text": "# F continuation prompt — LA-035 / Gini criterion review"
+        },
+        {
+          "line": 5,
+          "text": "## LA-035: the optimizer/norm packet is not an original-card prerequisite"
+        },
+        {
+          "line": 7,
+          "text": "The prompt line 62 says LA-035 “stays held” until a named optimizer and unit/population/time/sign objective-owner packet exists. That conflicts with both the exact original card and the published G decision. LA_r09 LA-035 (`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md`, `198076863e143dea9f89f02734b13d50dae3eed5`, lines 2066–2102; bound block SHA-256 `59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69`) asks for equivalent relocation of the historical normalized-income/budget baseline, preserving its formula, guards, and supported callers. It says a new objective/version is for a *confirmed* requirement to change ranking or maximize raw income."
+        },
+        {
+          "line": 9,
+          "text": "Published `closure-decisions/F.md@76746fececd1a183a516c48f07ce2835baa8a2d1`, § “ECO/FRY/Lex/API”, says moving the unchanged score needs no new normative approval; an accountable owner is needed only for a changed score/ranking or new welfare objective. The later source-qualified economics handoff `economic-baseline-consumer-proof-20261007.json@fa53da2812eaa8578f79ec914b3b2abe4c491f3d` binds F candidate `193b3582a72c640c1d06a131f93502654a77a36a` / tree `81c2e3e636bec4c5d81b8f918bb61cca6a49309b` to runtime source `8236d9c368336a5ea20c1586f29aea7321db6536` and reports zero product-source changes in the documentation/evidence candidate. Its independent review classifies the original LA-035 technical recommendation as closed for the original equivalent relocation (not formal G closure), explicitly says the added optimizer/welfare hold was superseded, and limits its census claim to 9,007 tracked source/config inputs with literal patterns; constructed, external, and untracked callers remain unknown. The native receipt records 83 passing tests on candidate `193b`, including the historical baseline, native guard/JIT/gradient, alias, and signed-route files."
+        },
+        {
+          "line": 11,
+          "text": "**Prompt correction:** remove the named optimizer and owner packet as LA-035 blockers. Preserve the bounded limitation that the maintained literal census does not establish constructed/external callers or production use; do not claim a production optimizer exists. Keep F’s recommendation and G’s formal acceptance/closure separate. If a future change alters the score/ranking or introduces a new welfare objective, then require an accountable owner and versioned objective for that change."
+        },
+        {
+          "line": 19,
+          "text": "There is already a small nonnegative mathematical oracle: `test_gini_science.py` uses a Fraction-based independent pairwise double-sum oracle, including small exhaustive populations and unit rescaling. The source-qualified `economic-science-profiles-20261006-economic-native-final-candidate.json@8236...` binds the prior run at `532ca1f5ff78dad58ac00d261aeabff3a99f9aa6` / tree `e157c672ee734a700795bbf921f2e3657aa8e9eb`; its complete output reports 244 passed. The positive hard-Gini arithmetic/test body is unchanged through `8236` (the delta adds domain refusal and adjusts the signed-zero-mean expectation). No repeat of this unchanged small-scale oracle is warranted. Be precise about the separate “64” count: `fa53.../independent-cau/independent_economic_oracle.py` reports 32 Fraction panels × eager/JIT = 64 comparisons for **LA-035 normalized-income/budget loss**, not Gini. Gini’s own Fraction pairwise oracle is in `test_gini_science.py`."
+        }
+      ]
+    }
+  ],
+  "classification": "OnlycurrentROOToperatingviews/currentforwardledgerchange. Datedreceipts/G97/R2/sourcecards retained with new supersedingcurrentlink; no inventedoptimizerblocker."
+}

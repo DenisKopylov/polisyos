@@ -1,0 +1,36 @@
+{
+  "label": "F06-P052",
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+    "--cell",
+    "F06-P052",
+    "--details",
+    "--limit",
+    "10000",
+    "--block-limit",
+    "10000"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006",
+  "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+  "exit": 0,
+  "elapsed_s": 2.5929934978485107,
+  "environment": {
+    "python": "3.12.14",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "scope": "metadata query only, not baseline or candidate backend runtime"
+  },
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-cells/F06-P052.stdout.json",
+    "bytes": 8867,
+    "sha256": "71dfad24a8a3476c3d9f83067aac747d86aab20348e6563aa5acb04154f78bb7"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-cells/F06-P052.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "display_complete": true,
+  "raw_archive_witness": false
+}

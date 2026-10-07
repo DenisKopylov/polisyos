@@ -1,0 +1,74 @@
+[
+  {
+    "id": "B214",
+    "ref": {
+      "criterion_id": "B214",
+      "document": "B_r19",
+      "lines": [
+        5218,
+        5229
+      ],
+      "sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+      "card": "GRF-03"
+    },
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "actual_bytes": 3537,
+    "actual_sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+    "hash_match": true
+  },
+  {
+    "id": "B218",
+    "ref": {
+      "criterion_id": "B218",
+      "document": "B_r19",
+      "lines": [
+        5361,
+        5374
+      ],
+      "sha256": "8ce1868ddb2663580547f475288d03502e03ae6a4bc38923313bc069efb0a40a",
+      "card": "GRF-03"
+    },
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "actual_bytes": 3861,
+    "actual_sha256": "8ce1868ddb2663580547f475288d03502e03ae6a4bc38923313bc069efb0a40a",
+    "hash_match": true
+  },
+  {
+    "id": "LA-004",
+    "ref": {
+      "criterion_id": "LA-004",
+      "document": "LA_r09",
+      "lines": [
+        167,
+        197
+      ],
+      "sha256": "6e02db40071d978f1bb642bfff99ad1eb8102a565e90238a90259ed15f5acf4a",
+      "card": "ECO-01"
+    },
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+    "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "actual_bytes": 3498,
+    "actual_sha256": "6e02db40071d978f1bb642bfff99ad1eb8102a565e90238a90259ed15f5acf4a",
+    "hash_match": true
+  },
+  {
+    "id": "LA-035",
+    "ref": {
+      "criterion_id": "LA-035",
+      "document": "LA_r09",
+      "lines": [
+        2066,
+        2102
+      ],
+      "sha256": "59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69",
+      "card": "ECO-01"
+    },
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+    "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "actual_bytes": 7176,
+    "actual_sha256": "59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69",
+    "hash_match": true
+  }
+]

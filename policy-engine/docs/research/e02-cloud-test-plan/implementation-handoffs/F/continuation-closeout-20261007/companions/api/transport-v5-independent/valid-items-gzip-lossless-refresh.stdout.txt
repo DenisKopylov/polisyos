@@ -1,0 +1,19 @@
+{
+  "output": {
+    "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip-lossless.selected.json",
+    "bytes": 6041,
+    "sha256": "8b5430f281106e96fb228255b7d60d9028d19de0e9a3d67911fddb83dea79624"
+  },
+  "counts": {
+    "logical_files": 5,
+    "unique_transport_files": 5,
+    "aliases": 0,
+    "existing_git_files": 0,
+    "changed_prior_inputs": 0,
+    "unique_raw_transport_bytes": 30585
+  },
+  "pending_extensions": [],
+  "root_source_writes": false,
+  "Git_writes": false,
+  "tests_run": false
+}

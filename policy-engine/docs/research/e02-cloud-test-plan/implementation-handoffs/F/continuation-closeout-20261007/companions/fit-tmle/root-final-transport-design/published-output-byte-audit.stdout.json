@@ -1,0 +1,40 @@
+{
+  "output": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/published-output-byte-audit.json",
+    "bytes": 1700,
+    "sha256": "79e4009249668a3fef6eb2d8d2e6e1650cd2ca26509f645aaafe23895cd1a759"
+  },
+  "results": [
+    {
+      "git_ref": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+      "manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/outputs.json",
+        "bytes": 104943,
+        "sha256": "1435329de7dede38088bbad0aebc1bd041c8043efab32e907e435143db648d18"
+      },
+      "logical_output_rows": 173,
+      "distinct_stored_paths": 173,
+      "gzip_full_decoded_verified": 96,
+      "stored_bytes_verified": 811803,
+      "outcome": "PASS",
+      "predicate_basis": "recomputed",
+      "scope": "Complete published stored and decoded output body custody; not scientific outcome transfer or institutional acceptance."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/outputs.json",
+        "bytes": 97077,
+        "sha256": "32476d0ecc8cf997bc9fa5bbb6cbc7f8579b64e0ce45f0968a2e2f9c67ed49af"
+      },
+      "logical_output_rows": 135,
+      "distinct_stored_paths": 98,
+      "gzip_full_decoded_verified": 48,
+      "stored_bytes_verified": 1561969,
+      "outcome": "PASS",
+      "predicate_basis": "recomputed",
+      "scope": "Complete published stored and decoded output body custody; not scientific outcome transfer or institutional acceptance."
+    }
+  ],
+  "wall_s": 0.7342083090043161
+}

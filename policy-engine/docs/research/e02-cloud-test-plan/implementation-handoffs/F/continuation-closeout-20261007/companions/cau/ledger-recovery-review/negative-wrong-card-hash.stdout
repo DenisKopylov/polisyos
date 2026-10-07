@@ -1,0 +1,23 @@
+{
+  "check": "FAIL",
+  "control": "wrong-card-hash",
+  "negative_harness_outcome": "PASS",
+  "target": {
+    "sha": "46cc03546f2572986962555ddf04d858163c1cf6",
+    "tree": "bb2ceacff846b68466a03fce767f7d300b18240e"
+  },
+  "denominator": {
+    "IDs": 35,
+    "bundles": 17,
+    "original_bindings": 36
+  },
+  "issues": [
+    {
+      "exception": "AssertionError",
+      "message": "original card bytes: B204"
+    }
+  ],
+  "complete_deciding_check_pointer_count": 0,
+  "elapsed_s": 0.2420318879885599
+}
+{"metadata_artifacts": 35, "primary_manifest_metadata": 0, "source_order_topics": 0, "output": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/negative-wrong-card-hash.json"}

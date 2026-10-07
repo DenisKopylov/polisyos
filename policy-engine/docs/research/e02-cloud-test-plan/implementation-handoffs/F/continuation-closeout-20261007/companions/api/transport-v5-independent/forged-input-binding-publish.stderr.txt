@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py", line 160, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py", line 108, in main
+    verify_original(row)
+    ~~~~~~~~~~~~~~~^^^^^
+  File "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py", line 42, in verify_original
+    raise ValueError(f'selected original changed: {path}: {actual}')
+ValueError: selected original changed: /tmp/e02-F-continuation-20261007/api/transport-v5-independent/b.gz: {'bytes': 35, 'sha256': '46ad8fc6824b091372172356068a8c6253108375f8cfd2a937ab654eb8fa0788'}

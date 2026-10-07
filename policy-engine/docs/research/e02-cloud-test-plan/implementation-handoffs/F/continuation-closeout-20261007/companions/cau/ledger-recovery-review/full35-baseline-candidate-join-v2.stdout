@@ -1,0 +1,20 @@
+{
+  "check": "PASS",
+  "denominator": {
+    "finding_IDs": 35,
+    "original_bindings": 36,
+    "bundles": 17,
+    "unique_baseline_cells": 118,
+    "complete_source_jobs": 15,
+    "deciding_primary_receipts": 26,
+    "deciding_receipt_reference_occurrences": 124,
+    "deciding_JSON_pointer_occurrences": 72,
+    "complete_check_pointer_refs": 446
+  },
+  "output": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/full35-baseline-candidate-join-v2.json",
+    "bytes": 1646412,
+    "sha256": "09874b57fa0f6b00ccde9c417122dd53b7ffd30646bae29b6ec7a931eecc1ab1"
+  },
+  "elapsed_s": 1.6768584079982247
+}

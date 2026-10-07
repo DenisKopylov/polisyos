@@ -1,0 +1,13 @@
+{
+  "logical_files": [],
+  "existing_declared_git_references": [],
+  "pending_extensions": [],
+  "source_window": {
+    "meaning": "Synthetic transport metadata only; real Git source identity is used to test parser binding."
+  },
+  "selection_inputs": [],
+  "policy": {
+    "sanitation": "none"
+  },
+  "counts": {}
+}

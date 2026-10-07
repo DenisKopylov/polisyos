@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py", line 205, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py", line 124, in main
+    if 'decoded_bytes' not in row or 'decoded_sha256' not in row:raise ValueError('declared gzip input needs complete decoded identity')
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: declared gzip input needs complete decoded identity

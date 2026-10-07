@@ -1,0 +1,216 @@
+Merge made by the 'ort' strategy.
+ .../reference/foundry/tmle-persisted-consumers.md  |   98 ++
+ .../F/tmle-persisted-consumers-20261007.json       | 1720 ++++++++++++++++++++
+ .../author/admission-before-freeze.json.gz         |  Bin 0 -> 11852 bytes
+ .../author/admission-before-freeze.stderr.txt      |    0
+ .../author/archive-inputs.stderr.txt               |    0
+ .../author/archive-inputs.stdout.txt               |    1 +
+ .../author/archive_synthetic_inputs.py             |   23 +
+ .../author/assemble_handoff.py                     |  122 ++
+ .../author/cas-input-manifest.json                 |  267 +++
+ .../author/causal_role-spec.json                   |   30 +
+ .../author/causal_role.json                        |  115 ++
+ .../author/causal_role.stderr.txt                  |    8 +
+ .../author/causal_role.stdout.txt                  |    1 +
+ .../author/census.stderr.txt                       |    0
+ .../author/census.stdout.txt                       |    1 +
+ .../author/census_replay.py                        |   52 +
+ .../author/collection_drop-spec.json               |   30 +
+ .../author/collection_drop.json                    |  115 ++
+ .../author/collection_drop.stderr.txt              |    9 +
+ .../author/collection_drop.stdout.txt              |    1 +
+ .../author/environment-frozen-spec.json            |   27 +
+ .../author/environment-frozen.json                 |  112 ++
+ .../author/environment-frozen.stderr.txt           |    0
+ .../author/environment-frozen.stdout.txt           |   37 +
+ .../author/environment_probe.py                    |   20 +
+ .../author/format-check.stderr.txt                 |    0
+ .../author/format-check.stdout.txt                 |    1 +
+ .../author/format-frozen-spec.json                 |   31 +
+ .../author/format-frozen.json                      |  116 ++
+ .../author/format-frozen.stderr.txt                |    0
+ .../author/format-frozen.stdout.txt                |    1 +
+ .../author/format.stderr.txt                       |    0
+ .../author/format.stdout.txt                       |    1 +
+ .../author/fragment-corrected-spec.json            |   30 +
+ .../author/fragment-corrected.json                 |  130 ++
+ .../author/fragment-corrected.stderr.txt           |    0
+ .../author/fragment-corrected.stdout.txt           |   24 +
+ .../author/fragment-origin-note.json               |    4 +
+ .../author/fragment-spec.json                      |   27 +
+ .../author/fragment-tool-source-equivalence.json   |   18 +
+ .../author/fragment.json                           |  112 ++
+ .../author/fragment.stderr.txt                     |    7 +
+ .../author/fragment.stdout.txt                     |    1 +
+ .../author/fragment_check.py                       |   16 +
+ .../author/fresh-reader-corrected.stderr.txt       |    8 +
+ .../author/fresh-reader-corrected.stdout.txt       |    0
+ .../author/fresh-reader-normalized.stderr.txt      |    0
+ .../author/fresh-reader-normalized.stdout.txt      |    1 +
+ .../author/lint-fix.stderr.txt                     |    0
+ .../author/lint-fix.stdout.txt                     |    1 +
+ .../author/lint-frozen-spec.json                   |   30 +
+ .../author/lint-frozen.json                        |  115 ++
+ .../author/lint-frozen.stderr.txt                  |    0
+ .../author/lint-frozen.stdout.txt                  |    1 +
+ .../author/lint.stderr.txt                         |    0
+ .../author/lint.stdout.txt                         |    1 +
+ .../author/native-cas-input.tar.gz                 |  Bin 0 -> 19059 bytes
+ .../author/native-census.json                      |  636 ++++++++
+ .../author/native-spec.json                        |   36 +
+ .../author/native.json                             |  121 ++
+ .../author/native.stderr.txt                       |    0
+ .../author/native.stdout.txt.gz                    |  Bin 0 -> 15299 bytes
+ .../author/native.xml                              |    1 +
+ .../author/probe-corrected.stderr.txt              |    0
+ .../author/probe-corrected.stdout.txt.gz           |  Bin 0 -> 12902 bytes
+ .../author/probe.stderr.txt                        |    2 +
+ .../author/probe.stdout.txt                        |   15 +
+ .../author/producer-packet.json                    |   68 +
+ .../author/removal_replay.py                       |   48 +
+ .../author/run_check.py                            |   53 +
+ .../author/source-and-owner-packet.json            |  415 +++++
+ .../author/source-audit.stderr.txt                 |    0
+ .../author/source-audit.stdout.txt                 |    1 +
+ .../author/source-diff-check.json                  |   25 +
+ .../author/source-diff-check.stderr.txt            |    0
+ .../author/source-diff-check.stdout.txt            |    0
+ .../author/source_audit.py                         |   63 +
+ .../author/staged-raw-diff-check.json              |   24 +
+ .../author/staged-raw-diff-check.stderr.txt        |    0
+ .../author/staged-raw-diff-check.stdout.txt        |    2 +
+ .../independent/capture_mixed.py                   |   36 +
+ .../independent/capture_native.py                  |   25 +
+ .../independent/cas-input-manifest.json            |  227 +++
+ .../independent/check_mixed_native_consumer.py     |   64 +
+ .../independent/finish_review.py                   |   56 +
+ .../independent/malformed_top.json                 |   52 +
+ .../independent/malformed_top.stderr.txt           |    2 +
+ .../independent/malformed_top.stdout.txt           |    2 +
+ .../independent/mixed-controls.json                |  166 ++
+ .../independent/mixed_priority.json                |   52 +
+ .../independent/mixed_priority.stderr.txt          |    2 +
+ .../independent/mixed_priority.stdout.txt          |    2 +
+ .../independent/native-cas-input.tar.gz            |  Bin 0 -> 18922 bytes
+ .../independent/native-command.json                |   46 +
+ .../independent/native-result.json                 |   59 +
+ .../tmle-consumers0/producer-packet.json           |   68 +
+ .../independent/native.stderr.txt                  |    0
+ .../independent/native.stdout.txt.gz               |  Bin 0 -> 15244 bytes
+ .../independent/native.xml                         |    1 +
+ .../independent/remove_role_issue.json             |   52 +
+ .../independent/remove_role_issue.stderr.txt       |    7 +
+ .../independent/remove_role_issue.stdout.txt       |    1 +
+ .../independent/review.json                        |  289 ++++
+ .../independent/transfer-selection.json            |  123 ++
+ .../tmle-persisted-consumers-20261007/outputs.json | 1030 ++++++++++++
+ .../2026-10-07-tmle-persisted-consumers.toml       |   24 +
+ .../test_tmle_persisted_evidence_consumers.py      |  363 +++++
+ 107 files changed, 7724 insertions(+)
+ create mode 100644 policy-engine/docs/reference/foundry/tmle-persisted-consumers.md
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/admission-before-freeze.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/admission-before-freeze.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/archive-inputs.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/archive-inputs.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/archive_synthetic_inputs.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/assemble_handoff.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/cas-input-manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/causal_role-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/causal_role.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/causal_role.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/causal_role.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/census.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/census.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/census_replay.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/collection_drop-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/collection_drop.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/collection_drop.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/collection_drop.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/environment-frozen-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/environment-frozen.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/environment-frozen.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/environment-frozen.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/environment_probe.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/format-check.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/format-check.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/format-frozen-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/format-frozen.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/format-frozen.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/format-frozen.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/format.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/format.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment-corrected-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment-corrected.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment-corrected.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment-corrected.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment-origin-note.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment-tool-source-equivalence.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment_check.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fresh-reader-corrected.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fresh-reader-corrected.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fresh-reader-normalized.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fresh-reader-normalized.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/lint-fix.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/lint-fix.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/lint-frozen-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/lint-frozen.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/lint-frozen.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/lint-frozen.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/lint.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/lint.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/native-cas-input.tar.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/native-census.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/native-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/native.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/native.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/native.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/native.xml
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/probe-corrected.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/probe-corrected.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/probe.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/probe.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/producer-packet.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/removal_replay.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/run_check.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-and-owner-packet.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-audit.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-audit.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-diff-check.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-diff-check.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-diff-check.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source_audit.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/staged-raw-diff-check.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/staged-raw-diff-check.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/staged-raw-diff-check.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/capture_mixed.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/capture_native.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/cas-input-manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/check_mixed_native_consumer.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/finish_review.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/malformed_top.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/malformed_top.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/malformed_top.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/mixed-controls.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/mixed_priority.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/mixed_priority.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/mixed_priority.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native-cas-input.tar.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native-command.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native-result.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native-tmp/tmle-consumers0/producer-packet.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native.xml
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/remove_role_issue.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/remove_role_issue.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/remove_role_issue.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/review.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/transfer-selection.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/outputs.json
+ create mode 100644 policy-engine/release-fragments/unreleased/2026-10-07-tmle-persisted-consumers.toml
+ create mode 100644 policy-engine/tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py

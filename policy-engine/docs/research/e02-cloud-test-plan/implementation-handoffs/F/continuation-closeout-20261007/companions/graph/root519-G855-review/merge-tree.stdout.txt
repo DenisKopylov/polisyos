@@ -1,0 +1,8 @@
+9ac56f67695e9244a55c2c8a63c77263808a0588
+policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md
+policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md
+
+Auto-merging policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md
+CONFLICT (content): Merge conflict in policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md
+Auto-merging policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md
+CONFLICT (content): Merge conflict in policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md

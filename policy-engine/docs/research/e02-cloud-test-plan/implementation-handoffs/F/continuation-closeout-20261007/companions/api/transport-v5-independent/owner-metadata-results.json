@@ -1,0 +1,39 @@
+{
+  "outcome": "PASS",
+  "complete_selector_metadata_only": true,
+  "selected_large_payloads_read": false,
+  "inputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/transfer-selection.json",
+      "bytes": 13972,
+      "sha256": "664e03368ab39b6a28206906af574d557d69c125195e5f6d21df9807779cd1b2",
+      "schema": "files",
+      "rows": 42,
+      "encodings": {
+        "identity": 36,
+        "gzip": 6
+      }
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/transfer-selection-final.json",
+      "bytes": 17608,
+      "sha256": "65409d69d6fdfd29a101b4b66aee5ca2ab3fdd34e837ac02689248ffa2dd2716",
+      "schema": "selection",
+      "rows": 73,
+      "encodings": {
+        "identity": 73
+      }
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/final-review-transfer-selection.json",
+      "bytes": 164923,
+      "sha256": "58885bdbb9bd1c366dedf1b1cce0695e4505ee3f07f6e53bbc9405a09d747ee7",
+      "schema": "items",
+      "rows": 563,
+      "encodings": {
+        "identity": 561,
+        "gzip-lossless": 2
+      }
+    }
+  ]
+}

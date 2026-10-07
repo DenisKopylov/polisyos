@@ -1,0 +1,21 @@
+Merge made by the 'ort' strategy.
+ .../data-forge/catalog-default-resources.md        |  42 ++++
+ policy-engine/hatch.toml                           |   9 +
+ .../2026-10-07-catalog-default-resources.toml      |  28 +++
+ .../src/polisyos/data_forge/domains/README.md      |  11 +
+ .../data_forge/domains/catalog/_resources.py       |  46 +++++
+ .../data_forge/domains/catalog/batch/config.py     |   3 +-
+ .../domains/catalog/batch/core_sources/loaders.py  |  25 +--
+ .../data_forge/domains/catalog/batch/harvester.py  |   8 +-
+ .../domains/catalog/knowledge/proxy_penalties.py   |   9 +-
+ .../catalog/knowledge/variable_alignment.py        |   9 +-
+ .../src/polisyos/data_forge/read_api/catalog.py    |   5 +-
+ .../src/polisyos/fabric/connectors/sources/wvs.py  |   8 +-
+ .../test_catalog_default_resources_packaging.py    | 105 ++++++++++
+ .../catalog/test_catalog_default_resources.py      | 222 +++++++++++++++++++++
+ 14 files changed, 485 insertions(+), 45 deletions(-)
+ create mode 100644 policy-engine/docs/reference/data-forge/catalog-default-resources.md
+ create mode 100644 policy-engine/release-fragments/unreleased/2026-10-07-catalog-default-resources.toml
+ create mode 100644 policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py
+ create mode 100644 policy-engine/tests/repo_quality/tools/test_catalog_default_resources_packaging.py
+ create mode 100644 policy-engine/tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py

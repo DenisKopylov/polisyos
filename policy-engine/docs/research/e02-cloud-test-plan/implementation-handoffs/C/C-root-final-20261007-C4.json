@@ -1,0 +1,213 @@
+{
+  "schema": "policyos.e02.C.continuation_root_carrier.v1",
+  "date": "2026-10-07",
+  "status": "C4_topics_published_and_full54_recommendations_reviewed_G_admission_separate",
+  "root_parent": {
+    "commit": "1806b7815887f354c4d25018b5ab430158f7352c",
+    "tree": "7a1d531eeb82bff31401ccdb83bac224a3ae0b1b"
+  },
+  "current_main": {
+    "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+    "anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+    "anchor_ancestry_exit": 0
+  },
+  "G_intake_frozen": {
+    "commit": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+    "tree": "dc1a7697f506b23f2db0f1c80bf929fd2d6a2e0d"
+  },
+  "later_fetched_G_metadata": {
+    "commit": "75ccf4dd211ad7fffa9430a84848b59d5ebf0886",
+    "tree": "4437fcf9a2ff7fe62a973ee9f120170df547ae6a",
+    "scope": "78 E02 docs/evidence paths since83; no outside-E02 source delta; F35 README+twelfth owner-action correction read; no new runtime admitted or formal closure. F current installed evidence is available, distinct from missing conditional feature law."
+  },
+  "publication_scope": "Own codex/e02-C-* topics only; no main/integration push, force, history rewrite, cherry-pick, or other-user-chat messages. G is sole integration publisher.",
+  "handoff_refs": {
+    "C54_handoff": {
+      "commit": "847929e3e0cac30fb49ff61a47ecaf46d41ac94d",
+      "tree": "c4c392e8ecad5f1fb33297d8cbaa28597b22357c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-c54-c4-final-handoff-20261007.json",
+      "git_blob": "27dacfc62902e6dde7f8266151244d7b07bb82b9",
+      "sha256": "164e5662a0dc689f4e5f4c8dd6964b387280258642d2a954c9575ddade395f9e",
+      "bytes": 24445
+    },
+    "C54_table_json": {
+      "commit": "847929e3e0cac30fb49ff61a47ecaf46d41ac94d",
+      "tree": "c4c392e8ecad5f1fb33297d8cbaa28597b22357c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c4-v4.json",
+      "git_blob": "466f4035d8634776b76cf4c6106b6bb99e003077",
+      "sha256": "4c15e33ea012250934a28d80392fa8483674a5e04b5f3072b4bfc49d087faa84",
+      "bytes": 671142
+    },
+    "C54_table_markdown": {
+      "commit": "847929e3e0cac30fb49ff61a47ecaf46d41ac94d",
+      "tree": "c4c392e8ecad5f1fb33297d8cbaa28597b22357c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c4-v4.md",
+      "git_blob": "1f9a567ad3341117d1629063f38599366d6b1f95",
+      "sha256": "21dc4f7d4c579b6e2a8cff1e85e8ad917e77d1ace631cc504fd13bf561167bad",
+      "bytes": 457947
+    },
+    "C54_canonical_input": {
+      "commit": "847929e3e0cac30fb49ff61a47ecaf46d41ac94d",
+      "tree": "c4c392e8ecad5f1fb33297d8cbaa28597b22357c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-c4-current-root-adjudication-input.json",
+      "git_blob": "ec9067386657d7d36c808c80c810b74b9c6b7797",
+      "sha256": "2a28e729aeb7ef02740745a3a73c4dbbcf7af4464c567a98547f1b6ca23ac93d",
+      "bytes": 83777
+    },
+    "CAN": {
+      "commit": "60b523c2d0e1a587f2f1d4b92a0ac9a89a1f49db",
+      "tree": "75308c9d306bc8187008613597f2acc917cb0d74",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-canonical-json-mapping-20261007.json",
+      "git_blob": "6dda17e5d9c2e04c383883bda5e8196c319d9d4b",
+      "sha256": "529f473f1546e1035f7abb0571d08088fb1f1d1749cf655e7248c8f2bdccd1bc",
+      "bytes": 49591
+    },
+    "NET_ING": {
+      "commit": "373c9623071f60c08f5e362e61d211829e5d8f5a",
+      "tree": "dece08804715a9288aa17281532c4f58cb249bda",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-net-ing-owner-overlap-20261007.json",
+      "git_blob": "31e59a5fe2c4228c6cd8708b971642eab727af61",
+      "sha256": "bae4a34c8433e5b853f6f4bdc7147fdc88142a0b0de4a2878f3906692fc274da",
+      "bytes": 32852
+    },
+    "B_oracle_owner_packet": {
+      "commit": "12d77b34ea845adde0bf27a653fa70fd2ea8ad35",
+      "tree": "a5a0199ac0ed470c76ab7afbe016020fd65247fb",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/stream-oracle-owner-packet-20261007.json",
+      "git_blob": "74c22b32d16edf22631ece1166107bbff52271b6",
+      "sha256": "0822a809281977b2df75df791915b39f65993ac2247758dd8140db671ea0140c",
+      "bytes": 6508
+    },
+    "Root_intake_index": {
+      "commit": "1806b7815887f354c4d25018b5ab430158f7352c",
+      "tree": "7a1d531eeb82bff31401ccdb83bac224a3ae0b1b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/evidence-index.json",
+      "git_blob": "b05942988ab9449a28401c4a5396e026bac75098",
+      "sha256": "eaf723b091acf6d385f601d39aa4cd1d632ce001695b009a43b3daddbdd3b298",
+      "bytes": 9977
+    }
+  },
+  "implementation_slices": [
+    {
+      "family": "CAN",
+      "branch": "codex/e02-C-canon-20261006",
+      "slice_base": "79cbb05c90026973a32022ca02c63877b2cde1a5",
+      "implementation_commit": "e3cb3fafc847b94a5d4b3adc03b814b4c711920c",
+      "implementation_tree": "2d27c9c182cf550088c5a8c072dc2f36df84e20d",
+      "full_source_test_companion_diff_paths": [
+        "policy-engine/release-fragments/unreleased/2026-10-07-e02-canon-json-mapping.toml",
+        "policy-engine/src/polisyos/ir/artifacts/README.md",
+        "policy-engine/src/polisyos/ir/artifacts/io.py",
+        "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py"
+      ],
+      "scope": "One shared IR Mapping intake; actual typed FileSystemCAS manifest JSON-mode readback; strict pre-byte negatives; no B Core-store changes.",
+      "code_admission": "G decision pending"
+    },
+    {
+      "family": "NET_ING",
+      "branch": "codex/e02-C-net-ing-20261007",
+      "slice_base": "13c0cde6bd8275d5b8d0deb73affa198325aa7c0",
+      "implementation_commit": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+      "implementation_tree": "267fef2e1a46aee7a7b2c1f6baaa00bf66e3cbd9",
+      "full_source_test_companion_diff_paths": [
+        "policy-engine/tests/unit/fabric/data_plane/test_net_ing_registry_cleanup.py"
+      ],
+      "scope": "Test-only fresh-session cleanup owner overlap on unchanged composed C07+B121 runtime; file:// connector handle obligation, no physical FD/socket claim.",
+      "code_admission": "G decision pending"
+    },
+    {
+      "family": "C54_bookkeeping",
+      "branch": "codex/e02-C-c54-bindings-20261007",
+      "slice_base": "9b92ce235a6ae85085109b0bec2916a7b3ae732b",
+      "implementation_commit": "c4e13a8c520d4a2fbf15b088642d0f88f8a1dbc5",
+      "implementation_tree": "043007706d1e781b2801d3adc76e03508c68751e",
+      "full_source_test_companion_diff_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/build_c54_final_adjudicated.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py"
+      ],
+      "scope": "Two canonical metadata generator/validator owners; original criteria/owner joins, provenance roles, explicit next actions. Not a product verification wave.",
+      "code_admission": "G decision pending"
+    }
+  ],
+  "complete_denominator_and_statuses": {
+    "source": "exact Git report+G83 coverage+main198 CD01/CD02",
+    "report_commit": "847929e3e0cac30fb49ff61a47ecaf46d41ac94d",
+    "rows": 54,
+    "bundles": 33,
+    "criterion_occurrences": 59,
+    "all_ids_join": true,
+    "all_original_wording_span_hashes_equal": true,
+    "all54_explicit_decision_action_and_owner_bindings": true,
+    "root_recommendations": {
+      "closed": 31,
+      "limited": 9,
+      "held": 14
+    },
+    "G_formal": {
+      "not_adjudicated": 54
+    },
+    "proof_scope": "C metadata/finding recommendation reconciliation only; no new runtime or authority admission"
+  },
+  "runtime_results": {
+    "CAN": "46 frozen affected source tests PASS; independent actual-CAS full unchanged JSON-mode Mapping oracle plus19 strict pre-byte refusals and normalizer-removal control. Current e3 noneditable wheel UNRUN, exact offline Hatchling backend unavailable; older55 wheel predates7linefix. LA021 overall held.",
+    "NET_ING": "10 selected current-composition checks PASS and independent new1-test GO. Restored2row/cap1 refuses before poll/flush/commit/CAS write; cap3 recovers exact rows/lineage. Registry retains exact old pool/handle across fresh successful session; permit remains returned once; shutdown retries owner. Retention-removal control RED as expected. EventStream.disconnect is no-op, so no OS-FD/hard physical-capacity/RSS claim; B87 remains outsideC54/open.",
+    "B_oracle": "Two B pool selectors remain UNRUN pending B decoder-only canonical JSON key-pair fixture correction; source semantics unchanged. Prior B1/1 and7/1 are separate old0915 runs, not current80af or G execution.",
+    "C54": "Independent source/data GO and canonical replay/controls. C2/C3 prior outputs remain byte-identical; all54 original criterion-backed action/owner rows reviewed,59 spans reconciled,4 empty labels historical andB139 label disagreement retained. No ledger/formal closure update."
+  },
+  "production_inputs": "Local read-only. No production rows/text/vectors/weights scanned/exported or full DB hash made. LA040 selected19GB DB present; no paired persisted Legal generation/query/profile/immutable assets in reviewed inputs; ordered membership digest not established under no-row-read restriction. C-W04 supplies pair first; no legally-current inference or rawDBhash proxy.",
+  "remaining_work": "Every finding has a separate missing input, remaining verification, next_action and next_owner in the exact v4 table. 31 finite closed recommendations carry their scopes;9limited/14held remain with named inputs/owners. G decides code admission and formal finding closure; broad integrated replay only after its source freeze.",
+  "pattern_pass": {
+    "P29": "Actual CAN CAS/readback and stream/registry paths plus property-removal controls; bookkeeping verification not product PASS.",
+    "P35": "Complete33/54/59 joins and exact original spans; baseline query samples navigation only.",
+    "P37": "Git-byte/input predicates recomputed; independent property/data review independently_reconciled; unsupplied law/source/rights/profile predicates not_established and not promoted.",
+    "P38": "JSON-mode tuple/list ABI fixed at shared intake; primary criterion scope vsfamily/finding-name proxy fixed; next_action actual decision-source role binding, not text inequality.",
+    "P39": "Mechanism1CAN path; companions README/test/release outside mechanism count; NETtest-only; C54two canonical metadata paths. Full diff paths above.",
+    "P40": "Class fixes and declared bounded residuals: no rawCore admission, physicalFD proof, conditional law authority or production membership manufactured.",
+    "P41": "No inherited-red assertion; historical Bsource failures and source-representation setup failures not transferred across trees. Unknown broad architecture/Ruff red attribution remains not_established."
+  },
+  "receipts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-final/C54.json",
+      "sha256": "8a79c7d435298631746766a5cfc60ea42578c0c594d908d23047d2bc55dff62d",
+      "bytes": 6020
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-final/Root-intake.json",
+      "sha256": "0b2fe311c4dfdaa78a3e4a1545dd8861c7b0e87f336589fc3afdf966cbe7b03f",
+      "bytes": 9765
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-final/main-G-final-fetch.json",
+      "sha256": "836d4ec1cb6f0d09ea2065a62cd19f5a10e8052efda596b1c64c5d7870aba017",
+      "bytes": 10896
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-final/root-full54-reconciliation.json",
+      "sha256": "327c2e2ce5483ee5e831a8969c1219c4eb1f86e1ae228162d0618f2ca1f71b89",
+      "bytes": 570
+    }
+  ],
+  "cleanup": {
+    "receipt": {
+      "commit": "1806b7815887f354c4d25018b5ab430158f7352c",
+      "tree": "7a1d531eeb82bff31401ccdb83bac224a3ae0b1b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/evidence-index.json",
+      "git_blob": "b05942988ab9449a28401c4a5396e026bac75098",
+      "sha256": "eaf723b091acf6d385f601d39aa4cd1d632ce001695b009a43b3daddbdd3b298",
+      "bytes": 9977
+    },
+    "operation": "Native macOS FileManager.trashItem only",
+    "completed_objects": 1,
+    "object": "Unused incomplete private NET policy-engine/.venv",
+    "readback": "Exact device/inode unchanged at Trash destination;15 regular file hashes verified; source absent; Trash not emptied. Managed interpreter/cache, production, code/docs and all ignored audit reports/probes/deciding evidence preserved."
+  },
+  "procedure_and_limitations": {
+    "hooks": "Unavailable Lefthook hooks UNRUN; one-command core.hooksPath override, no persistent config change.",
+    "diagnostic": "CAN broad production_invocation static scan not candidate-bound, runtime_invocation_established=false, CLIexitunknown; not a passing gate. Large original ignored raw report preserved.",
+    "readback_correction": "Root briefly compared latest input to retained historicalv2 instead of correctedv3; reconciled exactpaths, no product defect or source repair asserted. Finalv4 paired source/input/output verified.",
+    "review_receipt_erratum": "C54 original review immutable552 with separate erratum superseding staleinlinee0manifest after reviewer appended reportSHA to manifest; actualff4/fulloutputs indexed in finalhandoff.",
+    "unrun": "Currente3 installedwheel; B2 decoder-boundselectors; frozenNETenv missingofflinejaxlib; optional/Linux/backends/rawVM/production membership and broadGintegration wave. Each exactboundary remains perrow, not a blanket prerequisite."
+  },
+  "delivery": "Implementation commits precede separate machine handoffs. Root verified attached branches/full footprints/ancestry and remote heads/trees/handoff bytes before this carrier. Carrier own-commit publication readback recorded after commit to avoid self-reference."
+}

@@ -1,0 +1,60 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "fetch",
+        "origin",
+        "main",
+        "codex/e02-integration"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "From https://github.com/DenisKopylov/polisyos\n * branch                main       -> FETCH_HEAD\n * branch                codex/e02-integration -> FETCH_HEAD\n",
+      "wall_seconds": 0.5740608749911189
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/main",
+        "origin/main^{tree}",
+        "origin/codex/e02-integration",
+        "origin/codex/e02-integration^{tree}"
+      ],
+      "exit_code": 0,
+      "stdout": "198076863e143dea9f89f02734b13d50dae3eed5\n2b754a92c27959e2e747738d47ed0b419f3b6dd8\n75ccf4dd211ad7fffa9430a84848b59d5ebf0886\n4437fcf9a2ff7fe62a973ee9f120170df547ae6a\n",
+      "stderr": "",
+      "wall_seconds": 0.007653083011973649
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "1ddcd7b3905e52c0d19db091823a64830139fa64",
+        "origin/main"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "wall_seconds": 0.006579458015039563
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "origin/codex/e02-integration"
+      ],
+      "exit_code": 0,
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/F-resume-after-25c-focused.md\npolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/F-resume-after-offline-519e.md\npolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/F.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/README.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/candidate_runtime.py\npolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/execution-context.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/probe.stderr\npolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/probe.stdout\npolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/pytest-repaired.stderr\npolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/pytest-repaired.stdout\npolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/pytest.stderr\npolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/pytest.stdout\npolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/receipt.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/repair-context.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/report.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/run_checks.py\npolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/run_repair.py\npolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/selected-tests-pytest-repaired.junit.xml\npolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/selected-tests.junit.xml\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/B214.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/B56.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/GCM.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/README.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/all-35.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/decisions.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/estimators.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/final-semantic-review.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/migrations.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/README.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/deciding.stderr.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/deciding.stdout.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/execution.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/admg-control-request.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/admg-control.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/dag-control-request.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/dag-control.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-builder-arguments.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-builder-unscored.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-target-request.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-target.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/admg-control.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/dag-control.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/mgraph-target.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/preflight.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/probe.py\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/published-files.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/receipt.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/report.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/run-native.py\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.execution.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.stderr.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.stdout.txt\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/publication-links-review.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/storage/README.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/storage/completed-G-checks-F35-intents.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/storage/completed-G-checks-F35-native.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/storage/completed-G-checks-F35-preserved.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/B-custody.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/B-imported-consumers.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/B-model-oracle.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/B-model-runtime.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/E-companion-plan.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/E-ratio-consumers.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/E-ratio-evidence.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/E-ratio-oracle.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/E-ratio-runtime.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/F-catalog.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/F-graph.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/F-recovery-evidence.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/README.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/final-publication-review.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/identity.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/owner-actions.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/pins.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/storage/README.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/storage/audit.md\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/storage/native-Trash.json\npolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/storage/preflight.json\n",
+      "stderr": "",
+      "wall_seconds": 0.009295083000324667
+    }
+  ],
+  "all_delta_paths": 78,
+  "outside_e02_docs_paths": [],
+  "scope": "later metadata readback; frozen source/review input remains G83; no checkout/history change"
+}

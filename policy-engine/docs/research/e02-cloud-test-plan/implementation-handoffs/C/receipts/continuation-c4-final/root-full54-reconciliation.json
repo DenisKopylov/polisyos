@@ -1,0 +1,19 @@
+{
+  "source": "exact Git report+G83 coverage+main198 CD01/CD02",
+  "report_commit": "847929e3e0cac30fb49ff61a47ecaf46d41ac94d",
+  "rows": 54,
+  "bundles": 33,
+  "criterion_occurrences": 59,
+  "all_ids_join": true,
+  "all_original_wording_span_hashes_equal": true,
+  "all54_explicit_decision_action_and_owner_bindings": true,
+  "root_recommendations": {
+    "closed": 31,
+    "limited": 9,
+    "held": 14
+  },
+  "G_formal": {
+    "not_adjudicated": 54
+  },
+  "proof_scope": "C metadata/finding recommendation reconciliation only; no new runtime or authority admission"
+}

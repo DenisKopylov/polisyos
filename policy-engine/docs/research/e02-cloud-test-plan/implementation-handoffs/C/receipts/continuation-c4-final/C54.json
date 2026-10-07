@@ -1,0 +1,198 @@
+{
+  "commit": "847929e3e0cac30fb49ff61a47ecaf46d41ac94d",
+  "tree": "c4c392e8ecad5f1fb33297d8cbaa28597b22357c",
+  "handoff_sha256": "164e5662a0dc689f4e5f4c8dd6964b387280258642d2a954c9575ddade395f9e",
+  "all37_receipt_and_canonical_artifacts_verified": true,
+  "entry_count": 37,
+  "hook_status": "UNRUN; authorized task-scoped override only",
+  "records": [
+    {
+      "argv": [
+        "git",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.006130750000011176,
+      "stdout": "refs/heads/codex/e02-C-c54-bindings-20261007\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.005576958006713539,
+      "stdout": "847929e3e0cac30fb49ff61a47ecaf46d41ac94d\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.006295541999861598,
+      "stdout": "c4c392e8ecad5f1fb33297d8cbaa28597b22357c\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.07071662496309727,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "9b92ce235a6ae85085109b0bec2916a7b3ae732b",
+        "847929e3e0cac30fb49ff61a47ecaf46d41ac94d"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.010063958005048335,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "c4e13a8c520d4a2fbf15b088642d0f88f8a1dbc5",
+        "847929e3e0cac30fb49ff61a47ecaf46d41ac94d"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.007357000024057925,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "613cfb589df239dc0b62e0ab1a5ed60eab42c17e",
+        "847929e3e0cac30fb49ff61a47ecaf46d41ac94d"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.006418749981094152,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "847929e3e0cac30fb49ff61a47ecaf46d41ac94d^",
+        "847929e3e0cac30fb49ff61a47ecaf46d41ac94d"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.008116707962471992,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--exit-code",
+        "c4e13a8c520d4a2fbf15b088642d0f88f8a1dbc5",
+        "847929e3e0cac30fb49ff61a47ecaf46d41ac94d",
+        "--",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/build_c54_final_adjudicated.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.008242540992796421,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "push",
+        "origin",
+        "codex/e02-C-c54-bindings-20261007"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 2.6103787499596365,
+      "stdout": "",
+      "stderr": "To https://github.com/DenisKopylov/polisyos.git\n   9b92ce235..847929e3e  codex/e02-C-c54-bindings-20261007 -> codex/e02-C-c54-bindings-20261007\n"
+    },
+    {
+      "argv": [
+        "git",
+        "ls-remote",
+        "--heads",
+        "origin",
+        "refs/heads/codex/e02-C-c54-bindings-20261007"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.9025323749519885,
+      "stdout": "847929e3e0cac30fb49ff61a47ecaf46d41ac94d\trefs/heads/codex/e02-C-c54-bindings-20261007\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "fetch",
+        "origin",
+        "codex/e02-C-c54-bindings-20261007"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.5749245409970172,
+      "stdout": "",
+      "stderr": "From https://github.com/DenisKopylov/polisyos\n * branch                codex/e02-C-c54-bindings-20261007 -> FETCH_HEAD\n"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/codex/e02-C-c54-bindings-20261007"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.005554125003982335,
+      "stdout": "847929e3e0cac30fb49ff61a47ecaf46d41ac94d\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/codex/e02-C-c54-bindings-20261007^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.005960750044323504,
+      "stdout": "c4c392e8ecad5f1fb33297d8cbaa28597b22357c\n",
+      "stderr": ""
+    }
+  ]
+}

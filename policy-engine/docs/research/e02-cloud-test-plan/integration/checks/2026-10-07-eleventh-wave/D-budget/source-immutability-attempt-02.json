@@ -1,0 +1,18 @@
+{
+  "before": {
+    "label": "before",
+    "candidate_sha": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+    "candidate_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+    "files_checked": 2926,
+    "status": "PASS",
+    "mismatches": []
+  },
+  "after": {
+    "label": "after",
+    "candidate_sha": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+    "candidate_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+    "files_checked": 2926,
+    "status": "PASS",
+    "mismatches": []
+  }
+}

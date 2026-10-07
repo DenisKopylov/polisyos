@@ -1,0 +1,51 @@
+{
+  "candidate": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate_runtime.py",
+    "pytest-repaired"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine",
+  "elapsed_seconds": 17.448,
+  "g_branch_after": "codex/e02-integration",
+  "g_head_after": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+  "g_status_after": "",
+  "junit": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/results/selected-tests-pytest-repaired.junit.xml",
+  "repair_reason": "The first exact-source pytest attempt stopped during collection because source-derived dependency-authority import read tracked architecture registry assets outside src; the repair adds only five files from the same d18 commit, including the full declared source-path inputs.",
+  "returncode": 1,
+  "snapshots": [
+    {
+      "disk_free_bytes": 24933957632,
+      "disk_total_bytes": 245107195904,
+      "disk_used_bytes": 220173238272,
+      "label": "after",
+      "python_processes": [
+        "39919   0.0   7568 /opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python -",
+        "85178  34.0  26432 policy-engine/.venv/bin/python policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/run_repair.py"
+      ],
+      "time_monotonic": 386880.247935416
+    }
+  ],
+  "source_after": {
+    "errors": [],
+    "file_count": 2930,
+    "manifest": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/source-manifest-final.json",
+    "manifest_sha256": "7acd947c73c92b40dd30114ae7d252354ca199050b83696cc465f2d03ee46e92",
+    "total_bytes": 56046040,
+    "verified": true
+  },
+  "source_before": {
+    "errors": [],
+    "file_count": 2930,
+    "manifest": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/source-manifest-final.json",
+    "manifest_sha256": "7acd947c73c92b40dd30114ae7d252354ca199050b83696cc465f2d03ee46e92",
+    "total_bytes": 56046040,
+    "verified": true
+  },
+  "source_unchanged": true,
+  "stderr": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/results/pytest-repaired.stderr",
+  "stdout": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/results/pytest-repaired.stdout",
+  "timed_out": false,
+  "timeout_seconds": 180,
+  "tree": "d4faa64e884c863bdd8c4692432bff4bbd102c54"
+}

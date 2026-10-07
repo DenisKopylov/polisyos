@@ -1,0 +1,90 @@
+{
+  "schema": "policyos.e02.source_publication_readback.v1",
+  "candidate_sha": "2350edfba4e71909fbc615fe3101793b1b13945a",
+  "candidate_tree_sha": "fb4486cb39dc44b1ef09ea1e280df8b640b772ba",
+  "topic_branch": "codex/e02-E-frc-20261006",
+  "normal_append_only_push_exit_code": 0,
+  "remote_and_tracking_readback": [
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD",
+        "HEAD^{tree}",
+        "refs/remotes/origin/codex/e02-E-frc-20261006",
+        "refs/remotes/origin/codex/e02-E-frc-20261006^{tree}"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006",
+      "exit_code": 0,
+      "stdout": "final-tracking-readback.stdout.txt",
+      "stderr": "final-tracking-readback.stderr.txt"
+    },
+    {
+      "argv": [
+        "git",
+        "ls-remote",
+        "--heads",
+        "origin",
+        "codex/e02-E-frc-20261006"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006",
+      "exit_code": 0,
+      "stdout": "final-remote-readback.stdout.txt",
+      "stderr": "final-remote-readback.stderr.txt"
+    }
+  ],
+  "observed_plain_fetch_limitation": "git fetch origin branch updated FETCH_HEAD only; initial tracking observation remainedc29a581. Explicit non-force branch-to-tracking refspec updated tracking to2350. No reset/rebase/forcepush or source mutation.",
+  "assets": [
+    {
+      "path": "source-push.stdout.txt",
+      "bytes": 486,
+      "sha256": "f4a0c7f338eb8bfb1df378b6c7083028ee7e9eb0739e351450bee69384ea5704"
+    },
+    {
+      "path": "source-push.stderr.txt",
+      "bytes": 126,
+      "sha256": "e42d3b4f9842970006f0f4761908fd525eabe11cd0cbd78b4f97f3b05c98735a"
+    },
+    {
+      "path": "source-fetch-readback.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "source-fetch-readback.stderr.txt",
+      "bytes": 110,
+      "sha256": "dd1655b4b01c4f373ea5d8d9a1f7102356b99395e0f268dc24f61b438f8fba87"
+    },
+    {
+      "path": "source-fetch-explicit-readback.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "source-fetch-explicit-readback.stderr.txt",
+      "bytes": 131,
+      "sha256": "87c2b0ce5bb487121ca0c7a6d632044a9d0d6782ef68f4a0ab269657d9c00b49"
+    },
+    {
+      "path": "final-tracking-readback.stdout.txt",
+      "bytes": 164,
+      "sha256": "6a4acd76ca8091afe09baeb2099a80bf3b44869417628a9dad1f494def9497e8"
+    },
+    {
+      "path": "final-tracking-readback.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "final-remote-readback.stdout.txt",
+      "bytes": 77,
+      "sha256": "25321f84f1585f0b0a0c63be7bbb5750495b5691d7c17f6661eaf56f88e747ce"
+    },
+    {
+      "path": "final-remote-readback.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "finding_or_global_gate_acceptance_inferred": false
+}

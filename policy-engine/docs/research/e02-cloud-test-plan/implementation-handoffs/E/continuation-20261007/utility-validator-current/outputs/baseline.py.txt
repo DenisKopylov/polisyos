@@ -1,0 +1,26 @@
+import hashlib,json,os,platform,subprocess,sys,datetime
+from pathlib import Path
+L=Path('/workspace/e02-E-frc-20261006');P=L/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary';O=Path('/tmp/e02-E-validator-format-current-r4');python='/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python'
+def sha(b):return hashlib.sha256(b).hexdigest()
+old=(P/'validate.py').read_bytes()
+if sha(old)!='21224439f7bc4d91e0fe0b5e447ea166e61bebf4d3f5ecbd29c1ca0dff5c5c0d':raise ValueError('exactold canonicalutilitysource')
+frames=[]
+for p in sorted(P.rglob('*')):
+ if p.is_file():
+  b=p.read_bytes();frames.append({'path':str(p.relative_to(L)),'bytes':len(b),'sha256':sha(b)})
+(O/'baseline-input-frame.json').write_text(json.dumps({'files':len(frames),'bytes':sum(r['bytes'] for r in frames),'frames':frames},indent=2)+'\n')
+env=os.environ.copy();env.update(PYTHONDONTWRITEBYTECODE='1',GIT_OPTIONAL_LOCKS='0')
+rows=[]
+for name,opt in [('normal',False),('optimized',True)]:
+ argv=[python]+(['-O'] if opt else [])+[str(P/'validate.py')]
+ r=subprocess.run(argv,cwd=L/'policy-engine',env=env,capture_output=True)
+ (O/('baseline-'+name+'.stdout.json')).write_bytes(r.stdout);(O/('baseline-'+name+'.stderr.txt')).write_bytes(r.stderr)
+ row={'name':name,'argv':argv,'cwd':str(L/'policy-engine'),'exit_code':r.returncode,'environment_overrides':{'PYTHONDONTWRITEBYTECODE':'1','GIT_OPTIONAL_LOCKS':'0'}};rows.append(row)
+ if r.returncode!=0:raise ValueError('oldexact212 reader historicalreplay fail')
+ result=json.loads(r.stdout)
+ if result['validation']!='PASS' or len(result['controls'])!=14 or not all(c['refused'] for c in result['controls']):raise ValueError('baselinehealthy14corruptioncontrols')
+for f in frames:
+ b=(L/f['path']).read_bytes()
+ if len(b)!=f['bytes'] or sha(b)!=f['sha256']:raise ValueError('oldsource/inputchanged')
+x={'schema':'policyos.e02.validator_format_baseline.v1','source_sha256':sha(old),'input_files':len(frames),'input_bytes':sum(f['bytes'] for f in frames),'normal_optimized_checks':rows,'healthy14controls_each':True,'all_source_and_input_unchanged':True,'source_native_numeric_gate_execution':False,'ROOT_source_env_locks_written':False,'scope':'purepublicationutility oldexactsource baseline; no defining scientifictest execution'}
+(O/'baseline.json').write_text(json.dumps(x,indent=2)+'\n');print(json.dumps(x,indent=2))

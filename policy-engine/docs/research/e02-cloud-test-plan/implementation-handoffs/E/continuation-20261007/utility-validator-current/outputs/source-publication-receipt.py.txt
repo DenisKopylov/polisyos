@@ -1,0 +1,13 @@
+import hashlib,json,subprocess
+from pathlib import Path
+L=Path('/workspace/e02-E-frc-20261006');O=Path('/tmp/e02-E-validator-format-current-r4');candidate='2350edfba4e71909fbc615fe3101793b1b13945a';tree='fb4486cb39dc44b1ef09ea1e280df8b640b772ba';rows=[]
+for name,argv in [('final-tracking-readback',['git','rev-parse','HEAD','HEAD^{tree}','refs/remotes/origin/codex/e02-E-frc-20261006','refs/remotes/origin/codex/e02-E-frc-20261006^{tree}']),('final-remote-readback',['git','ls-remote','--heads','origin','codex/e02-E-frc-20261006'])]:
+ p=subprocess.run(argv,cwd=L,capture_output=True);(O/(name+'.stdout.txt')).write_bytes(p.stdout);(O/(name+'.stderr.txt')).write_bytes(p.stderr);rows.append({'argv':argv,'cwd':str(L),'exit_code':p.returncode,'stdout':name+'.stdout.txt','stderr':name+'.stderr.txt'})
+ if p.returncode:raise ValueError('readback failed')
+ if name=='final-tracking-readback' and p.stdout.decode().splitlines()!=[candidate,tree,candidate,tree]:raise ValueError('candidate tracking identity')
+ if name=='final-remote-readback' and p.stdout.decode().split()[0]!=candidate:raise ValueError('remote candidate identity')
+assets=[]
+for name in ['source-push.stdout.txt','source-push.stderr.txt','source-fetch-readback.stdout.txt','source-fetch-readback.stderr.txt','source-fetch-explicit-readback.stdout.txt','source-fetch-explicit-readback.stderr.txt','final-tracking-readback.stdout.txt','final-tracking-readback.stderr.txt','final-remote-readback.stdout.txt','final-remote-readback.stderr.txt']:
+ b=(O/name).read_bytes();assets.append({'path':name,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+x={'schema':'policyos.e02.source_publication_readback.v1','candidate_sha':candidate,'candidate_tree_sha':tree,'topic_branch':'codex/e02-E-frc-20261006','normal_append_only_push_exit_code':0,'remote_and_tracking_readback':rows,'observed_plain_fetch_limitation':'git fetch origin branch updated FETCH_HEAD only; initial tracking observation remainedc29a581. Explicit non-force branch-to-tracking refspec updated tracking to2350. No reset/rebase/forcepush or source mutation.','assets':assets,'finding_or_global_gate_acceptance_inferred':False}
+(O/'source-publication-receipt.json').write_text(json.dumps(x,indent=2)+'\n');print(json.dumps(x,indent=2))

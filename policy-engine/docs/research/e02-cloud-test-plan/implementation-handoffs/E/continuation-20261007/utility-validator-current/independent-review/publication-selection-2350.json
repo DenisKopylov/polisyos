@@ -1,0 +1,269 @@
+{
+  "schema": "policyos.e02.closed_moderate_independent_utility_source_review_selection.v1",
+  "source": "2350edfba4e71909fbc615fe3101793b1b13945a",
+  "tree": "fb4486cb39dc44b1ef09ea1e280df8b640b772ba",
+  "base": "c29a58197a7a51f3605857e573de50a4f7a8da61",
+  "outcome": "GO bounded utility source; global/finding verdict separate",
+  "asset_count": 34,
+  "logical_bytes": 254748,
+  "content_unique_count": 20,
+  "content_unique_bytes": 252830,
+  "assets": [
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/review_2350_candidate.py",
+      "bytes": 11879,
+      "sha256": "e1279ee85c2542d80181ea8f7e1b38e4ffed772430c53377ca30c013494ac589",
+      "portable_path": "observer/review_2350_candidate.py.txt",
+      "role": "literal read-only reviewer source"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/replay_old_git212.py",
+      "bytes": 4593,
+      "sha256": "94c53e0222418caf0b2e18bb8dd517cb73db782074288f29f93cfa02f396506b",
+      "portable_path": "observer/replay_old_git212.py.txt",
+      "role": "literal read-only reviewer source"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/probe_old212_whole_record_path.py",
+      "bytes": 2109,
+      "sha256": "3ccef4419011ad101445781f9dd48b8ee5724e1fb9b105b2e2f6f65617dece83",
+      "portable_path": "observer/probe_old212_whole_record_path.py.txt",
+      "role": "literal read-only reviewer source"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/build_closed_review_selection.py",
+      "bytes": 6340,
+      "sha256": "059a2871e3f43aad98c52b3eab4e3a983115bc8a36c9b67a63a2e722b21c6338",
+      "portable_path": "observer/build_closed_review_selection.py.txt",
+      "role": "literal read-only reviewer source"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/review-2350-normal.stdout.json",
+      "bytes": 11661,
+      "sha256": "980d917c2c27f3a71a8c99ee46ea5761d89086a92569fdcb6ab173ee7589a9f4",
+      "portable_path": "outputs/review-2350-normal.stdout.json",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/review-2350-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "outputs/review-2350-normal.stderr.txt",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/review-2350-optimized.stdout.json",
+      "bytes": 11704,
+      "sha256": "f13825f75b221c31690e1a6006ce41feda42651f5dfee3817b09df10d5d6d1af",
+      "portable_path": "outputs/review-2350-optimized.stdout.json",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/review-2350-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "outputs/review-2350-optimized.stderr.txt",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding",
+      "content_alias_of": "outputs/review-2350-normal.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/old212-git-replay-normal.stdout.json",
+      "bytes": 85610,
+      "sha256": "d3767f2cd6955876b03e3d94f8eccdbfe48e341052ff960fbdc183303ab92eae",
+      "portable_path": "outputs/old212-git-replay-normal.stdout.json",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/old212-git-replay-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "outputs/old212-git-replay-normal.stderr.txt",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding",
+      "content_alias_of": "outputs/review-2350-normal.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/old212-git-replay-optimized.stdout.json",
+      "bytes": 85613,
+      "sha256": "2973d84893865e9fb8161e2c65fa57abe4b5fa62362a39ea6d86713fdd715ae1",
+      "portable_path": "outputs/old212-git-replay-optimized.stdout.json",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/old212-git-replay-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "outputs/old212-git-replay-optimized.stderr.txt",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding",
+      "content_alias_of": "outputs/review-2350-normal.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/old212-whole-record-path-normal.stdout.json",
+      "bytes": 2671,
+      "sha256": "8ee655e64fc0e9ae102c94d71fa1e2ebfe6e4cf39abb5959ae09b4991a325aa3",
+      "portable_path": "outputs/old212-whole-record-path-normal.stdout.json",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/old212-whole-record-path-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "outputs/old212-whole-record-path-normal.stderr.txt",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding",
+      "content_alias_of": "outputs/review-2350-normal.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/old212-whole-record-path-optimized.stdout.json",
+      "bytes": 2674,
+      "sha256": "7d693e13b3c93e2bf4ca69e98bc13066cbf13dff71503c76776828e4dc0d8ce7",
+      "portable_path": "outputs/old212-whole-record-path-optimized.stdout.json",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/old212-whole-record-path-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "outputs/old212-whole-record-path-optimized.stderr.txt",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding",
+      "content_alias_of": "outputs/review-2350-normal.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/old212-path-admission-probe.stdout.json",
+      "bytes": 1159,
+      "sha256": "2d34cf747a0ac1a0e567be6c9e7f5cf3c6aea6edc8ce82a3cdb36a37e9ae713d",
+      "portable_path": "outputs/old212-path-admission-probe.stdout.json",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/old212-path-admission-probe.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "outputs/old212-path-admission-probe.stderr.txt",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding",
+      "content_alias_of": "outputs/review-2350-normal.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/current-2350-normal.stdout.txt",
+      "bytes": 821,
+      "sha256": "1f963e6ad42cd95c93ee9f4f0fb10d02832825bec93042bf1f1336edfd4415a5",
+      "portable_path": "outputs/current-2350-normal.stdout.txt",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/current-2350-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "outputs/current-2350-normal.stderr.txt",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding",
+      "content_alias_of": "outputs/review-2350-normal.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/current-2350-optimized.stdout.txt",
+      "bytes": 821,
+      "sha256": "1f963e6ad42cd95c93ee9f4f0fb10d02832825bec93042bf1f1336edfd4415a5",
+      "portable_path": "outputs/current-2350-optimized.stdout.txt",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding",
+      "content_alias_of": "outputs/current-2350-normal.stdout.txt"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/current-2350-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "outputs/current-2350-optimized.stderr.txt",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding",
+      "content_alias_of": "outputs/review-2350-normal.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/historical-default-2350-normal.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "outputs/historical-default-2350-normal.stdout.txt",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding",
+      "content_alias_of": "outputs/review-2350-normal.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/historical-default-2350-normal.stderr.txt",
+      "bytes": 1097,
+      "sha256": "8eadea254b052275568d72bad25f50d4803e8672c4ca7a8804dcc1375fbd1df4",
+      "portable_path": "outputs/historical-default-2350-normal.stderr.txt",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/historical-default-2350-optimized.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "outputs/historical-default-2350-optimized.stdout.txt",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding",
+      "content_alias_of": "outputs/review-2350-normal.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/historical-default-2350-optimized.stderr.txt",
+      "bytes": 1097,
+      "sha256": "8eadea254b052275568d72bad25f50d4803e8672c4ca7a8804dcc1375fbd1df4",
+      "portable_path": "outputs/historical-default-2350-optimized.stderr.txt",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding",
+      "content_alias_of": "outputs/historical-default-2350-normal.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/source-Ruff-format-2350.json",
+      "bytes": 2934,
+      "sha256": "640424e4cfd43c2b44e3fb676ddc6fad64af1b95489d1ad4a23264cf739ee395",
+      "portable_path": "outputs/source-Ruff-format-2350.json",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/source-Ruff-2350.stdout.txt",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "portable_path": "outputs/source-Ruff-2350.stdout.txt",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/source-Ruff-2350.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "outputs/source-Ruff-2350.stderr.txt",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding",
+      "content_alias_of": "outputs/review-2350-normal.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/source-format-2350.stdout.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "portable_path": "outputs/source-format-2350.stdout.txt",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/source-format-2350.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "outputs/source-format-2350.stderr.txt",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding",
+      "content_alias_of": "outputs/review-2350-normal.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/final-source-GO.json",
+      "bytes": 2922,
+      "sha256": "f41521d4b5efd65c1bf74720ec5411369d1b93f9dab497ea61a916cdea8827df",
+      "portable_path": "outputs/final-source-GO.json",
+      "role": "exact closed reviewer output; confounded initialprobe labeled historical nondeciding"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/old212-source.py.txt",
+      "bytes": 8355,
+      "sha256": "21224439f7bc4d91e0fe0b5e447ea166e61bebf4d3f5ecbd29c1ca0dff5c5c0d",
+      "portable_path": "source/old212-source.py.txt",
+      "role": "exact independently inspected program bytes"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/current2350-source.py.txt",
+      "bytes": 10661,
+      "sha256": "6f1e4c188a978b4da6298f3939e32ef71e9839bcf6eb77d41239b29f0ba57e3f",
+      "portable_path": "source/current2350-source.py.txt",
+      "role": "exact independently inspected program bytes"
+    }
+  ],
+  "immutable219_input_fixture_raw_not_copied_again": "Complete219 Git path/object/size/hash index in bothold212replay outputs, reproducible from3d002987 Git; no ignoredpyc used.",
+  "author_three_source_paths_not_duplicated": "Exact complete3-path footprint/hash index in both2350review outputs; Git2350 resolvesbothcurrentJSON overlays and source.",
+  "pending_builder_stdout_excluded": true,
+  "empty_JSON_count": 0
+}

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -162,51 +163,68 @@ def test_dfk_01_canonical_registry_evolution_and_migration_behave() -> None:
     ) == {"id": "record-1", "title": "untitled"}
 
 
-@pytest.mark.parametrize(
-    "legacy_module",
-    [
-        "polisyos.data_forge.kernel.pipeline.schemas",
-        "polisyos.data_forge.kernel.schemas.codegen",
-        "polisyos.foundry.domain.schema",
-    ],
-)
-def test_dfk_01_compatibility_pending_surfaces_remain_importable(legacy_module: str) -> None:
-    """Keep unresolved public FQNs until census and an owner decision are complete."""
-    module = importlib.import_module(legacy_module)
-    assert module.__name__ == legacy_module
-
-
-def test_dfk_01_compatibility_pending_surfaces_preserve_current_identity() -> None:
-    """Pending surfaces retain their public and canonical identities for compatibility."""
+def test_dfk_01_pipeline_schema_alias_preserves_canonical_identity() -> None:
+    """The compatibility alias re-exports the canonical schema objects unchanged."""
     pipeline_schemas = importlib.import_module("polisyos.data_forge.kernel.pipeline.schemas")
     assert pipeline_schemas.CompatibilityMode is CompatibilityMode
     assert pipeline_schemas.SchemaRegistry is SchemaRegistry
     assert pipeline_schemas.SchemaVersion is SchemaVersion
 
-    codegen = importlib.import_module("polisyos.data_forge.kernel.schemas.codegen")
-    generated_schema_module = codegen.GeneratedSchemaModule
-    assert generated_schema_module.__module__ == "polisyos.data_forge.kernel.schemas.codegen"
-    assert set(generated_schema_module.model_fields) == {
-        "module_name",
-        "schema_id",
-        "schema_version",
-    }
 
-    foundry_schema = importlib.import_module("polisyos.foundry.domain.schema")
-    assert foundry_schema.AgentType.__module__ == "polisyos.foundry.domain.schema"
-    assert foundry_schema.RegionProfile.__module__ == "polisyos.foundry.domain.schema"
-    assert foundry_schema.SimulationConfig.__module__ == "polisyos.foundry.domain.schema"
-    assert set(foundry_schema.RegionProfile.model_fields) == {
-        "region_id",
-        "avg_income",
-        "unemployment_rate",
-        "tech_level",
-    }
-    assert set(foundry_schema.SimulationConfig.model_fields) == {
-        "n_agents",
-        "n_steps",
-        "seed",
-    }
+@pytest.mark.parametrize(
+    ("retired_module", "package_name", "resource_names", "source_paths"),
+    [
+        (
+            "polisyos.foundry.domain.schema",
+            "polisyos.foundry.domain",
+            ("schema.py", "schema"),
+            (
+                REPO_ROOT / "src/polisyos/foundry/domain/schema.py",
+                REPO_ROOT / "src/polisyos/foundry/domain/schema/__init__.py",
+            ),
+        ),
+        (
+            "polisyos.data_forge.kernel.schemas.codegen",
+            "polisyos.data_forge.kernel.schemas",
+            ("codegen.py", "codegen"),
+            (
+                REPO_ROOT / "src/polisyos/data_forge/kernel/schemas/codegen.py",
+                REPO_ROOT / "src/polisyos/data_forge/kernel/schemas/codegen/__init__.py",
+            ),
+        ),
+    ],
+)
+def test_dfk_01_retired_schema_fqns_and_resources_are_absent(
+    retired_module: str,
+    package_name: str,
+    resource_names: tuple[str, str],
+    source_paths: tuple[Path, Path],
+) -> None:
+    """Retired compatibility modules stay absent at import, package, and source levels."""
+    from importlib import resources
+
+    with pytest.raises(ModuleNotFoundError) as error:
+        importlib.import_module(retired_module)
+    assert error.value.name == retired_module
+
+    package = importlib.import_module(package_name)
+    for resource_name in resource_names:
+        resource = resources.files(package).joinpath(resource_name)
+        assert not resource.exists()
+        assert not resource.is_dir()
+    assert all(not source_path.exists() for source_path in source_paths)
+
+
+def test_dfk_01_foundry_plugin_simulation_config_remains_canonical() -> None:
+    """The real Foundry plugin configuration API remains available at its owner path."""
+    from dataclasses import is_dataclass
+
+    plugin_api = importlib.import_module("polisyos.foundry.plugins.api")
+    simulation_config = plugin_api.SimulationConfig
+
+    assert simulation_config.__module__ == "polisyos.foundry.plugins.api"
+    assert is_dataclass(simulation_config)
+    assert simulation_config(n_steps=3).n_steps == 3
 
 
 def test_dfk_01_mechanisms_tombstone_is_not_importable() -> None:
@@ -336,7 +354,7 @@ def test_dfk_01_census_binds_imports_strings_dynamic_loaders_and_exclusions(
     completed, receipt = _run_census(tmp_path)
 
     assert completed.returncode == 0
-    assert receipt["schema"] == "polisyos.schema_fqn_census.v1"
+    assert receipt["schema"] == "polisyos.schema_fqn_census.v2"
     selection = receipt["selection"]
     assert selection["tracked_path_count"] == len(files)
     assert selection["untracked_paths"] == ["generated/descriptor.json"]
@@ -511,6 +529,143 @@ def test_dfk_01_census_resolves_importfrom_package_children_and_removal(
         }
         for hit in corrupted_receipt["matches"]
     )
+
+
+def test_dfk_01_census_observes_module_and_package_source_variants(
+    tmp_path: Path,
+) -> None:
+    """The census sees both module files and restored package trees as source candidates."""
+    package_init = "src/polisyos/foundry/domain/mechanisms/__init__.py"
+    module_file = "src/polisyos/foundry/domain/schema.py"
+    codegen_package_init = (
+        "src/polisyos/data_forge/kernel/schemas/codegen/__init__.py"
+    )
+    pipeline_package_init = (
+        "src/polisyos/data_forge/kernel/pipeline/schemas/__init__.py"
+    )
+    config_path = "configs/mechanism-resource.toml"
+    files = {
+        "src/polisyos/__init__.py": "",
+        "src/polisyos/foundry/__init__.py": "",
+        "src/polisyos/foundry/domain/__init__.py": "",
+        "src/polisyos/data_forge/kernel/schemas/__init__.py": "",
+        "src/polisyos/data_forge/kernel/pipeline/__init__.py": "",
+        codegen_package_init: "class GeneratedSchemaModule: ...\n",
+        "src/polisyos/data_forge/kernel/schemas/codegen/resources/schema.json": (
+            '{"type": "object"}\n'
+        ),
+        pipeline_package_init: "from polisyos.data_forge.kernel.schemas import SchemaRegistry\n",
+        module_file: "class RegionProfile: ...\n",
+        package_init: "class LegacyMechanismPackage: ...\n",
+        "src/polisyos/foundry/domain/mechanisms/README.md": "restored package resource\n",
+        config_path: (
+            'module = "polisyos.foundry.domain.mechanisms"\n'
+            'resource = "polisyos/foundry/domain/mechanisms/__init__.py"\n'
+            'placeholder = "polisyos/data_forge/kernel/schemas/codegen/__init__.py"\n'
+        ),
+    }
+    _init_census_repository(tmp_path, files)
+
+    completed, receipt = _run_census(tmp_path)
+
+    assert completed.returncode == 0
+    assert receipt["schema"] == "polisyos.schema_fqn_census.v2"
+    targets = {item["fqn"]: item for item in receipt["targets"]}
+    foundry_schema_sources = targets["polisyos.foundry.domain.schema"]["source_candidates"]
+    foundry_mechanisms_sources = targets["polisyos.foundry.domain.mechanisms"]["source_candidates"]
+    assert foundry_schema_sources == [
+        {
+            "kind": "module_file",
+            "relative_path": "foundry/domain/schema.py",
+            "observed_paths": [module_file],
+        },
+        {
+            "kind": "package_initializer",
+            "relative_path": "foundry/domain/schema/__init__.py",
+            "observed_paths": [],
+        },
+        {
+            "kind": "package_resource_tree",
+            "relative_path": "foundry/domain/schema/",
+            "observed_paths": [],
+        },
+    ]
+    assert foundry_mechanisms_sources == [
+        {
+            "kind": "module_file",
+            "relative_path": "foundry/domain/mechanisms.py",
+            "observed_paths": [],
+        },
+        {
+            "kind": "package_initializer",
+            "relative_path": "foundry/domain/mechanisms/__init__.py",
+            "observed_paths": [package_init],
+        },
+        {
+            "kind": "package_resource_tree",
+            "relative_path": "foundry/domain/mechanisms/",
+            "observed_paths": [
+                "src/polisyos/foundry/domain/mechanisms/README.md",
+                package_init,
+            ],
+        },
+    ]
+    codegen_sources = targets["polisyos.data_forge.kernel.schemas.codegen"][
+        "source_candidates"
+    ]
+    assert codegen_sources[0]["observed_paths"] == []
+    assert codegen_sources[1]["observed_paths"] == [codegen_package_init]
+    assert codegen_sources[2]["observed_paths"] == [
+        codegen_package_init,
+        "src/polisyos/data_forge/kernel/schemas/codegen/resources/schema.json",
+    ]
+    pipeline_sources = targets["polisyos.data_forge.kernel.pipeline.schemas"][
+        "source_candidates"
+    ]
+    assert pipeline_sources[1]["observed_paths"] == [pipeline_package_init]
+    assert pipeline_sources[2]["observed_paths"] == [pipeline_package_init]
+    assert any(
+        hit["target"] == "polisyos.foundry.domain.mechanisms"
+        and hit["path"] == config_path
+        and hit["evidence_kind"] == "resource_path_reference"
+        for hit in receipt["matches"]
+    )
+    assert any(
+        hit["target"] == "polisyos.data_forge.kernel.schemas.codegen"
+        and hit["path"] == config_path
+        and hit["evidence_kind"] == "resource_path_reference"
+        for hit in receipt["matches"]
+    )
+
+    negative_import_probe = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import importlib, pytest\n"
+            "with pytest.raises(ModuleNotFoundError) as error:\n"
+            "    importlib.import_module('polisyos.foundry.domain.mechanisms')\n"
+            "assert error.value.name == 'polisyos.foundry.domain.mechanisms'\n",
+        ],
+        cwd=tmp_path,
+        env={**os.environ, "PYTHONPATH": str(tmp_path / "src")},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert negative_import_probe.returncode == 1
+    assert "DID NOT RAISE" in negative_import_probe.stderr
+
+    (tmp_path / package_init).unlink()
+    missing, missing_receipt = _run_census(tmp_path)
+    assert missing.returncode == 2
+    assert missing_receipt["result"] == "partial_unreadable_input"
+    missing_sources = {
+        item["kind"]: item["observed_paths"]
+        for item in {
+            target["fqn"]: target for target in missing_receipt["targets"]
+        }["polisyos.foundry.domain.mechanisms"]["source_candidates"]
+    }
+    assert missing_sources["package_initializer"] == []
 
 
 def test_dfk_01_census_selects_repository_text_resource_and_config_types(

@@ -1,0 +1,35 @@
+id = "2026-10-07-e02-dfk-schema-lifecycle"
+title = "Retire unused schema remnants and announce the pipeline alias sunset"
+type = "changed"
+component = "data-forge"
+owner = "team-data-forge"
+summary = "Remove two unused schema modules, keep kernel.schemas canonical, and retain the pipeline.schemas alias through its bounded notice window."
+evidence = [
+  "tests/unit/remediation/test_dfk_01.py",
+  "docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md",
+  "src/polisyos/data_forge/kernel/pipeline/schemas/README.md",
+]
+compatibility = "The Foundry domain DTO module and GeneratedSchemaModule placeholder are internal-only and retired. The pipeline.schemas alias remains an identity-preserving re-export. Its support window starts when this notice is included in release N and lasts through the later of the next minor release and 90 days after N."
+change_class = "internal"
+surface_classification = "internal: polisyos.foundry.domain.schema, polisyos.data_forge.kernel.schemas.codegen, and polisyos.data_forge.kernel.pipeline.schemas"
+migration = "Import schema contracts from polisyos.data_forge.kernel.schemas. Keep using polisyos.foundry.plugins.api.SimulationConfig for Foundry plugin configuration."
+api = "No generator or duplicate schema owner is added. Canonical registry, evolution, migration, mechanism-registry, and Foundry plugin APIs remain at their existing owner paths."
+limitations = "This fragment is pending publication. Release N and its calendar date are not assigned here; release preparation must record the actual notice date and sunset in architecture/shims.toml."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md", "src/polisyos/data_forge/kernel/pipeline/schemas/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "data-forge-pipeline-schemas-alias-sunset"
+change_class = "internal"
+impact = "compatible_with_migration"
+surface = "internal: polisyos.data_forge.kernel.pipeline.schemas"
+owner = "team-data-forge"
+version_owner = "team-data-forge"
+deprecation_window = "Beginning with published notice release N, retain through the later of the next minor release after N and 90 days after N; release preparation assigns the actual date and sunset."
+release_note = "Use polisyos.data_forge.kernel.schemas; the identity-preserving pipeline.schemas alias remains available through its bounded notice window."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md", "src/polisyos/data_forge/kernel/pipeline/schemas/README.md"]
+runbook_docs = []

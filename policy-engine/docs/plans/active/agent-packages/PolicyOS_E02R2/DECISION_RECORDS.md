@@ -4955,3 +4955,97 @@ This records the bounded owner implementation choice at `f229`, not a principal 
 **Falsifier and acceptance boundary.** At the owner boundary, preserve a positive same-profile current v3 witness; store identical bytes under sibling v2 and v3 schemas/profiles and require exact selected-profile dispatch in both directions; replay the historical v2 statement exactly but require default/current resolution and the N9 admission boundary to return a typed nonreceipt before ledger open. Retain the current-marker-shaped historical mutant and require removal of the concrete witness-type predicate to turn the test red. Then run complete current whole files and the declared fresh P41 bases; do not reuse the 09fb results as post-`f229` evidence. The f229 bounded native smoke is recorded in BASELINES; complete current whole-file and fresh four-base acceptance remains pending.
 
 **Binding.** `c4_persisted_profiles.py` owns profile names/specs; `epoch_validity_cascade.py` owns serialization, selected-view readback and typed witness; `promotion_sequence.py` owns the pre-N9 boundary. The changed tests are `test_open_world_risk.py` and `test_promotion_sequence.py`. No other consumer receives historical state by adjacency; any future history consumer must add its own explicit typed contract, positive/history/refusal and removal/control evidence. Status/authority changes remain with their already-appointed principal owners, not this engineering record.
+
+
+## C5 DFK-01 schema lifecycle decisions — ordinary owner implementation (2026-10-07)
+
+This addendum records the bounded C API lifecycle choices for LA-005, LA-006,
+LA-026, and LA-027. These are ordinary implementation decisions at the existing
+Foundry, Data Forge, and plan owners; they do not create a new institutional
+approval path or a supported external ABI claim.
+
+**LA-005 — retire the early Foundry domain DTO module.** The exact module
+`polisyos.foundry.domain.schema` is internal under
+`architecture/public_surface/contract.toml`'s explicit-entrypoint rule. Retire
+only `src/polisyos/foundry/domain/schema.py`; do not move or duplicate its early
+`AgentType`, `RegionProfile`, or domain-level `SimulationConfig`. The distinct
+`polisyos.foundry.plugins.api.SimulationConfig` remains the canonical plugin
+configuration type. The selected local text census found no production Python
+import or resolved runtime loader for the early DTO FQN; remaining references
+are test probes, tool/lint literals, plan history, and resource/configuration
+text. No persisted identity or payload reference was found among the selected
+local UTF-8 inputs. This observation does not establish that external checkouts
+or old published artifacts never used the FQN.
+
+**LA-006 — keep the exact empty tombstone absent.** The
+`polisyos.foundry.domain.mechanisms` package is already absent. Keep the
+negative import/resource checks and the canonical positive controls through
+the actual Foundry mechanism registry/dispatcher and agent-simulation runner.
+The empty package is not restored; `polisyos.foundry.agent_sim` and
+`polisyos.foundry.execute` remain the actual owners of their mechanisms.
+
+**LA-026 — retire the descriptor placeholder.** Remove only
+`polisyos.data_forge.kernel.schemas.codegen` and its three-string
+`GeneratedSchemaModule`. It has no generation behavior, producer, or consumer
+in the selected local inputs. Do not add a generator or replace it with another
+descriptor owner. Keep `polisyos.data_forge.kernel.schemas` registry,
+evolution, and migration contracts intact.
+
+**LA-027 — use `kernel.schemas` as the sole logic owner and retain the alias.**
+`polisyos.data_forge.kernel.schemas` owns the registry, evolution rules, and
+migrations. `polisyos.data_forge.kernel.pipeline.schemas` remains an
+identity-preserving re-export with no new internal callers. The unreleased
+fragment `release-fragments/unreleased/2026-10-07-e02-dfk-schema-lifecycle.toml`
+records the pending notice. The compatibility window starts only when that
+notice is published in release N and ends after the later of the next minor
+release and 90 days after N. No calendar notice or sunset date is asserted in
+this branch. Release preparation assigns the actual date and updates
+`architecture/shims.toml` before the notice is published; the alias remains
+until that window has elapsed.
+
+**Verification boundary.** The local census is limited to the selected,
+Git-visible UTF-8 inputs it reads. Arbitrary nonliteral dispatch, ignored or
+external files, published wheel/sdist membership, installed clients, and
+persisted external class identities remain `not_established` or `UNRUN`; these
+decisions do not convert those unknowns into external absence claims. Package
+configuration selects `src/polisyos`, but the Hatch build backend is unavailable
+in the authorized environment, so no wheel or sdist result is claimed.
+
+**Pattern pass.** P06 keeps one schema registry owner during the compatibility
+window. P29/P38 make the retirement gate exercise exact imports, package
+resources, and both Python source forms; the restored-package fixture makes the
+negative import probe fail. P35 records the complete selected local denominator.
+The placeholder remains `producer_missing` and `consumer_missing`; this change
+removes it without claiming a new generator capability.
+
+**Implementation evidence and boundary.** The pre-removal full-tree census is
+`.tmp/e02-C5/raw/dfk/full-census-v2.stdout.json@sha256:f8621ccc45e89a2289bdea914346cb42150e40d5c00caa172111055c59175a96`
+with its command manifest at
+`.tmp/e02-C5/raw/dfk/full-census-v2.command.json@sha256:14ba4bbff96c18f5390b66e2dbf199b7a4f3a3bdbc6fa89ef7b43ca223069843`;
+the product-root census is
+`.tmp/e02-C5/raw/dfk/product-census-v2.stdout.json@sha256:68e1c4243bde3a9349c4eedaa499351748fe57be3e2265842a60f8d5561ddc4c`
+with command manifest
+`.tmp/e02-C5/raw/dfk/product-census-v2.command.json@sha256:a8b544749eb60751b8f2c37c6c95906adbaf4cd5e3bc5f6b22695e508049ee55`.
+The full-tree walk read all 13,678 selected UTF-8 inputs from 13,773 tracked
+paths; the product-root walk read 13,651 from 13,745 tracked paths. Neither
+reported unreadable or unsupported selected inputs. LA-005, LA-006, LA-026,
+and LA-027 have 271, 369, 364, and 325 local evidence entries respectively.
+There are no FQN-string references under `src/polisyos/`; the census separately
+observed the two source candidates that were later retired. The three literal
+dynamic-loader hits are test probes for the tombstone and alias, not runtime
+loaders. The product config reader
+observed `pyproject.toml` and `hatch.toml`; wheel and sdist membership remain
+unrun. The census preceded the two source removals and is not represented as a
+post-removal filesystem snapshot.
+
+After the parent moved the two exact source files to native Trash, the focused
+DFK/remediation and legacy-importer suite passed 24 tests. Its command/output
+receipt is `.tmp/e02-C5/raw/dfk/post-trash-focused-suite.command.json@sha256:3c45ebad1d1b1cb4d5e50e611beae4e3b2c80ea01dc7d7f611384cb06f23cdd5` and
+`.tmp/e02-C5/raw/dfk/post-trash-focused-suite.stdout@sha256:b37c5fc734ac3832c8522128883d0e6f644ce6614e600d0a8be26fd5ae3b6d64`.
+It exercises the canonical schema registry/evolution/migration owner, alias
+identity, plugin `SimulationConfig`, the exact retired-FQN/resource checks, the
+Foundry mechanism registry/dispatcher, and the agent-simulation runner. The
+synthetic census fixture passes 8 controls, including a restored package whose
+real negative import assertion fails and a missing-input refusal; the separate
+canonical consumer controls pass 7. Targeted Ruff, TOML parsing, and
+`git diff --check` pass. No wheel or sdist was built or installed.

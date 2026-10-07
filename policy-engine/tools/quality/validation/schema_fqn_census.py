@@ -22,7 +22,7 @@ from typing import Any
 
 from tools.lib.fs import measure_file_reads, measured_read_bytes
 
-SCHEMA = "polisyos.schema_fqn_census.v1"
+SCHEMA = "polisyos.schema_fqn_census.v2"
 TARGETS = (
     "polisyos.foundry.domain.schema",
     "polisyos.foundry.domain.mechanisms",
@@ -179,29 +179,76 @@ _FQN_PATTERNS = {
     target: re.compile(rf"(?<![A-Za-z0-9_]){re.escape(target)}(?![A-Za-z0-9_])")
     for target in TARGETS
 }
-_RESOURCE_PATTERNS = {
-    target: tuple(
-        re.compile(rf"(?<![A-Za-z0-9_.-]){re.escape(resource)}(?![A-Za-z0-9_.-])")
-        for resource in resources
+def _module_relative_path(target: str) -> str:
+    """Return the package-relative path represented by one exact FQN."""
+    return target.removeprefix("polisyos.").replace(".", "/")
+
+
+def _source_candidate_definitions(target: str) -> tuple[dict[str, str], ...]:
+    """Derive both standard Python source forms for an importable module FQN."""
+    module_path = _module_relative_path(target)
+    return (
+        {"kind": "module_file", "relative_path": f"{module_path}.py"},
+        {
+            "kind": "package_initializer",
+            "relative_path": f"{module_path}/__init__.py",
+        },
+        {
+            "kind": "package_resource_tree",
+            "relative_path": f"{module_path}/",
+        },
     )
-    for target, resources in {
-        TARGETS[0]: (
-            "foundry/domain/schema.py",
-            "polisyos/foundry/domain/schema.py",
-        ),
-        TARGETS[1]: (
-            "foundry/domain/mechanisms.py",
-            "polisyos/foundry/domain/mechanisms.py",
-        ),
-        TARGETS[2]: (
-            "data_forge/kernel/schemas/codegen.py",
-            "polisyos/data_forge/kernel/schemas/codegen.py",
-        ),
-        TARGETS[3]: (
-            "data_forge/kernel/pipeline/schemas",
-            "polisyos/data_forge/kernel/pipeline/schemas",
-        ),
-    }.items()
+
+
+def _observed_source_candidates(
+    target: str,
+    successfully_read_paths: list[str],
+) -> list[dict[str, Any]]:
+    """Bind source candidates to successfully read files beneath a polisyos package."""
+    candidates = _source_candidate_definitions(target)
+    observations: list[list[str]] = [[] for _ in candidates]
+    for path in successfully_read_paths:
+        parts = Path(path).parts
+        try:
+            package_index = parts.index("polisyos")
+        except ValueError:
+            continue
+        package_relative = Path(*parts[package_index + 1 :]).as_posix()
+        for index, candidate in enumerate(candidates):
+            relative_path = candidate["relative_path"]
+            if candidate["kind"] == "package_resource_tree":
+                if package_relative.startswith(relative_path):
+                    observations[index].append(path)
+            elif package_relative == relative_path:
+                observations[index].append(path)
+    return [
+        {
+            **candidate,
+            "observed_paths": sorted(observations[index]),
+        }
+        for index, candidate in enumerate(candidates)
+    ]
+
+
+def _resource_patterns_for_target(target: str) -> tuple[re.Pattern[str], ...]:
+    """Cover FQN resources, module files, package directories, and package initializers."""
+    module_path = _module_relative_path(target)
+    resource_paths = {
+        module_path,
+        f"polisyos/{module_path}",
+        f"{module_path}.py",
+        f"polisyos/{module_path}.py",
+        f"{module_path}/__init__.py",
+        f"polisyos/{module_path}/__init__.py",
+    }
+    return tuple(
+        re.compile(rf"(?<![A-Za-z0-9_.-]){re.escape(resource)}(?![A-Za-z0-9_.-])")
+        for resource in sorted(resource_paths)
+    )
+
+
+_RESOURCE_PATTERNS = {
+    target: _resource_patterns_for_target(target) for target in TARGETS
 }
 
 
@@ -737,12 +784,12 @@ def collect_census(repo_root: Path) -> tuple[dict[str, Any], int]:
         "targets": [
             {
                 "fqn": target,
-                "local_source_path": target.removeprefix("polisyos.").replace(".", "/") + ("/__init__.py" if target.endswith(".schemas") else ".py"),
+                "source_candidates": _observed_source_candidates(target, read_paths),
                 "role": {
-                    TARGETS[0]: "early compatibility DTO module; preserve pending explicit owner/consumer decision",
-                    TARGETS[1]: "confirmed empty tombstone; do not retire until canonical world/simulator real consumer is established and owner decision admits the exact empty namespace change",
-                    TARGETS[2]: "descriptor-only GeneratedSchemaModule surface; no generator/codegen role is inferred",
-                    TARGETS[3]: "compatibility import alias; preserve object identities while pending alias-owner decision",
+                    TARGETS[0]: "internal early DTO module selected for retirement; do not move or duplicate its fields",
+                    TARGETS[1]: "empty tombstone already absent; retain exact negative checks and canonical mechanism owners",
+                    TARGETS[2]: "unused descriptor placeholder selected for retirement; no generator/codegen role is inferred",
+                    TARGETS[3]: "identity-preserving compatibility alias to canonical kernel.schemas; sunset notice is pending publication",
                 }[target],
                 "matches": [hit for hit in all_matches if hit["target"] == target],
             }

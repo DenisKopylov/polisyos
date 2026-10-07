@@ -235,12 +235,29 @@ Decision source: ADR-0114.
 Data Forge publication boundaries use a versioned schema registry:
 
 ```text
-kernel/pipeline/schemas/
+kernel/schemas/
+|-- __init__.py
 |-- registry.py
 |-- evolution.py
-|-- codegen.py
 `-- migrations.py
 ```
+
+`polisyos.data_forge.kernel.schemas` is the canonical registry, evolution, and
+migration owner. `polisyos.data_forge.kernel.pipeline.schemas` remains an
+identity-preserving compatibility re-export during its announced sunset
+window. The current release fragment records the notice as pending; the window
+starts only when its release N is published and ends after the later of the
+next minor release and 90 days after N. Release preparation assigns the actual
+publication and sunset dates before updating `architecture/shims.toml`.
+
+**Pattern pass:** P06 keeps one registry owner while the alias preserves object
+identity; P29/P38 test actual import, package-resource, and source-path absence
+against a restored package; P35 binds the finding to the complete selected
+input denominator. The three-field `GeneratedSchemaModule` has
+`producer_missing` and `consumer_missing`, so this change removes the incomplete
+placeholder instead of claiming a generator capability. The existing registry,
+evolution, and migration capability is exercised at its canonical owner; this
+plan adds no new runtime capability.
 
 Compatibility modes:
 

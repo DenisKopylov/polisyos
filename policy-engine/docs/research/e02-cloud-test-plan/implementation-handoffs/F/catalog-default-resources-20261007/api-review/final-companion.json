@@ -1,0 +1,107 @@
+{
+  "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+  "tree": "120103b1a375b5d405632936b2934f2b36a320f7",
+  "runtime_proof_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+  "check": "PASS",
+  "changed_companion_refs": [
+    {
+      "path": "policy-engine/docs/reference/data-forge/catalog-default-resources.md",
+      "bytes": 2667,
+      "sha256": "560fe59923f18982d33a18a443ec7fc46c24bc914243d560abf86252245bf77e"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-catalog-default-resources.toml",
+      "bytes": 2119,
+      "sha256": "8f7a53c9e1f75fd69d5e223854764d1e26d59ba29d3c74a62ee88e597cc2c13c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/README.md",
+      "bytes": 2100,
+      "sha256": "197210b6730b1ca2644b14aeb0498cc6df20b799172f89d1b7690db49261f2a7"
+    }
+  ],
+  "unchanged_runtime_test_Hatch_YAML_input_count": 15,
+  "unchanged_inputs": [
+    {
+      "path": "policy-engine/hatch.toml",
+      "bytes": 2194,
+      "sha256": "24ad192a85397fdf56e2722275e19adf79c10a27938640f5bc4f86353936efcd"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+      "bytes": 1914,
+      "sha256": "6c36ffce957ade642ba1cc1dab2367c2620dd7c75d0219520c64b3eec94bf0a6"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "bytes": 9406,
+      "sha256": "a36c29470453ce0a5465a8f7ed9cb5c2c9f890c8d4bae098c05dd37fd2aa941b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "bytes": 65343,
+      "sha256": "fd7b207553fc7ec7e0747a5981ab93c3c9469639fbd214e9eda7edd423fb7574"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "bytes": 80809,
+      "sha256": "78d7666e95c310c6ef0e2651135377eb0ecdb71523d95506f4987f799d9b23c4"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+      "bytes": 5973,
+      "sha256": "589026e8fb6751b04039baed5794e4df152caa15d218805bbb7bffc8ada137fe"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+      "bytes": 18695,
+      "sha256": "bb547db9fee687f463b633b4f0d6ee24ab527c1b0ea207160aaffddf6c7d1422"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "bytes": 37750,
+      "sha256": "a77be622a7e8193b0c245d4a731fcf4128d84faa48b48e63460246db5673af47"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+      "bytes": 18202,
+      "sha256": "c1b45bd356f9ca7e0a65edf202f827b0145eb9421c89de07512e07de37256fc7"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_catalog_default_resources_packaging.py",
+      "bytes": 4539,
+      "sha256": "0219d8c046bdce189e574f7116aab478dff98d8f06a7c9072833f83c704e20e2"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py",
+      "bytes": 10467,
+      "sha256": "62f847792345f52f226481451867314520b6b794d7ce7e159663885e71215f89"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/metrics_map.yaml",
+      "bytes": 2163,
+      "sha256": "0877e6521e4dd66dbc2c08010367c79f672c37a8b6b30e68f47b10135f680266"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/proxy_metric_alignments.yaml",
+      "bytes": 293,
+      "sha256": "4c6c04bb99ea566b061c7b2d23540d22f8eb7c043067585a7e9b93ccaf87388b"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/seed_variable_alignments.yaml",
+      "bytes": 1309,
+      "sha256": "cb1daa3237ff58d8c875571ff2459a55c5182c3a4f13a076497a517f9a8740d8"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/wvs_indicator_registry.yaml",
+      "bytes": 160329,
+      "sha256": "dabbadf04fdbf6c4658a720a6af5b63a60c69727b2350c0424368691399e413d"
+    }
+  ],
+  "canonical_one_fragment_errors": [],
+  "canonical_one_fragment_findings": [],
+  "classification": "python-public-api",
+  "impact": "compatible",
+  "public_surface_inventory_reviewed": "Actual089 renderer/ABI inspection; not a completeness or whole gate verdict.",
+  "source_limit": "Only3doc/README/fragment bodies changed; no new runtime/test rerun. Prior08941+79 immutable checks remain source-specific carried by exact15input equality."
+}

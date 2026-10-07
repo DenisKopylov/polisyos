@@ -1,0 +1,746 @@
+{
+  "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+  "resources": [
+    {
+      "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "path": "policy-engine/data/dataset_catalog/seed_variable_alignments.yaml",
+      "git_blob": "49d63f6e693ab9488fad50b25d75b042f3dff9dd",
+      "bytes": 1309,
+      "sha256": "cb1daa3237ff58d8c875571ff2459a55c5182c3a4f13a076497a517f9a8740d8",
+      "working_file_matches_pinned_blob": true,
+      "yaml_root_type": "dict",
+      "parsed_body_sha256": "85f715f5af4cf0baa4b833c818f766d08a025fa3e231c6b968fee02d798d9e72",
+      "alignment_count": 8,
+      "method_counts": {
+        "exact": 7,
+        "semantic": 1
+      },
+      "meaning": "Curated variable alignment evidence; no statistical identification admission."
+    },
+    {
+      "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "path": "policy-engine/data/dataset_catalog/proxy_metric_alignments.yaml",
+      "git_blob": "649cd9a249ca12745b4ed9c9871d2aca57eb0a61",
+      "bytes": 293,
+      "sha256": "4c6c04bb99ea566b061c7b2d23540d22f8eb7c043067585a7e9b93ccaf87388b",
+      "working_file_matches_pinned_blob": true,
+      "yaml_root_type": "dict",
+      "parsed_body_sha256": "9ee2028b0cf29a77e9e77c85523eed0a20986f6f35117065c2a3377ea5c4ed80",
+      "metric_count": 1,
+      "mapping_count": 1,
+      "meaning": "Existing country/year proxy penalty overrides; no new rounding/welfare/penalty norm."
+    },
+    {
+      "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "path": "policy-engine/data/dataset_catalog/wvs_indicator_registry.yaml",
+      "git_blob": "e28c9dfc7e83f3c7d2fbf020312dcfdd66bee3a0",
+      "bytes": 160329,
+      "sha256": "dabbadf04fdbf6c4658a720a6af5b63a60c69727b2350c0424368691399e413d",
+      "working_file_matches_pinned_blob": true,
+      "yaml_root_type": "dict",
+      "parsed_body_sha256": "8aa342681a0bb39c8cae4b06a282ae9056ebd96c33a9f9b9f9893335f1acc3eb",
+      "indicator_count": 1049,
+      "wave7_count": 400,
+      "version": 1,
+      "meaning": "Existing curated/codebook-derived indicator definitions; raw CSV/XLSX remains external."
+    },
+    {
+      "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "path": "policy-engine/data/dataset_catalog/metrics_map.yaml",
+      "git_blob": "7f6cf78a02e4e58219353548af604de49e796442",
+      "bytes": 2163,
+      "sha256": "0877e6521e4dd66dbc2c08010367c79f672c37a8b6b30e68f47b10135f680266",
+      "working_file_matches_pinned_blob": true,
+      "yaml_root_type": "dict",
+      "parsed_body_sha256": "d71d3ed0e78dad6824e6e363c19a806bf3be2b94a265551b9152d60388474a4a",
+      "metric_count": 14,
+      "meaning": "Existing metric-to-provider indicator dictionary; no second catalog."
+    }
+  ],
+  "source_bindings": [
+    {
+      "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "path": "policy-engine/hatch.toml",
+      "git_blob": "85ec246811de052636097f71737bb6c817d22279",
+      "bytes": 1481,
+      "sha256": "ef5c6ee52de3d70bec617489f09ba1d3be4af3d5687b6404162aad6cc7b6bad0",
+      "working_file_matches_pinned_blob": true
+    },
+    {
+      "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "path": "policy-engine/pyproject.toml",
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "working_file_matches_pinned_blob": true
+    },
+    {
+      "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+      "git_blob": "306849ff45191eac4d8fa7dadab86e4c21ee3057",
+      "bytes": 18675,
+      "sha256": "6dbfbb04cddff8d1af11ed226e68092a2763a8d007b73f911f4ed9eaa5e54cd9",
+      "working_file_matches_pinned_blob": true
+    },
+    {
+      "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+      "git_blob": "6051df0d52dfa67ccfedf6eb39f85fdc5e7ae930",
+      "bytes": 5953,
+      "sha256": "8ccfc12e02dfc6d702afdc42de2e8608627b67250cd42084bd82e1ef2ea094bc",
+      "working_file_matches_pinned_blob": true
+    },
+    {
+      "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "git_blob": "c93fccac5bca91f011a440c1d91cad99c2367257",
+      "bytes": 9332,
+      "sha256": "36766ba06198fbeae9ad94a52cc1ab78aed7b17459e38b66b310734a8155fa0f",
+      "working_file_matches_pinned_blob": true
+    },
+    {
+      "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "git_blob": "1a2e73df2ac53900879cb17bafb21aad6f4f8138",
+      "bytes": 65426,
+      "sha256": "c017bc57b9d7759b3f549b23969ec6f2668f87de1ef1c0509e3fa4c0a43ff8a3",
+      "working_file_matches_pinned_blob": true
+    },
+    {
+      "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "git_blob": "0b375b95086671bbcdeb17921b8037888d449816",
+      "bytes": 80796,
+      "sha256": "0687c432467ae8a6b0a2d18ee777e93014bd2a61ade24033097d3877f6e03b0c",
+      "working_file_matches_pinned_blob": true
+    },
+    {
+      "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "path": "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+      "git_blob": "ee52d903a12774491bcedfc43786bde647809e1f",
+      "bytes": 18213,
+      "sha256": "f5cdb1fa17c92ed55f1c22af5ec8531a3afc77d3aaeceaff47f3662e0e550362",
+      "working_file_matches_pinned_blob": true
+    },
+    {
+      "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "git_blob": "99400c33e76b13c81e8cb0352d59e58a98eb72c0",
+      "bytes": 37677,
+      "sha256": "c175225c5e4f8eda08d784e0319b4a5c023fe97fd89fbe24e758f5530a9beb72",
+      "working_file_matches_pinned_blob": true
+    },
+    {
+      "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "path": "policy-engine/src/polisyos/data_forge/read_api/__init__.py",
+      "git_blob": "ab9aa781a3a6e1cbc309f1c184a5f95a0fa43cbf",
+      "bytes": 1860,
+      "sha256": "0c7aa7d42b0569a4e99c9542dab7aaef4f1cd6afc2cae1b31cf186e63a3a7e8e",
+      "working_file_matches_pinned_blob": true
+    },
+    {
+      "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "path": "policy-engine/src/polisyos/data_forge/read_api/surfaces.py",
+      "git_blob": "9cd3c8b628e0cacc6c2ff2dbb1b093292963e80b",
+      "bytes": 2178,
+      "sha256": "91f36c51abc9db63546785d511a8fc757720938ab873d30d14302345a6ef4bd1",
+      "working_file_matches_pinned_blob": true
+    },
+    {
+      "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "path": "policy-engine/src/polisyos/data_forge/errors.py",
+      "git_blob": "46db34fbd44e4db79759b14803d5d3cb57e54f83",
+      "bytes": 2487,
+      "sha256": "3b51811e2cd85dad4294ead00df98f725cd8678df055fc517306bc308311518a",
+      "working_file_matches_pinned_blob": true
+    },
+    {
+      "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "path": "policy-engine/src/polisyos/ir/analytics/alignment_certification.py",
+      "git_blob": "3c3b55726af202917cb44df11fb52a64170963b4",
+      "bytes": 99348,
+      "sha256": "c9f3ebfd78cd6283014bef6dc26dfbcf7038a718e7aa8e2596a6e0dfaa79171c",
+      "working_file_matches_pinned_blob": true
+    },
+    {
+      "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/acquisition_authority.py",
+      "git_blob": "fdbbc9f0ab4aaf9c7ffd388f5512e8307aa76260",
+      "bytes": 103308,
+      "sha256": "984953283f027fd2fbda70ca5f1c04c2c7670a5bf7916b011c0b872cc4d00155",
+      "working_file_matches_pinned_blob": true
+    },
+    {
+      "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/derivation_catalog_selection.py",
+      "git_blob": "9b86a696689c46b3607a1635f489188af0cbe450",
+      "bytes": 20704,
+      "sha256": "488e4d317fea727c2a2ccf586f57e5a3621e9d97c3f8b79b45d5fdee36797d52",
+      "working_file_matches_pinned_blob": true
+    },
+    {
+      "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "path": "policy-engine/tests/repo_quality/tools/test_hatch_packaging.py",
+      "git_blob": "45816a271031b26bca1fe7ba2c943f2dc4f17ec7",
+      "bytes": 10509,
+      "sha256": "865dff75b7cdb7a8794bd6d8e2f46e1a8cb44fc48ca433ae91eebac5c9e6b2be",
+      "working_file_matches_pinned_blob": true
+    },
+    {
+      "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "git_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+      "bytes": 19715,
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+      "working_file_matches_pinned_blob": true
+    },
+    {
+      "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "git_blob": "857be8f06a84656c12fbcd8415eabfc6bf18ee10",
+      "bytes": 136743,
+      "sha256": "6068c84d43217d19d9b96c65fd36d0a239297da6f98840e8994e6b04ec3fae2e",
+      "working_file_matches_pinned_blob": true
+    }
+  ],
+  "archives": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/dist-source/policy_engine-0.1.0-py3-none-any.whl",
+      "bytes": 15118848,
+      "sha256": "9e9935e7f27fc0abeed5153b1791f3f34cafa4f77555a85bfae8f49d3bc8e6b4",
+      "complete_member_count": 3464,
+      "complete_file_count": 3464,
+      "resource_basename_matches": {
+        "seed_variable_alignments.yaml": [],
+        "proxy_metric_alignments.yaml": [],
+        "wvs_indicator_registry.yaml": [],
+        "metrics_map.yaml": []
+      },
+      "scope": "Complete member walk for four exact existing resource basenames, not all DataForge asset completeness."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/dist-source/policy_engine-0.1.0.tar.gz",
+      "bytes": 119168300,
+      "sha256": "b76e7b2dd704f55c83268bae2c889a2bc8b4e821f236db3d3f7109fd07c756e4",
+      "complete_member_count": 12521,
+      "complete_file_count": 12521,
+      "resource_basename_matches": {
+        "seed_variable_alignments.yaml": [],
+        "proxy_metric_alignments.yaml": [],
+        "wvs_indicator_registry.yaml": [],
+        "metrics_map.yaml": []
+      },
+      "scope": "Complete member walk for four exact existing resource basenames, not all DataForge asset completeness."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/dist-rebuilt/policy_engine-0.1.0-py3-none-any.whl",
+      "bytes": 15118848,
+      "sha256": "9e9935e7f27fc0abeed5153b1791f3f34cafa4f77555a85bfae8f49d3bc8e6b4",
+      "complete_member_count": 3464,
+      "complete_file_count": 3464,
+      "resource_basename_matches": {
+        "seed_variable_alignments.yaml": [],
+        "proxy_metric_alignments.yaml": [],
+        "wvs_indicator_registry.yaml": [],
+        "metrics_map.yaml": []
+      },
+      "scope": "Complete member walk for four exact existing resource basenames, not all DataForge asset completeness."
+    }
+  ],
+  "sites": [
+    {
+      "kind": "wheel",
+      "site": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/lib/python3.14/site-packages",
+      "resource_basename_matches": {
+        "seed_variable_alignments.yaml": [],
+        "proxy_metric_alignments.yaml": [],
+        "wvs_indicator_registry.yaml": [],
+        "metrics_map.yaml": []
+      },
+      "complete_named_module_count": 7,
+      "modules": [
+        {
+          "module": "polisyos.data_forge.domains.catalog.batch.config",
+          "git_path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/lib/python3.14/site-packages/polisyos/data_forge/domains/catalog/batch/config.py",
+          "bytes": 9332,
+          "sha256": "36766ba06198fbeae9ad94a52cc1ab78aed7b17459e38b66b310734a8155fa0f",
+          "source_matches": true
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+          "git_path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/lib/python3.14/site-packages/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+          "bytes": 65426,
+          "sha256": "c017bc57b9d7759b3f549b23969ec6f2668f87de1ef1c0509e3fa4c0a43ff8a3",
+          "source_matches": true
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.batch.harvester",
+          "git_path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/lib/python3.14/site-packages/polisyos/data_forge/domains/catalog/batch/harvester.py",
+          "bytes": 80796,
+          "sha256": "0687c432467ae8a6b0a2d18ee777e93014bd2a61ade24033097d3877f6e03b0c",
+          "source_matches": true
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.knowledge.proxy_penalties",
+          "git_path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/lib/python3.14/site-packages/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+          "bytes": 5953,
+          "sha256": "8ccfc12e02dfc6d702afdc42de2e8608627b67250cd42084bd82e1ef2ea094bc",
+          "source_matches": true
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.knowledge.variable_alignment",
+          "git_path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/lib/python3.14/site-packages/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+          "bytes": 18675,
+          "sha256": "6dbfbb04cddff8d1af11ed226e68092a2763a8d007b73f911f4ed9eaa5e54cd9",
+          "source_matches": true
+        },
+        {
+          "module": "polisyos.data_forge.read_api.catalog",
+          "git_path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/lib/python3.14/site-packages/polisyos/data_forge/read_api/catalog.py",
+          "bytes": 37677,
+          "sha256": "c175225c5e4f8eda08d784e0319b4a5c023fe97fd89fbe24e758f5530a9beb72",
+          "source_matches": true
+        },
+        {
+          "module": "polisyos.fabric.connectors.sources.wvs",
+          "git_path": "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/lib/python3.14/site-packages/polisyos/fabric/connectors/sources/wvs.py",
+          "bytes": 18213,
+          "sha256": "f5cdb1fa17c92ed55f1c22af5ec8531a3afc77d3aaeceaff47f3662e0e550362",
+          "source_matches": true
+        }
+      ],
+      "graph_observations": [
+        {
+          "module": "polisyos.data_forge.domains.catalog.knowledge.variable_alignment",
+          "function": "default_seed_alignments_path",
+          "args": {},
+          "result": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/lib/python3.14/data/dataset_catalog/seed_variable_alignments.yaml",
+          "exists": false,
+          "inside_installed_site": false,
+          "execution": "PASS"
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.knowledge.variable_alignment",
+          "function": "score_variable_pair",
+          "args": {
+            "left_name": "E",
+            "right_name": "E",
+            "left_definition": "Employment rate",
+            "right_definition": "Employment rate",
+            "left_unit": "percent",
+            "right_unit": "percent"
+          },
+          "execution": "ERROR",
+          "error_type": "FileNotFoundError",
+          "error": "[Errno 2] No such file or directory: '/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/lib/python3.14/data/dataset_catalog/seed_variable_alignments.yaml'"
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.knowledge.proxy_penalties",
+          "function": "default_proxy_metric_alignments_path",
+          "args": {},
+          "result": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/lib/python3.14/data/dataset_catalog/proxy_metric_alignments.yaml",
+          "exists": false,
+          "inside_installed_site": false,
+          "execution": "PASS"
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.knowledge.proxy_penalties",
+          "function": "load_proxy_metric_alignments",
+          "args": {},
+          "result_count": 0,
+          "execution": "PASS"
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+          "function": "_seed_alignments_path",
+          "args": {},
+          "result": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/lib/python3.14/data/dataset_catalog/seed_variable_alignments.yaml",
+          "exists": false,
+          "inside_installed_site": false,
+          "execution": "PASS"
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+          "function": "_wvs_registry_path",
+          "args": {},
+          "result": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/lib/python3.14/data/dataset_catalog/wvs_indicator_registry.yaml",
+          "exists": false,
+          "inside_installed_site": false,
+          "execution": "PASS"
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+          "function": "_load_wvs_registry",
+          "args": {},
+          "result_count": 0,
+          "execution": "PASS"
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.batch.harvester",
+          "function": "_wvs_registry_path",
+          "args": {},
+          "result": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/lib/python3.14/data/dataset_catalog/wvs_indicator_registry.yaml",
+          "exists": false,
+          "inside_installed_site": false,
+          "execution": "PASS"
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.batch.harvester",
+          "function": "_load_wvs_indicator_registry",
+          "args": {},
+          "result_count": 0,
+          "execution": "PASS"
+        }
+      ],
+      "own_observations": [
+        {
+          "name": "actual_default_DatasetBatchConfig",
+          "execution": "ERROR",
+          "error_type": "ValueError",
+          "error": "metrics_map.yaml not found: /tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/lib/python3.14/data/dataset_catalog/metrics_map.yaml"
+        },
+        {
+          "name": "actual_explicit_original_metrics_map_DatasetBatchConfig",
+          "execution": "PASS",
+          "value": {
+            "metrics_map_path": "/workspace/e02-F-closeout-20261006/policy-engine/data/dataset_catalog/metrics_map.yaml",
+            "signature": "919d44bfcee0f63896f424f96f8725518fa8ae0300dc85221a4ae55a5def7bf1",
+            "source_registry_count": 35
+          }
+        },
+        {
+          "name": "actual_explicit_original_seed_pair",
+          "execution": "PASS",
+          "value": {
+            "left_variable": "RL.EST",
+            "right_variable": "GE.EST",
+            "exact_name_match": false,
+            "semantic_score": 0.413333,
+            "definition_score": 0.0,
+            "unit_compatibility_score": 0.25,
+            "seed_support_score": 1.0,
+            "shared_canonical_vars": [
+              "institutional_quality"
+            ],
+            "overall_score": 0.394167,
+            "evidence": [
+              "unit_compatibility=0.250",
+              "seed_canonical=institutional_quality"
+            ]
+          }
+        },
+        {
+          "name": "actual_explicit_original_proxy_penalty_profile",
+          "execution": "PASS",
+          "value": {
+            "UA_2024": 0.12,
+            "PL_2024": 0.18,
+            "PL_2022": 0.15
+          }
+        },
+        {
+          "name": "actual_default_Fabric_WVS_registry",
+          "execution": "PASS",
+          "value": {
+            "registry_count": 0
+          }
+        },
+        {
+          "name": "actual_default_Fabric_WVS_list_datasets",
+          "execution": "PASS",
+          "value": {
+            "dataset_ids": [
+              "A009",
+              "A165",
+              "A170",
+              "A173",
+              "D059",
+              "E023",
+              "E025",
+              "E035",
+              "E069_07",
+              "E069_11",
+              "E069_17",
+              "E117",
+              "E233",
+              "E286",
+              "Y022"
+            ]
+          }
+        }
+      ],
+      "graph_origin_violations": {},
+      "own_origin_violations": {},
+      "origin_count_own": 358
+    },
+    {
+      "kind": "sdist",
+      "site": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/lib/python3.14/site-packages",
+      "resource_basename_matches": {
+        "seed_variable_alignments.yaml": [],
+        "proxy_metric_alignments.yaml": [],
+        "wvs_indicator_registry.yaml": [],
+        "metrics_map.yaml": []
+      },
+      "complete_named_module_count": 7,
+      "modules": [
+        {
+          "module": "polisyos.data_forge.domains.catalog.batch.config",
+          "git_path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/lib/python3.14/site-packages/polisyos/data_forge/domains/catalog/batch/config.py",
+          "bytes": 9332,
+          "sha256": "36766ba06198fbeae9ad94a52cc1ab78aed7b17459e38b66b310734a8155fa0f",
+          "source_matches": true
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+          "git_path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/lib/python3.14/site-packages/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+          "bytes": 65426,
+          "sha256": "c017bc57b9d7759b3f549b23969ec6f2668f87de1ef1c0509e3fa4c0a43ff8a3",
+          "source_matches": true
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.batch.harvester",
+          "git_path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/lib/python3.14/site-packages/polisyos/data_forge/domains/catalog/batch/harvester.py",
+          "bytes": 80796,
+          "sha256": "0687c432467ae8a6b0a2d18ee777e93014bd2a61ade24033097d3877f6e03b0c",
+          "source_matches": true
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.knowledge.proxy_penalties",
+          "git_path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/lib/python3.14/site-packages/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+          "bytes": 5953,
+          "sha256": "8ccfc12e02dfc6d702afdc42de2e8608627b67250cd42084bd82e1ef2ea094bc",
+          "source_matches": true
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.knowledge.variable_alignment",
+          "git_path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/lib/python3.14/site-packages/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+          "bytes": 18675,
+          "sha256": "6dbfbb04cddff8d1af11ed226e68092a2763a8d007b73f911f4ed9eaa5e54cd9",
+          "source_matches": true
+        },
+        {
+          "module": "polisyos.data_forge.read_api.catalog",
+          "git_path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/lib/python3.14/site-packages/polisyos/data_forge/read_api/catalog.py",
+          "bytes": 37677,
+          "sha256": "c175225c5e4f8eda08d784e0319b4a5c023fe97fd89fbe24e758f5530a9beb72",
+          "source_matches": true
+        },
+        {
+          "module": "polisyos.fabric.connectors.sources.wvs",
+          "git_path": "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/lib/python3.14/site-packages/polisyos/fabric/connectors/sources/wvs.py",
+          "bytes": 18213,
+          "sha256": "f5cdb1fa17c92ed55f1c22af5ec8531a3afc77d3aaeceaff47f3662e0e550362",
+          "source_matches": true
+        }
+      ],
+      "graph_observations": [
+        {
+          "module": "polisyos.data_forge.domains.catalog.knowledge.variable_alignment",
+          "function": "default_seed_alignments_path",
+          "args": {},
+          "result": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/lib/python3.14/data/dataset_catalog/seed_variable_alignments.yaml",
+          "exists": false,
+          "inside_installed_site": false,
+          "execution": "PASS"
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.knowledge.variable_alignment",
+          "function": "score_variable_pair",
+          "args": {
+            "left_name": "E",
+            "right_name": "E",
+            "left_definition": "Employment rate",
+            "right_definition": "Employment rate",
+            "left_unit": "percent",
+            "right_unit": "percent"
+          },
+          "execution": "ERROR",
+          "error_type": "FileNotFoundError",
+          "error": "[Errno 2] No such file or directory: '/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/lib/python3.14/data/dataset_catalog/seed_variable_alignments.yaml'"
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.knowledge.proxy_penalties",
+          "function": "default_proxy_metric_alignments_path",
+          "args": {},
+          "result": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/lib/python3.14/data/dataset_catalog/proxy_metric_alignments.yaml",
+          "exists": false,
+          "inside_installed_site": false,
+          "execution": "PASS"
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.knowledge.proxy_penalties",
+          "function": "load_proxy_metric_alignments",
+          "args": {},
+          "result_count": 0,
+          "execution": "PASS"
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+          "function": "_seed_alignments_path",
+          "args": {},
+          "result": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/lib/python3.14/data/dataset_catalog/seed_variable_alignments.yaml",
+          "exists": false,
+          "inside_installed_site": false,
+          "execution": "PASS"
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+          "function": "_wvs_registry_path",
+          "args": {},
+          "result": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/lib/python3.14/data/dataset_catalog/wvs_indicator_registry.yaml",
+          "exists": false,
+          "inside_installed_site": false,
+          "execution": "PASS"
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+          "function": "_load_wvs_registry",
+          "args": {},
+          "result_count": 0,
+          "execution": "PASS"
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.batch.harvester",
+          "function": "_wvs_registry_path",
+          "args": {},
+          "result": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/lib/python3.14/data/dataset_catalog/wvs_indicator_registry.yaml",
+          "exists": false,
+          "inside_installed_site": false,
+          "execution": "PASS"
+        },
+        {
+          "module": "polisyos.data_forge.domains.catalog.batch.harvester",
+          "function": "_load_wvs_indicator_registry",
+          "args": {},
+          "result_count": 0,
+          "execution": "PASS"
+        }
+      ],
+      "own_observations": [
+        {
+          "name": "actual_default_DatasetBatchConfig",
+          "execution": "ERROR",
+          "error_type": "ValueError",
+          "error": "metrics_map.yaml not found: /tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/lib/python3.14/data/dataset_catalog/metrics_map.yaml"
+        },
+        {
+          "name": "actual_explicit_original_metrics_map_DatasetBatchConfig",
+          "execution": "PASS",
+          "value": {
+            "metrics_map_path": "/workspace/e02-F-closeout-20261006/policy-engine/data/dataset_catalog/metrics_map.yaml",
+            "signature": "a6b1cbddf040129fefef2294653bb24e82dc613ca6092b9ae36da828309eed48",
+            "source_registry_count": 35
+          }
+        },
+        {
+          "name": "actual_explicit_original_seed_pair",
+          "execution": "PASS",
+          "value": {
+            "left_variable": "RL.EST",
+            "right_variable": "GE.EST",
+            "exact_name_match": false,
+            "semantic_score": 0.413333,
+            "definition_score": 0.0,
+            "unit_compatibility_score": 0.25,
+            "seed_support_score": 1.0,
+            "shared_canonical_vars": [
+              "institutional_quality"
+            ],
+            "overall_score": 0.394167,
+            "evidence": [
+              "unit_compatibility=0.250",
+              "seed_canonical=institutional_quality"
+            ]
+          }
+        },
+        {
+          "name": "actual_explicit_original_proxy_penalty_profile",
+          "execution": "PASS",
+          "value": {
+            "UA_2024": 0.12,
+            "PL_2024": 0.18,
+            "PL_2022": 0.15
+          }
+        },
+        {
+          "name": "actual_default_Fabric_WVS_registry",
+          "execution": "PASS",
+          "value": {
+            "registry_count": 0
+          }
+        },
+        {
+          "name": "actual_default_Fabric_WVS_list_datasets",
+          "execution": "PASS",
+          "value": {
+            "dataset_ids": [
+              "A009",
+              "A165",
+              "A170",
+              "A173",
+              "D059",
+              "E023",
+              "E025",
+              "E035",
+              "E069_07",
+              "E069_11",
+              "E069_17",
+              "E117",
+              "E233",
+              "E286",
+              "Y022"
+            ]
+          }
+        }
+      ],
+      "graph_origin_violations": {},
+      "own_origin_violations": {},
+      "origin_count_own": 358
+    }
+  ],
+  "hatch_projection_basis": {
+    "existing_force_include_count": 7,
+    "current_sdist_preserves_projection_sources": {
+      "architecture/production_quality/method_catalog_dependency_digest_domains.toml": true,
+      "workers/dowhy-014/worker.py": true,
+      "workers/dowhy-014/protocol.py": true,
+      "workers/dowhy-014/pyproject.toml": true,
+      "workers/dowhy-014/uv.lock": true,
+      "workers/dowhy-014/.python-version": true,
+      "workers/dowhy-014/README.md": true
+    },
+    "migration_fixture_preserves_current_projection_sources": {
+      "architecture/production_quality/method_catalog_dependency_digest_domains.toml": false,
+      "workers/dowhy-014/worker.py": false,
+      "workers/dowhy-014/protocol.py": false,
+      "workers/dowhy-014/pyproject.toml": false,
+      "workers/dowhy-014/uv.lock": false,
+      "workers/dowhy-014/.python-version": false,
+      "workers/dowhy-014/README.md": false
+    },
+    "resources_selected_in_sdist": {
+      "data/dataset_catalog/seed_variable_alignments.yaml": false,
+      "data/dataset_catalog/proxy_metric_alignments.yaml": false,
+      "data/dataset_catalog/wvs_indicator_registry.yaml": false,
+      "data/dataset_catalog/metrics_map.yaml": false
+    },
+    "migration_oracle": "Original LEGACY static include fixture and complete old/new archive equality; not a current required-resource oracle. No test was run or changed by this audit."
+  },
+  "science_scope": "No numerical suites repeated. No production input/admitted execution/identification positive claimed. Actual default missing/degraded observations preserved; explicit original-path positives only compatibility controls."
+}

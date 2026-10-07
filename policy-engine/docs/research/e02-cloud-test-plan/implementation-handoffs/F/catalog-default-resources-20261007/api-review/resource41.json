@@ -1,0 +1,34 @@
+{
+  "target_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+  "tree": "cc4c47d1c12fd3174b546d9622a0878d3b88361d",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py",
+    "tests/repo_quality/tools/test_catalog_default_resources_packaging.py",
+    "tests/unit/data_forge/domains/catalog/knowledge/test_variable_alignment.py",
+    "tests/unit/data_forge/domains/catalog/knowledge/test_proxy_penalties.py",
+    "-q",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/tmp/e02-F-continuation-20261007/api/resource-review-089/resource41-temp",
+    "--junitxml",
+    "/tmp/e02-F-continuation-20261007/api/resource-review-089/resource41.xml"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "env": {
+    "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/FRfxDH8nJU3psJuO:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/UiWY5OJhIS1bCbbj:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/rzzxdszJdjA2TxUF:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/jzraMA8hdiRZ6IzT:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5rluSUsE3KBgGB71:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5Ru6KSKyfVbEb5in",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "exit_code": 0,
+  "seconds": 5.1222965930064674,
+  "stdout_sha256": "1dad520a05c8fbe2d1cd9d17f15877877bc4d60df9aa2a3398b86b123c7868df",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "frozen_source_unchanged": true,
+  "source_spec_qualification": "Author precommit command copied; independent execution target is immutable089 above."
+}

@@ -719,7 +719,7 @@ async def test_default_cycle_preserves_simulation_only_result_and_history(
         assert generation_cycle.validate_generation_cycle_run_history(persisted) == ()
 
         tampered = json.loads(persisted_path.read_text(encoding="utf-8"))
-        tampered["value_port"]["reason"] = "owner profile was evaluated"
+        tampered["value_port"]["authority_blockers"] = []
         assert generation_cycle.validate_generation_cycle_run_history(tampered)
     finally:
         witness.store.close()

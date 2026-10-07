@@ -41,6 +41,7 @@ def test_served_candidate_value_fresh_get_with_candidate_only_substrate(
         tmp_path,
         monkeypatch,
         intervention_substrate=_candidate_only_procurement_intervention_bundle(),
+        bind_bounded_catalog=True,
     )
 
 
@@ -49,6 +50,7 @@ def _exercise_served_candidate_value_fresh_get(
     monkeypatch: pytest.MonkeyPatch,
     *,
     intervention_substrate: object | None = None,
+    bind_bounded_catalog: bool = False,
 ) -> None:
     """Exercise the served candidate path for the supplied substrate fixture."""
 
@@ -121,6 +123,10 @@ def _exercise_served_candidate_value_fresh_get(
     monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
     monkeypatch.setenv("JAX_PLATFORMS", "cpu")
     monkeypatch.setenv("OMP_NUM_THREADS", "1")
+    if bind_bounded_catalog:
+        from tests._helpers.bounded_run_catalog import bind_bounded_run_api_catalog
+
+        bind_bounded_run_api_catalog(tmp_path=tmp_path, monkeypatch=monkeypatch)
 
     recording = next(
         item

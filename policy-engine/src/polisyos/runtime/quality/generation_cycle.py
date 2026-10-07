@@ -141,6 +141,7 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     WORLD_STATE_CONSUMPTION_AUTHORITY_LIMITATIONS,
     EnginePlan,
     JointSimulationApplicability,
+    JointSimulationControllerError,
     JointSimulationHorizonController,
     JointSimulationRequest,
     JointSimulationResult,
@@ -3472,12 +3473,27 @@ class JointSimulationPort:
                     k_world_ref_after=request.world_model_record.content_hash,
                     world_model_record=request.world_model_record,
                 )
-        if prepared_candidate is None:
-            result = self._controller.run(request)
-        else:
-            result = self._controller.run(
-                request,
-                expected_applicability=prepared_candidate.applicability,
+        try:
+            if prepared_candidate is None:
+                result = self._controller.run(request)
+            else:
+                result = self._controller.run(
+                    request,
+                    expected_applicability=prepared_candidate.applicability,
+                )
+        except JointSimulationControllerError as exc:
+            return SimulationPortObservation(
+                candidate_id=candidate_id,
+                status="simulation_blocked",
+                authority_blockers=(exc.code,),
+                diagnostics={
+                    "port": "N5",
+                    "reason": exc.code,
+                    "controller_error": str(exc),
+                },
+                k_world_ref_before=request.world_model_record.content_hash,
+                k_world_ref_after=request.world_model_record.content_hash,
+                world_model_record=request.world_model_record,
             )
         selected_program_index = next(
             (

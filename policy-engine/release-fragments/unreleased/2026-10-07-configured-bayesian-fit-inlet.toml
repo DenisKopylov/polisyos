@@ -1,0 +1,15 @@
+id = "2026-10-07-configured-bayesian-fit-inlet"
+title = "Read retained configured Bayesian fit corpora in uncertainty propagation"
+type = "added"
+component = "foundry-calibration-scientist"
+owner = "E-scoped-B201-B202"
+summary = "The existing uncertainty node accepts an explicit sampling MethodResult/MethodExecutionEvidence pair, binds the configured source edges and complete chain-major corpus, persists Profile2 envelopes in the same CAS, and reopens the complete law before propagation."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry.uncertainty; owned calibration facade; configured Scientist uncertainty inlet"
+compatibility = "Existing report/snapshot inlets retain their behavior. The new pair requires an explicit BayesianFitBinding and remains distinct from CalibrationReport. The existing envelope wire stays1.1."
+migration = "Supply both bayesian_method_result_ref and bayesian_method_evidence_ref and params.posterior_fit with supported method_fqn, features/target source_refs and seed; optional effective_parameters compare recorded diagnostics only. Mixed uncertainty groups and unsupported selected source views refuse."
+api = "BayesianFitBinding, PersistedBayesianFit and persist_bayesian_fit_envelopes are exposed through the existing admitted uncertainty facade and owned calibration facade. Propagation reports retain actual persisted input-envelope refs."
+limitations = "Retained finite corpus only; full requested hyperparameter identity, source/model/noise law, posterior mixing and fit authority remain not_established. Optional parameter bindings are declarations; no unit/estimand is invented. The protected method-job materializer currently does not decode canonical float tags; the native configured fixture uses integer-valued numeric inputs."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+evidence = ["tests/unit/scientist/nodes/test_bayesian_fit_consumer.py"]

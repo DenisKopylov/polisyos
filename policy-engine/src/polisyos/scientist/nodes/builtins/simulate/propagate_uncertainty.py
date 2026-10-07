@@ -17,8 +17,10 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import Metrics, SimulationResult, SimulationResultRef
 from polisyos.foundry.uncertainty import (
+    BayesianFitBinding,
     BoundedIndicatorResponse,
     load_foundry_calibration_report,
+    persist_bayesian_fit_envelopes,
     reconcile_draw_outcomes,
     verify_mean_certificate,
 )
@@ -78,6 +80,9 @@ _SPEC = NodeSpec(
         f"artifacts_index.{ARTIFACT_SIMULATION_RESULT_REF}",
         f"inputs.{INPUT_DATA_SNAPSHOT_REF}",
         f"inputs.{INPUT_CALIBRATION_REPORT_REF}",
+        "inputs.bayesian_method_result_ref",
+        "inputs.bayesian_method_evidence_ref",
+        "params.posterior_fit",
         "params.propagation_config",
         "params.propagation_sensitivity",
     ],
@@ -121,7 +126,8 @@ class PropagateUncertaintyNode:
                 events=[NodeEvent(level="info", message="No numeric metrics for propagation")],
             )
 
-        input_envelopes = _collect_input_envelopes(ctx, state)
+        fit_envelope_refs: dict[str, ArtifactRef] = {}
+        input_envelopes = _collect_input_envelopes(ctx, state, fit_envelope_refs=fit_envelope_refs)
         if not input_envelopes:
             return NodeOutcome(
                 status="skip",
@@ -217,6 +223,7 @@ class PropagateUncertaintyNode:
             unmapped_metric_ids=unmapped_metric_ids,
             missing_output_metric_ids=missing_output_metric_ids,
             incomplete_output_metric_ids=incomplete_output_metric_ids,
+            input_envelope_refs=fit_envelope_refs,
         )
         report_payload = from_canonical_bytes(ctx.store.get_bytes(report_ref.artifact_id))
         outcome_receipt = report_payload.get("draw_outcome_provenance")
@@ -315,6 +322,8 @@ def _extract_numeric_metrics(metrics: Metrics) -> dict[str, float]:
 def _collect_input_envelopes(
     ctx: ExecutionContext,
     state: ExperimentState,
+    *,
+    fit_envelope_refs: dict[str, ArtifactRef] | None = None,
 ) -> dict[str, UncertaintyEnvelope]:
     envelopes: dict[str, UncertaintyEnvelope] = {}
 
@@ -345,6 +354,19 @@ def _collect_input_envelopes(
         elif report.uncertainty_envelope_refs:
             for name, ref in report.uncertainty_envelope_refs.items():
                 envelopes[str(name)] = load_uncertainty_envelope(ctx.store, ref)
+
+    result_ref = state.inputs.get("bayesian_method_result_ref")
+    evidence_ref = state.inputs.get("bayesian_method_evidence_ref")
+    if result_ref is not None or evidence_ref is not None:
+        if result_ref is None or evidence_ref is None:
+            raise ValueError("Bayesian fit requires both result and evidence refs")
+        if envelopes:
+            raise ValueError("Bayesian fit inlet requires its complete unmixed parameter group")
+        binding = BayesianFitBinding.model_validate(state.params.get("posterior_fit"))
+        fit = persist_bayesian_fit_envelopes(ctx.store, result_ref, evidence_ref, binding)
+        envelopes.update(fit.envelopes)
+        if fit_envelope_refs is not None:
+            fit_envelope_refs.update(fit.envelope_refs)
 
     return envelopes
 
@@ -495,6 +517,7 @@ def _persist_report(
     unmapped_metric_ids: list[str],
     missing_output_metric_ids: list[str],
     incomplete_output_metric_ids: list[str],
+    input_envelope_refs: Mapping[str, ArtifactRef] | None = None,
 ) -> ArtifactRef:
     mapping_status = (
         "resolved"
@@ -525,6 +548,9 @@ def _persist_report(
     payload = {
         "schema_version": "1.1",
         "input_envelope_count": len(input_envelopes),
+        "bayesian_fit_envelope_refs": {
+            name: ref.model_dump(mode="json") for name, ref in (input_envelope_refs or {}).items()
+        },
         "output_metric_count": len(output_metrics),
         "mapped_param_count": len(mapped_params),
         "mapped_params": sorted(mapped_params),
@@ -543,6 +569,10 @@ def _persist_report(
             kind="foundry.propagation_report",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.foundry.PropagationReport", version="1.1"),
+            inputs=[
+                InputRef(artifact_id=ref.artifact_id, role=f"input_envelope:{name}")
+                for name, ref in (input_envelope_refs or {}).items()
+            ],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )

@@ -253,7 +253,9 @@ def _data_field_getattr(
     scopes = [
         scope
         for scope in symbols.get_children()
-        if scope.get_name() == definition.name and scope.get_lineno() == definition.lineno
+        if scope.get_type() == symtable.SymbolTableType.FUNCTION
+        and scope.get_name() == definition.name
+        and scope.get_lineno() == definition.lineno
     ]
     if len(scopes) != 1:
         return None

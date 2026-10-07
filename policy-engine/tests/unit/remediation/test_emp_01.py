@@ -18,19 +18,6 @@ import pytest
 import polisyos.runtime.quality.generation_cycle as generation_cycle
 from polisyos.data_forge import read_api
 from polisyos.runtime.quality import cycle_substrate, data_state_substrate, substrate_registry
-from polisyos.runtime.quality.design_problem import (
-    AuthorityProfile,
-    CandidateLever,
-    CandidateLeverSpace,
-    DesignObjective,
-    DesignProblem,
-    DesignStakeholder,
-    EvidenceAcquisitionNeeds,
-    EvidenceNeed,
-    JurisdictionTimeSemantics,
-    NLProvenance,
-    OutcomeOfInterest,
-)
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 
 
@@ -558,280 +545,179 @@ async def test_default_cycle_value_refusal_survives_persisted_run_readback(
     tmp_path: Path,
     row_count: int,
 ) -> None:
-    """The real default N8 path persists a sparse-profile refusal without acquisition claims."""
+    """The default N8 owner path persists a sparse-profile refusal after real N5."""
 
-    problem = DesignProblem(
-        design_problem_id="emp01_sparse_profile_cycle",
-        problem_statement="Synthetic EMP01 owner-profile boundary fixture.",
-        domain="synthetic_emp01",
-        nl_provenance=NLProvenance(
-            raw_request="Fixture only; no policy evidence is asserted.",
-            source_surface="test_emp_01",
-        ),
-        authority_profile=AuthorityProfile(
-            requester_authority="research_lab",
-            requested_authority_level="research",
-            mandate="Synthetic test fixture only.",
-        ),
-        jurisdiction_time=JurisdictionTimeSemantics(
-            region="UA",
-            valid_time="synthetic_test_only",
-            as_of="synthetic_test_only",
-            policy_time="synthetic_test_only",
-            data_time="synthetic_test_only",
-        ),
-        objectives=[
-            DesignObjective(
-                objective_id="outcome_improvement",
-                description="Exercise the default value-owner boundary.",
-                metric_id="outcome",
-            )
-        ],
-        stakeholders=[
-            DesignStakeholder(
-                stakeholder_id="fixture_population",
-                name="Synthetic fixture population",
-                role="test_only",
-            )
-        ],
-        outcome_of_interest=OutcomeOfInterest(
-            target_variable="outcome",
-            metric_id="outcome",
-            estimand="synthetic_test_only",
-        ),
-        candidate_lever_space=CandidateLeverSpace(
-            allowed_operator_kinds=["grant"],
-            candidate_levers=[
-                CandidateLever(
-                    lever_id="fixture_grant",
-                    operator_kind="grant",
-                    instrument="Synthetic fixture instrument",
-                    target_slot="outcome",
-                )
-            ],
-        ),
-        evidence_acquisition_needs=EvidenceAcquisitionNeeds(
-            needs=[
-                EvidenceNeed(
-                    need_id="fixture_owner_rows",
-                    question="Are enough synthetic owner rows available?",
-                    required_for="test fixture behavior",
-                )
-            ]
-        ),
-    )
-    registration = substrate_registry.SubstrateRegistration(
-        source_id="emp01_synthetic_fixture",
-        family_id="emp01_synthetic_fixture",
-        layer=substrate_registry.SubstrateLayer.L2,
-        coverage=substrate_registry.SubstrateCoverage(
-            coverage_score=0.1,
-            coverage_kind="synthetic_test_fixture",
-            coverage_rule_ref="synthetic_test_only",
-            dataset_count=1,
-            metric_binding_count=1,
-            observation_count=row_count,
-        ),
-        trust_tier=substrate_registry.SubstrateTrustTier(
-            tier="synthetic_test_only",
-            trust_cap=0.1,
-            trust_multiplier=0.1,
-            min_coverage=0.0,
-            max_coverage=1.0,
-            authority_ref="synthetic_test_only",
-        ),
-        identification_mode="synthetic_test_only",
-        schema_regime=substrate_registry.SubstrateSchemaRegime(
-            schema_regime_id="synthetic_test_only",
-            authority_ref="synthetic_test_only",
-        ),
-        data_version="synthetic_test_only",
-        snapshot_id="synthetic_test_only",
-        source_snapshot_id="synthetic_test_only",
-        provenance_refs=("synthetic-fixture://emp01",),
-        authority_refs=("synthetic-fixture://emp01",),
-    )
-    entry = substrate_registry.build_substrate_registry_entry(registration)
-    registry = substrate_registry.build_substrate_registry(
-        (entry,),
-        producer_ref="test_emp_01.synthetic_fixture",
-        source_catalog_refs=("synthetic-fixture://emp01",),
-    )
-    monkeypatch.setattr(
-        generation_cycle,
-        "build_substrate_registry_from_existing_catalogs",
-        lambda _repo_root: registry,
-    )
-    world_record = generation_cycle._build_boundary_world_model_record(
-        repo_root=tmp_path,
-        problem=problem,
-        outcome="outcome",
-        policy_slot_ids=("outcome",),
-        substrate_registry=registry,
-        selected_registry_entry_hashes=(entry.entry_content_hash,),
+    from polisyos.core.security.tenant_context import tenant_scope
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _owner_program_graph_n5_witness,
+        _problem,
     )
 
-    catalog_path = tmp_path / "l1.duckdb"
-    _seed_synthetic_baseline_identity(catalog_path)
-    rows = tuple(
-        (
-            "UA",
-            2020 + index,
-            10.0 + index,
-            "dataset-ratio",
-            f"obs-ua-{2020 + index}",
-            '{"unit":"ratio"}',
+    problem = _problem("emp01_sparse_profile_cycle").model_copy(
+        update={"problem_statement": "Synthetic EMP01 fixture; no policy claim."}
+    )
+    witness = _owner_program_graph_n5_witness(
+        tmp_path / "n5",
+        income_values=(1000.0, 2000.0),
+        problem_seed=problem,
+    )
+    problem = witness.problem
+    try:
+        outcome = problem.outcome_of_interest.target_variable
+        catalog_path = tmp_path / "l1.duckdb"
+        _seed_synthetic_baseline_identity(catalog_path)
+        # These baseline-only rows test the four-row floor, not an empirical panel.
+        rows = tuple(
+            (
+                "UA",
+                2020 + index,
+                10.0 + index,
+                "dataset-ratio",
+                f"obs-ua-{2020 + index}",
+                '{"unit":"ratio"}',
+            )
+            for index in range(row_count)
         )
-        for index in range(row_count)
-    )
-    connection = _RowsConnection(rows)
-    monkeypatch.setattr(
-        substrate_registry,
-        "default_substrate_catalog_paths",
-        lambda _repo_root: SimpleNamespace(l1_dcat_path=catalog_path),
-    )
-    monkeypatch.setattr(
-        read_api.catalog,
-        "default_acquisition_overlay_path",
-        lambda _repo_root: None,
-    )
-    monkeypatch.setattr(
-        read_api.catalog,
-        "open_catalog_read_session",
-        lambda _path, overlay_path=None: connection,
-    )
-    monkeypatch.setattr(
-        data_state_substrate,
-        "l1_dcat_variable_availability",
-        lambda *_args, **_kwargs: SimpleNamespace(
-            status="available",
-            coverage_ref="catalog://emp01/outcome",
-            dataset_count=1,
-            metric_binding_count=1,
-            observation_count=row_count,
-        ),
-    )
+        connection = _RowsConnection(rows)
+        monkeypatch.setattr(
+            substrate_registry,
+            "default_substrate_catalog_paths",
+            lambda _repo_root: SimpleNamespace(l1_dcat_path=catalog_path),
+        )
+        monkeypatch.setattr(
+            read_api.catalog,
+            "default_acquisition_overlay_path",
+            lambda _repo_root: None,
+        )
+        monkeypatch.setattr(
+            read_api.catalog,
+            "open_catalog_read_session",
+            lambda _path, overlay_path=None: connection,
+        )
+        monkeypatch.setattr(
+            data_state_substrate,
+            "l1_dcat_variable_availability",
+            lambda *_args, **_kwargs: SimpleNamespace(
+                status="available",
+                coverage_ref=f"catalog://emp01/{outcome}",
+                dataset_count=1,
+                metric_binding_count=1,
+                observation_count=row_count,
+            ),
+        )
 
-    candidate = SimpleNamespace(
-        candidate_id="candidate_emp01_sparse_profile",
-        atom=SimpleNamespace(
-            intervention_id="intervention_emp01_sparse_profile",
-            content_hash="sha256:" + "a" * 64,
-            target_world_slots=("outcome",),
-            world_model_record_ref=world_record.world_model_record_id,
-        ),
-        diversity_key=("grant", "fixture_population", "synthetic", "baseline"),
-    )
-
-    class _FixtureGenerationPort:
-        async def __call__(self, _problem: DesignProblem, *, cycle_index: int) -> Any:
-            del cycle_index
-            return SimpleNamespace(
-                status="generated",
-                candidates=(candidate,),
-                surrogate_rankings=(
-                    SimpleNamespace(
-                        candidate_id=candidate.candidate_id,
-                        score=0.9,
-                        voi_estimate=10.0,
+        class _FixtureGenerationPort:
+            async def __call__(self, _problem: Any, *, cycle_index: int) -> Any:
+                assert cycle_index == 0
+                candidate = witness.candidate
+                return SimpleNamespace(
+                    status="generated",
+                    candidates=(candidate,),
+                    surrogate_rankings=(
+                        SimpleNamespace(
+                            candidate_id=candidate.candidate_id,
+                            score=0.9,
+                            voi_estimate=10.0,
+                        ),
                     ),
+                    grounding_dispositions=(),
+                )
+
+        class _FixtureGroundingPort:
+            def __call__(self, *, candidate: Any, **_kwargs: Any) -> Any:
+                return generation_cycle.CandidateGroundingObservation(
+                    candidate_id=str(candidate.candidate_id),
+                    status="grounded_shadow",
+                    grounding_score=0.8,
+                    current_valid=False,
+                    grounding_source="cgf_firewall",
+                    grounding_disposition="synthetic_test_only",
+                    report_ref="synthetic-fixture://emp01/grounding",
+                )
+
+        class _FixturePromotionPort:
+            def __call__(self, **_kwargs: Any) -> Any:
+                return generation_cycle.PromotionPortObservation(
+                    status="not_promoted",
+                    reason="synthetic_emp01_test_only",
+                )
+
+        controller = generation_cycle.GenerationCycleController(
+            generation_port=_FixtureGenerationPort(),
+            grounding_port=_FixtureGroundingPort(),
+            promotion_port=_FixturePromotionPort(),
+            repo_root=tmp_path,
+            cycle_substrate_context=witness.context,
+            artifact_store=witness.store,
+            authority_scope="contract_testing",
+        )
+        assert isinstance(controller._simulation_port, generation_cycle.JointSimulationPort)
+        assert isinstance(
+            controller._value_port,
+            generation_cycle._DefaultSimulationBoundFoundryValuePort,
+        )
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            run = await controller.run(
+                problem,
+                budget_state=BudgetState(
+                    limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
                 ),
-                grounding_dispositions=(),
+                min_cycles=1,
+                max_cycles=1,
             )
 
-    class _FixtureGroundingPort:
-        def __call__(self, *, candidate: Any, **_kwargs: Any) -> Any:
-            return generation_cycle.CandidateGroundingObservation(
-                candidate_id=str(candidate.candidate_id),
-                status="grounded_shadow",
-                grounding_score=0.8,
-                current_valid=False,
-                grounding_source="cgf_firewall",
-                grounding_disposition="synthetic_test_only",
-                report_ref="synthetic-fixture://emp01/grounding",
-            )
+        simulation = run.cycles[-1].simulation
+        assert simulation.status == "joint_simulated"
+        assert simulation.simulation_ref is not None
+        assert simulation.simulation_result_ref is not None
+        assert witness.store.verify(simulation.simulation_result_ref.artifact_id).ok
 
-    class _FixtureSimulationPort:
-        def __call__(self, *, candidate: Any, **_kwargs: Any) -> Any:
-            return generation_cycle.SimulationPortObservation(
-                candidate_id=str(candidate.candidate_id),
-                status="joint_simulated",
-                simulation_ref="sha256:" + "b" * 64,
-                world_model_record=world_record,
-                k_world_ref_before=world_record.content_hash,
-                k_world_ref_after=world_record.content_hash,
-            )
+        expected_reason = (
+            f"selected owner profile has {row_count} usable rows; at least 4 are required "
+            f"owner_access_ref=catalog://emp01/{outcome}#selected-row-count"
+        )
+        assert run.value_port.status == "value_blocked", run.value_port.model_dump(
+            mode="json"
+        )
+        assert run.value_port.authority_blockers == (
+            "acquire_data:value_owner_rows_insufficient",
+        ), run.value_port.model_dump(mode="json")
+        assert run.value_port.reason == expected_reason
+        assert run.value_port.acquisition_requirement is None
+        assert run.cycles[-1].value_port.status == "value_blocked"
+        assert run.cycles[-1].value_port.authority_blockers == (
+            "acquire_data:value_owner_rows_insufficient",
+        )
+        assert run.cycles[-1].value_port.reason == expected_reason
+        assert run.cycles[-1].value_port.acquisition_requirement is None
+        assert len(connection.calls) == 1
+        assert "LIMIT ?" in connection.calls[0][0]
+        assert connection.calls[0][1][-1] == 20_001
 
-    class _FixturePromotionPort:
-        def __call__(self, **_kwargs: Any) -> Any:
-            return generation_cycle.PromotionPortObservation(
-                status="not_promoted",
-                reason="synthetic_emp01_test_only",
-            )
+        persisted_path = tmp_path / "generation-cycle-run.json"
+        persisted_path.write_text(
+            json.dumps(run.model_dump(mode="json"), sort_keys=True, separators=(",", ":")),
+            encoding="utf-8",
+        )
+        persisted = json.loads(persisted_path.read_text(encoding="utf-8"))
+        restored = generation_cycle.GenerationCycleRun.from_persisted_payload(persisted)
+        assert restored.value_port.reason == expected_reason
+        assert restored.value_port.authority_blockers == (
+            "acquire_data:value_owner_rows_insufficient",
+        )
+        assert restored.value_port.acquisition_requirement is None
+        assert restored.cycles[-1].value_port.reason == expected_reason
+        assert restored.cycles[-1].value_port.authority_blockers == (
+            "acquire_data:value_owner_rows_insufficient",
+        )
+        assert restored.cycles[-1].value_port.acquisition_requirement is None
+        assert generation_cycle.validate_generation_cycle_run_history(persisted) == ()
 
-    controller = generation_cycle.GenerationCycleController(
-        generation_port=_FixtureGenerationPort(),
-        grounding_port=_FixtureGroundingPort(),
-        simulation_port=_FixtureSimulationPort(),
-        promotion_port=_FixturePromotionPort(),
-        repo_root=tmp_path,
-        authority_scope="contract_testing",
-    )
-    assert isinstance(
-        controller._value_port,
-        generation_cycle._DefaultSimulationBoundFoundryValuePort,
-    )
-    run = await controller.run(
-        problem,
-        budget_state=BudgetState(
-            limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
-        ),
-        min_cycles=1,
-        max_cycles=1,
-    )
-
-    expected_reason = (
-        f"selected owner profile has {row_count} usable rows; at least 4 are required "
-        "owner_access_ref=catalog://emp01/outcome#selected-row-count"
-    )
-    assert len(connection.calls) == 1
-    assert "LIMIT ?" in connection.calls[0][0]
-    assert connection.calls[0][1][-1] == 20_001
-    assert run.value_port.status == "value_blocked"
-    assert run.value_port.authority_blockers == (
-        "acquire_data:value_owner_rows_insufficient",
-    )
-    assert run.value_port.reason == expected_reason
-    assert run.value_port.acquisition_requirement is None
-    assert run.cycles[-1].value_port.status == "value_blocked"
-    assert run.cycles[-1].value_port.authority_blockers == (
-        "acquire_data:value_owner_rows_insufficient",
-    )
-    assert run.cycles[-1].value_port.reason == expected_reason
-    assert run.cycles[-1].value_port.acquisition_requirement is None
-
-    persisted_path = tmp_path / "generation-cycle-run.json"
-    persisted_path.write_text(
-        json.dumps(run.model_dump(mode="json"), sort_keys=True, separators=(",", ":")),
-        encoding="utf-8",
-    )
-    persisted = json.loads(persisted_path.read_text(encoding="utf-8"))
-    restored = generation_cycle.GenerationCycleRun.from_persisted_payload(persisted)
-    assert restored.value_port.reason == expected_reason
-    assert restored.value_port.authority_blockers == (
-        "acquire_data:value_owner_rows_insufficient",
-    )
-    assert restored.value_port.acquisition_requirement is None
-    assert restored.cycles[-1].value_port.reason == expected_reason
-    assert restored.cycles[-1].value_port.authority_blockers == (
-        "acquire_data:value_owner_rows_insufficient",
-    )
-    assert restored.cycles[-1].value_port.acquisition_requirement is None
-    assert generation_cycle.validate_generation_cycle_run_history(persisted) == ()
-
-    tampered = json.loads(persisted_path.read_text(encoding="utf-8"))
-    tampered["value_port"]["reason"] = "owner rows are sufficient"
-    assert generation_cycle.validate_generation_cycle_run_history(tampered)
+        tampered = json.loads(persisted_path.read_text(encoding="utf-8"))
+        tampered["value_port"]["reason"] = "owner rows are sufficient"
+        assert generation_cycle.validate_generation_cycle_run_history(tampered)
+    finally:
+        witness.store.close()
 
 
 def test_identification_set_and_statistical_uncertainty_remain_separate() -> None:

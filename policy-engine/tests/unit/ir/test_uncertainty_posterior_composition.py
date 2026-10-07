@@ -150,14 +150,20 @@ def test_incomplete_profile_declaration_refuses_at_shared_inlet(declaration, ope
         metadata = {keys[declaration]: metadata[keys[declaration]]}
     forged = source.model_copy(update={"metadata": metadata})
     calls = []
-    func = lambda x: calls.append(x) or x
-    with pytest.raises(ValueError):
+
+    def func(x):
+        calls.append(x)
+        return x
+
+    def compose():
         if operation == "push":
-            push_forward_envelope(func, forged)
-        elif operation == "compress":
-            compress_envelope(forged, target="interval")
-        else:
-            pull_back_envelope(func, forged, upstream_particles=(0.0, 1.0))
+            return push_forward_envelope(func, forged)
+        if operation == "compress":
+            return compress_envelope(forged, target="interval")
+        return pull_back_envelope(func, forged, upstream_particles=(0.0, 1.0))
+
+    with pytest.raises(ValueError):
+        compose()
     assert calls == []
 
 

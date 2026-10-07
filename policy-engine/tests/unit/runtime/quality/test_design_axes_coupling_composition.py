@@ -194,6 +194,35 @@ def test_modular_graph_can_compose_only_with_coupling_proof() -> None:
     assert receipt.whole_design_authority == "shadow_governed_only"
 
 
+def test_candidate_graph_with_same_none_strength_edge_cannot_claim_modularity() -> None:
+    observed_graph = _modular_graph()
+    candidate_graph = observed_graph.model_copy(update={"evidence_state": "candidate"})
+    absent_graph = observed_graph.model_copy(update={"evidence_state": "absent"})
+
+    observed = classify_coupling(observed_graph)
+    candidate = classify_coupling(candidate_graph)
+    absent = classify_coupling(absent_graph)
+    candidate_decomposition = decompose_design(
+        candidate_graph,
+        candidate,
+        critical_path_module_refs=list(_modules()),
+    )
+
+    # The only difference between these graphs is the evidence state. Keeping
+    # the discovery ref and none-strength edge must not promote a candidate to
+    # the observed path that classifies it as independent/modular.
+    assert observed.coupling_regime == "modular"
+    assert candidate.coupling_regime == "entangled"
+    assert candidate.defaulted_to_more_coupling is True
+    assert candidate.firewall_disposition == "block"
+    assert candidate_decomposition.composition_disposition == "system_evidence_required"
+
+    # An explicitly absent graph carrying the same edge markers stays fail-closed too.
+    assert absent.coupling_regime == "entangled"
+    assert absent.defaulted_to_more_coupling is True
+    assert absent.firewall_disposition == "block"
+
+
 def test_near_decomposable_composes_with_residual_risk_limitation() -> None:
     graph = _near_decomposable_graph()
     classification = classify_coupling(graph)

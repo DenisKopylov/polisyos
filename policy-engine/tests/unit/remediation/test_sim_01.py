@@ -10,6 +10,7 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     HorizonSpec,
     JointSimulationControllerError,
     JointSimulationHorizonController,
+    JointSimulationRequest,
     SimulationTrajectory,
     TrajectoryPoint,
 )
@@ -273,6 +274,153 @@ def test_static_engine_rejected_by_actual_grid_falls_back_to_stock_flow() -> Non
     assert [point.outcomes["stock1"] for point in joint.points] == pytest.approx(
         [0.0, 4.0, 8.1, 12.29]
     )
+
+
+def _system_dynamics_input_fallback_request(
+    first_flow_matrix: object,
+) -> tuple[JointSimulationRequest, EnginePlan]:
+    """Build two registry-backed plans with invalid and valid stock-flow inputs."""
+
+    base = _request()
+    world_ref = base.world_model_record.world_model_record_id
+    atoms = (
+        _atom(
+            intervention_id="capacity_inflow",
+            causal_variable="agents.income",
+            engine_variable="exogenous_inflows.0",
+            value=2.0,
+            world_model_record_ref=world_ref,
+        ),
+        _atom(
+            intervention_id="demand_inflow",
+            causal_variable="government.balance",
+            engine_variable="exogenous_inflows.1",
+            value=3.0,
+            world_model_record_ref=world_ref,
+        ),
+    )
+    variable_map = {
+        "agents.income": "exogenous_inflows.0",
+        "government.balance": "exogenous_inflows.1",
+        "stock0": "stock:0",
+        "stock1": "stock:1",
+    }
+
+    def plan(*, objective_ref: str, flow_matrix: object) -> EnginePlan:
+        return EnginePlan(
+            engine_kind="system_dynamics",
+            objective_ref=objective_ref,
+            variable_map=dict(variable_map),
+            system_dynamics_state={
+                "initial_stocks": [10.0, 0.0],
+                "flow_matrix": flow_matrix,
+                "exogenous_inflows": [0.0, 0.0],
+            },
+            system_dynamics_params={"dt": 1.0},
+        )
+
+    invalid_plan = plan(
+        objective_ref="objective://invalid-first-system-dynamics-plan",
+        flow_matrix=first_flow_matrix,
+    )
+    valid_plan = plan(
+        objective_ref="objective://valid-second-system-dynamics-plan",
+        flow_matrix=[[0.0, 0.1], [0.0, 0.0]],
+    )
+    request = base.model_copy(
+        update={
+            "intervention_atoms": atoms,
+            "selected_outcomes": ("stock0", "stock1"),
+            "baseline_state": {"stock0": 10.0, "stock1": 0.0},
+            "horizon": HorizonSpec(start=0, end=3, step=1),
+            "engine_plan": (invalid_plan, valid_plan),
+        }
+    )
+    return request, valid_plan
+
+
+@pytest.mark.parametrize(
+    "invalid_flow_matrix",
+    [
+        pytest.param([0.0, 0.1], id="wrong-rank"),
+        pytest.param([[0.0, 0.1, 0.0], [0.0, 0.0, 0.0]], id="symbolic-dimension-mismatch"),
+    ],
+)
+def test_invalid_first_system_dynamics_plan_falls_back_to_registered_second(
+    invalid_flow_matrix: object,
+) -> None:
+    """B07: schema-invalid first inputs are rejected before the registered fallback runs."""
+
+    request, valid_plan = _system_dynamics_input_fallback_request(invalid_flow_matrix)
+    controller = JointSimulationHorizonController()
+
+    result = controller.run(request)
+
+    assert [item.decision for item in result.engine_decisions] == ["unsupported", "selected"]
+    assert result.engine_decisions[0].reason == "engine_input_contract_failed"
+    selected = result.engine_decisions[1]
+    assert selected.engine_kind == "system_dynamics"
+    method_fqn = selected.method_fqn
+    assert method_fqn == "simulation.system_dynamics.stock_flow@1.0.0"
+    assert selected.objective_ref == valid_plan.objective_ref
+    assert result.trajectories
+    assert all(
+        trajectory.engine_kind == "system_dynamics"
+        and trajectory.objective_ref == valid_plan.objective_ref
+        for trajectory in result.trajectories
+    )
+
+    joint = result.trajectory_for("joint", ("capacity_inflow", "demand_inflow"))
+    assert [point.step for point in joint.points] == [0, 1, 2, 3]
+    registered_method = controller._registry.get(method_fqn)
+    direct = registered_method.pure_step(
+        {
+            "initial_stocks": [10.0, 0.0],
+            "flow_matrix": [[0.0, 0.1], [0.0, 0.0]],
+            "exogenous_inflows": [2.0, 3.0],
+        },
+        {"n_steps": 3, "dt": 1.0},
+    )["result"]["trajectory"]
+    assert [row[0] for row in direct] == pytest.approx(
+        [point.outcomes["stock0"] for point in joint.points]
+    )
+    assert [row[1] for row in direct] == pytest.approx(
+        [point.outcomes["stock1"] for point in joint.points]
+    )
+    assert [point.outcomes["stock0"] for point in joint.points] == pytest.approx(
+        [10.0, 11.0, 11.9, 12.71]
+    )
+    assert [point.outcomes["stock1"] for point in joint.points] == pytest.approx(
+        [0.0, 4.0, 8.1, 12.29]
+    )
+
+
+@pytest.mark.parametrize(
+    "invalid_flow_matrix",
+    [
+        pytest.param([0.0, 0.1], id="wrong-rank"),
+        pytest.param([[0.0, 0.1, 0.0], [0.0, 0.0, 0.0]], id="symbolic-dimension-mismatch"),
+    ],
+)
+def test_removing_system_dynamics_input_validation_keeps_marker_but_fails(
+    invalid_flow_matrix: object,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """R1: removing schema validation leaves selection green but the real engine fails."""
+
+    request, _valid_plan = _system_dynamics_input_fallback_request(invalid_flow_matrix)
+    controller = JointSimulationHorizonController()
+    monkeypatch.setattr(
+        controller,
+        "_registered_system_dynamics_input_issue",
+        lambda request, plan, decision: None,
+    )
+
+    selected = controller._select_engine(request)
+    assert selected.decisions[0].decision == "selected"
+    assert selected.decisions[0].reason == "engine_eligibility_satisfied"
+    with pytest.raises(ValueError, match="flow_matrix must be a square matrix"):
+        controller.run(request)
 
 
 def test_foreign_trajectory_cannot_satisfy_selected_plan(

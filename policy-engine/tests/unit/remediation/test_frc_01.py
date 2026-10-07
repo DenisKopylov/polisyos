@@ -8,6 +8,7 @@ result does not establish the configured production S10 route.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
@@ -42,7 +43,11 @@ def _finite_estimator_report(
     )
 
 
-def _persisted_bridge_fixture(tmp_path: Path) -> tuple[Any, Any, Any]:
+def _persisted_bridge_fixture(
+    tmp_path: Path,
+    *,
+    observations: tuple[bool | None, ...] = (True, False),
+) -> tuple[Any, Any, Any]:
     """Build persisted typed bridge evidence for a focused S10 consumer test.
 
     This is a synthetic old-contract forecast-bridge fixture. It exercises CAS
@@ -160,18 +165,23 @@ def _persisted_bridge_fixture(tmp_path: Path) -> tuple[Any, Any, Any]:
         )
         refs[role] = ref
 
-    comparisons = [
-        OutcomeComparison(
-            metric_name=f"frc01-metric-{index}",
-            y_pred=float(index),
-            y_true=float(index) if within_ci else float(index) + 5.0,
-            absolute_error=0.0 if within_ci else 5.0,
-            within_ci=within_ci,
-            ci_lower=float(index) - 0.5,
-            ci_upper=float(index) + 0.5,
+    comparisons = []
+    for index, within_ci in enumerate(observations, start=1):
+        observed = within_ci is not None
+        comparisons.append(
+            OutcomeComparison(
+                metric_name=f"frc01-metric-{index}",
+                y_pred=float(index),
+                y_true=float(index) if within_ci is not False else float(index) + 5.0,
+                absolute_error=5.0 if within_ci is False else 0.0,
+                within_ci=within_ci,
+                ci_lower=float(index) - 0.5 if observed else None,
+                ci_upper=float(index) + 0.5 if observed else None,
+            )
         )
-        for index, within_ci in ((1, True), (2, False))
-    ]
+    denominator = sum(value is not None for value in observations)
+    numerator = sum(value is True for value in observations)
+    pass_rate = numerator / denominator if denominator else None
     report = BacktestReport(
         schema_version="1.0",
         report_id=report_id,
@@ -183,21 +193,23 @@ def _persisted_bridge_fixture(tmp_path: Path) -> tuple[Any, Any, Any]:
                 scenario_label="persisted FRC-01 ETS predictive comparisons",
                 data_source="held-out-observations",
                 outcome_comparisons=comparisons,
-                requested_count=2,
-                compared_count=2,
-                interval_requested_count=2,
-                interval_available_count=2,
-                interval_evaluated_count=2,
-                interval_hit_count=1,
-                interval_availability=1.0,
-                interval_hit_rate=0.5,
+                requested_count=len(observations),
+                compared_count=len(observations),
+                interval_requested_count=len(observations),
+                interval_available_count=denominator,
+                interval_evaluated_count=denominator,
+                interval_hit_count=numerator,
+                interval_availability=(
+                    denominator / len(observations) if observations else 0.0
+                ),
+                interval_hit_rate=pass_rate,
                 nominal_confidence_level=0.95,
                 interval_type="prediction",
             )
         ],
-        overall_coverage_probability=0.5,
+        overall_coverage_probability=pass_rate,
         n_scenarios=1,
-        n_metrics_evaluated=2,
+        n_metrics_evaluated=len(observations),
         metadata={
             "model_spec_ref": model_ref,
             "policy_spec_ref": policy_ref,
@@ -206,10 +218,10 @@ def _persisted_bridge_fixture(tmp_path: Path) -> tuple[Any, Any, Any]:
             "rule_version_ref": rule_ref,
             "estimand": estimand,
             "authority_scope": "predictive_only",
-            "calibration_numerator": 1,
-            "calibration_denominator": 2,
-            "interval_hit_count": 1,
-            "interval_evaluated_count": 2,
+            "calibration_numerator": numerator,
+            "calibration_denominator": denominator,
+            "interval_hit_count": numerator,
+            "interval_evaluated_count": denominator,
         },
     )
     report_ref = persist_backtest_report(
@@ -288,6 +300,144 @@ def _frc01_subjects() -> tuple[Any, Any, Any]:
     )
     candidate = SimpleNamespace(candidate_id="frc01-candidate")
     return candidate, problem, world_record
+
+
+def _gateway_inputs_for_bridge_evidence(
+    store: Any,
+    evidence_ref: Any,
+    evidence: Any,
+) -> tuple[Mapping[str, Any], _PersistedForecastEvidenceResolver]:
+    """Run the production-named gateway over canonical CAS evidence."""
+
+    from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
+
+    candidate, problem, world_record = _frc01_subjects()
+    resolver = _PersistedForecastEvidenceResolver(store)
+    method_result = SimpleNamespace(
+        output={
+            "report": _finite_estimator_report(),
+            "empirical_calibration_evidence_ref": evidence_ref,
+            "expected_rule_version_ref": "rolling-origin-residual-conformal.v1",
+        },
+        temporal_roles=SimpleNamespace(
+            prediction_time=evidence.prediction_time,
+            observation_time=evidence.observation_time,
+            policy_effective_time=evidence.policy_effective_time,
+            data_valid_time=evidence.data_valid_time,
+            calibration_window_start=evidence.calibration_window_start,
+            calibration_window_end=evidence.calibration_window_end,
+        ),
+    )
+    inputs = RealValueOwnerGateway(
+        repo_root=store.root,
+        empirical_evidence_resolver=resolver,
+    ).produce_forecast_inputs(
+        candidate=candidate,
+        problem=problem,
+        world_record=world_record,
+        method_result=method_result,
+        selected_method_fqn="forecasting.univariate.exponential_smoothing@1.0.0",
+    )
+    return inputs, resolver
+
+
+@pytest.mark.parametrize(
+    ("observations", "expected_numerator", "expected_denominator", "expected_rate"),
+    [
+        pytest.param((None,), 0, 0, None, id="unavailable-observation"),
+        pytest.param((False,), 0, 1, 0.0, id="observed-zero-rate"),
+    ],
+)
+def test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero(
+    tmp_path: Path,
+    observations: tuple[bool | None, ...],
+    expected_numerator: int,
+    expected_denominator: int,
+    expected_rate: float | None,
+) -> None:
+    """Canonical E readback keeps absence distinct from a measured zero."""
+
+    store, evidence_ref, evidence = _persisted_bridge_fixture(
+        tmp_path,
+        observations=observations,
+    )
+    assert evidence.recomputed_numerator == expected_numerator
+    assert evidence.recomputed_denominator == expected_denominator
+    assert evidence.recomputed_pass_rate == expected_rate
+
+    inputs, resolver = _gateway_inputs_for_bridge_evidence(
+        store,
+        evidence_ref,
+        evidence,
+    )
+    support = inputs["forecast_support"]
+    record = inputs["forecast_calibration_record"]
+
+    assert resolver.resolved_refs == [evidence_ref]
+    assert support.forecast_tier == "blocked"
+    if expected_denominator == 0:
+        assert evidence.evidence_kind == "unavailable"
+        assert evidence.usable_for_calibration is False
+        assert evidence.floor_passed is False
+        assert "zero_observation_denominator" in evidence.failure_codes
+        assert record is None
+        assert support.calibration_record_ref is None
+        assert "zero_observation_denominator" in (
+            support.forecast_authority_disposition_reason
+        )
+        assert support.s6_limitation_refs
+    else:
+        assert evidence.evidence_kind == "observed_interval_comparisons"
+        assert evidence.usable_for_calibration is False
+        assert record is not None
+        assert record.denominator == 1
+        assert record.numerator == 0
+        assert record.pass_rate == 0.0
+        assert record.calibration_status == "limit"
+        assert support.calibration_record_ref == record.calibration_ref
+
+
+@pytest.mark.parametrize(
+    ("observations", "field", "value"),
+    [
+        pytest.param((True,), "recomputed_pass_rate", True, id="boolean-rate"),
+        pytest.param((False,), "recomputed_pass_rate", False, id="boolean-zero-rate"),
+        pytest.param((True,), "recomputed_pass_rate", "1.0", id="string-rate"),
+        pytest.param((True,), "recomputed_pass_rate", float("nan"), id="nan-rate"),
+        pytest.param((True,), "recomputed_pass_rate", float("inf"), id="infinite-rate"),
+        pytest.param((False,), "recomputed_pass_rate", None, id="missing-rate-with-data"),
+        pytest.param((None,), "recomputed_pass_rate", 0.0, id="rate-without-data"),
+        pytest.param((True,), "recomputed_numerator", True, id="boolean-numerator"),
+        pytest.param((True,), "recomputed_numerator", "1", id="string-numerator"),
+        pytest.param((True,), "recomputed_numerator", 1.0, id="float-numerator"),
+        pytest.param((True,), "recomputed_denominator", True, id="boolean-denominator"),
+        pytest.param((True,), "recomputed_denominator", "1", id="string-denominator"),
+        pytest.param((True,), "recomputed_denominator", 1.0, id="float-denominator"),
+    ],
+)
+def test_empirical_projection_rejects_malformed_optional_rate_and_counters(
+    tmp_path: Path,
+    observations: tuple[bool | None, ...],
+    field: str,
+    value: object,
+) -> None:
+    """A projection cannot coerce malformed metrics into plausible numbers."""
+
+    _store, evidence_ref, evidence = _persisted_bridge_fixture(
+        tmp_path,
+        observations=observations,
+    )
+    # This in-memory variant attacks the projection boundary; only the two
+    # gateway cases above claim canonical persisted E readback.
+    malformed = evidence.model_copy(update={field: value})
+
+    projection, error = _generation_cycle("_s10_empirical_projection")(
+        evidence_ref=evidence_ref,
+        evidence=malformed,
+    )
+
+    assert projection is None
+    assert error == "empirical_evidence_metrics_mismatch"
 
 
 def test_finite_estimator_report_without_observations_cannot_pass_calibration() -> None:

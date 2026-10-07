@@ -17,6 +17,7 @@ from polisyos.scientist.methods.search.voi_scheduler import (
     VOITrainingConfig,
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.policy_design.objectives import (
     ObjectiveChannelValue,
     ObjectiveDirection,
@@ -113,6 +114,52 @@ def test_voi_defers_when_budget_is_insufficient() -> None:
         ParetoSnapshot(),
     )[0]
     assert decision.recommended_action == "defer"
+
+
+def test_information_advances_until_recorded_run_budget_is_exhausted() -> None:
+    scheduler = SimpleVOIScheduler(stage_costs={3: Decimal("0.5")})
+    middleware = BudgetMiddleware(_budget(max_usd="1.0"))
+    informative = _ticket(
+        candidate_hash="informative-low-proxy",
+        next_level=3,
+        expected_value_proxy=0.0,
+        expected_information_gain=0.4,
+    )
+
+    initial_budget = middleware.budget_state
+    assert initial_budget.remaining("run") == Decimal("1.0")
+    before_exhaustion = scheduler.prioritize(
+        [informative], initial_budget, ParetoSnapshot()
+    )[0]
+    assert before_exhaustion.recommended_action == "advance"
+    assert before_exhaustion.reason == "advance_by_information_value"
+    assert before_exhaustion.economics.expected_improvement_per_usd == 0.0
+
+    no_information = _ticket(
+        candidate_hash="no-information-low-proxy",
+        next_level=3,
+        expected_value_proxy=0.0,
+        expected_information_gain=0.0,
+    )
+    without_information = scheduler.prioritize(
+        [no_information], initial_budget, ParetoSnapshot()
+    )[0]
+    assert without_information.recommended_action == "reject"
+    assert without_information.reason == "roi_below_threshold"
+
+    # A bounded test-fixture amount exercises the existing in-memory owner path;
+    # it does not assert provider-meter provenance or durable settlement.
+    middleware.record_spend_safe("run", Decimal("1.0"))
+    exhausted_budget = middleware.budget_state
+    assert exhausted_budget.spent["run"] == Decimal("1.0")
+    assert exhausted_budget.remaining("run") == Decimal("0.0")
+
+    after_exhaustion = scheduler.prioritize(
+        [informative], exhausted_budget, ParetoSnapshot()
+    )[0]
+    assert after_exhaustion.recommended_action == "defer"
+    assert after_exhaustion.reason == "budget_exhausted_for_next_level"
+    assert after_exhaustion.economics.expected_improvement_per_usd == 0.0
 
 
 def test_voi_rejects_dominated_candidate() -> None:

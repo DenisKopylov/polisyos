@@ -9,6 +9,7 @@ from typing import Any, ClassVar
 import jax.numpy as jnp
 import pytest
 
+import polisyos.runtime.quality.joint_simulation_horizon as joint_simulation_horizon_module
 from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -595,8 +596,12 @@ def _program_graph_plan(
         exec_plan_ref=exec_plan_ref,
         program_base_state=base_state,
         program_parameter_overrides_by_atom={
-            "income_subsidy": {"apply_subsidy": {"rate": 0.10}},
-            "balance_grant": {"apply_subsidy": {"rate": 0.20}},
+            "income_subsidy": {
+                "apply_subsidy": {"rate": 0.10, "debug_mode": False}
+            },
+            "balance_grant": {
+                "apply_subsidy": {"debug_mode": False, "rate": 0.10}
+            },
         },
         mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
         slot_registry=DEFAULT_SLOT_REGISTRY,
@@ -604,6 +609,25 @@ def _program_graph_plan(
         selector_field_registry=DEFAULT_SELECTOR_FIELD_REGISTRY,
         constraint_registry=ConstraintRegistry(constraints={}),
     )
+
+
+def _program_graph_request(
+    plan: EnginePlan,
+    *,
+    reverse_atoms: bool = False,
+) -> JointSimulationRequest:
+    request = _request().model_copy(
+        update={
+            "engine_plan": (plan,),
+            "selected_outcomes": ("mean_income",),
+            "baseline_state": {"mean_income": 0.0},
+        }
+    )
+    if reverse_atoms:
+        return request.model_copy(
+            update={"intervention_atoms": tuple(reversed(request.intervention_atoms))}
+        )
+    return request
 
 
 def test_static_ncm_multistep_request_is_typed_no_run_before_runner(
@@ -857,15 +881,12 @@ def test_receipt_verification_fails_when_run_is_claimed_without_trajectories() -
 
 
 def test_program_graph_plan_loops_real_shared_state_executor(tmp_path: Path) -> None:
-    request = _request().model_copy(
-        update={
-            "engine_plan": (_program_graph_plan(tmp_path),),
-            "selected_outcomes": ("mean_income",),
-            "baseline_state": {"mean_income": 0.0},
-        }
-    )
+    plan = _program_graph_plan(tmp_path)
+    request = _program_graph_request(plan)
+    reversed_request = _program_graph_request(plan, reverse_atoms=True)
 
     result = JointSimulationHorizonController().run(request)
+    reversed_result = JointSimulationHorizonController().run(reversed_request)
 
     assert result.engine_decisions[0].engine_kind == "program_graph"
     assert result.engine_decisions[0].decision == "selected"
@@ -876,14 +897,144 @@ def test_program_graph_plan_loops_real_shared_state_executor(tmp_path: Path) -> 
         "pairwise",
         "joint",
     }
-    joint = result.trajectory_for("joint", ("income_subsidy", "balance_grant"))
+    joint_atom_ids = tuple(atom.intervention_id for atom in request.intervention_atoms)
+    reversed_joint_atom_ids = tuple(
+        atom.intervention_id for atom in reversed_request.intervention_atoms
+    )
+    joint = result.trajectory_for("joint", joint_atom_ids)
+    reversed_joint = reversed_result.trajectory_for("joint", reversed_joint_atom_ids)
     assert [point.step for point in joint.points] == [0, 1, 2, 3]
     assert all("state_delta_ref" in point.engine_state for point in joint.points)
     assert [point.outcomes["mean_income"] for point in joint.points] == pytest.approx(
-        [1800.0, 2160.0, 2592.0, 3110.4]
+        [1650.0, 1815.0, 1996.5, 2196.15]
     )
+    assert [point.outcomes for point in joint.points] == [
+        point.outcomes for point in reversed_joint.points
+    ]
+    assert joint.diagnostics["physical_run_ref"] == reversed_joint.diagnostics[
+        "physical_run_ref"
+    ]
     assert abs(result.interaction_terms[0].by_step[3]) > 1.0
     verify_simulation_receipt(result.receipt, result.content_bound_payload())
+    verify_simulation_receipt(
+        reversed_result.receipt,
+        reversed_result.content_bound_payload(),
+    )
+
+
+@pytest.mark.parametrize("reverse_atoms", [False, True], ids=["forward", "reversed"])
+@pytest.mark.parametrize(
+    ("overrides", "target"),
+    [
+        pytest.param(
+            {
+                "income_subsidy": {"apply_subsidy": {"rate": 0.10}},
+                "balance_grant": {"apply_subsidy": {"rate": 0.20}},
+            },
+            "program_parameter:apply_subsidy.rate",
+            id="different-rates-on-shared-parameter",
+        ),
+        pytest.param(
+            {
+                "income_subsidy": {
+                    "apply_subsidy": {"rate": 0.10, "debug_mode": True}
+                },
+                "balance_grant": {
+                    "apply_subsidy": {"debug_mode": 1, "rate": 0.10}
+                },
+            },
+            "program_parameter:apply_subsidy.debug_mode",
+            id="bool-and-int-are-distinct-typed-values",
+        ),
+    ],
+)
+def test_program_graph_conflicting_overrides_refuse_before_first_execution(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    reverse_atoms: bool,
+    overrides: dict[str, dict[str, dict[str, Any]]],
+    target: str,
+) -> None:
+    plan = _program_graph_plan(tmp_path).model_copy(
+        update={"program_parameter_overrides_by_atom": overrides}
+    )
+    request = _program_graph_request(plan, reverse_atoms=reverse_atoms)
+    execution_calls: list[None] = []
+    execute_program_graph = joint_simulation_horizon_module.execute_program_graph
+
+    def record_execution(*args: Any, **kwargs: Any) -> Any:
+        execution_calls.append(None)
+        return execute_program_graph(*args, **kwargs)
+
+    monkeypatch.setattr(
+        joint_simulation_horizon_module,
+        "execute_program_graph",
+        record_execution,
+    )
+
+    result = JointSimulationHorizonController().run(request)
+
+    decision = result.engine_decisions[0]
+    assert decision.engine_kind == "program_graph"
+    assert decision.decision == "unsupported"
+    assert decision.reason == "engine_intervention_assignment_conflict"
+    assert decision.blockers == (f"engine_variable_conflict:{target}",)
+    assert result.trajectories == ()
+    assert result.receipt.calibration_status == "no_run"
+    assert execution_calls == []
+    verify_simulation_receipt(result.receipt, result.content_bound_payload())
+
+
+def test_program_graph_conflict_guard_removal_exposes_order_dependent_last_write(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    overrides = {
+        "income_subsidy": {"apply_subsidy": {"rate": 0.10}},
+        "balance_grant": {"apply_subsidy": {"rate": 0.20}},
+    }
+    plan = _program_graph_plan(tmp_path).model_copy(
+        update={"program_parameter_overrides_by_atom": overrides}
+    )
+    forward_request = _program_graph_request(plan)
+    reversed_request = _program_graph_request(plan, reverse_atoms=True)
+    monkeypatch.setattr(
+        joint_simulation_horizon_module,
+        "_execution_assignment_conflict",
+        lambda *_args: None,
+    )
+    execution_calls: list[None] = []
+    execute_program_graph = joint_simulation_horizon_module.execute_program_graph
+
+    def record_execution(*args: Any, **kwargs: Any) -> Any:
+        execution_calls.append(None)
+        return execute_program_graph(*args, **kwargs)
+
+    monkeypatch.setattr(
+        joint_simulation_horizon_module,
+        "execute_program_graph",
+        record_execution,
+    )
+
+    forward_result = JointSimulationHorizonController().run(forward_request)
+    reversed_result = JointSimulationHorizonController().run(reversed_request)
+
+    assert forward_result.engine_decisions[0].decision == "selected"
+    assert reversed_result.engine_decisions[0].decision == "selected"
+    assert execution_calls
+    forward_ids = tuple(atom.intervention_id for atom in forward_request.intervention_atoms)
+    reversed_ids = tuple(atom.intervention_id for atom in reversed_request.intervention_atoms)
+    forward_joint = forward_result.trajectory_for("joint", forward_ids)
+    reversed_joint = reversed_result.trajectory_for("joint", reversed_ids)
+    assert forward_joint.diagnostics["physical_run_ref"] == reversed_joint.diagnostics[
+        "physical_run_ref"
+    ]
+    assert forward_joint.points[-1].outcomes["mean_income"] == pytest.approx(3110.4)
+    assert reversed_joint.points[-1].outcomes["mean_income"] == pytest.approx(2196.15)
+    assert (
+        forward_joint.points[-1].outcomes["mean_income"]
+        != reversed_joint.points[-1].outcomes["mean_income"]
+    )
 
 
 

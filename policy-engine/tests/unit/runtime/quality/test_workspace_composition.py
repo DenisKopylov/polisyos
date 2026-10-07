@@ -20,12 +20,12 @@ from polisyos.pdc import (
     SubDesignContract,
     gy_content_hash,
 )
-from polisyos.runtime.quality.evidence_independence import build_evidence_independence_map
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     CouplingEdge,
     CouplingGraph,
     compose_subdesigns,
 )
+from polisyos.runtime.quality.evidence_independence import build_evidence_independence_map
 from tests._helpers.hds_quality import sha
 
 RULE_REF = "policyos.gy.composition.test.v1"
@@ -753,10 +753,24 @@ def test_fabricated_p14_binding_records_do_not_support_composed_claim() -> None:
 
 
 def test_unknown_coupling_fails_closed_instead_of_composing() -> None:
+    graph = _coupling_graph(
+        "unknown",
+        edges=(
+            CouplingEdge(
+                boundary_ref="boundary://candidate/chapters",
+                source_module_ref="ws-chapter-a",
+                target_module_ref="ws-chapter-b",
+                relation="candidate_shared_outcome_path",
+                interaction_strength="none",
+                evidence_ref="fixture://candidate/chapters/edge",
+            ),
+        ),
+        evidence_state="candidate",
+    )
     certificate = compose_subdesigns(
         subdesigns=[_subdesign("chapter-a"), _subdesign("chapter-b")],
         claims=[],
-        graph=_coupling_graph("unknown", evidence_state="candidate"),
+        graph=graph,
         parent_workspace_id="ws-parent",
     )
 
@@ -764,6 +778,7 @@ def test_unknown_coupling_fails_closed_instead_of_composing() -> None:
     assert certificate.coupling_gate["verdict"] == "invalid"
     assert certificate.coupling_gate["invalid_reason"] == "unknown_coupling_requires_discovery"
     assert certificate.authority_flow == []
+    assert certificate.composition_receipt_ref is None
 
 
 def test_empty_authoritative_for_after_port_meet_fails_closed() -> None:

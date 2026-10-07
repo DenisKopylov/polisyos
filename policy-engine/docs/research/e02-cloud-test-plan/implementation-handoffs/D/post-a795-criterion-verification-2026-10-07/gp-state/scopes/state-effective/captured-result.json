@@ -1,0 +1,75 @@
+{
+  "scope": "state-effective",
+  "command": {
+    "argv": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "/dev/shm/e02-D-post-a795-88ghpj7t/gp/run_current_owner_scopes.py",
+      "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/state-effective",
+      "state-effective"
+    ],
+    "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+    "env_overrides": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine",
+      "TMPDIR": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave"
+    },
+    "stdout": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/state-effective.stdout.txt",
+    "stderr": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/state-effective.stderr.txt"
+  },
+  "command_file_sha256": "be5105cd83890fd4c787ab969ef370713829f4a87401f0f708457c0294e511e4",
+  "wrapper_file": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/run_captured_scope.py",
+  "wrapper_sha256": "db812ce167e5798af77a4f19dd56083b9f2d302f35c7167b44cb68c09a25c524",
+  "exitcode": 0,
+  "wall_s": 17.462723666016245,
+  "resource_method": "one subprocess; POSIX RUSAGE_CHILDREN Linux ru_maxrss KiB; shared cgroup only context, no per-child quota or OOM inference",
+  "rusage": {
+    "ru_utime": 14.009915,
+    "ru_stime": 1.522303,
+    "ru_maxrss": 984992,
+    "ru_minflt": 234402,
+    "ru_majflt": 208,
+    "ru_nswap": 0,
+    "ru_inblock": 581088,
+    "ru_oublock": 1416,
+    "ru_nvcsw": 5872,
+    "ru_nivcsw": 1667
+  },
+  "before": {
+    "timestamp": "2026-10-07T17:33:50.201665+00:00",
+    "cgroup_observation_shared_not_per_process": {
+      "memory.current": "14043508736\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38326071\noom 301\noom_kill 58\noom_group_kill 0\n",
+      "memory.stat": "anon 51716096\nfile 12649381888\nkernel 1341997056\nkernel_stack 540672\npagetables 2273280\nsec_pagetables 0\npercpu 14112\nsock 0\nvmalloc 0\nshmem 11775664128\nfile_mapped 24576\nfile_dirty 0\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 0\nshmem_thp 0\ninactive_anon 7346339840\nactive_anon 4480987136\ninactive_file 359751680\nactive_file 513966080\nunevictable 0\nslab_reclaimable 870493600\nslab_unreclaimable 468622192\nslab 1339115792\nworkingset_refault_anon 0\nworkingset_refault_file 1697771081\nworkingset_activate_anon 0\nworkingset_activate_file 242002954\nworkingset_restore_anon 0\nworkingset_restore_file 100631630\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 17422766372\npgsteal 1706691027\npswpin 0\npswpout 0\npgscan_kswapd 5820168\npgscan_direct 17416946204\npgscan_khugepaged 0\npgscan_proactive 0\npgsteal_kswapd 5485712\npgsteal_direct 1701205315\npgsteal_khugepaged 0\npgsteal_proactive 0\npgfault 642224952\npgmajfault 2366613\npgrefill 339269443\npgactivate 72627326\npgdeactivate 317300904\npglazyfree 3062\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 3\nthp_collapse_alloc 0\nthp_swpout 0\nthp_swpout_fallback 0\n",
+      "pids.current": "999\n",
+      "pids.max": "max\n",
+      "cpu.max": "400000 100000\n"
+    }
+  },
+  "after": {
+    "timestamp": "2026-10-07T17:34:07.664440+00:00",
+    "cgroup_observation_shared_not_per_process": {
+      "memory.current": "15837593600\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38326071\noom 301\noom_kill 58\noom_group_kill 0\n",
+      "memory.stat": "anon 572194816\nfile 13905158144\nkernel 1359515648\nkernel_stack 835584\npagetables 8183808\nsec_pagetables 0\npercpu 14112\nsock 0\nvmalloc 0\nshmem 11789922304\nfile_mapped 379568128\nfile_dirty 2834432\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 0\nshmem_thp 0\ninactive_anon 7868010496\nactive_anon 4493991936\ninactive_file 1134776320\nactive_file 980463616\nunevictable 0\nslab_reclaimable 878236976\nslab_unreclaimable 472202096\nslab 1350439072\nworkingset_refault_anon 0\nworkingset_refault_file 1698073204\nworkingset_activate_anon 0\nworkingset_activate_file 242002954\nworkingset_restore_anon 0\nworkingset_restore_file 100631630\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 17422766372\npgsteal 1706691027\npswpin 0\npswpout 0\npgscan_kswapd 5820168\npgscan_direct 17416946204\npgscan_khugepaged 0\npgscan_proactive 0\npgsteal_kswapd 5485712\npgsteal_direct 1701205315\npgsteal_khugepaged 0\npgsteal_proactive 0\npgfault 642840960\npgmajfault 2369282\npgrefill 339269443\npgactivate 72739488\npgdeactivate 317300904\npglazyfree 3072\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 3\nthp_collapse_alloc 0\nthp_swpout 0\nthp_swpout_fallback 0\n",
+      "pids.current": "1017\n",
+      "pids.max": "max\n",
+      "cpu.max": "400000 100000\n"
+    }
+  },
+  "finalized_outer_streams": {
+    "stdout": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/state-effective.stdout.txt",
+      "sha256": "8abdd846f200f3017f9ab9ce5dc735923b0894923ba326e231acf7959ebdc3c2",
+      "bytes": 4112
+    },
+    "stderr": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/state-effective.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "numerical_caps": "none introduced; environment is recorded by child and command; existing intrinsic ownerprofile observed"
+}

@@ -1,0 +1,40 @@
+{
+  "actual_execution_head": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+  "CBC_execution_parent": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "full_CBC_to_5b_path_delta": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-funnel-cost-input-origins.toml",
+      "bytes": 1981,
+      "sha256": "e4dba676f1a8f01066cab78c712a12ca6cdf69190c6215a9f7d55be8d704d77d",
+      "classification": "changed_tracked_companion_metadata",
+      "observed_loaded_in_legacy6": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+      "bytes": 6392,
+      "sha256": "bf767d1e72cd7beea9d2273c5d8f9084bf85ab4b7f652d119e44487a34278649",
+      "classification": "changed_tracked_companion_metadata",
+      "observed_loaded_in_legacy6": false
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py",
+      "bytes": 11418,
+      "sha256": "4fab42e2dbf6ada128f738aef4f1eb59ea39f83606dd2b3c06d9397bd4f6c844",
+      "classification": "new_test",
+      "observed_loaded_in_legacy6": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer_legacy_refusal.py",
+      "bytes": 4889,
+      "sha256": "35bd9c7c4361ef55ae36c8e3c0f270c081b55061e78e14e79ddf5c2e658108ab",
+      "classification": "new_test",
+      "observed_loaded_in_legacy6": false
+    }
+  ],
+  "path_count": 4,
+  "release_fragment_difference_explicit": true,
+  "no_product_Python_or_tools_or_pyproject_or_lock_or_ruff_delta": true,
+  "whole_catalog_or_all_configuration_identity": false,
+  "older_CBC_scopes_not_retagged": true,
+  "new_legacy6_only": "6PASS; actualHNSW/FreshCAS; newcanonicaltest actuallyexecuted; originaltest_transfer.py imported unchanged"
+}

@@ -1,0 +1,11 @@
+{
+  "effective-public4": {
+    "selectors": [
+      "tests/unit/scientist/search/strategies/test_bayesian.py::test_duplicate_detection_uses_canonical_integer_and_category_execution",
+      "tests/unit/scientist/search/strategies/test_bayesian.py::test_duplicate_detection_keeps_same_replicate_different_seed_distinct",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_public_space_matches_independent_physical_encoding",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_default_public_suggestion_consumes_real_seeded_torch_design"
+    ],
+    "property": "Two distinct relaxed vectors retain canonical effective integer/category identity; same-replicate different seed remains separate permitted replicate; current public mixed-space physical codec and actual seeded Torch first design distinguish synthetic intake."
+  }
+}

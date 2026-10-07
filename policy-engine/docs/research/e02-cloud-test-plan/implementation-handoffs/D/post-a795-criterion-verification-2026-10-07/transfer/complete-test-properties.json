@@ -1,0 +1,760 @@
+[
+  {
+    "scope": "native",
+    "test": "test_exact_transfer_reference_beyond_1000_keys_survives_fresh_native_reader",
+    "property": "fresh_native_receipt",
+    "value": {
+      "status": "admitted",
+      "generation_count": 1002,
+      "history_count": 2,
+      "candidate_ids": [
+        "sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0",
+        "sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a"
+      ],
+      "scores": [
+        0.011344444444444445,
+        0.09801111111111109
+      ],
+      "reads": [
+        {
+          "ref": {
+            "artifact_id": "sha256:28aa7beffd826511216aa74633230571c73787c3fd38212d742774aee198a3f0",
+            "kind": "vector_memory.bundle",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "28aa7beffd826511216aa74633230571c73787c3fd38212d742774aee198a3f0",
+          "manifest_sha256": "1487ca6ed582c4e6aeb3797296fa88f3b15cbaea1f3646f0a5180662633ff3b1",
+          "bytes": 2308648,
+          "kind": "vector_memory.bundle",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:1d2a0e566b31f5d10737012eaf801b5afd24a4b2fe61d86aab7113a689260ff9",
+            "kind": "vector_memory.index",
+            "media_type": "application/octet-stream"
+          },
+          "actual_sha256": "1d2a0e566b31f5d10737012eaf801b5afd24a4b2fe61d86aab7113a689260ff9",
+          "manifest_sha256": "6f6dea536ac55aa14674c7a41528295e3e64380818ec429a017739a9cd484d2a",
+          "bytes": 152400,
+          "kind": "vector_memory.index",
+          "media_type": "application/octet-stream"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28",
+            "kind": "search.transfer.history",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28",
+          "manifest_sha256": "4f47bd966d3524402d97c32aa3e5d570d58bf5b3c2fc4c1cd26bd52290bf43c9",
+          "bytes": 8008,
+          "kind": "search.transfer.history",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+            "kind": "fixture.numeric.data",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+          "manifest_sha256": "5b675ac0b27448ff2bb3b0f9fd9a3bff9e4027d67192e8951b79e1b7892ec007",
+          "bytes": 56,
+          "kind": "fixture.numeric.data",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+            "kind": "fixture.numeric.model",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+          "manifest_sha256": "648c33a33731b56a6c11f7d271f961e4e44b7b59b4be1112ffc101d7b78bbf8d",
+          "bytes": 57,
+          "kind": "fixture.numeric.model",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+            "kind": "fixture.numeric.evaluator",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+          "manifest_sha256": "7d8b8daa4d445e68b63dbeebadc2d1db51551ac73ffd14faea79d173a8273656",
+          "bytes": 61,
+          "kind": "fixture.numeric.evaluator",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+            "kind": "fixture.numeric.split",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+          "manifest_sha256": "14a5b0ecae20b2d142c404af6935e420767de6311981f7f3901d920d2c21ad22",
+          "bytes": 57,
+          "kind": "fixture.numeric.split",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+            "kind": "fixture.numeric.scalarizer",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+          "manifest_sha256": "3f38735972b0bb17f11763c57294e23a09422b9d5d5b2d26a6a91aebec8fd390",
+          "bytes": 62,
+          "kind": "fixture.numeric.scalarizer",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+            "kind": "fixture.numeric.owner",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+          "manifest_sha256": "1a204e2f438c99e3b6d89d498e479ffc6f94d556dbb88ebcab9295ec2a90aaa8",
+          "bytes": 57,
+          "kind": "fixture.numeric.owner",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28",
+            "kind": "search.transfer.history",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28",
+          "manifest_sha256": "4f47bd966d3524402d97c32aa3e5d570d58bf5b3c2fc4c1cd26bd52290bf43c9",
+          "bytes": 8008,
+          "kind": "search.transfer.history",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0",
+            "kind": "search.candidate",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0",
+          "manifest_sha256": "36e8da9510096ea0057a5d2e52b215eaf5a813b6116a761c5e397692617d2b7e",
+          "bytes": 52,
+          "kind": "search.candidate",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:c4d1a3ca621de83530440f70d9de73f0608768bdaaa07801a2893e24f8c64ea3",
+            "kind": "scientist.autotune.analytic.evaluation",
+            "media_type": "application/json",
+            "manifest_profile_sha256": "sha256:92344e9441aca35237374b5de9474aa8ec1c94b1b4143d947d044faf9dda560f"
+          },
+          "actual_sha256": "c4d1a3ca621de83530440f70d9de73f0608768bdaaa07801a2893e24f8c64ea3",
+          "manifest_sha256": "a2130de908a564e8b6295085a9740d4c8d37551ada5c46ce7344e1a9c3f473cf",
+          "bytes": 2231,
+          "kind": "scientist.autotune.analytic.evaluation",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+            "kind": "fixture.numeric.data",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+          "manifest_sha256": "5b675ac0b27448ff2bb3b0f9fd9a3bff9e4027d67192e8951b79e1b7892ec007",
+          "bytes": 56,
+          "kind": "fixture.numeric.data",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+            "kind": "fixture.numeric.model",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+          "manifest_sha256": "648c33a33731b56a6c11f7d271f961e4e44b7b59b4be1112ffc101d7b78bbf8d",
+          "bytes": 57,
+          "kind": "fixture.numeric.model",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+            "kind": "fixture.numeric.evaluator",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+          "manifest_sha256": "7d8b8daa4d445e68b63dbeebadc2d1db51551ac73ffd14faea79d173a8273656",
+          "bytes": 61,
+          "kind": "fixture.numeric.evaluator",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+            "kind": "fixture.numeric.split",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+          "manifest_sha256": "14a5b0ecae20b2d142c404af6935e420767de6311981f7f3901d920d2c21ad22",
+          "bytes": 57,
+          "kind": "fixture.numeric.split",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+            "kind": "fixture.numeric.scalarizer",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+          "manifest_sha256": "3f38735972b0bb17f11763c57294e23a09422b9d5d5b2d26a6a91aebec8fd390",
+          "bytes": 62,
+          "kind": "fixture.numeric.scalarizer",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+            "kind": "fixture.numeric.owner",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+          "manifest_sha256": "1a204e2f438c99e3b6d89d498e479ffc6f94d556dbb88ebcab9295ec2a90aaa8",
+          "bytes": 57,
+          "kind": "fixture.numeric.owner",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a",
+            "kind": "search.candidate",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a",
+          "manifest_sha256": "10da5f12e68475f0fb836d0052a404bfe77276e3ae57b3e1a56a70dd084d1ba5",
+          "bytes": 52,
+          "kind": "search.candidate",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:d170211a1ebb797480350f019068fb213acf8eb35ac2793b1c65baf043e085a0",
+            "kind": "scientist.autotune.analytic.evaluation",
+            "media_type": "application/json",
+            "manifest_profile_sha256": "sha256:ff475bbf37de14fef1d7ed60b2b83f8693c02ea911d01ac32d4d614dacaab301"
+          },
+          "actual_sha256": "d170211a1ebb797480350f019068fb213acf8eb35ac2793b1c65baf043e085a0",
+          "manifest_sha256": "e73f2cea60338c13906f35d89ad608c0156b442df5533c039ab507e2c0735c27",
+          "bytes": 2231,
+          "kind": "scientist.autotune.analytic.evaluation",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+            "kind": "fixture.numeric.data",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+          "manifest_sha256": "5b675ac0b27448ff2bb3b0f9fd9a3bff9e4027d67192e8951b79e1b7892ec007",
+          "bytes": 56,
+          "kind": "fixture.numeric.data",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+            "kind": "fixture.numeric.model",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+          "manifest_sha256": "648c33a33731b56a6c11f7d271f961e4e44b7b59b4be1112ffc101d7b78bbf8d",
+          "bytes": 57,
+          "kind": "fixture.numeric.model",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+            "kind": "fixture.numeric.evaluator",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+          "manifest_sha256": "7d8b8daa4d445e68b63dbeebadc2d1db51551ac73ffd14faea79d173a8273656",
+          "bytes": 61,
+          "kind": "fixture.numeric.evaluator",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+            "kind": "fixture.numeric.split",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+          "manifest_sha256": "14a5b0ecae20b2d142c404af6935e420767de6311981f7f3901d920d2c21ad22",
+          "bytes": 57,
+          "kind": "fixture.numeric.split",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+            "kind": "fixture.numeric.scalarizer",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+          "manifest_sha256": "3f38735972b0bb17f11763c57294e23a09422b9d5d5b2d26a6a91aebec8fd390",
+          "bytes": 62,
+          "kind": "fixture.numeric.scalarizer",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+            "kind": "fixture.numeric.owner",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+          "manifest_sha256": "1a204e2f438c99e3b6d89d498e479ffc6f94d556dbb88ebcab9295ec2a90aaa8",
+          "bytes": 57,
+          "kind": "fixture.numeric.owner",
+          "media_type": "application/json"
+        }
+      ],
+      "backend": {
+        "hnswlib": "0.8.0",
+        "numpy": "2.3.5",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]"
+      },
+      "source_paths": {
+        "vector_memory": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+        "cas": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/core/artifacts/store.py"
+      }
+    }
+  },
+  {
+    "scope": "native",
+    "test": "test_exact_transfer_reference_beyond_1000_keys_survives_fresh_native_reader",
+    "property": "fresh_native_tamper_receipt",
+    "value": {
+      "status": "refused",
+      "reason": "Blob sha256 mismatch for sha256:28aa7beffd826511216aa74633230571c73787c3fd38212d742774aee198a3f0: 5b35869119694500e7267918fa72bc330e87e44b6922b178f7657b43d5466256",
+      "unchanged": true,
+      "reads": []
+    }
+  },
+  {
+    "scope": "native",
+    "test": "test_valid_cas_legacy_native_nonfinite_refuses_before_pointer_publication",
+    "property": "fresh_legacy_native_refusal",
+    "value": {
+      "status": "refused",
+      "reason": "Native embedding row 0 coordinate 0 must be finite",
+      "unchanged": true,
+      "reads": [
+        {
+          "ref": {
+            "artifact_id": "sha256:6c6c1a62064ea139b041654e6013fab498a22842f43eaa1ef9fd59dc8dd672e2",
+            "kind": "vector_memory.bundle",
+            "media_type": "application/json"
+          },
+          "actual_sha256": "6c6c1a62064ea139b041654e6013fab498a22842f43eaa1ef9fd59dc8dd672e2",
+          "manifest_sha256": "6392b7ab61a3d0613ab7b737cf4776f68e83133c152bff9b7f99d3cde173b050",
+          "bytes": 314,
+          "kind": "vector_memory.bundle",
+          "media_type": "application/json"
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:3dc16a18208eced1186127c24fa21cd8fa66cfbf085e45dcbf699963d71ac06b",
+            "kind": "vector_memory.index",
+            "media_type": "application/octet-stream"
+          },
+          "actual_sha256": "3dc16a18208eced1186127c24fa21cd8fa66cfbf085e45dcbf699963d71ac06b",
+          "manifest_sha256": "48a386809459e44fc149ebd8d463162eed34cb35f3f6ee038ea0d5c26b97bb68",
+          "bytes": 248,
+          "kind": "vector_memory.index",
+          "media_type": "application/octet-stream"
+        }
+      ]
+    }
+  },
+  {
+    "scope": "native",
+    "test": "test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake[empty]",
+    "property": "persisted_intake_receipt",
+    "value": {
+      "bundle_ref": {
+        "artifact_id": "sha256:2a7e50277392f9a6a87d1b35e7413c4cae64573f570074f8e68d4f42c6aecce5",
+        "kind": "vector_memory.bundle",
+        "media_type": "application/json"
+      },
+      "history_ref": {
+        "artifact_id": "sha256:1df308aac3527369caaaebc3ef2bdf4a3c4cbff449702124bbf5e1d966f4b2e8",
+        "kind": "search.transfer.history",
+        "media_type": "application/json"
+      },
+      "intake": "empty",
+      "report": {
+        "accepted": 0,
+        "loaded": 0,
+        "rejected": 0,
+        "rejections": [],
+        "selected": 0,
+        "unavailable": 0
+      }
+    }
+  },
+  {
+    "scope": "native",
+    "test": "test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake[invalid]",
+    "property": "persisted_intake_receipt",
+    "value": {
+      "bundle_ref": {
+        "artifact_id": "sha256:c5d0ec9402961f0208b2074dbccb86cd6cd6fa9d0a840b19e4d480a5c86c9bef",
+        "kind": "vector_memory.bundle",
+        "media_type": "application/json"
+      },
+      "history_ref": {
+        "artifact_id": "sha256:79fd29f824af8b4ecfcdbffbef15343da24479160399a33c4300492382c72a88",
+        "kind": "search.transfer.history",
+        "media_type": "application/json"
+      },
+      "intake": "invalid",
+      "report": {
+        "accepted": 0,
+        "loaded": 2,
+        "rejected": 2,
+        "rejections": [
+          {
+            "reason": "scalar_score must be a finite JSON number",
+            "row_index": 0,
+            "run_id": "source"
+          },
+          {
+            "reason": "scalar_score must be a finite JSON number",
+            "row_index": 1,
+            "run_id": "source"
+          }
+        ],
+        "selected": 0,
+        "unavailable": 0
+      }
+    }
+  },
+  {
+    "scope": "native",
+    "test": "test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake[unavailable]",
+    "property": "persisted_intake_receipt",
+    "value": {
+      "bundle_ref": {
+        "artifact_id": "sha256:93a96bc1f2b17a72d920c86619ce46d64cbdeac1be57c76a97f727e570427540",
+        "kind": "vector_memory.bundle",
+        "media_type": "application/json"
+      },
+      "history_ref": {
+        "artifact_id": "sha256:1efff08bddae0738feba1b97a4f2252c2588433f5ee089aa54781833ee0f2f60",
+        "kind": "search.transfer.history",
+        "media_type": "application/json"
+      },
+      "intake": "unavailable",
+      "report": {
+        "accepted": 0,
+        "loaded": 0,
+        "rejected": 0,
+        "rejections": [
+          {
+            "reason": "Unsupported transfer history codec: explicit v2 fingerprint required",
+            "run_id": "source"
+          }
+        ],
+        "selected": 0,
+        "unavailable": 1
+      }
+    }
+  },
+  {
+    "scope": "native",
+    "test": "test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake[nonempty]",
+    "property": "persisted_intake_receipt",
+    "value": {
+      "bundle_ref": {
+        "artifact_id": "sha256:967c571a5484427a13e7980d7d55a125c70e84210a81ffc1bf7406f4edf015a1",
+        "kind": "vector_memory.bundle",
+        "media_type": "application/json"
+      },
+      "history_ref": {
+        "artifact_id": "sha256:f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28",
+        "kind": "search.transfer.history",
+        "media_type": "application/json"
+      },
+      "intake": "nonempty",
+      "report": {
+        "accepted": 2,
+        "loaded": 2,
+        "rejected": 0,
+        "rejections": [],
+        "selected": 2,
+        "unavailable": 0
+      }
+    }
+  },
+  {
+    "scope": "intake-removal",
+    "test": "test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake[empty]",
+    "property": "persisted_intake_receipt",
+    "value": {
+      "bundle_ref": {
+        "artifact_id": "sha256:2a7e50277392f9a6a87d1b35e7413c4cae64573f570074f8e68d4f42c6aecce5",
+        "kind": "vector_memory.bundle",
+        "media_type": "application/json"
+      },
+      "history_ref": {
+        "artifact_id": "sha256:1df308aac3527369caaaebc3ef2bdf4a3c4cbff449702124bbf5e1d966f4b2e8",
+        "kind": "search.transfer.history",
+        "media_type": "application/json"
+      },
+      "intake": "empty",
+      "report": {
+        "accepted": 0,
+        "loaded": 0,
+        "rejected": 0,
+        "rejections": [],
+        "selected": 0,
+        "unavailable": 0
+      }
+    }
+  },
+  {
+    "scope": "legacy6",
+    "test": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[schema1-minimize]",
+    "property": "legacy_refusal_receipt",
+    "value": {
+      "admitted_numeric_rows": 0,
+      "bundle_ref": {
+        "artifact_id": "sha256:5a85d9851e3de20a2e5e3b2da690d899fcf6106926c495c24919cee2b86920d4",
+        "kind": "vector_memory.bundle",
+        "media_type": "application/json"
+      },
+      "counts": {
+        "accepted": 0,
+        "loaded": 0,
+        "rejected": 0,
+        "selected": 0,
+        "unavailable": 1
+      },
+      "direction": "minimize",
+      "history_ref": {
+        "artifact_id": "sha256:615a99ce9fd2fc12b631ba769837ee26405814362f17ee5e792bf750cdd121fc",
+        "kind": "search.transfer.history",
+        "media_type": "application/json"
+      },
+      "legacy": "schema1",
+      "profile": "Explicit v2 required; missing old scalar convention or real candidate is not inferred",
+      "rejections": [
+        {
+          "reason": "Unsupported transfer history codec: explicit v2 fingerprint required",
+          "run_id": "source"
+        }
+      ],
+      "reverse_replay_rows": 0
+    }
+  },
+  {
+    "scope": "legacy6",
+    "test": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[schema1-maximize]",
+    "property": "legacy_refusal_receipt",
+    "value": {
+      "admitted_numeric_rows": 0,
+      "bundle_ref": {
+        "artifact_id": "sha256:2c53724ed6f6c261f1ee2ebf3032e831071ef16212d35fd1c0903bf253daf738",
+        "kind": "vector_memory.bundle",
+        "media_type": "application/json"
+      },
+      "counts": {
+        "accepted": 0,
+        "loaded": 0,
+        "rejected": 0,
+        "selected": 0,
+        "unavailable": 1
+      },
+      "direction": "maximize",
+      "history_ref": {
+        "artifact_id": "sha256:cdd373a45081a0ed7f1e9b0b9f35f0fea3820d999cf3cda64b12947b176b7e1e",
+        "kind": "search.transfer.history",
+        "media_type": "application/json"
+      },
+      "legacy": "schema1",
+      "profile": "Explicit v2 required; missing old scalar convention or real candidate is not inferred",
+      "rejections": [
+        {
+          "reason": "Unsupported transfer history codec: explicit v2 fingerprint required",
+          "run_id": "source"
+        }
+      ],
+      "reverse_replay_rows": 0
+    }
+  },
+  {
+    "scope": "legacy6",
+    "test": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[schema-absent-minimize]",
+    "property": "legacy_refusal_receipt",
+    "value": {
+      "admitted_numeric_rows": 0,
+      "bundle_ref": {
+        "artifact_id": "sha256:1bd042c1b96a7e505927877e82182ee1d80a1285bed968d382524c4e18984fab",
+        "kind": "vector_memory.bundle",
+        "media_type": "application/json"
+      },
+      "counts": {
+        "accepted": 0,
+        "loaded": 0,
+        "rejected": 0,
+        "selected": 0,
+        "unavailable": 1
+      },
+      "direction": "minimize",
+      "history_ref": {
+        "artifact_id": "sha256:4dbae50d1c2490657c172f508d2139dd9fad0e7b8e8cdc0c82627575712c3325",
+        "kind": "search.transfer.history",
+        "media_type": "application/json"
+      },
+      "legacy": "schema-absent",
+      "profile": "Explicit v2 required; missing old scalar convention or real candidate is not inferred",
+      "rejections": [
+        {
+          "reason": "Unsupported transfer history codec: explicit v2 fingerprint required",
+          "run_id": "source"
+        }
+      ],
+      "reverse_replay_rows": 0
+    }
+  },
+  {
+    "scope": "legacy6",
+    "test": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[schema-absent-maximize]",
+    "property": "legacy_refusal_receipt",
+    "value": {
+      "admitted_numeric_rows": 0,
+      "bundle_ref": {
+        "artifact_id": "sha256:cedb90cd3b025d5e794a783034d9998aa1cd047fbd3750e0dae892a6ab0c9640",
+        "kind": "vector_memory.bundle",
+        "media_type": "application/json"
+      },
+      "counts": {
+        "accepted": 0,
+        "loaded": 0,
+        "rejected": 0,
+        "selected": 0,
+        "unavailable": 1
+      },
+      "direction": "maximize",
+      "history_ref": {
+        "artifact_id": "sha256:4e1111a7a70ac185fedc66288129a57ec8c2c8870fc4dfa971725ca06640bda6",
+        "kind": "search.transfer.history",
+        "media_type": "application/json"
+      },
+      "legacy": "schema-absent",
+      "profile": "Explicit v2 required; missing old scalar convention or real candidate is not inferred",
+      "rejections": [
+        {
+          "reason": "Unsupported transfer history codec: explicit v2 fingerprint required",
+          "run_id": "source"
+        }
+      ],
+      "reverse_replay_rows": 0
+    }
+  },
+  {
+    "scope": "legacy6",
+    "test": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[placeholder-minimize]",
+    "property": "legacy_refusal_receipt",
+    "value": {
+      "admitted_numeric_rows": 0,
+      "bundle_ref": {
+        "artifact_id": "sha256:8a5fbe5a651891889777b87c12fdb5ac2ca1c6be4f241c157e9ec9b45c92be34",
+        "kind": "vector_memory.bundle",
+        "media_type": "application/json"
+      },
+      "counts": {
+        "accepted": 0,
+        "loaded": 2,
+        "rejected": 2,
+        "selected": 0,
+        "unavailable": 0
+      },
+      "direction": "minimize",
+      "history_ref": {
+        "artifact_id": "sha256:a08cda8bdc2c41f11a046afe7241d364d0db502871465e1e854206d4d5933882",
+        "kind": "search.transfer.history",
+        "media_type": "application/json"
+      },
+      "legacy": "placeholder",
+      "profile": "Explicit v2 required; missing old scalar convention or real candidate is not inferred",
+      "rejections": [
+        {
+          "reason": "[Errno 2] No such file or directory: '/dev/shm/e02-D-post-a795-88ghpj7t/transfer/legacy-run5b/actual-legacy6/basetemp/test_persisted_legacy_scalar_o4/cas/artifacts/sha256/00/00/0000000000000000000000000000000000000000000000000000000000000000.manifest.json'",
+          "row_index": 0,
+          "run_id": "source"
+        },
+        {
+          "reason": "[Errno 2] No such file or directory: '/dev/shm/e02-D-post-a795-88ghpj7t/transfer/legacy-run5b/actual-legacy6/basetemp/test_persisted_legacy_scalar_o4/cas/artifacts/sha256/00/00/0000000000000000000000000000000000000000000000000000000000000000.manifest.json'",
+          "row_index": 1,
+          "run_id": "source"
+        }
+      ],
+      "reverse_replay_rows": 0
+    }
+  },
+  {
+    "scope": "legacy6",
+    "test": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[placeholder-maximize]",
+    "property": "legacy_refusal_receipt",
+    "value": {
+      "admitted_numeric_rows": 0,
+      "bundle_ref": {
+        "artifact_id": "sha256:0efdcef5a234d19a795fedf905762fc78a5176894002783f4e4e4b94996461cc",
+        "kind": "vector_memory.bundle",
+        "media_type": "application/json"
+      },
+      "counts": {
+        "accepted": 0,
+        "loaded": 2,
+        "rejected": 2,
+        "selected": 0,
+        "unavailable": 0
+      },
+      "direction": "maximize",
+      "history_ref": {
+        "artifact_id": "sha256:1baf7cbade5c0a87cbb88ac71cea967c91429849c02591cdf1ddd3ae50e24863",
+        "kind": "search.transfer.history",
+        "media_type": "application/json"
+      },
+      "legacy": "placeholder",
+      "profile": "Explicit v2 required; missing old scalar convention or real candidate is not inferred",
+      "rejections": [
+        {
+          "reason": "[Errno 2] No such file or directory: '/dev/shm/e02-D-post-a795-88ghpj7t/transfer/legacy-run5b/actual-legacy6/basetemp/test_persisted_legacy_scalar_o5/cas/artifacts/sha256/00/00/0000000000000000000000000000000000000000000000000000000000000000.manifest.json'",
+          "row_index": 0,
+          "run_id": "source"
+        },
+        {
+          "reason": "[Errno 2] No such file or directory: '/dev/shm/e02-D-post-a795-88ghpj7t/transfer/legacy-run5b/actual-legacy6/basetemp/test_persisted_legacy_scalar_o5/cas/artifacts/sha256/00/00/0000000000000000000000000000000000000000000000000000000000000000.manifest.json'",
+          "row_index": 1,
+          "run_id": "source"
+        }
+      ],
+      "reverse_replay_rows": 0
+    }
+  }
+]

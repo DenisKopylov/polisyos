@@ -1,0 +1,10 @@
+{
+  "schema": "D.E02.source-qualification-precheck.v1",
+  "outcome": "ERROR",
+  "product_test_result": null,
+  "reason": "Initial full-clean assertion stopped before comparison because root publication copy was untracked. Source and index were not modified; HEADd23 unchanged. Subsequent qualification deliberately checks tracked source/index and immutable Git inputs rather than requiring no new receipt docs.",
+  "observed_status": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/\n",
+  "actual_test_or_fit_execution": false,
+  "initial_exception": "AssertionError at <stdin>:9",
+  "preserved_separately": true
+}

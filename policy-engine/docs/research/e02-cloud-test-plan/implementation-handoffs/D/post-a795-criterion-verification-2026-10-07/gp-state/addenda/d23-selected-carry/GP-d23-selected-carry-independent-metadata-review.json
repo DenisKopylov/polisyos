@@ -1,0 +1,25 @@
+{
+  "schema": "D.E02.independent.GP-d23-selected-carry-metadata-review.v1",
+  "reviewer": "/root/transfer_oct07",
+  "author": "/root/gp_oct07",
+  "created_utc": "2026-10-07T18:38:38.899505+00:00",
+  "verdict": "GO bounded static source/module carry only",
+  "reviewed_sidecar": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/publication-d23-selected-carry/selected-seven-d23-carry.json",
+    "sha256": "af296cdf70df9237c71b5313bfa7c4f26647298b73bd5c1fde5cc9fc9deebf7e"
+  },
+  "sealed128_members_all_exact": true,
+  "all318_current_d23_Git_blobs_same_as_actual_CBC": true,
+  "complete_5b_d23_changed_path_count": 1,
+  "changed_Node_test_not_selected_or_imported_in_GPnine": true,
+  "actual_execution_remains_CBC": true,
+  "whole6863_catalog_or_tree_identity": false,
+  "new_numerical_backend_execution": false,
+  "original_property_review": "d0c0a00ca4047879aff6c10a755c49bf7050060c62efb8ca0c4264aab6a55c14",
+  "initial_untracked_receipt_precheck": "Metadata ERROR before comparisons preserved; tracked-clean immutable admission separate; no producttestFAIL",
+  "B127_service_effect22": "Actuala795 oldscope sourcequalified, notnew22execution",
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "P41": "not_established",
+  "no_tracked_writes_or_test_replay": true
+}

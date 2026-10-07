@@ -1,0 +1,1066 @@
+{
+  "schema": "e02.D.compact-derived-input-origin-proof.v1",
+  "actual_candidate": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "assessed_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "scopes": {
+    "quantity-consumers": {
+      "inputs_before": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/quantity-consumers/inputs-before.json.gz",
+        "bytes": 1131328,
+        "sha256": "1cf9248f2e967449beb52c50b477ba0ef412d31ac4c4cbf6099f9be02482c356"
+      },
+      "inputs_after": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/quantity-consumers/inputs-after.json.gz",
+        "bytes": 1131328,
+        "sha256": "1cf9248f2e967449beb52c50b477ba0ef412d31ac4c4cbf6099f9be02482c356"
+      },
+      "input_catalog_counts": {
+        "all": 17619,
+        "available": 8725,
+        "sparse_unmaterialized": 8894
+      },
+      "complete_input_catalogs_equal": true,
+      "complete_origin_raw_packets": [
+        {
+          "raw": {
+            "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/quantity-consumers/origins/process-671140.json",
+            "bytes": 1828216,
+            "sha256": "6c554cb4bee27b2e9fef7acbb63610309356ee6d868eb5619d0461cbed50e08d"
+          },
+          "pid": 671140,
+          "total_origin_rows": 5089,
+          "source_bound_repo_rows": 1149,
+          "all_repo_rows_SHA256": "deb3817e33d08f487c095fad0dddc5976677ed047ef03c1bd3ff588b2fc4f618",
+          "candidate_repo_mismatches": [],
+          "critical_selected_or_core_origins": [
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+              "module": "polisyos.scientist.methods.autotune.pareto",
+              "sha256": "f6787e89fb3ae343e4ed822e00db9c91c44d017effc2aff22dda93f639c54b83"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_axis_permutation_consumers.py",
+              "module": "test_pareto_axis_permutation_consumers",
+              "sha256": "c4f7790d3ecd6dddc2d23197250fb06acd0cd21a8c5887e0ca34d62590b5e990"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+              "module": "test_pareto",
+              "sha256": "f9096dad70b07b8eae9a976e7a65010c592bc2352ad1ded425f47f5b534d1f25"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+              "module": "polisyos.scientist.methods.search.objective",
+              "sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+              "module": "polisyos.scientist.methods.search.frontier",
+              "sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+              "module": "polisyos.scientist.methods.search.stopping",
+              "sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+              "module": "polisyos.scientist.methods.search.strategies.multi_objective",
+              "sha256": "e4699f9b1f892a3850406d0ef582bcf8072e19192d040783468d8c33b9c21f8a"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+              "module": "test_multiobjective_hypervolume_admission",
+              "sha256": "125812f64a5fc6c6a679969f8117819792c17a98e1c7030a815e15e346cea4b8"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+              "module": "polisyos.scientist.methods.search.pareto_registry",
+              "sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/methods/search/test_current_quantity_consumers.py",
+              "module": "test_current_quantity_consumers",
+              "sha256": "c331f05519c4590c96080d6d1491388ca261b1096dedf0100712da1b0c097939"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+              "module": "polisyos.scientist.methods.doe.stress_report",
+              "sha256": "cdf7ffe7bd6e3921749e7aa61624d43fa9e8f831495533bf22441744478cc4ee"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+              "module": "polisyos.scientist.methods.search.adversarial",
+              "sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+              "module": "polisyos.scientist.policy_design.output",
+              "sha256": "6e7222137b4b44b7a71dd2de7d0300f0fee22d05f41df556b2f84dc84ea73598"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/methods/search/test_registry_quantity_projection.py",
+              "module": "test_registry_quantity_projection",
+              "sha256": "500342e870818200404d2322cf266877631fd4303798fe364104833ae94550e6"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/methods/search/test_frontier_quantity_readback.py",
+              "module": "test_frontier_quantity_readback",
+              "sha256": "fba874ac95a52e961f5d51c62de468e94e05d77700137491fc2143b4202d9071"
+            }
+          ],
+          "actual_backend_or_changed_shared_origins": [
+            {
+              "module": "pytest",
+              "file": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pytest/__init__.py",
+              "relative_candidate_path": null,
+              "bytes": 5582,
+              "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
+            },
+            {
+              "module": "polisyos.common.async_tools",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "relative_candidate_path": "policy-engine/src/polisyos/common/async_tools.py",
+              "bytes": 11846,
+              "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+              "candidate_sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+              "candidate_blob_matches": true
+            },
+            {
+              "module": "numpy",
+              "file": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/numpy/__init__.py",
+              "relative_candidate_path": null,
+              "bytes": 25919,
+              "sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38"
+            },
+            {
+              "module": "torch._ops",
+              "file": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/_ops.py",
+              "relative_candidate_path": null,
+              "bytes": 60733,
+              "sha256": "0e4ad0eb427cbdcc707f86eb3949b49f3ae9d19aa73e23745d31ca34e3c928a7"
+            },
+            {
+              "module": "torch._classes",
+              "file": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/_classes.py",
+              "relative_candidate_path": null,
+              "bytes": 1786,
+              "sha256": "0db3dc302e28fd085065ea2883ce33fa4af406b9fd1439f2a431f053e9a764b9"
+            },
+            {
+              "module": "torch",
+              "file": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/__init__.py",
+              "relative_candidate_path": null,
+              "bytes": 107268,
+              "sha256": "d6388b1e3b16c1f9a22a87898e5f205fa13a97bd65c163f4829a157e0d9d602f"
+            },
+            {
+              "module": "gpytorch",
+              "file": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/gpytorch/__init__.py",
+              "relative_candidate_path": null,
+              "bytes": 12395,
+              "sha256": "0ee8ea29d595cd3ec26b37abc93bbe98f8e293802ef85341b8f7faedf80572ee"
+            },
+            {
+              "module": "scipy",
+              "file": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/scipy/__init__.py",
+              "relative_candidate_path": null,
+              "bytes": 4063,
+              "sha256": "a72412a5c62442876e073a01da1910c84b7214d1382380b71a873b470420dd68"
+            },
+            {
+              "module": "botorch",
+              "file": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/__init__.py",
+              "relative_candidate_path": null,
+              "bytes": 2134,
+              "sha256": "448b14d019f28371eb2f116b1a035118203b8e3b325c1bba34681ad41f8e2b41"
+            }
+          ],
+          "original_origin_problems": [
+            {
+              "module": "torch.ops",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/_ops.py",
+              "relative_candidate_path": "policy-engine/_ops.py",
+              "read_error": "Loaded repository origin file unavailable at exit",
+              "binding": "unresolved_untracked_repo_loaded_module"
+            },
+            {
+              "module": "torch.classes",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/_classes.py",
+              "relative_candidate_path": "policy-engine/_classes.py",
+              "read_error": "Loaded repository origin file unavailable at exit",
+              "binding": "unresolved_untracked_repo_loaded_module"
+            },
+            {
+              "class": "origin_read_error",
+              "row": {
+                "module": "torch.ops",
+                "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/_ops.py",
+                "relative_candidate_path": "policy-engine/_ops.py",
+                "read_error": "Loaded repository origin file unavailable at exit",
+                "binding": "unresolved_untracked_repo_loaded_module"
+              }
+            },
+            {
+              "class": "origin_read_error",
+              "row": {
+                "module": "torch.classes",
+                "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/_classes.py",
+                "relative_candidate_path": "policy-engine/_classes.py",
+                "read_error": "Loaded repository origin file unavailable at exit",
+                "binding": "unresolved_untracked_repo_loaded_module"
+              }
+            }
+          ],
+          "observed_shared_async_calls": [
+            {
+              "time_ns": 1791395152441464678,
+              "function": "<module>",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 1,
+              "thread": 139622066444160
+            },
+            {
+              "time_ns": 1791395152441497590,
+              "function": "SharedExecutorReentrancyError",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 25,
+              "thread": 139622066444160
+            },
+            {
+              "time_ns": 1791395152441518518,
+              "function": "<generic parameters of _SharedFuture>",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 29,
+              "thread": 139622066444160
+            },
+            {
+              "time_ns": 1791395152441742034,
+              "function": "_SharedFuture",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 29,
+              "thread": 139622066444160
+            },
+            {
+              "time_ns": 1791395152443074564,
+              "function": "_SharedExecutor",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 99,
+              "thread": 139622066444160
+            },
+            {
+              "time_ns": 1791395152443078973,
+              "function": "<generic parameters of submit>",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 118,
+              "thread": 139622066444160
+            },
+            {
+              "time_ns": 1791395152443102196,
+              "function": "<generic parameters of _await_awaitable>",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 210,
+              "thread": 139622066444160
+            },
+            {
+              "time_ns": 1791395152443104490,
+              "function": "<generic parameters of _run_coro_in_fresh_loop>",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 214,
+              "thread": 139622066444160
+            },
+            {
+              "time_ns": 1791395152443106333,
+              "function": "<generic parameters of run_coro_sync>",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 243,
+              "thread": 139622066444160
+            },
+            {
+              "time_ns": 1791395152443108347,
+              "function": "<generic parameters of run_blocking_async>",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 270,
+              "thread": 139622066444160
+            },
+            {
+              "time_ns": 1791395180985397528,
+              "function": "shutdown_run_coro_sync_executor",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 185,
+              "thread": 139622066444160
+            }
+          ],
+          "observed_subprocesses": []
+        },
+        {
+          "raw": {
+            "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/quantity-consumers/origins/process-671069.json",
+            "bytes": 36172,
+            "sha256": "737e9c5d81d1cb11770d166f0db020d9bbfde622f9a1a5c3bc87316535602b7d"
+          },
+          "pid": 671069,
+          "total_origin_rows": 117,
+          "source_bound_repo_rows": 0,
+          "all_repo_rows_SHA256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "candidate_repo_mismatches": [],
+          "critical_selected_or_core_origins": [
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+              "module": "polisyos.scientist.methods.autotune.pareto",
+              "sha256": "f6787e89fb3ae343e4ed822e00db9c91c44d017effc2aff22dda93f639c54b83"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_axis_permutation_consumers.py",
+              "module": "test_pareto_axis_permutation_consumers",
+              "sha256": "c4f7790d3ecd6dddc2d23197250fb06acd0cd21a8c5887e0ca34d62590b5e990"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+              "module": "test_pareto",
+              "sha256": "f9096dad70b07b8eae9a976e7a65010c592bc2352ad1ded425f47f5b534d1f25"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+              "module": "polisyos.scientist.methods.search.objective",
+              "sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+              "module": "polisyos.scientist.methods.search.frontier",
+              "sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+              "module": "polisyos.scientist.methods.search.stopping",
+              "sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+              "module": "polisyos.scientist.methods.search.strategies.multi_objective",
+              "sha256": "e4699f9b1f892a3850406d0ef582bcf8072e19192d040783468d8c33b9c21f8a"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+              "module": "test_multiobjective_hypervolume_admission",
+              "sha256": "125812f64a5fc6c6a679969f8117819792c17a98e1c7030a815e15e346cea4b8"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+              "module": "polisyos.scientist.methods.search.pareto_registry",
+              "sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/methods/search/test_current_quantity_consumers.py",
+              "module": "test_current_quantity_consumers",
+              "sha256": "c331f05519c4590c96080d6d1491388ca261b1096dedf0100712da1b0c097939"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+              "module": "polisyos.scientist.methods.doe.stress_report",
+              "sha256": "cdf7ffe7bd6e3921749e7aa61624d43fa9e8f831495533bf22441744478cc4ee"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+              "module": "polisyos.scientist.methods.search.adversarial",
+              "sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+              "module": "polisyos.scientist.policy_design.output",
+              "sha256": "6e7222137b4b44b7a71dd2de7d0300f0fee22d05f41df556b2f84dc84ea73598"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/methods/search/test_registry_quantity_projection.py",
+              "module": "test_registry_quantity_projection",
+              "sha256": "500342e870818200404d2322cf266877631fd4303798fe364104833ae94550e6"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/methods/search/test_frontier_quantity_readback.py",
+              "module": "test_frontier_quantity_readback",
+              "sha256": "fba874ac95a52e961f5d51c62de468e94e05d77700137491fc2143b4202d9071"
+            }
+          ],
+          "actual_backend_or_changed_shared_origins": [],
+          "original_origin_problems": [],
+          "observed_shared_async_calls": [],
+          "observed_subprocesses": [
+            {
+              "pid": 671137,
+              "argv": [
+                "uname",
+                "-p"
+              ],
+              "time_ns": 1791395151317375291
+            }
+          ]
+        }
+      ],
+      "all_actual_repo_unique_paths": 1149,
+      "all_actual_repo_unique_path_hash": "21d5604aaabde6f47d8424b89c7eae085db050ef32dbae90bc296cad4fcb2994",
+      "available_source_bytes_verified_by_original_driver": true,
+      "candidate_repo_source_mismatches": [],
+      "full_fixture_inventory_external": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/quantity-consumers-complete-fixture-output-hashes.json",
+        "bytes": 102189,
+        "sha256": "b620170ebad75ef4f8846c756e0cf585c08727d8e5411efdf82587a61875f6ce"
+      },
+      "scope": "Compact derived proof with exact full-original hash/pointers. Full inventories/origins stay raw and independently reviewable; no silently omitted original streams/phases/commands."
+    },
+    "fiscal-consumers": {
+      "inputs_before": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/fiscal-consumers/inputs-before.json.gz",
+        "bytes": 1131328,
+        "sha256": "1cf9248f2e967449beb52c50b477ba0ef412d31ac4c4cbf6099f9be02482c356"
+      },
+      "inputs_after": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/fiscal-consumers/inputs-after.json.gz",
+        "bytes": 1131328,
+        "sha256": "1cf9248f2e967449beb52c50b477ba0ef412d31ac4c4cbf6099f9be02482c356"
+      },
+      "input_catalog_counts": {
+        "all": 17619,
+        "available": 8725,
+        "sparse_unmaterialized": 8894
+      },
+      "complete_input_catalogs_equal": true,
+      "complete_origin_raw_packets": [
+        {
+          "raw": {
+            "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/fiscal-consumers/origins/process-671142.json",
+            "bytes": 195761,
+            "sha256": "3ac3aa868928403803862247b44f791da738cfc66cabb5db41a5a6ecdc7af225"
+          },
+          "pid": 671142,
+          "total_origin_rows": 613,
+          "source_bound_repo_rows": 44,
+          "all_repo_rows_SHA256": "5d454bec5792a27dbc6bf0c19c1aa44b6249efe60a3ab154c5374f9ca7e84458",
+          "candidate_repo_mismatches": [],
+          "critical_selected_or_core_origins": [
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+              "module": "polisyos.scientist.methods.search.objective",
+              "sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+              "module": "polisyos.scientist.methods.search.stopping",
+              "sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py",
+              "module": "test_fiscal_numeric_admission",
+              "sha256": "89b7fe53ee40da9fec92528278772267944edb250d923d45018dfb33846bf206"
+            }
+          ],
+          "actual_backend_or_changed_shared_origins": [
+            {
+              "module": "pytest",
+              "file": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pytest/__init__.py",
+              "relative_candidate_path": null,
+              "bytes": 5582,
+              "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
+            }
+          ],
+          "original_origin_problems": [],
+          "observed_shared_async_calls": [],
+          "observed_subprocesses": []
+        },
+        {
+          "raw": {
+            "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/fiscal-consumers/origins/process-671120.json",
+            "bytes": 34991,
+            "sha256": "e6d8b432c979a04e6d6cc4ec5eae2cc768fb20d636180c8c5aebfcdf04acaeb5"
+          },
+          "pid": 671120,
+          "total_origin_rows": 113,
+          "source_bound_repo_rows": 0,
+          "all_repo_rows_SHA256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "candidate_repo_mismatches": [],
+          "critical_selected_or_core_origins": [
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+              "module": "polisyos.scientist.methods.search.objective",
+              "sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+              "module": "polisyos.scientist.methods.search.stopping",
+              "sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py",
+              "module": "test_fiscal_numeric_admission",
+              "sha256": "89b7fe53ee40da9fec92528278772267944edb250d923d45018dfb33846bf206"
+            }
+          ],
+          "actual_backend_or_changed_shared_origins": [],
+          "original_origin_problems": [],
+          "observed_shared_async_calls": [],
+          "observed_subprocesses": [
+            {
+              "pid": 671141,
+              "argv": [
+                "uname",
+                "-p"
+              ],
+              "time_ns": 1791395151392940756
+            }
+          ]
+        }
+      ],
+      "all_actual_repo_unique_paths": 44,
+      "all_actual_repo_unique_path_hash": "11b4595a1b192ddb23961298e7dc2f58f66a6bf08bec0bd95367d4200048029b",
+      "available_source_bytes_verified_by_original_driver": true,
+      "candidate_repo_source_mismatches": [],
+      "full_fixture_inventory_external": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/fiscal-consumers-complete-fixture-output-hashes.json",
+        "bytes": 264,
+        "sha256": "58249d0249fc3c9460ef2e204bcda250c477a84acccedd5ab4394ba0ed234497"
+      },
+      "scope": "Compact derived proof with exact full-original hash/pointers. Full inventories/origins stay raw and independently reviewable; no silently omitted original streams/phases/commands."
+    },
+    "stress-consumers": {
+      "inputs_before": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/stress-consumers/inputs-before.json.gz",
+        "bytes": 1131328,
+        "sha256": "1cf9248f2e967449beb52c50b477ba0ef412d31ac4c4cbf6099f9be02482c356"
+      },
+      "inputs_after": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/stress-consumers/inputs-after.json.gz",
+        "bytes": 1131328,
+        "sha256": "1cf9248f2e967449beb52c50b477ba0ef412d31ac4c4cbf6099f9be02482c356"
+      },
+      "input_catalog_counts": {
+        "all": 17619,
+        "available": 8725,
+        "sparse_unmaterialized": 8894
+      },
+      "complete_input_catalogs_equal": true,
+      "complete_origin_raw_packets": [
+        {
+          "raw": {
+            "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/stress-consumers/origins/process-671146.json",
+            "bytes": 1432039,
+            "sha256": "3983191b3c411f8a21f7f1c4874072ffb06e6a6281c1a2bfb4bc2af0b2283370"
+          },
+          "pid": 671146,
+          "total_origin_rows": 3809,
+          "source_bound_repo_rows": 1176,
+          "all_repo_rows_SHA256": "bea5cf59e726c5311013c459eceed7dc21c9e9438fedd8ebf2a60aa36c2ad565",
+          "candidate_repo_mismatches": [],
+          "critical_selected_or_core_origins": [
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+              "module": "polisyos.scientist.methods.doe.stress_report",
+              "sha256": "cdf7ffe7bd6e3921749e7aa61624d43fa9e8f831495533bf22441744478cc4ee"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+              "module": "polisyos.scientist.methods.autotune.pareto",
+              "sha256": "f6787e89fb3ae343e4ed822e00db9c91c44d017effc2aff22dda93f639c54b83"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+              "module": "polisyos.scientist.methods.search.objective",
+              "sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+              "module": "polisyos.scientist.methods.search.frontier",
+              "sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+              "module": "polisyos.scientist.methods.search.stopping",
+              "sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+              "module": "polisyos.scientist.methods.search.adversarial",
+              "sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/search/test_adversarial_streaming.py",
+              "module": "search.test_adversarial_streaming",
+              "sha256": "0227f239fd504924a2591bdbe391ddc1bb2f62d516d1d0e3221e6bd614ccadb5"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+              "module": "polisyos.scientist.methods.search.pareto_registry",
+              "sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+              "module": "polisyos.scientist.policy_design.output",
+              "sha256": "6e7222137b4b44b7a71dd2de7d0300f0fee22d05f41df556b2f84dc84ea73598"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+              "module": "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime",
+              "sha256": "19cf96ccdd90146d597c27e776b4bec34bb2999c588ac048d1ba895bcbdd261e"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/search/test_stress_scenario_evidence.py",
+              "module": "search.test_stress_scenario_evidence",
+              "sha256": "2305ffaecac2613846308cd03fcd618be22519d1289ef5fe42e155595dd13ca0"
+            }
+          ],
+          "actual_backend_or_changed_shared_origins": [
+            {
+              "module": "pytest",
+              "file": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pytest/__init__.py",
+              "relative_candidate_path": null,
+              "bytes": 5582,
+              "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
+            },
+            {
+              "module": "polisyos.common.async_tools",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "relative_candidate_path": "policy-engine/src/polisyos/common/async_tools.py",
+              "bytes": 11846,
+              "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+              "candidate_sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+              "candidate_blob_matches": true
+            },
+            {
+              "module": "numpy",
+              "file": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/numpy/__init__.py",
+              "relative_candidate_path": null,
+              "bytes": 25919,
+              "sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38"
+            },
+            {
+              "module": "scipy",
+              "file": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/scipy/__init__.py",
+              "relative_candidate_path": null,
+              "bytes": 4063,
+              "sha256": "a72412a5c62442876e073a01da1910c84b7214d1382380b71a873b470420dd68"
+            }
+          ],
+          "original_origin_problems": [],
+          "observed_shared_async_calls": [
+            {
+              "time_ns": 1791395152628413940,
+              "function": "<module>",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 1,
+              "thread": 140447460620160
+            },
+            {
+              "time_ns": 1791395152628448605,
+              "function": "SharedExecutorReentrancyError",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 25,
+              "thread": 140447460620160
+            },
+            {
+              "time_ns": 1791395152628469303,
+              "function": "<generic parameters of _SharedFuture>",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 29,
+              "thread": 140447460620160
+            },
+            {
+              "time_ns": 1791395152628518465,
+              "function": "_SharedFuture",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 29,
+              "thread": 140447460620160
+            },
+            {
+              "time_ns": 1791395152629699382,
+              "function": "_SharedExecutor",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 99,
+              "thread": 140447460620160
+            },
+            {
+              "time_ns": 1791395152629703480,
+              "function": "<generic parameters of submit>",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 118,
+              "thread": 140447460620160
+            },
+            {
+              "time_ns": 1791395152629723287,
+              "function": "<generic parameters of _await_awaitable>",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 210,
+              "thread": 140447460620160
+            },
+            {
+              "time_ns": 1791395152629725150,
+              "function": "<generic parameters of _run_coro_in_fresh_loop>",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 214,
+              "thread": 140447460620160
+            },
+            {
+              "time_ns": 1791395152629727194,
+              "function": "<generic parameters of run_coro_sync>",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 243,
+              "thread": 140447460620160
+            },
+            {
+              "time_ns": 1791395152629729388,
+              "function": "<generic parameters of run_blocking_async>",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 270,
+              "thread": 140447460620160
+            },
+            {
+              "time_ns": 1791395174392993215,
+              "function": "shutdown_run_coro_sync_executor",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 185,
+              "thread": 140447460620160
+            }
+          ],
+          "observed_subprocesses": []
+        },
+        {
+          "raw": {
+            "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/stress-consumers/origins/process-671136.json",
+            "bytes": 36172,
+            "sha256": "61dd7366373cdaebd6b21663df2867d9bea93ca328b7a5f489abc883bb6d0a41"
+          },
+          "pid": 671136,
+          "total_origin_rows": 117,
+          "source_bound_repo_rows": 0,
+          "all_repo_rows_SHA256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "candidate_repo_mismatches": [],
+          "critical_selected_or_core_origins": [
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+              "module": "polisyos.scientist.methods.doe.stress_report",
+              "sha256": "cdf7ffe7bd6e3921749e7aa61624d43fa9e8f831495533bf22441744478cc4ee"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+              "module": "polisyos.scientist.methods.autotune.pareto",
+              "sha256": "f6787e89fb3ae343e4ed822e00db9c91c44d017effc2aff22dda93f639c54b83"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+              "module": "polisyos.scientist.methods.search.objective",
+              "sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+              "module": "polisyos.scientist.methods.search.frontier",
+              "sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+              "module": "polisyos.scientist.methods.search.stopping",
+              "sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+              "module": "polisyos.scientist.methods.search.adversarial",
+              "sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/search/test_adversarial_streaming.py",
+              "module": "search.test_adversarial_streaming",
+              "sha256": "0227f239fd504924a2591bdbe391ddc1bb2f62d516d1d0e3221e6bd614ccadb5"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+              "module": "polisyos.scientist.methods.search.pareto_registry",
+              "sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+              "module": "polisyos.scientist.policy_design.output",
+              "sha256": "6e7222137b4b44b7a71dd2de7d0300f0fee22d05f41df556b2f84dc84ea73598"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+              "module": "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime",
+              "sha256": "19cf96ccdd90146d597c27e776b4bec34bb2999c588ac048d1ba895bcbdd261e"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/search/test_stress_scenario_evidence.py",
+              "module": "search.test_stress_scenario_evidence",
+              "sha256": "2305ffaecac2613846308cd03fcd618be22519d1289ef5fe42e155595dd13ca0"
+            }
+          ],
+          "actual_backend_or_changed_shared_origins": [],
+          "original_origin_problems": [],
+          "observed_shared_async_calls": [],
+          "observed_subprocesses": [
+            {
+              "pid": 671145,
+              "argv": [
+                "uname",
+                "-p"
+              ],
+              "time_ns": 1791395151555647931
+            }
+          ]
+        }
+      ],
+      "all_actual_repo_unique_paths": 1176,
+      "all_actual_repo_unique_path_hash": "e99d2be4731278cc6243cbb721ac74ab6eca1e47c3f91e5d10b511c50e320ca9",
+      "available_source_bytes_verified_by_original_driver": true,
+      "candidate_repo_source_mismatches": [],
+      "full_fixture_inventory_external": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/stress-consumers-complete-fixture-output-hashes.json",
+        "bytes": 29789,
+        "sha256": "501510a5f078ee3939727310424b8109291add324c5738b74414d87497d816c6"
+      },
+      "scope": "Compact derived proof with exact full-original hash/pointers. Full inventories/origins stay raw and independently reviewable; no silently omitted original streams/phases/commands."
+    },
+    "stopping-convergence": {
+      "inputs_before": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/stopping-convergence/inputs-before.json.gz",
+        "bytes": 1131328,
+        "sha256": "1cf9248f2e967449beb52c50b477ba0ef412d31ac4c4cbf6099f9be02482c356"
+      },
+      "inputs_after": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/stopping-convergence/inputs-after.json.gz",
+        "bytes": 1131328,
+        "sha256": "1cf9248f2e967449beb52c50b477ba0ef412d31ac4c4cbf6099f9be02482c356"
+      },
+      "input_catalog_counts": {
+        "all": 17619,
+        "available": 8725,
+        "sparse_unmaterialized": 8894
+      },
+      "complete_input_catalogs_equal": true,
+      "complete_origin_raw_packets": [
+        {
+          "raw": {
+            "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/stopping-convergence/origins/process-671144.json",
+            "bytes": 451788,
+            "sha256": "205be4e29fbded2b834b53ef1d36cd1d2bea51fd7c9ada8e6aa12a32d9ea9b85"
+          },
+          "pid": 671144,
+          "total_origin_rows": 1292,
+          "source_bound_repo_rows": 269,
+          "all_repo_rows_SHA256": "4667e810c43a92d798b3039ca68d0cad49f02d3fff05561d1fa418ff872fdcbc",
+          "candidate_repo_mismatches": [],
+          "critical_selected_or_core_origins": [
+            {
+              "path": "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+              "module": "polisyos.scientist.orchestration.engine.convergence",
+              "sha256": "5298242cd9b3fc4a80adb07c9b78c16063c1bd00b9918088c7130848cc2dd907"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+              "module": "engine.test_convergence_numerical_oracle",
+              "sha256": "bfe8ee7a6e0be2f2eaa60f976c611dc4f32ccb8d64561bb1307737b8afa04a61"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+              "module": "polisyos.scientist.methods.search.objective",
+              "sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+              "module": "polisyos.scientist.methods.search.stopping",
+              "sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+              "module": "test_stopping_numerical_oracle",
+              "sha256": "09d679aa22cc434e60ea054c1f84ad2c2b607e296a90885054d59ad2de31aaff"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+              "module": "polisyos.scientist.methods.autotune.pareto",
+              "sha256": "f6787e89fb3ae343e4ed822e00db9c91c44d017effc2aff22dda93f639c54b83"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+              "module": "polisyos.scientist.methods.search.frontier",
+              "sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b"
+            }
+          ],
+          "actual_backend_or_changed_shared_origins": [
+            {
+              "module": "pytest",
+              "file": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pytest/__init__.py",
+              "relative_candidate_path": null,
+              "bytes": 5582,
+              "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
+            },
+            {
+              "module": "polisyos.common.async_tools",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "relative_candidate_path": "policy-engine/src/polisyos/common/async_tools.py",
+              "bytes": 11846,
+              "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+              "candidate_sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+              "candidate_blob_matches": true
+            },
+            {
+              "module": "numpy",
+              "file": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/numpy/__init__.py",
+              "relative_candidate_path": null,
+              "bytes": 25919,
+              "sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38"
+            }
+          ],
+          "original_origin_problems": [],
+          "observed_shared_async_calls": [
+            {
+              "time_ns": 1791395153141074668,
+              "function": "<module>",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 1,
+              "thread": 140535368714112
+            },
+            {
+              "time_ns": 1791395153141107760,
+              "function": "SharedExecutorReentrancyError",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 25,
+              "thread": 140535368714112
+            },
+            {
+              "time_ns": 1791395153141128018,
+              "function": "<generic parameters of _SharedFuture>",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 29,
+              "thread": 140535368714112
+            },
+            {
+              "time_ns": 1791395153141170497,
+              "function": "_SharedFuture",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 29,
+              "thread": 140535368714112
+            },
+            {
+              "time_ns": 1791395153141217975,
+              "function": "_SharedExecutor",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 99,
+              "thread": 140535368714112
+            },
+            {
+              "time_ns": 1791395153141221141,
+              "function": "<generic parameters of submit>",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 118,
+              "thread": 140535368714112
+            },
+            {
+              "time_ns": 1791395153141246979,
+              "function": "<generic parameters of _await_awaitable>",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 210,
+              "thread": 140535368714112
+            },
+            {
+              "time_ns": 1791395153141249013,
+              "function": "<generic parameters of _run_coro_in_fresh_loop>",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 214,
+              "thread": 140535368714112
+            },
+            {
+              "time_ns": 1791395153141250676,
+              "function": "<generic parameters of run_coro_sync>",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 243,
+              "thread": 140535368714112
+            },
+            {
+              "time_ns": 1791395153141252780,
+              "function": "<generic parameters of run_blocking_async>",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 270,
+              "thread": 140535368714112
+            },
+            {
+              "time_ns": 1791395157487983992,
+              "function": "shutdown_run_coro_sync_executor",
+              "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/common/async_tools.py",
+              "line": 185,
+              "thread": 140535368714112
+            }
+          ],
+          "observed_subprocesses": []
+        },
+        {
+          "raw": {
+            "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/stopping-convergence/origins/process-671139.json",
+            "bytes": 34991,
+            "sha256": "15a241a29397d75b0ec4e73e1610031a3d0cd7ddfa386896fddc31b95d95fd7d"
+          },
+          "pid": 671139,
+          "total_origin_rows": 113,
+          "source_bound_repo_rows": 0,
+          "all_repo_rows_SHA256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "candidate_repo_mismatches": [],
+          "critical_selected_or_core_origins": [
+            {
+              "path": "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+              "module": "polisyos.scientist.orchestration.engine.convergence",
+              "sha256": "5298242cd9b3fc4a80adb07c9b78c16063c1bd00b9918088c7130848cc2dd907"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+              "module": "engine.test_convergence_numerical_oracle",
+              "sha256": "bfe8ee7a6e0be2f2eaa60f976c611dc4f32ccb8d64561bb1307737b8afa04a61"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+              "module": "polisyos.scientist.methods.search.objective",
+              "sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+              "module": "polisyos.scientist.methods.search.stopping",
+              "sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+              "module": "test_stopping_numerical_oracle",
+              "sha256": "09d679aa22cc434e60ea054c1f84ad2c2b607e296a90885054d59ad2de31aaff"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+              "module": "polisyos.scientist.methods.autotune.pareto",
+              "sha256": "f6787e89fb3ae343e4ed822e00db9c91c44d017effc2aff22dda93f639c54b83"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+              "module": "polisyos.scientist.methods.search.frontier",
+              "sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b"
+            }
+          ],
+          "actual_backend_or_changed_shared_origins": [],
+          "original_origin_problems": [],
+          "observed_shared_async_calls": [],
+          "observed_subprocesses": [
+            {
+              "pid": 671143,
+              "argv": [
+                "uname",
+                "-p"
+              ],
+              "time_ns": 1791395151443702391
+            }
+          ]
+        }
+      ],
+      "all_actual_repo_unique_paths": 269,
+      "all_actual_repo_unique_path_hash": "5fe8b80c36f122279dce822e97e9f322f7714d73f54f9c88428bebf113dbed7f",
+      "available_source_bytes_verified_by_original_driver": true,
+      "candidate_repo_source_mismatches": [],
+      "full_fixture_inventory_external": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/stopping-convergence-complete-fixture-output-hashes.json",
+        "bytes": 268,
+        "sha256": "9fbc7cb4332d1ab3cf0dd9afc86bd673e6a99c692528b4bb6c3f0fd4fe25ceae"
+      },
+      "scope": "Compact derived proof with exact full-original hash/pointers. Full inventories/origins stay raw and independently reviewable; no silently omitted original streams/phases/commands."
+    }
+  },
+  "global_capture_admission": "No global admission upgrade. quantity17 original ERROR remains; only named namespace sidecar qualified."
+}

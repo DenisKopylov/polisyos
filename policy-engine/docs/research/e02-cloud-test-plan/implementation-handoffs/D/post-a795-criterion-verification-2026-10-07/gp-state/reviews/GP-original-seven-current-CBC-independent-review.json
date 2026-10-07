@@ -1,0 +1,152 @@
+{
+  "schema": "D.E02.independent.current-GP-original-seven-review.v1",
+  "reviewer": "/root/transfer_oct07",
+  "author": "/root/gp_oct07",
+  "created_utc": "2026-10-07T18:19:16.313507+00:00",
+  "verdict": "GO for seven bounded engineering closure proposals, exact runtime/source scope below",
+  "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "current_candidate": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+  "new_execution_on_current_candidate": false,
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "original_binding_reconciliation": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/GP-original-seven-binding-reconciliation.json",
+    "sha256": "09656af20fce04e213d84dda4a91d805e5b62eedd87f0671d070464a9b64b500"
+  },
+  "115_member_manifest": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/publication-current-CBC46-gp-state/output-manifest.json",
+    "sha256": "39eeaab40577eca546afa3834f9f790e0bb0cbaad5d9e7c56e0ed5828e428fa7",
+    "all_member_bytes_verified": true
+  },
+  "normative_append_only_additions": [
+    {
+      "path": "FINAL-HANDOFF.json",
+      "sha256": "01006ac65e14996c19305b32e2fdce7fbb96112779dd53fe0ca77b440c546864"
+    },
+    {
+      "path": "original-seven-criterion-matrix.final.json",
+      "sha256": "29edb424aff6ed86785c18240ea91dddf4bb29be5a1417afe3783eeaae26df1c"
+    },
+    {
+      "path": "caller-and-CAS-phase-clarification.json",
+      "sha256": "b6951d166fc265366b81eda2e761d4fcdbae7ebce24fc9a25fec775152060f7d"
+    },
+    {
+      "path": "candidate-5b-selected-closure-carry.json",
+      "sha256": "b167ebbb6f878a55c6c5395e8478ff67a4767d724aefa90bab44336c77e26f79"
+    }
+  ],
+  "runtime_reconciliation": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/GP-current-manifest-and-runtime-reconciliation.json",
+    "sha256": "c689634a809cb10cb4adefafe40e93f4dbfc6310ccb5169264148eaa416f131b",
+    "nine_scopes_separate": true
+  },
+  "independent_arithmetic": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/GP-independent-numeric-and-CAS-reconciliation.json",
+    "sha256": "f1b664291063d0d97350ffcc430012ec43c5e6ee8c626332130caa8598a3fc62",
+    "harness": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/independent_gp_arithmetic.v4.py",
+    "harness_sha256": "963f418f16d88549a733b82afd2a43d85674734ab500e2c4b43014fe633e3a5b",
+    "independent_mean_full_covariance_10_and_11": true,
+    "saved_native_parameters_decoded_weights_only_no_model_constructed": true,
+    "actual_CAS_8_and_7_row_training_transforms_reconciled": true,
+    "cas_record_bodies_verified": 84,
+    "new_native_fits": 0
+  },
+  "source_admission": {
+    "complete_CBC_declared_directory_denominator": 6861,
+    "includes_markdown_not_exclusively_executable": true,
+    "dictionary_equal_to_separately_Git_verified_full_transfer_input_capture": true,
+    "all318_reached_repo_Git_bytes_match_CBC_a795_5b": true,
+    "complete_5b_changed_paths": 4,
+    "one_unentered_FUNREADME_two_unentered_tests_one_fragment": true,
+    "whole_catalog_identity": false,
+    "nonmodule_file_access_syscall_tracing": false,
+    "external_backend_profile": "locked Python3.14.7;Torch2.10.0+cu128/BoTorch0.16.1/GPyTorch1.15.1/HNSW0.8.0/NumPy2.3.5/SciPy1.16.3; exact observed package paths and hashes in raw captures"
+  },
+  "numerical_witness": {
+    "SingleTaskGP_MLL_counts": {
+      "gp-defining": 9,
+      "state-effective": 4,
+      "public-history2": 2,
+      "transfer-public3": 2,
+      "gp-warm-dedup1": 1
+    },
+    "ModelListGP_MLL_counts": {
+      "mo-supported": 3,
+      "mo-refusal19": 1
+    },
+    "native_same_basis_resume_append_noop": "Actual defining33 selectors prove initial1/resume0/samebasisappend0, changedbasis and scheduledrefit>0; learned6/7 witness separately from frozen analytic parameters",
+    "independent_oracle": "Pure stdlib RBF+Cholesky recalculation matches current NumPy originalunit mean/fullcovariance10/11 to <2.5e-14; model.posterior used only as actual comparison in producer tests; nativeMO two-component independent oracle test actually executes",
+    "optional_minimal": "3 ordinary compatibility PASS plus3 native module collectionSKIP; numerical property UNRUN, actual dependencies absent; no numerical PASS inferred"
+  },
+  "caller_boundaries": {
+    "Runner3": "Actual run->service->generator->CAS8/7->SingleTaskGP; standalone optimizer StrategyState version4 fresh restore consistency, no publicservice resume/no wrapperv3 inference",
+    "Public_history2": "Actual publicmixed dict/SearchIteration directional generate->wrapperv3 realCAS->fresh set_state->same-next0MLL",
+    "B127_pending_completed": "Separate a795 actualaffected22 source-qualified existing exact receipt; no new22run"
+  },
+  "CAS_phase": "84 records posttest snapshots; two intentionally altered fullref bodies verified negative. Paired original qualified content from Controller8 retained. No fabricated prefit snapshot or claim tamperedbytes admitted as training. Large nested checkpoints rawpath/hash only not Gitavailable",
+  "six_family_scope": "Random/Grid/RL/Bayesian/Neural direct-warm/MO supported persisted profiles; foreign/corrupt refused. NN directCAS savedwarm+RNG supported; opaque serviceNN/RL-with-NN live-only/refused. No crossversion/arbitrarycustomstrategy/concurrentthread isolation promise. Explicit shared Base local RNG and actual profile tests qualify replica law, no claimed extra NNreplica experiment",
+  "P37": "independently_reconciled for bounded runtime/source/numerical/consumer property; institutionally_supplied or not_established for scientific/authority inputs",
+  "P38": "Preserved schema/type/fitted/corpus/RNG markers cannot substitute for actual native output; mutation probes reject or diverge. Current CAS8/7 real backend avoids warmstate/mock proxy; same-model consistency distinguished from independent arithmetic",
+  "P40": "Existing state/intake/identity classes widened in current source; verification found no new owned runtime divergence. Unsupported profiles explicit and falsifiable by native source-qualified fresh restore if later appointed",
+  "P41": "not_established for all seven; no inherited-red waiver",
+  "originals": [
+    {
+      "id": "B112@OPT-02",
+      "original_text_binding_unchanged": true,
+      "bounded_closed_proposal_supported": true,
+      "formal_closed": false,
+      "residual": null
+    },
+    {
+      "id": "B113@OPT-02",
+      "original_text_binding_unchanged": true,
+      "bounded_closed_proposal_supported": true,
+      "formal_closed": false,
+      "residual": null
+    },
+    {
+      "id": "B114@OPT-03",
+      "original_text_binding_unchanged": true,
+      "bounded_closed_proposal_supported": true,
+      "formal_closed": false,
+      "residual": null
+    },
+    {
+      "id": "B115@OPT-03",
+      "original_text_binding_unchanged": true,
+      "bounded_closed_proposal_supported": true,
+      "formal_closed": false,
+      "residual": null
+    },
+    {
+      "id": "B125@CTL-02",
+      "original_text_binding_unchanged": true,
+      "bounded_closed_proposal_supported": true,
+      "formal_closed": false,
+      "residual": null
+    },
+    {
+      "id": "B126@CTL-02",
+      "original_text_binding_unchanged": true,
+      "bounded_closed_proposal_supported": true,
+      "formal_closed": false,
+      "residual": null
+    },
+    {
+      "id": "B127@OPT-02",
+      "original_text_binding_unchanged": true,
+      "bounded_closed_proposal_supported": true,
+      "formal_closed": false,
+      "residual": null
+    }
+  ],
+  "limits": [
+    "No fiscal/scientific/tenant/source-rights law from analytic fixtures",
+    "No whole-root integration/G acceptance or broadperformanceclaim",
+    "All CBC executions retain their own source;5b closure qualification is not a replay",
+    "Ignored large raw captures remain local path/hash; portable copies do not establish Gitavailability of omitted inventories",
+    "Independent verifier development shape/intake mistakes corrected externally v1-v3, no producttest failures inferred"
+  ]
+}

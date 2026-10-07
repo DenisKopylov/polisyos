@@ -1,0 +1,159 @@
+{
+  "rows": [
+    {
+      "scope": "gp-warm-dedup1",
+      "identity": 1,
+      "model_class": "SingleTaskGP",
+      "actual_MLL_wall_s": 1.189977,
+      "timestamp_basis": "Actualobserver UTCstart/return, not objectivequality/costUSD or productionperformance."
+    },
+    {
+      "scope": "mo-refusal19",
+      "identity": 1,
+      "model_class": "ModelListGP",
+      "actual_MLL_wall_s": 0.219831,
+      "timestamp_basis": "Actualobserver UTCstart/return, not objectivequality/costUSD or productionperformance."
+    },
+    {
+      "scope": "public-history2",
+      "identity": 1,
+      "model_class": "SingleTaskGP",
+      "actual_MLL_wall_s": 0.058652,
+      "timestamp_basis": "Actualobserver UTCstart/return, not objectivequality/costUSD or productionperformance."
+    },
+    {
+      "scope": "public-history2",
+      "identity": 2,
+      "model_class": "SingleTaskGP",
+      "actual_MLL_wall_s": 0.047676,
+      "timestamp_basis": "Actualobserver UTCstart/return, not objectivequality/costUSD or productionperformance."
+    },
+    {
+      "scope": "transfer-public3",
+      "identity": 1,
+      "model_class": "SingleTaskGP",
+      "actual_MLL_wall_s": 0.890477,
+      "timestamp_basis": "Actualobserver UTCstart/return, not objectivequality/costUSD or productionperformance."
+    },
+    {
+      "scope": "transfer-public3",
+      "identity": 2,
+      "model_class": "SingleTaskGP",
+      "actual_MLL_wall_s": 0.058431,
+      "timestamp_basis": "Actualobserver UTCstart/return, not objectivequality/costUSD or productionperformance."
+    },
+    {
+      "scope": "mo-supported",
+      "identity": 1,
+      "model_class": "ModelListGP",
+      "actual_MLL_wall_s": 0.557813,
+      "timestamp_basis": "Actualobserver UTCstart/return, not objectivequality/costUSD or productionperformance."
+    },
+    {
+      "scope": "mo-supported",
+      "identity": 2,
+      "model_class": "ModelListGP",
+      "actual_MLL_wall_s": 2.409333,
+      "timestamp_basis": "Actualobserver UTCstart/return, not objectivequality/costUSD or productionperformance."
+    },
+    {
+      "scope": "mo-supported",
+      "identity": 3,
+      "model_class": "ModelListGP",
+      "actual_MLL_wall_s": 0.954709,
+      "timestamp_basis": "Actualobserver UTCstart/return, not objectivequality/costUSD or productionperformance."
+    },
+    {
+      "scope": "state-effective",
+      "identity": 1,
+      "model_class": "SingleTaskGP",
+      "actual_MLL_wall_s": 0.77132,
+      "timestamp_basis": "Actualobserver UTCstart/return, not objectivequality/costUSD or productionperformance."
+    },
+    {
+      "scope": "state-effective",
+      "identity": 2,
+      "model_class": "SingleTaskGP",
+      "actual_MLL_wall_s": 0.577357,
+      "timestamp_basis": "Actualobserver UTCstart/return, not objectivequality/costUSD or productionperformance."
+    },
+    {
+      "scope": "state-effective",
+      "identity": 3,
+      "model_class": "SingleTaskGP",
+      "actual_MLL_wall_s": 0.12808,
+      "timestamp_basis": "Actualobserver UTCstart/return, not objectivequality/costUSD or productionperformance."
+    },
+    {
+      "scope": "state-effective",
+      "identity": 4,
+      "model_class": "SingleTaskGP",
+      "actual_MLL_wall_s": 0.082604,
+      "timestamp_basis": "Actualobserver UTCstart/return, not objectivequality/costUSD or productionperformance."
+    },
+    {
+      "scope": "gp-defining",
+      "identity": 1,
+      "model_class": "SingleTaskGP",
+      "actual_MLL_wall_s": 0.597038,
+      "timestamp_basis": "Actualobserver UTCstart/return, not objectivequality/costUSD or productionperformance."
+    },
+    {
+      "scope": "gp-defining",
+      "identity": 2,
+      "model_class": "SingleTaskGP",
+      "actual_MLL_wall_s": 0.145629,
+      "timestamp_basis": "Actualobserver UTCstart/return, not objectivequality/costUSD or productionperformance."
+    },
+    {
+      "scope": "gp-defining",
+      "identity": 3,
+      "model_class": "SingleTaskGP",
+      "actual_MLL_wall_s": 0.399878,
+      "timestamp_basis": "Actualobserver UTCstart/return, not objectivequality/costUSD or productionperformance."
+    },
+    {
+      "scope": "gp-defining",
+      "identity": 4,
+      "model_class": "SingleTaskGP",
+      "actual_MLL_wall_s": 0.220873,
+      "timestamp_basis": "Actualobserver UTCstart/return, not objectivequality/costUSD or productionperformance."
+    },
+    {
+      "scope": "gp-defining",
+      "identity": 5,
+      "model_class": "SingleTaskGP",
+      "actual_MLL_wall_s": 0.676403,
+      "timestamp_basis": "Actualobserver UTCstart/return, not objectivequality/costUSD or productionperformance."
+    },
+    {
+      "scope": "gp-defining",
+      "identity": 6,
+      "model_class": "SingleTaskGP",
+      "actual_MLL_wall_s": 0.321791,
+      "timestamp_basis": "Actualobserver UTCstart/return, not objectivequality/costUSD or productionperformance."
+    },
+    {
+      "scope": "gp-defining",
+      "identity": 7,
+      "model_class": "SingleTaskGP",
+      "actual_MLL_wall_s": 0.863421,
+      "timestamp_basis": "Actualobserver UTCstart/return, not objectivequality/costUSD or productionperformance."
+    },
+    {
+      "scope": "gp-defining",
+      "identity": 8,
+      "model_class": "SingleTaskGP",
+      "actual_MLL_wall_s": 0.470183,
+      "timestamp_basis": "Actualobserver UTCstart/return, not objectivequality/costUSD or productionperformance."
+    },
+    {
+      "scope": "gp-defining",
+      "identity": 9,
+      "model_class": "SingleTaskGP",
+      "actual_MLL_wall_s": 0.06017,
+      "timestamp_basis": "Actualobserver UTCstart/return, not objectivequality/costUSD or productionperformance."
+    }
+  ],
+  "quality_oracle": "Separate original-unitmean/fullcovariance assertion; no actualpaid resourceUSD claim."
+}

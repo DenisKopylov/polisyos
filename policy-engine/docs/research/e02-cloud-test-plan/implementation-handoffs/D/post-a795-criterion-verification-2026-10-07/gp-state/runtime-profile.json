@@ -1,0 +1,30 @@
+{
+  "actual_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "assessed_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "profiles": "Current locked CPU/sequential owner profiles; no cross-version/custom-transform/concurrent-thread/evaluator authority promise. Minimal absent-stack profile separate.",
+  "torch_version_runtime": "2.10.0+cu128",
+  "botorch": "0.16.1",
+  "gpytorch": "1.15.1",
+  "hnswlib": "0.8.0",
+  "numpy": "2.3.5",
+  "python_native": "3.14.7",
+  "harness_introduced_compute_caps": false,
+  "actual_threads_before": 5,
+  "actual_threads_after": 4,
+  "inherited_production_thread_setting": {
+    "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/runtime.py",
+    "sha256": "b48723be537cc65c2a2bb83aac8af0981fa0f6d8b782042f9bc9d2291c7ba799",
+    "lines": [
+      19,
+      27
+    ],
+    "same_as_c0": true,
+    "scope": "Inherited owner default setsTorch4/interop1; harness records but does not add limits. Actual SCIENTIST_* variables were not separately captured before run; no stronger before-env claim."
+  },
+  "fitted_parameter_distinction": "Analytic NumPy oracle uses deliberately fixed native fitted-state parameters after actual MLL, not a discovered scientific parameter. Actual learned6/7-row state restore/append/refit witness remains separate within gp-defining.",
+  "independent_oracle": "Pure NumPy saved-scalar RBF solve and full covariance, saved Normalize/Standardize and original units; model.posterior only measured side, never expected side.",
+  "P41": "not_established; no inherited-red waiver",
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "cleanup": "No leaf cleanup; unique outputs and inputs preserved."
+}

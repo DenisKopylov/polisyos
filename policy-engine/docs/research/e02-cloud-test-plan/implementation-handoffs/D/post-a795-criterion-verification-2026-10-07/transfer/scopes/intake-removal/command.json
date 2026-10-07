@@ -1,0 +1,79 @@
+{
+  "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "assessed_product_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "backend": {
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "hnswlib": "0.8.0",
+    "numpy": "2.3.5",
+    "pytest": "9.0.2",
+    "scipy": "1.16.3",
+    "torch": "2.10.0"
+  },
+  "compute_limits_introduced": false,
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine",
+    "TMPDIR": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/intake-removal-tmp"
+  },
+  "executable": "/workspace/e02-D-locked-env/bin/python",
+  "harness": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/run_current_transfer_scopes.py",
+  "harness_sha256": "79e1cecf317716c921d630321da347e67d845ff53f2370240fd1598bfb2016ce",
+  "inherited_numeric_thread_environment_no_caps": {
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null
+  },
+  "plan_file": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/scope-plan.json",
+  "plan_sha256": "deaea9a99738322a6da9552518ec53419dc1ca033874d4913a9102485c790c8d",
+  "pytest_argv": [
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "-o",
+    "junit_family=xunit1",
+    "-o",
+    "junit_logging=all",
+    "-o",
+    "junit_log_passing_tests=true",
+    "-q",
+    "-s",
+    "-ra",
+    "--basetemp=/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/intake-removal/basetemp",
+    "--junitxml=/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/intake-removal/junit.xml",
+    "tests/unit/scientist/agent/test_vector_generation_consumer.py::test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake"
+  ],
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "removal_plugin": {
+    "path": "/dev/shm/e02-D-transfer-final-receipt-a4nlymzm/remove_intake_distinction.py",
+    "sha256": "6ca29a6d76299e063f8f81d1d2128e28ed3941b400609a4ca81098a30d8a9d45"
+  },
+  "scope_plan": {
+    "plugin": "/dev/shm/e02-D-transfer-final-receipt-a4nlymzm/remove_intake_distinction.py",
+    "property": "Remove only decoded intake distinctions after exact CAS resolve; real native/schema/ref markers remain: incompatible/unavailable/nonempty must disagree (expected3FAIL) while genuinelyempty remainsPASS.",
+    "selectors": [
+      "tests/unit/scientist/agent/test_vector_generation_consumer.py::test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake"
+    ]
+  },
+  "seed_inputs": "Original explicit analytic donor2, cosine default100, deterministic quota/typed/asof fixtures; no production data or scientific/tenant/revalidation authority",
+  "source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "sys_path": [
+    "/dev/shm/e02-D-post-a795-88ghpj7t/transfer",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python314.zip",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/lib-dynload",
+    "/workspace/e02-D-locked-env/lib/python3.14/site-packages"
+  ],
+  "tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+  "wrapper_argv": [
+    "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/run_current_transfer_scopes.py",
+    "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/intake-removal",
+    "intake-removal"
+  ]
+}

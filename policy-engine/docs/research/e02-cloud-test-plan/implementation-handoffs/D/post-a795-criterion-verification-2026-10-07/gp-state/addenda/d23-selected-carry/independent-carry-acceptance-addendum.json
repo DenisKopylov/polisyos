@@ -1,0 +1,25 @@
+{
+  "schema": "D.E02.independently-qualified-d23-carry-status.v1",
+  "author": "/root/gp_oct07",
+  "original_packet": "../publication-current-CBC46-gp-state/final-output-manifest.json",
+  "original_packet_sha256": "e2fda27ce9cf951fceeac54b0b35da16eb6edd9646711e689d0b6c92e99f8672",
+  "reading_rule": "This additive status supersedes only selected-seven-d23-carry.json independent_review=pending. All original CBC runtime outputs, original128 member bytes, source pins and proposal bounds remain unchanged. No new numerical execution or formal/G acceptance.",
+  "carry": {
+    "path": "selected-seven-d23-carry.json",
+    "sha256": "af296cdf70df9237c71b5313bfa7c4f26647298b73bd5c1fde5cc9fc9deebf7e"
+  },
+  "review": {
+    "path": "GP-d23-selected-carry-independent-metadata-review.json",
+    "sha256": "7c421bdc15ae33ea1d8c8c7a63a52bfd562d817bdeec0a3b32622e7ed158f0b0",
+    "reviewer": "transfer_oct07",
+    "decision": "GO selected static metadata/source closure only"
+  },
+  "actual_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "qualified_candidate": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+  "no_new_execution_on_candidate": true,
+  "seven_original_proposals": "closed bounded supported engineering profiles; independently reviewed d0c0 on original128 packet",
+  "P41": "not_established",
+  "formal_closed": false,
+  "accepted_in_G": false
+}

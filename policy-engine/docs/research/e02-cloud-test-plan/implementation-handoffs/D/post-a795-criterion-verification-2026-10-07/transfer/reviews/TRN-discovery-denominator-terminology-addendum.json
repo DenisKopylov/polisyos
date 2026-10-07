@@ -1,0 +1,11 @@
+{
+  "supersedes_only_field": "TRN-original10-current-CBC-independent-runtime-review.json#/fresh_native_consumer/independent_measured_executions",
+  "original_review_sha256": "f8c96c75448f7fd23eb0f0b3e86b54cf50f0230d2596cb5ebd3d645071f38d85",
+  "current_assertion": "Two controlled persisted source Evaluation observations are copied as donor snapshot payload; 1002 registered discovery snapshots are actual CAS/native artifacts. Independent scientific measured execution count is not established by this fixture.",
+  "controlled_source_observations": 2,
+  "independent_measured_execution_count": "not_established",
+  "numerically_selected": "Original source only; no numerical training from donor aliases claimed",
+  "check_results_changed": false,
+  "dispositions_changed": false,
+  "runtime_replayed": false
+}

@@ -1,0 +1,368 @@
+{
+  "schema": "D.ALL45.TRN-current-CBC-independent-runtime-review.v1",
+  "recommendation": "GO for named bounded original mechanical assertions and eight engineering closure proposals; five other D held and overall formal/G acceptance unchanged.",
+  "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+  "assessed_product": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "scopes": [
+    {
+      "mode": "native",
+      "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_product": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "counts": {
+        "tests": 28,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "phases": 84,
+      "receipt_files": [
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/command.json",
+          "sha256": "104e64862a171f3c642b82e803c8148ea638ffa4d336ab970c61357f16469a17",
+          "bytes": 4803
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/result.json",
+          "sha256": "c622444c46aecd42fc33c0a001d38f33ac98d5e08c382b8c34d8ed7aeb829ea8",
+          "bytes": 2030
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/junit.xml",
+          "sha256": "1a10a93eb63dcdf3c710b58a70f7ac2813913f9d30e89d705ea5fd5e15287adc",
+          "bytes": 37534
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/events.jsonl",
+          "sha256": "08600bcca349ec7d2981dfa1b78f3f3fd6246c14e20e73979989c215fa8c8dab",
+          "bytes": 27935
+        }
+      ],
+      "complete_input_catalog": 6861,
+      "all_present_input_bytes_equal_actual_Git_and_a795": true,
+      "main_repository_origin_paths": 260,
+      "main_external_origin_paths": 3164,
+      "main_origin_rows": 3496,
+      "all_recorded_origin_bytes_rehashed": true,
+      "source_and_inputs_unchanged": true
+    },
+    {
+      "mode": "quota-replay",
+      "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_product": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "counts": {
+        "tests": 39,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "phases": 117,
+      "receipt_files": [
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/quota-replay/command.json",
+          "sha256": "fc92317fe1920c04bd1da28db48a755d1feb0dc4c540fe1598575b07b8e71bb9",
+          "bytes": 6459
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/quota-replay/result.json",
+          "sha256": "e9edca7d5ada40ff3d9fde21c988319f05d7ba888cc55eb90d6a874a527dce10",
+          "bytes": 2034
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/quota-replay/junit.xml",
+          "sha256": "bb6c2ba3c9507ef9299b860ad31302e32e373699956bf572193ea945fe1d0a70",
+          "bytes": 22371
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/quota-replay/events.jsonl",
+          "sha256": "83a7024ac7a4de57249b105c21591756801683b4dda86566344f7de2f0627834",
+          "bytes": 39502
+        }
+      ],
+      "complete_input_catalog": 6861,
+      "all_present_input_bytes_equal_actual_Git_and_a795": true,
+      "main_repository_origin_paths": 292,
+      "main_external_origin_paths": 3183,
+      "main_origin_rows": 3548,
+      "all_recorded_origin_bytes_rehashed": true,
+      "source_and_inputs_unchanged": true
+    },
+    {
+      "mode": "lessons",
+      "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_product": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "counts": {
+        "tests": 39,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "phases": 117,
+      "receipt_files": [
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/lessons/command.json",
+          "sha256": "f138fbe0d80d9f68c373cf193a457f996d61b92cec73d8daca2550db953bdc96",
+          "bytes": 3807
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/lessons/result.json",
+          "sha256": "99cffdf5a24c01f2ff789a95876859c02919f327ed7dbdfcf68080eef2f2936e",
+          "bytes": 1948
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/lessons/junit.xml",
+          "sha256": "8e01087633e27d6e382d1ef28dfd2e5e06403d0c1766ad2a3ee55dc00bab6460",
+          "bytes": 21264
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/lessons/events.jsonl",
+          "sha256": "3e1382665ccc66f022c24571c0f4e69c8d461d17c15818d808a816c3a12c7db2",
+          "bytes": 36696
+        }
+      ],
+      "complete_input_catalog": 6861,
+      "all_present_input_bytes_equal_actual_Git_and_a795": true,
+      "main_repository_origin_paths": 244,
+      "main_external_origin_paths": 1278,
+      "main_origin_rows": 1584,
+      "all_recorded_origin_bytes_rehashed": true,
+      "source_and_inputs_unchanged": true
+    },
+    {
+      "mode": "intake-removal",
+      "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_product": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "counts": {
+        "tests": 4,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "phases": 12,
+      "receipt_files": [
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/intake-removal/command.json",
+          "sha256": "1da15bbfa572e5c01367ff4a0288fa9418358e3b12a48f587e4218c7b07f5d46",
+          "bytes": 3717
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/intake-removal/result.json",
+          "sha256": "259a4e0b6bb7722917728e8bea027fcdc0a9168e534257437ebd5192f695e91e",
+          "bytes": 1904
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/intake-removal/junit.xml",
+          "sha256": "1d3ea8c483d9a9cc73d0863154ce72246cfc0b96e0b15712b43868e8c8eda29d",
+          "bytes": 15405
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/intake-removal/events.jsonl",
+          "sha256": "2a359f04668e083cfea252ce89f78c562cf4b26e221edbca720773a85f1c19b9",
+          "bytes": 4398
+        }
+      ],
+      "complete_input_catalog": 6861,
+      "all_present_input_bytes_equal_actual_Git_and_a795": true,
+      "main_repository_origin_paths": 257,
+      "main_external_origin_paths": 3135,
+      "main_origin_rows": 3464,
+      "all_recorded_origin_bytes_rehashed": true,
+      "source_and_inputs_unchanged": true
+    },
+    {
+      "mode": "native-finite-removal",
+      "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_product": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "phases": 3,
+      "receipt_files": [
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native-finite-removal/command.json",
+          "sha256": "c9d1b3cfe8378715981a5206d5a03d61409481a44af0d47e86121d058bf5b7fe",
+          "bytes": 3700
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native-finite-removal/result.json",
+          "sha256": "366f9dd682cc50df0c05eb0b8d9370bd2328bb989f1486fc846577fd624dc772",
+          "bytes": 1883
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native-finite-removal/junit.xml",
+          "sha256": "74cca5baf5d45b551d122785ec9c033426bb07b7c0de045c8c38f8bc6439ee95",
+          "bytes": 2527
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native-finite-removal/events.jsonl",
+          "sha256": "31ec1ec9aa192f99d7a3118fccd4fb14861ff215453fe988f86d709956670fb0",
+          "bytes": 1177
+        }
+      ],
+      "complete_input_catalog": 6861,
+      "all_present_input_bytes_equal_actual_Git_and_a795": true,
+      "main_repository_origin_paths": 74,
+      "main_external_origin_paths": 916,
+      "main_origin_rows": 1050,
+      "all_recorded_origin_bytes_rehashed": true,
+      "source_and_inputs_unchanged": true
+    }
+  ],
+  "coverage": {
+    "B128": {
+      "scopes": [
+        "native",
+        "quota-replay"
+      ],
+      "assertion": "Persisted native history→ordinary WarmStartBridge distinguishes trueempty0, malformed2rejections, unsupported1unavailable, nonempty2accepted; remove decoded distinctions preserves exact CAS/native markers and yields3 assertionFAIL/emptyPASS.",
+      "disposition": "bounded_closed_proposal",
+      "capability": null,
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "P41": "not_established"
+    },
+    "B129": {
+      "scopes": [
+        "native",
+        "quota-replay"
+      ],
+      "assertion": "Actual1002 registered discovery snapshots, original selected exactref invariant under top_kNone/1/2, no furtherANN; freshchild26qualifiedreads, alteredsamecomposite ref refuses; filters/quota before final limits.",
+      "disposition": "bounded_closed_proposal",
+      "capability": null,
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "P41": "not_established"
+    },
+    "B130": {
+      "scopes": [
+        "quota-replay"
+      ],
+      "assertion": "Actual normalized min/max histories, full ties/replicas and uneven source quotas with independent expected ordering/counts; unknowncodec refuses, not guessed legacy metric name.",
+      "disposition": "bounded_closed_proposal",
+      "capability": null,
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "P41": "not_established"
+    },
+    "B131": {
+      "scopes": [
+        "quota-replay",
+        "lessons"
+      ],
+      "assertion": "Technical content/bounds/role-ref/tenant refusal available; actual owner-approved tenant/split reuse/adapter positive absent.",
+      "disposition": "held",
+      "capability": "not_established",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "P41": "not_established"
+    },
+    "B132": {
+      "scopes": [
+        "quota-replay"
+      ],
+      "assertion": "Exact distinct candidate/evaluation refs/physicalcontent/direction, missingholdout/nonpromotable and original metadata survive reverse bridge; no placeholder promotion.",
+      "disposition": "bounded_closed_proposal",
+      "capability": null,
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "P41": "not_established"
+    },
+    "B133": {
+      "scopes": [
+        "native",
+        "quota-replay"
+      ],
+      "assertion": "Complete qualified ref/cache identity, exact cold/warm/old replay, detached copy/LRU/cap and tamper re-resolution with actual canonical reader.",
+      "disposition": "bounded_closed_proposal",
+      "capability": null,
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "P41": "not_established"
+    },
+    "B134": {
+      "scopes": [
+        "native",
+        "native-finite-removal"
+      ],
+      "assertion": "Actual coherent old/new native generation barriers/add rollback/shape-capacity/real C++loaderexception; validCAS nativeNaN refused privately beforepointer and freshchild; removal1 actualDIDNOTRAISE.",
+      "disposition": "bounded_closed_proposal",
+      "capability": null,
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "P41": "not_established"
+    },
+    "B135": {
+      "scopes": [
+        "lessons"
+      ],
+      "assertion": "Typed nested/serialized/explicit context equivalent; actual controller persistence, explicit override and invalidbase/unknownisolated outcomes.",
+      "disposition": "bounded_closed_proposal",
+      "capability": null,
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "P41": "not_established"
+    },
+    "B136": {
+      "scopes": [
+        "lessons",
+        "quota-replay"
+      ],
+      "assertion": "Local and transferred trust/threshold/source/partial applicability before materialization; true admitted transfer remains, rejected future/stale/irrelevant evidence excluded.",
+      "disposition": "bounded_closed_proposal",
+      "capability": null,
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "P41": "not_established"
+    },
+    "B137": {
+      "scopes": [
+        "lessons"
+      ],
+      "assertion": "Reads/retention/asof/restart do not refresh confidence, cold/warm/transfertime preserved; actual authorizednewgrounds/newversion positive absent.",
+      "disposition": "held",
+      "capability": "not_established",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "P41": "not_established"
+    }
+  },
+  "fresh_native_consumer": {
+    "actual1002ordinary_discovery_snapshots": true,
+    "independent_measured_executions": 2,
+    "honesty": "1001 donor snapshots retain the same original2 controlled measured observations; not1001 independent measured executions. Only originalsource numerically selected.",
+    "qualified_read_operations": 26,
+    "captured_source_paths": [
+      "vector_memory",
+      "cas"
+    ],
+    "complete_child_import_inventory": "not captured; bound real worker/module source paths and exact main input/origin bytes, not universal child process closure",
+    "native_backend": {
+      "hnswlib": "0.8.0",
+      "numpy": "2.3.5",
+      "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]"
+    }
+  },
+  "P37": {
+    "original_card_and_acceptance": "independently_reconciled",
+    "current_input_and_main_origin_Gitbytes": "independently_reconciled",
+    "exactref_direct_reader_HASH": "recomputed",
+    "controlled_analytic_minmax_quota_expectation": "independently_reconciled",
+    "tenant_reuse_and_authorized_revalidation_positive": "not_established"
+  },
+  "P38": [
+    "Knownsameexactref alteredbytes refuses despite unchanged refmarkers; typed empty differsfrom decoderdiscarding malformed/unavailable/nonempty; finiteguardremoval retains nativeCAS/header/schema yet permits invalidNaN; independent ordering/quota tables differfrom raw-score/count proxy."
+  ],
+  "boundaries": [
+    "No new scientific superiority/tenant authority/evidence issuer decision or numericalGPposterior claim.",
+    "No distributed/powerloss/currentG source acceptance.",
+    "Large input/main-origin inventories remain rawignored path/hash; full streams/JUnit/properties and moderate unique deciding inputs must be preserved in portable Git packet.",
+    "Capture review performed after this runtime; no retroactive prelaunch instrument approval."
+  ],
+  "reviewer_actions": {
+    "source_index_refs_changed": false,
+    "tests_rerun": false
+  }
+}

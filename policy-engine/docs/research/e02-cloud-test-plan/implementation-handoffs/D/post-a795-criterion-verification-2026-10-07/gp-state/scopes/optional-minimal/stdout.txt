@@ -1,0 +1,20 @@
+..ACTUAL_MO_CAS_SOBOL mo.random_or_sobol.no_botorch.v1 [{'x': 0.6353616956621408}, {'x': 0.5210222629830241}, {'x': 0.40685729682445526}, {'x': 0.1841772524639964}, {'x': 0.7592815309762955}]
+.
+=============================== warnings summary ===============================
+../../../../tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py::test_current_mo_profile_actual_cas_sobol_next_sequence_and_independent_replica
+tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py::test_current_mo_profile_actual_cas_sobol_next_sequence_and_independent_replica
+  /dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/strategies/space.py:277: UserWarning: The balance properties of Sobol' points require n to be a power of 2.
+    samples = qmc.random(n=n_samples).tolist()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py:27: UNRUN: native analytic GP continuation requires Torch
+SKIPPED [1] tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:22: UNRUN: native numerical adapter requires Torch
+SKIPPED [1] tests/unit/scientist/search/strategies/test_neural_checkpoint.py:19: UNRUN: native CAS/ANN producer requires hnswlib
+3 passed, 3 skipped, 3 warnings in 0.70s
+GP_WRAPPER_SCOPE_RESULT {"mode": "optional-minimal", "exitcode": 0, "fit_starts": 0, "output": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/optional-minimal"}

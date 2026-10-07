@@ -1,0 +1,53 @@
+{
+  "schema": "e02.D.essential-output-manifest.v2",
+  "canonical_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/math",
+  "files": [
+    {
+      "path": "HANDOFF.json",
+      "bytes": 64852,
+      "sha256": "23c5553e689080ee2c71dbe3f80e8ca1556dde2b3e53230c4b051cb173d47bca"
+    },
+    {
+      "path": "Service25-Champion21-current-CBC46-independent-runtime-review.json",
+      "bytes": 20927,
+      "sha256": "a51bc8c23d7597870b2b4d7e3aa089b4691051073f412cb7a8b4065376cf9484"
+    },
+    {
+      "path": "all8-current-CBC46-to5b-scoped-qualification.json",
+      "bytes": 23427,
+      "sha256": "92e7037b04ee39e24678bdb74a666641a7d7f297ab4d6e7bf2c8670af486938f"
+    },
+    {
+      "path": "core-source-qualification.essential.json",
+      "bytes": 9783,
+      "sha256": "2fb533ed8c31a2668728bde302b3bb2d5459357450ae299e97bf1175fdb5019c"
+    },
+    {
+      "path": "essential-deciding-output.json.gz",
+      "bytes": 166817,
+      "sha256": "6c64873f0368e516d6ca84b10ea4189b64563cf8066835982e16d70d3004430f"
+    },
+    {
+      "path": "input-origin-identity.essential.json",
+      "bytes": 52078,
+      "sha256": "9b2447d98da765805444e695dd823447d25c8409a6b21baaee909aa4d1b582b3"
+    },
+    {
+      "path": "primary4-carry.essential.json",
+      "bytes": 52631,
+      "sha256": "e7d2425d22b90a39b3e27e8c61f75bd734cbda753a0731dfb86d7b43be2641c6"
+    }
+  ],
+  "lossless_essential_member_count": 46,
+  "full_stream_output_byte_reconciliation": "All encoded literal stdout/stderr/JUnit/fullphases/collections/commands retained exact; derivation-marked compact receipt input/origin catalogs cite complete unchanged external raw bytes and hash.",
+  "raw_external_original_manifest": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/publication-current-CBC46/output-manifest.json",
+    "sha256": "e779cd190353f975c8f6220f454c93b61d24c6e6764a30f563e123cfae860598",
+    "bytes": 844
+  },
+  "raw_packet_retained_unmodified": true,
+  "tracked_source_copies": 0,
+  "new_execution": false,
+  "quantity_generic_receipt_admission": "ERROR retained",
+  "source_qualification": "CBC checks retain CBC pin;5b scoped exact dependency qualification only"
+}

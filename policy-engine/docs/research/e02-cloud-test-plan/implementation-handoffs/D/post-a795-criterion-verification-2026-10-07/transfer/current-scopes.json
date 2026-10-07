@@ -1,0 +1,147 @@
+[
+  {
+    "scope": "native",
+    "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "actual_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+    "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "new_test_source_is_5b": false,
+    "counts": {
+      "PASS": 28
+    },
+    "declared_directory_denominator": 6861,
+    "main_reached_repo_paths": 260,
+    "runtime_resource": {
+      "children_maxrss_kib": 899352,
+      "children_system_seconds": 0.5257459999999999,
+      "children_user_seconds": 6.317705,
+      "self_maxrss_kib": 877872,
+      "self_system_seconds": 1.675282,
+      "self_user_seconds": 10.086853000000001
+    },
+    "elapsed_seconds": 18.046588110009907,
+    "all_source_inputs_before_after_unchanged": true,
+    "complete_deciding_outputs": "scopes/native/",
+    "property": "Actual supported HNSW cosine/numeric boundary, immutable generation one-pointer old/new readers, real C++ load failure, native capacity/add rollback, qualified ref tamper, ordinary1002 donor discovery snapshots with exact selected history and freshchild26reads; actual persisted intake0empty/2rejected/1unavailable/2accepted."
+  },
+  {
+    "scope": "quota-replay",
+    "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "actual_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+    "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "new_test_source_is_5b": false,
+    "counts": {
+      "PASS": 39
+    },
+    "declared_directory_denominator": 6861,
+    "main_reached_repo_paths": 292,
+    "runtime_resource": {
+      "children_maxrss_kib": 883404,
+      "children_system_seconds": 0.06661299999999999,
+      "children_user_seconds": 0.043683,
+      "self_maxrss_kib": 883404,
+      "self_system_seconds": 1.0528739999999999,
+      "self_user_seconds": 7.507211
+    },
+    "elapsed_seconds": 9.800959064014023,
+    "all_source_inputs_before_after_unchanged": true,
+    "complete_deciding_outputs": "scopes/quota-replay/",
+    "property": "Actual qualified candidate/evaluation/role refs plus content-bound basis before quota; independent min/max and tie allocation, exact cold/warm immutable copy/LRU/budget, legacy refusal, forward/reverse metric/direction/missingholdout/nonpromotable lineage; current controller initial intake. No tenant/scientific authority."
+  },
+  {
+    "scope": "lessons",
+    "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "actual_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+    "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "new_test_source_is_5b": false,
+    "counts": {
+      "PASS": 39
+    },
+    "declared_directory_denominator": 6861,
+    "main_reached_repo_paths": 244,
+    "runtime_resource": {
+      "children_maxrss_kib": 299168,
+      "children_system_seconds": 0.08290299999999999,
+      "children_user_seconds": 0.053251,
+      "self_maxrss_kib": 299168,
+      "self_system_seconds": 0.464298,
+      "self_user_seconds": 2.868963
+    },
+    "elapsed_seconds": 4.174713538988726,
+    "all_source_inputs_before_after_unchanged": true,
+    "complete_deciding_outputs": "scopes/lessons/",
+    "property": "Actual local/query_with_transfer/materialize/context persistedCAS reader, same typed subject/overrides and trust/confidence/source/partial filters; future-asof refusal, retention/restart cannot refresh evidence. Authorized revalidation positive absent."
+  },
+  {
+    "scope": "intake-removal",
+    "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "actual_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+    "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "new_test_source_is_5b": false,
+    "counts": {
+      "PASS": 1,
+      "FAIL": 3
+    },
+    "declared_directory_denominator": 6861,
+    "main_reached_repo_paths": 257,
+    "runtime_resource": {
+      "children_maxrss_kib": 877952,
+      "children_system_seconds": 0.059357,
+      "children_user_seconds": 0.051182,
+      "self_maxrss_kib": 877952,
+      "self_system_seconds": 0.37906800000000007,
+      "self_user_seconds": 2.003614
+    },
+    "elapsed_seconds": 2.699967029999243,
+    "all_source_inputs_before_after_unchanged": true,
+    "complete_deciding_outputs": "scopes/intake-removal/",
+    "property": "Remove only decoded intake distinctions after exact CAS resolve; real native/schema/ref markers remain: incompatible/unavailable/nonempty must disagree (expected3FAIL) while genuinelyempty remainsPASS."
+  },
+  {
+    "scope": "native-finite-removal",
+    "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "actual_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+    "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "new_test_source_is_5b": false,
+    "counts": {
+      "FAIL": 1
+    },
+    "declared_directory_denominator": 6861,
+    "main_reached_repo_paths": 74,
+    "runtime_resource": {
+      "children_maxrss_kib": 124952,
+      "children_system_seconds": 0.066134,
+      "children_user_seconds": 0.062669,
+      "self_maxrss_kib": 124952,
+      "self_system_seconds": 0.156736,
+      "self_user_seconds": 0.8218069999999998
+    },
+    "elapsed_seconds": 1.3558245220046956,
+    "all_source_inputs_before_after_unchanged": true,
+    "complete_deciding_outputs": "scopes/native-finite-removal/",
+    "property": "Remove only private native get_items finite admission; genuineCAS/nativeheader/schema/digest remain: oldgeneration must not publish actual storedNaN (expectedassertionFAIL)."
+  },
+  {
+    "scope": "legacy6",
+    "actual_execution_head": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+    "actual_tree": "5738498b09aadca51e0bb73fa6d104e3354dc603",
+    "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "new_test_source_is_5b": true,
+    "counts": {
+      "PASS": 6
+    },
+    "declared_directory_denominator": 6863,
+    "main_reached_repo_paths": 256,
+    "runtime_resource": {
+      "children_maxrss_kib": 866876,
+      "children_system_seconds": 0.074748,
+      "children_user_seconds": 0.035257,
+      "self_maxrss_kib": 866876,
+      "self_system_seconds": 0.667481,
+      "self_user_seconds": 5.4912410000000005
+    },
+    "elapsed_seconds": 5.6373568499984685,
+    "all_source_inputs_before_after_unchanged": true,
+    "complete_deciding_outputs": "scopes/legacy6/",
+    "property": "Actual supported-v2 positive then persisted schema1/absent and real candidate placeholder refusal through fresh native/CAS WarmStartBridge; no numeric promotion; all min/max"
+  }
+]

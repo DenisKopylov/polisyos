@@ -1,0 +1,124 @@
+{
+  "schema": "e02.D.scoped-test-only-final-carry.v1",
+  "prior_qualified_candidate": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+  "qualified_candidate": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+  "qualified_tree": "788863c0431841308aef451fcd94df2ba74d1dc6",
+  "original_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "prior_exact_scope_qualification": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/publication-essential-CBC46.v2/all8-current-CBC46-to5b-scoped-qualification.json",
+    "bytes": 23427,
+    "sha256": "92e7037b04ee39e24678bdb74a666641a7d7f297ab4d6e7bf2c8670af486938f"
+  },
+  "incremental_full_git_delta": [
+    "M\tpolicy-engine/tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py"
+  ],
+  "changed_file_before_sha256": "4fab42e2dbf6ada128f738aef4f1eb59ea39f83606dd2b3c06d9397bd4f6c844",
+  "changed_file_after_sha256": "54348a0c810cd8e5646ab97cbcc83069b8e21c4d9f0f0d895c42f3015ad64128",
+  "production_python_changed": false,
+  "math8_scopes": [
+    {
+      "scope": "quantity-consumers",
+      "original_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "original_receipt": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/quantity-consumers/receipt.json",
+        "bytes": 319613,
+        "sha256": "7b4095d41505df526541be2792fc908aedaa54e5031f2433a56382261bd06ef2"
+      },
+      "check_counts_at_CBC": {
+        "PASS": 17,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_admission_at_CBC": "ERROR",
+      "tracked_loaded_paths": 1149,
+      "selected_files": 6,
+      "all_same_at_d23": true,
+      "changed_path_overlap": [],
+      "new_execution": false
+    },
+    {
+      "scope": "fiscal-consumers",
+      "original_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "original_receipt": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/fiscal-consumers/receipt.json",
+        "bytes": 81142,
+        "sha256": "7b34a678e823c91c118cde3eebc3c06ca200648b4a6326ba0d27f16c10141699"
+      },
+      "check_counts_at_CBC": {
+        "PASS": 24,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_admission_at_CBC": "ADMITTED",
+      "tracked_loaded_paths": 44,
+      "selected_files": 1,
+      "all_same_at_d23": true,
+      "changed_path_overlap": [],
+      "new_execution": false
+    },
+    {
+      "scope": "stress-consumers",
+      "original_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "original_receipt": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/stress-consumers/receipt.json",
+        "bytes": 151850,
+        "sha256": "a9982d2fb6f0af966fda49d68ff9f8aead115978101d0402568878f22796fef0"
+      },
+      "check_counts_at_CBC": {
+        "PASS": 22,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_admission_at_CBC": "ADMITTED",
+      "tracked_loaded_paths": 1176,
+      "selected_files": 2,
+      "all_same_at_d23": true,
+      "changed_path_overlap": [],
+      "new_execution": false
+    },
+    {
+      "scope": "stopping-convergence",
+      "original_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "original_receipt": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/stopping-convergence/receipt.json",
+        "bytes": 89466,
+        "sha256": "747f77f119aa341d9cafa9dcb79d22e2fafb521de4d1c2b0c56b21ae61d823e9"
+      },
+      "check_counts_at_CBC": {
+        "PASS": 50,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_admission_at_CBC": "ADMITTED",
+      "tracked_loaded_paths": 269,
+      "selected_files": 2,
+      "all_same_at_d23": true,
+      "changed_path_overlap": [],
+      "new_execution": false
+    }
+  ],
+  "eight_original_occurrences": [
+    "B106@STR-01",
+    "B107@STR-01",
+    "B108@OPT-01",
+    "B109@OPT-01",
+    "B110@OPT-01",
+    "B111@OPT-01",
+    "B41@STP-01",
+    "B122@STP-01"
+  ],
+  "no_selected_OR_reached_OR_config_overlap": true,
+  "original_math154_MO27_and_3b_primary4": "Old c0/3b assertions retain exact original pins and prior qualified source relationship; no new154/27/4 run or quantity/globaladmission claim",
+  "complete_catalog": "One additional test fixture correction changes completeinputdictionary; no wholeinputcatalog equality claimed. Earlier releaseTOML change is still disclosed in prior5b qualifier.",
+  "quantity_capture_ERROR": "Preserved exactly; only named sidecar supports bounded computational property pending parent review",
+  "P37": "Only exact selected/reached owned source byte relation, no unobserved producer/deployment imports",
+  "P38": "NewNodeTest correction not a producer source or mathematicallaw change; absent from selected file scope and actual importorigins",
+  "P41": "not_established/no inherited-red claim",
+  "new_execution": false,
+  "formal_closed": false,
+  "accepted_in_G": false
+}

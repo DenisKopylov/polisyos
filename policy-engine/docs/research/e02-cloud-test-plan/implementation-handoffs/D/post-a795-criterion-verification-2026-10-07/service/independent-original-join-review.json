@@ -1,0 +1,91 @@
+{
+  "schema": "e02.D.independent-scope-join-review.v1",
+  "reviewer": "math_oct07",
+  "author": "service_oct07",
+  "decision": "GO bounded original11 matrix v3 report-only join and final5b dependency qualification",
+  "prior_full_runtime_and_original_clause_review": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/Service25-Champion21-current-CBC46-independent-runtime-review.json",
+    "sha256": "a51bc8c23d7597870b2b4d7e3aa089b4691051073f412cb7a8b4065376cf9484",
+    "bytes": 20927
+  },
+  "matrix_v2": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/own11-original-criteria-current-matrix.v2.json",
+    "sha256": "32a407d745680d3e58f2bd5741b2f1d8a3634067ccbe270a7bd5c87bb03cc32a",
+    "bytes": 56751
+  },
+  "matrix_v3": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/own11-original-criteria-current-matrix.v3.json",
+    "sha256": "05c27a6d9104a079012be73701d28f341ec465f0418208b8323e9c12a622e8eb",
+    "bytes": 59107
+  },
+  "original11_acceptance_and_current_case_ids_unchanged": true,
+  "current_checks": "CBC25/21 only, old3b50/a79531_22 remain exact old executions",
+  "final5b_recomputed_qualifications": [
+    {
+      "scope": "controller",
+      "actual_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "exact_unique_candidate_origin_paths": 1156,
+      "changed_path_overlap": [],
+      "no_new_execution": true
+    },
+    {
+      "scope": "champion",
+      "actual_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "exact_unique_candidate_origin_paths": 264,
+      "changed_path_overlap": [],
+      "no_new_execution": true
+    },
+    {
+      "qualified_historical_carry": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/original50-primary4-qualified-carry-CBC46.json",
+        "sha256": "db2681660c1781ad561ae854fe9e9d39c5d9fcb5ff9fdba9fdfe0da9663c1673",
+        "bytes": 258027
+      },
+      "candidate_paths_rechecked": 878,
+      "no_new_execution": true
+    },
+    {
+      "qualified_historical_carry": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/a795-service31-22-qualified-carry-CBC46.json",
+        "sha256": "14003541b37d26dbf388f77e365bf95423ddef4aefbeb399a76471777797067c",
+        "bytes": 730900
+      },
+      "candidate_paths_rechecked": 1161,
+      "no_new_execution": true
+    }
+  ],
+  "B120_financial_join": {
+    "qualification": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/A7-financial-current-async-call-edge-qualification-v2.json",
+      "bytes": 11298,
+      "sha256": "07b8f6168f16f43c28e3f123b3d794a2184366c26d560a08d98e4f0911bbb178"
+    },
+    "independent_review": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/census/A7-financial-selected-call-edge-independent-carry-review.json",
+      "bytes": 2405,
+      "sha256": "473971e819d10f7322d555f873419e027825825183116279448b30dec6ca4b00"
+    },
+    "selected17_A7_CBC_5b_blobs_independently_rehashed": true,
+    "protected_caller_edge": "Only unchanged supported directasyncio.run/directawait financial paths; changedasync module acknowledged as incidental import, no active-loop/sharedexecutor claim",
+    "predicate_basis": {
+      "source_identity": "recomputed",
+      "selected_caller_edge": "independently_reconciled",
+      "A7_protected_runtime_assertions": "consumer_asserted",
+      "complete_current_import_dependency_closure": "not_established"
+    },
+    "new_runtime_execution": false,
+    "complete_current_import_closure": "not_established"
+  },
+  "metadata_release_fragment": "Complete input denominator changed at5b; selected source/import/config paths unchanged, no wholecatalog unchanged claim",
+  "P37": "Current protocol/freshreadback actual phases plus exact bytes; historical financiallyprotected directcaller relation reconciled; generic arbitrary custom history-validator remainsconsumer_asserted",
+  "P38": "Existing output/evidence claims retain own exact SHA scopes; no synthetic cache authority, no new free receipt, no marker-only financial admission",
+  "P41": "not_established/no inherited-red claim",
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "limitations": [
+    "GO is for the original bounded engineering proposal set; no production/deployed/HTTP caller, invoice truth, fiscal issuer unit law or distributed guarantee.",
+    "Only CBC25/21 selected execution, not broader Search or G680factory10 replay.",
+    "Generic complete current financial import closure is not established by this historical source/caller edge qualification.",
+    "Changed README/releasefragment/newtests do not establish their neighbouring properties through this carry."
+  ]
+}

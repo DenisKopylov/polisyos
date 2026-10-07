@@ -1,0 +1,10 @@
+{
+  "schema": "D.E02.source-carry-precheck-diagnostic.v1",
+  "check": "First author sourcequalification precheck",
+  "actual_runtime_failure": false,
+  "product_test_outcome": null,
+  "first_attempt": "AssertionError at <stdin> line23 before writing a carryfile; strictzero oldcatalogdelta premise was false because src/FUNREADME is capturedinside broadsrc directory.",
+  "complete_tool_stderr": "Traceback (most recent call last):\n  File \"<stdin>\", line 23, in <module>\nAssertionError\n",
+  "corrected_interpretation": "One documented oldcatalog Markdownchange, two newtestfiles,0observedmodule/selectedtest/production.py overlap. No runtime/newtest failure or OOM inference.",
+  "corrected_carry_sha256": "b167ebbb6f878a55c6c5395e8478ff67a4767d724aefa90bab44336c77e26f79"
+}

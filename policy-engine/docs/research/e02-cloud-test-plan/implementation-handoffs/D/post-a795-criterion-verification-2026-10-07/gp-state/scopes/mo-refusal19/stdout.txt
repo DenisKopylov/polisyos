@@ -1,0 +1,15 @@
+...........ACTUAL_MO_NATIVE_CORPUS [[0.08], [0.16], [0.23], [0.35], [0.42], [0.5], [0.61], [0.7]] [[13.168255026925952, -54.9061770904122], [14.152068272698568, -54.33047878942146], [14.738291820781564, -53.48910078321732], [14.95195784062181, -51.54983571450121], [14.589628099946621, -50.29506623880065], [13.79541643231187, -48.91926581726429], [12.27439392669731, -47.40092398961113], [10.94765031693114, -46.68888829665671]] mo.single_task_gp.cpu.refit_each_ask.v1 {'botorch': '0.16.1', 'gpytorch': '1.15.1', 'torch': '2.10.0', 'torch_runtime': '2.10.0+cu128'}
+........
+=============================== warnings summary ===============================
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+19 passed, 2 warnings in 1.28s
+GP_WRAPPER_SCOPE_RESULT {"mode": "mo-refusal19", "exitcode": 0, "fit_starts": 1, "output": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/mo-refusal19"}

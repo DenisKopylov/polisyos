@@ -1,0 +1,78 @@
+{
+  "actual_cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "actual_numeric_thread_env_no_caps": {
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null
+  },
+  "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "assessed_product_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "backend": {
+    "botorch": "missing",
+    "gpytorch": "missing",
+    "hnswlib": "missing",
+    "numpy": "2.3.5",
+    "pytest": "9.0.2",
+    "scipy": "1.16.3",
+    "torch": "missing"
+  },
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "env_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+  },
+  "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+  "harness_file": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/run_current_owner_minimal.py",
+  "harness_sha256": "256b2885fe579264269d12c9c5a007d78c919015871bc41286fc75da3c65e191",
+  "new_posterior_oracle": "Current selected analytic original-unit fullcovariance only when defining selector actually executes; older other core receipts remain source-qualified separately",
+  "profile": "actual minimal without optional GP/vector stack; no backend numerical property PASS",
+  "pytest_argv": [
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "-ra",
+    "--basetemp=/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/optional-minimal/basetemp",
+    "--junitxml=/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/optional-minimal/junit.xml",
+    "tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_no_dependency_fallback",
+    "tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_state_roundtrip_without_deps",
+    "tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py::test_current_mo_profile_actual_cas_sobol_next_sequence_and_independent_replica",
+    "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+    "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+    "tests/unit/scientist/search/strategies/test_neural_checkpoint.py"
+  ],
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "scope_plan": {
+    "property": "Actual minimal profile without Torch/BoTorch/GPyTorch/HNSW executes explicitly named no-backend fallback/basic state and primitive MO profile only. Three native-only modules skip with UNRUN reasons; this is not any GP/NN numerical PASS.",
+    "selectors": [
+      "tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_no_dependency_fallback",
+      "tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_state_roundtrip_without_deps",
+      "tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py::test_current_mo_profile_actual_cas_sobol_next_sequence_and_independent_replica",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+      "tests/unit/scientist/search/strategies/test_neural_checkpoint.py"
+    ]
+  },
+  "source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "sys_path": [
+    "/dev/shm/e02-D-post-a795-88ghpj7t/gp",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python314.zip",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/lib-dynload",
+    "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages"
+  ],
+  "torch_interop_threads_before": null,
+  "torch_threads_before": null,
+  "tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+  "wrapper_argv": [
+    "/dev/shm/e02-D-post-a795-88ghpj7t/gp/run_current_owner_minimal.py",
+    "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/optional-minimal",
+    "optional-minimal"
+  ]
+}

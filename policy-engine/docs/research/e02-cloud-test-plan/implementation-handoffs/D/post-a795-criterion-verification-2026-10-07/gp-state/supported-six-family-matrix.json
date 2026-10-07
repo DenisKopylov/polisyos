@@ -1,0 +1,59 @@
+{
+  "schema": "D.E02.supported-six-state-family-current-matrix.v1",
+  "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "count": 6,
+  "families": [
+    {
+      "family": "Random",
+      "implementation": "random.RandomSearchStrategy",
+      "supported_profile": "Existing Base/pythonRandom/Sobol strategy_state.v2",
+      "positive": "state-effective baseline random actualCAS + 8next sequence",
+      "invalid_foreign": "state-effective spacecodec invalidPython/foreignstrategy/basis/version/cursor/cache",
+      "RNG": "Actualindependentseed71 reference unchanged while restored19 advances"
+    },
+    {
+      "family": "Grid",
+      "implementation": "grid.GridSearchStrategy",
+      "supported_profile": "grid_state_version=1 + existingBase artifact; exactspace/config/cursor",
+      "positive": "state-effective baselinegrid actualCAS +8next +lastpartial/exhausted",
+      "invalid_foreign": "Current14ownfield mutations5missing/config/space/type/count refusals atomic",
+      "RNG": "Independentcursor/reference stream perinstance; deterministicgrid order neednotdiffer byseed"
+    },
+    {
+      "family": "RL",
+      "implementation": "rl_wrapper.RLStrategyWrapper",
+      "supported_profile": "Supportedversion linear_decay.v1 + nested actualBase state; customschedule refuse",
+      "positive": "state-effective RLRandom/RLGrid actualCAS/fresh8next +RLnativeSobol9next",
+      "invalid_foreign": "Current6malformednested/unsupportedcustomschedule/strategyspace Base admission",
+      "RNG": "Independentseedreference baseline; actualnestedRandom/Sobolrestore, exactwrapperlocalRNG"
+    },
+    {
+      "family": "Bayesian",
+      "implementation": "bayesian.BayesianOptimizer",
+      "supported_profile": "gp_state_version=4, currentCPU SingleTaskGP Normalize/Standardize, targetCASbasis; wrapperv3 ordinary receivingcount",
+      "positive": "gp-defining independent10/11fullcovariance +learned6/7restoreappend +publichistory2CAS +publicRunner3",
+      "invalid_foreign": "Current fittedparameters/transforms/modelremove/type/RNG/warmcorpus/basis/due controls",
+      "RNG": "CurrentambientTorch preserved and fittedsavedPython/Torch restart replay/mutations; publicphysicalreplicate seed remainsdistinct"
+    },
+    {
+      "family": "NN",
+      "implementation": "neural.NeuralSearchStrategy",
+      "supported_profile": "Directcontent-bound warmcorpus state/currentbackend; nextsurrogate ask retains existingfit_each_ask law",
+      "positive": "state-effective exactCAS source8/warm3 persistedfreshSobol/native3fits withsame next actualEI",
+      "invalid_foreign": "CurrentCAS alteredbytes/rehasheddigest/missingtarget/config/backend/type/warm/booloverflow/RNG atomicrefusals",
+      "RNG": "Currentrestore localPython state same; actualnativeask preserves ambientTorch, sharedunchangedBase perinstance ownership. No claimedthirdNNnumericalreplicaexperiment.",
+      "service_profile": "Currentupdate-owned _historical not checkpoint-bound throughStrategyAdapter: live-only/refused persistedresume, directwarmprofile unchanged. RL-with-NN sameunsupportedservice boundary."
+    },
+    {
+      "family": "MO",
+      "implementation": "multi_objective.MOBayesianOptimizer",
+      "supported_profile": "mo_state_version1; sequentialCPU mo.single_task_gp.cpu.refit_each_ask.v1; actualModelListGPofSingleTaskGP +ordinarytransforms; backendabsent baseline separately",
+      "positive": "mo-supported actualCAS/freshprimitive +two8row independentNumPy originalunitsfullcov; freshrestore0fit,nextactualEHVI+2existingfitlaw",
+      "invalid_foreign": "Currentprimitive11/fittedmarker6/rehashedforeign2 +fittedparameter4 numericalchange-or-refuse",
+      "RNG": "Currentindependentseed71 reference; ambientTorchpreserved and localmodel RNG resumed; concurrentthreadisolation notestablished"
+    }
+  ],
+  "inventory_scope": "Sixconcrete implementations of existingSearchStrategy/state protocol; abstractBase excluded, BOHBSampler/CMAESExplorer helper policies have no thisStrategyState protocol. Neural/RL directmodule consumers, notinventedstablefacadeexports.",
+  "custom_profiles": "No future/custom/subclass/GPU/crossversion guarantee; canonical live-only/refusal controls remain explicit."
+}

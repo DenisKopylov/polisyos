@@ -1,0 +1,164 @@
+{
+  "source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "assessed": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "complete_unique_executable_inputs_checked": 6861,
+  "all_five_current_inputs_exact": true,
+  "scopes": {
+    "native": {
+      "complete_source_inputs_checked": 6861,
+      "reached_repo_paths": 260,
+      "all_origins_rehashed": 3496,
+      "phases": {
+        "('setup', 'passed')": 28,
+        "('call', 'passed')": 28,
+        "('teardown', 'passed')": 28
+      },
+      "testcase_count": 28,
+      "source_unchanged": true,
+      "shared_async_import_reached": true,
+      "adapter_import_reached": true,
+      "retained_raw_inventory": {
+        "before.json": {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/before.json",
+          "sha256": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+          "bytes": 992125
+        },
+        "after.json": {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/after.json",
+          "sha256": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+          "bytes": 992125
+        },
+        "origins.json": {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/origins.json",
+          "sha256": "7238d8135c2b385e5caa6259c573e642bd76dff7b9e4a36fb3dbfb616906537a",
+          "bytes": 788558
+        }
+      }
+    },
+    "quota-replay": {
+      "complete_source_inputs_checked": 6861,
+      "reached_repo_paths": 292,
+      "all_origins_rehashed": 3548,
+      "phases": {
+        "('setup', 'passed')": 39,
+        "('call', 'passed')": 39,
+        "('teardown', 'passed')": 39
+      },
+      "testcase_count": 39,
+      "source_unchanged": true,
+      "shared_async_import_reached": true,
+      "adapter_import_reached": true,
+      "retained_raw_inventory": {
+        "before.json": {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/quota-replay/before.json",
+          "sha256": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+          "bytes": 992125
+        },
+        "after.json": {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/quota-replay/after.json",
+          "sha256": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+          "bytes": 992125
+        },
+        "origins.json": {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/quota-replay/origins.json",
+          "sha256": "3ac996a89b2a8920a8d78739611a40da5b870db61818127e5da20586fafe1347",
+          "bytes": 800215
+        }
+      }
+    },
+    "lessons": {
+      "complete_source_inputs_checked": 6861,
+      "reached_repo_paths": 244,
+      "all_origins_rehashed": 1584,
+      "phases": {
+        "('setup', 'passed')": 39,
+        "('call', 'passed')": 39,
+        "('teardown', 'passed')": 39
+      },
+      "testcase_count": 39,
+      "source_unchanged": true,
+      "shared_async_import_reached": true,
+      "adapter_import_reached": false,
+      "retained_raw_inventory": {
+        "before.json": {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/lessons/before.json",
+          "sha256": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+          "bytes": 992125
+        },
+        "after.json": {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/lessons/after.json",
+          "sha256": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+          "bytes": 992125
+        },
+        "origins.json": {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/lessons/origins.json",
+          "sha256": "fc527049755ac734fe91a6fafb85b15c1d017724c4fe32fa6dcdeed7da33090f",
+          "bytes": 352105
+        }
+      }
+    },
+    "intake-removal": {
+      "complete_source_inputs_checked": 6861,
+      "reached_repo_paths": 257,
+      "all_origins_rehashed": 3464,
+      "phases": {
+        "('setup', 'passed')": 4,
+        "('call', 'passed')": 1,
+        "('teardown', 'passed')": 4,
+        "('call', 'failed')": 3
+      },
+      "testcase_count": 4,
+      "source_unchanged": true,
+      "shared_async_import_reached": true,
+      "adapter_import_reached": true,
+      "retained_raw_inventory": {
+        "before.json": {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/intake-removal/before.json",
+          "sha256": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+          "bytes": 992125
+        },
+        "after.json": {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/intake-removal/after.json",
+          "sha256": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+          "bytes": 992125
+        },
+        "origins.json": {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/intake-removal/origins.json",
+          "sha256": "94ddf73fe9ab85573953ef2500f505c9edf8e28927c66521074610d707dc76ff",
+          "bytes": 781283
+        }
+      }
+    },
+    "native-finite-removal": {
+      "complete_source_inputs_checked": 6861,
+      "reached_repo_paths": 74,
+      "all_origins_rehashed": 1050,
+      "phases": {
+        "('setup', 'passed')": 1,
+        "('call', 'failed')": 1,
+        "('teardown', 'passed')": 1
+      },
+      "testcase_count": 1,
+      "source_unchanged": true,
+      "shared_async_import_reached": true,
+      "adapter_import_reached": false,
+      "retained_raw_inventory": {
+        "before.json": {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native-finite-removal/before.json",
+          "sha256": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+          "bytes": 992125
+        },
+        "after.json": {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native-finite-removal/after.json",
+          "sha256": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+          "bytes": 992125
+        },
+        "origins.json": {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native-finite-removal/origins.json",
+          "sha256": "b5cc9d200a22b073c00f306f96634241726f7281c18d3829dc22582b848bd2cc",
+          "bytes": 231666
+        }
+      }
+    }
+  }
+}

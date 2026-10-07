@@ -1,0 +1,218 @@
+[
+  {
+    "scope": "gp-defining",
+    "kind": "before.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/gp-defining/before.json",
+    "sha256": "6903bcb917792f9b6c19fe53ae9c78ace5725581d75ca1b5f7492730cb9c8971",
+    "bytes": 992127,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "gp-defining",
+    "kind": "after.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/gp-defining/after.json",
+    "sha256": "6903bcb917792f9b6c19fe53ae9c78ace5725581d75ca1b5f7492730cb9c8971",
+    "bytes": 992127,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "gp-defining",
+    "kind": "origins.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/gp-defining/origins.json",
+    "sha256": "383c23f2164edd4d79f488ddedd6a9d983647bcc1af8c1c52caa6c9963073439",
+    "bytes": 909659,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "state-effective",
+    "kind": "before.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/state-effective/before.json",
+    "sha256": "6903bcb917792f9b6c19fe53ae9c78ace5725581d75ca1b5f7492730cb9c8971",
+    "bytes": 992127,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "state-effective",
+    "kind": "after.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/state-effective/after.json",
+    "sha256": "6903bcb917792f9b6c19fe53ae9c78ace5725581d75ca1b5f7492730cb9c8971",
+    "bytes": 992127,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "state-effective",
+    "kind": "origins.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/state-effective/origins.json",
+    "sha256": "9a7f39883ee868b31f42b5573a5658949888ea580c06431b779a3366542f546e",
+    "bytes": 897080,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "mo-supported",
+    "kind": "before.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/mo-supported/before.json",
+    "sha256": "6903bcb917792f9b6c19fe53ae9c78ace5725581d75ca1b5f7492730cb9c8971",
+    "bytes": 992127,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "mo-supported",
+    "kind": "after.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/mo-supported/after.json",
+    "sha256": "6903bcb917792f9b6c19fe53ae9c78ace5725581d75ca1b5f7492730cb9c8971",
+    "bytes": 992127,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "mo-supported",
+    "kind": "origins.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/mo-supported/origins.json",
+    "sha256": "68dffa26f9e9622521b77cbf9a567c2f90ce730da9649ee5b15a0e66d914bbf7",
+    "bytes": 886286,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "effective-public4",
+    "kind": "before.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/effective-public4/before.json",
+    "sha256": "6903bcb917792f9b6c19fe53ae9c78ace5725581d75ca1b5f7492730cb9c8971",
+    "bytes": 992127,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "effective-public4",
+    "kind": "after.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/effective-public4/after.json",
+    "sha256": "6903bcb917792f9b6c19fe53ae9c78ace5725581d75ca1b5f7492730cb9c8971",
+    "bytes": 992127,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "effective-public4",
+    "kind": "origins.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/effective-public4/origins.json",
+    "sha256": "2fccfb7b69ed75c5bffb9c88805a29ceb43ca88fc4b5c99e664e09f75ec27042",
+    "bytes": 780971,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "transfer-public3",
+    "kind": "before.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/transfer-public3/before.json",
+    "sha256": "6903bcb917792f9b6c19fe53ae9c78ace5725581d75ca1b5f7492730cb9c8971",
+    "bytes": 992127,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "transfer-public3",
+    "kind": "after.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/transfer-public3/after.json",
+    "sha256": "6903bcb917792f9b6c19fe53ae9c78ace5725581d75ca1b5f7492730cb9c8971",
+    "bytes": 992127,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "transfer-public3",
+    "kind": "origins.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/transfer-public3/origins.json",
+    "sha256": "2e3e293b7303bd4a08d2d7d85fdac5ccc1a4b2aa6d41b125ac11b85d314d4820",
+    "bytes": 908306,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "public-history2",
+    "kind": "before.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/public-history2/before.json",
+    "sha256": "6903bcb917792f9b6c19fe53ae9c78ace5725581d75ca1b5f7492730cb9c8971",
+    "bytes": 992127,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "public-history2",
+    "kind": "after.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/public-history2/after.json",
+    "sha256": "6903bcb917792f9b6c19fe53ae9c78ace5725581d75ca1b5f7492730cb9c8971",
+    "bytes": 992127,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "public-history2",
+    "kind": "origins.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/public-history2/origins.json",
+    "sha256": "f33407c926c003580ffd88314d20b7fe199e00412ab82f7da5e0896c8369db9d",
+    "bytes": 886588,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "mo-refusal19",
+    "kind": "before.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/mo-refusal19/before.json",
+    "sha256": "6903bcb917792f9b6c19fe53ae9c78ace5725581d75ca1b5f7492730cb9c8971",
+    "bytes": 992127,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "mo-refusal19",
+    "kind": "after.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/mo-refusal19/after.json",
+    "sha256": "6903bcb917792f9b6c19fe53ae9c78ace5725581d75ca1b5f7492730cb9c8971",
+    "bytes": 992127,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "mo-refusal19",
+    "kind": "origins.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/mo-refusal19/origins.json",
+    "sha256": "1a717a46cafd2755fc176d3489cffb24b4afb3439b912a10e67e6234d6434eb6",
+    "bytes": 886300,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "optional-minimal",
+    "kind": "before.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/optional-minimal/before.json",
+    "sha256": "6903bcb917792f9b6c19fe53ae9c78ace5725581d75ca1b5f7492730cb9c8971",
+    "bytes": 992127,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "optional-minimal",
+    "kind": "after.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/optional-minimal/after.json",
+    "sha256": "6903bcb917792f9b6c19fe53ae9c78ace5725581d75ca1b5f7492730cb9c8971",
+    "bytes": 992127,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "optional-minimal",
+    "kind": "origins.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/optional-minimal/origins.json",
+    "sha256": "1241f49638efaf5e1c46c0f2862e6e765f6085bbbae491347ff846bd38becaf6",
+    "bytes": 490810,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "gp-warm-dedup1",
+    "kind": "before.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/gp-warm-dedup1/before.json",
+    "sha256": "6903bcb917792f9b6c19fe53ae9c78ace5725581d75ca1b5f7492730cb9c8971",
+    "bytes": 992127,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "gp-warm-dedup1",
+    "kind": "after.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/gp-warm-dedup1/after.json",
+    "sha256": "6903bcb917792f9b6c19fe53ae9c78ace5725581d75ca1b5f7492730cb9c8971",
+    "bytes": 992127,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  },
+  {
+    "scope": "gp-warm-dedup1",
+    "kind": "origins.json",
+    "absolute_path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/gp-warm-dedup1/origins.json",
+    "sha256": "21f57ecb5ee6eca868c07553c814fadbd68de0e5fac783cdfd50d89eebfc5914",
+    "bytes": 886681,
+    "availability": "ignored_full_capture_available_here; not copied into moderate Git packet"
+  }
+]

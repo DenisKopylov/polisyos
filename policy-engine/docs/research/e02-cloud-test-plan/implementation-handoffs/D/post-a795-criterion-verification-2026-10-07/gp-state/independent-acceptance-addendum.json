@@ -1,0 +1,142 @@
+{
+  "schema": "D.E02.independent-current-seven-acceptance-addendum.v1",
+  "actual_executed_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "current_candidate": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+  "no_new_execution_on_candidate": true,
+  "normative_final_handoff": "FINAL-HANDOFF.json",
+  "normative_final_original_matrix": "original-seven-criterion-matrix.final.json",
+  "draft_context_reading_rule": "OriginalHANDOFF/matrix/manifest preserved historicaldraftbytes; finalcaller/CASphase clarification +finalv2 narrative +thisindependentstatusaddendum govern proposals. No capturedoutput everchanged.",
+  "review": {
+    "path": "reviews/GP-original-seven-current-CBC-independent-review.json",
+    "sha256": "d0c0a00ca4047879aff6c10a755c49bf7050060c62efb8ca0c4264aab6a55c14",
+    "bytes": 8059
+  },
+  "supporting_review_outputs": [
+    {
+      "path": "reviews/GP-original-seven-binding-reconciliation.json",
+      "sha256": "09656af20fce04e213d84dda4a91d805e5b62eedd87f0671d070464a9b64b500",
+      "bytes": 1529
+    },
+    {
+      "path": "reviews/GP-current-manifest-and-runtime-reconciliation.json",
+      "sha256": "c689634a809cb10cb4adefafe40e93f4dbfc6310ccb5169264148eaa416f131b",
+      "bytes": 3540
+    },
+    {
+      "path": "reviews/GP-independent-numeric-and-CAS-reconciliation.json",
+      "sha256": "f1b664291063d0d97350ffcc430012ec43c5e6ee8c626332130caa8598a3fc62",
+      "bytes": 2474
+    },
+    {
+      "path": "reviews/independent_gp_arithmetic.v4.py",
+      "sha256": "963f418f16d88549a733b82afd2a43d85674734ab500e2c4b43014fe633e3a5b",
+      "bytes": 5898
+    }
+  ],
+  "originals": [
+    {
+      "id": "B112@OPT-02",
+      "original_text_binding_unchanged": true,
+      "bounded_closed_proposal_supported": true,
+      "formal_closed": false,
+      "residual": null
+    },
+    {
+      "id": "B113@OPT-02",
+      "original_text_binding_unchanged": true,
+      "bounded_closed_proposal_supported": true,
+      "formal_closed": false,
+      "residual": null
+    },
+    {
+      "id": "B114@OPT-03",
+      "original_text_binding_unchanged": true,
+      "bounded_closed_proposal_supported": true,
+      "formal_closed": false,
+      "residual": null
+    },
+    {
+      "id": "B115@OPT-03",
+      "original_text_binding_unchanged": true,
+      "bounded_closed_proposal_supported": true,
+      "formal_closed": false,
+      "residual": null
+    },
+    {
+      "id": "B125@CTL-02",
+      "original_text_binding_unchanged": true,
+      "bounded_closed_proposal_supported": true,
+      "formal_closed": false,
+      "residual": null
+    },
+    {
+      "id": "B126@CTL-02",
+      "original_text_binding_unchanged": true,
+      "bounded_closed_proposal_supported": true,
+      "formal_closed": false,
+      "residual": null
+    },
+    {
+      "id": "B127@OPT-02",
+      "original_text_binding_unchanged": true,
+      "bounded_closed_proposal_supported": true,
+      "formal_closed": false,
+      "residual": null
+    }
+  ],
+  "current_whole_original_property_basis": "independently_reconciled",
+  "current_original_clause_disposition_proposals": {
+    "B112": "closed",
+    "B113": "closed",
+    "B114": "closed",
+    "B115": "closed",
+    "B125": "closed",
+    "B126": "closed",
+    "B127": "closed"
+  },
+  "P37_typed_gates": [
+    {
+      "gate": "original_acceptance_and_canonical_owner_binding",
+      "basis": "independently_reconciled",
+      "scope": "Sevenunchanged198originaltext/bytes/hash/card refs verified."
+    },
+    {
+      "gate": "actual_named_runtime_predicate",
+      "basis": "consumer_asserted",
+      "scope": "EachnamedCBCtestcase protectednative/model/CAS/freshstate/coordinate/refusal assertion, separatephases/JUnit."
+    },
+    {
+      "gate": "current_independent_numerical_oracle",
+      "basis": "independently_reconciled",
+      "scope": "Independentstdlib10/11RBF calculation validatesproducerNumPyoriginalunitsfullmean/cov; MOtwo8componentoracle actuallyexecutes, no duplicatedMLL."
+    },
+    {
+      "gate": "producer_artifact_bridge_consumer",
+      "basis": "independently_reconciled",
+      "scope": "CAS84actualbody hashesand8/7normalizedtrain arrays; CurrentController8 +RunnerdirectnativeStrategyState restore +separatepublicmixedwrapperv3 freshnext."
+    },
+    {
+      "gate": "supported_six_family_state_and_replica_profile",
+      "basis": "independently_reconciled",
+      "scope": "CurrentRandom/Grid/RL/Bayesian/NNdirectwarm/MOprofiles; opaqueNNserviceprofile refuses, no genericcustom/concurrentthread promise."
+    },
+    {
+      "gate": "optional_backend_absence",
+      "basis": "consumer_asserted",
+      "scope": "Actuallymissingstack3fallbackP/3native-onlymoduleSKIP→UNRUN, no numericalPASS."
+    },
+    {
+      "gate": "candidate_source_delta",
+      "basis": "independently_reconciled",
+      "scope": "CBC→5b4paths,318loadedrepo identities;6861broadoldcatalog includeschangedunreadREADME,2newtests→6863,notwholecatalogidentity."
+    }
+  ],
+  "P38": "Markers alone divergefromactualtraining/mean/fullcov/nextproposal/refusal; same-modelRunnerposteriorconsistency notindependentoracle.",
+  "P40": "No new owned runtime divergence found; explicit supportedprofile source/refusal limits, falsifiablebyactualfuture nativefreshrestore.",
+  "P41": "not_established for allseven; no inheritedredwaiver",
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "remaining_verification": "Gintegrationacceptance/globalfrozen replay separate; no originalownengineeringcriterion residual in admittedprofiles perindependentreview.",
+  "large_raws": "Local full catalogs/origins stay path/hashonly withreviewvalidation; omittedrawbodies notGitavailable; no fabricatedavailability."
+}

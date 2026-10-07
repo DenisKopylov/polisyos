@@ -1,0 +1,5265 @@
+{
+  "actual_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "rows": [
+    {
+      "path": "policy-engine/src/polisyos/__init__.py",
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/__init__.py",
+      "sha256": "80cb9fa767bae18ffe0514ca9b1fb09f45263c754a921b77671d3deada89e080",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.common"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/async_tools.py",
+      "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.common.async_tools"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/canonical.py",
+      "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.common.canonical"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/hashing.py",
+      "sha256": "4ecfe5e4ed78585a25dfd4ee7de1eee10f4d4b467bca95fd6716537a68ef3ead",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.common.hashing"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/logger.py",
+      "sha256": "d496cd41f388b185cc4c9c9bcb5d7f7c2c3eecba02fc9f437ae5f02f2201e5a0",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.common.logger"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/serialization.py",
+      "sha256": "485303bf79f150fa9df259d7354d3104a4bdb94d9114cddb6e17dcc424316f0d",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.common.serialization"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/timestamps.py",
+      "sha256": "c6343733a85b80f7b8eb2a2e607ad864e0059f30b6c01a818ba6eb97129d6963",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.common.timestamps"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/__init__.py",
+      "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "sha256": "a3e70ebad63ed31e840ef76195c831e98bf6fe2818ed8db7b04ea9464ad8f38c",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_atomic_write.py",
+      "sha256": "afa41fe64aa388d65ec89db504d2f651447c5a92b5a8cea0384a6793c924ebcf",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts._atomic_write"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_env_capture.py",
+      "sha256": "984863039a9b397fc196beb680f43fa648bfcefcbf25b0fe909875b7ca1e5d15",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts._env_capture"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_env_comparison.py",
+      "sha256": "b03d5cc7fcc5bf26d1173e5545f20ab540e4fb5a1243b95c564bb47e104a8fc0",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts._env_comparison"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_env_models.py",
+      "sha256": "379ac8610fe00a270e10848399120094b4509166b0a722fdedbaf1db5a10dd76",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts._env_models"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_env_utils.py",
+      "sha256": "0fa9b7471afbf146412d94e61fa9c874f8e9677aebc9db8c0177879480df5283",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts._env_utils"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+      "sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts._integrity_ops"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_layout.py",
+      "sha256": "693f2a119d9b413e3091f0fbf5b1dc093ad3786c7af5cc15ed0c3209e660f194",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts._layout"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+      "sha256": "b0948bf37ec2fd9e7d0b893db319b63bfdc21290564a7aa414e80a97cbebf966",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts._manifest_lifecycle"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+      "sha256": "35a8af3422febca80a8f3584117bc2464a5468a0f73482c738e8255760f7fbfb",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts._signature_ops"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "sha256": "641553dd8b105a31c406d3af9d2477efa75f093755afc41f9af97816ebc817d6",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts._transfer_ops"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+      "sha256": "6b50f6cc1cf136e6eac66c3ff72745481495a13e18ab0d2ae8209f88863919fe",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts.async_store"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/__init__.py",
+      "sha256": "c1b63ae18ac92ae67fac24338d775c0dd17253682d0240e32f92bd98398a998a",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts.backends"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/config.py",
+      "sha256": "0c942402af1a304c32bccd285fd78a3aeeebc13a1f02c23b3242c1f6ead2f99d",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts.backends.config"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py",
+      "sha256": "c3425f30443b55fcabe44adde78bd7cd5373e7424eae1dd1a6a9ad6d4a4260d1",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts.cas_integrity_report"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/environment.py",
+      "sha256": "37c843d663219f8e9400433f88254aba3cd980fbfa9b18cf9dc78769afee1db6",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts.environment"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/environment_parts.py",
+      "sha256": "e9f8401b5bab8b82d344ff10fe424a7d0c90b9b052604611eb00a282283aece2",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts.environment_parts"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/graph.py",
+      "sha256": "26fe822573a2c9787fafe015195121b70a1a2a7ff89e3bf20d182a92d4909e1f",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts.graph"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ids.py",
+      "sha256": "96ab03d78510679bb9195ce79a58dd1559be8f7ccf1de2e6d10031c172ae07e6",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts.ids"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts.manifest"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest_profile.py",
+      "sha256": "aa7ee9af617c1adc338a21a5b0186d41a690e6b86f2a0810ae9b5a7ee4ff7ce5",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts.manifest_profile"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ownership.py",
+      "sha256": "79216c9596812628119769a4dcdb9520c04dd097df5501e1b878e5270fd98b9a",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts.ownership"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "sha256": "242a23a1c4c75f230c65aa5f284da0066641d9eec945c4eccdc12abc84e7adc5",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts.protocol"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/registry.py",
+      "sha256": "e665dc55703db9d4c4a9b4f4040c665a8a85c300ae9c668d67480f6241ccaf28",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts.registry"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/signing.py",
+      "sha256": "5d4a19ab6a2c8b5caacb3c7c74caf3625c24d4e5e51873d131292a682738b568",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts.signing"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts.store"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+      "sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.artifacts.write_contract"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/audit/__init__.py",
+      "sha256": "c3d9cdcebe4b7be596b116f4dc65e97b5a450df115fc7d9782c7047c3178b001",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.audit"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/audit/_assembler_archive.py",
+      "sha256": "048ec385304c2f6a176c1a41f30569bddf116a7280800999b34f9b7682c2733c",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.audit._assembler_archive"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/audit/_assembler_core.py",
+      "sha256": "e2e6f4ece186da32381b449bbccdcbe1010f1184d978107d0c82749f40c032bb",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.audit._assembler_core"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/audit/_assembler_errors.py",
+      "sha256": "1e63adaf01bd90c8271b35f319b9c64a089a4c523c7ae7b61bc5af07a96f4b82",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.audit._assembler_errors"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/audit/_assembler_provenance.py",
+      "sha256": "954559f77a93ad450ae4b2c2aa7004211e2e4a4b4f4df6b1ae13bc8727f83cb5",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.audit._assembler_provenance"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/audit/_assembler_slsa.py",
+      "sha256": "267648ebaadf7b7b22e4382373e61677062863812fe96d94fe5bd34976d4531e",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.audit._assembler_slsa"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/audit/assembler.py",
+      "sha256": "5efc5cf77a83b8bcf41a3de92d282efe9734af476e5ecbfd50f416fb5d5b4ba4",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.audit.assembler"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/audit/models.py",
+      "sha256": "3182af1a0fbbc09955575c6c5ed4215b51f383d271d033df264abcec680ea5a2",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.audit.models"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/audit/prov_json.py",
+      "sha256": "3af91619eeda67c999c184b4b1a8ee11da09e1406a2a4a5e8bcabfd58069ea65",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.audit.prov_json"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/audit/report.py",
+      "sha256": "9aa70a910eddda6c8b56ea2559075994fd7e93c0101069c9ce96d880d72e965a",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.audit.report"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/audit/safe_tar.py",
+      "sha256": "fca3afb1da058649d45f038b95c768110a7b7f50795072922b3ef725b91d48bb",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.audit.safe_tar"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/audit/verifier.py",
+      "sha256": "a240a388f24c9def282c6dc5f60cec8fcb9fdd4b5415ea4acbe2f70340780da4",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.audit.verifier"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/__init__.py",
+      "sha256": "e33a7486224d5e15cd418ac4dab69bb38ac6b1593d739a4b7ac24ea4d477dfb3",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.canon"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+      "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.canon.canon_json"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/hashing.py",
+      "sha256": "a32caf919317c5667ac02bde68fa6a1d0fa064e1edeb44c89bc066a14a9272c0",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.canon.hashing"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/components/__init__.py",
+      "sha256": "7be43542a1e235b4a32cb13f2a0924fac8cc43087433515c063f7f7b683dfd89",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.components"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/components/bootstrap.py",
+      "sha256": "6a5d7216f16bd1d659cc8b9876d776fcc862bc18c0bfd27b58247b0b771b4d10",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.components.bootstrap"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/components/capabilities.py",
+      "sha256": "899ac56d56e4c85e1447c707c1e8637ef9798cc2b1a7373b002a84cadfed9a8a",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.components.capabilities"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/components/compliance.py",
+      "sha256": "b34a3adb344e6332d2912faee4156f64d800bac5f9244920b41a2080325c1e1b",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.components.compliance"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/components/discovery.py",
+      "sha256": "d82889dc55e74b6e80d4243364a980e2f763c65930a803c9b8efdfbb074e7b22",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.components.discovery"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/components/ids.py",
+      "sha256": "7cac29d83cbe0775829892a9e32339c53ef7b06c0dabef95e9341b99e26c5c6c",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.components.ids"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/components/metadata.py",
+      "sha256": "efba84687477aaf838aa55db88c82eedfdbbc0b414020d9190cc6e2b0b10df05",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.components.metadata"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/components/protocols.py",
+      "sha256": "a755d4f4bf0c008265afc9be48f84f854c0604d9d0aa669bc8c872d834af7a01",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.components.protocols"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/components/registry.py",
+      "sha256": "e15806f4df623df06293e3e50ded6c160b9e3f14257174b263608734fbdc41fe",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.components.registry"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/__init__.py",
+      "sha256": "9b711f5139397946be246aca817aacfb31c7637385cac570cff71872470e7d4e",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.contracts"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/distributional.py",
+      "sha256": "1fba96ac6068498cc392b3a5144201dbe7bd5ebe295504326f562cd1daf67abc",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.contracts.distributional"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/execution_plan.py",
+      "sha256": "168f3a85445f07a3c3f1c2a7f382874fccfc9bc707ce7d8a7bebb49030a17f71",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.contracts.execution_plan"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/fabric.py",
+      "sha256": "390415a884778be3f78415c6610db9ea51e26484466d246859a912076a557bf7",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.contracts.fabric"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/foundry.py",
+      "sha256": "02a038f9e8272fe168f5c5a3d9ea46919e1f4309fa308693bb8fe63d08c0438d",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.contracts.foundry"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/lex.py",
+      "sha256": "e547a1ca7c7b1ed08a0a746e2a4c2cdfc61dbfcfd7b34b3b81fab8a7c608fb8c",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.contracts.lex"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/provenance.py",
+      "sha256": "7ddd190110f8226643d902d5c8a278e1141550ca35ee2f02df1fbd167e184ad7",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.contracts.provenance"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/scientist.py",
+      "sha256": "987c21cf22a30459075f8adbc4469ff2a67055b264670392f64513ae7f0ce2a6",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.contracts.scientist"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/trinity.py",
+      "sha256": "0c2d0b3dcce5c6b94445ee7c2386d0a08cf1bb761f0bdeca85631dcc1818bf9c",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.contracts.trinity"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/uncertainty.py",
+      "sha256": "39098b2e757991cf87c9ced1ecd06ccfeca71b5cfa0dec568aa0f40d4ed17928",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.contracts.uncertainty"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/discovery/__init__.py",
+      "sha256": "050b0b60b19d7ae358b9927baa279b8efc70f999b18a083b62ee7588c9a474ce",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.discovery"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/discovery/base.py",
+      "sha256": "c6ca686a2823557950e9e801419f404ee58c5f7b74666c2a9518719db9f0f7bf",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.discovery.base"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/errors/__init__.py",
+      "sha256": "e1bbe5e46a1f67d2c9d01175400036782717be128130ab15c63768af1003cdec",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.errors"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/errors/base.py",
+      "sha256": "f013683b373b4bf947dbdaf0b5e6fc4c830da6fa6b74ef431d59a215bbbeaaed",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.errors.base"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/__init__.py",
+      "sha256": "13e425237dd9ce7dfc45a18eb5a57f77cad6196d72a97f30450bcb19fdf61377",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.observability"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/_metrics_helpers.py",
+      "sha256": "d168be218d7a3e9dfbb457342127d088d65ee31b417d5766d6a5bc4588964355",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.observability._metrics_helpers"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/_metrics_registry_base.py",
+      "sha256": "922eac01d723a6e30070fd887f469b8c6c0c735d922b1fb76185cb0e47d62f85",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.observability._metrics_registry_base"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/config.py",
+      "sha256": "08cacb20670ed714ce97f90e0d42a9ce5ce4f57b629395fe70fba4dd2d5e0be0",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.observability.config"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/decorators.py",
+      "sha256": "909bf120a4650ee6ef0f0b6d0e02af3d23283c172e77e8646aad976c4913d27d",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.observability.decorators"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/determinism.py",
+      "sha256": "989adf82b32a6ea03d11c11920364d97cc2fb64982b5bc54006b76b36e4bd7de",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.observability.determinism"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/logs.py",
+      "sha256": "9d51eda431ee4a4d9e839866500d792e4f527c1bec08731f247a5ad083d72f4f",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.observability.logs"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/metrics.py",
+      "sha256": "9148d24d122b591e2a9f16d1aaafee161dd37746cbab024686b1750e549ba022",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.observability.metrics"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/metrics_parts.py",
+      "sha256": "45d3d3183677aeed557e0d410cdce412387c29e526bc33c81c16ad324a4287ac",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.observability.metrics_parts"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/pricing.py",
+      "sha256": "3a0920548c07468519635b3e9f1dc9c579d8e423739b4b83a001e73d032fe311",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.observability.pricing"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/propagation.py",
+      "sha256": "0662550de014f5f6eefbb85a371328503f630186b9df376d610fd444fd843a96",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.observability.propagation"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/tracer.py",
+      "sha256": "bac8b15dc232b3e1589198d68e89c2e785f0cf7d5f80352344fba99644b71a8d",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.observability.tracer"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/registry/__init__.py",
+      "sha256": "3c0133c05fcda3e0270a117f54ca2b401f1e2dce02c2291c247c786a2e4f6e6d",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.registry"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/registry/base.py",
+      "sha256": "140b47ccc131641a2a3cf3bbb91f899e6ef7429348ba2be3bd59afa7b275a015",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.registry.base"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/registry/generic.py",
+      "sha256": "b1e1708fa846adf841fc4f54faa126c0b2605f005ce12c0c1e1ce9a79758553c",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.registry.generic"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/run/__init__.py",
+      "sha256": "6ee2f44052fb820dc40d0d3584b021c58ed20729a9e7d198bf7a4ef2c478c6e1",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.run"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/run/context.py",
+      "sha256": "c91029ec1e99435dbdbd234e47e796e90fcbe1f8897e7ac07f4abf9c75f4bc2c",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.run.context"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/run/manifest.py",
+      "sha256": "9f6ceff0f2da613da4861540f73c88240ca353d3a8ed713891e0cfb18979afde",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.run.manifest"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/__init__.py",
+      "sha256": "eaf1cfb96501a334d6f4f164bec3921fb209e2b28fd764eb448a52617cd96564",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.security"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/access_scope.py",
+      "sha256": "55633d848a8dc258a7a28d00ebd69d267ca605992af330269ba5d3398a32fb12",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.security.access_scope"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/db_backend.py",
+      "sha256": "e2a24be263f3afe4faa445cf0b0500cfeacec2fbe1949a911b138f8ba4c84727",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.security.db_backend"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/exceptions.py",
+      "sha256": "7ec972cde8fc7da7d79b553a4ea5441cffff35add96787c5ffab515250083f92",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.security.exceptions"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/identity.py",
+      "sha256": "3b9891de3ab17fb03c49223a459dcd6e04d6155b12cce058ff4b21f3b1fdccb5",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.security.identity"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/tenant_context.py",
+      "sha256": "f9051375fa189e5bc3e020356eccc4d14f6c1e6402080cd4261396ef3b56c9e0",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.security.tenant_context"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/trace/__init__.py",
+      "sha256": "da9e8b72508ee15502f8bb13b4b46da89cf5b67384059d5f377d254e9e9d10dc",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.trace"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/trace/record.py",
+      "sha256": "67d759b571cafc07559b4875636bd040bab7c640470320567da161a79171cbf7",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.trace.record"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/trace/sink.py",
+      "sha256": "abcdc30944206159100ea2c3ebc8c4e2855741455a5e08c2085196278a4c93cc",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.core.trace.sink"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/__init__.py",
+      "sha256": "468fb2656309e00210089ba25f34c84b393f9d25e23f081e188ecc8f8d64160a",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/_version.py",
+      "sha256": "b052cca3a5c163f495d237bf5a7dd0c14dbcfe283ef2f9c5ce8e0c5f9e4f10c4",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge._version"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/__init__.py",
+      "sha256": "f2bf9c006fb96ba4d5422a822555ebfc02346bac5ef172b98b1760d9dd9d1fd1",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.domains"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/__init__.py",
+      "sha256": "b5abd6577d11c9a6b1da1684dfc5b24b4ea29b1fcf5ae1c6054d07c0258b20a4",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.domains.academic"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/assets.py",
+      "sha256": "a2c999ff70aea212734fa3bf7eabb232d187ab0be606ea5677dbeadb7f2221bb",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.domains.academic.assets"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/batch/__init__.py",
+      "sha256": "7339396d1a98e0e17e8503a415d256e85a5bdd3879dcb742b01634eaff687425",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.domains.academic.batch"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/batch/claim_adjudication_policy.py",
+      "sha256": "b8eb3a3c57d95e198990103bc01bf2b33f9b4129f1a2c447b0864498c928f1bc",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.domains.academic.batch.claim_adjudication_policy"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/batch/claim_adjudication_verifier.py",
+      "sha256": "1641aa6eca22d0796fc879ad034104b266305c87640835d4be9c7faa292d419f",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/batch_assets.py",
+      "sha256": "97f4d9e8ff60e15637cfc3618f9a1d56d187074f48340ebe470a0f5c48d2019e",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.domains.academic.batch_assets"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/__init__.py",
+      "sha256": "c16dd70ddc0a5704116aea72517fe7011c2049ba04b72a2a830a8c9fb8759132",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.domains.academic.knowledge"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_store.py",
+      "sha256": "d10fe6a8388036f898cd44205c11b9a8961428c8559ba7ac0e64a1b0efccc5c5",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.domains.academic.knowledge.skg_store"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/types.py",
+      "sha256": "db761a0d4b6aa6e1c6599ded3a518905d31e6031a5a47062cfe29ac88fd6a253",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.domains.academic.knowledge.types"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/quality.py",
+      "sha256": "b39cd8efbcf11aa2defbc7ed64130bbfde868d16c8a98814dce96b789bb76af8",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.domains.academic.quality"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/schemas.py",
+      "sha256": "cae8265c58e08a01c70a4f390df2afa0842bee13c783370e76bd5eaf2646b2ca",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.domains.academic.schemas"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/shadow.py",
+      "sha256": "3dad689e9076e5fd626dc4aa7c53467a4bf1e6899d49fba149a4a8d4c2d6c5cb",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.domains.academic.shadow"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/skg.py",
+      "sha256": "567e8271661ce68c0c3ea096dc8ec12118d33f3ab22823a7c123cf9c6915cdf3",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.domains.academic.skg"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/errors.py",
+      "sha256": "3b51811e2cd85dad4294ead00df98f725cd8678df055fc517306bc308311518a",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.errors"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/__init__.py",
+      "sha256": "07600a94ef958f4c8c2dac1765d02327ed9469bf1ae99f10fe640461315e39b2",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.kernel"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/_base.py",
+      "sha256": "9444c27fd52f03e8ee54861046f4a07ce5e85254c8bf324138138758eede4918",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.kernel._base"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/artifacts.py",
+      "sha256": "30402f002e2de58017368353d320f10ebd4456963204995b39fb3eca608204b5",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.kernel.artifacts"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/io/__init__.py",
+      "sha256": "4f109359705b73eb4c80f976d27a100166625ab36efb5a6dfd35c7d087da33b8",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.kernel.io"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/io/atomic.py",
+      "sha256": "38cae9207be0d3d3d6ff810f62b79a433b13ff0dd0b9aac86a53d2fbb9598c41",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.kernel.io.atomic"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+      "sha256": "47900cf9a05067a27e17d149ffd11228ce6259794264f43ce58cccdb059466b0",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.kernel.io.generation_basis"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/io/hashing.py",
+      "sha256": "be74a13ba66a1652244b6f0b8b06597828f41e633cc7fe416f5f6f2649459ff1",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.kernel.io.hashing"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/io/paths.py",
+      "sha256": "92acf90117cd28d52315101c16fff7ce5472b3cd198bd56843d98f402f576bd2",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.kernel.io.paths"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/__init__.py",
+      "sha256": "7adb6d18681f41d4af9a0e6ddbb66336701d4c5534c7a370e049507dedf71e2d",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.kernel.pipeline"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/assets.py",
+      "sha256": "350cf810a15a7e6be6d897fbae60cc0476a85ce491f1c3a8d391b4213f001714",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.kernel.pipeline.assets"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py",
+      "sha256": "a7393c3234f6fdb5b39aa19542497e26d7855bfba5284685fcf376391b7af4e5",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.kernel.pipeline.manifests"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/materialize.py",
+      "sha256": "29dc523b59971695d05d50a44f5ede3ee17caed7551fa69806518d185f1dc328",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.kernel.pipeline.materialize"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/partitions.py",
+      "sha256": "5355224c7ecabc598b0ccadd28aecc7ceff2dcf9ac2984fe1b7dad01e5f57388",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.kernel.pipeline.partitions"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/schemas/__init__.py",
+      "sha256": "a1699faed4cc01753760dfe569e667526e7d5ab8e01189666df99193924844ad",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.kernel.schemas"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/schemas/evolution.py",
+      "sha256": "8ab5cbaababd5c36368b82e5cb29f0433bed95d84cf18d8c120be35982a521ac",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.kernel.schemas.evolution"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/schemas/migrations.py",
+      "sha256": "d9b57b46e368ef2cd9737f45ceb256f9b59e26fd16da66c00d968f46cdbe9a05",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.kernel.schemas.migrations"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/schemas/registry.py",
+      "sha256": "b99be674837a6b3cb565eb9584804cf7d7ed29f2beae5304a8481043819940b8",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.kernel.schemas.registry"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/__init__.py",
+      "sha256": "0c7aa7d42b0569a4e99c9542dab7aaef4f1cd6afc2cae1b31cf186e63a3a7e8e",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.read_api"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/_lazy.py",
+      "sha256": "144f2536c6b6f4902c34439d11d6bdba3a71b4523ddb5c9574b09e8c2f5ec1b6",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.read_api._lazy"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/academic.py",
+      "sha256": "0042f4ec272743870cd62da3598eec0f56d01996feedf68f031b86b38dcedbd0",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.read_api.academic"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/surfaces.py",
+      "sha256": "91f36c51abc9db63546785d511a8fc757720938ab873d30d14302345a6ef4bd1",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.data_forge.read_api.surfaces"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/__init__.py",
+      "sha256": "2bd8701c7440b97d241a087ec3300c22fbef86b31bf36149ce6cd85e35812ae3",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/_adapters/__init__.py",
+      "sha256": "28922aeeb106540cb982aa42554df9814c15938674b056f56aeaef091263000d",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric._adapters"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/_adapters/observability.py",
+      "sha256": "7ed4578be91e2d28b201c05e19bfbac0eb3f355635aa78fbb3b669fa34673502",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric._adapters.observability"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/__init__.py",
+      "sha256": "38e9ae9c90273509d18b33947469b7c543571b1e08dd38c284aa083883e77912",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.data_plane"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/quarantine.py",
+      "sha256": "58a80a91a06b537f8d54f3a09536e0a80e86405c424430169b26a6bea61393c6",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.data_plane.quarantine"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/temporal.py",
+      "sha256": "06958de926a07d6e2da887a2e19d4699922379d1f90648d3dc4f8e64bdcde2a5",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.data_plane.temporal"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/evidence/__init__.py",
+      "sha256": "d0a06375772f532f2cde1ff4ae187a683064cc75ebb4399b69f876c398a0a763",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.evidence"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/evidence/decision_data.py",
+      "sha256": "3a6bcd16a5acc77cdf97903e76fe89e224566def4eaebbb216767ce96ebbc205",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.evidence.decision_data"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/evidence/evidence.py",
+      "sha256": "8f429c74d028b7f969f6cbfb51c8dfc200eb55027e013ea4f095f025b64c2407",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.evidence.evidence"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/evidence/fact_writer.py",
+      "sha256": "ed54d23caab5ae066e89ad5a115f3e8568430f9fb1dcdae85d66b674598e5d60",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.evidence.fact_writer"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/identity/__init__.py",
+      "sha256": "0a6c271a716a831bbe94de204730d8ce554c6c39728feefed35aa43cd4c68b9b",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.identity"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/identity/manifest.py",
+      "sha256": "d9b63a4ab032cfc0a3a3ffc39814fe78a59707774e12f4eb5cc08f65e9dbaaab",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.identity.manifest"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/identity/segment_manifest.py",
+      "sha256": "1ca53ac92b3a6f7ed45c39ee321927bfdb4513e0ea99a6318a558083208d6079",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.identity.segment_manifest"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/io/__init__.py",
+      "sha256": "0580738d4da80d17f8010810cb978f75cbbb9469c6149da72b72af037b9613ae",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.io"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/io/atomic.py",
+      "sha256": "e85c51a0938d6e871ca6056040e72cfe5e96d069023ed2dbde668b353d4b4c77",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.io.atomic"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/io/db.py",
+      "sha256": "4526f09f8f9dce95f5a73041a8f9288fcb0e9104589dd0546c341953bec2afed",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.io.db"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/numerics/__init__.py",
+      "sha256": "a98c3b63aa74ca1a631accff678d70216d8420c722459bf2db7351cfacec87a7",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.numerics"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/numerics/finite.py",
+      "sha256": "c387146812cdf8ba4851f580c1d2e9d92955d8475bd13efc8897fe3e1313474a",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.numerics.finite"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/provenance/__init__.py",
+      "sha256": "5d43d3091de181f7867d0858f49fc72cad586b01467f8870497bf9b5a4900c07",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.provenance"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/provenance/core.py",
+      "sha256": "46e003dacac68fe3cfeaa206905b61093ee820724d91572e61dfbffd994d8dbf",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.provenance.core"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/provenance/export_provo.py",
+      "sha256": "533ee7d17d01a6fab9d14b714a831bd4ffe4dc452460fd4738d2d96c21ceadd6",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.provenance.export_provo"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/provenance/lineage.py",
+      "sha256": "54d59e4249b8938a8c0bdc16ea91455ed9189f4df6b4fffea522ebf0aa0bd04b",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.provenance.lineage"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/quality/__init__.py",
+      "sha256": "9600f49bb3ac6915eb41017f2f5ccbeee4b67ea1b7777697dc796bca6cb69151",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.quality"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/quality/fitness_report.py",
+      "sha256": "966180409817f49018d67f1396002ddeb2bdcb7541eba5fafa73a05d54d69d68",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.quality.fitness_report"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/quality/processing_guarantees.py",
+      "sha256": "a09cf1206959e15e720a87f92572fe7ffdb5ad86b6f199b68ebde4f7f5113800",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.quality.processing_guarantees"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/quality/quality.py",
+      "sha256": "8dc607b2fd88a44f796e81dd6eb62e0b7f8098a06af742d4392d4e8fcd632ea9",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.quality.quality"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/quality/safety.py",
+      "sha256": "682fd06a860658125c62c0b0dd39f63bd06dc2a054c004cbee66e536397053ec",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.quality.safety"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/security/__init__.py",
+      "sha256": "f3daf5478d0686b00935ccfa3aca7623906990b0ab94f353bea6bfc4b2bf64e1",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.security"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/security/access_control.py",
+      "sha256": "ce369220bcfa8a25785acad9bdbec68cf91f4e3055d4bafa87395b9bbf7c9166",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.security.access_control"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/security/adapters.py",
+      "sha256": "d516583a33fa08c0b9e53cde311f0f969f8e4634249295720cefa5812c6ff748",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.security.adapters"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/security/column_mask.py",
+      "sha256": "9095edfaa5495c7cfa587bfdf195531bcec07edb659c72e91257f1bda475e97e",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.security.column_mask"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/security/governed_artifacts.py",
+      "sha256": "fc168a854e7ef1b75f1bb912ffd7b21120120dd949270a83bb1763fdb0f86275",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.security.governed_artifacts"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/security/retention.py",
+      "sha256": "d54abca66a755eabc0b02d1c0bc628ccf3ecac1b88daa51983a886519b4110e2",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.security.retention"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/__init__.py",
+      "sha256": "a619518516504923c5a42a7406b04e99d07dc5aeeae0e290a7fdd7e29ff4f45e",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.world"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/materialize/__init__.py",
+      "sha256": "28962be87dca10385871731506ea2defd53ada1eb75fedf2e281ab0bdadd19bf",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.world.materialize"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/materialize/duckdb.py",
+      "sha256": "fbb54a033152ff1fd54c8d4f11d6690eaa75ab467d7b0c9a372c21c92f122e53",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.world.materialize.duckdb"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/materialize/errors.py",
+      "sha256": "747e63c33d3b44a145ad6830bf66d755b4b7ab42abc947e920f68bc31569c4c8",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.world.materialize.errors"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/materialize/kuzu.py",
+      "sha256": "3b0d9e2d0226aeb719d3ead2f2ac514b6f23fb5ef1f54767c55e780ea99668c6",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.world.materialize.kuzu"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/materialize/projections.py",
+      "sha256": "13e39318453a57e065275c9e34978116579209f1737a17df3bdccd71e932b747",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.world.materialize.projections"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/materialize/rules.py",
+      "sha256": "5d187f64f4bec56cafe33e0a3917ddb40c23ac77231c61fbf015863640e755f9",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.world.materialize.rules"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/materialize/sql.py",
+      "sha256": "2b13c45596324748dfd2f858a097b867bdf45d05dbd8539b83d0f6adc729165f",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.world.materialize.sql"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/materialize/staging.py",
+      "sha256": "ed78c8d9769d4a1e4edce9f5f9a3a6c1a205fdd15835665573c7abf1ea6835b3",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.world.materialize.staging"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/providers.py",
+      "sha256": "922fa97d9a3666449407b5db677a7c0d94a50c45c2f6a726d5538acc82c73bbe",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.world.providers"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/store/__init__.py",
+      "sha256": "5f40a547f69d83478cb63a9137458a670038283874509ff9c227736803408445",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.world.store"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/store/emit.py",
+      "sha256": "2f1c0a8702e0dde5900eaaa14edc1f59474399b9e33289ee2d2aae6e423c7306",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.world.store.emit"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/store/errors.py",
+      "sha256": "342005fcca47f32fa696578b8172ee32c6aa5cbce0a627459bc78274661d1bcf",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.world.store.errors"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/store/persist.py",
+      "sha256": "3437d8632d310004bde5e71ee4bacfb5f45b9e3ca9d7779804823c4a516aacf3",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.world.store.persist"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/store/provenance.py",
+      "sha256": "071e036d85c096df0018b5de8260e4d4fb3c72c4d9b9454ae87dd48ccc4eb73b",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.world.store.provenance"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/store/quarantine.py",
+      "sha256": "5f7997e018702a21c3ee3d6b6f7ea93fb8a40b82fe662fe704c9182f4557b05e",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.world.store.quarantine"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/store/segments.py",
+      "sha256": "77682ddb713a79188133fa464a6aef4c81f8fc58ec46fb8e48c48e415f107f88",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.world.store.segments"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/store/validate.py",
+      "sha256": "855ed0f71a225d56f16f1d8d92132e4947826cc3b4d48fb29f1e16d898601647",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.world.store.validate"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/write.py",
+      "sha256": "6c5393add049cf3ab3e2c37eed4f4a4b78f4108337a9f133b45a194ef6e247e3",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.fabric.world.write"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/__init__.py",
+      "sha256": "80ee58c0811aab682d76cf0940d4c376f3b0e0f2b7a431f4ca772a8cffc3d7c1",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.foundry"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/__init__.py",
+      "sha256": "bf32d62cf5de89679a1b8c05563e3680bcb101e68c87c478bfb1872a3973a29c",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.foundry.methods"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/api.py",
+      "sha256": "946195c03b02566d02f782e1af2037f429adbfe8fb2add5e9caddee2b4dc5954",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.foundry.methods.api"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/base.py",
+      "sha256": "ae6ab49021c3adbab8a72f39b2a7cc126d082a54d748f737e0092c64bd6720e8",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.foundry.methods.base"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/exceptions.py",
+      "sha256": "6527d5c39567ad678abb3a2aa8cc4cb569843adad9b9709a760d4da566c595e3",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.foundry.methods.exceptions"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/lifecycle/__init__.py",
+      "sha256": "137ea8e68fa6b070e1d09bc33d237c6fc65da0494a129d1591a846264da4c62d",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.foundry.methods.lifecycle"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/__init__.py",
+      "sha256": "3147ddab123766e698ae99437b5e23fc32fffbf34b7595dfb286b93b63c18287",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.foundry.methods.selection"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/registry.py",
+      "sha256": "3250f70d07a658c9beb9b9210254d425715129a1b9eb29cdbbcdc4a208c977b9",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.foundry.methods.selection.registry"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/resolution.py",
+      "sha256": "f681add82920a51fb971a2fda0432c4efb0df6599be51425b0f9c137ade7118b",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.foundry.methods.selection.resolution"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "sha256": "7758c7b1b07ceb5906fa322a83bd156dadb4b33dfce8e2653198d3f961606e3c",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/_internal/__init__.py",
+      "sha256": "26efcf5ea5aa8d7138a675fef7ccd2f17083279ddf38f6fda5c028830dab3756",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir._internal"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/_internal/validation.py",
+      "sha256": "d1cb68bfec95789a5067cf352adae538875297e67423dc344f3453885b2d8b4b",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir._internal.validation"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/__init__.py",
+      "sha256": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.analytics"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/_truthfulness.py",
+      "sha256": "5ea9c8e284f0a3eb2e3cc9d56579cf625c4e2dc5c6c92debe0818f5f5ac794bd",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.analytics._truthfulness"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/applicability.py",
+      "sha256": "18f8c59d1f1f9ce19b8a0e4fe421d45d7dbbf4116b4902229e0246a064c1e161",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.analytics.applicability"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "sha256": "121f33acc4b5bbc0541b3bb5cc331c3e77d9a3f2e684359af58211e56f44e1a1",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.analytics.causal_graph"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/context.py",
+      "sha256": "926af367ab113b2ca537cb259b9b12ea37579e2f027587da1a83eab2c27db6a9",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.analytics.context"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/literature.py",
+      "sha256": "d8ad210cffcf66f1f4d02132655e6d5fb2c69c6a5b46f41444f168d748fd3597",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.analytics.literature"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.analytics.uncertainty"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "sha256": "50eef6b0cb043705d1bd03069e6e1ecd5cfe995575faedb2c5af1fd4e544e384",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.api"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/__init__.py",
+      "sha256": "0ed2e21568bd6e97323957da0a8970ca172b64a61a8b77e8ed6cb773bb550134",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.artifacts"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+      "sha256": "9caecf307c06ca3efe13b7b234d10e860e734bfd415823e3cd6650f3d0ed1c9b",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.artifacts.contracts"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "sha256": "e876f8d65572ef11992a5ba7336decffea966af7e5b6df12a48ec7dae25b08f3",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.artifacts.io"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/lineage.py",
+      "sha256": "52627f8886454ecb4b3d23435754eb3e68ecd8245761765bf2eef02a8c6722ff",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.artifacts.lineage"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/transport.py",
+      "sha256": "ae135cb10626f01d4bae2d5f9853cc133be4ea80650b15920f375b6246eb6a0d",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.artifacts.transport"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/kernel/__init__.py",
+      "sha256": "1a1124a1b02cca8854bb0f42b56fa8ec97363d2025b351557c2f2bf9eec4b04a",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.kernel"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/kernel/base.py",
+      "sha256": "ca08c309aefc4d39bc5d96850e44c8801f30441f49c67da4aa3aed92d9091607",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.kernel.base"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/loading/__init__.py",
+      "sha256": "fef617a9b4f54086f8fc83fa31095fe5b2ca71b4f0e744b1f57d7e8543a4c04c",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.loading"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/loading/citations.py",
+      "sha256": "67aefae947b32cbf50f6c8408e1d434caa9a3354e58affb4adfc88a8c407d298",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.loading.citations"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/loading/fact_log.py",
+      "sha256": "26cd379e23be37ee759245a5b666c2256b75f2357cdb990283ff26118ca153ff",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.loading.fact_log"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/loading/norm_pack.py",
+      "sha256": "6613777ebe6fb355d537b39b9b4968dd9dcc866a2173696f95207d5a0e21686d",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.loading.norm_pack"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/model_layer/__init__.py",
+      "sha256": "7ed768ff9143dc957510f4f22ac51c44bb2c2791a68b5209185cd2eb8bb72993",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.model_layer"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+      "sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.model_layer.canon"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/model_layer/types.py",
+      "sha256": "9420f2ccde75f9ffe37a1f2acacd37b330aac1489daf77a42da9ab6da1c6bde6",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.model_layer.types"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/observation/__init__.py",
+      "sha256": "b230861e7a7deb64941bbe5393073cc825f45924634e531efa943d27da4f6686",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.observation"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/observation/contracts.py",
+      "sha256": "4154ee4d25e789791e2d590e73425f1856f376e01deb73d8225257ef8415b6c7",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.observation.contracts"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/registry/__init__.py",
+      "sha256": "edebf2f8452d62b447bc593d9935c75183857653b281f82fd46dc571e38116f2",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.registry"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/registry/refs.py",
+      "sha256": "4135199d208ea8970114df0d53a45b92f4e880b32451387a59de43be4987ed19",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.registry.refs"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/world/__init__.py",
+      "sha256": "f259dc167171766c15b68c0006d0995a10bed5458b139d828956a135739a58e3",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.world"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/world/abi.py",
+      "sha256": "5af6c7fd2164010565995166f3a82f9c5af423b7e1db1470d293c4beb8066831",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.world.abi"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/world/claim.py",
+      "sha256": "c8dddfb5a0b5376a63c33ffedb39fdf97124a811e52e7d4a022aab233560918c",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.world.claim"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/world/conflict.py",
+      "sha256": "ebb0f9076abfea5e8788e246e8c1bf1c892fdd6fb1e39d6b0e1252d5339c9409",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.world.conflict"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/world/doc.py",
+      "sha256": "af033b44d3377f4ff6fce5bd2a2023da2662c5496842bec16daf52957e48bda4",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.world.doc"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/world/event.py",
+      "sha256": "226eddc8e5b9b10b4f2ea9f2be60be142bda0507577280afa3066b2bbb6bdac6",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.world.event"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/world/ids.py",
+      "sha256": "9aa361f0f449285b3c6566b47bc3420cebf395beb102553b389fe0b50c968cb2",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.world.ids"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/world/predicates.py",
+      "sha256": "e3151b79aa2dd0da162777bc5fc6373802629d3c5f64cf012b3d40f13e44afa2",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.world.predicates"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/world/quality.py",
+      "sha256": "f8ebcd4cf7c2969b87d12176097e18ba09f72c1aea8665d0511003809a926a70",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.world.quality"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/world/trust.py",
+      "sha256": "05c785d7ac4cbe38c88da25b639e2be6fc5d8c22c31b24d41adce92aaffd640d",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.ir.world.trust"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/__init__.py",
+      "sha256": "e0bd86c731ef53a6d4bb9713589aadecf39742282471bc725bac4947f7594fe3",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/agent/__init__.py",
+      "sha256": "18864a8d58145cdef1fb7fb884557bd08cc3a556296ff3e0f84ee44dc7542352",
+      "scopes": [
+        "gp-defining",
+        "optional-minimal",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.agent"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/agent/protocols.py",
+      "sha256": "1b27fb841fa832e5e251b66e8b2d6ce466b84639fc1ab3ee8142cefd0bb6d509",
+      "scopes": [
+        "gp-defining",
+        "optional-minimal",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.agent.protocols"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "sha256": "9021a922919d78d10669847426ae9e6ea590d92ca298db9d8dea084f5af38d5f",
+      "scopes": [
+        "gp-defining",
+        "optional-minimal",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.agent.vector_memory"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/__init__.py",
+      "sha256": "e42f439cadd945ab06ceb5a347de54e0485c0a626fa120d2c22a3ca1788e8854",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.governance"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/report.py",
+      "sha256": "c34ae3258a414248c103c7c103ff8ab2358af8b77bb73af551b049615fb3e880",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.governance.report"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/__init__.py",
+      "sha256": "5c61c468891b681961b791f6d27210dffe754df23a378b8f22d75e0c17abf85b",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/__init__.py",
+      "sha256": "d5ec3c1bdece0f56cd12fa60ce646434d8cf9f859bb48809799615e413306062",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.autotune"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "sha256": "8a945d516a27e55f740ab8eed3f9654e7668139c856c22fa1920f3e56acb5d4f",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.autotune.bayesian_generator"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/dedup.py",
+      "sha256": "7c05548d3539ed98b20da6c11fe033af789e0b75672164654b97c68a28f0f5dc",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.autotune.dedup"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/execution_plan.py",
+      "sha256": "e733c6f99ebbee1c439b861c5b4b84ceed34f15490fade90f831f6402013e3d3",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.autotune.execution_plan"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.autotune.models"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+      "sha256": "f6787e89fb3ae343e4ed822e00db9c91c44d017effc2aff22dda93f639c54b83",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.autotune.pareto"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "sha256": "1339af524b604462021425b9d88f5cbe278f1a8c927827cb3e26fa4f8f0cc6ba",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.autotune.registry"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "sha256": "6b6920b6ca0331d2fc7180bb9a7f6e348cc06ccb50bbfa3bee31d9289b379825",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.autotune.runtime"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "sha256": "f2148ad25320a828605a9345e0d5e1ff91c55aa31ff6fa3cbc458ac2119758ef",
+      "scopes": [
+        "gp-defining",
+        "optional-minimal",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.autotune.warm_start"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/__init__.py",
+      "sha256": "ed880fe654d655f4a4bc849f614f3d09daded7cfef268de99885d35623cfcd37",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.doe"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.doe.analysis"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "sha256": "dbd911c4f805b1b1ee7f90c71c8f1bd4008620be403c907340f322e3296891d6",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.doe.designs"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+      "sha256": "c10fa072989243cd6352aac4db867d34b17b4cbb68fad175571d0ce93df99a6e",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.doe.morris_geometry"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "sha256": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.doe.sampling"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sensitivity_benchmark.py",
+      "sha256": "c4ffd36f8a23a0b6ab8c08832a0f97c018952d6eb65eb5ef21d8bc01ce9c17d6",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.doe.sensitivity_benchmark"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "sha256": "cdf7ffe7bd6e3921749e7aa61624d43fa9e8f831495533bf22441744478cc4ee",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.doe.stress_report"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/uncertainty.py",
+      "sha256": "af3fdab52ebf687adf326134f9f31f407896c7bcf0f26159183acef4db3033b1",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.doe.uncertainty"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/__init__.py",
+      "sha256": "28e4bd443b1a6a34e01d96fc197b5e89df77e5bb1d53b73f23f5857d3ad43ef7",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+      "sha256": "e7a5b21bafddab30277ebe0e8eb54a31c3f7b3bfc207b8d97e14cbdbc31d78d5",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.contracts"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "sha256": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.controller"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.frontier"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.objective"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "sha256": "1d13658009e1b86566239b9c8fa4cfc331dbdfb6928de4a2f1296fc6d251c5d2",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.run_state"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "sha256": "73ad9254535b8238a77c77dca0a40bafeb1c0d1dc2e032e5997406c2d88ddaf2",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.sensitivity_adapter"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sentinels.py",
+      "sha256": "f1a79ba6b428a6f5012a195c3d8c8678951e72ef99acf65026c1e98d0ebc06d0",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.sentinels"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "sha256": "bafb8450178b977e8843d2a3d08a2b9a9ff1bd133c06cd585afc1b89954549ed",
+      "scopes": [
+        "gp-defining",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.service"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+      "sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.stopping"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/__init__.py",
+      "sha256": "04e3208b1b59661d4b7afde8b16e3e2bc6a31f9c9e39af830cc38c80045f5d66",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.strategies"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+      "sha256": "47c4f5453f5615e631e8c1349dc1b78783567e63d53da5d58143853f7d50bce7",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.strategies._deps"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+      "sha256": "2df06c83bfb9bff038345ab96e8a4c02557a7ef485053e168e634ea1ed90a3b6",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.strategies.adapter"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+      "sha256": "c8fd815369b02642bbfed3f3c919ab183df53dbc422d8284f011ff57489465d1",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.strategies.advanced_policy"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "sha256": "b14b9d504d8227f26c488a59227e33cdc8b0cbc192c37d780728e441e74d1f65",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.strategies.base"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "sha256": "26753a5ed92c04c5187c0e122ab106f91a2f57c5f05c0987cffce96b27e40066",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.strategies.bayesian"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/codec.py",
+      "sha256": "e77e76875414ce7ce621b9d33c1b54e1f45488a5adb37252b1cdd8984a698df7",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.strategies.codec"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/errors.py",
+      "sha256": "24a418c05a7e3fcee73dcee3623c966fd6c196ee9fe73694512b44ab7b857f10",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.strategies.errors"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py",
+      "sha256": "6c8e7a5507e0f6f2bb166fc739465d073c3ace660ac0f0c8e08bbf445cd7d56a",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.strategies.grid"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+      "sha256": "e4699f9b1f892a3850406d0ef582bcf8072e19192d040783468d8c33b9c21f8a",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.strategies.multi_objective"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+      "sha256": "a8f684712a1221227a98ea504bcf93adb12c3e68e5b6d7561ba6f3a1114ac954",
+      "scopes": [
+        "optional-minimal",
+        "state-effective"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.strategies.neural"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/random.py",
+      "sha256": "b55c2504169baa23b82c635b480946e34cb3cd60bc046a970efd99df77bd6942",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.strategies.random"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/resource_arbiter.py",
+      "sha256": "684e870d554072f15aef7fae25a39ea166bbab6d10cd1d874b5d268d4e62d91f",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.strategies.resource_arbiter"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+      "sha256": "7d8fb0852af0e96037c97daff1fe77082ffbf1721e09086b04ff7c4201c5386e",
+      "scopes": [
+        "state-effective"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.strategies.rl_wrapper"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/runtime.py",
+      "sha256": "b48723be537cc65c2a2bb83aac8af0981fa0f6d8b782042f9bc9d2291c7ba799",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.strategies.runtime"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+      "sha256": "d34f10e53935ef10265bb798b00b73173ebbb797e97e762f4d912c91bffad6ca",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.strategies.space"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "sha256": "c47c106ff48a3636d9ceb1ad6f067ae5a63836640bc60439405fbdf421350c6a",
+      "scopes": [
+        "gp-defining",
+        "optional-minimal",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.strategies.transfer"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "sha256": "d80a22c6282d2a172a0f51e6590e8b3ec786fc8e1ecb47db3bbe8583ab32197c",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.methods.search.strategies.types"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/__init__.py",
+      "sha256": "40beb0a19843e28995a4f3deaa30aadcd6dc5ac706fcca998e833d0ef1043457",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.orchestration"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/__init__.py",
+      "sha256": "79ffb9a9e14a06b62aaa19378b7279930247b7b41974057ac6571bc1d8e28df2",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.orchestration.engine"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/error_semantics.py",
+      "sha256": "b0ef31d6e3bbf78e971ce17c3857fdc279729ec0e7f304247c6d871a6c9079d0",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "polisyos.scientist.orchestration.engine.error_semantics"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/_helpers/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "_helpers"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/_helpers/artifacts.py",
+      "sha256": "0c50d082c6861b08aa8d8d0c9f0753bac567204b6bb7fd69457be6700ec7fecf",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "_helpers.artifacts"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/_helpers/observability.py",
+      "sha256": "612a617513e52f310e81fc48dc930c0c6bb95ca091ab66c81779075618a48ff8",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "_helpers.observability"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/_helpers/search_strategies.py",
+      "sha256": "8d443fc9e91e643e016461548aca52292a5d44a9fd96fe707ef67a5b3f553687",
+      "scopes": [
+        "effective-public4",
+        "gp-warm-dedup1",
+        "optional-minimal",
+        "state-effective"
+      ],
+      "modules": [
+        "_helpers.search_strategies"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/test_configured_transfer_controller.py",
+      "sha256": "2dcac359161fd10bccbb14091890268ba9c511f188909680cefbeaeb099f2030",
+      "scopes": [
+        "gp-defining"
+      ],
+      "modules": [
+        "test_configured_transfer_controller"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/conftest.py",
+      "sha256": "9d711f8d627e1aec1d9baa959b5cac44971a4383aa44a449b348a085495d6fcd",
+      "scopes": [
+        "effective-public4",
+        "gp-defining",
+        "gp-warm-dedup1",
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal",
+        "public-history2",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "conftest"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+      "sha256": "da7b6ac631867a0eba8ddc66e1c27837e37a98997f2adec38d26c74b1572c931",
+      "scopes": [
+        "effective-public4",
+        "public-history2"
+      ],
+      "modules": [
+        "test_bayesian_numerical_oracle"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+      "sha256": "dd9e784ae1b5c1b497cb5c6cd279f826ba3dd3972b5746bd1b51c0487c632cd2",
+      "scopes": [
+        "transfer-public3"
+      ],
+      "modules": [
+        "test_transfer_workflow"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/_continuation_fixture.py",
+      "sha256": "a9b963971118aef0d65974c6c83370c10e7fac682ac3c6611dcdb6e7289a55e6",
+      "scopes": [
+        "gp-defining"
+      ],
+      "modules": [
+        "tests.unit.scientist.methods.search.strategies._continuation_fixture"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_effective_actions.py",
+      "sha256": "c98484f2d9bf920d8ed8e185bccfb96f97bf9fc658267c63a4b473be2c2c0ded",
+      "scopes": [
+        "state-effective"
+      ],
+      "modules": [
+        "test_effective_actions"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "sha256": "d59ba92a2067d3ee36e22ef35d43cb41b5ce7586f51236fa230ae99d31a5be34",
+      "scopes": [
+        "gp-defining"
+      ],
+      "modules": [
+        "test_gp_analytic_continuation"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+      "sha256": "437776962e7cc56d14340f6b277edb8ca7195e854a5400fbe3261f94ddb9ee5d",
+      "scopes": [
+        "gp-defining"
+      ],
+      "modules": [
+        "test_gp_resume_witness"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_warm_admission_reports.py",
+      "sha256": "b3a349a1b9edab1cd55608c57587d1ef0a98654ea017286753ec62c19bed0b77",
+      "scopes": [
+        "gp-defining"
+      ],
+      "modules": [
+        "test_gp_warm_admission_reports"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py",
+      "sha256": "09da631e0ae044d02eea10335abb1f3aed64348d95a5e3d5977185a5b921a7bf",
+      "scopes": [
+        "mo-refusal19",
+        "mo-supported",
+        "optional-minimal"
+      ],
+      "modules": [
+        "test_mo_checkpoint"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+      "sha256": "45b26bb168cc01dafcda969e928fe303c0d70e280c1d3114fb2af245c57c4f20",
+      "scopes": [
+        "state-effective"
+      ],
+      "modules": [
+        "test_rl_checkpoint_numerical_oracle"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_state_inventory.py",
+      "sha256": "dd56117e838ac0e713f89e490788e5868613272da7611e7fd70701fad76b4d38",
+      "scopes": [
+        "state-effective"
+      ],
+      "modules": [
+        "test_state_inventory"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+      "sha256": "28240feb1d45a369396fc503acd9b8ec5e723225c0527d253563fbc407c62884",
+      "scopes": [
+        "gp-defining",
+        "optional-minimal",
+        "state-effective",
+        "transfer-public3"
+      ],
+      "modules": [
+        "tests.unit.scientist.methods.search.strategies.test_transfer"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/__init__.py",
+      "sha256": "362ba47db9b2029082a388db18e50c5dbd39c17f02c71f7daf637a465fb97008",
+      "scopes": [
+        "effective-public4",
+        "gp-warm-dedup1",
+        "optional-minimal",
+        "state-effective"
+      ],
+      "modules": [
+        "search"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/conftest.py",
+      "sha256": "6dc9b5da7ccd8b39349aeea13ab21048c2c1f40e3c7485269b767cc014b3e0a4",
+      "scopes": [
+        "effective-public4",
+        "gp-warm-dedup1",
+        "optional-minimal",
+        "state-effective"
+      ],
+      "modules": [
+        "search.conftest"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/strategies/__init__.py",
+      "sha256": "354cee235748ee5ae01e9b7c618e1da20d12a0d9b365e30d1540f86fe9948521",
+      "scopes": [
+        "effective-public4",
+        "gp-warm-dedup1",
+        "optional-minimal",
+        "state-effective"
+      ],
+      "modules": [
+        "search.strategies"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/strategies/conftest.py",
+      "sha256": "2fd12a2db914514cf7297c2e9a458463a784115e4858a9cc878a5bbeb59c7420",
+      "scopes": [
+        "effective-public4",
+        "gp-warm-dedup1",
+        "optional-minimal",
+        "state-effective"
+      ],
+      "modules": [
+        "search.strategies.conftest"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+      "sha256": "ac13fcd67d7f2c38f3da06f803f413a06d849ddf6d41138d3ad18d449b154976",
+      "scopes": [
+        "effective-public4",
+        "gp-warm-dedup1",
+        "optional-minimal"
+      ],
+      "modules": [
+        "search.strategies.test_bayesian"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+      "sha256": "7b1f6526b29b89b62226ffbbf7e9f50b202637572bebce0980c6fe8779c831a5",
+      "scopes": [
+        "state-effective"
+      ],
+      "modules": [
+        "search.strategies.test_neural_checkpoint"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_space_codec.py",
+      "sha256": "b09216e4e46354a227ab3ef0dd09a734468213c9666e695425e02b59333a6f6d",
+      "scopes": [
+        "state-effective"
+      ],
+      "modules": [
+        "search.strategies.test_space_codec"
+      ]
+    }
+  ],
+  "whole_tree_identity": false,
+  "unobserved_paths_not_inferred": true
+}

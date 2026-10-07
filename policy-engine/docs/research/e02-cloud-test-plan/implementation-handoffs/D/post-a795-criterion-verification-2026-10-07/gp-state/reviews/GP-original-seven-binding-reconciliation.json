@@ -1,0 +1,65 @@
+[
+  {
+    "id": "B112@OPT-02",
+    "original_text_binding_fragment_match": true,
+    "card_source_blob_hash_match": true,
+    "clauses": 3,
+    "proposal": "closed",
+    "formal_closed": false,
+    "residual": null
+  },
+  {
+    "id": "B113@OPT-02",
+    "original_text_binding_fragment_match": true,
+    "card_source_blob_hash_match": true,
+    "clauses": 2,
+    "proposal": "closed",
+    "formal_closed": false,
+    "residual": null
+  },
+  {
+    "id": "B114@OPT-03",
+    "original_text_binding_fragment_match": true,
+    "card_source_blob_hash_match": true,
+    "clauses": 4,
+    "proposal": "closed",
+    "formal_closed": false,
+    "residual": null
+  },
+  {
+    "id": "B115@OPT-03",
+    "original_text_binding_fragment_match": true,
+    "card_source_blob_hash_match": true,
+    "clauses": 4,
+    "proposal": "closed",
+    "formal_closed": false,
+    "residual": null
+  },
+  {
+    "id": "B125@CTL-02",
+    "original_text_binding_fragment_match": true,
+    "card_source_blob_hash_match": true,
+    "clauses": 4,
+    "proposal": "closed",
+    "formal_closed": false,
+    "residual": null
+  },
+  {
+    "id": "B126@CTL-02",
+    "original_text_binding_fragment_match": true,
+    "card_source_blob_hash_match": true,
+    "clauses": 1,
+    "proposal": "closed",
+    "formal_closed": false,
+    "residual": null
+  },
+  {
+    "id": "B127@OPT-02",
+    "original_text_binding_fragment_match": true,
+    "card_source_blob_hash_match": true,
+    "clauses": 4,
+    "proposal": "closed",
+    "formal_closed": false,
+    "residual": null
+  }
+]

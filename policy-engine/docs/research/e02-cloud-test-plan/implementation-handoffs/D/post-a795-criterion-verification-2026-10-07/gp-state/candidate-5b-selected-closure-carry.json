@@ -1,0 +1,95 @@
+{
+  "schema": "D.E02.actual-CBC-to-5b-selected-seven-criterion-carry.v2",
+  "author": "/root/gp_oct07",
+  "actual_executed_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "actual_executed_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+  "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "candidate": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+  "candidate_tree": "5738498b09aadca51e0bb73fa6d104e3354dc603",
+  "current_execution_on_candidate": false,
+  "qualification_kind": "unchanged selected runtime/test source and observed module closure; named unentered documentation/test delta, not new execution",
+  "complete_changed_path_denominator": [
+    {
+      "name_status": "M\tpolicy-engine/release-fragments/unreleased/2026-10-07-funnel-cost-input-origins.toml",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-funnel-cost-input-origins.toml",
+      "executed_CBC_sha256": "5d0ff9c1049f700d66ff8badea385892c998ee8f74e378a0e643da9a7dfb3ead",
+      "candidate_5b_sha256": "e4dba676f1a8f01066cab78c712a12ca6cdf69190c6215a9f7d55be8d704d77d",
+      "bytes": 1981,
+      "classification": "release metadata; not selected runtime configuration"
+    },
+    {
+      "name_status": "M\tpolicy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+      "executed_CBC_sha256": "505df09dc7539a8514cf2bc9945c0d43e602102e11733e6559991cb877d50136",
+      "candidate_5b_sha256": "bf767d1e72cd7beea9d2273c5d8f9084bf85ab4b7f652d119e44487a34278649",
+      "bytes": 6392,
+      "classification": "unentered documentation"
+    },
+    {
+      "name_status": "A\tpolicy-engine/tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py",
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py",
+      "executed_CBC_sha256": null,
+      "candidate_5b_sha256": "4fab42e2dbf6ada128f738aef4f1eb59ea39f83606dd2b3c06d9397bd4f6c844",
+      "bytes": 11418,
+      "classification": "new unentered test"
+    },
+    {
+      "name_status": "A\tpolicy-engine/tests/unit/scientist/methods/search/strategies/test_transfer_legacy_refusal.py",
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer_legacy_refusal.py",
+      "executed_CBC_sha256": null,
+      "candidate_5b_sha256": "35bd9c7c4361ef55ae36c8e3c0f270c081b55061e78e14e79ddf5c2e658108ab",
+      "bytes": 4889,
+      "classification": "new unentered test"
+    }
+  ],
+  "current_declared_source_directory_catalog_count": 6863,
+  "executed_declared_source_directory_catalog_count": 6861,
+  "new_declared_catalog_paths": [
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer_legacy_refusal.py"
+  ],
+  "changed_old_declared_catalog_paths": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+      "executed_CBC_sha256": "505df09dc7539a8514cf2bc9945c0d43e602102e11733e6559991cb877d50136",
+      "candidate_5b_sha256": "bf767d1e72cd7beea9d2273c5d8f9084bf85ab4b7f652d119e44487a34278649",
+      "classification": "unentered documentation inside broad source-directory catalog"
+    }
+  ],
+  "missing_old_declared_catalog_paths": [],
+  "complete_318_observed_repository_paths_unchanged": 318,
+  "changed_path_overlap_with_observed_repository_modules": [],
+  "source_directory_catalog_correction": "The captured6861 broad src/tests/tools catalog includes Markdown docs. It is not exclusively executablecode. Current5b6863 adds two testfiles and changes one existing unreadREADME; no falsewhole6861identity claim. Captured wording executable-input catalog means the broad declared directorydenominator, not proofeveryfile executed.",
+  "unentered_markdown_basis": "The changed FUN README is documentation outside any selected target; no changedloadedmodule/test/producer/oracle/config. This is explicit static scopedclassification, not syscall/nonmodulefileaccess instrumentation or whole-runtime trace.",
+  "external_backend_profile": "Exact immutable observed external hashes/backend profile belong to CBC executions; no new environment or output claim from Git delta.",
+  "original_ids": [
+    "B112",
+    "B113",
+    "B114",
+    "B115",
+    "B125",
+    "B126",
+    "B127"
+  ],
+  "original_acceptance_binding_unchanged": true,
+  "current_scopes_kept_at_CBC": [
+    "gp-defining",
+    "state-effective",
+    "mo-supported",
+    "effective-public4",
+    "transfer-public3",
+    "public-history2",
+    "mo-refusal19",
+    "gp-warm-dedup1",
+    "optional-minimal"
+  ],
+  "separate_B127_service_receipt": "Actuala795affected22 remains executed ata795; selectedsource/module unchanged throughCBC/5b, notnew22PASS.",
+  "whole_tree_or_catalog_identity": false,
+  "P37_basis": "recomputed",
+  "independent_review": "pending",
+  "P41": "not_established; no inherited-red waiver",
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "scope_boundary": "New unenteredtests and FUN docs/release metadata change the declared catalog. All oldselectedsource/test/producer/oracle/checkpoint/classifier unchanged; no actualproperty rerun justified.",
+  "source_write": false
+}

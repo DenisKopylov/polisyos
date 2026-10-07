@@ -1,0 +1,30 @@
+{
+  "schema": "e02.D.report-only-appendix-manifest.v1",
+  "canonical_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/math/final-d23-addendum",
+  "files": [
+    {
+      "path": "all8-CBC46-via5b-to-d23-scoped-qualification.json",
+      "bytes": 4906,
+      "sha256": "2c15834bbdf91930a9698c3f93b7f2b3dfc3f484df21102eb674d77aae4bc2ee"
+    },
+    {
+      "path": "final-original8-decisions.json",
+      "bytes": 53968,
+      "sha256": "8b2af289798224721ee697dbbdc55bf940df24fadbb3e389dee29dd9b4c6c099"
+    },
+    {
+      "path": "root-Math8-current-CBC-independent-review.json",
+      "bytes": 31701,
+      "sha256": "fa11e631b5071b840f639952e0bb369dbbe437b826d9686d033833b4dd39e0b6"
+    }
+  ],
+  "base_essential_manifest": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/publication-essential-CBC46.v2/output-manifest.json",
+    "bytes": 2220,
+    "sha256": "aeca3dd12fa15adaf8c226645cabf36a22ffd821d15db7503512c61467699b0d"
+  },
+  "no_source_copies": true,
+  "no_new_runtime": true,
+  "original8_acceptance_preserved": true,
+  "formal_G_acceptance": false
+}

@@ -1,0 +1,15 @@
+{
+  "schema": "D.E02.additional-numerical-review.v1",
+  "reading_rule": "Optional independent arithmetic adds evidence to original executedCBC MO7; it does not rerun backend, reattribute historical outputs or modify the sealed128 GP packet. Primary full receipt review remains Transferd0c0; formalclosure/G acceptance unchangedfalse.",
+  "original_packet_manifest_sha256": "e2fda27ce9cf951fceeac54b0b35da16eb6edd9646711e689d0b6c92e99f8672",
+  "additional_review": {
+    "path": "MO-current-CBC46-independent-saved-dense-oracle-review.json",
+    "sha256": "ce0dc397b4c15fa9e6c23b539a7747f2b45bd4b19c52374927477e9fd49518b7",
+    "bytes": 13353,
+    "reviewer": "math_oct07"
+  },
+  "scope": "saved8physical MO trainingrows and existing2components; stdlib restrictedarchive decoding + NumPy Cholesky and independentdense solve in original units from fittedNormalize/Standardize; no Torch/model/fit/model.posterior import or replay",
+  "current_source_qualification": "d23 only selected-closure qualification; actualMO7 execution remains CBC46",
+  "formal_closed": false,
+  "accepted_in_G": false
+}

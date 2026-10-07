@@ -1,0 +1,128 @@
+{
+  "schema": "e02.D.current-selected-assertion-test-only-carry.v1",
+  "prior_qualified_source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+  "current_qualified_source": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+  "current_tree": "788863c0431841308aef451fcd94df2ba74d1dc6",
+  "full_incremental_git_delta": [
+    "M\tpolicy-engine/tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py"
+  ],
+  "production_python_delta": [],
+  "actual_current_scope_checks": [
+    {
+      "scope": "controller-current",
+      "actual_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "original_check_result": {
+        "PASS": 25,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "tracked_reached_path_denominator": 1156,
+      "unchanged_at_d23": true,
+      "delta_overlap": []
+    },
+    {
+      "scope": "champion-current",
+      "actual_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "original_check_result": {
+        "PASS": 21,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "tracked_reached_path_denominator": 264,
+      "unchanged_at_d23": true,
+      "delta_overlap": []
+    }
+  ],
+  "historical_financial_selected_call_scope": {
+    "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+    "source_call_qualification": "CBC46/5b original source/caller qualification retained; all17 declared selected files unchanged atd23",
+    "unchanged_selected_bindings": [
+      {
+        "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py",
+        "blob": "334b5615480c5b6f9a84dcb2436344a9e97eaffe"
+      },
+      {
+        "path": "policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py",
+        "blob": "56f6349dc0482df07498425e663e9947cd753b76"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget.py",
+        "blob": "1a2fbb73bb87d60674d168791a214f882e79347f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "blob": "edc20aeef614fa3486868b04fc4be03ace992893"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "blob": "596731c164fc1ad264b4f157f74b58cf73f7c513"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "blob": "7105b2b3992f140570a1eee5d17b6bd67b3d3022"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "blob": "0dc65ee8cbe6477c50deb965d4d7cc12b3f6c5a2"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+        "blob": "311b66e54dea6c49c4a295121f3ece57aa4a30b9"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/response.py",
+        "blob": "7172b31d24337531194d3fca2ec17fc4419901b4"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+        "blob": "a21bca5b1280069d6852bad0b5437d9783925886"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+        "blob": "df786193b548215d84b4e7b1707c73272416d618"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "blob": "e4aece7bace8cc969a0c896727c09cd80cef25bf"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+        "blob": "f5dd49480dae308e341edfac8bd01cc0c578d5dd"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+        "blob": "9f225b394368fca885a09135209fdc857e0c1490"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "blob": "fe536ef0107539689c28a5d73d387eec1936edc9"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+        "blob": "c692a9aa352fe145d26fc9cc34975c97e8d28aef"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/workflows/engine_simple.py",
+        "blob": "516cde03077fc86e352adeda899ae51a16634d41"
+      }
+    ],
+    "complete_current_import_closure": "not_established",
+    "new_cache18_raw32_execution": false
+  },
+  "prior_full_scoped_qualification": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/own11-current-CBC46-to5b-qualified-carry.json",
+    "sha256": "f93b9cc9090f34c389b7fb365db6daeb2626c82b8a4a3b7bd16264a5969a29d2"
+  },
+  "canonical_ready_packet": {
+    "archive": "deciding-essential.tar.gz",
+    "sha256": "5b6cf92deec2f10d5591ef9d5960df4a26753ce6e544ab9f3022a08826c045d7",
+    "HANDOFF_inside_archive": "HANDOFF.json",
+    "original11_rows_inside_archive": "own11-original-criteria-current-matrix.v3.json"
+  },
+  "scope": "All11 original ownoccurrence rows preserve exact executed/carry source and consumer relation. NewFUNtest fixture-only correction is absent from original reached profiles. No original/current test result is relabeled as newd23 execution, no wholeinputcatalog/candidatePASS claimed.",
+  "G_formal_new_closures": 0,
+  "D_source_admitted_by_G": false,
+  "P41": "not_established/no inherited-red claim"
+}

@@ -1,0 +1,180 @@
+{
+  "actual_execution_candidate": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "assessed_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "qualification": "Historical c0 numerical154 plus disjoint MO27 remain old execution, bounded unchanged core/assertions only; current changed imports/consumers are separate planned replay. B108 law remains not_established.",
+  "bindings": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+      "recorded_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "recorded_sha256": "f6787e89fb3ae343e4ed822e00db9c91c44d017effc2aff22dda93f639c54b83",
+      "current_sha256": "f6787e89fb3ae343e4ed822e00db9c91c44d017effc2aff22dda93f639c54b83",
+      "recorded_binding_valid": true,
+      "exact_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "recorded_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "recorded_sha256": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+      "current_sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+      "recorded_binding_valid": true,
+      "exact_bytes_equal": false,
+      "changed_top_level_AST_nodes": [
+        "policy_candidate_hash"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+      "recorded_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "recorded_sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd",
+      "current_sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd",
+      "recorded_binding_valid": true,
+      "exact_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+      "recorded_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "recorded_sha256": "e4699f9b1f892a3850406d0ef582bcf8072e19192d040783468d8c33b9c21f8a",
+      "current_sha256": "e4699f9b1f892a3850406d0ef582bcf8072e19192d040783468d8c33b9c21f8a",
+      "recorded_binding_valid": true,
+      "exact_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+      "recorded_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "recorded_sha256": "6e7222137b4b44b7a71dd2de7d0300f0fee22d05f41df556b2f84dc84ea73598",
+      "current_sha256": "6e7222137b4b44b7a71dd2de7d0300f0fee22d05f41df556b2f84dc84ea73598",
+      "recorded_binding_valid": true,
+      "exact_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_axis_permutation_consumers.py",
+      "recorded_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "recorded_sha256": "c4f7790d3ecd6dddc2d23197250fb06acd0cd21a8c5887e0ca34d62590b5e990",
+      "current_sha256": "c4f7790d3ecd6dddc2d23197250fb06acd0cd21a8c5887e0ca34d62590b5e990",
+      "recorded_binding_valid": true,
+      "exact_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_current_quantity_consumers.py",
+      "recorded_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "recorded_sha256": "c331f05519c4590c96080d6d1491388ca261b1096dedf0100712da1b0c097939",
+      "current_sha256": "c331f05519c4590c96080d6d1491388ca261b1096dedf0100712da1b0c097939",
+      "recorded_binding_valid": true,
+      "exact_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+      "recorded_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "old_sha256": "f9096dad70b07b8eae9a976e7a65010c592bc2352ad1ded425f47f5b534d1f25",
+      "current_sha256": "f9096dad70b07b8eae9a976e7a65010c592bc2352ad1ded425f47f5b534d1f25",
+      "exact_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_registry_quantity_projection.py",
+      "recorded_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "old_sha256": "500342e870818200404d2322cf266877631fd4303798fe364104833ae94550e6",
+      "current_sha256": "500342e870818200404d2322cf266877631fd4303798fe364104833ae94550e6",
+      "exact_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_frontier_quantity_readback.py",
+      "recorded_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "old_sha256": "fba874ac95a52e961f5d51c62de468e94e05d77700137491fc2143b4202d9071",
+      "current_sha256": "fba874ac95a52e961f5d51c62de468e94e05d77700137491fc2143b4202d9071",
+      "exact_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+      "recorded_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "old_sha256": "125812f64a5fc6c6a679969f8117819792c17a98e1c7030a815e15e346cea4b8",
+      "current_sha256": "125812f64a5fc6c6a679969f8117819792c17a98e1c7030a815e15e346cea4b8",
+      "exact_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "recorded_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "old_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+      "current_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+      "exact_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py",
+      "recorded_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "old_sha256": "89b7fe53ee40da9fec92528278772267944edb250d923d45018dfb33846bf206",
+      "current_sha256": "89b7fe53ee40da9fec92528278772267944edb250d923d45018dfb33846bf206",
+      "exact_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+      "recorded_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "old_sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee",
+      "current_sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee",
+      "exact_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+      "recorded_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "old_sha256": "5298242cd9b3fc4a80adb07c9b78c16063c1bd00b9918088c7130848cc2dd907",
+      "current_sha256": "5298242cd9b3fc4a80adb07c9b78c16063c1bd00b9918088c7130848cc2dd907",
+      "exact_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+      "recorded_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "old_sha256": "bfe8ee7a6e0be2f2eaa60f976c611dc4f32ccb8d64561bb1307737b8afa04a61",
+      "current_sha256": "bfe8ee7a6e0be2f2eaa60f976c611dc4f32ccb8d64561bb1307737b8afa04a61",
+      "exact_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+      "recorded_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "old_sha256": "09d679aa22cc434e60ea054c1f84ad2c2b607e296a90885054d59ad2de31aaff",
+      "current_sha256": "09d679aa22cc434e60ea054c1f84ad2c2b607e296a90885054d59ad2de31aaff",
+      "exact_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_stress_scenario_evidence.py",
+      "recorded_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "old_sha256": "2305ffaecac2613846308cd03fcd618be22519d1289ef5fe42e155595dd13ca0",
+      "current_sha256": "2305ffaecac2613846308cd03fcd618be22519d1289ef5fe42e155595dd13ca0",
+      "exact_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_adversarial_streaming.py",
+      "recorded_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "old_sha256": "0227f239fd504924a2591bdbe391ddc1bb2f62d516d1d0e3221e6bd614ccadb5",
+      "current_sha256": "0227f239fd504924a2591bdbe391ddc1bb2f62d516d1d0e3221e6bd614ccadb5",
+      "exact_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "recorded_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "old_sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1",
+      "current_sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1",
+      "exact_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "recorded_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "old_sha256": "cdf7ffe7bd6e3921749e7aa61624d43fa9e8f831495533bf22441744478cc4ee",
+      "current_sha256": "cdf7ffe7bd6e3921749e7aa61624d43fa9e8f831495533bf22441744478cc4ee",
+      "exact_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "recorded_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "old_sha256": "19cf96ccdd90146d597c27e776b4bec34bb2999c588ac048d1ba895bcbdd261e",
+      "current_sha256": "19cf96ccdd90146d597c27e776b4bec34bb2999c588ac048d1ba895bcbdd261e",
+      "exact_bytes_equal": true
+    }
+  ],
+  "assessed_to_execution_product_test_delta": [],
+  "derivation": {
+    "original_complete_qualification": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/prior-receipt-source-qualification.json",
+      "bytes": 378584,
+      "sha256": "d7807b540064216d5f7c989345c110e840a50375a8f845b8584937c0c60c33bf"
+    },
+    "omitted_field": "full_delta_c0_to_execution only; full Git diff is independently available at pinned refs, no core/source bindings removed."
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "P41": "not_established; no slice-base inherited-red claim",
+  "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "assessed_product_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "backend": {
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "hnswlib": "0.8.0",
+    "numpy": "2.3.5",
+    "pytest": "9.0.2",
+    "scipy": "1.16.3",
+    "torch": "2.10.0"
+  },
+  "complete_declared_executable_inputs": 6861,
+  "deciding_sha256": {
+    "after.json": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+    "assessed-source-equivalence.json": "cfb8b0b7e836a46621ec7ab719b19ca8bbc3264f0a6bb92a7c2fe5bfc490c28a",
+    "before.json": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+    "command.json": "104e64862a171f3c642b82e803c8148ea638ffa4d336ab970c61357f16469a17",
+    "events.jsonl": "08600bcca349ec7d2981dfa1b78f3f3fd6246c14e20e73979989c215fa8c8dab",
+    "junit.xml": "1a10a93eb63dcdf3c710b58a70f7ac2813913f9d30e89d705ea5fd5e15287adc",
+    "origins.json": "7238d8135c2b385e5caa6259c573e642bd76dff7b9e4a36fb3dbfb616906537a"
+  },
+  "elapsed_seconds": 18.046588110009907,
+  "exitcode": 0,
+  "mode": "native",
+  "outer_complete_stdout_stderr": "Captured by caller; hash only after process ends",
+  "property": "Actual supported HNSW cosine/numeric boundary, immutable generation one-pointer old/new readers, real C++ load failure, native capacity/add rollback, qualified ref tamper, ordinary1002 donor discovery snapshots with exact selected history and freshchild26reads; actual persisted intake0empty/2rejected/1unavailable/2accepted.",
+  "resource_posix": {
+    "children_maxrss_kib": 899352,
+    "children_system_seconds": 0.5257459999999999,
+    "children_user_seconds": 6.317705,
+    "self_maxrss_kib": 877872,
+    "self_system_seconds": 1.675282,
+    "self_user_seconds": 10.086853000000001
+  },
+  "source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "source_and_executable_inputs_unchanged": true,
+  "tree": "3e05fcf727bf660a5570225b9600ca410a7082be"
+}

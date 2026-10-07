@@ -1,0 +1,8 @@
+{
+  "legacy6": {
+    "selectors": [
+      "tests/unit/scientist/methods/search/strategies/test_transfer_legacy_refusal.py"
+    ],
+    "property": "Actual supported-v2 positive then persisted schema1/absent and real candidate placeholder refusal through fresh native/CAS WarmStartBridge; no numeric promotion; all min/max"
+  }
+}

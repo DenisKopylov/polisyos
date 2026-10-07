@@ -1,0 +1,74 @@
+{
+  "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "assessed_product_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "backend": {
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "hnswlib": "0.8.0",
+    "numpy": "2.3.5",
+    "pytest": "9.0.2",
+    "scipy": "1.16.3",
+    "torch": "2.10.0"
+  },
+  "compute_limits_introduced": false,
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine",
+    "TMPDIR": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/legacy-run5b"
+  },
+  "executable": "/workspace/e02-D-locked-env/bin/python",
+  "harness": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/legacy-run5b/run_legacy6.py",
+  "harness_sha256": "dcec832c7a2319d8209e88c39204f78e8efc3f5e7192249a8e4c6e87846bd4c2",
+  "inherited_numeric_thread_environment_no_caps": {
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null
+  },
+  "plan_file": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/legacy-run5b/scope-plan.json",
+  "plan_sha256": "e4f8909b972d312a17ea9bcffed97ec10f04e3cea37ef390e73ad104f224070f",
+  "pytest_argv": [
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "-o",
+    "junit_family=xunit1",
+    "-o",
+    "junit_logging=all",
+    "-o",
+    "junit_log_passing_tests=true",
+    "-q",
+    "-s",
+    "-ra",
+    "--basetemp=/dev/shm/e02-D-post-a795-88ghpj7t/transfer/legacy-run5b/actual-legacy6/basetemp",
+    "--junitxml=/dev/shm/e02-D-post-a795-88ghpj7t/transfer/legacy-run5b/actual-legacy6/junit.xml",
+    "tests/unit/scientist/methods/search/strategies/test_transfer_legacy_refusal.py"
+  ],
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "scope_plan": {
+    "property": "Actual supported-v2 positive then persisted schema1/absent and real candidate placeholder refusal through fresh native/CAS WarmStartBridge; no numeric promotion; all min/max",
+    "selectors": [
+      "tests/unit/scientist/methods/search/strategies/test_transfer_legacy_refusal.py"
+    ]
+  },
+  "seed_inputs": "Actual original measured_history helper: two controlled donor observations; min/max \u00d7 schema1/absent/placeholder; native deterministic test seed; no tenant/scientific rights",
+  "source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+  "sys_path": [
+    "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/legacy-run5b",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python314.zip",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/lib-dynload",
+    "/workspace/e02-D-locked-env/lib/python3.14/site-packages"
+  ],
+  "tree": "5738498b09aadca51e0bb73fa6d104e3354dc603",
+  "wrapper_argv": [
+    "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/legacy-run5b/run_legacy6.py",
+    "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+    "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/legacy-run5b/actual-legacy6",
+    "legacy6"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "transfer-public3": {
+    "argv": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "/dev/shm/e02-D-post-a795-88ghpj7t/gp/run_current_owner_transfer.py",
+      "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/transfer-public3",
+      "transfer-public3"
+    ],
+    "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+    "env_overrides": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine",
+      "TMPDIR": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave"
+    },
+    "stdout": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/transfer-public3.stdout.txt",
+    "stderr": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/transfer-public3.stderr.txt"
+  }
+}

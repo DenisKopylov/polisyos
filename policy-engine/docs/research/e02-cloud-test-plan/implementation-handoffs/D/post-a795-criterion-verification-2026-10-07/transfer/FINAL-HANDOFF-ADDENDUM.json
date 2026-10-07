@@ -1,0 +1,18 @@
+{
+  "schema": "D.E02.transfer-final-additive-seal.v1",
+  "initial_manifest_sha256": "5f9610cc07b7818f2a666085b4647065cda77a5181809b7f2dc3b2ed50bd8fcc",
+  "all_initial57_member_bytes_preserved": true,
+  "actual_current_candidate": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+  "actual_current_tree": "788863c0431841308aef451fcd94df2ba74d1dc6",
+  "source_carry": "qualification/d23-selected-source-carry.json",
+  "scope": "Complete original10 criteria: eightboundedengineeringclosedproposals, twoheld realownerpositives;no formalclosure/Gacceptance; actualjobs CBC and5b remainatpins",
+  "authoritative_independent_reviews": [
+    "reviews/TRN-original10-current-CBC-independent-runtime-review.json",
+    "reviews/TRN-discovery-denominator-terminology-addendum.json",
+    "reviews/TRN-legacy6-current5b-independent-runtime-review.json"
+  ],
+  "receiving_GP_edge": "Separately executedcurrentCBC actualconfiguredcontroller8+Runner8/7 receiving actualSingleTaskGP corroborated by independent GP d0c review +numeric/CAS reconciliation. Root publishes matching GPpacket; thistransferpack doesnotduplicate GPstreams/fullstates and notclaimallGPinputsGitavailable locally.",
+  "B131_B137": "Current actual owner-issued tenant/split adapter or authorizednewgrounds/version evidence refs remainmissingnot_established; correct inputkeys in ownerpacket. No scientificrights fixtureappointed.",
+  "source_catalog": "6861 broadsource/tests/tools includesMarkdown atCBC,6863at5b/d23 two newtests andchangedFUNREADME+fragment explicit. Main305scope sourcehashes matchcurrentd23; notwholecatalog-zero or nonmodulefile-access claim.",
+  "created_utc": "2026-10-07T18:28:51.517094+00:00"
+}

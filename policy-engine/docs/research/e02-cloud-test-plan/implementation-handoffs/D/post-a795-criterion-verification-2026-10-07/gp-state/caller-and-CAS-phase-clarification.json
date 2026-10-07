@@ -1,0 +1,43 @@
+{
+  "schema": "D.E02.current-native-publication-caller-boundary-clarification.v1",
+  "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "preserved_original_draft_manifest_sha256": "39eeaab40577eca546afa3834f9f790e0bb0cbaad5d9e7c56e0ed5828e428fa7",
+  "actual_output_and_command_bytes_unchanged": true,
+  "normative_final_reading": "FINAL-HANDOFF.json and original-seven-criterion-matrix.final.json supersede draft publication narrative only. Original captured runtime command/result/scopeplan strings are immutable; shorthand stronger than actualtest is explicitly withdrawn here.",
+  "current_public_runner3": {
+    "selector": "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+    "test_blob_sha256": "dd9e784ae1b5c1b497cb5c6cd279f826ba3dd3972b5746bd1b51c0487c632cd2",
+    "actual_consumer": "SearchLoopRunner.run → ordinary native service → configured Bayesian generator → realCAS8/7 SingleTaskGP fit; standalone optimizer StrategyState artifact → fresh receiving optimizer.set_state → same posterior on2 measuredpoints (consistency only) → same-ref tamper restore/nextask refusal.",
+    "not_executed_in_this_scope": [
+      "Public NativeSearchService.resume",
+      "BayesianCandidateGenerator wrapperv3.set_state",
+      "Resumed next-proposal equality before tamper"
+    ],
+    "independent_oracle": "Current33 NumPy10/11 and currentMO7 NumPy2x8 are separate actual scopes; Runner3 same-model posterior agreement is consistency, not independentoracle."
+  },
+  "current_public_history2": {
+    "actual_consumer": "Mixed dict/SearchIteration min/max → public BayesianCandidateGenerator.generate → wrapperv3 checkpoint inrealCAS → freshgenerator.set_state → publicnextgenerate agrees with uninterrupted and performs0MLL.",
+    "selector": "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_history_formats_reach_public_generate_and_fresh_cas_next_proposal"
+  },
+  "cas_capture_boundary": "inputs/actual-CAS-producer-inputs.json contains AFTER-test snapshots, not preflight/before-fit snapshot bytes. Paired samefullref valid original content from unchanged ControllerCAS8 retained in samepool; adversarial posttest altered bodies explicitly flag retained_byte_identity=false.",
+  "posttest_intentional_tamper_records": [
+    {
+      "case": "public-runner8",
+      "exact_ref": "sha256:64028940779262aff06a434ae710b25d89de2e6c2d965a3bdca359388677288f",
+      "posttest_blob_sha256": "d71abaf37f03439241b0ca6e2c590309de3365e39d094dc6c9c247cb601cc372",
+      "valid_original_content_pool_key": "64028940779262aff06a434ae710b25d89de2e6c2d965a3bdca359388677288f",
+      "posttest_phase": "Intentional same-ref byte mutation occurs after real fit and positive fresh native optimizer restore. Then current restore and original optimizer next ask both refuse."
+    },
+    {
+      "case": "public-runner7",
+      "exact_ref": "sha256:64028940779262aff06a434ae710b25d89de2e6c2d965a3bdca359388677288f",
+      "posttest_blob_sha256": "d71abaf37f03439241b0ca6e2c590309de3365e39d094dc6c9c247cb601cc372",
+      "valid_original_content_pool_key": "64028940779262aff06a434ae710b25d89de2e6c2d965a3bdca359388677288f",
+      "posttest_phase": "Intentional same-ref byte mutation occurs after real fit and positive fresh native optimizer restore. Then current restore and original optimizer next ask both refuse."
+    }
+  ],
+  "no_runtime_or_product_failure_inferred": true,
+  "rerun_needed": false,
+  "formal_closed": false,
+  "accepted_in_G": false
+}

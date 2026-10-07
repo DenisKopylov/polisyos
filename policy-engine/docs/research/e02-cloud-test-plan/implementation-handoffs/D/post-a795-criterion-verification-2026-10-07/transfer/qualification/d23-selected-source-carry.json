@@ -1,0 +1,27 @@
+{
+  "actual_executions_preserved": {
+    "CBC": "native28/quota39/lessons39 plus intake3F1P/nativefinite1F",
+    "5b": "legacy6PASS"
+  },
+  "qualified_current_candidate": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+  "qualified_current_tree": "788863c0431841308aef451fcd94df2ba74d1dc6",
+  "new_execution_at_d23": false,
+  "full_5b_to_d23_delta": [
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py",
+      "old_5b_sha256": "4fab42e2dbf6ada128f738aef4f1eb59ea39f83606dd2b3c06d9397bd4f6c844",
+      "new_d23_sha256": "54348a0c810cd8e5646ab97cbcc83069b8e21c4d9f0f0d895c42f3015ad64128",
+      "classification": "unentered FUN test-only fixture/control change"
+    }
+  ],
+  "all305_observed_main_repo_source_test_profile_paths_exact_in_d23": true,
+  "changed_test_not_in_selected_module_or_directfixture_dependency": true,
+  "static_scope_qualification_not_syscall_trace": true,
+  "full_declared_6863_catalog_identity": false,
+  "backend_or_output_replay": false,
+  "prior_CBC_to_5b_four_path_releasefragment_and_README_delta": "qualification/postrun-four-path-delta.json",
+  "ordinary_fixable_owned_residual": null,
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "P41": "not_established"
+}

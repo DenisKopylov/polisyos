@@ -1,0 +1,8 @@
+{
+  "transfer-public3": {
+    "selectors": [
+      "tests/unit/scientist/methods/autotune/test_transfer_workflow.py"
+    ],
+    "property": "Original TRN01 receiving public SearchLoopRunner configured transfer_manager \u2192 exact CAS8/7 rows \u2192 real locked SingleTaskGP MLL \u2192 native wrapperv3 CAS fresh restore/same next; altered outcome exact-ref refusal before fit. Separate original consumer from SearchController."
+  }
+}

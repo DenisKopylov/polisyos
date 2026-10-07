@@ -1,0 +1,742 @@
+{
+  "schema": "D.E02.current-original-seven-criterion-matrix.v1",
+  "author": "/root/gp_oct07",
+  "original_acceptance_source": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "original_binding_unchanged": true,
+  "ids": 7,
+  "occurrences": 7,
+  "rows": [
+    {
+      "id": "B112@OPT-02",
+      "finding_id": "B112",
+      "bundle": "OPT-02",
+      "closure_owner": "OPT-02",
+      "role": "canonical_owner",
+      "queue": "Q1",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2955,
+          2968
+        ],
+        "byte_offset": 663194,
+        "bytes": 3667,
+        "sha256": "ebcbfcc121108068640bc1d871fd4f596f6fdd3c0e6c54203025810562dea15f"
+      },
+      "original_acceptance_binding": {
+        "byte_offset": 666318,
+        "bytes": 541,
+        "sha256": "346a175ccdf5884dc409464a2363ff08bee370b2e406d2aa45a103abcedf7234"
+      },
+      "original_acceptance_text": "**Приёмка и предел.** Первый suggest при выбранном штатном SearchSpace проходит без ручного monkeypatch; категории/лог-шкалы round-trip; отсутствие optional stack честно различено. Не следует принимать fixture-контроль за доказательство работы реального Bayesian backend. Эта карточка о стыке, не об отсутствии оптимизатора в проекте.",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/6"
+      },
+      "original_card_ref": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-02.md",
+        "sha256": "4e56f98d11b39bec14b9ddca221f8ccae2042bae3e4f41831be9caa309f7be2f",
+        "bytes": 16968,
+        "git_blob": "9ffd2f22532b56ae73469396e8c56557aec56e77"
+      },
+      "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_execution_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+      "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "assessed_product_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+      "original_clauses": [
+        {
+          "original_clause": "Первый штатный suggest без ручного monkeypatch receiver",
+          "current_scopes": [
+            "gp-defining",
+            "effective-public4"
+          ],
+          "exact_selectors": [
+            "tests/integration/scientist/methods/search/test_configured_transfer_controller.py::test_ordinary_controller_configures_default_bridge_and_fits_eight_original_cas_rows",
+            "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_default_public_suggestion_consumes_real_seeded_torch_design"
+          ],
+          "basis": "consumer_asserted; independent runtime/oracle reconciliation pending",
+          "interpretation": "Ordinary scalar configured SearchSpace first proposal and actual8-row acquired proposal. Fit observer only delegates actual backend; no receiver/library replacement.",
+          "satisfied_proposal": true
+        },
+        {
+          "original_clause": "Категории и лог-шкалы round-trip",
+          "current_scopes": [
+            "effective-public4",
+            "state-effective"
+          ],
+          "exact_selectors": [
+            "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_public_space_matches_independent_physical_encoding",
+            "tests/unit/scientist/search/strategies/test_space_codec.py::test_search_space_roundtrip_mixed_types",
+            "tests/unit/scientist/methods/search/strategies/test_effective_actions.py::test_supported_logarithmic_endpoints_are_actual_in_bound_actions"
+          ],
+          "basis": "consumer_asserted; independent runtime/oracle reconciliation pending",
+          "interpretation": "Expected five physical coordinates independent arithmetic; do not call this a mixed-space GP posterior quality experiment.",
+          "satisfied_proposal": true
+        },
+        {
+          "original_clause": "Отсутствие optional stack честно различено",
+          "current_scopes": [
+            "optional-minimal"
+          ],
+          "exact_selectors": [
+            "tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_no_dependency_fallback",
+            "tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_state_roundtrip_without_deps",
+            "tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py::test_current_mo_profile_actual_cas_sobol_next_sequence_and_independent_replica"
+          ],
+          "basis": "consumer_asserted; independent runtime/oracle reconciliation pending",
+          "interpretation": "Actual absent4backend metadata/find_spec; supported fallback3PASS, native-only3modules SKIP/UNRUN, never numericalPASS.",
+          "satisfied_proposal": true
+        }
+      ],
+      "current_whole_original_property": "proposal_satisfied_with_explicit_supported_profile_and_source_qualification; independentreview pending",
+      "disposition_proposal": "closed",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "owned_fixable_defect": null,
+      "original_criterion_residual": null,
+      "unavailable_owner_input": null,
+      "P37": "Named actualproducer/artifact/bridge/nativeconsumer/freshreader or recomputednumeric predicate; independent reconciliation pending, no collectionexitnumericalPASS.",
+      "P38": "Serialization/count/source markers cannot replace actual fittedtraining/conditioning/nextplan; current malformed/parameter/RNG/corpus negatives verify protectedproperty, optionalmissing explicitlyUNRUN.",
+      "P41": "not_established; no inherited-red claim",
+      "older_whole_receipts": "c0GP43/State142/MO88 remain exacthistorical executions, not recounted or relabeled as current. Current scopes specificallyfill currentoriginalclause gaps."
+    },
+    {
+      "id": "B113@OPT-02",
+      "finding_id": "B113",
+      "bundle": "OPT-02",
+      "closure_owner": "OPT-02",
+      "role": "canonical_owner",
+      "queue": "Q1",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2969,
+          2982
+        ],
+        "byte_offset": 666861,
+        "bytes": 3671,
+        "sha256": "1bd3fb58eb1fd1fbdc00d8a88c085a3c60b33ee11fab6f5e8c8c80c1c5d17115"
+      },
+      "original_acceptance_binding": {
+        "byte_offset": 669842,
+        "bytes": 688,
+        "sha256": "a58659486c95650eb9a6228a8df62809daede33c44d147794b7f4e78d7ed7624"
+      },
+      "original_acceptance_text": "**Приёмка.** Разные физические параметры дают разные ожидаемые координаты; категориальные размеры корректны; полные IDs переживают сериализацию; отсутствие результата не становится нулём. Проверить оба формата истории и фактический caller. Измерение реального качества GP и конкретное downstream-стирание записи по короткому ID не выполнялись; показана потеря информации на самом adapter.",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/7"
+      },
+      "original_card_ref": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-02.md",
+        "sha256": "4e56f98d11b39bec14b9ddca221f8ccae2042bae3e4f41831be9caa309f7be2f",
+        "bytes": 16968,
+        "git_blob": "9ffd2f22532b56ae73469396e8c56557aec56e77"
+      },
+      "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_execution_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+      "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "assessed_product_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+      "original_clauses": [
+        {
+          "original_clause": "Физические параметры и категориальные размеры",
+          "current_scopes": [
+            "effective-public4",
+            "state-effective"
+          ],
+          "exact_selectors": [
+            "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_public_space_matches_independent_physical_encoding",
+            "tests/unit/scientist/methods/search/strategies/test_effective_actions.py::test_categorical_boolean_and_integer_have_distinct_encoding",
+            "tests/unit/scientist/search/strategies/test_space_codec.py::test_search_space_roundtrip_mixed_types"
+          ],
+          "basis": "consumer_asserted; independent runtime/oracle reconciliation pending",
+          "interpretation": null,
+          "satisfied_proposal": true
+        },
+        {
+          "original_clause": "Полные IDs, оба формата истории, отсутствие результата и фактический caller",
+          "current_scopes": [
+            "public-history2"
+          ],
+          "exact_selectors": [
+            "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_history_formats_reach_public_generate_and_fresh_cas_next_proposal"
+          ],
+          "basis": "consumer_asserted; independent runtime/oracle reconciliation pending",
+          "interpretation": "Actual dict+SearchIteration full ID/split rows, min/max direction, one unavailable row excluded; public generate realSingleTaskGP4, wrapperv3 CAS fresh restore and same next noMLL. Not the older direct _fit_gp-only selector.",
+          "satisfied_proposal": true
+        }
+      ],
+      "current_whole_original_property": "proposal_satisfied_with_explicit_supported_profile_and_source_qualification; independentreview pending",
+      "disposition_proposal": "closed",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "owned_fixable_defect": null,
+      "original_criterion_residual": null,
+      "unavailable_owner_input": null,
+      "P37": "Named actualproducer/artifact/bridge/nativeconsumer/freshreader or recomputednumeric predicate; independent reconciliation pending, no collectionexitnumericalPASS.",
+      "P38": "Serialization/count/source markers cannot replace actual fittedtraining/conditioning/nextplan; current malformed/parameter/RNG/corpus negatives verify protectedproperty, optionalmissing explicitlyUNRUN.",
+      "P41": "not_established; no inherited-red claim",
+      "older_whole_receipts": "c0GP43/State142/MO88 remain exacthistorical executions, not recounted or relabeled as current. Current scopes specificallyfill currentoriginalclause gaps."
+    },
+    {
+      "id": "B114@OPT-03",
+      "finding_id": "B114",
+      "bundle": "OPT-03",
+      "closure_owner": "OPT-03",
+      "role": "canonical_owner",
+      "queue": "Q1",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2983,
+          2996
+        ],
+        "byte_offset": 670532,
+        "bytes": 3409,
+        "sha256": "751ea1f4c2439927f429abb7d2be1bd0c15d45fd802529085431f219337fd766"
+      },
+      "original_acceptance_binding": {
+        "byte_offset": 673433,
+        "bytes": 506,
+        "sha256": "b2eab2dd0f76dd6fe89611272edc500c3b3d5e0ef5fa5857251aa73944c096b3"
+      },
+      "original_acceptance_text": "**Приёмка.** Один и тот же пригодный корпус, переданный целиком или через warm-start + новую часть, даёт согласованную обучающую выборку и план; отклонённые записи не исчезают без причины; идентичные артефакты не удваивают sample-count; намеренные независимые повторы остаются отдельными.",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/8"
+      },
+      "original_card_ref": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-03.md",
+        "sha256": "0bb18c83c79a6a8094af1cc3c22421a488e72520e6c7abd79d724a4f38ff037b",
+        "bytes": 12239,
+        "git_blob": "ca113cf95e55e57b19605c63df36a209770157bb"
+      },
+      "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_execution_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+      "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "assessed_product_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+      "original_clauses": [
+        {
+          "original_clause": "Whole corpus versus warm8 + new2 training corpus and nextplan",
+          "current_scopes": [
+            "gp-defining"
+          ],
+          "exact_selectors": [
+            "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_whole_and_warm_new_corpora_fit_equal_basis_and_native_plan"
+          ],
+          "basis": "consumer_asserted; independent runtime/oracle reconciliation pending",
+          "interpretation": "Real10-row nativefits equal saved raw/refit corpus/modelparameters/transform/RNG and same next acquisition without fit; independent NumPy fullcovariance.",
+          "satisfied_proposal": true
+        },
+        {
+          "original_clause": "Отклонённые записи имеют причину",
+          "current_scopes": [
+            "gp-defining"
+          ],
+          "exact_selectors": [
+            "tests/unit/scientist/methods/search/strategies/test_gp_warm_admission_reports.py::test_warm_admission_preserves_each_explicit_rejection_reason",
+            "tests/integration/scientist/methods/search/test_configured_transfer_controller.py::test_ordinary_controller_transfer_refuses_changed_source_or_basis_before_fit"
+          ],
+          "basis": "consumer_asserted; independent runtime/oracle reconciliation pending",
+          "interpretation": null,
+          "satisfied_proposal": true
+        },
+        {
+          "original_clause": "Идентичные артефакты не удваивают count; intentional independent repetitions distinct",
+          "current_scopes": [
+            "gp-warm-dedup1",
+            "state-effective"
+          ],
+          "exact_selectors": [
+            "tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_warm_start_reaches_gp_training_before_initial_threshold",
+            "tests/unit/scientist/search/strategies/test_neural_checkpoint.py::test_duplicate_warm_artifact_refs_stay_one_effective_corpus_after_restore"
+          ],
+          "basis": "consumer_asserted; independent runtime/oracle reconciliation pending",
+          "interpretation": "Same origin+replicate deduplicates and same origin distinct replicate/seed remains separate through actual8-rowGP train input. NativeCAS resolve/content checks supplied by configuredController andRunner3, not symbolicorigin fixture authority.",
+          "satisfied_proposal": true
+        },
+        {
+          "original_clause": "Real configured CAS warm corpus enters native backend",
+          "current_scopes": [
+            "gp-defining",
+            "transfer-public3"
+          ],
+          "exact_selectors": [
+            "tests/integration/scientist/methods/search/test_configured_transfer_controller.py::test_ordinary_controller_configures_default_bridge_and_fits_eight_original_cas_rows",
+            "tests/unit/scientist/methods/autotune/test_transfer_workflow.py::test_actual_public_workflow_fits_only_admitted_original_cas_observations"
+          ],
+          "basis": "consumer_asserted; independent runtime/oracle reconciliation pending",
+          "interpretation": "Two independent actualcaller paths; rawCAS8/7 source refs and transformed training arrays are captured. No scientific/source/tenantrights inference.",
+          "satisfied_proposal": true
+        }
+      ],
+      "current_whole_original_property": "proposal_satisfied_with_explicit_supported_profile_and_source_qualification; independentreview pending",
+      "disposition_proposal": "closed",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "owned_fixable_defect": null,
+      "original_criterion_residual": null,
+      "unavailable_owner_input": null,
+      "P37": "Named actualproducer/artifact/bridge/nativeconsumer/freshreader or recomputednumeric predicate; independent reconciliation pending, no collectionexitnumericalPASS.",
+      "P38": "Serialization/count/source markers cannot replace actual fittedtraining/conditioning/nextplan; current malformed/parameter/RNG/corpus negatives verify protectedproperty, optionalmissing explicitlyUNRUN.",
+      "P41": "not_established; no inherited-red claim",
+      "older_whole_receipts": "c0GP43/State142/MO88 remain exacthistorical executions, not recounted or relabeled as current. Current scopes specificallyfill currentoriginalclause gaps."
+    },
+    {
+      "id": "B115@OPT-03",
+      "finding_id": "B115",
+      "bundle": "OPT-03",
+      "closure_owner": "OPT-03",
+      "role": "canonical_owner",
+      "queue": "Q1",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2997,
+          3010
+        ],
+        "byte_offset": 673941,
+        "bytes": 3548,
+        "sha256": "4d5afea998b22ec18956bf039ae38fd1751fe457a8994ce87161fa2fdac20872"
+      },
+      "original_acceptance_binding": {
+        "byte_offset": 676923,
+        "bytes": 564,
+        "sha256": "60c5a8366edbd7193eafd15fb6c048061373a4dac4502e54b328c78b75225156"
+      },
+      "original_acceptance_text": "**Приёмка.** Проверить на настоящем SingleTaskGP сохранение learned parameters между разрешёнными refit, использование новых наблюдений, правильные transforms и version/shape; смена basis не маскируется повторным использованием. Замерить затраты отдельно от качества. Fixture theta не является найденным конкретным параметром настоящей модели.",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/9"
+      },
+      "original_card_ref": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-03.md",
+        "sha256": "0bb18c83c79a6a8094af1cc3c22421a488e72520e6c7abd79d724a4f38ff037b",
+        "bytes": 12239,
+        "git_blob": "ca113cf95e55e57b19605c63df36a209770157bb"
+      },
+      "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_execution_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+      "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "assessed_product_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+      "original_clauses": [
+        {
+          "original_clause": "Настоящий SingleTaskGP learned parameters retained between allowedrefits and newobservations used",
+          "current_scopes": [
+            "gp-defining"
+          ],
+          "exact_selectors": [
+            "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_real_same_corpus_and_append_resume_do_not_fit",
+            "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_actual_append_conditions_without_refit_and_matches_eleven_row_oracle",
+            "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_restored_warm_corpus_noop_and_append_do_not_refit"
+          ],
+          "basis": "consumer_asserted; independent runtime/oracle reconciliation pending",
+          "interpretation": "Actual learned6/7 witness distinct from fixed-parameter analytic10/11 oracle. Resume/samebasisappend fit0, initialfit1; realconditioning fullcovariance changes.",
+          "satisfied_proposal": true
+        },
+        {
+          "original_clause": "Transforms, version/shape, basischange and scheduledrefit",
+          "current_scopes": [
+            "gp-defining"
+          ],
+          "exact_selectors": [
+            "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_conditioned_checkpoint_restores_saved_transform_basis_before_targets",
+            "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_checkpoint_type_mutations_are_refused_without_partial_restore",
+            "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_changed_existing_outcome_requires_real_refit",
+            "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_explicit_due_cadence_performs_real_refit_after_restore",
+            "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_same_marker_fitted_parameter_or_transform_changes_prediction_or_refuses"
+          ],
+          "basis": "consumer_asserted; independent runtime/oracle reconciliation pending",
+          "interpretation": null,
+          "satisfied_proposal": true
+        },
+        {
+          "original_clause": "RNG/refitted-state removal cannot preserve markers and secretly preserve property",
+          "current_scopes": [
+            "gp-defining"
+          ],
+          "exact_selectors": [
+            "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_saved_torch_rng_mutation_reaches_actual_acquisition_or_refuses",
+            "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_valid_saved_python_rng_mutation_changes_native_random_proposal_or_refuses",
+            "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_omitting_fitted_state_load_is_detected_by_independent_oracle"
+          ],
+          "basis": "consumer_asserted; independent runtime/oracle reconciliation pending",
+          "interpretation": "Removal discriminator is an actual PASS testcase that asserts numerical divergence after intentionally omitted load; not an externally expectedFAIL run.",
+          "satisfied_proposal": true
+        },
+        {
+          "original_clause": "Затраты отдельно от качества; fixturetheta notscientificparameter",
+          "current_scopes": [
+            "gp-defining"
+          ],
+          "exact_selectors": [
+            "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_real_initial_fit_matches_independent_original_unit_full_covariance"
+          ],
+          "basis": "consumer_asserted; independent runtime/oracle reconciliation pending",
+          "interpretation": "Actualfit start/returntimestamps and perprocesswall/CPU/RSS separate from numericalerror. NumPy oracle deliberately fixes native parameter state afterMLL; actuallearned6/7 witness remains separate, no productionquality/powerlaw.",
+          "satisfied_proposal": true
+        }
+      ],
+      "current_whole_original_property": "proposal_satisfied_with_explicit_supported_profile_and_source_qualification; independentreview pending",
+      "disposition_proposal": "closed",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "owned_fixable_defect": null,
+      "original_criterion_residual": null,
+      "unavailable_owner_input": null,
+      "P37": "Named actualproducer/artifact/bridge/nativeconsumer/freshreader or recomputednumeric predicate; independent reconciliation pending, no collectionexitnumericalPASS.",
+      "P38": "Serialization/count/source markers cannot replace actual fittedtraining/conditioning/nextplan; current malformed/parameter/RNG/corpus negatives verify protectedproperty, optionalmissing explicitlyUNRUN.",
+      "P41": "not_established; no inherited-red claim",
+      "older_whole_receipts": "c0GP43/State142/MO88 remain exacthistorical executions, not recounted or relabeled as current. Current scopes specificallyfill currentoriginalclause gaps."
+    },
+    {
+      "id": "B125@CTL-02",
+      "finding_id": "B125",
+      "bundle": "CTL-02",
+      "closure_owner": "CTL-02",
+      "role": "canonical_owner",
+      "queue": "Q1",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3264,
+          3277
+        ],
+        "byte_offset": 738182,
+        "bytes": 3186,
+        "sha256": "da6f01affaab6b25e26af7613845243eeafc15f0041b3374d39ce18adbe7721b"
+      },
+      "original_acceptance_binding": {
+        "byte_offset": 740880,
+        "bytes": 486,
+        "sha256": "0a36083564c7d95755126ca040b59efa5abd004855ffbaa995399a6915d6217d"
+      },
+      "original_acceptance_text": "**Приёмка.** Полный persisted round-trip каждого поддерживаемого strategy-state, а не только `get_state/set_state` в одной памяти. Восстановленная следующая последовательность совпадает; повреждённое/чужое состояние не принимается; случайный поток независимой реплики остаётся независимым.",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/19"
+      },
+      "original_card_ref": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-02.md",
+        "sha256": "e84619189496527f0f6cc2d75d395ef17279dea27112c8b6669f99a8579a1197",
+        "bytes": 16456,
+        "git_blob": "575d80aa75101b555b3118748e4dee968a81bd0a"
+      },
+      "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_execution_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+      "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "assessed_product_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+      "original_clauses": [
+        {
+          "original_clause": "Все шесть поддерживаемых direct strategy-state profiles persisted CAS/freshnext",
+          "current_scopes": [
+            "gp-defining",
+            "state-effective",
+            "mo-supported",
+            "public-history2",
+            "transfer-public3"
+          ],
+          "exact_selectors": [
+            "tests/unit/scientist/methods/search/strategies/test_state_inventory.py::test_supported_baselines_actual_cas_fresh_reader_next_sequence_and_independent_replica",
+            "tests/unit/scientist/search/strategies/test_neural_checkpoint.py::test_actual_cas_checkpoint_restores_corpus_and_next_sobol_proposal",
+            "tests/unit/scientist/search/strategies/test_neural_checkpoint.py::test_native_single_task_gp_next_proposal_matches_fresh_cas_resume",
+            "tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py::test_current_mo_profile_actual_cas_sobol_next_sequence_and_independent_replica",
+            "tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py::test_native_mo_fitted_cas_restore_matches_independent_mean_and_full_covariance",
+            "tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py::test_native_mo_next_ehvi_and_fit_clock_matches_uninterrupted_with_ambient_rng_owned",
+            "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_history_formats_reach_public_generate_and_fresh_cas_next_proposal"
+          ],
+          "basis": "consumer_asserted; independent runtime/oracle reconciliation pending",
+          "interpretation": "Random/Grid/RL/Bayesian/NN directwarm/MO supportedprofiles; no futurecustomclass/extractor/GPU/crossversion promise.",
+          "satisfied_proposal": true
+        },
+        {
+          "original_clause": "Повреждённое/чужое состояние не принимается",
+          "current_scopes": [
+            "gp-defining",
+            "state-effective",
+            "mo-refusal19"
+          ],
+          "exact_selectors": [
+            "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_checkpoint_type_mutations_are_refused_without_partial_restore",
+            "tests/unit/scientist/search/strategies/test_space_codec.py::test_checkpoint_rejects_foreign_strategy_before_mutating_state",
+            "tests/unit/scientist/methods/search/strategies/test_state_inventory.py::test_grid_corrupted_own_state_refuses_before_base_mutation",
+            "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py::test_nested_malformed_json_refuses_without_wrapper_or_base_mutation",
+            "tests/unit/scientist/search/strategies/test_neural_checkpoint.py::test_checkpoint_changed_basis_or_configuration_is_not_a_resume",
+            "tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py::test_mo_changed_or_incomplete_state_refuses_without_live_mutation",
+            "tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py::test_native_mo_marker_preserving_corruption_refuses_atomically",
+            "tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py::test_native_mo_rehashed_malformed_or_foreign_state_refuses_before_live_mutation"
+          ],
+          "basis": "consumer_asserted; independent runtime/oracle reconciliation pending",
+          "interpretation": null,
+          "satisfied_proposal": true
+        },
+        {
+          "original_clause": "RNG независимых реплик и восстановленная следующая последовательность",
+          "current_scopes": [
+            "gp-defining",
+            "state-effective",
+            "mo-supported"
+          ],
+          "exact_selectors": [
+            "tests/unit/scientist/methods/search/strategies/test_state_inventory.py::test_supported_baselines_actual_cas_fresh_reader_next_sequence_and_independent_replica",
+            "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_same_checkpoint_acquisition_is_independent_of_ambient_torch_rng",
+            "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py::test_wrapper_and_nested_rng_actual_consumers_resume",
+            "tests/unit/scientist/search/strategies/test_neural_checkpoint.py::test_native_single_task_gp_next_proposal_matches_fresh_cas_resume",
+            "tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py::test_current_mo_profile_actual_cas_sobol_next_sequence_and_independent_replica",
+            "tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py::test_native_mo_next_ehvi_and_fit_clock_matches_uninterrupted_with_ambient_rng_owned"
+          ],
+          "basis": "consumer_asserted; independent runtime/oracle reconciliation pending",
+          "interpretation": "Actual independently seeded replica controls Random/Grid/RL/MO; GP/NN native calls preserve caller ambientTorch and restore localPython/Torch state. Shared Base perinstance/RNG mechanism is identical; do not invent a NNthird-instance numericalreplica experiment or concurrentthread isolation.",
+          "satisfied_proposal": true
+        },
+        {
+          "original_clause": "Opaque/custom state profiles explicit live-only/refused resume",
+          "current_scopes": [
+            "state-effective"
+          ],
+          "exact_selectors": [
+            "tests/unit/scientist/methods/search/strategies/test_state_inventory.py::test_existing_custom_rl_schedule_refuses_checkpoint_with_explicit_recipe"
+          ],
+          "basis": "consumer_asserted; independent runtime/oracle reconciliation pending",
+          "interpretation": "Current operator contract separately declares NN/RL-NN opaque update-owned `_historical` service state live-only/refused; directCAS warm NN profile is supported and measured. Borrowed/custom service profile owner guard actuala795Service31 sourcequalified separately; no fake supportedprofile.",
+          "satisfied_proposal": true
+        }
+      ],
+      "current_whole_original_property": "proposal_satisfied_with_explicit_supported_profile_and_source_qualification; independentreview pending",
+      "disposition_proposal": "closed",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "owned_fixable_defect": null,
+      "original_criterion_residual": null,
+      "unavailable_owner_input": null,
+      "P37": "Named actualproducer/artifact/bridge/nativeconsumer/freshreader or recomputednumeric predicate; independent reconciliation pending, no collectionexitnumericalPASS.",
+      "P38": "Serialization/count/source markers cannot replace actual fittedtraining/conditioning/nextplan; current malformed/parameter/RNG/corpus negatives verify protectedproperty, optionalmissing explicitlyUNRUN.",
+      "P41": "not_established; no inherited-red claim",
+      "older_whole_receipts": "c0GP43/State142/MO88 remain exacthistorical executions, not recounted or relabeled as current. Current scopes specificallyfill currentoriginalclause gaps.",
+      "separate_service_consumer_receipt": {
+        "git_ref": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/service-history-final-a795/receipt.json",
+        "executed_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "role": "Actualaffected22 publicfactory/adapter pending/completed; currentCBC docs-only selected executableequivalence, not new22execution",
+        "sha256": "b700912e89cac45ac3964139e35554d82d7ea1529829abc995e8425a18362de5"
+      }
+    },
+    {
+      "id": "B126@CTL-02",
+      "finding_id": "B126",
+      "bundle": "CTL-02",
+      "closure_owner": "CTL-02",
+      "role": "canonical_owner",
+      "queue": "Q1",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3278,
+          3291
+        ],
+        "byte_offset": 741368,
+        "bytes": 3791,
+        "sha256": "f05138039bb68e205dc185417722e7c5113d18276733c1e4f91577e83476e16d"
+      },
+      "original_acceptance_binding": {
+        "byte_offset": 744753,
+        "bytes": 404,
+        "sha256": "0054a0cfb74b77d2cfa02a6671ed1ee829854b1a9cf1cbadb05537ffa85ef532"
+      },
+      "original_acceptance_text": "**Приёмка.** Одинаковый логический индекс после 1+1+… и пакетной подготовки, до/после checkpoint и при чтении уже известной точки. Без смены объявленного algorithm-version исходное исследование не меняется из-за способа заполнения кэша.",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/20"
+      },
+      "original_card_ref": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-02.md",
+        "sha256": "e84619189496527f0f6cc2d75d395ef17279dea27112c8b6669f99a8579a1197",
+        "bytes": 16456,
+        "git_blob": "575d80aa75101b555b3118748e4dee968a81bd0a"
+      },
+      "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_execution_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+      "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "assessed_product_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+      "original_clauses": [
+        {
+          "original_clause": "1+1+… versus batched logicalindex, checkpoint, cached read and unchangedalgorithmversion",
+          "current_scopes": [
+            "state-effective"
+          ],
+          "exact_selectors": [
+            "tests/unit/scientist/search/strategies/test_space_codec.py::test_sobol_stream_is_stable_across_request_shape_and_checkpoint",
+            "tests/unit/scientist/search/strategies/test_space_codec.py::test_sobol_checkpoint_rejects_cursor_cache_mismatch",
+            "tests/unit/scientist/search/strategies/test_space_codec.py::test_sobol_checkpoint_rejects_saved_prefix_divergence",
+            "tests/unit/scientist/search/strategies/test_space_codec.py::test_sobol_checkpoint_rejects_unknown_sampler_version"
+          ],
+          "basis": "consumer_asserted; independent runtime/oracle reconciliation pending",
+          "interpretation": "Real existingSobol stream and Baseartifact codec; futurelegacy/missingversion failclosed, knownpoint read doesnotadvance logicalstream.",
+          "satisfied_proposal": true
+        }
+      ],
+      "current_whole_original_property": "proposal_satisfied_with_explicit_supported_profile_and_source_qualification; independentreview pending",
+      "disposition_proposal": "closed",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "owned_fixable_defect": null,
+      "original_criterion_residual": null,
+      "unavailable_owner_input": null,
+      "P37": "Named actualproducer/artifact/bridge/nativeconsumer/freshreader or recomputednumeric predicate; independent reconciliation pending, no collectionexitnumericalPASS.",
+      "P38": "Serialization/count/source markers cannot replace actual fittedtraining/conditioning/nextplan; current malformed/parameter/RNG/corpus negatives verify protectedproperty, optionalmissing explicitlyUNRUN.",
+      "P41": "not_established; no inherited-red claim",
+      "older_whole_receipts": "c0GP43/State142/MO88 remain exacthistorical executions, not recounted or relabeled as current. Current scopes specificallyfill currentoriginalclause gaps."
+    },
+    {
+      "id": "B127@OPT-02",
+      "finding_id": "B127",
+      "bundle": "OPT-02",
+      "closure_owner": "OPT-02",
+      "role": "canonical_owner",
+      "queue": "Q1",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3292,
+          3305
+        ],
+        "byte_offset": 745159,
+        "bytes": 3837,
+        "sha256": "ae9f5e873bb33019cfd9524bd407a26c8aa7a5ec84cd2af79a6f2e497427cc70"
+      },
+      "original_acceptance_binding": {
+        "byte_offset": 748404,
+        "bytes": 590,
+        "sha256": "0cb92c67b7ad455eb8cbb3bba8a88d7297d3ba6dd2e8ec6284edc152f670ac06"
+      },
+      "original_acceptance_text": "**Приёмка.** Бинарные, integer, categorical и continuous параметры; две разные relaxed-точки с одним эффективным действием; разрешённые независимые реплики; исчерпанное конечное пространство. Проверить фактический адаптер Evaluation и pending/completed-учёт: upstream-канонизация может уже защищать отдельный путь, чего этот локальный опыт не устанавливает.",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/21"
+      },
+      "original_card_ref": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-02.md",
+        "sha256": "4e56f98d11b39bec14b9ddca221f8ccae2042bae3e4f41831be9caa309f7be2f",
+        "bytes": 16968,
+        "git_blob": "9ffd2f22532b56ae73469396e8c56557aec56e77"
+      },
+      "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_execution_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+      "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "assessed_product_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+      "original_clauses": [
+        {
+          "original_clause": "Binary/integer/categorical/continuous physical/effectiveidentity",
+          "current_scopes": [
+            "state-effective",
+            "effective-public4"
+          ],
+          "exact_selectors": [
+            "tests/unit/scientist/methods/search/strategies/test_effective_actions.py::test_native_duplicate_consumer_preserves_boolean_integer_category_identity",
+            "tests/unit/scientist/methods/search/strategies/test_effective_actions.py::test_neural_actual_fit_and_acquisition_emits_attainable_action",
+            "tests/unit/scientist/methods/search/strategies/test_effective_actions.py::test_multiobjective_native_tensor_converter_emits_executed_coordinate",
+            "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_public_space_matches_independent_physical_encoding"
+          ],
+          "basis": "consumer_asserted; independent runtime/oracle reconciliation pending",
+          "interpretation": null,
+          "satisfied_proposal": true
+        },
+        {
+          "original_clause": "Two distinct relaxedpoints one effectiveaction; permittedindependent replicas",
+          "current_scopes": [
+            "effective-public4",
+            "gp-warm-dedup1"
+          ],
+          "exact_selectors": [
+            "tests/unit/scientist/search/strategies/test_bayesian.py::test_duplicate_detection_uses_canonical_integer_and_category_execution",
+            "tests/unit/scientist/search/strategies/test_bayesian.py::test_duplicate_detection_keeps_same_replicate_different_seed_distinct",
+            "tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_warm_start_reaches_gp_training_before_initial_threshold"
+          ],
+          "basis": "consumer_asserted; independent runtime/oracle reconciliation pending",
+          "interpretation": null,
+          "satisfied_proposal": true
+        },
+        {
+          "original_clause": "Finite exhaustedspace and actualpartial adapter lastsubject survives CAS freshresume",
+          "current_scopes": [
+            "state-effective"
+          ],
+          "exact_selectors": [
+            "tests/unit/scientist/methods/search/strategies/test_state_inventory.py::test_public_grid_batch_retains_last_physical_point_and_fresh_cas_exhaustion",
+            "tests/unit/scientist/methods/search/strategies/test_state_inventory.py::test_grid_exhausted_checkpoint_remains_exhausted_after_actual_cas_fresh_reader"
+          ],
+          "basis": "consumer_asserted; independent runtime/oracle reconciliation pending",
+          "interpretation": null,
+          "satisfied_proposal": true
+        },
+        {
+          "original_clause": "Actual Evaluation adapter and pending/completed accounting",
+          "current_scopes": [],
+          "exact_selectors": [
+            "tests/unit/scientist/methods/search/test_service_persistence.py::test_grid_adapter_public_factory_cas_fresh_resume_preserves_physical_next",
+            "tests/unit/scientist/methods/search/test_service_persistence.py::test_pending_and_completed_ids_survive_fresh_reader_and_failed_tell_rolls_back"
+          ],
+          "basis": "consumer_asserted; independent runtime/oracle reconciliation pending",
+          "interpretation": "Exact actuala795 Serviceaffected22 with independentreview retained through CBC269 docs-onlydelta; current owncurrent publicGrid doesnotpretend this is a new NativeService22run.",
+          "satisfied_proposal": true
+        }
+      ],
+      "current_whole_original_property": "proposal_satisfied_with_explicit_supported_profile_and_source_qualification; independentreview pending",
+      "disposition_proposal": "closed",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "owned_fixable_defect": null,
+      "original_criterion_residual": null,
+      "unavailable_owner_input": null,
+      "P37": "Named actualproducer/artifact/bridge/nativeconsumer/freshreader or recomputednumeric predicate; independent reconciliation pending, no collectionexitnumericalPASS.",
+      "P38": "Serialization/count/source markers cannot replace actual fittedtraining/conditioning/nextplan; current malformed/parameter/RNG/corpus negatives verify protectedproperty, optionalmissing explicitlyUNRUN.",
+      "P41": "not_established; no inherited-red claim",
+      "older_whole_receipts": "c0GP43/State142/MO88 remain exacthistorical executions, not recounted or relabeled as current. Current scopes specificallyfill currentoriginalclause gaps.",
+      "separate_service_consumer_receipt": {
+        "git_ref": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/service-history-final-a795/receipt.json",
+        "executed_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "role": "Actualaffected22 publicfactory/adapter pending/completed; currentCBC docs-only selected executableequivalence, not new22execution",
+        "sha256": "b700912e89cac45ac3964139e35554d82d7ea1529829abc995e8425a18362de5"
+      }
+    }
+  ],
+  "independent_review_pending": true,
+  "formal_closed": false,
+  "accepted_in_G": false
+}

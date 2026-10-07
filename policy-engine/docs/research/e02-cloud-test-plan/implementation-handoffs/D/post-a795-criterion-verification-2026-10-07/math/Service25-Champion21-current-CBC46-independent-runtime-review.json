@@ -1,0 +1,345 @@
+{
+  "schema": "e02.D.independent-current-runtime-and-criterion-review.v1",
+  "reviewer": "math_oct07",
+  "author": "service_oct07",
+  "verdict": "GO bounded current runtime and named scoped carries",
+  "actual_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "scopes": [
+    {
+      "scope": "controller",
+      "check_result": "PASS",
+      "case_count": 25,
+      "case_ids": [
+        "tests/unit/scientist/methods/search/test_controller.py::test_evaluation_supplier_does_not_accept_state_and_real_tell_accepts_once",
+        "tests/unit/scientist/methods/search/test_controller.py::test_present_malformed_typed_result_never_uses_legacy_scalar[None]",
+        "tests/unit/scientist/methods/search/test_controller.py::test_present_malformed_typed_result_never_uses_legacy_scalar[malformed1]",
+        "tests/unit/scientist/methods/search/test_controller.py::test_present_malformed_typed_result_never_uses_legacy_scalar[False]",
+        "tests/unit/scientist/methods/search/test_controller.py::test_present_malformed_typed_result_never_uses_legacy_scalar[malformed3]",
+        "tests/unit/scientist/methods/search/test_controller.py::test_measured_provider_charge_drives_stopping_and_detached_report",
+        "tests/unit/scientist/methods/search/test_controller.py::test_repeated_native_runs_reset_acceptance_empty_generation_and_zero_evaluation",
+        "tests/unit/scientist/methods/search/test_controller.py::test_absent_legacy_payload_accepts_scalar_but_malformed_present_cannot_retain_prior_best",
+        "tests/unit/scientist/search/test_controller_api.py::test_search_controller_accepts_evaluator_ports_value_object",
+        "tests/unit/scientist/methods/search/test_typed_objective_persisted_projection.py::test_real_objective_stack_native_cas_preserves_invalid_present_and_legacy_projection[invalid_vector]",
+        "tests/unit/scientist/methods/search/test_typed_objective_persisted_projection.py::test_real_objective_stack_native_cas_preserves_invalid_present_and_legacy_projection[invalid_bundle]",
+        "tests/unit/scientist/methods/search/test_typed_objective_persisted_projection.py::test_real_objective_stack_native_cas_preserves_invalid_present_and_legacy_projection[legacy]",
+        "tests/unit/scientist/methods/search/test_typed_objective_persisted_projection.py::test_real_objective_stack_native_cas_preserves_invalid_present_and_legacy_projection[typed_bundle]",
+        "tests/integration/scientist/methods/search/test_controller.py::test_native_paid_sentinel_stops_on_cost_without_training_or_new_evaluation_count",
+        "tests/integration/scientist/methods/search/test_controller.py::test_two_paid_runs_on_same_controller_match_fresh_controllers_with_scoped_sentinels",
+        "tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py::test_native_paid_funnel_receipts_drive_scoped_controller_cost_cutoff[False-False]",
+        "tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py::test_native_paid_funnel_receipts_drive_scoped_controller_cost_cutoff[False-True]",
+        "tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py::test_native_paid_funnel_receipts_drive_scoped_controller_cost_cutoff[True-False]",
+        "tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py::test_native_paid_funnel_receipts_drive_scoped_controller_cost_cutoff[True-True]",
+        "tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py::test_trace_cost_one_without_settlement_cannot_establish_controller_cutoff",
+        "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_concurrent_runs_are_rejected_as_non_reentrant",
+        "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_repeated_runs_are_fresh_and_returned_snapshots_stay_stable",
+        "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_valid_infeasible_typed_evaluation_remains_typed",
+        "tests/unit/scientist/search/test_contracts.py::test_legacy_search_service_adapter_exposes_ask_tell",
+        "tests/unit/scientist/methods/search/test_service_persistence.py::test_registered_checkpoint_facade_and_normal_contract_imports_do_not_load_runtime"
+      ],
+      "phase_count": 75,
+      "actual_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "command": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/controller/controller-current.command.json",
+        "sha256": "7d7a794dc46b75f32403371298c235342b7bf4d2e0d71fe820d8b7f69cb1bd7d",
+        "bytes": 8531540
+      },
+      "outputs": {
+        "stdout.txt": {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/controller/controller-current.stdout.txt",
+          "sha256": "324129dff84cc0b6d557ab0890ba3252d28a2764baae8f26f455a3e0becf8d93",
+          "bytes": 4601
+        },
+        "stderr.txt": {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/controller/controller-current.stderr.txt",
+          "sha256": "ca9fde99ee6e8851ac85ecbc7b77a863789b65417c7653334fdf1589383ecae5",
+          "bytes": 16141
+        },
+        "junit.xml": {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/controller/controller-current.junit.xml",
+          "sha256": "7240f55a42565a4482df129b231fb06bacdc414610a69a295de8089da26d4be4",
+          "bytes": 4880
+        },
+        "origins-phases.json": {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/controller/controller-current.origins-phases.json",
+          "sha256": "9a56c5052096e65d662d6a949441f07d5ae97858e02caf3d403576047c4c83d6",
+          "bytes": 978469
+        }
+      },
+      "complete_input_denominator": 17619,
+      "available_inputs": 8725,
+      "all_inputs_before_after_match_independently_verified_CBC_catalog": true,
+      "repo_origin_rows": 1156,
+      "repo_origin_unique_paths": 1156,
+      "repo_origin_rows_digest": "13cbd642bcc8c79eec171504b71412e58a416220d86a3e6bda750d9b30d91ec2",
+      "external_origin_rows": 2543,
+      "all_existing_origin_bytes_rehashed": true,
+      "no_wrong_root_polisyos_source": true,
+      "elapsed_seconds": 16.17556135999621,
+      "resource_usage": {
+        "child_user_seconds_delta": 13.777324,
+        "child_system_seconds_delta": 0.813842,
+        "child_maxrss_KiB": 739024,
+        "scope": "Linux getrusage RUSAGE_CHILDREN includes completed pytest and preflight runtime version child; not a per-case performance claim."
+      },
+      "backend": "Actual native controller/SearchService/Runner, existing FileSystemCAS/ChampionRegistry local POSIX profile and canonical B1.2 FileBudgetLedger. Provider/worker response fixture establishes physical settlement behavior, not invoice truth. No GP/vector numerical property claimed by this cohort."
+    },
+    {
+      "scope": "champion",
+      "check_result": "PASS",
+      "case_count": 21,
+      "case_ids": [
+        "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs",
+        "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_actual_reused_content_keeps_old_qualified_view_and_refuses_wrong_candidate_profile",
+        "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_native_seed_incumbent_is_actually_re_evaluated_on_active_immutable_suite",
+        "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread",
+        "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_actual_process_exit_around_atomic_pointer_replace_has_complete_fresh_view[before-1]",
+        "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_actual_process_exit_around_atomic_pointer_replace_has_complete_fresh_view[after-2]",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_search_loop_runner_promotes_and_runtime_loader_reads_champion",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_is_idempotent_for_same_candidate_and_evaluation",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_rejects_omitted_suite_binding",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_rejects_evaluation_for_different_candidate",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_rejects_evaluation_for_different_loop",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_rejects_policy_for_different_loop",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_rejects_incompatible_suite[foreign_suite-1.0-suite_mismatch]",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_rejects_incompatible_suite[dummy_suite-2.0-suite_version_mismatch]",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_rejects_evaluation_from_different_suite_basis",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_rejects_bound_promotion_over_unknown_seed_basis",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_rejects_wrong_comparison_split",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_rejects_missing_runtime_split_when_resolution_disagrees",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_keeps_newer_champion_when_stale_score_arrives",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_serializes_compare_and_publish_against_new_predecessor",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_search_loop_runner_rejects_evaluator_from_foreign_suite"
+      ],
+      "phase_count": 63,
+      "actual_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "command": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/champion/champion-current.command.json",
+        "sha256": "8acb98be878084de443c927e88e037f6ed136c390d120097866df9cb185fe6d7",
+        "bytes": 8532457
+      },
+      "outputs": {
+        "stdout.txt": {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/champion/champion-current.stdout.txt",
+          "sha256": "64ae78cb4aa36585e938acacd9f73760f6dc8604cef04f8d547dd7e9aad32f62",
+          "bytes": 2781
+        },
+        "stderr.txt": {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/champion/champion-current.stderr.txt",
+          "sha256": "f84a275b1ed32423d45668953eb8e9d722dfaf0d5a0551876afda4d4fc49ac10",
+          "bytes": 1470
+        },
+        "junit.xml": {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/champion/champion-current.junit.xml",
+          "sha256": "fa3f306a3cc60a638799b4d396b0e82c04e9785e6a82d6189bf708cf257594d5",
+          "bytes": 4079
+        },
+        "origins-phases.json": {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/champion/champion-current.origins-phases.json",
+          "sha256": "364c7878a0df78ea1ae36156b89c62c9e730be37d1fc2e507a20d26d8808e536",
+          "bytes": 408090
+        }
+      },
+      "complete_input_denominator": 17619,
+      "available_inputs": 8725,
+      "all_inputs_before_after_match_independently_verified_CBC_catalog": true,
+      "repo_origin_rows": 264,
+      "repo_origin_unique_paths": 264,
+      "repo_origin_rows_digest": "04825b869446d74d26d6dd3e79b0156ff132809503f2fa1ca4355e9cdac669bd",
+      "external_origin_rows": 1278,
+      "all_existing_origin_bytes_rehashed": true,
+      "no_wrong_root_polisyos_source": true,
+      "elapsed_seconds": 11.164654238993535,
+      "resource_usage": {
+        "child_user_seconds_delta": 8.466985,
+        "child_system_seconds_delta": 0.9691709999999999,
+        "child_maxrss_KiB": 299516,
+        "scope": "Linux getrusage RUSAGE_CHILDREN includes completed pytest and preflight runtime version child; not a per-case performance claim."
+      },
+      "backend": "Actual native controller/SearchService/Runner, existing FileSystemCAS/ChampionRegistry local POSIX profile and canonical B1.2 FileBudgetLedger. Provider/worker response fixture establishes physical settlement behavior, not invoice truth. No GP/vector numerical property claimed by this cohort."
+    }
+  ],
+  "original11_matrix": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/own11-original-criteria-current-matrix.v2.json",
+    "sha256": "32a407d745680d3e58f2bd5741b2f1d8a3634067ccbe270a7bd5c87bb03cc32a",
+    "bytes": 56751
+  },
+  "original_clause_checks": [
+    {
+      "id": "B116@OPT-04",
+      "original_criterion_unchanged": true,
+      "current_nodes": 16,
+      "qualified_old_scopes": [],
+      "scope_review": "GO bounded original engineering proposal; formal G pending",
+      "remaining": []
+    },
+    {
+      "id": "B117@OPT-04",
+      "original_criterion_unchanged": true,
+      "current_nodes": 5,
+      "qualified_old_scopes": [],
+      "scope_review": "GO bounded original engineering proposal; formal G pending",
+      "remaining": []
+    },
+    {
+      "id": "B118@CTL-01",
+      "original_criterion_unchanged": true,
+      "current_nodes": 4,
+      "qualified_old_scopes": [],
+      "scope_review": "GO bounded original engineering proposal; formal G pending",
+      "remaining": []
+    },
+    {
+      "id": "B119@CTL-01",
+      "original_criterion_unchanged": true,
+      "current_nodes": 3,
+      "qualified_old_scopes": [
+        {
+          "scope": "historical3b15",
+          "receipt": "/dev/shm/e02-D-resume617-independent-rgh_3_73/service-batch12-cleanup3-historical3b-to-a795-qualified-carry.json"
+        },
+        {
+          "scope": "a79531_22",
+          "receipt": "a795-service31-22-qualified-carry-CBC46.json"
+        }
+      ],
+      "scope_review": "GO bounded original engineering proposal; formal G pending",
+      "remaining": []
+    },
+    {
+      "id": "B120@CTL-03",
+      "original_criterion_unchanged": true,
+      "current_nodes": 8,
+      "qualified_old_scopes": [],
+      "scope_review": "GO bounded original engineering proposal; formal G pending",
+      "remaining": [
+        "Canonical cache/retry reached-import qualification from FUN/B owner for exact oldcache18/raw32 or affected current minimal selector."
+      ]
+    },
+    {
+      "id": "B121@CTL-03",
+      "original_criterion_unchanged": true,
+      "current_nodes": 3,
+      "qualified_old_scopes": [],
+      "scope_review": "GO bounded original engineering proposal; formal G pending",
+      "remaining": []
+    },
+    {
+      "id": "B123@CTL-03",
+      "original_criterion_unchanged": true,
+      "current_nodes": 10,
+      "qualified_old_scopes": [],
+      "scope_review": "GO bounded original engineering proposal; formal G pending",
+      "remaining": []
+    },
+    {
+      "id": "B124@CTL-02",
+      "original_criterion_unchanged": true,
+      "current_nodes": 0,
+      "qualified_old_scopes": [
+        {
+          "scope": "original3b50",
+          "receipt": "original50-primary4-qualified-carry-CBC46.json"
+        }
+      ],
+      "scope_review": "GO bounded original engineering proposal; formal G pending",
+      "remaining": []
+    },
+    {
+      "id": "LA-014@SRV-01",
+      "original_criterion_unchanged": true,
+      "current_nodes": 7,
+      "qualified_old_scopes": [
+        {
+          "scope": "a79531_22",
+          "receipt": "a795-service31-22-qualified-carry-CBC46.json"
+        }
+      ],
+      "scope_review": "GO bounded original engineering proposal; formal G pending",
+      "remaining": []
+    },
+    {
+      "id": "LA-015@CTL-01",
+      "original_criterion_unchanged": true,
+      "current_nodes": 8,
+      "qualified_old_scopes": [
+        {
+          "scope": "a79531_22",
+          "receipt": "a795-service31-22-qualified-carry-CBC46.json"
+        },
+        {
+          "scope": "historical3b15",
+          "receipt": "/dev/shm/e02-D-resume617-independent-rgh_3_73/service-batch12-cleanup3-historical3b-to-a795-qualified-carry.json"
+        }
+      ],
+      "scope_review": "GO bounded original engineering proposal; formal G pending",
+      "remaining": []
+    },
+    {
+      "id": "LA-015@SRV-03",
+      "original_criterion_unchanged": true,
+      "current_nodes": 8,
+      "qualified_old_scopes": [
+        {
+          "scope": "a79531_22",
+          "receipt": "a795-service31-22-qualified-carry-CBC46.json"
+        },
+        {
+          "scope": "historical3b15",
+          "receipt": "/dev/shm/e02-D-resume617-independent-rgh_3_73/service-batch12-cleanup3-historical3b-to-a795-qualified-carry.json"
+        }
+      ],
+      "scope_review": "GO bounded original engineering proposal; formal G pending",
+      "remaining": []
+    }
+  ],
+  "native_primary4_carry": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/original50-primary4-qualified-carry-CBC46.json",
+    "sha256": "db2681660c1781ad561ae854fe9e9d39c5d9fcb5ff9fdba9fdfe0da9663c1673",
+    "bytes": 258027
+  },
+  "native_primary4_binding_rows_recomputed": 881,
+  "a79531_22_carry": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/a795-service31-22-qualified-carry-CBC46.json",
+    "sha256": "14003541b37d26dbf388f77e365bf95423ddef4aefbeb399a76471777797067c",
+    "bytes": 730900
+  },
+  "P37": {
+    "current": "Actual setup/call/teardown; source/input/origin identity independently recomputed; actual existing owner producer/artifact/consumer/fresh readback source-reviewed",
+    "history": "Generic custom validation remains consumer_asserted; bounded accumulator/physical next relation recomputed; no arbitrary author callback authority"
+  },
+  "P38": [
+    "B116 content-identical different qualified candidate/evaluator profiles refuse; native evaluator fixture arithmetic score1→2 on immutable holdout basis; fresh actualpointer reader",
+    "B117 lock-held stale predecessor refusal and actual child process exit before/after os.replace old1/new2 complete view",
+    "B118 same-controller/fresh-controller full physical event projections, scoped sentinels and detached outputs; concurrent run refusal",
+    "B119 current repeated empty; old bounded paid-empty/partial/cancellation/failure scopes retain exact original pins",
+    "B120 native canonical durable actual spend→fresh owner→stopping/output; trace1 and fakeACK without ledger body cannot establish numeric0/paidcutoff",
+    "B121 warm2/sentinel100/newbudget independent; resource debit does not make sentinel training/new/best/frontier",
+    "B123 malformed-present typed no scalar fallback before actual ObjectiveStack; absent legacy allowed; real best/front/CASfreshresume",
+    "B124 old actual3b50 semantic/trace/order/replica identity and exact881 input/origin qualification, no new50 run",
+    "LA014/015 current literal ask/tell/run_search + typed projection and actual import guard; old a795 native owner31/factory22 full history/cursor/subject relation qualification"
+  ],
+  "limitations": [
+    "Current scopes are25 and21, not old48/44 or a whole Search replay. Old3b50/a79531_22 remain original executions with only exact dependency qualifications.",
+    "B120 cache/retry dependency packet remains separately pending owner/Census independent admission; current25 only settles named financial clauses.",
+    "Existing trusted custom owner protocol is not an independent universal history law.",
+    "Child process source origins were not separately captured by observer; source-bound test scripts, actual child exit/printed source and fresh artifact pointer effects support only the bounded local tests.",
+    "No external provider invoice truth, fiscal issuer unit law, production throughput/deployed caller, distributed atomicity or physical power-loss guarantee.",
+    "Mandatory sparse inputs are enumerated unavailable, not silently asserted complete availability.",
+    "No P41 inherited-red claim; no G formal acceptance."
+  ],
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "harness": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/run_current_owned.py",
+    "sha256": "dd428adcd1871a4f1ff809d20d215f0d93bcdcdf86ea778c3eb052bd854b7743",
+    "bytes": 5369
+  },
+  "observer": {
+    "path": "/dev/shm/e02-D-service-history-binding-drafts/service_history_observer.py",
+    "sha256": "3f51d279b35fc03ade187ee05b6397ce1cf86ae61e0d3026fcd2ac5cb3a2f3b0",
+    "bytes": 1169
+  }
+}

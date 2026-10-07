@@ -1,0 +1,39 @@
+{
+  "P41": "not_established; no inherited-red claim",
+  "actual_cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "actual_fit_start_ids": 4,
+  "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "assessed_product_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "backend": {
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "hnswlib": "0.8.0",
+    "numpy": "2.3.5",
+    "pytest": "9.0.2",
+    "scipy": "1.16.3",
+    "torch": "2.10.0"
+  },
+  "complete_executable_input_denominator": 6861,
+  "deciding_output_sha256": {
+    "after.json": "6903bcb917792f9b6c19fe53ae9c78ace5725581d75ca1b5f7492730cb9c8971",
+    "assessed-source-equivalence.json": "5827b0a981746b7603adc391ff241b72c34fb415fc1db802475fd9a598fb83d6",
+    "before.json": "6903bcb917792f9b6c19fe53ae9c78ace5725581d75ca1b5f7492730cb9c8971",
+    "command.json": "6b4358cf6ca10a9267b4d3747e6ce941076b1f68897089f3fd7dbfb6b8a973fa",
+    "events.jsonl": "7d1717199e5ec8c35b32fc9a5a448ec5594ec5a6d0c5d049536e794627669851",
+    "fit-events.jsonl": "3afe878331bd63e480c22ecb72778385e6055fd586d24a0d600104a846504a1a",
+    "junit.xml": "b08e1da76c225ee272a20a24c7550e502d09e293df5c99fa7f877023e014f0bb",
+    "origins.json": "9a7f39883ee868b31f42b5573a5658949888ea580c06431b779a3366542f546e"
+  },
+  "exitcode": 0,
+  "harness_file": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/run_current_owner_scopes.py",
+  "harness_sha256": "60544198b0f5de11257798f7bf4165235214e70b5e5f238f71bdee0cc8ac5d4f",
+  "mode": "state-effective",
+  "outer_streams": "Append hashes after wrapper END; not hashed prematurely here",
+  "predicate": "Supported direct persisted Random/Grid/RL/NN warm state CAS/fresh next sequence/corrupt foreign refusal/independent replica; actual Sobol index/preparation/cache law; bool/integer/category/log effective action and late Grid partial finite exhaustion. Supported directNN profile distinctfrom unsupported opaque NN service adapter.",
+  "source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "source_and_executable_inputs_immutable": true,
+  "torch_interop_threads_after": 1,
+  "torch_threads_after": 4,
+  "tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+  "wall_s": 11.7903960730182
+}

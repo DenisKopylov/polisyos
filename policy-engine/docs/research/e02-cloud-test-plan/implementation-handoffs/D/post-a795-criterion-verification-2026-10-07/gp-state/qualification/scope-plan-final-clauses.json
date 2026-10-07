@@ -1,0 +1,16 @@
+{
+  "public-history2": {
+    "selectors": [
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_history_formats_reach_public_generate_and_fresh_cas_next_proposal"
+    ],
+    "property": "Both real dict and SearchIteration history formats preserve full identity, split, physical parameters and missing result through public native Bayesian generator.generate, directional GP training and fresh CAS wrapperv3 next no-refit."
+  },
+  "mo-refusal19": {
+    "selectors": [
+      "tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py::test_mo_changed_or_incomplete_state_refuses_without_live_mutation",
+      "tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py::test_native_mo_marker_preserving_corruption_refuses_atomically",
+      "tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py::test_native_mo_rehashed_malformed_or_foreign_state_refuses_before_live_mutation"
+    ],
+    "property": "Current supported MO primitive and fitted CAS state refuses corrupt/foreign/version/backend/objective/direction/space/config/reference/RNG/type and marker-preserving corpus/model/removal mutations before any live mutation; native fit only preparing real saved 2x8-row fixture."
+  }
+}

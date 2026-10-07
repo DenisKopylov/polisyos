@@ -189,6 +189,7 @@ for p in required_e:
 
 import numpy as np  # noqa: E402 - fixture binds the exact source or overlay before importing its consumer
 import scipy  # noqa: E402 - fixture binds the exact source or overlay before importing its consumer
+
 from polisyos.core.artifacts import (  # noqa: E402 - fixture binds the exact source or overlay before importing its consumer
     ArtifactWriteOptions,
     SchemaInfo,

@@ -11,9 +11,10 @@ from pathlib import Path
 from unittest.mock import patch
 
 import numpy as np
+from SALib.sample import fast_sampler, morris, sobol
+
 from polisyos.scientist.methods.doe import analysis, sampling
 from polisyos.scientist.methods.doe.designs import ParameterSpec, SensitivityMethod, SensitivityPlan
-from SALib.sample import fast_sampler, morris, sobol
 
 
 def _resolve_executable(name: str) -> str:

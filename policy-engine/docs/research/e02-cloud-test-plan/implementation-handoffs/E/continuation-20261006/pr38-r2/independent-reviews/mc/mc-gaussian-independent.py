@@ -6,6 +6,7 @@ import pathlib
 import sys
 
 import numpy as np
+
 import polisyos.foundry.uncertainty.monte_carlo as native
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.foundry.uncertainty.dispatcher import PropagationDispatcher

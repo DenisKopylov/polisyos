@@ -252,6 +252,7 @@ prop(
     ),
 )
 import jax.numpy as jnp  # noqa: E402 - fixture binds the exact source or overlay before importing its consumer
+
 from polisyos.foundry.contracts.state import (  # noqa: E402 - source-bound fixture
     GlobalState,
 )

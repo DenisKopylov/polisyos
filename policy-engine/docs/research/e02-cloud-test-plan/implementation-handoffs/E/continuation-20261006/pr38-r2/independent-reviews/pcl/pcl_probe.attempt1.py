@@ -15,6 +15,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import numpy as np
+
 from polisyos.calibration import (
     evaluate_continuous,
     load_continuous_evaluation,

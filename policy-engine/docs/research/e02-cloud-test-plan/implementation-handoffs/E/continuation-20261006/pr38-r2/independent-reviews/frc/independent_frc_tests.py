@@ -7,6 +7,7 @@ from types import SimpleNamespace
 
 import numpy as np
 import pytest
+
 from polisyos.calibration.forecast_bridge import (
     EmpiricalCalibrationEvidence,
     ForecastCalibrationProfile,

@@ -9,6 +9,7 @@ import types
 from pathlib import Path
 
 import numpy as np
+
 from polisyos.core.artifacts import ArtifactRef, PutOptions, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import CanonSpec, from_canonical_bytes

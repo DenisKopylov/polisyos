@@ -3,6 +3,7 @@ import sys
 import warnings
 
 import numpy as np
+
 from polisyos.foundry.uncertainty import PropagationConfig
 from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
 from polisyos.ir.analytics.uncertainty import (

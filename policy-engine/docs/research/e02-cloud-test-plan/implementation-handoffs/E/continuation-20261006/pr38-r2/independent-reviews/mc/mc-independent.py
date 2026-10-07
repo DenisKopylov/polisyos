@@ -8,6 +8,7 @@ from fractions import Fraction
 from pathlib import Path
 
 import numpy as np
+
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.foundry.uncertainty.monte_carlo import (

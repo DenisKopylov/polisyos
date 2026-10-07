@@ -10,6 +10,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import numpy as np
+
 from polisyos.core.artifacts import FileSystemCAS, PutOptions, SchemaInfo
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef

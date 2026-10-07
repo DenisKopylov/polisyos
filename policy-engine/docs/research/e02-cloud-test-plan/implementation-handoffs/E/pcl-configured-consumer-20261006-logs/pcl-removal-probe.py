@@ -3,6 +3,7 @@
 import sys
 
 import pytest
+
 from polisyos.foundry.methods.catalog.econometrics import advanced
 
 original = advanced._summarize_interval_diagnostics

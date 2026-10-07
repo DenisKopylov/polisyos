@@ -14,6 +14,11 @@ from unittest.mock import patch
 
 import numpy as np
 import pytest
+from SALib.analyze import fast as fast_analyzer
+from SALib.analyze import morris as morris_analyzer
+from SALib.analyze import sobol as sobol_analyzer
+from SALib.sample import fast_sampler, morris, sobol
+
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.scientist.methods.doe import (
     _receipt,
@@ -30,10 +35,6 @@ from polisyos.scientist.methods.doe.designs import (
     SensitivityPlan,
     SensitivityResult,
 )
-from SALib.analyze import fast as fast_analyzer
-from SALib.analyze import morris as morris_analyzer
-from SALib.analyze import sobol as sobol_analyzer
-from SALib.sample import fast_sampler, morris, sobol
 
 
 def _resolve_executable(name: str) -> str:

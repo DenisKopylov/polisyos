@@ -10,6 +10,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+
 from polisyos.foundry import uncertainty
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,

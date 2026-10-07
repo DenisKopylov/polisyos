@@ -10,6 +10,8 @@ from statistics import NormalDist
 from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
+from pydantic import ValidationError
+
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
@@ -91,7 +93,6 @@ from polisyos.scientist.orchestration.engine.protocol import (
 )
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.policy_design.phase3 import ensure_social_weight_manifest_artifact
-from pydantic import ValidationError
 
 if TYPE_CHECKING:
     from polisyos.scientist.orchestration.engine.context import ExecutionContext

@@ -17,6 +17,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import numpy as np
+
 from polisyos.core.artifacts import ArtifactRef, ArtifactWriteOptions, FileSystemCAS, SchemaInfo
 from polisyos.core.canon import CanonSpec
 from polisyos.scientist.methods.autotune.sensitivity_bridge import SensitivityBridge

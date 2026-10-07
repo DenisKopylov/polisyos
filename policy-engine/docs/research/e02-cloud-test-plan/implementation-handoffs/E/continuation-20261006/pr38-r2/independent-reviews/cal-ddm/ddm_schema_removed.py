@@ -7,6 +7,8 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from jsonschema import Draft202012Validator, FormatChecker
+from pydantic import ValidationError
+
 from polisyos.ddm.calibration.audit import build_calibration_audit
 from polisyos.ddm.calibration.calibrate import (
     FpTarget,
@@ -18,7 +20,6 @@ from polisyos.ddm.contracts.events import MetricDirection, PerformanceDegradatio
 from polisyos.ddm.contracts.metric_budget import MetricBudgetPolicy
 from polisyos.ddm.integration import model_registry as mr
 from polisyos.ddm.integration import monitor as monitor_module
-from pydantic import ValidationError
 
 
 def _write_stdout(*values: object, flush: bool = False) -> None:

@@ -9,6 +9,7 @@ from pathlib import Path
 import jax
 import jax.numpy as jnp
 import numpy as np
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.foundry import ExecPlan, ProgramGraph, ProgramGraphRef, ProgramNode

@@ -6,6 +6,8 @@ import math
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Protocol, cast
 
+from pydantic import ValidationError
+
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
@@ -35,7 +37,6 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
-from pydantic import ValidationError
 
 if TYPE_CHECKING:
     from collections.abc import Mapping

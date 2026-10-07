@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
+
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.ir.analytics.welfare import load_welfare_bundle

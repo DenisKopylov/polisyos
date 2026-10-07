@@ -195,11 +195,17 @@ async def test_informative_voi_candidate_core_readback_and_preview_refusal(
             cas_root=cas_root,
             core_runs_root=cas_root / "runs",
         )
-        first_app = create_runtime_api_app(
-            cas_root=cas_root,
-            container_overrides=RuntimeContainerOverrides(runtime_api_context=first_context),
-            allow_fixture_identity=True,
-        )
+        # RuntimeServiceContainer owns a shared verifier-provenance artifact
+        # whose bytes were first written by the B11 producer under this tenant.
+        # Keep that existing owner active while the app container reuses CAS.
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            first_app = create_runtime_api_app(
+                cas_root=cas_root,
+                container_overrides=RuntimeContainerOverrides(
+                    runtime_api_context=first_context
+                ),
+                allow_fixture_identity=True,
+            )
         with TestClient(first_app) as client:
             accepted_response = client.post(
                 "/api/v1/control/runs/nl",
@@ -303,11 +309,14 @@ async def test_informative_voi_candidate_core_readback_and_preview_refusal(
             cas_root=cas_root,
             core_runs_root=cas_root / "runs",
         )
-        fresh_app = create_runtime_api_app(
-            cas_root=cas_root,
-            container_overrides=RuntimeContainerOverrides(runtime_api_context=fresh_context),
-            allow_fixture_identity=True,
-        )
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            fresh_app = create_runtime_api_app(
+                cas_root=cas_root,
+                container_overrides=RuntimeContainerOverrides(
+                    runtime_api_context=fresh_context
+                ),
+                allow_fixture_identity=True,
+            )
         with TestClient(fresh_app) as fresh_client:
             fresh_service = fresh_app.state._control_service
             fresh_job = fresh_service._control_store.get_job(accepted["job_id"])

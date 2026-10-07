@@ -152,7 +152,13 @@ async def test_nonhandoff_revision_blocks_before_stale_context_n4_and_roundtrips
         fresh_cycle = fresh_history.cycles[0]
         assert fresh_history.terminal_status == "blocked"
         assert fresh_history.blocked_reason == "cycle_substrate_context_reissue_required"
-        assert fresh_cycle.revision_request.revised_problem == revision.revised_problem
+        fresh_revised_problem = fresh_cycle.revision_request.revised_problem
+        assert fresh_revised_problem.model_dump(mode="json") == (
+            revision.revised_problem.model_dump(mode="json")
+        )
+        assert gy_content_hash(fresh_revised_problem.model_dump(mode="json")) == (
+            revised_problem_ref
+        )
         assert fresh_cycle.value_port.status == "value_conditional"
         assert fresh_cycle.value_port.value_ref == cycle.value_port.value_ref
         assert fresh_cycle.simulation.simulation_result_ref == (

@@ -1,0 +1,2 @@
+2026-10-07 10:40:39.961 | INFO     | polisyos.common.logger:_call:120 - Starting search f66da337
+2026-10-07 10:40:39.962 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached

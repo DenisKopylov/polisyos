@@ -1,0 +1,29 @@
+{
+  "output_directory": "/dev/shm/e02-D-B124-removal-four-exxj42mi",
+  "source_sha": "96905636726483fdea3a98d9313871d825b54a9e",
+  "source_tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "all_negatives_admitted": false,
+  "receipt_files": {
+    "remove_trial_lookup.receipt.json": {
+      "bytes": 10430,
+      "sha256": "44c46cea3a03a73443f64da79f3980d21a69c23130483b3a516c7c6a628bbe85"
+    },
+    "restore_marker_override.receipt.json": {
+      "bytes": 10509,
+      "sha256": "0db008c3ef3055d3fa1a1b1b6b2cec243b21444cfc4392646fafdf43011ae9c3"
+    },
+    "replace_nullable_primary_zero.receipt.json": {
+      "bytes": 10622,
+      "sha256": "9df0279f968857eafec5318308aa1f9396e62e9ea9284bc74779b152f2c41d20"
+    },
+    "remove_run_scope.receipt.json": {
+      "bytes": 47774,
+      "sha256": "75484c97b0f01aad9ea681eb644d51b479cbb3b6981c43362de18c617d2acddb"
+    }
+  },
+  "limitations": [
+    "Four bounded runtime removal controls; expected pytest failures are counterfactual mechanism falsifiers, not product FAIL on unchanged source.",
+    "No formal finding closure, scientific authority or G integration acceptance established.",
+    "No ignored/local historical outputs silently carried as current evidence."
+  ]
+}

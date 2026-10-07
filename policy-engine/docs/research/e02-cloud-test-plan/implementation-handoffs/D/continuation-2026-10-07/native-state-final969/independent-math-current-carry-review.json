@@ -1,0 +1,84 @@
+{
+  "schema": "D.e02.independent-native-candidate-carry-review.v2",
+  "reviewer": "/root/math_oct07",
+  "author": "/root/gp_oct07",
+  "carry_path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/native-state-c0-to-final969-scoped-carry.json",
+  "carry_sha256": "315e983834ccc09de1aa23130f45b0651824e4e5340728fded3c37df3313defd",
+  "correction_path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/native-state-final969-carry-metadata-correction.json",
+  "correction_sha256": "6c8c8bd904e3d4485814f1811388751d72c40f37674c887d2c4aa661369cc88a",
+  "result": "GO bounded unchanged numerical/state assertions qualified to originalc0; actual current969 configured transfer consumer3 independently verified; historical secondary metadata corrected addendum mandatory",
+  "original_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "candidate_source": "96905636726483fdea3a98d9313871d825b54a9e",
+  "candidate_tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "complete_changed_path_denominator": 474,
+  "unique_actual_observed_repository_bindings_verified": 331,
+  "all_six_main_binding_rows_verified": 1608,
+  "external_loaded_file_hash_bindings_verified": 2284,
+  "scopes": [
+    {
+      "scope": "GP43",
+      "loaded_repository_binding_count": 309,
+      "changed_loaded_modules": [
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py"
+      ],
+      "interpretation": "Unchanged numerical/state assertions only; original test execution remains c0-qualified."
+    },
+    {
+      "scope": "State142",
+      "loaded_repository_binding_count": 280,
+      "changed_loaded_modules": [
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py"
+      ],
+      "interpretation": "Unchanged numerical/state assertions only; original test execution remains c0-qualified."
+    },
+    {
+      "scope": "MO88",
+      "loaded_repository_binding_count": 265,
+      "changed_loaded_modules": [
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py"
+      ],
+      "interpretation": "Unchanged numerical/state assertions only; original test execution remains c0-qualified."
+    },
+    {
+      "scope": "minimal55_15_UNRUN",
+      "loaded_repository_binding_count": 252,
+      "changed_loaded_modules": [
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py"
+      ],
+      "interpretation": "Unchanged numerical/state assertions only; original test execution remains c0-qualified."
+    },
+    {
+      "scope": "warm_rejection_reports3",
+      "loaded_repository_binding_count": 251,
+      "changed_loaded_modules": [
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py"
+      ],
+      "interpretation": "Unchanged numerical/state assertions only; original test execution remains c0-qualified."
+    },
+    {
+      "scope": "warm_report_removal3_expectedFAIL",
+      "loaded_repository_binding_count": 251,
+      "changed_loaded_modules": [
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py"
+      ],
+      "interpretation": "Unchanged numerical/state assertions only; original test execution remains c0-qualified."
+    }
+  ],
+  "scope_analysis": [
+    "Final frontier whole source differs only policy_candidate_hash conditional producer marker authority; numeric geometry/admission/vector and strategy model/kernel/corpus/state/RNG helpers remain unchanged. This is assertion-specific carry, not wholemodule identity.",
+    "GP43 observed changed Runner/NativeService/frontier; original strong posterior/state/RNG fixture branches retain unchanged production dependencies. Existing configured transfer3 actually replays default Runner/CAS/MLL8+7 on969. Current Service native48 establishes changed quantity/marker/checkpoint branch separately, not oldGP43 replay.",
+    "State142/MO88/minimal/warm intake import changed frontier, but selected model/corpus/transforms/RNG and raw geometry helpers unchanged; explicit producer override behavior is not inherited from oldoutputs.",
+    "The original315e two secondary rows were a7 metadata under969 header;6c8 addendum preserves history and provides allcurrent scoped overlap rows. All1608 main current969 bindings were independently actualGit verified.",
+    "No new43/88/142 numerical replay, optionalmissingbackend numerical PASS, cross-build resume compatibility, or formal G acceptance claimed.",
+    "New fiscal alias underflow fix is separate pending source; this carry stops at969 and cannot be silently recast as laterwholebodyPASS."
+  ],
+  "actual_affected_review": {
+    "path": "/tmp/e02-D-math-oct07-drafts/transfer-affected-final969-independent-runtime-review.json",
+    "sha256": "3a3a203a8549fe60165f6a14d5a7c3b811e218c29d350be32cc342f6b2b07891"
+  },
+  "P41": "not_established; no inheritedred waiver",
+  "formal_closed": false,
+  "accepted_in_G": false
+}

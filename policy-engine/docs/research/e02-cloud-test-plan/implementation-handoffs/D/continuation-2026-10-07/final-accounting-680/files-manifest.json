@@ -1,0 +1,69 @@
+{
+  "schema": "D.e02.final680.original45-accounting-publication-manifest.v1",
+  "source_absolute_root": "/dev/shm/e02-D-census-final-accounting680-publication",
+  "destination_git_root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/",
+  "candidate": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "file_count": 8,
+  "files": [
+    {
+      "path": "ledger.json",
+      "bytes": 467218,
+      "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+      "source_absolute_path": "/dev/shm/e02-D-census-final-accounting680-publication/ledger.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json"
+    },
+    {
+      "path": "summary.json",
+      "bytes": 1697,
+      "sha256": "d8842b87c21ff8ad6f195ddac0b998cad04aaea324731755202ab26bad2196d3",
+      "source_absolute_path": "/dev/shm/e02-D-census-final-accounting680-publication/summary.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/summary.json"
+    },
+    {
+      "path": "owner-inputs.json",
+      "bytes": 75438,
+      "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+      "source_absolute_path": "/dev/shm/e02-D-census-final-accounting680-publication/owner-inputs.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json"
+    },
+    {
+      "path": "root-G-verification-packet.json",
+      "bytes": 2854,
+      "sha256": "1341cafc052e42eacc6d2cb727b8be70d9b0538883bad09f42feb41482c6ea25",
+      "source_absolute_path": "/dev/shm/e02-D-census-final-accounting680-publication/root-G-verification-packet.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/root-G-verification-packet.json"
+    },
+    {
+      "path": "source-bindings.json",
+      "bytes": 489443,
+      "sha256": "eac3c190472df169bde066c34bc6f29c8ba3895399014f5ddd4631a7e157e72e",
+      "source_absolute_path": "/dev/shm/e02-D-census-final-accounting680-publication/source-bindings.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/source-bindings.json"
+    },
+    {
+      "path": "evidence-map.json",
+      "bytes": 165625,
+      "sha256": "779ec445a2f6ea914e7d0b5d4da3dd8255e5ce87e25f4ba1145ffafd9600abf0",
+      "source_absolute_path": "/dev/shm/e02-D-census-final-accounting680-publication/evidence-map.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/evidence-map.json"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2365,
+      "sha256": "e9f0413079b111a4e4eda1d5aac1204b86161c07c2ff0d8097c1e61613c0a089",
+      "source_absolute_path": "/dev/shm/e02-D-census-final-accounting680-publication/README.md",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/README.md"
+    },
+    {
+      "path": "taskboard.json",
+      "bytes": 2473,
+      "sha256": "8cc7dfe6a392e983f327869c294fdc072efaecc1b5fb22758c84fa165f4711d9",
+      "source_absolute_path": "/dev/shm/e02-D-census-final-accounting680-publication/taskboard.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/taskboard.json"
+    }
+  ],
+  "total_bytes": 1207113,
+  "preserve_prior_accounting": "Originalinterim /dev/shm/e02-D-census-publication-packet-oct07 retained; appendonlynewfinalaccounting output, no overwrittenhistoricalreceipt",
+  "publication_rule": "Beforeclaimingfetchedcloudreadback root must commit this exactmanifestmembers plus completecanonical referencedoutputs; outputpools retain rawpath/hash/source mappings. Gacceptance notimplied."
+}

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="14.398" timestamp="2026-10-07T10:40:49.050142+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.methods.search.test_service_trial_deduplication" name="test_native_dedup_uses_actual_semantic_content_and_retains_explicit_replicas[run]" file="tests/unit/scientist/methods/search/test_service_trial_deduplication.py" line="203" time="0.815"><failure message="assert [1, 1, 1, 2, 1, 2, ...] == [1, 2, 1, 2, 2, 2, ...]&#10;  &#10;  At index 1 diff: 1 != 2&#10;  Use -v to get more diff">tmp_path = PosixPath('/dev/shm/e02-D-B124-removal-four-exxj42mi/remove_trial_lookup-fixtures/test_native_dedup_uses_actual_0')
+entrypoint = 'run'
+
+    @pytest.mark.parametrize("entrypoint", ["run", "create_service"])
+    def test_native_dedup_uses_actual_semantic_content_and_retains_explicit_replicas(
+        tmp_path, entrypoint
+    ):
+        runner, store, registry, suite, evaluator, spec = _runner(tmp_path)
+        dedup = TrialDeduplicator()
+        if entrypoint == "run":
+            result = runner.run(spec, suite_ref=suite, max_iterations=4, dedup=dedup)
+        else:
+            service = runner.create_service(
+                spec, suite_ref=suite, max_iterations=4, dedup=dedup
+            )
+            result = service.run_search(initial_context={})
+        # Independent expected physical trace: Jan; Feb+incumbent Jan; two
+        # explicit replicas, each rechecking the current incumbent Feb.
+&gt;       assert _values(evaluator) == [1, 2, 1, 2, 2, 2, 2]
+E       assert [1, 1, 1, 2, 1, 2, ...] == [1, 2, 1, 2, 2, 2, ...]
+E         
+E         At index 1 diff: 1 != 2
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_service_trial_deduplication.py:219: AssertionError</failure></testcase></testsuite></testsuites>

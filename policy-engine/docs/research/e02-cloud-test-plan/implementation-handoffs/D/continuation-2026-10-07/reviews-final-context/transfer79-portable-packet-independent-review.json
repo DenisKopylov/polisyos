@@ -1,0 +1,20 @@
+{
+  "reviewer": "census_oct07",
+  "status": "GO_PORTABLE79_ORIGINAL_TRANSFER_PACKET_WITH_HISTORICAL_STALE_LIMITATION_ADDENDUM",
+  "packet": "/dev/shm/e02-D-transfer-final-receipt-a4nlymzm",
+  "handoff_sha256": "7d9410deb29b5cfd284acea6bed4221c852e47f8803adc2b5cf219fa0dad6343",
+  "output_manifest_sha256": "6fe3ec0950b8dd6d91bf0548a9aeffb8b62aea3995b9078698baec8bbbb13ebc",
+  "verified_files": 112,
+  "verified_bytes": 928730,
+  "original10acceptance_text_fragment_bindings_exact": true,
+  "checks": "Current79actual4/markerremoval3FAIL1PASS+selectedB333pair2/origins/finiteguardremoval1FAIL independentlyverified98f70c; priorb5original65 exactreviewe3e0 currentoldsourcequalified, no aggregatecount.",
+  "own_original_proposals": 8,
+  "authority_held": [
+    "B131",
+    "B137"
+  ],
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "publication_addendum_required": "limitations[1] says CurrentB e8bd deeperCAS notestablished; this is historicalpre-B333 scope. Current exactB333selected combinedsync/native profile IS established by separate2PASS7modulesparent+3freshorigins. Preserve immutablepacketandappendexplicitcorrection, no whole/defaultBadoptionclaim.",
+  "limits": "Sourcebindingsb5→79 whole/ASTchecks are scopedmodule/consumer identity, notuniversalP41completeinputwaiver. Exactc0futureconsumerfootprintreplay decisions separate."
+}

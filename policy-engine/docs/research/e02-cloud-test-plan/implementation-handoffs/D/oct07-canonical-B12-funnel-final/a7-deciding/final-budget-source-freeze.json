@@ -1,0 +1,111 @@
+{
+  "implementation_sha": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+  "slice_base": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "original_topic_base": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "fresh_main": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "fresh_G": "ebae80eaa25482d84bc6ad2e78721bc318bc0228",
+  "paths": [
+    {
+      "path": "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+      "sha256": "f9af53cb5c3306e6db057c08b88bd9abd81d9797e7850efd3fe1d0b64dbb67be"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-durable-completion-obligations.toml",
+      "sha256": "0c9bc99ad01b430e792cce99c5edb845367f40b6152d4263b904ebed5979e4af"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-durable-cache-financial-boundary.toml",
+      "sha256": "d869a3f6168e39ef77f8964b4b0b12f4064a6b516e3ef4c79d79ff364d9b5df2"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-e02-b-gateway-exact-numeric-decode.toml",
+      "sha256": "782b044cbd7d4396082d3871742da407015d69e20e4f3d11e017c2cb689b8899"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-e02-d-native-cosine-admission.toml",
+      "sha256": "0a9aa7c3f7ea31465ab9f74c4ae83658db9983068cfe396f67c8786be122d34a"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-funnel-canonical-B12-consumer.toml",
+      "sha256": "60c2063076dd19bb470aa1f9e2d5ba955c4a7d6501eaf555763bd8cc6979ec44"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-native-search-budget-owner-port.toml",
+      "sha256": "79dc15d9b25f9e3a6ec46d5504388e993678fb6cb799030d2c82c2bfd83baef1"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/README.md",
+      "sha256": "c5a039b0433393ecdbdaa2ee43fc5fcaf9c456a287d2d70376fbe6302d4011a7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/response.py",
+      "sha256": "8e9d9cb25cc73257a55f76acbc1cdd66871a2e207b1efd7e19e7b12024a385ea"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "sha256": "b64d2e6a49e173e58316bf843dab889a775d6b26c9ad6a81d10c2281bce94185"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+      "sha256": "af62999ab5663d58cb3d9aa751f43e59c68803dbb5c10c3e2e6c51eaa2ecd80b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "sha256": "b38028b16da9637679d740545698418f74ac02ee78d7282caec7a8aa5d1002c0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "sha256": "3df2c3a05c0571065f8ac45c260a03a80c1493ebfab1b0f532d9e90a5a83a6b1"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+      "sha256": "8b56583b9e22d432fbfe9d9e9b711f8824a52b37e8f72011cadd29f63ba54f3e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "sha256": "215adc1ee70c5ac0426db93126dff2a7e8bed23ca3e90bbcdeddc35da35d18da"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py",
+      "sha256": "5bd2171bcf7dc403095a51cef382d358d850bdc7fe0b71d55959973ed2815b95"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py",
+      "sha256": "6e9caa3982fe64b00570dcb2cd97016570a2cb4fa94431593a7999e2bcefc899"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+      "sha256": "77b751f6286a38592df4d46685342aa1101b65130a82831c9e19f2ee4695b05e"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py",
+      "sha256": "4833da241c05d5121eb9bb25341545edfe6fa359845d0e91e6c8f9ad138457f7"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/test_controller.py",
+      "sha256": "a30f80d961f0e15eeb814ea0ad90325e566a540f354445379f82d5191e5769dc"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "sha256": "88c8bad0c3d28b0ca091399d4a983f8adadddacc5bfe59628fe713dcf56bf0f2"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+      "sha256": "20b212a6ef13a69f3c1a0fd9bb0b9724d9da74e370ac004fe0747adb3e4ad6c0"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_service_owner_budget_factory.py",
+      "sha256": "20458a897f387317049ee825d0290c8cb5e0ecbcef257ceee2250cf0079466f2"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py",
+      "sha256": "bbb694579185c19eb77ad64f1a78ddbf7a224a00d7e460818563850eb49c7663"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_typed_objective_persisted_projection.py",
+      "sha256": "6f99a45fd73a35276ad14c28da88f4307a0f47e13f704011e0ca6d0f9ca10e32"
+    }
+  ],
+  "status": "## codex/e02-D-oct07-continuation\n"
+}

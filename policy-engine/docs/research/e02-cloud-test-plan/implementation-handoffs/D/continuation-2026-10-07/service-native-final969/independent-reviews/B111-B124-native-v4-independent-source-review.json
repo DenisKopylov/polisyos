@@ -1,0 +1,37 @@
+{
+  "schema": "D.e02.independent-production-review-delta.v1",
+  "reviewer": "/root/math_oct07",
+  "author": "/root/service_oct07",
+  "patch": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-a7.v4-final.patch",
+  "patch_sha256": "d2dab7c64e4b71cc63633558ca8cb9754aaa3389007c0337bb0afbdd1db000f2",
+  "base_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "result": "GO final bounded B124 native membership plus B111 primary unavailable producer/consumer source design; actual immutable consumer tests remain gates",
+  "previous_full_design_review_sha256": "0bf301837e130638c9835c1501397e5dab1b2099282991f84971927ad65c54f6",
+  "previous_v2_review_sha256": "14fa624ef7a2307fa99eed4ca7f13b001013548bff23e408626a10daf7e7db07",
+  "delta": [
+    "Trial eligibility now reuses actual canonical registry comparable status exactly ok; an arbitrary completed string is no substitute for a producer law.",
+    "Source-profile lookup None/OSError refuses controlled before live checkpoint state; opaque callback context refuses before a profile or custody can imply dedup authority.",
+    "Actual Runner projection uses the existing finite_real_scalar; absent/invalid primary or non-ok status yields None with an explicit assessment preserving metric/split/direction/unit/reason. A genuine measured zero remains available.",
+    "_AutotuneObjective also reuses the same finite admission, preserving unavailable as existing NaN/is_satisfiedFalse objective signal rather than default0. Existing checkpoint_json/checkpoint_value reserved unavailable carrier already supports nonfinite history; no untaged wire nonfinite input relaxation is introduced.",
+    "Feedback APPROVE now additionally requires actual availability. A promotable marker on missing/failed quantity no longer makes NativeService/controller is_promising true; actual source status and unavailable reason survive.",
+    "Canonical paired completed CAS data/model/evaluator/split metric basis and decoded row content are still required before skip; existing ephemeral member derivation and public Runner bridge unchanged from independently reviewed design."
+  ],
+  "required_current_tests": [
+    "Actual public factory missing metrics vs genuinezero across history/best/frontier and fresh CAS reader; absence remains unavailable, not winning0.",
+    "Actual malformed-present bool/string/NaN/Inf/overflow and unavailable/not-ok outcome never yields a promising result or free duplicate membership.",
+    "Actual native valid preserved-hash semanticdate path, duplicate-before-evaluator physical calls, replicas, pending/fresh resume/changedbasis/ref/context and guard removal discriminators.",
+    "Affected public factory/service/objective/TrialDeduplicator consumers on frozen current source; no unrelated whole numerical replay inferred."
+  ],
+  "compatibility_review": {
+    "patch": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-compat-b652.patch",
+    "sha256": "a295faf7b6200943c0648b2c33672b78aa360777fe459154a16b68e440dd055f",
+    "old_keys_and_profile_recipe": "GO explicit historical read-only reader/no blind rewrite/new matching source profile; transient16→64 digest reset/reconstruction is stated",
+    "remaining_fragment_fix": "Split additive new create_service/resume keyword from existing public run dedup type/effect/refusal behavior narrowing; a single additive table must not hide changed previous behavior."
+  },
+  "P37": "actual finite primary availability and canonical content membership protect real native history/rank/physical evaluator effects",
+  "P38": "Retained promotable/hash/numerical markers must not replace absent status/custody/metric or collapse changed semantic inputs; removal actual property guard must change output or physical calls.",
+  "runtime_status": "UNRUN proposed final patch",
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "P41": "not_established; no inherited waiver"
+}

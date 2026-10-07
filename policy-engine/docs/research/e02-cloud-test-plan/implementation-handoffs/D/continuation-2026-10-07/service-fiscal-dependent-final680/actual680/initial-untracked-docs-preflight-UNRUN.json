@@ -1,0 +1,32 @@
+{
+  "source_sha": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "commands": [
+    [
+      "python3",
+      "/dev/shm/e02-D-oct07-service-start/run_fiscal_affected_service_wave.py",
+      "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "final-fiscal-dependent-680",
+      "fiscal-dependent"
+    ],
+    [
+      "python3",
+      "/dev/shm/e02-D-oct07-service-start/qualify_969_fiscal_only_carry.py",
+      "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "/dev/shm/e02-D-oct07-service-start/final-fiscal-dependent-680"
+    ]
+  ],
+  "exitcodes": [
+    1,
+    1
+  ],
+  "status": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-final969/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-B111-B124-removals-final969/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-through969/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/stress-stopping-469/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/",
+  "tracked_status": "",
+  "check": "UNRUN",
+  "testcase_phases": 0,
+  "reason": "Initial full-workspace cleanliness guard refused pre-existing untracked D handoff output directories; exact tracked source/tree clean. No pytest was launched. Actual tool tracebacks retained as emitted; no product FAIL or inherited claim.",
+  "tool_outputs": [
+    "Traceback (most recent call last):\n  File \"/dev/shm/e02-D-oct07-service-start/run_fiscal_affected_service_wave.py\", line 29, in <module>\n    assert git('rev-parse','HEAD')==SOURCE and not git('status','--porcelain=v1')\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n",
+    "Traceback (most recent call last):\n  File \"/dev/shm/e02-D-oct07-service-start/qualify_969_fiscal_only_carry.py\", line 15, in <module>\n    assert git('rev-parse','HEAD')==NEW and not git('status','--porcelain=v1')\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+  ]
+}

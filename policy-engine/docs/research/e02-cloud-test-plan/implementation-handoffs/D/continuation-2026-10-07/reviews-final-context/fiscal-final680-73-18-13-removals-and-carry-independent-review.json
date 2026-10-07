@@ -1,0 +1,97 @@
+{
+  "schema": "D.e02.final680.fiscal-defining-affected-and-qualified-carry-independent-review.v1",
+  "reviewer": "/root/census_oct07",
+  "created_utc": "2026-10-07T11:07:56.338644+00:00",
+  "decision": "GO_OWN_FISCAL_PRECISION_MECHANISM_COMPLETED_CURRENT73_NATIVE18_INDEPENDENT_CANONICAL13_AND_REAL_REMOVALS",
+  "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "slice_base": "96905636726483fdea3a98d9313871d825b54a9e",
+  "author_defining_and_removal_scopes_separate": [
+    {
+      "scope": "positive",
+      "counts": {
+        "PASS": 73,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "result_sha256": "7e6813fc9a67315cfa66f24d6b6b7415a1f9a7c4939f636cbbb6c1d4f6e013b2",
+      "JUnit_sha256": "290fcf33b509cd369c31c23708740e1b16994aaa6f6e507b767edce03f0c8172",
+      "stdout_sha256": "330dde22aaf7d7c3300e373c8556901ab964f1dfc551b4d6fbbbb55f71a1c452",
+      "wall_seconds": 1.9256079379993025,
+      "tracked_denominator": 15929,
+      "available_inputs": 8860
+    },
+    {
+      "scope": "remove_underflow",
+      "counts": {
+        "PASS": 46,
+        "FAIL": 27,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "result_sha256": "a7c93856977cf7497e3cefdebf8ae8e557a3e14457f71a580b9304f8fbe95826",
+      "JUnit_sha256": "60f0aa1f7c098111df3498fe70ae972df743ca4f94f0789b78b6a5894554fee3",
+      "stdout_sha256": "0ebacb51b1b6318fb7e64b2c54d336996ba1bc65e7c0b1fadb4fafe0a21b892d",
+      "wall_seconds": 2.1046620270062704,
+      "tracked_denominator": 15929,
+      "available_inputs": 8860
+    }
+  ],
+  "actual_native_affected18": {
+    "counts": {
+      "PASS": 18,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "fullphase_count": 54,
+    "receipt_sha256": "115dc5d3e9e5e3faf9310a8f922805564b6ed1c34e6eb5008704d807e6a29f6e",
+    "JUnit_sha256": "08a5295b88b0f0f84cea01d9497475392540ae23f9848b2f1af090554a17ae6d",
+    "fullinput_manifest_sha256": "705d4e52b7075eedfbc2b912ad415defd1d5b7cb0f7f8d1cd8458c4c7fa25e8a",
+    "source_status_full_qualification": "Trackedsourceindex clean; exactpre-existing D handoffoutputdirs listedbeforeafter, nohidden productionmutation"
+  },
+  "actual_independent_canonical13": {
+    "observations_sha256": "745fdfed47eecd1a707b653409e1738c5a954f4baef2887a9b9a83c6c4c95674",
+    "cases": 13,
+    "actualpath": "Realcore.canon typedDecimalwire→actual BudgetDeficitObjective→CompositeObjective→Plateau/Target underdeclaredfixtureunits",
+    "raw_wire_hashes_independently_verified": 13
+  },
+  "actual_independent_guard_removal2": {
+    "counts": {
+      "PASS": 0,
+      "FAIL": 2,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "receipt_sha256": "a4250fefc886002b07d80f8007d1f96cc59b4bd1a6037b643d88a7d70188a7e2",
+    "JUnit_sha256": "5fba754e159d19d6bdb6984dc1550a3537c0463af776a6e4e62cc77b0379c9ea",
+    "divergence": "ActualcanonicalGatewayrawDecimal±tiny remainsnonzero; removingexactone receivingguard producesfinite0/is_satisfiedTrue and realPlateau/TargetstopTrue. AssertionFAIL protectedconsumer, not setup/error."
+  },
+  "loaded_origin_hashes_verified": 3518,
+  "service_output_carry": {
+    "sha256": "cccc109187dfcbc7299379182c3eb4d5625b91dff31538dcd863fdb6725b278e",
+    "unchanged_whole_runtime_test_bindings": 23,
+    "oldchecks_source": "96905636726483fdea3a98d9313871d825b54a9e",
+    "current_required18_executed": true,
+    "scope": "969actual48/23unaffectedService/44Champion/paid2/DOE13/Legacy2 sourcequalified. Originalwhole41 stays969, no newwhole-Dsum."
+  },
+  "GP_State_MO_carry": {
+    "sha256": "59d7e8cc36a3402945253d422ba430af908d4f068846e721bcaa31759131774e",
+    "observed_bindings": 1608,
+    "unique_repo_paths": 331,
+    "only_changed_observed_module": [
+      "policy-engine/src/polisyos/scientist/methods/search/objective.py"
+    ],
+    "meaning": "Strongc0GP43/State142/MO88/minimal55+15numericUNRUN and actual969configuredtransfer3 remainexactsourcequalified. AllotherObjectiveAST/globalclasses fullidentity; no newnumericalfit/replay or unsupportedheadclaim."
+  },
+  "P37": "Rawexactnonzeroproducerwire admittedfirst; actualreceivingfloat64basisdeclared. Unitfixtureadmitsengineeringnumericproperty only, no fiscalissuerunit/sign/aliasauthority invented.",
+  "P38": "Actualwrongzerocanstop/declareoptimal when newguard removedwhiletrueDecimal/context/source/owner/aliases/stoppingmarkers remain. Truezero/subnormal positives maintainlegitimatesupportedbehavior.",
+  "P40": "Samefalsezero class widenedatone existingsharedfouraliasnumericboundary, nothelperladder ornewfindingID. Lostlexemealreadyroundedfloat remainsboundedinputlimit.",
+  "B108": "Ownordinary precisiondefect repairedandmeasured. Originalrealincompatible-unit issuerlaw remains limitedminimumownerinput; cannotchange to syntheticdimensionless.",
+  "P41": "not_established; noinheritedredwaiver from sparse fullmanifest or currentcounts",
+  "formal_closed": false,
+  "accepted_G": false
+}

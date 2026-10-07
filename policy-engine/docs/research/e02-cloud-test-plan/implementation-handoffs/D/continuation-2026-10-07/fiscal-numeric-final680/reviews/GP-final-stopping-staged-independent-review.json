@@ -1,0 +1,32 @@
+{
+  "schema": "e02.D.fiscal.final-stopping-test-delta-independent-review.v1",
+  "reviewer": "/root/gp_oct07",
+  "result": "GO source+actualstaged testdelta, runtimeUNRUN",
+  "source_head": "96905636726483fdea3a98d9313871d825b54a9e",
+  "index_tree": "075abb1cf20634dbf43e227f4fd096c417073a58",
+  "full_staged_changed_path_set": [
+    "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-fiscal-float64-admission.toml",
+    "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py"
+  ],
+  "production_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+  "production_independent_review_sha256": "f90f392167a5e07f9f8928c4dd692b2512f7a23b3278d3348db53d877515dd98",
+  "raw_test_sha256": "e0ea26b80ae3760febaeabbf5e0392168fee189fabcee01295b6ee0befcebf5a",
+  "formatted_staged_test_sha256": "89b7fe53ee40da9fec92528278772267944edb250d923d45018dfb33846bf206",
+  "full_formatted_test_AST_equals_raw": true,
+  "changed_existing_test_functions": [
+    "test_actual_response_text_fiscal_consumer_preserves_supported_scalar",
+    "test_actual_response_text_nonzero_decimal_is_unavailable_to_fiscal_consumer"
+  ],
+  "remaining_existing_test_function_class_AST_exact": true,
+  "runtime_denominator": "Same73 total(63new+10existingfiscal), no addedbackend/MLL",
+  "actual_downstream_properties": [
+    "EightactualHTTPresponse tinycases preserveoriginalnonzeroDecimal then Base/CompositeNaN, publicImprovementPlateau declaredfixtureunit refusesconvergence/not_established/invalid reason, TargetAchieved0false. Onoldguardremovedfalse0 bothpublicstoppingconditions incorrectlystop, so control discriminates actual numericaleffect.",
+    "Fouractualresponse genuinezero cases confirm Basezero remainsassessed and Plateau/Targetactualpositive stop withdeclaredfixtureengineeringunits. Existingordinary/subnormal signandaliascontrols remain unchanged."
+  ],
+  "boundary": "Fixture declaredfloat64units only quantify engineeringstopping; no actualfiscalunit/signlaw/productionprofile appointment. No tracked writes byreviewer, no currentnumericfullreplay or formalclosure.",
+  "accepted_G": false,
+  "formal_closed": false,
+  "P41": "not_established"
+}

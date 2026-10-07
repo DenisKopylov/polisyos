@@ -1,0 +1,63 @@
+{
+  "schema": "e02.D.removal.controls.v1",
+  "controls": [
+    {
+      "plugin": "remove_trial_lookup",
+      "selector": "tests/unit/scientist/methods/search/test_service_trial_deduplication.py::test_native_dedup_uses_actual_semantic_content_and_retains_explicit_replicas[run]",
+      "removed_property": "actual TrialDeduplicator.is_duplicate only",
+      "preserved": "actual canonical type/fingerprint/source profile, real corpus/replicas/CAS/artifacts/evaluator/history",
+      "expected_result": "one assertion FAIL with actual physical trace not equal to [1,2,1,2,2,2,2], no setup or collection error"
+    },
+    {
+      "plugin": "restore_marker_override",
+      "selector": "tests/unit/scientist/methods/search/test_service_trial_deduplication.py::test_returned_hash_marker_cannot_collapse_actual_native_dates_cas_and_fresh_registry",
+      "removed_property": "actual canonical payload identity at frontier/controller supplied-marker seam",
+      "preserved": "valid sha256:a64 marker, real measured native history3, semantic Jan/Feb, CAScheckpoint/ParetoRegistry/fresh reader",
+      "expected_result": "one assertion FAIL with actual registry subjects1 versus required2, no setup or collection error"
+    },
+    {
+      "plugin": "replace_nullable_primary_zero",
+      "selector": "tests/unit/scientist/methods/search/test_service_trial_deduplication.py::test_actual_native_primary_quantity_preserves_unavailable_zero_and_fresh_cas_basis[missing-False-ok-1]",
+      "removed_property": "only actual Runner primary None\u21920 after native actual producer/evaluation/persistence",
+      "preserved": "actual owner holdout_metrics{}, statusok, promotableTrue, qualified refs, unavailable primary assessment/reason, feedbackREJECT",
+      "expected_result": "one assertion FAIL with actual returned/persisted primary0/best/front0, no setup or collection error"
+    },
+    {
+      "plugin": "remove_run_scope",
+      "selector": "tests/unit/scientist/methods/search/test_service_trial_deduplication.py::test_shared_helper_membership_is_isolated_by_actual_run_with_barrier",
+      "removed_property": "run ID only from the actual scope after original canonical admission and real qualified member reads",
+      "preserved": "actual matching configuration/source/helper/ACK/custody/semantic hashes/status/finite/history/pending; two actual services/shared helper/real barrier/evaluator calls/freshCAS",
+      "expected_result": "one physical assertion FAIL after actual repeated Jan evaluation/persistence caused by cross-run reset, no setup or barrier timeout acceptance"
+    }
+  ],
+  "observation": "Shared wrapper calls the actual NativeSearchService.run_search, then fresh FileSystemCAS get_verified_snapshot and SearchRunState decode; prints REMOVAL_PERSISTED_OBSERVATION before returned actual result reaches deciding test assertion. Actual configuration/full history/best/front, qualified checkpoint/hash, evaluator calls and fresh ParetoRegistry saved. Scope control additionally wraps actual tell, then fresh verified FileSystemCAS snapshot; prints full raw canonical checkpoint and actual evaluator calls immediately after each real persisted tell.",
+  "files": {
+    "removal_observation.py": {
+      "bytes": 2818,
+      "sha256": "8c34b5ab2ca4e24371962e3629771f0af125ee2390f8c46ea969946483c02c59"
+    },
+    "remove_run_scope.py": {
+      "bytes": 1772,
+      "sha256": "3714f3d51f3c6314a5dfc7e16c0a92df203a043fd290134943eef3e01e09e13a"
+    },
+    "remove_trial_lookup.py": {
+      "bytes": 404,
+      "sha256": "1cac097268db9671890dfa6b856ec0ca02c8c7813b4b5f694695a4769765c73f"
+    },
+    "replace_nullable_primary_zero.py": {
+      "bytes": 868,
+      "sha256": "a425bab7fd56efb15063597cfdc37ac272886cca5fbc3bfac24e4d44356d0290"
+    },
+    "restore_marker_override.py": {
+      "bytes": 667,
+      "sha256": "babb9c9b9d58f5e567e85d67f79116cd97efa2e054803051235ef52011b156ee"
+    }
+  },
+  "check_result": "UNRUN; Ruff parse/format/check PASS; independent Census source review requested",
+  "limitations": [
+    "Bounded class-removal tests alter runtime methods without altering tracked module/source markers intentionally; they do not claim product failure on unchanged source.",
+    "No synthetic evaluation success or extra store/authority.",
+    "Each actual run must retain full pytest/JUnit output and printed fresh persisted observation; setupERROR does not satisfy expected negative."
+  ],
+  "prior_independent_static_review": "/dev/shm/e02-D-census-review-oct07/B124-B111-three-removal-plugins-independent-static-review.json sha256:d4379acd29fae429848a0075135a479506c0758d368c0c7cefea94b4887dc7ab for unchanged first four files"
+}

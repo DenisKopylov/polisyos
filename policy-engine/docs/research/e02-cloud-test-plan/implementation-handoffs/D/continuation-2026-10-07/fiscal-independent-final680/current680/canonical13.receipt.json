@@ -1,0 +1,24 @@
+{
+  "name": "canonical13",
+  "source_sha": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "source_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "argv": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "/dev/shm/e02-D-fiscal-independent-review/current_canonical_decoder_probe.py",
+    "--source",
+    "68070854bddba2593efaef59a107a3cbe3b08d4d",
+    "--output",
+    "/dev/shm/fiscal-current680-67egtqt6/canonical13.observations.json"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "started_utc": "2026-10-07T11:04:52.443274+00:00",
+  "finished_utc": "2026-10-07T11:04:52.625457+00:00",
+  "returncode": 0,
+  "stdout_sha256": "8906d385e5057db7e715edd2ca2c4bdfe081d28c8fb787da71014ebda3048eb3",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "counts": {
+    "PASS": 13,
+    "FAIL": 0
+  },
+  "deciding_check": true
+}

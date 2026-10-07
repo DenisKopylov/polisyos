@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/ruff",
+    "format",
+    "--config",
+    "policy-engine/pyproject.toml",
+    "policy-engine/tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py"
+  ],
+  "returncode": 0,
+  "stdout": "1 file reformatted\n",
+  "stderr": "",
+  "before_sha256": "e0ea26b80ae3760febaeabbf5e0392168fee189fabcee01295b6ee0befcebf5a",
+  "after_sha256": "89b7fe53ee40da9fec92528278772267944edb250d923d45018dfb33846bf206",
+  "ast_equal": true
+}

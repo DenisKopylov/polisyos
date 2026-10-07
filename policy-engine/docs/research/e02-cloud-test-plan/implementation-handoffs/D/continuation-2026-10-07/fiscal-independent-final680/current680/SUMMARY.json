@@ -1,0 +1,43 @@
+{
+  "schema": "e02.D.fiscal_independent_current680_runtime.v1",
+  "source_sha": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "source_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "slice_base": "96905636726483fdea3a98d9313871d825b54a9e",
+  "runtime": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5",
+    "pytest_asyncio": "1.3.0"
+  },
+  "tracked_input_count": 15929,
+  "source_unchanged": true,
+  "jobs": [
+    {
+      "name": "canonical13",
+      "returncode": 0,
+      "counts": {
+        "PASS": 13,
+        "FAIL": 0
+      },
+      "deciding_check": true
+    },
+    {
+      "name": "guard-removal2",
+      "returncode": 1,
+      "counts": {
+        "testcases": 2,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "deciding_check": true
+    }
+  ],
+  "source_guard_review": "/tmp/e02-D-fiscal-numeric-969-oh344e_d/independent-negative-plugin-source-review.json",
+  "limits": [
+    "Own13 independent actualtypedcanonical path separate from author73 runtime.",
+    "Negative2 exact realGateway decoder consumers preserve rawnonzero Decimal; only one guard removed, expected assertionFAIL noERROR.",
+    "Float64 admission mechanism only; missing fiscal issuer/unit/sign/alias law remains separate input."
+  ]
+}

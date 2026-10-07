@@ -1,0 +1,84 @@
+{
+  "entries": {
+    "README.md": {
+      "bytes": 450,
+      "sha256": "2ac8777757910c6e9c0b85f1daee2e131250937420034013c1aadb17d57f5877"
+    },
+    "actual680/969-fiscal-only-source-qualified-carry.json": {
+      "bytes": 59490,
+      "sha256": "cccc109187dfcbc7299379182c3eb4d5625b91dff31538dcd863fdb6725b278e"
+    },
+    "actual680/fiscal-dependent.junit.xml": {
+      "bytes": 3980,
+      "sha256": "08a5295b88b0f0f84cea01d9497475392540ae23f9848b2f1af090554a17ae6d"
+    },
+    "actual680/fiscal-dependent.loaded-origins-and-phases.json": {
+      "bytes": 872537,
+      "sha256": "48cee4129da60e2aaba308f6aa635705900b93520d4a479a5a65f2723135da02"
+    },
+    "actual680/fiscal-dependent.receipt.json": {
+      "bytes": 10383,
+      "sha256": "115dc5d3e9e5e3faf9310a8f922805564b6ed1c34e6eb5008704d807e6a29f6e"
+    },
+    "actual680/fiscal-dependent.stderr.txt": {
+      "bytes": 2054,
+      "sha256": "5a9da4d6adffa792048e3fcc97ea0d0a81e0bb56f24f03585dbfd87ae6e0da42"
+    },
+    "actual680/fiscal-dependent.stdout.txt": {
+      "bytes": 27714,
+      "sha256": "28d58b791fd09cb417864fedc6c8a1c01f8ae122f29bc5b92465773aba2de596"
+    },
+    "actual680/frozen-inputs.json.gz": {
+      "bytes": 918421,
+      "sha256": "705d4e52b7075eedfbc2b912ad415defd1d5b7cb0f7f8d1cd8458c4c7fa25e8a"
+    },
+    "actual680/initial-untracked-docs-preflight-UNRUN.json": {
+      "bytes": 2750,
+      "sha256": "443d4ca72d306a48e7302696c03b0a751af8786d9a09c75cf74ae4e6029a13f5"
+    },
+    "actual680-fresh-readback-ref-index.json": {
+      "bytes": 3201,
+      "sha256": "8600471f1884dc7cd94c6b88f14761b26ae203f9fc0c0bafc321c1de8aacc8b6"
+    },
+    "handoff.json": {
+      "bytes": 5850,
+      "sha256": "b84dccc27e3bc98715bee741b30670c3e870c9a9eca9ff1f8a67007639e9c172"
+    },
+    "harness/qualify_969_fiscal_only_carry.docs-status-qualified.py": {
+      "bytes": 7603,
+      "sha256": "e19794957dd9f36e49340ada96862f6947148d10f918a3120415ae91c7112a3f"
+    },
+    "harness/qualify_969_fiscal_only_carry.py": {
+      "bytes": 7345,
+      "sha256": "8f460280b2b7fb1c09639c17e350e3e329c5833402afcb3cb55e1914aa523060"
+    },
+    "harness/run_fiscal_affected_service_wave.docs-status-qualified.py": {
+      "bytes": 7898,
+      "sha256": "a8a015bfd8ccdbc4bdc8e7bf3ea4a1e9e3b116bf43386cbff42959833fe074f1"
+    },
+    "harness/run_fiscal_affected_service_wave.py": {
+      "bytes": 7640,
+      "sha256": "4f26b4ba9b437c81fb090a1158d3f560e5b780f4b3fc637088494f2b5936a954"
+    },
+    "harness/service_fiscal_observer.py": {
+      "bytes": 1169,
+      "sha256": "3f51d279b35fc03ade187ee05b6397ce1cf86ae61e0d3026fcd2ac5cb3a2f3b0"
+    },
+    "prior969-Git-evidence-links.json": {
+      "bytes": 7387,
+      "sha256": "3db50b91400c048963f44fda59a3865812ad267f3b6476ca43cd0121ee083466"
+    },
+    "reviews/fiscal-dependent-service18-harness-observer-independent-static-review.json": {
+      "bytes": 1777,
+      "sha256": "5cc727751463028c43d458b02104d6bdfe744112498de1292a725161987bfe8d"
+    },
+    "reviews/fiscal680-harness-handoff-docs-admission-independent-review.json": {
+      "bytes": 5570,
+      "sha256": "60972006de36f97b077a0cdd41e0ec61f02469c8e9a0b968976c88e3cb0b8687"
+    }
+  },
+  "files": 19,
+  "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "scope": "Declared lossless portable18 outputs/harness/qualification only; no tracked source copies, raw fixture trees, cache/env or old output duplication."
+}

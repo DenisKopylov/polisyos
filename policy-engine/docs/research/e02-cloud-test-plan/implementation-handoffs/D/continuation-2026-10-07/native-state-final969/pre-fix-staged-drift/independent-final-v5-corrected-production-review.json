@@ -1,0 +1,75 @@
+{
+  "admission_and_effect_function_AST_bindings": {
+    "_admit_deduplication_configuration": "021fffbc891084afead6cf186792298d706762f7c3cb6740b35f282ccf830cd8",
+    "_ask_proposals": "fa774ed7f016fb58b83ccafc8c7727de120b6ed49d46a1e1c9125ef6a125d4aa",
+    "_deduplication_members": "11fd62b45499943ab48f19b81b2909ef382c522a629ffaae45b549a90ec17027",
+    "_deduplication_profile": "00250336894779e09b5bfe2d2b540ee6593470918ef8fa439a23a0af024ec2c3",
+    "_evaluate_batch": "9bd7f53312d6f4221bf9762b021a6251c3d3276533f8c1bc5484b7023f795220",
+    "ask": "bdc91f2d38a77265a942e43bb395297e659f4c96e33b500320f2b8a9dc3d7c64",
+    "checkpoint": "0d3ba2e984558e8fe53881c07b7b5d72f085b9901fad3052736a2abf5942dbfa",
+    "restore": "b94be19df7409861d12f83a5f40be21b4e857b4d442c5dae1cd5aad945ac7d34",
+    "resume_search": "b83d1bc41071aada87be5b7f947a2659d0e4f0effb2b7850f7ed9644799b5cb6",
+    "run_search": "d079d144bff2e80aeae42844951da248507e2fdfe6971bbc8e4ca6f8c2bc26e1",
+    "tell": "850f0338b442daa463dcfef448da778e4bbd83deccee9afb88ceda997ab999ac"
+  },
+  "author": "service_oct07; separately authored Transfer tests",
+  "base_head": "237c3427266e0849ebfa36b41f89c51572b44814",
+  "decision": "GO_STATIC_FINAL_CORRECTED_PROFILE_RUNTIME_PENDING",
+  "final_full_source_path": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-service.v5.final-90c726.py",
+  "final_full_source_sha256": "90c726a5e76e55591ce0176b6bbd68ee9764a16e31254504341792db3741ee4e",
+  "four_path_v4_source_patch_sha256": "d2dab7c64e4b71cc63633558ca8cb9754aaa3389007c0337bb0afbdd1db000f2",
+  "incremental_patch_path": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-v4-to-v5.final-de8c6.patch",
+  "incremental_patch_sha256": "de8c6a11fdff47230ba746e5a0b79764cca69afc3c3c85334dd16e44ce08a78f",
+  "limitations": [
+    "No scientific evaluator appointment or reuse law beyond declared content-bound fixture profile",
+    "No real invoice/authoritative paid cache, production data, distributed/powerloss/thread RNG guarantee",
+    "No formal original finding closure/G acceptance from static review alone",
+    "A declared evaluator mutating its configuration inside an already executing call cannot be forecast; subsequent acceptance/publication guard refuses unsupported drift"
+  ],
+  "new_independent_review_failure_delta": {
+    "boundaries": "No distributedtransaction/powerloss/thread guarantee; source-bound POSIX existing CAS acknowledgement/readback, single native runowner.",
+    "final_behavior": "Initial successful qualified ACKref survives later proposal failure; local generator/run/stopping/pending/context rollback retains existing publicationblocked fence; explicit same-instance newrun also calls requirepublicationready so cannot rebind. Existing fresh-reader restore validates actual saved runstate/profile and resumes from this prepared ack.",
+    "reason": "The earlier initial ack inside _ask_proposals could be persisted, then later failure roll self.checkpoint_ref back toNone and silently retire acknowledged config. Math independently identified this; final source moves initial acknowledgement into transaction and distinguishes actual successful ACK from no ACK.",
+    "required_actual_control": "Transfer actual postinitialACKfail→retained ref + fence→freshsameprofile resume control at immutable candidate; currentlyUNRUN",
+    "source": "ask existing rollback transaction"
+  },
+  "numerical_scope": {
+    "actual_Runner_service_dependency_changed": true,
+    "full_saved_GPMONN_state_logic_unchanged": true,
+    "no_new_GP_optimizer_cache_or_permission_subsystem": true,
+    "required_affected_native_runtime": "exact current test_transfer_workflow3 after sourcefreeze; two realMLL corpora8/7",
+    "strong_independent_posterior_oracle": "retained exactc0GP43/MO88/state142 immutable evidence only after observed dependency qualification; no new fullsource replay inference"
+  },
+  "original_occurrences": [
+    "B124@CTL-02",
+    "B111@OPT-01"
+  ],
+  "profile": "existing native-autotune-replay.v2 typed PydanticMutationCodec; data-only current context and existing declared evaluator configuration; sequential native caller; canonical TrialDeduplicator exacttype",
+  "repo_mutation": "none by reviewer; immutable versioned patches/full scratch read only",
+  "resolved_prior_actual_counterexample": {
+    "actual_results": "2 intended assertion FAIL at stable staged237+a2d8;noerror/skip",
+    "effects_guarded": [
+      "prepared initial empty acknowledgement before proposal",
+      "completed/pending membership admission before generator",
+      "active public checkpoint publication cannot relabel previous history",
+      "public tell before state acceptance/publication",
+      "public resume before pending evaluator replay",
+      "each native batch physical evaluator call"
+    ],
+    "explicit_new_run": "run_search retires old self.checkpoint_ref only in explicit new-run lifecycle; pending/active checkpoint cannot silently rebind",
+    "initial_restore": "existing full saved/current configuration comparison plus explicit saved configuration passed through same admission before fresh strategy/live state mutation",
+    "pre_fix_review_path": "/dev/shm/e02-D-live-profile-v4-before-0if1omk0/independent-review.json",
+    "pre_fix_review_sha256": "7346db19e6c14b7cf27b21c304d6f4cc45384f289968e7f12d3f902ad2aee84b",
+    "single_boundary": "existing actual qualified checkpoint CAS configuration, not dynamic current-vs-current recomputation",
+    "source_compatibility": "trial profile now binds actual NativeSearchService module bytes; old flawed-v4 profile cannot resume under fixed admission"
+  },
+  "reviewed_superseded_initial_v5": {
+    "immutable_initial_patch": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-v4-to-v5.initial-98d655.patch",
+    "path": "/dev/shm/e02-D-live-profile-v4-before-0if1omk0/independent-final-v5-production-review.json",
+    "sha256": "b76ab97f589c42486e7bc0b660954869d4189e725214abe7231132b768da10ef",
+    "state": "historical static; final proposal rollback exception delta supersedes; initialv5runtimeUNRUN"
+  },
+  "reviewer": "gp_oct07",
+  "runtime_after_repair": "UNRUN until immutable candidate realcallers/independent test controls execute",
+  "schema": "e02.D.independent-production-review.v1"
+}

@@ -1,0 +1,187 @@
+{
+  "schema": "e02.D.portable-output-manifest.v1",
+  "source": "96905636726483fdea3a98d9313871d825b54a9e",
+  "tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "files": [
+    {
+      "path": "carry-ast-census-boundary.json",
+      "bytes": 2333,
+      "sha256": "11ff8463d637b5c53254e7fd07e8c5bd197fb3afdc2cac4dc6482548afba7fce"
+    },
+    {
+      "path": "carry-metadata-correction.json",
+      "bytes": 13888,
+      "sha256": "6c8c8bd904e3d4485814f1811388751d72c40f37674c887d2c4aa661369cc88a"
+    },
+    {
+      "path": "complete-deciding-output.json.gz",
+      "bytes": 1408680,
+      "sha256": "32134c67b7794546fd9eb2ec6bf7edf6be87dc7d02494e4d6174724e0336f633"
+    },
+    {
+      "path": "handoff.initial-8f007e8.json",
+      "bytes": 5062,
+      "sha256": "8f007e8a9a8b9fb3e6f89141fb24ff344a6bd5ee2d36b3947a397c9aa80cf8c2"
+    },
+    {
+      "path": "handoff.json",
+      "bytes": 8268,
+      "sha256": "8f55a894167e26ff48489d5c7abd4995860433dd93bf7995aea27da290691029"
+    },
+    {
+      "path": "independent-adapter-runtime-review.json",
+      "bytes": 3552,
+      "sha256": "614b1d384b35bb552debe1a9eb5d624b5011939561ceb7cd0e77510abb388f76"
+    },
+    {
+      "path": "independent-census-current-carry-review.json",
+      "bytes": 6487,
+      "sha256": "8f2028b321e30da70b4b95732c5efff38bd8c8c710ee204807f10a9555f08206"
+    },
+    {
+      "path": "independent-math-current-carry-review.json",
+      "bytes": 4979,
+      "sha256": "99fe868537fdb3412dfa7f1b73457c98c3b7eca9d2e8e149c1502296429582fd"
+    },
+    {
+      "path": "independent-native-transfer3-review.json",
+      "bytes": 14151,
+      "sha256": "3a3a203a8549fe60165f6a14d5a7c3b811e218c29d350be32cc342f6b2b07891"
+    },
+    {
+      "path": "independent-service-runtime-review.json",
+      "bytes": 11308,
+      "sha256": "54f8e02ff2f0ef92a9b90fd5b52170b3867c4278297afa869d7d7e861ccca697"
+    },
+    {
+      "path": "math-final969-numerical-carry-independent-review.json",
+      "bytes": 2326,
+      "sha256": "ee21e18628c842fe52a75414c8456dbf2cf3767b12c751540b8245119bd13236"
+    },
+    {
+      "path": "modulebudget-actual-counts.json",
+      "bytes": 1794,
+      "sha256": "5835de186ce3c0b596180e4253cea0f42b56cf1558dfec37e1b7cb6c03306f3e"
+    },
+    {
+      "path": "modulebudget-delta.json",
+      "bytes": 29562,
+      "sha256": "bd60ba47e2564d49c61b6cc6ce190d20bbfb464a9f7071889c092605981ad7c6"
+    },
+    {
+      "path": "native-transfer3/execution.json",
+      "bytes": 1683,
+      "sha256": "88a0d394c8644ec4ebf3334c65dd380681b73f0b1cc6f1d8dcc4c71c2b11ddaf"
+    },
+    {
+      "path": "native-transfer3/junit.xml",
+      "bytes": 795,
+      "sha256": "80588293ba25a3daaee02e556e95a97c2220d1a9b42ff218b9cbf8c1fa850c11"
+    },
+    {
+      "path": "native-transfer3/result.json",
+      "bytes": 718,
+      "sha256": "d45d0bc092ffe70ed950ea5cd98ec55d658bc0ebde0ede710296999be35a6033"
+    },
+    {
+      "path": "native-transfer3/selectors.json",
+      "bytes": 72,
+      "sha256": "179933e01b7e679d33f753c163d55a8fc8147d25752f418db3142bc7d7bf21ab"
+    },
+    {
+      "path": "native-transfer3/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native-transfer3/stdout.log",
+      "bytes": 2285,
+      "sha256": "4b0539bb3f4b7b883560ef67c56d64a4a4c8495980ee39025941b91f0f30c606"
+    },
+    {
+      "path": "pre-fix-staged-drift/command.json",
+      "bytes": 754,
+      "sha256": "f17f322a612535ba47a6148f76697ba33d7bcfdd911bd2ad9a005c7d015929fc"
+    },
+    {
+      "path": "pre-fix-staged-drift/independent-final-v5-corrected-production-review.json",
+      "bytes": 6287,
+      "sha256": "d5c86a9bd959a51d3144234bd5f2128a97361c886e833d02c4e0eb996b279016"
+    },
+    {
+      "path": "pre-fix-staged-drift/independent-final-v5-production-review.json",
+      "bytes": 4565,
+      "sha256": "b76ab97f589c42486e7bc0b660954869d4189e725214abe7231132b768da10ef"
+    },
+    {
+      "path": "pre-fix-staged-drift/independent-final-v5-run-scope-review.json",
+      "bytes": 1973,
+      "sha256": "cbc2613f11cb6ed3fe06ec338749e0edf2717ac39af869cc27375b26f475ec7c"
+    },
+    {
+      "path": "pre-fix-staged-drift/independent-review.json",
+      "bytes": 5758,
+      "sha256": "7346db19e6c14b7cf27b21c304d6f4cc45384f289968e7f12d3f902ad2aee84b"
+    },
+    {
+      "path": "pre-fix-staged-drift/junit.xml",
+      "bytes": 5642,
+      "sha256": "96d826eb08ff50e11da43d36c63bef6183310b252e63bd1ffae7b138e1ca673f"
+    },
+    {
+      "path": "pre-fix-staged-drift/result.json",
+      "bytes": 821,
+      "sha256": "e4d6ba6abb71a9729ade76d2219cc2382fda001d726069a4386a150484eaf8d2"
+    },
+    {
+      "path": "pre-fix-staged-drift/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "pre-fix-staged-drift/stdout.txt",
+      "bytes": 35827,
+      "sha256": "01d93a4a618bb88dcb54317d6b56b1c3d4d2fa5977d14c7ec18a4c7fbf954ded"
+    },
+    {
+      "path": "scoped-carry.json",
+      "bytes": 1027494,
+      "sha256": "315e983834ccc09de1aa23130f45b0651824e4e5340728fded3c37df3313defd"
+    },
+    {
+      "path": "setup-error/execution.json",
+      "bytes": 1598,
+      "sha256": "e9115abef40e48faa289790a4a1c4864f42d677f01a997d201404af7a22c327b"
+    },
+    {
+      "path": "setup-error/junit.xml",
+      "bytes": 1107,
+      "sha256": "d30398f5ec7047d9b8c556b7e8a26bdb0c54db91c96d60baa25485bab121e73d"
+    },
+    {
+      "path": "setup-error/result.json",
+      "bytes": 718,
+      "sha256": "6eb1a534fe54ffe56aad912de5586eee0e2b3205ac173cd681149055190258ca"
+    },
+    {
+      "path": "setup-error/selectors.json",
+      "bytes": 72,
+      "sha256": "179933e01b7e679d33f753c163d55a8fc8147d25752f418db3142bc7d7bf21ab"
+    },
+    {
+      "path": "setup-error/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "setup-error/stdout.log",
+      "bytes": 2597,
+      "sha256": "9305ac290329c1bdec96b2683c3646383159ccc87fdc20fcc2ae94be933de7e7"
+    },
+    {
+      "path": "source-footprint-from828.json",
+      "bytes": 111577,
+      "sha256": "3aba96cd1f848bd45c455bd03b196c8d48c6dbbcdf9a67b35e9ceeede23ed2b6"
+    }
+  ]
+}

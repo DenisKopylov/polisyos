@@ -1,0 +1,12 @@
+{
+  "source_sha": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "source_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "slice_base": "96905636726483fdea3a98d9313871d825b54a9e",
+  "own_original_lineage": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "state": "awaiting independent current13/negative2 runtime review before finalseal",
+  "pending": "Math/Census actualruntime receipt",
+  "cleanup_candidates_only": [
+    "/dev/shm/fiscal-current680-67egtqt6/guard-fixture"
+  ],
+  "cleanup_action": "none; preserve source/uniqueinputs/outputs/activeenvs; no permanentdeletion"
+}

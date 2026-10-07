@@ -1,0 +1,106 @@
+{
+  "schema": "e02.D.fiscal_alias_independent_final_source_review.v1",
+  "reviewer": "transfer_oct07; not production/test/companion author",
+  "base": "96905636726483fdea3a98d9313871d825b54a9e",
+  "base_tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "staged_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "full_changed_footprint": {
+    "policy-engine/src/polisyos/scientist/methods/search/objective.py": {
+      "sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+      "bytes": 10337,
+      "git_index_blob": "76f15a5d276754db6c719515f79414f41af9c52c"
+    },
+    "policy-engine/tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py": {
+      "sha256": "89b7fe53ee40da9fec92528278772267944edb250d923d45018dfb33846bf206",
+      "bytes": 7128,
+      "git_index_blob": "dd1de0ca3aeff24862f0406e9e07905b8e3b56e7"
+    },
+    "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md": {
+      "sha256": "60089f9a062dc5b0142d2d8d5adbeb477a744966f34f319ca23473866efe475a",
+      "bytes": 26039,
+      "git_index_blob": "767659b246dc79e9c4e445db5f7abad915634d1e"
+    },
+    "policy-engine/release-fragments/unreleased/2026-10-07-fiscal-float64-admission.toml": {
+      "sha256": "fdf1f7f45e0449e62c473b62217096fdd4317946b5d7d234d03176211a88931e",
+      "bytes": 2316,
+      "git_index_blob": "31638908e65913212b866065e670252ce25ad398"
+    }
+  },
+  "actual_unchanged_dependency_inputs": {
+    "policy-engine/architecture/public_surface/inventory.json": {
+      "sha256": "c2b799aa89eb54ae98a746e8a46fb1d17da184f13fbf7e05b527844a4a792224",
+      "bytes": 220938,
+      "unchanged_from_969": true
+    },
+    "policy-engine/architecture/public_surface/contract.toml": {
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+      "bytes": 19715,
+      "unchanged_from_969": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/__init__.py": {
+      "sha256": "28e4bd443b1a6a34e01d96fc197b5e89df77e5bb1d53b73f23f5857d3ad43ef7",
+      "bytes": 12980,
+      "unchanged_from_969": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/stopping.py": {
+      "sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee",
+      "bytes": 19715,
+      "unchanged_from_969": true
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py": {
+      "sha256": "4161bc6dfa38838c107228672fab9e1468087c19ae7ddb4f510247577fac29c3",
+      "bytes": 28025,
+      "unchanged_from_969": true
+    },
+    "policy-engine/src/polisyos/core/canon/canon_json.py": {
+      "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95",
+      "bytes": 1882,
+      "unchanged_from_969": true
+    },
+    "policy-engine/src/polisyos/common/canonical.py": {
+      "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41",
+      "bytes": 10154,
+      "unchanged_from_969": true
+    }
+  },
+  "source_review": {
+    "verdict": "GO",
+    "scope": "complete four-path source/test/companion delta; actual runtime pending new immutable source",
+    "mechanism": "Existing shared four-alias float boundary adds exactly one refusal: converted zero from original Decimal/numeric text nonzero. Keeps bool/finite/overflow/null/fallback/sign/alias rules; standard DecimalException is fail closed.",
+    "same_class_widening": "all four fiscal alias inputs share same boundary, avoiding per-alias helper ladder",
+    "consumer": "Actual GatewayLLMClient._post_json controlled response-text transport -> preserved native Decimal -> BudgetDeficitObjective/CompositeObjective -> actual ImprovementPlateau/TargetAchieved, plus independent typed canonical decoder path",
+    "source_removal": "remove only one reviewed AST guard; actual raw Decimal and decoder/context markers preserved; expect finite zero/satisfied/false stopping in counterfactual",
+    "oracle": "independent Decimal exact nonzero sign versus float64 representability; genuine literal zero/representable +/-subnormal/ordinary controls; no production scientific law"
+  },
+  "tests_review": {
+    "new_defining_cells": 63,
+    "existing_objective_cells": 10,
+    "total": 73,
+    "gateway_tiny_cells": 8,
+    "gateway_supported_control_cells": 16,
+    "stopping_tiny_false_stop_discriminators": 8,
+    "stopping_genuine_wire_zero_positive": 4,
+    "all_test_source_read": true,
+    "full_ruff_ast_equality_receipt": "/dev/shm/e02-D-oct07-root-admission/fiscal-stopping-delta-ruff-ast-equality.json"
+  },
+  "compatibility_review": {
+    "verdict": "GO after daf835 correction",
+    "classification": "existing child paths internal by canonical inventory default; actual facade exports retain identity/signature but observable refusal behavior changes",
+    "public_surface_inventory_no_dedicated_objective_entry": true,
+    "public_api_appointment": "none",
+    "migration": "explicit breaking numeric refusal/source-bound checkpoint profile recipe; no schema/format or decoder change"
+  },
+  "independent_actual_base_witness": {
+    "path": "/dev/shm/e02-D-objective-canonical-Decimal-review/actual969_decoder_probe.json",
+    "sha256": "32aa10932b350775367d184f287f29b0aa95f6ad0f7fad8d1f1a0e353a3e4e08",
+    "outcomes": "actual9696FAIL7PASS; six nonzero Decimal/text or conflict become fakezero; controls retain actual values"
+  },
+  "P37_predicate_basis": "Raw Decimal/text original nonzero must not become finite measured zero or satisfy/stop; raw genuine zero/representable controls remain available. Defined only for supported Decimal/text float64 admission.",
+  "P38_proxy_divergence": "Rawcost/marker/nonzero metadata preserved while removed guard yields real finite zero and real stopping; test discriminates quantity rather than parse or type markers.",
+  "limitations": [
+    "B108 actual fiscal issuer/unit/sign/alias authority remains independent missing owner input; no finding closure from fixture.",
+    "Already-rounded float zero cannot recover original lost lexeme; arbitrary precision equality, Fraction/custom __float__, and other objective families not asserted.",
+    "All new runtime checks UNRUN until root immutable commit; no source393 baseline invented.",
+    "Owner Math authored production/tests/companions; this reviewer only independent source/oracle/control."
+  ]
+}

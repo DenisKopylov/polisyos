@@ -1,0 +1,25 @@
+{
+  "schema": "e02.D.independent-fixture-import-custody-review.v1",
+  "reviewer": "census_oct07",
+  "author": "funnel_oct07",
+  "verdict": "GO_NORMAL_ACTUAL_SIBLING_IMPORT_CUSTODY_ONLY",
+  "base": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "path": "policy-engine/tests/unit/scientist/methods/search/test_service_owner_budget_factory.py",
+  "base_sha256": "20458a897f387317049ee825d0290c8cb5e0ecbcef257ceee2250cf0079466f2",
+  "draft_sha256": "a8a02ed2b2b25d0f729a1ebe5252d0fa0645b39cdd9b0ef040b73919b17f6198",
+  "patch_sha256": "a43ce81289a8741c9bb1342e9500c5012d5aa509dfb96002d365805439680e03",
+  "all_test_function_AST_exact": true,
+  "test_function_names": [
+    "test_public_runner_consumes_true_zero_or_paid_fresh_owner_snapshot",
+    "test_public_runner_paid_cutoff_refuses_before_actual_generator_and_evaluator",
+    "test_public_factory_pending_owner_fence_survives_fresh_cas_restore_and_resume",
+    "test_actual_owner_change_after_ask_preflight_is_not_rolled_back_to_known_zero",
+    "test_public_factory_resume_refuses_changed_cost_scope_or_rule"
+  ],
+  "declared_cases": 10,
+  "premise": "Actual evaluator/helper module registered by ordinary import, source custody inspect resolves exactexisting siblingfilebbb694. No evaluatorclassname/sourceprofile spoof or production guard relaxation. Same ordinary import supported by existingAdapter50consumer. HTTPtextfixture remains unchanged.",
+  "historical_a7_runtime": "10 fixtureFAIL before factoryconsumer; protectedpropertyUNRUN",
+  "next_runtime": "Actual new immutable10 definingcases and realrollbackrace removal1; no inferred PASS",
+  "accepted_in_G": false,
+  "formal_closed": false
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "D.e02.fiscal-source-freeze.v1",
+  "utc": "2026-10-07T11:03:32.697203+00:00",
+  "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "slice_base": "96905636726483fdea3a98d9313871d825b54a9e",
+  "source_history_base": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "fresh_main_anchor": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "fresh_G": "76746fececd1a183a516c48f07ce2835baa8a2d1",
+  "full_changed_paths": [
+    "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-fiscal-float64-admission.toml",
+    "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py"
+  ],
+  "independent_final_source_review_sha256": "07ec1fedcfb750a120108f49acf290edf9e48477bfdcded72206a1a595d28377",
+  "additional_source_and_stopping_reviews": [
+    "f90f392167a5e07f9f8928c4dd692b2512f7a23b3278d3348db53d877515dd98",
+    "f850a6ee429bc9462509979af8ab36f5fcdeb175710a60f0b33ceb358cb690a1",
+    "a617b37213525dbdbe889fa6857297129f4246cf8b39981b821d02f221d16bb8"
+  ],
+  "runtime_property": "UNRUN until actual73/Service18/independent13/removal outputs",
+  "B108_scientific_law": "limited owner input; no new law or authority supplied",
+  "accepted_G": false,
+  "formal_closed": false
+}

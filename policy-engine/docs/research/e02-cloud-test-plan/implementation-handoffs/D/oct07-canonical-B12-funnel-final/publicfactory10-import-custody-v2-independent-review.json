@@ -1,0 +1,20 @@
+{
+  "reviewer": "/root/census_oct07",
+  "decision": "GO_TEST_ONLY_RUNTIME_UNRUN",
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "patch": "/dev/shm/e02-D-funnel-oct07/publicfactory-import-custody-v2/publicfactory-import-custody-v2.patch",
+  "patch_sha256": "c312b738e6e2815023d721e449d63c6dbfcd433c8ea8d450cf5d54a8842a73be",
+  "chosen_sha256": "f11b7047de033785f77ac71d972ce93d2771b53950371c149a5f0846dc3cc205",
+  "unchanged_test_bodies": [
+    "test_public_runner_consumes_true_zero_or_paid_fresh_owner_snapshot",
+    "test_public_runner_paid_cutoff_refuses_before_actual_generator_and_evaluator",
+    "test_public_factory_pending_owner_fence_survives_fresh_cas_restore_and_resume",
+    "test_actual_owner_change_after_ask_preflight_is_not_rolled_back_to_known_zero",
+    "test_public_factory_resume_refuses_changed_cost_scope_or_rule"
+  ],
+  "supported_import": "ordinary sibling test_service_persistence import matches actual factory_fault_resume existing profile",
+  "helper_source_sha256": "bbb694579185c19eb77ad64f1a78ddbf7a224a00d7e460818563850eb49c7663",
+  "predicate_basis": "Real evaluator class __module__ registered by normal Python import; inspect.getsourcefile admits exact existing benchmark evaluator source. No module/class/profile spoof.",
+  "scope": "Only replaces run_path unregistered evaluator helper with actual ordinary imported helper; all existing ten test assertion ASTs exact. Old ten fixtureFAIL before consumer preserved. Collection diagnostic scope only, no current runtime PASS.",
+  "supersedes": "a43ce812 namespace import unavailable under actual embedded capture runner; retained diagnostic is not product failure."
+}

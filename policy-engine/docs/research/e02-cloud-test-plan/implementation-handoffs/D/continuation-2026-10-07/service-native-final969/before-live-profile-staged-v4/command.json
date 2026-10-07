@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "-ra",
+    "--basetemp=/dev/shm/e02-D-live-profile-v4-before-0if1omk0/basetemp",
+    "--junitxml=/dev/shm/e02-D-live-profile-v4-before-0if1omk0/junit.xml",
+    "/dev/shm/e02-D-live-profile-v4-before-0if1omk0/test_live_profile_before.py"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "profile": "minimal; no backend fit requested",
+  "source_kind": "development staged exact index tree, not immutable HEAD runtime verdict",
+  "env_overrides": {
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  }
+}

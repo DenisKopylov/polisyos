@@ -1,0 +1,51 @@
+{
+  "schema": "D.e02.fiscal-only.final680.four-path-source-independent-bind.v1",
+  "reviewer": "/root/census_oct07",
+  "created_utc": "2026-10-07T11:04:32.920400+00:00",
+  "decision": "GO_EXACT_IMMUTABLE680_REVIEWED_FISCAL_ONLY_SOURCE_TEST_DOC_RELEASE",
+  "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "own_original_receipt_history": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "slice_base": "96905636726483fdea3a98d9313871d825b54a9e",
+  "full969_to680_changed_paths": [
+    "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-fiscal-float64-admission.toml",
+    "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py"
+  ],
+  "actual_changed_production_paths": [
+    "policy-engine/src/polisyos/scientist/methods/search/objective.py"
+  ],
+  "four_reviewed_source_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "blob": "76f15a5d276754db6c719515f79414f41af9c52c",
+      "sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+      "bytes": 10337
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py",
+      "blob": "dd1de0ca3aeff24862f0406e9e07905b8e3b56e7",
+      "sha256": "89b7fe53ee40da9fec92528278772267944edb250d923d45018dfb33846bf206",
+      "bytes": 7128
+    },
+    {
+      "path": "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+      "blob": "767659b246dc79e9c4e445db5f7abad915634d1e",
+      "sha256": "60089f9a062dc5b0142d2d8d5adbeb477a744966f34f319ca23473866efe475a",
+      "bytes": 26039
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-fiscal-float64-admission.toml",
+      "blob": "31638908e65913212b866065e670252ce25ad398",
+      "sha256": "fdf1f7f45e0449e62c473b62217096fdd4317946b5d7d234d03176211a88931e",
+      "bytes": 2316
+    }
+  ],
+  "test_AST": "exact e0ea26 final63 including actualcanonicalHTTP→Composite/Plateau/Target controls; Ruffformat/import only",
+  "implementation_AST": "exact4af806 reviewedexisting sharedalias guard plus stdlibDecimal import",
+  "actual_new_runtime": "UNRUN pending immutable73/Service18/Transfer13/negative capture, no positive property inference from sourcecommit",
+  "source_qualification": "Strong model/state/ANN/CAS/funnel/decoder/ledger source remains unchanged except objective alias helper. Olddecidingoutputs retain executedSHA; currentaffected callers need actualresults. Existing input/model sourceprofiles remain their recordedcompatibility, no cross-buildmigration claim.",
+  "formal_closed": false,
+  "accepted_G": false
+}

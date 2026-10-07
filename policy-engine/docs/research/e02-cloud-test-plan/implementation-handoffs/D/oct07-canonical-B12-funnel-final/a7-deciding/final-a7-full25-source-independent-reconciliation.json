@@ -1,0 +1,320 @@
+{
+  "implementation_sha": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+  "index_and_working_bytes_exact": true,
+  "schema": "e02.D.independent-source-reconciliation.v1",
+  "reviewer": "census_oct07",
+  "base": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "verdict": "GO_COMPLETE25_IMMUTABLE_IMPLEMENTATION_AND_ALL_BINDINGS",
+  "full_changed_path_set_exact": true,
+  "rows": [
+    {
+      "path": "policy-engine/src/polisyos/core/llm/response.py",
+      "reviewed_sha256": "26fd51c898c67d149c3d56fa746733d9a519dbf73a94b3e35396dffcc95e6a7e",
+      "actual_sha256": "8e9d9cb25cc73257a55f76acbc1cdd66871a2e207b1efd7e19e7b12024a385ea",
+      "actual_bytes": 15084,
+      "equivalence": "whole_AST_exact",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-funnel-oct07/durable-cache-boundary-v1/three-path-durable-cache-boundary-v1.patch",
+        "patch_sha256": "65dd4ec1da68dece76a620e828735d1e5b33b8063d6658180dd7606324c97f79",
+        "reconstructed_from_base": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "reviewed_sha256": "215adc1ee70c5ac0426db93126dff2a7e8bed23ca3e90bbcdeddc35da35d18da",
+      "actual_sha256": "215adc1ee70c5ac0426db93126dff2a7e8bed23ca3e90bbcdeddc35da35d18da",
+      "actual_bytes": 59275,
+      "equivalence": "exactbytes",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-funnel-oct07/durable-cache-boundary-v1/three-path-durable-cache-boundary-v1.patch",
+        "patch_sha256": "65dd4ec1da68dece76a620e828735d1e5b33b8063d6658180dd7606324c97f79",
+        "reconstructed_from_base": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "reviewed_sha256": "2602c3f6f518ad62529fe61b43a304f468fc38f3624e556e806d2097e22f2795",
+      "actual_sha256": "b38028b16da9637679d740545698418f74ac02ee78d7282caec7a8aa5d1002c0",
+      "actual_bytes": 66942,
+      "equivalence": "whole_AST_exact",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-funnel-oct07/durable-cache-boundary-v1/three-path-durable-cache-boundary-v1.patch",
+        "patch_sha256": "65dd4ec1da68dece76a620e828735d1e5b33b8063d6658180dd7606324c97f79",
+        "reconstructed_from_base": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "reviewed_sha256": "b64d2e6a49e173e58316bf843dab889a775d6b26c9ad6a81d10c2281bce94185",
+      "actual_sha256": "b64d2e6a49e173e58316bf843dab889a775d6b26c9ad6a81d10c2281bce94185",
+      "actual_bytes": 21887,
+      "equivalence": "exactbytes",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-oct07-service-start/runner-complete-existing-contract-type-delta-current.patch",
+        "patch_sha256": "32fef2c2b1b0fe1f566af4b96a9c6e1c8eb8fd717ab359641205b9e417b83542",
+        "reconstructed_from_base": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "reviewed_sha256": "3df2c3a05c0571065f8ac45c260a03a80c1493ebfab1b0f532d9e90a5a83a6b1",
+      "actual_sha256": "3df2c3a05c0571065f8ac45c260a03a80c1493ebfab1b0f532d9e90a5a83a6b1",
+      "actual_bytes": 46758,
+      "equivalence": "exactbytes",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-oct07-service-start/ask-owner-preflight-and-rollback-refresh-c0.patch",
+        "patch_sha256": "08afe1c8743b758bfcc0c93ef1e0947f19f931518aaffc004e31f224f29d643e",
+        "reconstructed_from_base": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+      }
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_typed_objective_persisted_projection.py",
+      "reviewed_sha256": "ea3a6528f70d38b9d68f555ec1213fac2b0511fe45dca115953dac9cff9d1cc8",
+      "actual_sha256": "6f99a45fd73a35276ad14c28da88f4307a0f47e13f704011e0ca6d0f9ca10e32",
+      "actual_bytes": 5373,
+      "equivalence": "whole_AST_exact",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-oct07-service-start/objective-json-custody-and-legacy-fixture-correction-c0.patch",
+        "patch_sha256": "83b06993acd41a656dc7d712bd76dc2712f5734695c3a2dbc832442aecd4cfa2",
+        "reconstructed_from_base": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+      }
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py",
+      "reviewed_sha256": "bbb694579185c19eb77ad64f1a78ddbf7a224a00d7e460818563850eb49c7663",
+      "actual_sha256": "bbb694579185c19eb77ad64f1a78ddbf7a224a00d7e460818563850eb49c7663",
+      "actual_bytes": 43349,
+      "equivalence": "exactbytes",
+      "provenance": {
+        "patch": "/tmp/e02-D-math-oct07-drafts/service-underflow-nullable-wire-fixture-c0.patch",
+        "patch_sha256": "326e996f2589816ed71461fb067f64a2d09593b0c726d6b9a459cbf8656ec679",
+        "reconstructed_from_base": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+      }
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py",
+      "reviewed_sha256": "b4dfbfbac159761612c057504558c4095a922f967ce0d38741ea82f5a7d37af3",
+      "actual_sha256": "5bd2171bcf7dc403095a51cef382d358d850bdc7fe0b71d55959973ed2815b95",
+      "actual_bytes": 18897,
+      "equivalence": "whole_AST_exact",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-funnel-oct07/clone-safe-fixtures-v4/five-path-clone-safe-v4.patch",
+        "patch_sha256": "a635df9bd21d7ffaec03c81690664f48f9c9b65fc82fc3dd90eaab83ef367f95",
+        "reconstructed_from_base": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+      }
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+      "reviewed_sha256": "b3a9b703d809fe07b3dc19dad3521e44f5648be7748a0306828e1afd8a421a4b",
+      "actual_sha256": "77b751f6286a38592df4d46685342aa1101b65130a82831c9e19f2ee4695b05e",
+      "actual_bytes": 24885,
+      "equivalence": "reviewed_importsort_unused_dataclass_import_unused_owner_rename_only",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-funnel-oct07/clone-safe-fixtures-v4/five-path-clone-safe-v4.patch",
+        "patch_sha256": "a635df9bd21d7ffaec03c81690664f48f9c9b65fc82fc3dd90eaab83ef367f95",
+        "reconstructed_from_base": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+      }
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py",
+      "reviewed_sha256": "3cd1d74637ad462d4f7976d88720a221ed231ab2e4b6ae5ae29b7a8d08a8e453",
+      "actual_sha256": "4833da241c05d5121eb9bb25341545edfe6fa359845d0e91e6c8f9ad138457f7",
+      "actual_bytes": 6023,
+      "equivalence": "reviewed_importsort_unused_dataclass_import_unused_owner_rename_only",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-funnel-oct07/clone-safe-fixtures-v4/five-path-clone-safe-v4.patch",
+        "patch_sha256": "a635df9bd21d7ffaec03c81690664f48f9c9b65fc82fc3dd90eaab83ef367f95",
+        "reconstructed_from_base": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+      }
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py",
+      "reviewed_sha256": "6e9caa3982fe64b00570dcb2cd97016570a2cb4fa94431593a7999e2bcefc899",
+      "actual_sha256": "6e9caa3982fe64b00570dcb2cd97016570a2cb4fa94431593a7999e2bcefc899",
+      "actual_bytes": 9202,
+      "equivalence": "exactbytes",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-funnel-oct07/clone-safe-fixtures-v4/five-path-clone-safe-v4.patch",
+        "patch_sha256": "a635df9bd21d7ffaec03c81690664f48f9c9b65fc82fc3dd90eaab83ef367f95",
+        "reconstructed_from_base": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+      }
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "reviewed_sha256": "a4f363ef9f6b0c8db9082cab73cf9321aea7d3f8500658a59f61fc14818c8d85",
+      "actual_sha256": "88c8bad0c3d28b0ca091399d4a983f8adadddacc5bfe59628fe713dcf56bf0f2",
+      "actual_bytes": 16626,
+      "equivalence": "reviewed_importsort_unused_dataclass_import_unused_owner_rename_only",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-funnel-oct07/clone-safe-fixtures-v4/five-path-clone-safe-v4.patch",
+        "patch_sha256": "a635df9bd21d7ffaec03c81690664f48f9c9b65fc82fc3dd90eaab83ef367f95",
+        "reconstructed_from_base": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+      }
+    },
+    {
+      "path": "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+      "reviewed_sha256": "f9af53cb5c3306e6db057c08b88bd9abd81d9797e7850efd3fe1d0b64dbb67be",
+      "actual_sha256": "f9af53cb5c3306e6db057c08b88bd9abd81d9797e7850efd3fe1d0b64dbb67be",
+      "actual_bytes": 18985,
+      "equivalence": "exactbytes",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-oct07-service-start/runner-native-return-and-analysis-proof-compat-current.patch",
+        "patch_sha256": "19ebbfd318c4b2e049ad123b8666cc93eae1eef172eb8fbb8500231ca5ef3910",
+        "reconstructed_from_base": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+      }
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-native-search-budget-owner-port.toml",
+      "reviewed_sha256": "79dc15d9b25f9e3a6ec46d5504388e993678fb6cb799030d2c82c2bfd83baef1",
+      "actual_sha256": "79dc15d9b25f9e3a6ec46d5504388e993678fb6cb799030d2c82c2bfd83baef1",
+      "actual_bytes": 3791,
+      "equivalence": "exactbytes",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-oct07-service-start/runner-native-return-and-analysis-proof-compat-current.patch",
+        "patch_sha256": "19ebbfd318c4b2e049ad123b8666cc93eae1eef172eb8fbb8500231ca5ef3910",
+        "reconstructed_from_base": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/README.md",
+      "reviewed_sha256": "c5a039b0433393ecdbdaa2ee43fc5fcaf9c456a287d2d70376fbe6302d4011a7",
+      "actual_sha256": "c5a039b0433393ecdbdaa2ee43fc5fcaf9c456a287d2d70376fbe6302d4011a7",
+      "actual_bytes": 6254,
+      "equivalence": "exactbytes",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-funnel-oct07/durable-cache-boundary-v1/four-companions-financial-boundary-v1.patch",
+        "patch_sha256": "5b6e2e436b8efc26cdc431c54b9a179bb19e3159d2f93e448b3a3160bbf443f8",
+        "reconstructed_from_base": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+      "reviewed_sha256": "8b56583b9e22d432fbfe9d9e9b711f8824a52b37e8f72011cadd29f63ba54f3e",
+      "actual_sha256": "8b56583b9e22d432fbfe9d9e9b711f8824a52b37e8f72011cadd29f63ba54f3e",
+      "actual_bytes": 10183,
+      "equivalence": "exactbytes",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-funnel-oct07/durable-cache-boundary-v1/four-companions-financial-boundary-v1.patch",
+        "patch_sha256": "5b6e2e436b8efc26cdc431c54b9a179bb19e3159d2f93e448b3a3160bbf443f8",
+        "reconstructed_from_base": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+      "reviewed_sha256": "af62999ab5663d58cb3d9aa751f43e59c68803dbb5c10c3e2e6c51eaa2ecd80b",
+      "actual_sha256": "af62999ab5663d58cb3d9aa751f43e59c68803dbb5c10c3e2e6c51eaa2ecd80b",
+      "actual_bytes": 4685,
+      "equivalence": "exactbytes",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-funnel-oct07/durable-cache-boundary-v1/four-companions-financial-boundary-v1.patch",
+        "patch_sha256": "5b6e2e436b8efc26cdc431c54b9a179bb19e3159d2f93e448b3a3160bbf443f8",
+        "reconstructed_from_base": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+      }
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_service_owner_budget_factory.py",
+      "reviewed_sha256": "4ee61914412d57e3fab3c9d11278d3fafe7db72cff2e2dee6919706c2ee0d582",
+      "actual_sha256": "20458a897f387317049ee825d0290c8cb5e0ecbcef257ceee2250cf0079466f2",
+      "actual_bytes": 11201,
+      "equivalence": "whole_AST_exact",
+      "provenance": {
+        "draft": "/dev/shm/e02-D-funnel-oct07/test_service_owner_budget_factory.py",
+        "sha256": "4ee61914412d57e3fab3c9d11278d3fafe7db72cff2e2dee6919706c2ee0d582"
+      }
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+      "reviewed_sha256": "20b212a6ef13a69f3c1a0fd9bb0b9724d9da74e370ac004fe0747adb3e4ad6c0",
+      "actual_sha256": "20b212a6ef13a69f3c1a0fd9bb0b9724d9da74e370ac004fe0747adb3e4ad6c0",
+      "actual_bytes": 17016,
+      "equivalence": "exactbytes",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-oct07-service-start/analysis-return-ref-factory-two-current.patch",
+        "patch_sha256": "c32c25916156912e4cb13a6b287cf0c791d5f9662daf83476d31ea6a39d51640",
+        "reconstructed_from_base": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+      }
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-durable-cache-financial-boundary.toml",
+      "reviewed_sha256": "d869a3f6168e39ef77f8964b4b0b12f4064a6b516e3ef4c79d79ff364d9b5df2",
+      "actual_sha256": "d869a3f6168e39ef77f8964b4b0b12f4064a6b516e3ef4c79d79ff364d9b5df2",
+      "actual_bytes": 2271,
+      "equivalence": "exactbytes",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-funnel-oct07/financial-boundary-structured-release-v1.patch",
+        "patch_sha256": "7f7af14b85877f12c670bbd3ff98e1f6502da3fd67664e91c4e3762a866aa50e",
+        "reconstructed_from_base": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+      }
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-funnel-canonical-B12-consumer.toml",
+      "reviewed_sha256": "60c2063076dd19bb470aa1f9e2d5ba955c4a7d6501eaf555763bd8cc6979ec44",
+      "actual_sha256": "60c2063076dd19bb470aa1f9e2d5ba955c4a7d6501eaf555763bd8cc6979ec44",
+      "actual_bytes": 1930,
+      "equivalence": "exactbytes",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-funnel-oct07/financial-boundary-structured-release-v1.patch",
+        "patch_sha256": "7f7af14b85877f12c670bbd3ff98e1f6502da3fd67664e91c4e3762a866aa50e",
+        "reconstructed_from_base": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+      }
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-durable-completion-obligations.toml",
+      "reviewed_sha256": "0c9bc99ad01b430e792cce99c5edb845367f40b6152d4263b904ebed5979e4af",
+      "actual_sha256": "0c9bc99ad01b430e792cce99c5edb845367f40b6152d4263b904ebed5979e4af",
+      "actual_bytes": 1530,
+      "equivalence": "exactbytes",
+      "provenance": {
+        "review": "final-release-classification-independent-review.json",
+        "only": "change_class = \"additive\" -> change_class = \"runtime-state-format\""
+      }
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-e02-b-gateway-exact-numeric-decode.toml",
+      "reviewed_sha256": "782b044cbd7d4396082d3871742da407015d69e20e4f3d11e017c2cb689b8899",
+      "actual_sha256": "782b044cbd7d4396082d3871742da407015d69e20e4f3d11e017c2cb689b8899",
+      "actual_bytes": 1909,
+      "equivalence": "exactbytes",
+      "provenance": {
+        "review": "final-release-classification-independent-review.json",
+        "only": "change_class = \"runtime-correctness\" -> change_class = \"internal\""
+      }
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-e02-d-native-cosine-admission.toml",
+      "reviewed_sha256": "0a9aa7c3f7ea31465ab9f74c4ae83658db9983068cfe396f67c8786be122d34a",
+      "actual_sha256": "0a9aa7c3f7ea31465ab9f74c4ae83658db9983068cfe396f67c8786be122d34a",
+      "actual_bytes": 1234,
+      "equivalence": "exactbytes",
+      "provenance": {
+        "review": "final-release-classification-independent-review.json",
+        "only": "change_class = \"execution-contract\" -> change_class = \"internal\""
+      }
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/test_controller.py",
+      "reviewed_sha256": "a30f80d961f0e15eeb814ea0ad90325e566a540f354445379f82d5191e5769dc",
+      "actual_sha256": "a30f80d961f0e15eeb814ea0ad90325e566a540f354445379f82d5191e5769dc",
+      "actual_bytes": 10931,
+      "equivalence": "exactbytes",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-oct07-service-start/controller-two-paid-run-original-criterion-current.patch",
+        "patch_sha256": "d227cd086b4419c11ecf3a5e649d0230216959e48ca0b70e514bd5f047eff52e",
+        "reconstructed_from_base": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+      }
+    }
+  ],
+  "counts": {
+    "whole_AST_exact": 5,
+    "exactbytes": 17,
+    "reviewed_importsort_unused_dataclass_import_unused_owner_rename_only": 3
+  },
+  "bad": [],
+  "unreviewed_paths": [],
+  "validation": "Reconstructed all approvedsource/test/companionpatches in memory from exactc0; unused ownerrenames proved no load; unuseddataclasses importsremoved. Canonicalpromptcache unchanged.",
+  "pending": "No unreviewed source delta. StructuredTOML/classifiers and existingcontract annotations/refguard/proofport plus2actualreturnref negatives reconciled.",
+  "runtime": "TARGETED_JOBS_RUNNING_ON_THIS_IMMUTABLE_SOURCE; noPASSinferredbythissourceReview",
+  "formal_closed": false,
+  "accepted_in_G": false
+}

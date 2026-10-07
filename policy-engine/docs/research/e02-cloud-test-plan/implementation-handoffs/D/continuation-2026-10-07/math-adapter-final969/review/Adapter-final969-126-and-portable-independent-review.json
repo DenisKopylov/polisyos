@@ -1,0 +1,68 @@
+{
+  "schema": "D.e02.Adapter.final969.actual126-portable-independent-review.v1",
+  "reviewer": "/root/census_oct07",
+  "created_utc": "2026-10-07T10:47:55.354511+00:00",
+  "decision": "GO_CURRENT126_AND_ACTUAL_HISTORY2_INNERJSON2_REMOVAL_CONTRIBUTIONS",
+  "source": "96905636726483fdea3a98d9313871d825b54a9e",
+  "tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "handoff_sha256": "7c1ff25457eb6cd7f6776552340c3ad0b36b0062dbde2f40408606f8f1c05178",
+  "complete_output_sha256": "1f071664c43a23c1ff158244754e9f6bd4da722f5667723acb21333aa57fc0ce",
+  "lossless_path_bindings_verified": 731,
+  "unique_raw_contents_verified": 251,
+  "source_bindings_verified": 13,
+  "original_occurrences_verified": 5,
+  "scope_records": [
+    {
+      "scope": "positive",
+      "cases": 126,
+      "result": "PASS",
+      "phases": {
+        "('setup', 'passed')": 126,
+        "('call', 'passed')": 126,
+        "('teardown', 'passed')": 126
+      },
+      "result_sha256": "3262088cc185034b3fbb741c5b64947163465f9afe520274941404c8e9077985",
+      "junit_sha256": "4d487b4e75e9d12e39243386c713d0b9399469ac30167167318749a1add2bbd4",
+      "origins_sha256": "ff8f314252559f840f0152a5a42d39a680d007f1954d1b91e6f8672449186370",
+      "wall_seconds": 46.36066539300373
+    },
+    {
+      "scope": "remove_history",
+      "cases": 2,
+      "result": "EXPECTED_ASSERTION_FAIL",
+      "phases": {
+        "('setup', 'passed')": 2,
+        "('call', 'failed')": 2,
+        "('teardown', 'passed')": 2
+      },
+      "result_sha256": "b138ed4d5efb0157d804729b7cedc9254173248a528af67d808c41c4ffa0bd5e",
+      "junit_sha256": "c3968d9a9d3e3f0f9177a7d966e745bb95dfaef51cbe38038eaece472bea21c7",
+      "origins_sha256": "d8657b644064d2fe8c7012d42a9056d2da216f23d26804e9db5a8857b54f99a9",
+      "wall_seconds": 25.3197952049959
+    },
+    {
+      "scope": "remove_inner_numeric",
+      "cases": 2,
+      "result": "EXPECTED_ASSERTION_FAIL",
+      "phases": {
+        "('setup', 'passed')": 2,
+        "('call', 'failed')": 2,
+        "('teardown', 'passed')": 2
+      },
+      "result_sha256": "6eb5c303a98b993969e2be55c11e27ca9c8d068cee3eeeb0d10c4def3537ab6b",
+      "junit_sha256": "a5a53232740854b6d01c4a5ebdbfa011b2b54e3a0532bab1adfc026f997e8064",
+      "origins_sha256": "d8657b644064d2fe8c7012d42a9056d2da216f23d26804e9db5a8857b54f99a9",
+      "wall_seconds": 15.954028317995835
+    }
+  ],
+  "observed_origin_hashes_independently_checked": 2859,
+  "actual_path": "Ordinary native Grid/StrategyAdapter/default Scalar codec/configured runner -> actual evaluation and exact CAS -> fresh public resume -> same full physical sequence/pending cursor/prefix/final history/frontier. Original supported built-in/custom live-only/refusal profile cells and nested numeric raw controls retained; all prior126case IDs identical.",
+  "independent_oracle": "Actual independently controlled Grid1..5 physical values and fresh-v-whole expected order/prefix; actual saved evaluatedprefix/pending2+3/cursor3, next4+5; strict copiedraw numeric finite admission law, zero/subnormal controls versus tiny/nonfinite/overflow invalid.",
+  "P38": "Remove only actual history validation or nested JSON finite parser while markers/realCAS preserved -> each2actualfreshresume DIDNOTRAISE assertionFAIL, no collection/setup error. Actualcounterfactual not productFAIL.",
+  "backend_scope": "Minimal actualPy3.14.7 nativeScalar/FS-CAS/Service profile, Torch/Bo/GPy notloaded; no GPnumericPASS.",
+  "input_qualification": "15927 tracked denominator includes7069 sparse unavailable paths; completecensus/changedpaths stable, not claim alltrackedread/P41. Selected actual origins and13critical sourcebindings independently rehashed.",
+  "original_criterion_contribution_only": "B125/B127/LA014/LA015canonical+CTLsupplier fiveoccurrences; otherfamily/identity/lifecycle receipts needed for full originalcriterion. No sole126-count closure inference.",
+  "historical_failures": "Old79adaptivefixture13FAIL,c0nullablewirefixture1FAIL and priora7fulloutputs preserved as exacthistorical, not newreplay.",
+  "formal_closed": false,
+  "accepted_in_G": false
+}

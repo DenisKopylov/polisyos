@@ -1,0 +1,73 @@
+{
+  "schema": "e02.portable-publication-manifest.v1",
+  "source": "96905636726483fdea3a98d9313871d825b54a9e",
+  "tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "files": [
+    {
+      "path": "adapter/current-adapter-consumer-handoff.json",
+      "bytes": 159269,
+      "sha256": "7c1ff25457eb6cd7f6776552340c3ad0b36b0062dbde2f40408606f8f1c05178",
+      "origin": "/tmp/e02-D-adapter-final-native-delta-ljb5dfqb/current-adapter-consumer-handoff.json"
+    },
+    {
+      "path": "adapter/current-adapter-complete-deciding-output.json.gz",
+      "bytes": 1980956,
+      "sha256": "1f071664c43a23c1ff158244754e9f6bd4da722f5667723acb21333aa57fc0ce",
+      "origin": "/tmp/e02-D-adapter-final-native-delta-ljb5dfqb/current-adapter-complete-deciding-output.json.gz"
+    },
+    {
+      "path": "numerical/numerical-current-final-unchanged-carry.json",
+      "bytes": 86408,
+      "sha256": "9edc5a7486bebe6adcb5a1d09aa88e4953a09e166818d6624f60d913238d34cf",
+      "origin": "/tmp/e02-D-adapter-final-native-delta-ljb5dfqb/numerical-current-final-unchanged-carry.json"
+    },
+    {
+      "path": "numerical/current-numerical-handoff.json",
+      "bytes": 54214,
+      "sha256": "0b1d9f194413e1b22dfa89cee88d81c315a7df582455cc690d8fc5835a7c1464",
+      "origin": "/tmp/e02-D-math-adapter-currenta7-publication-_ua_xnkn/numerical/current-numerical-handoff.json"
+    },
+    {
+      "path": "numerical/current-complete-deciding-output.json.gz",
+      "bytes": 1192223,
+      "sha256": "97481c8d6ad736253ed9b302966bccfcbd9e1c7457ca6e27af1c683d88f627eb",
+      "origin": "/tmp/e02-D-math-adapter-currenta7-publication-_ua_xnkn/numerical/current-complete-deciding-output.json.gz"
+    },
+    {
+      "path": "review/Adapter-final969-126-and-portable-independent-review.json",
+      "bytes": 4095,
+      "sha256": "3179c1e5269cf678dd1fdd485b039edc9c535869a44da3be93a43513291339ac",
+      "origin": "/dev/shm/e02-D-census-review-oct07/Adapter-final969-126-and-portable-independent-review.json"
+    },
+    {
+      "path": "review/Adapter126-current969-independent-runtime-review.json",
+      "bytes": 3552,
+      "sha256": "614b1d384b35bb552debe1a9eb5d624b5011939561ceb7cd0e77510abb388f76",
+      "origin": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/Adapter126-current969-independent-runtime-review.json"
+    },
+    {
+      "path": "review/math-final969-numerical-carry-independent-review.json",
+      "bytes": 2326,
+      "sha256": "ee21e18628c842fe52a75414c8456dbf2cf3767b12c751540b8245119bd13236",
+      "origin": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/math-final969-numerical-carry-independent-review.json"
+    },
+    {
+      "path": "review/math-current-c0-independent-runtime-review.json",
+      "bytes": 9013,
+      "sha256": "d83c325b8910d6227a639213197bd9506b7eb3ea3ed04223e79c3c815c4565ec",
+      "origin": "/tmp/e02-D-math-adapter-currenta7-publication-_ua_xnkn/review/math-current-c0-independent-runtime-review.json"
+    },
+    {
+      "path": "review/math-current-c0-independent-handoff-review.json",
+      "bytes": 2739,
+      "sha256": "9ca962ee4e92a4121d6476b9571aa18ac4337fc3b357d0aa31235b3aef667097",
+      "origin": "/tmp/e02-D-math-adapter-currenta7-publication-_ua_xnkn/review/math-current-c0-independent-handoff-review.json"
+    }
+  ],
+  "limitations": [
+    "Adapter126 actual final969; own numerical154 plus disjoint MO27 actual c0 retained at c0, with assertion-scoped reviewed969 carry, not new154 execution.",
+    "No tracked source copies; complete deciding outputs losslessly encoded inside two named gzip artifacts.",
+    "New fiscal alias underflow repair pending separate source/receipt; no mutation of these frozen outputs.",
+    "Formal G acceptance false."
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+  "cohorts": [
+    {
+      "cohort": "raw32",
+      "command": "raw32-a7e.command.json",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+      "phase_counts": {
+        "call:passed": 32,
+        "setup:passed": 32,
+        "teardown:passed": 32
+      },
+      "exit": 0,
+      "wall_seconds": 4.686646461486816,
+      "input_denominator": 6313,
+      "input_digest": "44e6bfda7153bbaeeb3b3bcddb8f55d43ba426dd0894465d3f79a86f91e845f8",
+      "full_source_stable": true,
+      "deciding_ledger_count": 12
+    },
+    {
+      "cohort": "cache18",
+      "command": "cache18-a7e.command.json",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+      "phase_counts": {
+        "call:passed": 18,
+        "setup:passed": 18,
+        "teardown:passed": 18
+      },
+      "exit": 0,
+      "wall_seconds": 7.565686464309692,
+      "input_denominator": 6313,
+      "input_digest": "44e6bfda7153bbaeeb3b3bcddb8f55d43ba426dd0894465d3f79a86f91e845f8",
+      "full_source_stable": true,
+      "deciding_ledger_count": 18
+    },
+    {
+      "cohort": "owner-HTTP30",
+      "command": "owner-HTTP30-a7e.command.json",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+      "phase_counts": {
+        "call:passed": 30,
+        "setup:passed": 30,
+        "teardown:passed": 30
+      },
+      "exit": 0,
+      "wall_seconds": 4.259999990463257,
+      "input_denominator": 6313,
+      "input_digest": "44e6bfda7153bbaeeb3b3bcddb8f55d43ba426dd0894465d3f79a86f91e845f8",
+      "full_source_stable": true,
+      "deciding_ledger_count": 0
+    },
+    {
+      "cohort": "affected138",
+      "command": "affected138-a7e.command.json",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+      "phase_counts": {
+        "call:passed": 138,
+        "setup:passed": 138,
+        "teardown:passed": 138
+      },
+      "exit": 0,
+      "wall_seconds": 33.79802846908569,
+      "input_denominator": 6313,
+      "input_digest": "44e6bfda7153bbaeeb3b3bcddb8f55d43ba426dd0894465d3f79a86f91e845f8",
+      "full_source_stable": true,
+      "deciding_ledger_count": 49
+    },
+    {
+      "cohort": "owner-defining9",
+      "command": "owner-defining9-a7e.command.json",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+      "phase_counts": {
+        "call:passed": 292,
+        "setup:passed": 292,
+        "teardown:passed": 292
+      },
+      "exit": 0,
+      "wall_seconds": 75.90340924263,
+      "input_denominator": 6313,
+      "input_digest": "44e6bfda7153bbaeeb3b3bcddb8f55d43ba426dd0894465d3f79a86f91e845f8",
+      "full_source_stable": true,
+      "deciding_ledger_count": 221
+    },
+    {
+      "cohort": "defining-state7",
+      "command": "defining-state7-a7e.command.json",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+      "phase_counts": {
+        "call:passed": 113,
+        "setup:passed": 113,
+        "teardown:passed": 113
+      },
+      "exit": 0,
+      "wall_seconds": 63.53367257118225,
+      "input_denominator": 6313,
+      "input_digest": "44e6bfda7153bbaeeb3b3bcddb8f55d43ba426dd0894465d3f79a86f91e845f8",
+      "full_source_stable": true,
+      "deciding_ledger_count": 41
+    },
+    {
+      "cohort": "publicfactory10",
+      "command": "publicfactory10-a7e.command.json",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+      "phase_counts": {
+        "call:failed": 10,
+        "setup:passed": 10,
+        "teardown:passed": 10
+      },
+      "exit": 1,
+      "wall_seconds": 9.658362627029419,
+      "input_denominator": 6313,
+      "input_digest": "44e6bfda7153bbaeeb3b3bcddb8f55d43ba426dd0894465d3f79a86f91e845f8",
+      "full_source_stable": true,
+      "deciding_ledger_count": 10
+    }
+  ],
+  "do_not_sum_overlapping_cohorts": true,
+  "public_factory_state": "10 actual fixture FAIL before intended evaluator/factory consumer; runpy unregistered evaluator source custody. Intended ten properties UNRUN; normal actualmodule import repair reviewed and pending root application/replay.",
+  "current_production_money_properties": "raw32/cache18/affected138/owner9/HTTP30/state7 PASS on exact local canonical B1.2+actual consumer profiles. All four original B operational cache profiles unchanged.",
+  "formal_findings_closed": 0,
+  "G_accepted": false,
+  "optional_backends": "Torch/BoTorch/HNSW absent and unused by accounting scope; their numerical properties UNRUN here",
+  "P41": "No inherited-red attribution; full input6313/6313 stability only",
+  "source_sha_tree_unmodified": true,
+  "shared_cgroup_observation": "memory.events max increased during concurrent jobs; oom300 and oom_kill57 unchanged, no individual-process causal attribution"
+}

@@ -1,0 +1,260 @@
+{
+  "schema": "e02.independent-diagnostic-output-reconciliation.v1",
+  "reviewer": "math_oct07",
+  "author": "transfer_oct07",
+  "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "result": "Verified independent controlled producer/decoder/stopping outputs and counterfactual instrumentation; production acceptance remains external Transfer/GP/Census reviewers",
+  "runtime_scope": {
+    "canonical13": "13PASS actualtypedcanonicalbytes→decoder→Budget/Composite→Plateau/Target",
+    "guard_removal2": "2expectedassertFAIL actualnativeGatewayresponseText preservesDecimal; exactguardremoval gives0/satisfied+bothactualstopsTrue"
+  },
+  "observations": {
+    "wire_decimal_nonzero_retained": true,
+    "qualifying_existing_rule": "Float64admission only",
+    "four_actual_negative_rows": [
+      {
+        "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "source_file_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+        "removed_guard_count": 1,
+        "actual_inputs": {
+          "gov_balance": {
+            "type": "Decimal",
+            "repr": "1E-1000"
+          },
+          "_gateway_request_id": {
+            "type": "str",
+            "repr": "fiscal-float64-intake"
+          },
+          "_gateway_response_headers": {
+            "type": "dict",
+            "repr": "{'x-request-id': 'fiscal-float64-intake'}"
+          }
+        },
+        "raw_value": -0.0,
+        "normalized_value": -0.0,
+        "is_satisfied": true,
+        "actual_plateau": {
+          "should_stop": true,
+          "reason": "Improvement plateau: gain 0 <= 0.01 declared_fixture_float64_units for 1 iterations",
+          "details": {
+            "best_recent": -0.0,
+            "best_historical": 0.0,
+            "gain": 0.0,
+            "improvement": 0.0,
+            "tolerance": 0.01,
+            "absolute_tolerance": 0.01,
+            "relative_tolerance": 0.01,
+            "objective_unit": "declared_fixture_float64_units",
+            "direction": "minimize",
+            "profile_version": "1.0",
+            "patience": 1,
+            "adequacy_status": "observed_finite_history"
+          }
+        },
+        "actual_target_should_stop": true,
+        "retained": [
+          "actual Gateway response-text decoder",
+          "raw Decimal nonzero",
+          "bool/finite/overflow and alias rules",
+          "source/context/metric markers",
+          "actual stopping implementations"
+        ]
+      },
+      {
+        "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "source_file_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+        "removed_guard_count": 1,
+        "actual_inputs": {
+          "gov_balance": {
+            "type": "Decimal",
+            "repr": "1E-1000"
+          },
+          "_gateway_request_id": {
+            "type": "str",
+            "repr": "fiscal-float64-intake"
+          },
+          "_gateway_response_headers": {
+            "type": "dict",
+            "repr": "{'x-request-id': 'fiscal-float64-intake'}"
+          }
+        },
+        "raw_value": -0.0,
+        "normalized_value": -0.0,
+        "is_satisfied": true,
+        "actual_plateau": {
+          "should_stop": true,
+          "reason": "Improvement plateau: gain 0 <= 0.01 declared_fixture_float64_units for 1 iterations",
+          "details": {
+            "best_recent": -0.0,
+            "best_historical": 0.0,
+            "gain": 0.0,
+            "improvement": 0.0,
+            "tolerance": 0.01,
+            "absolute_tolerance": 0.01,
+            "relative_tolerance": 0.01,
+            "objective_unit": "declared_fixture_float64_units",
+            "direction": "minimize",
+            "profile_version": "1.0",
+            "patience": 1,
+            "adequacy_status": "observed_finite_history"
+          }
+        },
+        "actual_target_should_stop": true,
+        "retained": [
+          "actual Gateway response-text decoder",
+          "raw Decimal nonzero",
+          "bool/finite/overflow and alias rules",
+          "source/context/metric markers",
+          "actual stopping implementations"
+        ]
+      },
+      {
+        "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "source_file_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+        "removed_guard_count": 1,
+        "actual_inputs": {
+          "gov_balance": {
+            "type": "Decimal",
+            "repr": "-1E-1000"
+          },
+          "_gateway_request_id": {
+            "type": "str",
+            "repr": "fiscal-float64-intake"
+          },
+          "_gateway_response_headers": {
+            "type": "dict",
+            "repr": "{'x-request-id': 'fiscal-float64-intake'}"
+          }
+        },
+        "raw_value": 0.0,
+        "normalized_value": 0.0,
+        "is_satisfied": true,
+        "actual_plateau": {
+          "should_stop": true,
+          "reason": "Improvement plateau: gain 0 <= 0.01 declared_fixture_float64_units for 1 iterations",
+          "details": {
+            "best_recent": 0.0,
+            "best_historical": 0.0,
+            "gain": 0.0,
+            "improvement": 0.0,
+            "tolerance": 0.01,
+            "absolute_tolerance": 0.01,
+            "relative_tolerance": 0.01,
+            "objective_unit": "declared_fixture_float64_units",
+            "direction": "minimize",
+            "profile_version": "1.0",
+            "patience": 1,
+            "adequacy_status": "observed_finite_history"
+          }
+        },
+        "actual_target_should_stop": true,
+        "retained": [
+          "actual Gateway response-text decoder",
+          "raw Decimal nonzero",
+          "bool/finite/overflow and alias rules",
+          "source/context/metric markers",
+          "actual stopping implementations"
+        ]
+      },
+      {
+        "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "source_file_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+        "removed_guard_count": 1,
+        "actual_inputs": {
+          "gov_balance": {
+            "type": "Decimal",
+            "repr": "-1E-1000"
+          },
+          "_gateway_request_id": {
+            "type": "str",
+            "repr": "fiscal-float64-intake"
+          },
+          "_gateway_response_headers": {
+            "type": "dict",
+            "repr": "{'x-request-id': 'fiscal-float64-intake'}"
+          }
+        },
+        "raw_value": 0.0,
+        "normalized_value": 0.0,
+        "is_satisfied": true,
+        "actual_plateau": {
+          "should_stop": true,
+          "reason": "Improvement plateau: gain 0 <= 0.01 declared_fixture_float64_units for 1 iterations",
+          "details": {
+            "best_recent": 0.0,
+            "best_historical": 0.0,
+            "gain": 0.0,
+            "improvement": 0.0,
+            "tolerance": 0.01,
+            "absolute_tolerance": 0.01,
+            "relative_tolerance": 0.01,
+            "objective_unit": "declared_fixture_float64_units",
+            "direction": "minimize",
+            "profile_version": "1.0",
+            "patience": 1,
+            "adequacy_status": "observed_finite_history"
+          }
+        },
+        "actual_target_should_stop": true,
+        "retained": [
+          "actual Gateway response-text decoder",
+          "raw Decimal nonzero",
+          "bool/finite/overflow and alias rules",
+          "source/context/metric markers",
+          "actual stopping implementations"
+        ]
+      }
+    ]
+  },
+  "bindings": {
+    "SUMMARY.json": {
+      "sha256": "e78d960c7234cfeceb3a6b0556f7febf2cf5b271aeb62cf85ef29905b6c8e280",
+      "bytes": 1383
+    },
+    "guard-removal2.receipt.json": {
+      "sha256": "a4250fefc886002b07d80f8007d1f96cc59b4bd1a6037b643d88a7d70188a7e2",
+      "bytes": 8118
+    },
+    "guard-removal2.stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "guard-removal2.stdout.txt": {
+      "sha256": "9312a9bbcef09d657c1d7a66f9072471aa87c8cba3ce579b7e307ed5e6683881",
+      "bytes": 9865
+    },
+    "guard-removal2.junit.xml": {
+      "sha256": "5fba754e159d19d6bdb6984dc1550a3537c0463af776a6e4e62cc77b0379c9ea",
+      "bytes": 4520
+    },
+    "canonical13.receipt.json": {
+      "sha256": "af7cce939e67cdef294cd9a6d8dd97a4a31a03c6c630bfc4ea00843a89086fb5",
+      "bytes": 890
+    },
+    "canonical13.stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "canonical13.stdout.txt": {
+      "sha256": "8906d385e5057db7e715edd2ca2c4bdfe081d28c8fb787da71014ebda3048eb3",
+      "bytes": 219
+    },
+    "canonical13.observations.json": {
+      "sha256": "745fdfed47eecd1a707b653409e1738c5a954f4baef2887a9b9a83c6c4c95674",
+      "bytes": 16718
+    },
+    "inputs-before.json.gz": {
+      "sha256": "913ca5e3176f7caa9b9cd1897bdc7118105b38f71221f3b092c3bd25d9a9f1d3",
+      "bytes": 968438
+    }
+  },
+  "limitations": [
+    "Reviewer authored fiscal guard; this checks independent diagnostic inputs/outputs and removal harness, not self acceptance of production.",
+    "Missing fiscal scientific producer/unit/sign/alias owner remains not_established.",
+    "13diagnosticcells are notpytest73 tests and are reportedseparately.",
+    "No numericalbackendGP/vector/profile absentPASS or wholefinalreplay claim."
+  ],
+  "accepted_in_G": false,
+  "formal_closed": false
+}

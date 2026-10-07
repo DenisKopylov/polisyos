@@ -1,0 +1,12 @@
+{
+  "schema": "D.e02.original-acceptance-denominator-correction.v1",
+  "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "original_source": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "original_occurrence_acceptance_bindings": 46,
+  "unique_finding_ids": 45,
+  "canonical_bundles": 17,
+  "incorrect_unpublished_root_claim": "198 original acceptance bindings",
+  "correction": "198 was source-pin prefix shorthand, not an enumerated clause count. Root closeout, FINAL.md, pattern basis and unpublished PR body now use46 actual occurrence acceptance paragraphs/full bound fragments. No runtime or finding disposition changed.",
+  "immutable_accounting_reading_rule": "Source shorthand original198 in sealed accounting narrative refers to Git source198076..., not a198-clause denominator. Its actual criterion_occurrences/full source fragments are46. There is no separate198-clause manifest or claim.",
+  "basis": "Independent publication reviewer verified original828 accounting and full46 fragments from source198076; P35 literal enumeration replaces shorthand."
+}

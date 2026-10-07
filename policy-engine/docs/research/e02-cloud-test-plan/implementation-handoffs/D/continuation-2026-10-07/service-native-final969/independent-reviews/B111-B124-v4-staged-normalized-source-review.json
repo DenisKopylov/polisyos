@@ -1,0 +1,44 @@
+{
+  "schema": "e02.independent.final-source-reconciliation.v1",
+  "reviewer": "math_oct07",
+  "production_author": "service_oct07",
+  "approved_patch": {
+    "path": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-a7.v4-final.patch",
+    "sha256": "d2dab7c64e4b71cc63633558ca8cb9754aaa3389007c0337bb0afbdd1db000f2"
+  },
+  "base": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+  "observed_HEAD": "237c3427266e0849ebfa36b41f89c51572b44814",
+  "staged_source_tree": "a2d8eeb80d350fbae68b5346ed0b764e0eaa1e88",
+  "bindings": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "approved_patch_result_sha256": "4dd398631e932f39c8cefd5d327dda3cfecb821c6df5c0de688dd337ed7a46c0",
+      "staged_sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+      "same_full_AST": true,
+      "same_bytes": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/dedup.py",
+      "approved_patch_result_sha256": "97953d41ebfa0cb25c5414454725abe14d4d19580b09caeff1c3e08748502047",
+      "staged_sha256": "7c05548d3539ed98b20da6c11fe033af789e0b75672164654b97c68a28f0f5dc",
+      "same_full_AST": true,
+      "same_bytes": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "approved_patch_result_sha256": "699fa960f254281b56a1a66d3f6bcdb0f3ecd97c38d2a64d26050066feec81bd",
+      "staged_sha256": "4bcddcf8b7ef4696fe26a3daa3394053672eb8a43007e0bf0b993c5bf87e17eb",
+      "same_full_AST": true,
+      "same_bytes": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "approved_patch_result_sha256": "eb6cd4fbd9cb4ed154fa4a881e293a853d9cbc2383571f3cfec7a4dfb0de34ce",
+      "staged_sha256": "a618e400332f0fb9e72db02bb0169aaab3f791aa1d6c3d26bd4dc5e81de0d7e1",
+      "same_full_AST": true,
+      "same_bytes": false
+    }
+  ],
+  "review_result": "GO all full AST equivalent",
+  "qualification": "Read-only snapshot of staged normalized source; not frozen runtime or whole tree acceptance."
+}

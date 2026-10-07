@@ -1,0 +1,17 @@
+{
+  "utc": "2026-10-07T09:38:40.367432+00:00",
+  "authorization": "User: В облаке можешь удалять не нужное самостоятельно, разрешаю",
+  "candidate": "/dev/shm/e02-D-runner-mypy-before-na8v4l_f/cache",
+  "classification": "generated mypy cache only; completed before-diagnostic END; original source and outputs preserved",
+  "active_fds": [],
+  "files": 11596,
+  "bytes": 310244877,
+  "preserved_output_hashes": {
+    "/dev/shm/e02-D-runner-mypy-before-na8v4l_f/stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/dev/shm/e02-D-runner-mypy-before-na8v4l_f/stdout.txt": "2adf38d1d9097b4614b0a2b754af0b075ed095b8b22a377941376ab231679f81",
+    "/dev/shm/e02-D-runner-mypy-before-na8v4l_f/command.json": "579234bcc375f7d2572af6fa11300eb2a8e9a0b7a78f0e317dc482b050e42671"
+  },
+  "memory_current_before": "14571724800",
+  "memory_current_after": "14222475264",
+  "deleted": true
+}

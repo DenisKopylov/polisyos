@@ -1,0 +1,143 @@
+{
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+  "head_after": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "status_after": "",
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "actual_command": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "/dev/shm/e02-D-funnel-oct07/run_frozen_B12_final_cohort.py",
+    "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+    "defining-state7-a7e",
+    "tests/unit/scientist/orchestration/engine/test_budget.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+    "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+    "tests/unit/scientist/search/test_calibration_report.py",
+    "tests/unit/scientist/search/test_correlation_tracker.py"
+  ],
+  "pytest_argv": [
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=/dev/shm/e02-D-funnel-oct07/defining-state7-a7e-fixtures",
+    "--junitxml=/dev/shm/e02-D-funnel-oct07/defining-state7-a7e.junit.xml",
+    "-vv",
+    "-rA",
+    "tests/unit/scientist/orchestration/engine/test_budget.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+    "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+    "tests/unit/scientist/search/test_calibration_report.py",
+    "tests/unit/scientist/search/test_correlation_tracker.py"
+  ],
+  "env_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src",
+    "TMPDIR": "/dev/shm/e02-D-funnel-oct07",
+    "HYPOTHESIS_STORAGE_DIRECTORY": "/dev/shm/e02-D-funnel-oct07/hypothesis",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+    "E02_B66_TARGET_ROOT": "/dev/shm/e02-D-oct07-continuation",
+    "E02_B66_TARGET_SHA": "a7efe4b431986c3d79f490879cf49dbdedb1349e"
+  },
+  "exit": 0,
+  "wall_seconds": 63.53367257118225,
+  "phase_counts": {
+    "call:passed": 113,
+    "setup:passed": 113,
+    "teardown:passed": 113
+  },
+  "outputs": {
+    "defining-state7-a7e.stdout.txt": {
+      "path": "/dev/shm/e02-D-funnel-oct07/defining-state7-a7e.stdout.txt",
+      "bytes": 33962,
+      "sha256": "c7621cb95ad94de2b99f62622ce52a30765ac26371014b0175de503d23882429"
+    },
+    "defining-state7-a7e.stderr.txt": {
+      "path": "/dev/shm/e02-D-funnel-oct07/defining-state7-a7e.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "defining-state7-a7e.junit.xml": {
+      "path": "/dev/shm/e02-D-funnel-oct07/defining-state7-a7e.junit.xml",
+      "bytes": 19645,
+      "sha256": "fcacd8d2706b17e43aa256898e1beaaaeecaaec9f76e48503fa96c83cceef64d"
+    },
+    "defining-state7-a7e.phases.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/defining-state7-a7e.phases.json",
+      "bytes": 89699,
+      "sha256": "333c7162c56aa3f1cbf7f49169c3683c5da431746be892f38c49bb34d0af3297"
+    },
+    "defining-state7-a7e.inputs.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/defining-state7-a7e.inputs.json",
+      "bytes": 1200164,
+      "sha256": "fc79fc95fffb82abd392967aa04720dec6c70d5c7426bbc95b446d1023c886a1"
+    },
+    "defining-state7-a7e.modules.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/defining-state7-a7e.modules.json",
+      "bytes": 414093,
+      "sha256": "6034ffd797255e282371175eca08da9022e5fba80b124d4d5ef79799146b2324"
+    },
+    "defining-state7-a7e.environment.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/defining-state7-a7e.environment.json",
+      "bytes": 10503,
+      "sha256": "1f413a8ecc6b7d5ed75ccd3de1209dc63bdce508facc922107d1fd5b7104e738"
+    },
+    "defining-state7-a7e.cgroup-before.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/defining-state7-a7e.cgroup-before.json",
+      "bytes": 507,
+      "sha256": "9a8d42aa7cd4710275422528c864dbf5b5de2800ef38686b4d8822d29496bfbd"
+    },
+    "defining-state7-a7e.cgroup-after.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/defining-state7-a7e.cgroup-after.json",
+      "bytes": 507,
+      "sha256": "9ae1840493b2d31b2c62437a5b02601629557f518674cd470bfc2dacd8e1b6ca"
+    },
+    "defining-state7-a7e.deciding-ledgers.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/defining-state7-a7e.deciding-ledgers.json",
+      "bytes": 17234,
+      "sha256": "cc82e8c7550c78537c4f1ba0062ebaa5b68780f473ccb067e3fa3cc8ba37fa80"
+    }
+  },
+  "input_denominator": 6313,
+  "input_available": 6313,
+  "input_digest": "44e6bfda7153bbaeeb3b3bcddb8f55d43ba426dd0894465d3f79a86f91e845f8",
+  "changed_paths": [],
+  "same_source_and_inputs": true,
+  "standard_asset_before_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+  "standard_asset_after_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+  "standard_asset_unchanged": true,
+  "runtime_profile": "Actual canonical B adopted local filesystem ledger/Decimal decoder/real configured native worker factory and D bounded consumer profile; no invoice/native estimand/promotion authority",
+  "P41": "no inherited-red attribution; source/input stability only",
+  "cgroup_before": {
+    "unix_time": 1791366329.8671596,
+    "files": {
+      "memory.current": "15499825152\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38150438\noom 300\noom_kill 57\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38150438\noom 300\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1018\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  "cgroup_after": {
+    "unix_time": 1791366393.4104252,
+    "files": {
+      "memory.current": "15736692736\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38165257\noom 300\noom_kill 57\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38165257\noom 300\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1014\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  "deciding_ledger_count": 41
+}

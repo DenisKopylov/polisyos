@@ -1,0 +1,294 @@
+{
+  "name": "service",
+  "source_sha": "96905636726483fdea3a98d9313871d825b54a9e",
+  "source_tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "source_status_before": "",
+  "argv": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "--noconftest",
+    "-p",
+    "no:cacheprovider",
+    "-s",
+    "-ra",
+    "--basetemp",
+    "/dev/shm/e02-D-oct07-service-start/final-native-969/service-fixtures",
+    "--junitxml",
+    "/dev/shm/e02-D-oct07-service-start/final-native-969/service.junit.xml",
+    "tests/unit/scientist/methods/search/test_service_factory_fault_resume.py",
+    "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py",
+    "tests/unit/scientist/methods/search/test_service_control_cleanup_independent.py",
+    "tests/unit/scientist/methods/search/test_service_ask_publication_review.py",
+    "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+    "tests/unit/scientist/methods/autotune/test_execution_plan_autotune.py"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine:/dev/shm/e02-D-oct07-service-start"
+  },
+  "harness": {
+    "path": "/dev/shm/e02-D-oct07-service-start/run_final_dedup_native_wave.py",
+    "sha256": "eaeeca33fc97d55ba5937f3781b3a05e29990d6f17bbe8a82ace03506bacb4c6"
+  },
+  "backend": "Actual native SearchLoopRunner/NativeSearchService/qualified FileSystemCAS/ChampionRegistry; actual supported typed mutation/evaluator/data-context profiles and physical invocation counts. No scientific law, appointed production caller, external identity migration or distributed atomicity inferred. Actual Torch/SALib only in native DOE cohort; provider fixtures are not invoice truth.",
+  "no_artificial_quotas": true,
+  "started_at": "2026-10-07T10:40:36.839750+00:00",
+  "complete_frozen_input_manifest": {
+    "path": "frozen-inputs.json.gz",
+    "bytes": 918281,
+    "sha256": "9547da0175ec32a6502c98e95c298cc99f99536f43bc228fdc843448670e764d",
+    "entries": 15927
+  },
+  "runtime": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "packages": {
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5",
+      "numpy": "2.3.5",
+      "scipy": "1.16.3"
+    }
+  },
+  "returncode": 0,
+  "elapsed_seconds": 88.85287209399394,
+  "completed_at": "2026-10-07T10:42:05.787006+00:00",
+  "source_sha_after": "96905636726483fdea3a98d9313871d825b54a9e",
+  "source_status_after": "",
+  "same_inputs": true,
+  "changed_inputs": [],
+  "case_phases": {
+    "PASS": 41,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "cases": [
+    {
+      "name": "test_public_factory_checkpoint_fault_fresh_process_resume_preserves_next_subject[write]",
+      "classname": "tests.unit.scientist.methods.search.test_service_factory_fault_resume",
+      "status": "PASS"
+    },
+    {
+      "name": "test_public_factory_checkpoint_fault_fresh_process_resume_preserves_next_subject[readback]",
+      "classname": "tests.unit.scientist.methods.search.test_service_factory_fault_resume",
+      "status": "PASS"
+    },
+    {
+      "name": "test_empty_batch_then_declared_signal_preserves_cause_partial_cost_and_fresh_view[StopIteration]",
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "status": "PASS"
+    },
+    {
+      "name": "test_empty_batch_then_declared_signal_preserves_cause_partial_cost_and_fresh_view[ValueError]",
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "status": "PASS"
+    },
+    {
+      "name": "test_empty_batch_then_declared_signal_preserves_cause_partial_cost_and_fresh_view[CancelledError]",
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "status": "PASS"
+    },
+    {
+      "name": "test_empty_batch_transient_and_persistent_preserve_actual_partial_cost[steps0-[max_iterations] Maximum iterations (2) reached-2]",
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "status": "PASS"
+    },
+    {
+      "name": "test_empty_batch_transient_and_persistent_preserve_actual_partial_cost[steps1-generation_exhausted-1]",
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "status": "PASS"
+    },
+    {
+      "name": "test_async_cancel_after_empty_public_batch_keeps_acknowledged_generator_and_partial_state",
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "status": "PASS"
+    },
+    {
+      "name": "test_empty_batch_signal_retains_real_provider_settlement_receipt_and_fresh_ledger[StopIteration]",
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "status": "PASS"
+    },
+    {
+      "name": "test_empty_batch_signal_retains_real_provider_settlement_receipt_and_fresh_ledger[ValueError]",
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "status": "PASS"
+    },
+    {
+      "name": "test_empty_batch_signal_retains_real_provider_settlement_receipt_and_fresh_ledger[CancelledError0]",
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "status": "PASS"
+    },
+    {
+      "name": "test_empty_batch_signal_retains_real_provider_settlement_receipt_and_fresh_ledger[CancelledError1]",
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "status": "PASS"
+    },
+    {
+      "name": "test_async_generator_rollback_refusal_blocks_publication_and_preserves_original_cause",
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "status": "PASS"
+    },
+    {
+      "name": "test_failure_checkpoint_io_refusal_retains_original_batch_reason_and_last_ack",
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "status": "PASS"
+    },
+    {
+      "name": "test_async_rollback_refusal_keeps_original_cause_and_requires_fresh_ack_reader",
+      "classname": "tests.unit.scientist.methods.search.test_service_control_cleanup_independent",
+      "status": "PASS"
+    },
+    {
+      "name": "test_failure_checkpoint_publication_phase_keeps_primary_refusal_and_old_ack[put]",
+      "classname": "tests.unit.scientist.methods.search.test_service_control_cleanup_independent",
+      "status": "PASS"
+    },
+    {
+      "name": "test_failure_checkpoint_publication_phase_keeps_primary_refusal_and_old_ack[readback]",
+      "classname": "tests.unit.scientist.methods.search.test_service_control_cleanup_independent",
+      "status": "PASS"
+    },
+    {
+      "name": "test_ask_publication_live_state_matches_fresh_acknowledged_checkpoint[None]",
+      "classname": "tests.unit.scientist.methods.search.test_service_ask_publication_review",
+      "status": "PASS"
+    },
+    {
+      "name": "test_ask_publication_live_state_matches_fresh_acknowledged_checkpoint[put]",
+      "classname": "tests.unit.scientist.methods.search.test_service_ask_publication_review",
+      "status": "PASS"
+    },
+    {
+      "name": "test_ask_publication_live_state_matches_fresh_acknowledged_checkpoint[readback]",
+      "classname": "tests.unit.scientist.methods.search.test_service_ask_publication_review",
+      "status": "PASS"
+    },
+    {
+      "name": "test_native_route_forbids_private_full_evaluation_and_preserves_warm_sentinel_empty_stop",
+      "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+      "status": "PASS"
+    },
+    {
+      "name": "test_native_failure_leaves_only_pending_candidate_then_same_instance_tell_continues",
+      "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+      "status": "PASS"
+    },
+    {
+      "name": "test_native_partial_batch_stop_retains_unaccepted_pending_without_double_count",
+      "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+      "status": "PASS"
+    },
+    {
+      "name": "test_public_call_removal_trap_is_reached_before_history_acceptance[ask]",
+      "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+      "status": "PASS"
+    },
+    {
+      "name": "test_public_call_removal_trap_is_reached_before_history_acceptance[tell]",
+      "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+      "status": "PASS"
+    },
+    {
+      "name": "test_public_runner_two_runs_detach_history_and_preserve_actual_cas_evaluation",
+      "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+      "status": "PASS"
+    },
+    {
+      "name": "test_public_runner_refuses_zero_iteration_budget_before_any_evaluation",
+      "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+      "status": "PASS"
+    },
+    {
+      "name": "test_native_empty_supplier_exhausts_without_accepting_history",
+      "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+      "status": "PASS"
+    },
+    {
+      "name": "test_execution_plan_params_only_preserves_method_dag_hash",
+      "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+      "status": "PASS"
+    },
+    {
+      "name": "test_benchmark_split_manifest_supports_extended_runtime_splits",
+      "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+      "status": "PASS"
+    },
+    {
+      "name": "test_benchmark_split_manifest_rejects_duplicate_assignments",
+      "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+      "status": "PASS"
+    },
+    {
+      "name": "test_execution_plan_topology_step_requires_single_mutation",
+      "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+      "status": "PASS"
+    },
+    {
+      "name": "test_execution_plan_promotion_is_blocked_when_new_blocker_appears",
+      "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+      "status": "PASS"
+    },
+    {
+      "name": "test_suggest_execution_plan_topology_mutations_for_removed_wrapper",
+      "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+      "status": "PASS"
+    },
+    {
+      "name": "test_suggest_execution_plan_topology_mutations_accepts_registry_provider",
+      "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+      "status": "PASS"
+    },
+    {
+      "name": "test_capability_aware_generator_emits_topology_candidate_for_missing_method",
+      "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+      "status": "PASS"
+    },
+    {
+      "name": "test_execution_plan_search_loop_defaults_to_capability_aware_generator",
+      "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+      "status": "PASS"
+    },
+    {
+      "name": "test_with_topology_mutation_uses_branch_local_method_dag_clone",
+      "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+      "status": "PASS"
+    },
+    {
+      "name": "test_with_topology_mutation_does_not_swallow_registry_assertion",
+      "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+      "status": "PASS"
+    },
+    {
+      "name": "test_coerce_candidate_config_does_not_swallow_assertion",
+      "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+      "status": "PASS"
+    },
+    {
+      "name": "test_backend_for_method_does_not_swallow_assertion",
+      "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+      "status": "PASS"
+    }
+  ],
+  "outputs": {
+    "stdout.txt": {
+      "available": true,
+      "bytes": 174534,
+      "sha256": "c8185fea219beab0693a272c06abf4f96844196d89f0ce4043a5464717d1b599"
+    },
+    "stderr.txt": {
+      "available": true,
+      "bytes": 3502,
+      "sha256": "6ec550a3322e631988b2bde8d1c4c14fc09b19312368d916da451b43cb2805a7"
+    },
+    "junit.xml": {
+      "available": true,
+      "bytes": 8156,
+      "sha256": "dc21afc250d1bf601ff8a38ebe85d8674b835d1f1be5775b12d83b4b70eb6184"
+    }
+  }
+}

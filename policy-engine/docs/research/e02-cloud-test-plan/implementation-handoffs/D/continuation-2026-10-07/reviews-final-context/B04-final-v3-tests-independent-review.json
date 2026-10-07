@@ -1,0 +1,56 @@
+{
+  "reviewer": "/root/census_oct07",
+  "author": "/root/gp_oct07",
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "decision": "GO_SOURCE_QUALIFIED_TESTS_RUNTIME_UNRUN",
+  "inputs": [
+    {
+      "path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/B04-real-caller-tests-a7.v3.patch",
+      "sha256": "759b8e905faf6df97b3a7db99a89ac5d4f3a6056516739db6c7634d1a6cab785",
+      "bytes": 8224
+    },
+    {
+      "path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/test_state_reads_constructor_admission.a7.v3.py",
+      "sha256": "cc5d43a89f0f3c6fedfe03e96383aa13656c6b27a6ff3d59aefd8df3a0d8bb92",
+      "bytes": 7904
+    },
+    {
+      "path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/B04-existing-spec-and-read-receipt-a7.v3.patch",
+      "sha256": "b33c0adbb5d7a068af0c727cc61aa10703bd55c393f2cf3df33d70dcb4a06370",
+      "bytes": 7357
+    },
+    {
+      "path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/check_state_reads.a7.v3.py",
+      "sha256": "b8aac38b9dd330da8e09891e7a40fe1fbbd3deee4850fa6f22446ba826c6d558",
+      "bytes": 8749
+    }
+  ],
+  "test_denominator": 18,
+  "predicate": "Actual checker.main over declared tracked-path or complete non-Git fixture enumeration; declared NodeSpec/OutputAwareNodeSpec Assign/AnnAssign admission; real state-read failure and unreadable/unsupported UNRUN are distinct.",
+  "positive": [
+    "both exact existing constructors admit declared literal reads",
+    "valid existing annotated subclass declaration admitted"
+  ],
+  "negative": [
+    "both constructors missing required read produce actual missing-read FAIL",
+    "outside-selector declaration cannot satisfy selected input",
+    "real invalid UTF8 and enumerated missing file stay UNRUN",
+    "unknown constructor including annotated unknown stays UNRUN",
+    "invalid Python stays UNRUN",
+    "unchanged path with removed reads changes actual verdict and content hash",
+    "async execute missing read remains FAIL",
+    "nonliteral expression/entry remain UNRUN"
+  ],
+  "independent_review": [
+    "Full v3 source and all 18 actual public-main tests read",
+    "Existing tools.lib.fs iter_repository_files/measure_file_reads/measured_read_text contract inspected",
+    "Receipt fields supplement actual stdout and exit predicate; they do not substitute runtime input execution",
+    "Existing prefix coverage semantics unchanged; no generalized alias/indirect/runtime analysis claim"
+  ],
+  "limitations": [
+    "No runtime PASS asserted before immutable execution",
+    "Bounded AST diagnostic only; no original A/B04 formal closure or node runtime/authority claim",
+    "Explicit reader receipts exclude imports, Git object access, subprocess/external service reads",
+    "Code-quality production review belongs to independent Math; this receipt reviews tests and actual checker seam"
+  ]
+}

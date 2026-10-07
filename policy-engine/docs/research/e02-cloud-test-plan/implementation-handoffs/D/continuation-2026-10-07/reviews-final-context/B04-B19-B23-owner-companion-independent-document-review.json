@@ -1,0 +1,18 @@
+{
+  "schema": "D.e02.B04-B19-B23-minimal-companion-owner-input-independent-review.v1",
+  "reviewer": "/root/census_oct07",
+  "created_utc": "2026-10-07T10:18:25.068023+00:00",
+  "input": {
+    "path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/publication-companion-inputs-b652/companion-owner-inputs.json",
+    "sha256": "c1437d60f72a1906f476e5d92e9b3f13d6ecd20f34c5446f068616bb6e6c17f0",
+    "bytes": 4855
+  },
+  "review": "GO_precise_companion_owner_requests_and_bounded_evidence_classification",
+  "B04": "Matches independently read b652 canonical63 AST input/output PASS, actual18 caller PASS and5 protected-read predicate removalFAIL, adjacent ordinary checker bridge. Recipe distinguishes recorded locked interpreter execution from descriptive uv canonical command; no A-finding/runtime/scientific closure. Existing architecture/devx owner disposition requested, not newly appointed.",
+  "B19": "Exact published c0 full diagnostic stdout hash checked. Command0 with82contract_errors/6findings is not globalPASS and P41notestablished; own below1000 module-size observations remain separately scoped. Requests existing architecture/devx dispositions rather than altering global budgets or claiming inherited waiver.",
+  "B23": "Remote head/PR/handoff availability explicitly notestablished until root commits,pushes,fetches,and exact Git readback. Placeholder-like recipe words are descriptive owner input, explicitly not executed. No main authorization or chat messaging.",
+  "three_immutable_package_manifest_hashes_verified": true,
+  "scope": "Companion labels distinct from similarly named A-owned finding IDs; no new formal finding disposition. This doc-review does not establish generated API/schema/architecture/frontend gate completion.",
+  "accepted_in_G": false,
+  "formal_closed": false
+}

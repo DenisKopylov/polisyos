@@ -1,0 +1,68 @@
+{
+  "schema": "D.e02.pattern-review-basis.v1",
+  "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "status": "Scoped review basis, not a whole-D test PASS or formal finding closure",
+  "patterns": [
+    {
+      "id": "P01",
+      "basis": "Actual public Runner/Service \u2192 evaluation \u2192 canonical receipt/CAS checkpoint \u2192 fresh reader paths are in separate executed consumer receipts; import/shape alone is not capability."
+    },
+    {
+      "id": "P02",
+      "basis": "Configured native transfer manager and budget-owner ports bridge existing components; real8/7-row GP training and durable debits/readback distinguish a bridge from co-location."
+    },
+    {
+      "id": "P05",
+      "basis": "Authority positives are restricted to actual owner inputs; B164 typed issuer/verifier/revoke positive remains UNRUN/bridge_missing, no boolean authority or new subsystem."
+    },
+    {
+      "id": "P09",
+      "basis": "Warnings retain owners and bounded dispositions. Two new module-size report-only warnings are declared in B19 companion packet; no inherited waiver or whole global guard PASS."
+    },
+    {
+      "id": "P10",
+      "basis": "Independent all-pairs/geometry/fitted NumPy covariance and physical scenario/cost effects test semantic properties; source/AST diagnostics are explicitly bounded diagnostics."
+    },
+    {
+      "id": "P14",
+      "basis": "Repeated/overlapping evidence is not summed. Actual source pins remain c0/a7/b652/969/680; successor carries identify exact byte/definition/input identity and affected reruns separately."
+    },
+    {
+      "id": "P27",
+      "basis": "Single canonical B ledger/decoder, existing BoTorch SingleTaskGP, ChampionRegistry and vector generation pointer reused. D consumes selected canonical B successor, no parallel ledger/parser/permission subsystem."
+    },
+    {
+      "id": "P29",
+      "basis": "Actual fits, debits, corpus rows, state/fresh readers and guard-removal failures reproduce claims. Reviewer parses complete streams, phases, JUnit, physical events and content-bound minrefs."
+    },
+    {
+      "id": "P32",
+      "basis": "Exact ArtifactRef resolve plus content/basis/scope binding precedes numeric GP admission/champion comparisons/cache zero charge; altered bytes or marker-only inputs refuse."
+    },
+    {
+      "id": "P35",
+      "basis": "Full TSV/cards and all46 original occurrence acceptance bindings from source198076863e143dea9f89f02734b13d50dae3eed5 produce17/45/46 counts. Full Git footprint and input censuses record unavailable sparse members; query summaries do not determine owners. 198 is a source prefix, not a clause count."
+    },
+    {
+      "id": "P37",
+      "basis": "Criterion-specific gate-basis packet labels decisive predicates recomputed/independently_reconciled/consumer_asserted/institutionally_supplied/not_established. Missing authority/law predicates degrade to held/limited."
+    },
+    {
+      "id": "P38",
+      "basis": "Divergent controls include trace cost without durable settlement, same hashes with distinct semantic dates, unavailable marker with fabricated0, shared helper across run IDs, and nonzero Decimal becoming0/false stopping."
+    },
+    {
+      "id": "P40",
+      "basis": "Known numeric false-zero class widened at actual receiving alias seam once; supported float64 Decimal/text profile and already-rounded/arbitrary-precision limits explicit. Authority class remains declared bridge_missing, not a new permission ladder."
+    },
+    {
+      "id": "P41",
+      "basis": "not_established. No inherited-red attribution without exact slice-base replay and full input zero-intersection; global diagnostic errors are not waived."
+    }
+  ],
+  "criterion_basis_ref": "../reviews-final-context/original46-criterion-specific-P37-P38-gate-basis.json",
+  "current_runtime_review_ref": "fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+  "formal_closed": false,
+  "accepted_G": false
+}

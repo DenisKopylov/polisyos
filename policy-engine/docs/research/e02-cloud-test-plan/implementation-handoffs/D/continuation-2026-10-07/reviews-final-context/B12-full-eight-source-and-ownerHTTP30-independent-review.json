@@ -1,0 +1,188 @@
+{
+  "schema": "e02.independent.owner-dependency-adoption-review.v1",
+  "reviewer": "/root/census_oct07",
+  "decision": "GO_SELECTED_FULL_B12_SOURCE_DEPENDENCY_AND_OWNER_HTTP30_RUNTIME_PENDING",
+  "base": {
+    "sha": "6af43b3bb055a11c2f5bb41fb6cb66ca1623f668",
+    "tree": "f161768ea92c392e2313ccd39dd4ca368b3e7b13"
+  },
+  "canonical_owner": {
+    "sha": "f0111fefcb6fa48e8ccb4aab213a14694dc206ad",
+    "tree": "4b42f231f2a322d78b59f640aae672e944b49239"
+  },
+  "artifact": {
+    "path": "/dev/shm/e02-D-funnel-oct07/canonical-B12-ready-dependency-6af-v1.patch",
+    "bytes": 160643,
+    "sha256": "626186d20f63cab0a75f031856a2d6bb8d93c63c6b325aac49d43f484d8b7911"
+  },
+  "full_changed_code_review": "Complete executable deltas read for all eight selected production modules, including 846-line ledger diff plus omitted display segment reread, 1190-line enforcer delta read in contiguous bounded sections, all prompt-cache/settlement/traced/Gateway/response/middleware deltas. Final selected response+enforcer retain independently reviewed D v3 strict/cache/read-only bridge; six sources exact supplier.",
+  "verified_selected_paths": [
+    {
+      "path": "policy-engine/src/polisyos/core/llm/response.py",
+      "original_base_blob": "ca7084b0fe14c04f0c1f58fe7dd805e51c5b3ec4",
+      "original_sha256": "115a4202d88b0dc1cae20f13d6eab7ac5165320a9c5e5ac1e342b762c418b169",
+      "supplier_blob": "33c7b310aef734b31c2ed2e61fe28d6525524b97",
+      "supplier_sha256": "9964c5183108f47143cec32b0beb8b65aa4de6df706757b3a1f02be1c77b0581",
+      "last_owner_source_commit": "82c044aa4fa611ba4860da0a327dc3d521fc408c",
+      "chosen_sha256": "dd030b3a52cbbd09e459724d0cf5a7944d311fa940b603b8bef80fd087c01402",
+      "chosen_bytes": 14354,
+      "chosen_exact_supplier": false,
+      "chosen_source": "/dev/shm/e02-D-funnel-oct07/canonical-B12-ready-dependency/00-response.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+      "original_base_blob": "c2c631442a3ecf7587425445565d723598eaba81",
+      "original_sha256": "c2d9ee2d061898a7b4f31181cd9ef23ebf193c467ad4bb18785dcd435f189c3b",
+      "supplier_blob": "a21bca5b1280069d6852bad0b5437d9783925886",
+      "supplier_sha256": "6d680b37b3107322ec79e56d6e7959b6605c5af22be641d6305f65bc495f78a7",
+      "last_owner_source_commit": "b138b0d10237d4704c1cf59dec502be4b745b3a1",
+      "chosen_sha256": "6d680b37b3107322ec79e56d6e7959b6605c5af22be641d6305f65bc495f78a7",
+      "chosen_bytes": 21507,
+      "chosen_exact_supplier": true,
+      "chosen_source": "/dev/shm/e02-D-funnel-oct07/canonical-B12-ready-dependency/01-settlement.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+      "original_base_blob": "da043259222ebeccf48e4fa8270a56fd2aa9bd62",
+      "original_sha256": "1d604c7d24f254017e4b69ba304f207d364c0a7e6dd1c0408ffce7e39e05c30a",
+      "supplier_blob": "df786193b548215d84b4e7b1707c73272416d618",
+      "supplier_sha256": "f982028c7533dacac0df93475177bd840857768744ebf0bfd8c2181af912b81a",
+      "last_owner_source_commit": "b138b0d10237d4704c1cf59dec502be4b745b3a1",
+      "chosen_sha256": "f982028c7533dacac0df93475177bd840857768744ebf0bfd8c2181af912b81a",
+      "chosen_bytes": 37572,
+      "chosen_exact_supplier": true,
+      "chosen_source": "/dev/shm/e02-D-funnel-oct07/canonical-B12-ready-dependency/02-traced_client.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "original_base_blob": "4938abb9b11e38e7139169b1284c95045746c468",
+      "original_sha256": "d46068bff3b6514d6443a4e246b577e20d68867707ca037adb1709655b070d16",
+      "supplier_blob": "0dc65ee8cbe6477c50deb965d4d7cc12b3f6c5a2",
+      "supplier_sha256": "4161bc6dfa38838c107228672fab9e1468087c19ae7ddb4f510247577fac29c3",
+      "last_owner_source_commit": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+      "chosen_sha256": "4161bc6dfa38838c107228672fab9e1468087c19ae7ddb4f510247577fac29c3",
+      "chosen_bytes": 28025,
+      "chosen_exact_supplier": true,
+      "chosen_source": "/dev/shm/e02-D-funnel-oct07/canonical-B12-ready-dependency/03-gateway_client.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "original_base_blob": "b7ba85228495bf10acdd64fc66adad1bae9fd3d2",
+      "original_sha256": "952193fab049be77219e6b39dee2642793fc9df120aa6ecd8305dddfafbede4b",
+      "supplier_blob": "70b6067337a239d98ae468f2d8cb229a1d7bd336",
+      "supplier_sha256": "66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a",
+      "last_owner_source_commit": "b138b0d10237d4704c1cf59dec502be4b745b3a1",
+      "chosen_sha256": "36fdec407bfdde1a65464e45d49267c7253601e350843bb9c0fdb383f16e84c4",
+      "chosen_bytes": 58899,
+      "chosen_exact_supplier": false,
+      "chosen_source": "/dev/shm/e02-D-funnel-oct07/canonical-B12-ready-dependency/04-budget_enforcer.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "original_base_blob": "b1e91052c288df38bfa451cdee6a0436d4836b35",
+      "original_sha256": "5a5e011522d661e6da34cab1c15c00e77b4cf9549da52240b77f64e8db779462",
+      "supplier_blob": "e4aece7bace8cc969a0c896727c09cd80cef25bf",
+      "supplier_sha256": "e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5",
+      "last_owner_source_commit": "b138b0d10237d4704c1cf59dec502be4b745b3a1",
+      "chosen_sha256": "e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5",
+      "chosen_bytes": 43152,
+      "chosen_exact_supplier": true,
+      "chosen_source": "/dev/shm/e02-D-funnel-oct07/canonical-B12-ready-dependency/05-prompt_cache.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "original_base_blob": "48908cebc44656fc6b22105d8d7a99d3acf915b6",
+      "original_sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f",
+      "supplier_blob": "edc20aeef614fa3486868b04fc4be03ace992893",
+      "supplier_sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe",
+      "last_owner_source_commit": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "chosen_sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe",
+      "chosen_bytes": 59381,
+      "chosen_exact_supplier": true,
+      "chosen_source": "/dev/shm/e02-D-funnel-oct07/canonical-B12-ready-dependency/06-budget_ledger.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "original_base_blob": "4dcf43321044bd9bf9a0c579417af8ba29344945",
+      "original_sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0",
+      "supplier_blob": "596731c164fc1ad264b4f157f74b58cf73f7c513",
+      "supplier_sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8",
+      "last_owner_source_commit": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "chosen_sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8",
+      "chosen_bytes": 10751,
+      "chosen_exact_supplier": true,
+      "chosen_source": "/dev/shm/e02-D-funnel-oct07/canonical-B12-ready-dependency/07-budget_middleware.py"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py",
+      "original_base_blob": null,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supplier_blob": "362fdbf634ba8992988001d7643e48ed385cffb3",
+      "supplier_sha256": "8fee28dddb578b3be74cc7bb51b4320778a01dff960468381e51352f00d08a11",
+      "last_owner_source_commit": "81abcf87803270ed1463157d4149722d7b04ab42",
+      "chosen_sha256": "8fee28dddb578b3be74cc7bb51b4320778a01dff960468381e51352f00d08a11",
+      "chosen_bytes": 6760,
+      "chosen_exact_supplier": true,
+      "chosen_source": "/dev/shm/e02-D-funnel-oct07/canonical-B12-ready-dependency/08-test_gateway_numeric_decode.py"
+    }
+  ],
+  "mechanism_review": {
+    "ledger": "Canonical owner schema1.2 additive completion index; valid full1.0/1.1 supported migration and version-specific wire guards preserve receipts. Constructor-bound live epoch/PID, atomic all-key intent reserve+publish, exact obligation/body/request/run/key/reservation binding; intersecting unknowns fence fresh admission, transition uses exact predecessor digest, known completion requires actual matching durable spend receipts plus configured resolver. Failed publication retained locally as uncertainty, fork avoids inherited runtime mutex authority, reopened process reads persisted fence.",
+    "enforcer": "Known cost and validated observed pricing separate from invalid/missing evidence. Stable producer attempt fixed before physical entry; intent persisted before call; original response/request/model/provider/amount-origin retained. Unknown amount remains None and cannot commit/release as zero; known per-key idempotent settlement returns actual receipts, known record completion and required audit remain separate. Reconcile reads original receipt/event without reissuing provider or blindly deleting pending record; exact trusted audit resolver governs protected acts.",
+    "cache": "Actual constructor-admitted emitter registration authenticates receiver scope/request/cache key/attempt and producer vs joined vs undispatched participation. Physical completion occurs before reusable publication; cancellation/late denied emission preserves actual charge or unknown completion. Joined request aborts only its own undispatched intent. Receiver marker alone never grants zero new charge; D retained exact issuer/content/context/original paid receipt and fresh local readback.",
+    "traced_and_gateway": "Traced supported generate/invoke/ainvoke reports actual preflight/delegation, producer completion and typed knowledge; protected streaming/model-retarget unsupported paths refuse. Canonical Gateway uses owner lossless Decimal decode and typed known/missing/invalid counts/cost; full ordinary tool-argument/catalog/error decoder contracts unchanged.",
+    "D_compatibility": "D response all-present-alias/raw/component/conflict strict guard and receipt-bound cache validation retain B status/unknown-ack semantics; existing resource receipt context supplied at actual standalone enforcer and stage paths, observer after canonical finish. No second D parser/ledger/schema/audit/promotion authority."
+  },
+  "owner_native_HTTP30_review": "Exact B test362fdbf/8fee28d… uses aiohttp actual dynamic port0 loopback/Gateway native session, not patched parser: signedtiny/huge aliases12, genuine zero/representable5, bool/nonfinite5, tiny components4, fractional usage3, separate top-level cost/tool float1. Freeze/thaw preserves status and raw numeric evidence, only declared controlled cost fixture—not invoice truth.",
+  "companions_reviewed": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-durable-completion-obligations.toml",
+      "source": "f0111fefcb6fa48e8ccb4aab213a14694dc206ad",
+      "sha256": "93d9aa6d5c56a491ae91bbe959e39268d49c4fd49dc60bcde6b61682d47495f3",
+      "blob": "23c881a6455320db785d0dcf4d90eebd378cab9e",
+      "bytes": 1518
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-llm-unknown-cost-and-protected-audit.toml",
+      "source": "f0111fefcb6fa48e8ccb4aab213a14694dc206ad",
+      "sha256": "d903404315f5ec8ac5a40f41a711cd8fbec76146dddba12935e94ff7e8fb4cf0",
+      "blob": "41519923d46dc4d809a72043ae86f19cf51731b5",
+      "bytes": 2627
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/README.md",
+      "source": "f0111fefcb6fa48e8ccb4aab213a14694dc206ad",
+      "sha256": "d9e3eadc763663af5f491522b65983486897a2b98359eac30ff011eb3d9722f0",
+      "blob": "8107f5b8311455bb1801714151508c8aaeef8158",
+      "bytes": 5577
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+      "source": "f0111fefcb6fa48e8ccb4aab213a14694dc206ad",
+      "sha256": "3342ba3ad22def30afb40a737d3ef66e9257be0f7074487ab4f5ebf0e204b4bc",
+      "blob": "01d65054c4f5eb4446c66dfa3fb267b4660eb21e",
+      "bytes": 7895
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+      "source": "f0111fefcb6fa48e8ccb4aab213a14694dc206ad",
+      "sha256": "62d99c160fda5d384222064516d9d70f0b1f8a982af07236dba9ef07b212af71",
+      "blob": "3d07bd0ce3d0c60a0f6c4dc73aed21cc66f32660",
+      "bytes": 13745
+    }
+  ],
+  "required_companions_and_checks": [
+    "Root selected original-owner migration/release/README and defining durable completion/settlement/unknown/audit/cache tests must accompany owner import; this static source review does not substitute their runtime.",
+    "Freeze selected eight final bytes and full whole-owner commit footprint; independently delta-review any extra imported caller or generated contract surface.",
+    "Execute real owner HTTP30 plus D raw24/new8, actual native factory full/split/prerequisite/paidcache13/replay/projection/stopping and fresh canonical ledger admission; pending-budget checkpoint nullable consumers require matching widened D source.",
+    "Unknown-ack exact retry/conflicting payload/scope, ambiguous before/after publication, reopen and multi-key exercised only where actual native callers use keys; no cheaper trace surrogate."
+  ],
+  "criterion_policy": "Canonical B1.2 API/decoder source is available, so earlier blanket bridge_missing no longer valid. Findings remain criterion-specific and check result is UNRUN until actual immutable combined-source execution. B157/B161/B164 scientific/permit positives remain independent required owner inputs.",
+  "limitations": [
+    "Selected dependency adoption GO, not entire B unit or all original owner commit paths/G integration acceptance.",
+    "Local durable filesystem/owner contract only; no power-loss/distributed/provider invoice/permission authority claim.",
+    "No P41 inherited red claim; exact slice-base zero-overlap denominator not established.",
+    "Old469 raw21FAIL3PASS retained as old source evidence, not new owner product verdict."
+  ],
+  "author_independence": "Read-only reviewer authored none of the B code/D compatibility/tests; only scratch review JSON."
+}

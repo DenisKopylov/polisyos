@@ -1,0 +1,89 @@
+{
+  "reviewer": "/root/census_oct07",
+  "verdict": "GO_EXACT_UNCHANGED_NUMERICAL_AND_STATE_ASSERTIONS_WITH_ACTUAL_CHANGED_CALLER_REPLAY",
+  "candidate_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "candidate_tree": "e809693afe3b84e02d473b5744142d026afbe509",
+  "native_carry_input": {
+    "path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/native-state-c0-to-a7-scoped-carry.json",
+    "sha256": "abef09196d1495c0d14ba9e0c92601eab06a86b94bdf0686da00a976f62c5f37"
+  },
+  "scopes": [
+    {
+      "scope": "GP43",
+      "actual_observed_module_count": 309,
+      "changed_modules": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py"
+      ],
+      "original_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "original_JUnit_sha256": "f681b683b5e8c7729fcbef8a3e7cea6710db465c41d593e80db2d50b60431005",
+      "carry_scope": "Unchanged numerical/state assertions only; original test execution remains c0-qualified."
+    },
+    {
+      "scope": "State142",
+      "actual_observed_module_count": 280,
+      "changed_modules": [],
+      "original_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "original_JUnit_sha256": "79a6508e5bea96a1d1d869e1f3891117385750c3ec53fd9499d56177494a2736",
+      "carry_scope": "Unchanged numerical/state assertions only; original test execution remains c0-qualified."
+    },
+    {
+      "scope": "MO88",
+      "actual_observed_module_count": 265,
+      "changed_modules": [],
+      "original_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "original_JUnit_sha256": "1d9b0b14326ba300dd7ca00b5a26e963ecca5cbbc48fb89bcebd69b9b3e9a201",
+      "carry_scope": "Unchanged numerical/state assertions only; original test execution remains c0-qualified."
+    },
+    {
+      "scope": "minimal55_15_UNRUN",
+      "actual_observed_module_count": 252,
+      "changed_modules": [],
+      "original_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "original_JUnit_sha256": "a08e67277c0a529ab6f10c43c9cdbf72768aba18e2b13d0f356640c117a35f6f",
+      "carry_scope": "Unchanged numerical/state assertions only; original test execution remains c0-qualified."
+    },
+    {
+      "scope": "warm_rejection_reports3",
+      "actual_observed_module_count": 251,
+      "changed_modules": [],
+      "original_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "original_JUnit_sha256": "b0ca41e2fd97b4d5a066a84cae731a3e1244ecb472e4d019c85c2cfb0a043767",
+      "carry_scope": "Unchanged numerical/state assertions only; original test execution remains c0-qualified."
+    },
+    {
+      "scope": "warm_report_removal3_expectedFAIL",
+      "actual_observed_module_count": 251,
+      "changed_modules": [],
+      "original_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "original_JUnit_sha256": "cdc7be459cc0f4614282e84d97d614f3d73a05ad3358f86e1ec8ce7e995aa393",
+      "carry_scope": "Unchanged numerical/state assertions only; original test execution remains c0-qualified."
+    }
+  ],
+  "unique_Git_binding_pairs_checked": 671,
+  "changed_consumer_current_replay": {
+    "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+    "cases": 3,
+    "PASS": 3,
+    "real_MLL_returns": 2,
+    "actual_corpus_rows": [
+      8,
+      7
+    ],
+    "complete_outputs_verified": 15,
+    "JUnit_sha256": "13c4fb6a6909c93ba4bec67121ba9b107c11f9be5c30bf99af655d5d4dd24641"
+  },
+  "B41_carry": {
+    "input": "/tmp/e02-D-math-oct07-drafts/B41-b5-to-a7-unchanged-detector-carry.json",
+    "sha256": "156b5dafa3b363a6901d2d3505492e1895e19b8f1fd1211651706ddd07855a5a",
+    "actual_original_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+    "positive_convergence_subset": 74,
+    "four_source_test_blobs_exact": true,
+    "shared_finite_real_scalar_AST_exact": true,
+    "old_full104_remains_original_source_only": true
+  },
+  "qualifier": "Not a new GP43/State142/MO88/minimal55 execution on candidate. Native strong numerical/corpus/RNG functions and actual observed dependencies exact, except imported Runner/service actual affected workflow3 replayed current; changed optional financial/analysis branches have separate current Service/FUN/DOE receipts.",
+  "P41": "not_established; source carry is not inherited-red/disjoint waiver",
+  "formal_closed": false,
+  "accepted_G": false
+}

@@ -1,0 +1,27 @@
+{
+  "actual_function": "tools.quality.validation.architecture_report_only_contracts._count_lines",
+  "counts": {
+    "policy-engine/src/polisyos/scientist/methods/autotune/dedup.py": 71,
+    "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py": 560,
+    "policy-engine/src/polisyos/scientist/methods/search/frontier.py": 232,
+    "policy-engine/src/polisyos/scientist/methods/search/service.py": 1283,
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py": 770,
+    "policy-engine/tests/repo_quality/tools/test_state_reads_constructor_admission.py": 167,
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py": 454,
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_state_inventory.py": 218,
+    "policy-engine/tests/unit/scientist/methods/search/test_service_trial_deduplication.py": 1028,
+    "policy-engine/tools/quality/diagnostics/check_state_reads.py": 201
+  },
+  "fail_closed_validation_scope": "tools/quality/validation/**/*.py; these10selectedpaths do not match thisglob",
+  "global_gate": "not_run/notPASS; scoped actual count only",
+  "matched_complete_selected_delta_sha256": "bd60ba47e2564d49c61b6cc6ce190d20bbfb464a9f7071889c092605981ad7c6",
+  "new_warning_paths": [
+    "policy-engine/src/polisyos/scientist/methods/search/service.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_service_trial_deduplication.py"
+  ],
+  "schema": "e02.D.actual-canonical-module-counts.v1",
+  "selected_denominator": 10,
+  "source": "96905636726483fdea3a98d9313871d825b54a9e",
+  "tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "warning_status": "report_only; actual new source/test warnings retained for canonical ownerdisposition, no silentwaiver or inventedfailedgate"
+}

@@ -1,0 +1,1305 @@
+{
+  "control": {
+    "plugin": "remove_trial_lookup",
+    "selector": "tests/unit/scientist/methods/search/test_service_trial_deduplication.py::test_native_dedup_uses_actual_semantic_content_and_retains_explicit_replicas[run]",
+    "removed_property": "actual TrialDeduplicator.is_duplicate only",
+    "preserved": "actual canonical type/fingerprint/source profile, real corpus/replicas/CAS/artifacts/evaluator/history",
+    "expected_result": "one assertion FAIL with actual physical trace not equal to [1,2,1,2,2,2,2], no setup or collection error"
+  },
+  "source_sha": "96905636726483fdea3a98d9313871d825b54a9e",
+  "source_tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "command": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-o",
+    "junit_family=xunit1",
+    "--noconftest",
+    "-p",
+    "no:cacheprovider",
+    "-p",
+    "remove_trial_lookup",
+    "-s",
+    "-ra",
+    "--basetemp",
+    "/dev/shm/e02-D-B124-removal-four-exxj42mi/remove_trial_lookup-fixtures",
+    "--junitxml",
+    "/dev/shm/e02-D-B124-removal-four-exxj42mi/remove_trial_lookup.junit.xml",
+    "tests/unit/scientist/methods/search/test_service_trial_deduplication.py::test_native_dedup_uses_actual_semantic_content_and_retains_explicit_replicas[run]"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "runtime": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "polisyos_origin": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/__init__.py",
+    "packages": {
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5",
+      "numpy": "2.3.5",
+      "cryptography": "46.0.4"
+    }
+  },
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine:/dev/shm/e02-D-B124-removal-plugins",
+    "UV_CACHE_DIR": "/dev/shm/e02-D-B124-removal-four-exxj42mi/uv-cache",
+    "POLISYOS_TOOLS_TIMING_LOG": "/dev/shm/e02-D-B124-removal-four-exxj42mi/timing.jsonl"
+  },
+  "no_artificial_resource_limits": true,
+  "numerical_backend_requirement": "not_applicable; actual native evaluator/CAS/service",
+  "inputs_before": {
+    "src/polisyos/scientist/methods/autotune/dedup.py": {
+      "bytes": 3073,
+      "sha256": "7c05548d3539ed98b20da6c11fe033af789e0b75672164654b97c68a28f0f5dc"
+    },
+    "src/polisyos/scientist/methods/autotune/runtime.py": {
+      "bytes": 23729,
+      "sha256": "4bcddcf8b7ef4696fe26a3daa3394053672eb8a43007e0bf0b993c5bf87e17eb"
+    },
+    "src/polisyos/scientist/methods/autotune/models.py": {
+      "bytes": 29441,
+      "sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5"
+    },
+    "src/polisyos/scientist/methods/autotune/registry.py": {
+      "bytes": 27732,
+      "sha256": "1339af524b604462021425b9d88f5cbe278f1a8c927827cb3e26fa4f8f0cc6ba"
+    },
+    "src/polisyos/scientist/methods/search/frontier.py": {
+      "bytes": 8212,
+      "sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b"
+    },
+    "src/polisyos/scientist/methods/search/controller.py": {
+      "bytes": 57668,
+      "sha256": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53"
+    },
+    "src/polisyos/scientist/methods/search/service.py": {
+      "bytes": 58588,
+      "sha256": "b73158016ef2a6e9324159b7de3d34206ef5a866bcdc1a675adb9281c815e127"
+    },
+    "src/polisyos/scientist/methods/search/contracts.py": {
+      "bytes": 14342,
+      "sha256": "e7a5b21bafddab30277ebe0e8eb54a31c3f7b3bfc207b8d97e14cbdbc31d78d5"
+    },
+    "src/polisyos/scientist/methods/search/run_state.py": {
+      "bytes": 19613,
+      "sha256": "411e2b5a922bf57af4f51735b44f7e491f98e75e3a83940b8fb3eb76e7fa3cb8"
+    },
+    "src/polisyos/scientist/methods/search/pareto_registry.py": {
+      "bytes": 37218,
+      "sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd"
+    },
+    "src/polisyos/scientist/methods/search/objective.py": {
+      "bytes": 10078,
+      "sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c"
+    },
+    "src/polisyos/core/artifacts/store.py": {
+      "bytes": 185595,
+      "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165"
+    },
+    "src/polisyos/core/artifacts/manifest.py": {
+      "bytes": 12758,
+      "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d"
+    },
+    "src/polisyos/core/artifacts/manifest_profile.py": {
+      "bytes": 756,
+      "sha256": "aa7ee9af617c1adc338a21a5b0186d41a690e6b86f2a0810ae9b5a7ee4ff7ce5"
+    },
+    "src/polisyos/core/artifacts/_integrity_ops.py": {
+      "bytes": 10425,
+      "sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b"
+    },
+    "src/polisyos/core/artifacts/_atomic_write.py": {
+      "bytes": 4074,
+      "sha256": "afa41fe64aa388d65ec89db504d2f651447c5a92b5a8cea0384a6793c924ebcf"
+    },
+    "src/polisyos/core/canon/canon_json.py": {
+      "bytes": 1882,
+      "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95"
+    },
+    "src/polisyos/common/serialization.py": {
+      "bytes": 14186,
+      "sha256": "485303bf79f150fa9df259d7354d3104a4bdb94d9114cddb6e17dcc424316f0d"
+    },
+    "tests/unit/scientist/methods/search/test_service_trial_deduplication.py": {
+      "bytes": 43697,
+      "sha256": "608942a8f9195491c846225050d030b47a6733d1d8602f31960afd852421a6b5"
+    },
+    "tests/unit/scientist/methods/search/test_semantic_dates_persisted_consumers.py": {
+      "bytes": 6236,
+      "sha256": "435a9bf8ab41bf2c31b22b69929f3e8864bced9e84f85397f3e96311a047a1aa"
+    }
+  },
+  "plugins": {
+    "remove_trial_lookup.py": {
+      "bytes": 404,
+      "sha256": "1cac097268db9671890dfa6b856ec0ca02c8c7813b4b5f694695a4769765c73f"
+    },
+    "removal_observation.py": {
+      "bytes": 2818,
+      "sha256": "8c34b5ab2ca4e24371962e3629771f0af125ee2390f8c46ea969946483c02c59"
+    }
+  },
+  "started_utc": "2026-10-07T10:40:44.950014+00:00",
+  "returncode": 1,
+  "elapsed_seconds": 22.34570018298109,
+  "completed_utc": "2026-10-07T10:41:07.296056+00:00",
+  "case_phases": {
+    "PASS": 0,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "persisted_observations": [
+    {
+      "best_candidate": {
+        "artifact_version": "1.0",
+        "created_at": "2026-04-01",
+        "loop_id": "dedup",
+        "metadata": {
+          "loaded_at": "2026-04-01",
+          "trace_id": "trace-first"
+        },
+        "notes": [
+          "first observation"
+        ],
+        "replicate_id": null,
+        "search_space_version": "1.0",
+        "seed": null,
+        "semantic": {
+          "metadata": {
+            "effective_date": "2026-01-15",
+            "starts_at": "2026-02-01"
+          }
+        },
+        "value": 2
+      },
+      "best_objective": -2.0,
+      "checkpoint_ref": {
+        "artifact_id": "sha256:feef365ad2f283d2a1c7308725b061e6dac8cd541eabc00469d634b469bb38ed",
+        "kind": "scientist.search.service_checkpoint",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a",
+        "media_type": "application/json"
+      },
+      "checkpoint_sha256": "feef365ad2f283d2a1c7308725b061e6dac8cd541eabc00469d634b469bb38ed",
+      "configuration": {
+        "basis": {
+          "analysis_configuration": null,
+          "evaluator_profile": {
+            "name": "test_service_trial_deduplication._Evaluator",
+            "version": "608942a8f9195491c846225050d030b47a6733d1d8602f31960afd852421a6b5"
+          },
+          "loop_id": "dedup",
+          "promotion_policy": {
+            "compare_split": "holdout",
+            "direction": "maximize",
+            "loop_id": "dedup",
+            "min_improvement": 0.0,
+            "min_sample_count": 0,
+            "primary_metric": "score",
+            "required_guardrails": [],
+            "unit": "points"
+          },
+          "suite_ref": {
+            "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+            "kind": "scientist.autotune.generic.suite",
+            "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+            "media_type": "application/json"
+          }
+        },
+        "batch_size": 1,
+        "budget_cost_key": "cumulative_cost_usd",
+        "budget_key": "run",
+        "budget_owner_identity": null,
+        "diversity_enabled": false,
+        "generator": "polisyos.scientist.methods.autotune.runtime.SequenceCandidateGenerator",
+        "hard_limit": 100,
+        "initial_evaluations": [],
+        "max_empty_generation_attempts": 3,
+        "objectives": [
+          {
+            "direction": "minimize",
+            "name": "score",
+            "parameters": {
+              "_policy": {
+                "compare_split": "holdout",
+                "direction": "maximize",
+                "loop_id": "dedup",
+                "min_improvement": 0.0,
+                "min_sample_count": 0,
+                "primary_metric": "score",
+                "required_guardrails": [],
+                "unit": "points"
+              },
+              "_threshold": null,
+              "_weight": 1.0
+            },
+            "type": "polisyos.scientist.methods.autotune.runtime._AutotuneObjective"
+          }
+        ],
+        "pareto_registry_supported": true,
+        "policy_objective_stack": null,
+        "replay_profile": {
+          "data_inputs": [],
+          "evaluation_context": {},
+          "evaluator_configuration": {
+            "configuration": {
+              "include_metric": true,
+              "profile": "b124-controlled-physical-call.v1",
+              "promotable": true,
+              "scale": 1,
+              "status": "ok"
+            },
+            "implementation_sha256": "608942a8f9195491c846225050d030b47a6733d1d8602f31960afd852421a6b5",
+            "type": "test_service_trial_deduplication._Evaluator"
+          },
+          "factory_build": "4bcddcf8b7ef4696fe26a3daa3394053672eb8a43007e0bf0b993c5bf87e17eb",
+          "mutation_model_build": "608942a8f9195491c846225050d030b47a6733d1d8602f31960afd852421a6b5",
+          "mutation_model_type": "test_service_trial_deduplication._DatedMutation",
+          "mutation_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "artifact_version": {
+                "default": "1.0",
+                "pattern": "^\\d+\\.\\d+$",
+                "title": "Artifact Version",
+                "type": "string"
+              },
+              "created_at": {
+                "default": "2026-04-01",
+                "title": "Created At",
+                "type": "string"
+              },
+              "loop_id": {
+                "maxLength": 128,
+                "minLength": 1,
+                "title": "Loop Id",
+                "type": "string"
+              },
+              "metadata": {
+                "additionalProperties": true,
+                "title": "Metadata",
+                "type": "object"
+              },
+              "notes": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Notes",
+                "type": "array"
+              },
+              "replicate_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Replicate Id"
+              },
+              "search_space_version": {
+                "default": "1.0",
+                "pattern": "^\\d+\\.\\d+$",
+                "title": "Search Space Version",
+                "type": "string"
+              },
+              "seed": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Seed"
+              },
+              "semantic": {
+                "additionalProperties": true,
+                "title": "Semantic",
+                "type": "object"
+              },
+              "value": {
+                "title": "Value",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "loop_id",
+              "value",
+              "semantic"
+            ],
+            "title": "_DatedMutation",
+            "type": "object"
+          },
+          "policy": {
+            "compare_split": "holdout",
+            "direction": "maximize",
+            "loop_id": "dedup",
+            "min_improvement": 0.0,
+            "min_sample_count": 0,
+            "primary_metric": "score",
+            "required_guardrails": [],
+            "unit": "points"
+          },
+          "suite_configuration": {
+            "data_basis": "candidate_only",
+            "dataset_path": null,
+            "dataset_ref": null,
+            "kind": "generic",
+            "metadata": {},
+            "split_manifest_path": null,
+            "split_manifest_ref": null,
+            "suite_id": "dedup",
+            "suite_version": "1.0"
+          },
+          "suite_content_sha256": "648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+          "suite_manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+          "suite_ref": {
+            "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+            "kind": "scientist.autotune.generic.suite",
+            "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+            "media_type": "application/json"
+          },
+          "version": "native-autotune-replay.v2"
+        },
+        "resource_arbiter_supported": true,
+        "stage_a_enabled": false,
+        "stopping": {
+          "children": [],
+          "configuration": {
+            "_max_iter": 4
+          },
+          "criterion": "MaxIterations",
+          "started_at": null,
+          "version": "search-stopping.v1"
+        },
+        "transfer_fingerprint": null,
+        "trial_deduplication": {
+          "admission_sha256": "b73158016ef2a6e9324159b7de3d34206ef5a866bcdc1a675adb9281c815e127",
+          "candidate_identity_sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+          "deduplication_sha256": "7c05548d3539ed98b20da6c11fe033af789e0b75672164654b97c68a28f0f5dc",
+          "version": "native_completed_pending.v1"
+        }
+      },
+      "history": [
+        {
+          "candidate": {
+            "artifact_version": "1.0",
+            "created_at": "2026-04-01",
+            "loop_id": "dedup",
+            "metadata": {
+              "loaded_at": "2026-04-01",
+              "trace_id": "trace-first"
+            },
+            "notes": [
+              "first observation"
+            ],
+            "replicate_id": null,
+            "search_space_version": "1.0",
+            "seed": null,
+            "semantic": {
+              "metadata": {
+                "effective_date": "2026-01-15",
+                "starts_at": "2026-01-01"
+              }
+            },
+            "value": 1
+          },
+          "duration_seconds": 0.034918,
+          "is_promising": true,
+          "iteration": 0,
+          "objective_details": [
+            {
+              "direction": "minimize",
+              "is_satisfied": true,
+              "name": "score",
+              "raw_value": -1.0,
+              "threshold": null,
+              "weight": 1.0
+            }
+          ],
+          "objective_value": -1.0,
+          "policy_evaluation": null,
+          "policy_evaluation_error": null,
+          "policy_evaluation_status": "missing",
+          "stage_a_passed": true,
+          "stage_b_result": {
+            "feedback": {
+              "guardrails": {},
+              "promotion_decision": {
+                "champion": {
+                  "candidate_ref": {
+                    "artifact_id": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+                    "kind": "scientist.autotune.dedup.candidate",
+                    "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+                    "media_type": "application/json"
+                  },
+                  "evaluation_ref": {
+                    "artifact_id": "sha256:33be39dd3da9a849f879cd2bf532c36de145d17d8a84c50a4d2092ed8d4e2086",
+                    "kind": "scientist.autotune.dedup.evaluation",
+                    "manifest_profile_sha256": "sha256:9751b526eb9778ccf3c644fb7224027c584c89d4a4d8307ef8c259ab16ede49e",
+                    "media_type": "application/json"
+                  },
+                  "loop_id": "dedup",
+                  "metadata": {
+                    "compare_split": "holdout",
+                    "promoted_by_policy": {
+                      "compare_split": "holdout",
+                      "direction": "maximize",
+                      "loop_id": "dedup",
+                      "min_improvement": 0.0,
+                      "min_sample_count": 0,
+                      "primary_metric": "score",
+                      "required_guardrails": [],
+                      "unit": "points"
+                    },
+                    "suite_id": "dedup",
+                    "suite_ref": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7"
+                  },
+                  "metrics": {
+                    "score": 1.0
+                  },
+                  "promoted_at": "2026-10-07T10:41:02.450612Z",
+                  "search_space_version": "1.0",
+                  "suite_version": "1.0"
+                },
+                "loop_id": "dedup",
+                "previous_champion": null,
+                "promoted": true,
+                "reason": "promoted"
+              },
+              "status": "ok",
+              "verdict": "APPROVE"
+            },
+            "simulation_results": {
+              "candidate_artifact_ref": {
+                "artifact_id": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+                "kind": "scientist.autotune.dedup.candidate",
+                "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+                "media_type": "application/json"
+              },
+              "candidate_ref": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+              "evaluation_artifact_ref": {
+                "artifact_id": "sha256:33be39dd3da9a849f879cd2bf532c36de145d17d8a84c50a4d2092ed8d4e2086",
+                "kind": "scientist.autotune.dedup.evaluation",
+                "manifest_profile_sha256": "sha256:9751b526eb9778ccf3c644fb7224027c584c89d4a4d8307ef8c259ab16ede49e",
+                "media_type": "application/json"
+              },
+              "evaluation_ref": "sha256:33be39dd3da9a849f879cd2bf532c36de145d17d8a84c50a4d2092ed8d4e2086",
+              "primary_metric_assessment": {
+                "direction": "maximize",
+                "metric": "score",
+                "reason": null,
+                "split": "holdout",
+                "status": "available",
+                "unit": "points"
+              },
+              "score": 1.0,
+              "suite_artifact_ref": {
+                "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+                "kind": "scientist.autotune.generic.suite",
+                "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+                "media_type": "application/json"
+              }
+            }
+          },
+          "timestamp": "2026-10-07T10:41:02.458807+00:00"
+        },
+        {
+          "candidate": {
+            "artifact_version": "1.0",
+            "created_at": "2026-05-01",
+            "loop_id": "dedup",
+            "metadata": {
+              "loaded_at": "2026-05-01",
+              "trace_id": "trace-second"
+            },
+            "notes": [
+              "different display note"
+            ],
+            "replicate_id": null,
+            "search_space_version": "1.0",
+            "seed": null,
+            "semantic": {
+              "metadata": {
+                "effective_date": "2026-01-15",
+                "starts_at": "2026-01-01"
+              }
+            },
+            "value": 1
+          },
+          "duration_seconds": 0.101606,
+          "is_promising": true,
+          "iteration": 1,
+          "objective_details": [
+            {
+              "direction": "minimize",
+              "is_satisfied": true,
+              "name": "score",
+              "raw_value": -1.0,
+              "threshold": null,
+              "weight": 1.0
+            }
+          ],
+          "objective_value": -1.0,
+          "policy_evaluation": null,
+          "policy_evaluation_error": null,
+          "policy_evaluation_status": "missing",
+          "stage_a_passed": true,
+          "stage_b_result": {
+            "feedback": {
+              "guardrails": {},
+              "promotion_decision": {
+                "champion": {
+                  "candidate_ref": {
+                    "artifact_id": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+                    "kind": "scientist.autotune.dedup.candidate",
+                    "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+                    "media_type": "application/json"
+                  },
+                  "evaluation_ref": {
+                    "artifact_id": "sha256:33be39dd3da9a849f879cd2bf532c36de145d17d8a84c50a4d2092ed8d4e2086",
+                    "kind": "scientist.autotune.dedup.evaluation",
+                    "manifest_profile_sha256": "sha256:9751b526eb9778ccf3c644fb7224027c584c89d4a4d8307ef8c259ab16ede49e",
+                    "media_type": "application/json"
+                  },
+                  "loop_id": "dedup",
+                  "metadata": {
+                    "compare_split": "holdout",
+                    "promoted_by_policy": {
+                      "compare_split": "holdout",
+                      "direction": "maximize",
+                      "loop_id": "dedup",
+                      "min_improvement": 0.0,
+                      "min_sample_count": 0,
+                      "primary_metric": "score",
+                      "required_guardrails": [],
+                      "unit": "points"
+                    },
+                    "suite_id": "dedup",
+                    "suite_ref": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7"
+                  },
+                  "metrics": {
+                    "score": 1.0
+                  },
+                  "promoted_at": "2026-10-07T10:41:02.450612Z",
+                  "search_space_version": "1.0",
+                  "suite_version": "1.0"
+                },
+                "loop_id": "dedup",
+                "previous_champion": {
+                  "candidate_ref": {
+                    "artifact_id": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+                    "kind": "scientist.autotune.dedup.candidate",
+                    "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+                    "media_type": "application/json"
+                  },
+                  "evaluation_ref": {
+                    "artifact_id": "sha256:33be39dd3da9a849f879cd2bf532c36de145d17d8a84c50a4d2092ed8d4e2086",
+                    "kind": "scientist.autotune.dedup.evaluation",
+                    "manifest_profile_sha256": "sha256:9751b526eb9778ccf3c644fb7224027c584c89d4a4d8307ef8c259ab16ede49e",
+                    "media_type": "application/json"
+                  },
+                  "loop_id": "dedup",
+                  "metadata": {
+                    "compare_split": "holdout",
+                    "promoted_by_policy": {
+                      "compare_split": "holdout",
+                      "direction": "maximize",
+                      "loop_id": "dedup",
+                      "min_improvement": 0.0,
+                      "min_sample_count": 0,
+                      "primary_metric": "score",
+                      "required_guardrails": [],
+                      "unit": "points"
+                    },
+                    "suite_id": "dedup",
+                    "suite_ref": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7"
+                  },
+                  "metrics": {
+                    "score": 1.0
+                  },
+                  "promoted_at": "2026-10-07T10:41:02.450612Z",
+                  "search_space_version": "1.0",
+                  "suite_version": "1.0"
+                },
+                "promoted": false,
+                "reason": "not_better_than_champion"
+              },
+              "status": "ok",
+              "verdict": "APPROVE"
+            },
+            "simulation_results": {
+              "candidate_artifact_ref": {
+                "artifact_id": "sha256:0669a630e42cb7c0eb0357ea2e1cad7c9cdea63ad3519d327c9f144dffd9a3f5",
+                "kind": "scientist.autotune.dedup.candidate",
+                "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+                "media_type": "application/json"
+              },
+              "candidate_ref": "sha256:0669a630e42cb7c0eb0357ea2e1cad7c9cdea63ad3519d327c9f144dffd9a3f5",
+              "evaluation_artifact_ref": {
+                "artifact_id": "sha256:fb0bab5f3f9cc9f8b264ab83bde5f61108cf92e5a4ac48a49fb40ea8d4efc21e",
+                "kind": "scientist.autotune.dedup.evaluation",
+                "manifest_profile_sha256": "sha256:26f69381615d573dc22151851534699c7866277cd3c5c49b62c33cff84c47862",
+                "media_type": "application/json"
+              },
+              "evaluation_ref": "sha256:fb0bab5f3f9cc9f8b264ab83bde5f61108cf92e5a4ac48a49fb40ea8d4efc21e",
+              "primary_metric_assessment": {
+                "direction": "maximize",
+                "metric": "score",
+                "reason": null,
+                "split": "holdout",
+                "status": "available",
+                "unit": "points"
+              },
+              "score": 1.0,
+              "suite_artifact_ref": {
+                "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+                "kind": "scientist.autotune.generic.suite",
+                "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+                "media_type": "application/json"
+              }
+            }
+          },
+          "timestamp": "2026-10-07T10:41:02.652260+00:00"
+        },
+        {
+          "candidate": {
+            "artifact_version": "1.0",
+            "created_at": "2026-04-01",
+            "loop_id": "dedup",
+            "metadata": {
+              "loaded_at": "2026-04-01",
+              "trace_id": "trace-first"
+            },
+            "notes": [
+              "first observation"
+            ],
+            "replicate_id": null,
+            "search_space_version": "1.0",
+            "seed": null,
+            "semantic": {
+              "metadata": {
+                "effective_date": "2026-01-15",
+                "starts_at": "2026-02-01"
+              }
+            },
+            "value": 2
+          },
+          "duration_seconds": 0.096203,
+          "is_promising": true,
+          "iteration": 2,
+          "objective_details": [
+            {
+              "direction": "minimize",
+              "is_satisfied": true,
+              "name": "score",
+              "raw_value": -2.0,
+              "threshold": null,
+              "weight": 1.0
+            }
+          ],
+          "objective_value": -2.0,
+          "policy_evaluation": null,
+          "policy_evaluation_error": null,
+          "policy_evaluation_status": "missing",
+          "stage_a_passed": true,
+          "stage_b_result": {
+            "feedback": {
+              "guardrails": {},
+              "promotion_decision": {
+                "champion": {
+                  "candidate_ref": {
+                    "artifact_id": "sha256:d5dacaedb0c86a73001f30e3342a5153d4250ba91e26decce5b72ae43ab8b563",
+                    "kind": "scientist.autotune.dedup.candidate",
+                    "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+                    "media_type": "application/json"
+                  },
+                  "evaluation_ref": {
+                    "artifact_id": "sha256:76948daa84f5379f3bab18d8b8c6bcd4f59866536b6d579bb9da2fde76ec2180",
+                    "kind": "scientist.autotune.dedup.evaluation",
+                    "manifest_profile_sha256": "sha256:5c83cc165c2b31347e8b02d8ec0ac4fe7b86ad932decd801491bf315633ff43d",
+                    "media_type": "application/json"
+                  },
+                  "loop_id": "dedup",
+                  "metadata": {
+                    "compare_split": "holdout",
+                    "promoted_by_policy": {
+                      "compare_split": "holdout",
+                      "direction": "maximize",
+                      "loop_id": "dedup",
+                      "min_improvement": 0.0,
+                      "min_sample_count": 0,
+                      "primary_metric": "score",
+                      "required_guardrails": [],
+                      "unit": "points"
+                    },
+                    "suite_id": "dedup",
+                    "suite_ref": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7"
+                  },
+                  "metrics": {
+                    "score": 2.0
+                  },
+                  "promoted_at": "2026-10-07T10:41:02.840334Z",
+                  "search_space_version": "1.0",
+                  "suite_version": "1.0"
+                },
+                "loop_id": "dedup",
+                "previous_champion": {
+                  "candidate_ref": {
+                    "artifact_id": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+                    "kind": "scientist.autotune.dedup.candidate",
+                    "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+                    "media_type": "application/json"
+                  },
+                  "evaluation_ref": {
+                    "artifact_id": "sha256:33be39dd3da9a849f879cd2bf532c36de145d17d8a84c50a4d2092ed8d4e2086",
+                    "kind": "scientist.autotune.dedup.evaluation",
+                    "manifest_profile_sha256": "sha256:9751b526eb9778ccf3c644fb7224027c584c89d4a4d8307ef8c259ab16ede49e",
+                    "media_type": "application/json"
+                  },
+                  "loop_id": "dedup",
+                  "metadata": {
+                    "compare_split": "holdout",
+                    "promoted_by_policy": {
+                      "compare_split": "holdout",
+                      "direction": "maximize",
+                      "loop_id": "dedup",
+                      "min_improvement": 0.0,
+                      "min_sample_count": 0,
+                      "primary_metric": "score",
+                      "required_guardrails": [],
+                      "unit": "points"
+                    },
+                    "suite_id": "dedup",
+                    "suite_ref": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7"
+                  },
+                  "metrics": {
+                    "score": 1.0
+                  },
+                  "promoted_at": "2026-10-07T10:41:02.450612Z",
+                  "search_space_version": "1.0",
+                  "suite_version": "1.0"
+                },
+                "promoted": true,
+                "reason": "promoted"
+              },
+              "status": "ok",
+              "verdict": "APPROVE"
+            },
+            "simulation_results": {
+              "candidate_artifact_ref": {
+                "artifact_id": "sha256:d5dacaedb0c86a73001f30e3342a5153d4250ba91e26decce5b72ae43ab8b563",
+                "kind": "scientist.autotune.dedup.candidate",
+                "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+                "media_type": "application/json"
+              },
+              "candidate_ref": "sha256:d5dacaedb0c86a73001f30e3342a5153d4250ba91e26decce5b72ae43ab8b563",
+              "evaluation_artifact_ref": {
+                "artifact_id": "sha256:76948daa84f5379f3bab18d8b8c6bcd4f59866536b6d579bb9da2fde76ec2180",
+                "kind": "scientist.autotune.dedup.evaluation",
+                "manifest_profile_sha256": "sha256:5c83cc165c2b31347e8b02d8ec0ac4fe7b86ad932decd801491bf315633ff43d",
+                "media_type": "application/json"
+              },
+              "evaluation_ref": "sha256:76948daa84f5379f3bab18d8b8c6bcd4f59866536b6d579bb9da2fde76ec2180",
+              "primary_metric_assessment": {
+                "direction": "maximize",
+                "metric": "score",
+                "reason": null,
+                "split": "holdout",
+                "status": "available",
+                "unit": "points"
+              },
+              "score": 2.0,
+              "suite_artifact_ref": {
+                "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+                "kind": "scientist.autotune.generic.suite",
+                "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+                "media_type": "application/json"
+              }
+            }
+          },
+          "timestamp": "2026-10-07T10:41:02.849286+00:00"
+        },
+        {
+          "candidate": {
+            "artifact_version": "1.0",
+            "created_at": "2026-04-01",
+            "loop_id": "dedup",
+            "metadata": {
+              "loaded_at": "2026-04-01",
+              "trace_id": "trace-first"
+            },
+            "notes": [
+              "first observation"
+            ],
+            "replicate_id": "owner-declared-replica-one",
+            "search_space_version": "1.0",
+            "seed": null,
+            "semantic": {
+              "metadata": {
+                "effective_date": "2026-01-15",
+                "starts_at": "2026-02-01"
+              }
+            },
+            "value": 2
+          },
+          "duration_seconds": 0.097207,
+          "is_promising": true,
+          "iteration": 3,
+          "objective_details": [
+            {
+              "direction": "minimize",
+              "is_satisfied": true,
+              "name": "score",
+              "raw_value": -2.0,
+              "threshold": null,
+              "weight": 1.0
+            }
+          ],
+          "objective_value": -2.0,
+          "policy_evaluation": null,
+          "policy_evaluation_error": null,
+          "policy_evaluation_status": "missing",
+          "stage_a_passed": true,
+          "stage_b_result": {
+            "feedback": {
+              "guardrails": {},
+              "promotion_decision": {
+                "champion": {
+                  "candidate_ref": {
+                    "artifact_id": "sha256:d5dacaedb0c86a73001f30e3342a5153d4250ba91e26decce5b72ae43ab8b563",
+                    "kind": "scientist.autotune.dedup.candidate",
+                    "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+                    "media_type": "application/json"
+                  },
+                  "evaluation_ref": {
+                    "artifact_id": "sha256:76948daa84f5379f3bab18d8b8c6bcd4f59866536b6d579bb9da2fde76ec2180",
+                    "kind": "scientist.autotune.dedup.evaluation",
+                    "manifest_profile_sha256": "sha256:5c83cc165c2b31347e8b02d8ec0ac4fe7b86ad932decd801491bf315633ff43d",
+                    "media_type": "application/json"
+                  },
+                  "loop_id": "dedup",
+                  "metadata": {
+                    "compare_split": "holdout",
+                    "promoted_by_policy": {
+                      "compare_split": "holdout",
+                      "direction": "maximize",
+                      "loop_id": "dedup",
+                      "min_improvement": 0.0,
+                      "min_sample_count": 0,
+                      "primary_metric": "score",
+                      "required_guardrails": [],
+                      "unit": "points"
+                    },
+                    "suite_id": "dedup",
+                    "suite_ref": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7"
+                  },
+                  "metrics": {
+                    "score": 2.0
+                  },
+                  "promoted_at": "2026-10-07T10:41:02.840334Z",
+                  "search_space_version": "1.0",
+                  "suite_version": "1.0"
+                },
+                "loop_id": "dedup",
+                "previous_champion": {
+                  "candidate_ref": {
+                    "artifact_id": "sha256:d5dacaedb0c86a73001f30e3342a5153d4250ba91e26decce5b72ae43ab8b563",
+                    "kind": "scientist.autotune.dedup.candidate",
+                    "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+                    "media_type": "application/json"
+                  },
+                  "evaluation_ref": {
+                    "artifact_id": "sha256:76948daa84f5379f3bab18d8b8c6bcd4f59866536b6d579bb9da2fde76ec2180",
+                    "kind": "scientist.autotune.dedup.evaluation",
+                    "manifest_profile_sha256": "sha256:5c83cc165c2b31347e8b02d8ec0ac4fe7b86ad932decd801491bf315633ff43d",
+                    "media_type": "application/json"
+                  },
+                  "loop_id": "dedup",
+                  "metadata": {
+                    "compare_split": "holdout",
+                    "promoted_by_policy": {
+                      "compare_split": "holdout",
+                      "direction": "maximize",
+                      "loop_id": "dedup",
+                      "min_improvement": 0.0,
+                      "min_sample_count": 0,
+                      "primary_metric": "score",
+                      "required_guardrails": [],
+                      "unit": "points"
+                    },
+                    "suite_id": "dedup",
+                    "suite_ref": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7"
+                  },
+                  "metrics": {
+                    "score": 2.0
+                  },
+                  "promoted_at": "2026-10-07T10:41:02.840334Z",
+                  "search_space_version": "1.0",
+                  "suite_version": "1.0"
+                },
+                "promoted": false,
+                "reason": "not_better_than_champion"
+              },
+              "status": "ok",
+              "verdict": "APPROVE"
+            },
+            "simulation_results": {
+              "candidate_artifact_ref": {
+                "artifact_id": "sha256:4cfd6709b4b1de1d6cdca248f8c8e0a22dd864986e473abb88356e3b0f805817",
+                "kind": "scientist.autotune.dedup.candidate",
+                "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+                "media_type": "application/json"
+              },
+              "candidate_ref": "sha256:4cfd6709b4b1de1d6cdca248f8c8e0a22dd864986e473abb88356e3b0f805817",
+              "evaluation_artifact_ref": {
+                "artifact_id": "sha256:bd0d09ea13eae0bb0185ddf4d2f8416bafad6a9cadfe668e8423f9d96d75365d",
+                "kind": "scientist.autotune.dedup.evaluation",
+                "manifest_profile_sha256": "sha256:1339eaff337fbbbe13e11e536ab8957c956f4c84bfd6f712fa2aff5c73851f2c",
+                "media_type": "application/json"
+              },
+              "evaluation_ref": "sha256:bd0d09ea13eae0bb0185ddf4d2f8416bafad6a9cadfe668e8423f9d96d75365d",
+              "primary_metric_assessment": {
+                "direction": "maximize",
+                "metric": "score",
+                "reason": null,
+                "split": "holdout",
+                "status": "available",
+                "unit": "points"
+              },
+              "score": 2.0,
+              "suite_artifact_ref": {
+                "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+                "kind": "scientist.autotune.generic.suite",
+                "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+                "media_type": "application/json"
+              }
+            }
+          },
+          "timestamp": "2026-10-07T10:41:03.057084+00:00"
+        }
+      ],
+      "pareto_points": [
+        {
+          "candidate": {
+            "artifact_version": "1.0",
+            "created_at": "2026-04-01",
+            "loop_id": "dedup",
+            "metadata": {
+              "loaded_at": "2026-04-01",
+              "trace_id": "trace-first"
+            },
+            "notes": [
+              "first observation"
+            ],
+            "replicate_id": "owner-declared-replica-one",
+            "search_space_version": "1.0",
+            "seed": null,
+            "semantic": {
+              "metadata": {
+                "effective_date": "2026-01-15",
+                "starts_at": "2026-02-01"
+              }
+            },
+            "value": 2
+          },
+          "candidate_hash": "sha256:6464d85e4ee3a944f415d2e0d73664fec3793ce0a226be9a11882f3dc2455c32",
+          "objectives": [
+            {
+              "direction": "minimize",
+              "name": "score",
+              "raw_value": -2.0
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "artifact_version": "1.0",
+            "created_at": "2026-04-01",
+            "loop_id": "dedup",
+            "metadata": {
+              "loaded_at": "2026-04-01",
+              "trace_id": "trace-first"
+            },
+            "notes": [
+              "first observation"
+            ],
+            "replicate_id": null,
+            "search_space_version": "1.0",
+            "seed": null,
+            "semantic": {
+              "metadata": {
+                "effective_date": "2026-01-15",
+                "starts_at": "2026-02-01"
+              }
+            },
+            "value": 2
+          },
+          "candidate_hash": "sha256:f5b29bb059dd7acda49b5947caf6ed99d96029166f8a6f8f54755adf29351bd1",
+          "objectives": [
+            {
+              "direction": "minimize",
+              "name": "score",
+              "raw_value": -2.0
+            }
+          ]
+        }
+      ],
+      "physical_calls": [
+        {
+          "candidate_ref": {
+            "artifact_id": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+            "kind": "scientist.autotune.dedup.candidate",
+            "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+            "media_type": "application/json"
+          },
+          "replicate_id": null,
+          "seed": null,
+          "starts_at": "2026-01-01",
+          "suite_ref": {
+            "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+            "kind": "scientist.autotune.generic.suite",
+            "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+            "media_type": "application/json"
+          },
+          "value": 1
+        },
+        {
+          "candidate_ref": {
+            "artifact_id": "sha256:0669a630e42cb7c0eb0357ea2e1cad7c9cdea63ad3519d327c9f144dffd9a3f5",
+            "kind": "scientist.autotune.dedup.candidate",
+            "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+            "media_type": "application/json"
+          },
+          "replicate_id": null,
+          "seed": null,
+          "starts_at": "2026-01-01",
+          "suite_ref": {
+            "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+            "kind": "scientist.autotune.generic.suite",
+            "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+            "media_type": "application/json"
+          },
+          "value": 1
+        },
+        {
+          "candidate_ref": {
+            "artifact_id": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+            "kind": "scientist.autotune.dedup.candidate",
+            "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+            "media_type": "application/json"
+          },
+          "replicate_id": null,
+          "seed": null,
+          "starts_at": "2026-01-01",
+          "suite_ref": {
+            "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+            "kind": "scientist.autotune.generic.suite",
+            "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+            "media_type": "application/json"
+          },
+          "value": 1
+        },
+        {
+          "candidate_ref": {
+            "artifact_id": "sha256:d5dacaedb0c86a73001f30e3342a5153d4250ba91e26decce5b72ae43ab8b563",
+            "kind": "scientist.autotune.dedup.candidate",
+            "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+            "media_type": "application/json"
+          },
+          "replicate_id": null,
+          "seed": null,
+          "starts_at": "2026-02-01",
+          "suite_ref": {
+            "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+            "kind": "scientist.autotune.generic.suite",
+            "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+            "media_type": "application/json"
+          },
+          "value": 2
+        },
+        {
+          "candidate_ref": {
+            "artifact_id": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+            "kind": "scientist.autotune.dedup.candidate",
+            "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+            "media_type": "application/json"
+          },
+          "replicate_id": null,
+          "seed": null,
+          "starts_at": "2026-01-01",
+          "suite_ref": {
+            "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+            "kind": "scientist.autotune.generic.suite",
+            "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+            "media_type": "application/json"
+          },
+          "value": 1
+        },
+        {
+          "candidate_ref": {
+            "artifact_id": "sha256:4cfd6709b4b1de1d6cdca248f8c8e0a22dd864986e473abb88356e3b0f805817",
+            "kind": "scientist.autotune.dedup.candidate",
+            "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+            "media_type": "application/json"
+          },
+          "replicate_id": "owner-declared-replica-one",
+          "seed": null,
+          "starts_at": "2026-02-01",
+          "suite_ref": {
+            "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+            "kind": "scientist.autotune.generic.suite",
+            "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+            "media_type": "application/json"
+          },
+          "value": 2
+        },
+        {
+          "candidate_ref": {
+            "artifact_id": "sha256:d5dacaedb0c86a73001f30e3342a5153d4250ba91e26decce5b72ae43ab8b563",
+            "kind": "scientist.autotune.dedup.candidate",
+            "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+            "media_type": "application/json"
+          },
+          "replicate_id": null,
+          "seed": null,
+          "starts_at": "2026-02-01",
+          "suite_ref": {
+            "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+            "kind": "scientist.autotune.generic.suite",
+            "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+            "media_type": "application/json"
+          },
+          "value": 2
+        }
+      ],
+      "probe": "remove_trial_lookup",
+      "registry_entries": null
+    }
+  ],
+  "outputs": {
+    "remove_trial_lookup.stdout.txt": {
+      "bytes": 31099,
+      "sha256": "b25ce2c224b3a6e3a4a57a886cd9f1b17dd10d2dae5977e2c11ce67aa46f387d"
+    },
+    "remove_trial_lookup.stderr.txt": {
+      "bytes": 210,
+      "sha256": "1f9be6331bc24f3770ac26393514b17425a20f3a5dbb9940de1a90b1801ae0eb"
+    },
+    "remove_trial_lookup.junit.xml": {
+      "bytes": 1914,
+      "sha256": "3e7a72ae4daf8321471c3d4d9bf09f50dc51f134dfcaeb1051507ca4364862be"
+    }
+  },
+  "source_sha_after": "96905636726483fdea3a98d9313871d825b54a9e",
+  "status_after": "",
+  "inputs_after": {
+    "src/polisyos/scientist/methods/autotune/dedup.py": {
+      "bytes": 3073,
+      "sha256": "7c05548d3539ed98b20da6c11fe033af789e0b75672164654b97c68a28f0f5dc"
+    },
+    "src/polisyos/scientist/methods/autotune/runtime.py": {
+      "bytes": 23729,
+      "sha256": "4bcddcf8b7ef4696fe26a3daa3394053672eb8a43007e0bf0b993c5bf87e17eb"
+    },
+    "src/polisyos/scientist/methods/autotune/models.py": {
+      "bytes": 29441,
+      "sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5"
+    },
+    "src/polisyos/scientist/methods/autotune/registry.py": {
+      "bytes": 27732,
+      "sha256": "1339af524b604462021425b9d88f5cbe278f1a8c927827cb3e26fa4f8f0cc6ba"
+    },
+    "src/polisyos/scientist/methods/search/frontier.py": {
+      "bytes": 8212,
+      "sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b"
+    },
+    "src/polisyos/scientist/methods/search/controller.py": {
+      "bytes": 57668,
+      "sha256": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53"
+    },
+    "src/polisyos/scientist/methods/search/service.py": {
+      "bytes": 58588,
+      "sha256": "b73158016ef2a6e9324159b7de3d34206ef5a866bcdc1a675adb9281c815e127"
+    },
+    "src/polisyos/scientist/methods/search/contracts.py": {
+      "bytes": 14342,
+      "sha256": "e7a5b21bafddab30277ebe0e8eb54a31c3f7b3bfc207b8d97e14cbdbc31d78d5"
+    },
+    "src/polisyos/scientist/methods/search/run_state.py": {
+      "bytes": 19613,
+      "sha256": "411e2b5a922bf57af4f51735b44f7e491f98e75e3a83940b8fb3eb76e7fa3cb8"
+    },
+    "src/polisyos/scientist/methods/search/pareto_registry.py": {
+      "bytes": 37218,
+      "sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd"
+    },
+    "src/polisyos/scientist/methods/search/objective.py": {
+      "bytes": 10078,
+      "sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c"
+    },
+    "src/polisyos/core/artifacts/store.py": {
+      "bytes": 185595,
+      "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165"
+    },
+    "src/polisyos/core/artifacts/manifest.py": {
+      "bytes": 12758,
+      "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d"
+    },
+    "src/polisyos/core/artifacts/manifest_profile.py": {
+      "bytes": 756,
+      "sha256": "aa7ee9af617c1adc338a21a5b0186d41a690e6b86f2a0810ae9b5a7ee4ff7ce5"
+    },
+    "src/polisyos/core/artifacts/_integrity_ops.py": {
+      "bytes": 10425,
+      "sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b"
+    },
+    "src/polisyos/core/artifacts/_atomic_write.py": {
+      "bytes": 4074,
+      "sha256": "afa41fe64aa388d65ec89db504d2f651447c5a92b5a8cea0384a6793c924ebcf"
+    },
+    "src/polisyos/core/canon/canon_json.py": {
+      "bytes": 1882,
+      "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95"
+    },
+    "src/polisyos/common/serialization.py": {
+      "bytes": 14186,
+      "sha256": "485303bf79f150fa9df259d7354d3104a4bdb94d9114cddb6e17dcc424316f0d"
+    },
+    "tests/unit/scientist/methods/search/test_service_trial_deduplication.py": {
+      "bytes": 43697,
+      "sha256": "608942a8f9195491c846225050d030b47a6733d1d8602f31960afd852421a6b5"
+    },
+    "tests/unit/scientist/methods/search/test_semantic_dates_persisted_consumers.py": {
+      "bytes": 6236,
+      "sha256": "435a9bf8ab41bf2c31b22b69929f3e8864bced9e84f85397f3e96311a047a1aa"
+    }
+  },
+  "source_unchanged": true,
+  "negative_receipt_admitted": true,
+  "receipt_correction": {
+    "reason": "pytest may print its test path prefix on same stdout line before the explicit observation marker; original capture parser required marker at column0",
+    "original_receipt": {
+      "path": "remove_trial_lookup.receipt.json",
+      "sha256": "44c46cea3a03a73443f64da79f3980d21a69c23130483b3a516c7c6a628bbe85",
+      "bytes": 10430
+    },
+    "source_of_corrected_parse": {
+      "path": "remove_trial_lookup.stdout.txt",
+      "sha256": "b25ce2c224b3a6e3a4a57a886cd9f1b17dd10d2dae5977e2c11ce67aa46f387d",
+      "bytes": 31099
+    },
+    "correction_utc": "2026-10-07T10:42:13.554252+00:00",
+    "runtime_replayed": false,
+    "test_or_product_result_changed": false,
+    "original_files_preserved": true
+  }
+}

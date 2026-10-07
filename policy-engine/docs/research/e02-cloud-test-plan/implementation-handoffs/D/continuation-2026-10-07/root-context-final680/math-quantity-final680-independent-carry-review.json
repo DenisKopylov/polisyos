@@ -1,0 +1,18 @@
+{
+  "schema": "e02.D.math680.independent-scoped-carry-review.v1",
+  "reviewer": "/root/gp_oct07",
+  "result": "GO bounded numerical154+disjoint27sourcecarry",
+  "author_carry_path": "/tmp/e02-D-fiscal-numeric-969-oh344e_d/math-quantity-final680-scoped-carry.json",
+  "author_carry_sha256": "9366ade7c10891607bc5b79864f329784360d02e7f5f5821dfbd58e9c756a4fe",
+  "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "full_fourpath_delta_gitverified": true,
+  "exact_unchanged_numerical_producer_test_bindings_verified": 16,
+  "actual_fiscal_helpers_not_referenced_by16_modulebytes": true,
+  "remaining_complete_objective_AST_identical_excepthelper_andDecimalstdlibimport": true,
+  "current_changed_fiscal_path_runtime_review_sha256": "29039c491ea6882c7e7b05b0ce13126c32e2648fc5401d90f5e354493b2c824a",
+  "interpretation": "Strong154/disjointMO27 outputs remainactualc0qualified; prior969nativequantity/dedup/currentAdapter126 and affectedGP3 remaintheir exactsources. Newfiscal73minimalactualpass establisheschangedpath; no new154/currentGP/modelposteriorclaim.",
+  "P41": "not_established",
+  "formal_closed": false,
+  "accepted_G": false
+}

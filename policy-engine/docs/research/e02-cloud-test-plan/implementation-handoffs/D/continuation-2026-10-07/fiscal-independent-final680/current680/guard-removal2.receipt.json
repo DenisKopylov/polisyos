@@ -1,0 +1,246 @@
+{
+  "name": "guard-removal2",
+  "source_sha": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "source_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "argv": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "--noconftest",
+    "-p",
+    "no:cacheprovider",
+    "-p",
+    "remove_fiscal_underflow_guard",
+    "-s",
+    "--tb=long",
+    "-o",
+    "junit_family=xunit1",
+    "--junitxml=/dev/shm/fiscal-current680-67egtqt6/guard-removal2.junit.xml",
+    "--basetemp=/dev/shm/fiscal-current680-67egtqt6/guard-fixture",
+    "tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py::test_actual_response_text_nonzero_decimal_is_unavailable_to_fiscal_consumer[1e-1000-gov_balance]",
+    "tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py::test_actual_response_text_nonzero_decimal_is_unavailable_to_fiscal_consumer[-1e-1000-gov_balance]"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "started_utc": "2026-10-07T11:04:52.443710+00:00",
+  "finished_utc": "2026-10-07T11:04:53.649511+00:00",
+  "returncode": 1,
+  "stdout_sha256": "9312a9bbcef09d657c1d7a66f9072471aa87c8cba3ce579b7e307ed5e6683881",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "testcases": [
+    {
+      "name": "test_actual_response_text_nonzero_decimal_is_unavailable_to_fiscal_consumer[1e-1000-gov_balance]",
+      "failure": 1,
+      "error": 0,
+      "skip": 0
+    },
+    {
+      "name": "test_actual_response_text_nonzero_decimal_is_unavailable_to_fiscal_consumer[-1e-1000-gov_balance]",
+      "failure": 1,
+      "error": 0,
+      "skip": 0
+    }
+  ],
+  "counts": {
+    "testcases": 2,
+    "FAIL": 2,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "actual_observations": [
+    {
+      "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "source_file_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+      "removed_guard_count": 1,
+      "actual_inputs": {
+        "gov_balance": {
+          "type": "Decimal",
+          "repr": "1E-1000"
+        },
+        "_gateway_request_id": {
+          "type": "str",
+          "repr": "fiscal-float64-intake"
+        },
+        "_gateway_response_headers": {
+          "type": "dict",
+          "repr": "{'x-request-id': 'fiscal-float64-intake'}"
+        }
+      },
+      "raw_value": -0.0,
+      "normalized_value": -0.0,
+      "is_satisfied": true,
+      "actual_plateau": {
+        "should_stop": true,
+        "reason": "Improvement plateau: gain 0 <= 0.01 declared_fixture_float64_units for 1 iterations",
+        "details": {
+          "best_recent": -0.0,
+          "best_historical": 0.0,
+          "gain": 0.0,
+          "improvement": 0.0,
+          "tolerance": 0.01,
+          "absolute_tolerance": 0.01,
+          "relative_tolerance": 0.01,
+          "objective_unit": "declared_fixture_float64_units",
+          "direction": "minimize",
+          "profile_version": "1.0",
+          "patience": 1,
+          "adequacy_status": "observed_finite_history"
+        }
+      },
+      "actual_target_should_stop": true,
+      "retained": [
+        "actual Gateway response-text decoder",
+        "raw Decimal nonzero",
+        "bool/finite/overflow and alias rules",
+        "source/context/metric markers",
+        "actual stopping implementations"
+      ]
+    },
+    {
+      "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "source_file_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+      "removed_guard_count": 1,
+      "actual_inputs": {
+        "gov_balance": {
+          "type": "Decimal",
+          "repr": "1E-1000"
+        },
+        "_gateway_request_id": {
+          "type": "str",
+          "repr": "fiscal-float64-intake"
+        },
+        "_gateway_response_headers": {
+          "type": "dict",
+          "repr": "{'x-request-id': 'fiscal-float64-intake'}"
+        }
+      },
+      "raw_value": -0.0,
+      "normalized_value": -0.0,
+      "is_satisfied": true,
+      "actual_plateau": {
+        "should_stop": true,
+        "reason": "Improvement plateau: gain 0 <= 0.01 declared_fixture_float64_units for 1 iterations",
+        "details": {
+          "best_recent": -0.0,
+          "best_historical": 0.0,
+          "gain": 0.0,
+          "improvement": 0.0,
+          "tolerance": 0.01,
+          "absolute_tolerance": 0.01,
+          "relative_tolerance": 0.01,
+          "objective_unit": "declared_fixture_float64_units",
+          "direction": "minimize",
+          "profile_version": "1.0",
+          "patience": 1,
+          "adequacy_status": "observed_finite_history"
+        }
+      },
+      "actual_target_should_stop": true,
+      "retained": [
+        "actual Gateway response-text decoder",
+        "raw Decimal nonzero",
+        "bool/finite/overflow and alias rules",
+        "source/context/metric markers",
+        "actual stopping implementations"
+      ]
+    },
+    {
+      "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "source_file_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+      "removed_guard_count": 1,
+      "actual_inputs": {
+        "gov_balance": {
+          "type": "Decimal",
+          "repr": "-1E-1000"
+        },
+        "_gateway_request_id": {
+          "type": "str",
+          "repr": "fiscal-float64-intake"
+        },
+        "_gateway_response_headers": {
+          "type": "dict",
+          "repr": "{'x-request-id': 'fiscal-float64-intake'}"
+        }
+      },
+      "raw_value": 0.0,
+      "normalized_value": 0.0,
+      "is_satisfied": true,
+      "actual_plateau": {
+        "should_stop": true,
+        "reason": "Improvement plateau: gain 0 <= 0.01 declared_fixture_float64_units for 1 iterations",
+        "details": {
+          "best_recent": 0.0,
+          "best_historical": 0.0,
+          "gain": 0.0,
+          "improvement": 0.0,
+          "tolerance": 0.01,
+          "absolute_tolerance": 0.01,
+          "relative_tolerance": 0.01,
+          "objective_unit": "declared_fixture_float64_units",
+          "direction": "minimize",
+          "profile_version": "1.0",
+          "patience": 1,
+          "adequacy_status": "observed_finite_history"
+        }
+      },
+      "actual_target_should_stop": true,
+      "retained": [
+        "actual Gateway response-text decoder",
+        "raw Decimal nonzero",
+        "bool/finite/overflow and alias rules",
+        "source/context/metric markers",
+        "actual stopping implementations"
+      ]
+    },
+    {
+      "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "source_file_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+      "removed_guard_count": 1,
+      "actual_inputs": {
+        "gov_balance": {
+          "type": "Decimal",
+          "repr": "-1E-1000"
+        },
+        "_gateway_request_id": {
+          "type": "str",
+          "repr": "fiscal-float64-intake"
+        },
+        "_gateway_response_headers": {
+          "type": "dict",
+          "repr": "{'x-request-id': 'fiscal-float64-intake'}"
+        }
+      },
+      "raw_value": 0.0,
+      "normalized_value": 0.0,
+      "is_satisfied": true,
+      "actual_plateau": {
+        "should_stop": true,
+        "reason": "Improvement plateau: gain 0 <= 0.01 declared_fixture_float64_units for 1 iterations",
+        "details": {
+          "best_recent": 0.0,
+          "best_historical": 0.0,
+          "gain": 0.0,
+          "improvement": 0.0,
+          "tolerance": 0.01,
+          "absolute_tolerance": 0.01,
+          "relative_tolerance": 0.01,
+          "objective_unit": "declared_fixture_float64_units",
+          "direction": "minimize",
+          "profile_version": "1.0",
+          "patience": 1,
+          "adequacy_status": "observed_finite_history"
+        }
+      },
+      "actual_target_should_stop": true,
+      "retained": [
+        "actual Gateway response-text decoder",
+        "raw Decimal nonzero",
+        "bool/finite/overflow and alias rules",
+        "source/context/metric markers",
+        "actual stopping implementations"
+      ]
+    }
+  ],
+  "deciding_check": true
+}

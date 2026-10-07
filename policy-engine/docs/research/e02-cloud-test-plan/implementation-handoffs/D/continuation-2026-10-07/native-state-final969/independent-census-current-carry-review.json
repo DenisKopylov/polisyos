@@ -1,0 +1,154 @@
+{
+  "schema": "D.e02.GPStateMO.final969.corrected-carry-and-native3-independent-review.v1",
+  "reviewer": "/root/census_oct07",
+  "created_utc": "2026-10-07T10:58:16.084148+00:00",
+  "decision": "GO_ORIGINAL315E_PLUS_NORMATIVE6C8_CORRECTION_SOURCEQUALIFIED_CARRY_AND_ACTUAL_NATIVE3",
+  "source": "96905636726483fdea3a98d9313871d825b54a9e",
+  "tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "manifest_sha256": "2d48ea485d9c47916910e68d89bb77bb315e1133199b3e5cb1f005da0f600c4d",
+  "portable_files_verified": 33,
+  "portable_bytes_verified": 2710134,
+  "original_carry_sha256": "315e983834ccc09de1aa23130f45b0651824e4e5340728fded3c37df3313defd",
+  "normative_correction_sha256": "6c8c8bd904e3d4485814f1811388751d72c40f37674c887d2c4aa661369cc88a",
+  "definition_census_boundary_sha256": "11ff8463d637b5c53254e7fd07e8c5bd197fb3afdc2cac4dc6482548afba7fce",
+  "complete_828_to969_footprint_paths_verified": 569,
+  "code_test_tool_operator_current_bindings_verified": 93,
+  "main_current_observed_repository_bindings_verified": 1608,
+  "historical_secondary_a7_rows_verified": 2,
+  "corrected_current_changed_loaded_scopes": [
+    {
+      "scope": "GP43",
+      "changed_modules": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "current_sha256": "4bcddcf8b7ef4696fe26a3daa3394053672eb8a43007e0bf0b993c5bf87e17eb",
+          "complete_AST_changed_definitions": [
+            "SearchLoopRunner",
+            "SearchLoopRunner.__init__",
+            "SearchLoopRunner._configured_generator",
+            "SearchLoopRunner._evaluate_candidate",
+            "SearchLoopRunner.create_service",
+            "SearchLoopRunner.resume",
+            "SearchLoopRunner.run",
+            "_AutotuneObjective",
+            "_AutotuneObjective._extract_value"
+          ]
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+          "current_sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+          "complete_AST_changed_definitions": [
+            "policy_candidate_hash"
+          ]
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+          "current_sha256": "b73158016ef2a6e9324159b7de3d34206ef5a866bcdc1a675adb9281c815e127",
+          "complete_AST_changed_definitions": [
+            "NativeSearchService",
+            "NativeSearchService.__init__",
+            "NativeSearchService._admit_deduplication_configuration",
+            "NativeSearchService._admit_deduplication_configuration.data_context",
+            "NativeSearchService._ask_proposals",
+            "NativeSearchService._configuration",
+            "NativeSearchService._deduplication_members",
+            "NativeSearchService._deduplication_members.encode",
+            "NativeSearchService._deduplication_profile",
+            "NativeSearchService._evaluate_batch",
+            "NativeSearchService.ask",
+            "NativeSearchService.checkpoint",
+            "NativeSearchService.restore",
+            "NativeSearchService.resume_search",
+            "NativeSearchService.run_search",
+            "NativeSearchService.tell"
+          ]
+        }
+      ]
+    },
+    {
+      "scope": "State142",
+      "changed_modules": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+          "current_sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+          "complete_AST_changed_definitions": [
+            "policy_candidate_hash"
+          ]
+        }
+      ]
+    },
+    {
+      "scope": "MO88",
+      "changed_modules": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+          "current_sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+          "complete_AST_changed_definitions": [
+            "policy_candidate_hash"
+          ]
+        }
+      ]
+    },
+    {
+      "scope": "minimal55_15_UNRUN",
+      "changed_modules": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+          "current_sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+          "complete_AST_changed_definitions": [
+            "policy_candidate_hash"
+          ]
+        }
+      ]
+    },
+    {
+      "scope": "warm_rejection_reports3",
+      "changed_modules": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+          "current_sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+          "complete_AST_changed_definitions": [
+            "policy_candidate_hash"
+          ]
+        }
+      ]
+    },
+    {
+      "scope": "warm_report_removal3_expectedFAIL",
+      "changed_modules": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+          "current_sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+          "complete_AST_changed_definitions": [
+            "policy_candidate_hash"
+          ]
+        }
+      ]
+    }
+  ],
+  "lossless_complete_output": {
+    "sha256": "32134c67b7794546fd9eb2ec6bf7edf6be87dc7d02494e4d6174724e0336f633",
+    "path_bindings_verified": 332,
+    "unique_UTF8_contents_verified": 177
+  },
+  "actual_affected_runtime": {
+    "cases": 3,
+    "result": "PASS",
+    "JUnit_sha256": "80588293ba25a3daaee02e556e95a97c2220d1a9b42ff218b9cbf8c1fa850c11",
+    "full_present_input_denominator": 6315,
+    "actual_MLL_start_return": [
+      2,
+      2
+    ],
+    "actual_fit_corpus_rows": [
+      8,
+      7
+    ],
+    "independent_runtime_review_sha256": "3a3a203a8549fe60165f6a14d5a7c3b811e218c29d350be32cc342f6b2b07891"
+  },
+  "scope": "Strong43/142/88 remain exactc0 receipts; minimal55PASS/15numericalUNRUN remain minimal profile. Current publicRunner transfer3 exercises changed Service/Runner and two real SingleTaskGP8/7 fits, not a new denseposterior oracle. Changedfrontier/dedup/primary current properties have independent actual969Service48/Adapter126 receipts. Full changedloaded AST sets source-qualified, not whole changed module equality.",
+  "metadata_correction": "Original315e retained immutable. Its two secondary candidate rows are exacta7 historical only; use6c8 actual969 rows. Main1608 currentbindings were correct, no runtime/head/test changes/replay.",
+  "P41": "not_established",
+  "formal_closed": false,
+  "accepted_G": false
+}

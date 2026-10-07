@@ -1,0 +1,87 @@
+{
+  "schema": "e02.portable-publication-manifest.v1",
+  "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "files": [
+    {
+      "path": "complete-deciding-output.json.gz",
+      "bytes": 3277412,
+      "sha256": "4643d0a04a860916d2bd61b5e9410fadc8c7584b0eeb91f7cdeffe45d2d3eab4"
+    },
+    {
+      "path": "handoff.json",
+      "bytes": 14789,
+      "sha256": "3da545cb2a09ba7c959b86acf3ea3be1acdd01d2ea93e39202f6a4a978661857"
+    },
+    {
+      "path": "math-quantity-final680-scoped-carry.json",
+      "bytes": 8691,
+      "sha256": "9366ade7c10891607bc5b79864f329784360d02e7f5f5821dfbd58e9c756a4fe"
+    },
+    {
+      "path": "native-state-objective-final680-qualified-carry.json",
+      "bytes": 14389,
+      "sha256": "59d7e8cc36a3402945253d422ba430af908d4f068846e721bcaa31759131774e"
+    },
+    {
+      "path": "reviews/Census-final63-stopping-and-companions-independent-review.json",
+      "bytes": 4245,
+      "sha256": "a617b37213525dbdbe889fa6857297129f4246cf8b39981b821d02f221d16bb8"
+    },
+    {
+      "path": "reviews/Census-final680-composed-runtime-and-carry-independent-review.json",
+      "bytes": 5056,
+      "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587"
+    },
+    {
+      "path": "reviews/GP-969-production-independent-review.json",
+      "bytes": 2741,
+      "sha256": "f90f392167a5e07f9f8928c4dd692b2512f7a23b3278d3348db53d877515dd98"
+    },
+    {
+      "path": "reviews/GP-current680-independent-runtime-review.json",
+      "bytes": 7801,
+      "sha256": "29039c491ea6882c7e7b05b0ce13126c32e2648fc5401d90f5e354493b2c824a"
+    },
+    {
+      "path": "reviews/GP-final-stopping-staged-independent-review.json",
+      "bytes": 2333,
+      "sha256": "f850a6ee429bc9462509979af8ab36f5fcdeb175710a60f0b33ceb358cb690a1"
+    },
+    {
+      "path": "reviews/GP-quantity-final680-independent-carry-review.json",
+      "bytes": 1196,
+      "sha256": "0ca9438b7463b6f532fdd047665c1bc48a0671f68cf022de3c0b4d200ef2c824"
+    },
+    {
+      "path": "reviews/Math-independent-canonical13-removal2-output-reconciliation.json",
+      "bytes": 9470,
+      "sha256": "97d63732085aa36cfe4eb2431dfbf36aaae0f31ddac0b845f42ab41688577e32"
+    },
+    {
+      "path": "reviews/Math-independent-negative-plugin-source-review.json",
+      "bytes": 1507,
+      "sha256": "e3fc59d280e64884e4d88aaea08827e49d66d8a818970df25b898ec6bfb39e68"
+    },
+    {
+      "path": "reviews/Math-native-state-final680-independent-carry-review.json",
+      "bytes": 3234,
+      "sha256": "c7c15c423f890ff1be1f9aaaaf34ab954238fbfc486ef70cca48a80a2e4a2d34"
+    },
+    {
+      "path": "reviews/Transfer-author73-independent-runtime-review.json",
+      "bytes": 49504,
+      "sha256": "68d2c64ad95ea2bd38215fb264d4840c5b361e6924c277125565155a3f74882b"
+    },
+    {
+      "path": "reviews/Transfer-final-fourpath-independent-source-review.json",
+      "bytes": 6307,
+      "sha256": "07ec1fedcfb750a120108f49acf290edf9e48477bfdcded72206a1a595d28377"
+    }
+  ],
+  "limits": [
+    "Onlydeclaredfilespublication; losslesscomplete decidingoutputs embedded.",
+    "Original969sourcepack untouched; allstrongoldnumericaloutputs retain theirpins.",
+    "Codeimplementationcommittedfirst680; thisreceipt isseparate rootcommitpending."
+  ]
+}

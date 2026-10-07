@@ -1,0 +1,49 @@
+{
+  "schema": "D.e02.fiscal-alias.final63test-and-compatibility.independent-review.v1",
+  "reviewer": "/root/census_oct07",
+  "created_utc": "2026-10-07T11:01:56.932742+00:00",
+  "decision": "GO_REVIEWED_ACTUAL_CANONICAL_JSON_TO_OBJECTIVE_TO_STOPPING_INPUTS_AND_TRUTHFUL_COMPATIBILITY",
+  "base": "96905636726483fdea3a98d9313871d825b54a9e",
+  "base_tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "new_test_source_sha256": "e0ea26b80ae3760febaeabbf5e0392168fee189fabcee01295b6ee0befcebf5a",
+  "new_test_denominator": 63,
+  "existing_objective_tests": 10,
+  "targeted_final_denominator": 73,
+  "actual_runtime_before_candidate_freeze": "UNRUN new73; exact969baseline67=27FAIL40PASS/0ERROR/SKIP preserved",
+  "baseline_JUnit_sha256": "7b7ab98aebb4ea4023ff64347f3029e2f8469ec118f4ffe40126875355f778f1",
+  "test_functions": [
+    "test_fiscal_nonzero_underflow_cannot_be_zero_or_fallback",
+    "test_fiscal_supported_zero_sign_and_subnormal_values",
+    "test_fiscal_invalid_scalar_refuses_without_fallback",
+    "test_fiscal_tiny_alias_and_zero_conflict_remains_unavailable",
+    "test_actual_response_text_nonzero_decimal_is_unavailable_to_fiscal_consumer",
+    "test_actual_response_text_fiscal_consumer_preserves_supported_scalar"
+  ],
+  "case_basis": {
+    "direct_tiny_text_Decimal_all4aliases_bothsign": 16,
+    "zero_signedzero_ordinary_representable_subnormal": 14,
+    "bool_bad_nonfinite_int_overflow_extremeexponent_refusal": 7,
+    "nonzero_tiny_vs_zero_alias_conflict": 2,
+    "actual_canonical_Gateway_responseText_Decimal_tiny_then_composite_and_two_stopping_consumers": 8,
+    "actual_canonical_Gateway_truezero_ordinary_negative_positive_negative_subnormal_all4aliases": 16
+  },
+  "actual_positive_and_negative_consumers": "Controlled transport only; inherited real GatewayLLMClient._post_json preserves Decimal exacttokens before actual BudgetDeficitObjective/CompositeObjective. Eight tiny controls must remain NaN/is_satisfiedFalse; actual ImprovementPlateau declaredfixtureunits unavailable/not_established and TargetAchieved cannot stop. Four genuine0.0 controls admit real measuredzero and both stopping predicates stop. Direct invalid-present cannot hide behind validalternatealias. Surplus→deficit legitimate0 is distinct from conversionunderflow refusal.",
+  "independent_discriminator": "Decimal raw exactnonzero and float(raw)==0 controlled arithmetic; measuredliteral/signedzero and true representable5e-324 remain actualfinite profile. No same producer model/posterior oracle.",
+  "negative_removal_static_review": {
+    "file": "e02_fiscal_remove_underflow.py",
+    "sha256": "bf4f26966adaa6f33690094f6b86748fea698400f77a1797dc05b03213f81ecd",
+    "effect": "AST removes exactlyone new zero/nonzero Decimal admission guard; actual decoder/aliases/status/payload/floatconvert/catch/finite/refusal handling remain. Runtime expectations awaitimmutablecandidate, no PASS inferred."
+  },
+  "compatibility_review": {
+    "source_patch_sha256": "8a588ae1c8088cd5e2cc8cc6b0bebd74304df5dfac66dce47efc09f2affc22ca",
+    "operator_release_patch_sha256": "158d67c055bfe2f3191859b3730c293ab82584b58f3d31e64d924cd1127ac3da",
+    "surface": "existinginternal objective refusal semantics; generatedpublic facade signatures unchanged; no wiremigration/parser/library/ledger/newscientificlaw",
+    "class": "breaking",
+    "recipe": "Retain rawproducerrefusal, actual supportedrepresentablevalue or originalsource/newadmittedrun; never normalize tiny tozero/editcheckpointbuild markers. Alreadyroundedfloat loss cannot recover absentlexeme."
+  },
+  "P37": "CanonicalresponseText→trueDecimal→existingreceivingfloat64 objective and actualstopping predicates. Declaredfixtureunit admitsengineering predicate only; actual fiscalissuerunit/sign/aliaslaw remains ownerinput/not_established.",
+  "P38": "Oldexact969 accepts tinynonzero asfalsezero; actualrawtoken+decoder remains samewhile guard-onlyremoval should restore wrong quantity/stop, not a marker-onlyproxy.",
+  "B108_disposition": "Numericprecision ownmechanism repaired onlyafteractualnew73 and removaloutputs; original incompatibleunit scientificlaw remains limitedownerinput, not newfindingID/closurefromtestcount.",
+  "formal_closed": false,
+  "accepted_G": false
+}

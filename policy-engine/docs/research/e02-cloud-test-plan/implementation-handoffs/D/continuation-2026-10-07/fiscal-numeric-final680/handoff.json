@@ -1,0 +1,221 @@
+{
+  "schema": "e02.D.original-fiscal-numeric-mechanism-handoff.v1",
+  "author": "math_oct07",
+  "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "implementation_commit": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "implementation_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "slice_base": "96905636726483fdea3a98d9313871d825b54a9e",
+  "slice_base_tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "required_implementation_history_predecessor": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "full_changed_path_set": [
+    "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-fiscal-float64-admission.toml",
+    "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py"
+  ],
+  "exact_changed_path_bindings": [
+    {
+      "path": "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+      "sha256": "60089f9a062dc5b0142d2d8d5adbeb477a744966f34f319ca23473866efe475a",
+      "bytes": 26039,
+      "git_blob": "767659b246dc79e9c4e445db5f7abad915634d1e"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-fiscal-float64-admission.toml",
+      "sha256": "fdf1f7f45e0449e62c473b62217096fdd4317946b5d7d234d03176211a88931e",
+      "bytes": 2316,
+      "git_blob": "31638908e65913212b866065e670252ce25ad398"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+      "bytes": 10337,
+      "git_blob": "76f15a5d276754db6c719515f79414f41af9c52c"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py",
+      "sha256": "89b7fe53ee40da9fec92528278772267944edb250d923d45018dfb33846bf206",
+      "bytes": 7128,
+      "git_blob": "dd1de0ca3aeff24862f0406e9e07905b8e3b56e7"
+    }
+  ],
+  "criteria": [
+    {
+      "id": "B108@OPT-01",
+      "finding_id": "B108",
+      "criterion_card": "OPT-01",
+      "canonical_closure_owner": "OPT-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-opt-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2897,
+          2910
+        ],
+        "byte_offset": 647789,
+        "bytes": 3817,
+        "sha256": "f43cecf8c2c66d6cc7bce5c5174b45fe7692e5018e1364c9798302104f8e4b55"
+      },
+      "canonical_content": {
+        "text": "**Приёмка и предел.** Эквивалентные кодировки balance/deficit дают одинаковый score; ноль не считается отсутствием; полностью отсутствующее, конфликтующее, non-finite и несовместимые единицы различены. Настоящие симуляционные producer и пользовательский search здесь не запускались.",
+        "byte_offset": 651124,
+        "bytes": 480,
+        "sha256": "8d4cbd469a454de4a7f4a26aa91c3fdf8aabf3b2b59bb77651b99146bcaa888c"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B108@OPT-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+          "bytes": 20853,
+          "sha256": "3c7df5d39ca7a6351ebf5fb21adee73462df7e7063adbaec6514c004feb7ce0e"
+        }
+      },
+      "current_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "current_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+      "engineering_property": "Nonzero original Decimal/text cannot become an available optimal0 through any of four existing fiscalaliases; true0/representable subnormal/alias/sign/legacy controls retained.",
+      "current_disposition": "limited: ownordinary_precision_mechanism_verified; actual_fiscal_issuer_unit_sign_alias_profile_missing",
+      "actual_consumer": "ActualcanonicalB Gateway response-text decoder→BudgetDeficitObjective→CompositeObjective→existingImprovementPlateau/TargetAchieved, plus actualtypedcorecanonbytes and affectedexistingNativeService18.",
+      "source_qualified_outputs": {
+        "baseline969_67": "27actualFAIL40PASS; noERROR/SKIP; original67externalinput retained",
+        "final680_73": "73PASS0FAIL0ERROR0SKIP",
+        "guard_removed_680_73": "27intendedassertFAIL46unaffectedPASS0ERROR0SKIP",
+        "independent_corecanon_680_13": "13diagnosticPASS separatefrompytestcount",
+        "independent_HTTP_guard_removed_680_2": "2intendedassertFAIL0ERROR0SKIP; originalDecimalretained→0+satisfied+Plateau/Targettrue",
+        "affected_nativeService680_18": "18PASS0FAIL0ERROR0SKIP; originalwholeService41 remains969"
+      },
+      "residual": "Actualfiscalproducer result/unit/sign/alias applicability/source/time/context refs and appointedscientificdeclaringowner not established; do not demand wholeproductiondataset or inventdimensionlessissuerlaw.",
+      "formal_closed": false,
+      "accepted_in_G": false
+    }
+  ],
+  "runtime_environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "installed_versions": {
+      "torch": null,
+      "botorch": null,
+      "gpytorch": null,
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5",
+      "numpy": "2.3.5"
+    },
+    "backend_profile": "Actualminimalruntime scalarfiscal/stopping/HTTPparser/typedcanon; noTorch/BoTorch/GPyTorch modelconstructed or numericalbackendpropertyPASS inferred. Canonical Bdecoder/source remains unchanged.",
+    "seed": "not_applicable deterministic raw scalar/HTTP/typedcanon inputs",
+    "physical_provider": "FixturecontrolsHTTPtransport only; Gateway._post_json actualnativeBdecoder parse_float=Decimal unchanged. Fixture not invoice/fiscaltruth authority."
+  },
+  "actual_runtime_source_checks": {
+    "final_source_before": {
+      "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+      "full_status": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-final969/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-B111-B124-removals-final969/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-through969/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/stress-stopping-469/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/\n",
+      "tracked_diff": ""
+    },
+    "final_source_after": {
+      "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+      "full_status": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-final969/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-B111-B124-removals-final969/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-through969/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/stress-stopping-469/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/\n",
+      "tracked_diff": ""
+    },
+    "tracked_member_denominator": 15929,
+    "available_hash_inputs": 8860,
+    "explicit_sparse_unavailable_members": 7069,
+    "changed_inputs": {},
+    "same_source_and_input_negative": true,
+    "baseline_exact_source": "96905636726483fdea3a98d9313871d825b54a9e"
+  },
+  "independent_oracle": "Originaltext/Decimal nonzero witness independently compares Decimal tokenexact value before receiving float0; explicitgenuine0/signed0/subnormal/ordinary expectedvalues. Independenttypedcanonicalwire13 uses existingcorecanonproducer/decoder with qualifiedwirehashes. It doesnot use the newhelper toderive expectedavailability.",
+  "P37": "Supportedreceivingfloat64 admission based on actual originalDecimal/text input and finite output; explicitfixtureobjectiveunit only for engineeringstopcontrol.",
+  "P38": "Removingonly oneguard retains nativeBrawnonzero Decimal, aliases/context/status/threshold markers, but returnsavailable0 and actualPlateau/Targetstoptrue. Truezeroandrepresentablesubnormal positivesdifferent.",
+  "P40": "Samefalsezero class widenedonce at sharedfouraliasseam coveringDecimal/text andcontrolledDecimalException, no repeatedhelperladder/newfindingID.",
+  "P41": "not_established; available8860/member15929 with7069explicitsparseNone is not complete-read/zero-overlap inheritedred evidence.",
+  "complete_output": {
+    "path": "complete-deciding-output.json.gz",
+    "sha256": "4643d0a04a860916d2bd61b5e9410fadc8c7584b0eeb91f7cdeffe45d2d3eab4",
+    "bytes": 3277412,
+    "file_records": 273,
+    "unique_full_contents": 200
+  },
+  "independent_reviews": [
+    {
+      "path": "reviews/Transfer-final-fourpath-independent-source-review.json",
+      "sha256": "07ec1fedcfb750a120108f49acf290edf9e48477bfdcded72206a1a595d28377"
+    },
+    {
+      "path": "reviews/Transfer-author73-independent-runtime-review.json",
+      "sha256": "68d2c64ad95ea2bd38215fb264d4840c5b361e6924c277125565155a3f74882b"
+    },
+    {
+      "path": "reviews/GP-969-production-independent-review.json",
+      "sha256": "f90f392167a5e07f9f8928c4dd692b2512f7a23b3278d3348db53d877515dd98"
+    },
+    {
+      "path": "reviews/GP-final-stopping-staged-independent-review.json",
+      "sha256": "f850a6ee429bc9462509979af8ab36f5fcdeb175710a60f0b33ceb358cb690a1"
+    },
+    {
+      "path": "reviews/GP-current680-independent-runtime-review.json",
+      "sha256": "29039c491ea6882c7e7b05b0ce13126c32e2648fc5401d90f5e354493b2c824a"
+    },
+    {
+      "path": "reviews/Census-final63-stopping-and-companions-independent-review.json",
+      "sha256": "a617b37213525dbdbe889fa6857297129f4246cf8b39981b821d02f221d16bb8"
+    },
+    {
+      "path": "reviews/Census-final680-composed-runtime-and-carry-independent-review.json",
+      "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587"
+    },
+    {
+      "path": "reviews/GP-quantity-final680-independent-carry-review.json",
+      "sha256": "0ca9438b7463b6f532fdd047665c1bc48a0671f68cf022de3c0b4d200ef2c824"
+    },
+    {
+      "path": "reviews/Math-independent-negative-plugin-source-review.json",
+      "sha256": "e3fc59d280e64884e4d88aaea08827e49d66d8a818970df25b898ec6bfb39e68"
+    },
+    {
+      "path": "reviews/Math-independent-canonical13-removal2-output-reconciliation.json",
+      "sha256": "97d63732085aa36cfe4eb2431dfbf36aaae0f31ddac0b845f42ab41688577e32"
+    },
+    {
+      "path": "reviews/Math-native-state-final680-independent-carry-review.json",
+      "sha256": "c7c15c423f890ff1be1f9aaaaf34ab954238fbfc486ef70cca48a80a2e4a2d34"
+    }
+  ],
+  "qualified_quantity_carry": {
+    "path": "math-quantity-final680-scoped-carry.json",
+    "sha256": "9366ade7c10891607bc5b79864f329784360d02e7f5f5821dfbd58e9c756a4fe",
+    "interpretation": "Own154+disjoint27 remain actualc0; full969/680delta ASTqualification and16 unchangednumericalowner/testbindings; no new154execution."
+  },
+  "qualified_GP_state_carry": {
+    "path": "native-state-objective-final680-qualified-carry.json",
+    "sha256": "59d7e8cc36a3402945253d422ba430af908d4f068846e721bcaa31759131774e",
+    "interpretation": "Strongc0GP43/State142/MO88 and actual969GP3 remain exactsourcequalified; no new680GPfit orwhole-source replay."
+  },
+  "compatibility": "Structuredbreakingnumericrefusal fragment/doc preservesactualchildexportidentity/signature; canonicalpublic-surface inventory reviewed no dedicatedchildentry/internal-default. No wire/parser/ledger/schema/backend change.",
+  "owner_input_packet": {
+    "key": "owner_declared_fiscal_profile",
+    "canonical_requested_owner": "Actualfiscalunit/sign/source-law declaringowner tobeconfirmedbyA/G",
+    "appointment": "not_established",
+    "minimum_required": [
+      "Actualproducer/result andsource refs",
+      "Ownerdeclaredsign/unit/alias applicability/equivalence/profile",
+      "Measurementtime/context/sourcebasis",
+      "Realconflict/missing policy forthatproducer"
+    ],
+    "production_recipe": "G/appointedlocalowner read-only on exact680candidate andminimalfiscalresult/declarationref; datasetstayslocal, no cloudtransfer. Thisfixdoesnotfabricate producerinputs."
+  },
+  "limits": [
+    "Alreadyroundedfloatzero cannotreconstruct lost originalnonzero; arbitraryprecisionaliasequality/rounding not claimed.",
+    "Onlyfiscalaliasintake changed; GDP/Inequality/Employment numeric contracts remain outside thispatch.",
+    "No invoice/scientificfiscalissuer/defaultdeployment/futureunappointedwriter authority inferred.",
+    "Findingdisposition separatefromcheckPASS: B108limitedmissingissuerprofile, ownrepair verified; formalG acceptance false.",
+    "No expensivewholeD/numerical/performance replay repeated; currenttargeted property/affectedconsumers and exactscopedcarries only.",
+    "No cleanup performed by leaf; scratchfixtures reproduciblecandidates remain external and currentuniqueoutputs preserved."
+  ],
+  "formal_closed": false,
+  "accepted_in_G": false
+}

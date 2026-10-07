@@ -1,0 +1,78 @@
+{
+  "schema": "D.e02.independent-initial-portable-publication-seal.v1",
+  "reviewer": "/root/census_oct07",
+  "created_utc": "2026-10-07T10:17:17.182464+00:00",
+  "source_head": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+  "source_tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+  "receipt_index_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/initial-portable-publication-index.json",
+  "receipt_index_sha256": "04ac5b8a444ce61fbe4d30e22faa86b2db5ea60dc69be63d791de49ab4337218",
+  "staged_tree": "5f55100211942afdc9bae31ae10514894bafdb29",
+  "declared_original_files": 438,
+  "staged_paths": 439,
+  "unchanged_already_tracked": 0,
+  "total_original_bytes": 15419437,
+  "group_seals": [
+    {
+      "slug": "native-state-c0",
+      "manifest_sha256": "b656fbba3c94a6cc6a18cc4ad61cc3d1eba485422c71de0e80e2391efe19ac39",
+      "file_count": 55,
+      "bytes": 2692685,
+      "result": "PASS_exact_original_external_worktree_index_bytes"
+    },
+    {
+      "slug": "native-state-a7",
+      "manifest_sha256": "dd992c910e30f1084567b8b838c1c26a743384359f9cae288b9337d60124e7f1",
+      "file_count": 20,
+      "bytes": 2120547,
+      "result": "PASS_exact_original_external_worktree_index_bytes"
+    },
+    {
+      "slug": "state-read-tool-b652",
+      "manifest_sha256": "1df63da5a5968a82d35b62828405d882d0fdd16c28515b1cae65518ecad0fdb4",
+      "file_count": 25,
+      "bytes": 1142078,
+      "result": "PASS_exact_original_external_worktree_index_bytes"
+    },
+    {
+      "slug": "companion-inputs-b652",
+      "manifest_sha256": "066b6517bc306d4df3430b0bc981df6b71d410e8938311992938fa787ec95a8b",
+      "file_count": 1,
+      "bytes": 4855,
+      "result": "PASS_exact_original_external_worktree_index_bytes"
+    },
+    {
+      "slug": "champion-B333",
+      "manifest_sha256": "d1b3a62c1aee3076a6d7012309032e102e4eb28ed58a84a2db69e176e0c41157",
+      "file_count": 78,
+      "bytes": 551003,
+      "result": "PASS_exact_original_external_worktree_index_bytes"
+    },
+    {
+      "slug": "transfer",
+      "manifest_sha256": "6fe3ec0950b8dd6d91bf0548a9aeffb8b62aea3995b9078698baec8bbbb13ebc",
+      "file_count": 112,
+      "bytes": 928730,
+      "result": "PASS_exact_original_external_worktree_index_bytes"
+    },
+    {
+      "slug": "math-adapter-current",
+      "manifest_sha256": "38b42ad69430772e3919a81bcfa2e0bed50fd0ef50394c07aa3794022e540932",
+      "file_count": 17,
+      "bytes": 3794674,
+      "result": "PASS_exact_original_external_worktree_index_bytes"
+    },
+    {
+      "slug": "service-native-a7-b652",
+      "manifest_sha256": "2c9147f77f51653b058b68e145263c80ee137f94c2465534ffbff912d57591db",
+      "file_count": 122,
+      "bytes": 4100160,
+      "result": "PASS_exact_original_external_worktree_index_bytes"
+    }
+  ],
+  "math_portable_origin_bindings": 15,
+  "review": "GO_append_only_receipt_publication_exact_declared_bytes",
+  "scope": "Historical/qualified current deciding evidence only; exact executed pins remain unchanged. B111 ordinary native missing-primary and B124 marker-binding/dedup original-owned residuals remain OPEN. Earlier numerical B111 proposal fields are historical contributions, superseded for whole-current disposition by new root index and next ledger. B04 is bounded adjacent diagnostic, not original A-finding closure. No G acceptance/formal closure/full-D PASS.",
+  "remaining_publication_readback": "After commit/push verify exact fetched D head/tree and every declared Git blob; this staged seal alone is not remote published availability.",
+  "no_source_code_changes": true,
+  "P41": "not_established; no inherited-red waiver"
+}

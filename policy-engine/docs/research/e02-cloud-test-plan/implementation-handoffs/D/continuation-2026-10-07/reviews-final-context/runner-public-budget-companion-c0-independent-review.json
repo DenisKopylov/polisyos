@@ -1,0 +1,18 @@
+{
+  "schema_version": "e02-D.independent-companion-review.v1",
+  "reviewer": "census_oct07",
+  "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "patch": "/dev/shm/e02-D-oct07-service-start/runner-canonical-budget-public-compatibility-c0.patch",
+  "sha256": "20ea681eb9e64293e017dfa02c3477f1b4c92118dce81ce0bb5ef3997f741f9f",
+  "verdict": "GO_MATCHING_REVIEWED_SOURCE",
+  "basis": [
+    "Fully read doc+structured32line TOML additive API/migration/classification patch. Existing public-surface generated inventory contains all three aliases at stable polisyos.scientist facade; child methods.search/autotune remain internal.",
+    "Existing owner/key/strict-positive CostBudgetStopping rule propagate through actual public run/create_service/resume; unchanged default profile and explicit source/config refusal recipe accurately scoped.",
+    "External budget evidence reread after local proposal rollback is required; companion admits separate owner-read/future-write non-atomicity and does not appoint production caller/invoice/authority.",
+    "Source/runtime port is not yet applied to immutable c0; companion static GO depends on final reviewed production and targeted public factory10 outputs.",
+    "Recommend include new test_service_owner_budget_factory.py in fragment evidence, alongside controller owner admission/service persistence."
+  ],
+  "runtime_delta": "UNRUN until applied immutable candidate",
+  "G_accepted": false,
+  "formal_closure": false
+}

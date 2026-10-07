@@ -1,0 +1,77 @@
+{
+  "state": "ROOT_FREEZE_GO_NATIVE_RUNNING",
+  "cohorts": {
+    "raw32": [
+      "tests/integration/core/llm/test_gateway_response_text_cost.py"
+    ],
+    "affected138": [
+      "tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+      "tests/integration/scientist/methods/search/funnel/test_default_worker_resource_scopes.py",
+      "tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay.py",
+      "tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay_modes.py",
+      "tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py",
+      "tests/integration/scientist/methods/search/funnel/test_paid_outcome_blueprint_projection.py",
+      "tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py",
+      "tests/unit/remediation/test_llm_01.py",
+      "tests/unit/remediation/test_fun_02.py",
+      "tests/unit/remediation/test_fun_03.py",
+      "tests/unit/scientist/search/funnel/test_types.py",
+      "tests/unit/scientist/search/funnel/test_orchestrator.py",
+      "tests/unit/scientist/search/funnel/test_level3_medium.py",
+      "tests/unit/scientist/search/funnel/test_level4_full.py"
+    ],
+    "owner-defining9": [
+      "tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+      "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+      "tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py",
+      "tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+      "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py"
+    ],
+    "owner-HTTP30": [
+      "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+    ],
+    "cache18": [
+      "tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py"
+    ],
+    "publicfactory10": [
+      "tests/unit/scientist/methods/search/test_service_owner_budget_factory.py"
+    ],
+    "defining-state7": [
+      "tests/unit/scientist/orchestration/engine/test_budget.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+      "tests/unit/scientist/search/test_calibration_report.py",
+      "tests/unit/scientist/search/test_correlation_tracker.py"
+    ]
+  },
+  "expected_case_counts": {
+    "raw32": 32,
+    "cache18": 18,
+    "affected138": 138,
+    "owner-defining9": 292,
+    "owner-HTTP30": 30,
+    "publicfactory10": 10
+  },
+  "no_blanket_combined_PASS": true,
+  "special_selectors": [
+    "tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_native_policy_callers_full_split_actual_events_and_fresh_reopen",
+    "tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_spend_does_not_resume_but_released_owned_capacity_rechecks_remaining_work",
+    "tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py::test_current_financial_admission_precedes_durable_zero_ack_and_release"
+  ],
+  "independent_review_condition": "Exact final chosen source/test/companion byte or AST reconciliation and current runtime on root-approved freeze",
+  "boundaries": [
+    "No invoice/native sample/refinement/promotion authority",
+    "No GP/vector backend assertion in minimal accounting runtime",
+    "Physical unknown cost keeps pending/reserved; cache-only unentered refusal aborts its own intent",
+    "Original unmanaged/memory B cache profiles retained",
+    "No P41 inherited-red attribution"
+  ],
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "tree": "e809693afe3b84e02d473b5744142d026afbe509"
+}

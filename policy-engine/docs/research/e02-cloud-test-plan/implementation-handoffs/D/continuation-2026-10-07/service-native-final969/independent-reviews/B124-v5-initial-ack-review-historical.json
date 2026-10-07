@@ -1,0 +1,17 @@
+{
+  "schema": "e02.independent.source-review.v1",
+  "author": "service_oct07",
+  "reviewer": "math_oct07",
+  "immutable_patch": {
+    "path": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-v4-to-v5.initial-98d655.patch",
+    "sha256": "98d6557f7186389d43660730aab69ca44b79c7bc560aa108488e3d53f9867209",
+    "bytes": 9315
+  },
+  "review_result": "Historical REVIEW_REQUIRED, superseded by final de8c6 source",
+  "unresolved_at_this_version": {
+    "property": "Only explicit lifecycle retires qualified initial checkpoint basis",
+    "mechanism": "First dedup ask qualified empty initial checkpoint inside _generate, then restorable proposal failure rolled checkpoint_ref to priorNone and runstate to unprepared; retry could implicitly rebind context.",
+    "runtime": "UNRUN at this initial draft; static escape concern, not verified actual product FAIL."
+  },
+  "resolution": "Final de8c6 moves first acknowledgment inside ask transaction and retains its ref as rollback custody with existing publicationblocked fence, requiring fresh reader."
+}

@@ -1,0 +1,36 @@
+{
+  "schema": "D.e02.B124.native-shared-helper-40tests-companion-independent-review.v1",
+  "reviewer": "/root/census_oct07",
+  "created_utc": "2026-10-07T10:38:38.765925+00:00",
+  "decision": "GO_EXTRA_ACTUAL_RUN_ISOLATION_BARRIER_CELL_AND_EXACT_COMPANION",
+  "inputs": [
+    {
+      "path": "/dev/shm/e02-D-B124-independent-tests/v8/test_service_trial_deduplication.py",
+      "bytes": 38895,
+      "sha256": "8eb96cf9a0825f4170f62da392e40111816fc9dd77d21c0a97355c436abdec0d"
+    },
+    {
+      "path": "/dev/shm/e02-D-B124-independent-tests/v9/test_service_trial_deduplication.py",
+      "bytes": 42534,
+      "sha256": "8933c7b9fe73f5c402073fbff0b7c3ca2213c4f9aafddb7c760a5be8ffe08e81"
+    },
+    {
+      "path": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-v5-run-scope-compat.incremental.patch",
+      "bytes": 682,
+      "sha256": "701942ba8c8b802e2caa01e83e38b55221593b1accef34deaa743ec7313e7ac3"
+    },
+    {
+      "path": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-v5.run-scope-only.patch",
+      "bytes": 648,
+      "sha256": "aa75b12399ca1f549ab1331ea9b39da7aae6cec92d3fea899d43bf5fd87d413e"
+    }
+  ],
+  "original39_AST": "Every prior function unchanged; new threading import and one actual barrier test only.",
+  "test_predicate": "Two actual native services share existing runner/store/suite, equivalent declared evaluator/configuration and same canonical TrialDeduplicator, but different recorded runIDs. A measured Jan and pauses at actual lookup; B actual first Feb ask resets/registers its own scope; released A must still reject equivalent Jan before physical evaluation. Configurations explicitly equal; actual fresh A history1 and physical Acalls[1], Bcalls[] exclude accidental profile mismatch. If old scope loses A membership, actual yielded retry is evaluated/told before assertion, exposing real physical consumer divergence.",
+  "companion": "Four-line paragraph correctly scopes disposable membership by recorded searchID+configuration and explicitly does not establish two-writer same-run authority. Existing source-owned seen dict per scope/reset semantics used, no second persisted registry or distributed promise.",
+  "P37": "Actual equivalent configurations admitted and distinct recorded run scope, true prior measurement/CAS+pending custody, physical lookup/barrier reached. Barrier setup error/timeout cannot prove protected predicate.",
+  "P38": "Same helper/configuration type markers can coexist with runA evidence erased by runB. Actual physical duplicate call/history after coordinated lookup distinguishes.",
+  "runtime": "UNRUN_NEW_FINAL40; static assertion count is not runtime PASS. Require complete printed actual runIDs/checkpointrefs/physicalcalls/JUnit and independent current source reconciliation.",
+  "formal_closed": false,
+  "accepted_in_G": false
+}

@@ -1,0 +1,31 @@
+{
+  "author": "service_oct07",
+  "complete_function_AST_delta": [
+    "_deduplication_members"
+  ],
+  "decision": "GO_STATIC_BOUNDED_PROFILE_RUNTIME_PENDING",
+  "final_full_source": {
+    "path": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-service.v5.run-scope-final.py",
+    "sha256": "4dfd2ceff8c2fb89ef4631b3ac15a1c4d770cf2552303d518bfbbce6bb06b008"
+  },
+  "limitations": [
+    "No new ledger/cache/pointer/subsystem",
+    "No globalUUID/distributedatomicity/scientificreplica independence guarantee",
+    "Strong posterior/state runtime still c0-qualified; only changed actual configured transfer3 scheduled on next freeze",
+    "No formal findingclosure/Gacceptance from static review"
+  ],
+  "own_runtime_property": "Different native run IDs/configs have separate disposable helper keys even when caller passes same canonical TrialDeduplicator; reset/register cannot claim membership from other live run.",
+  "patch": {
+    "path": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-v5.run-scope-only.patch",
+    "sha256": "aa75b12399ca1f549ab1331ea9b39da7aae6cec92d3fea899d43bf5fd87d413e"
+  },
+  "previous_review": {
+    "path": "/dev/shm/e02-D-live-profile-v4-before-0if1omk0/independent-final-v5-corrected-production-review.json",
+    "sha256": "d5c86a9bd959a51d3144234bd5f2128a97361c886e833d02c4e0eb996b279016"
+  },
+  "required_actual_discriminator": "Transfer real two-reader/run sharedhelper barrier test on immutable final source; pendingUNRUN",
+  "reviewer": "gp_oct07",
+  "schema": "e02.D.independent-production-run-scope-delta.v1",
+  "scope_binding": "Existing sole native runledger.search_id plus actual content-bound admitted configuration; restore path uses saved ledger so freshreader rebuilds same membership identity.",
+  "unchanged_guards": "All other method ASTs unchanged from corrected90c726, including immutable qualified checkpoint config/generation/tell/publication/per-evaluation and initialACKrollbackfence."
+}

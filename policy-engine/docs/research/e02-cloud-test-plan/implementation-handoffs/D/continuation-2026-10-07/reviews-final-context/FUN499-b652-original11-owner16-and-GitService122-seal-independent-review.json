@@ -1,0 +1,78 @@
+{
+  "schema": "D.e02.FUN499-sealed-original-criteria-and-owner16-independent-review.v1",
+  "reviewer": "/root/census_oct07",
+  "created_utc": "2026-10-07T10:24:32.879664+00:00",
+  "review": "GO_EXACT499_FROZEN_SOURCE_QUALIFIED_PUBLICATION_ROWS_AND_SERVICE122_CANONICAL_GIT_EQUIVALENCE",
+  "root": "/dev/shm/e02-D-funnel-oct07/sealed-b652-publication-git-service-v3",
+  "manifest_sha256": "739d0f21b05f1ac2e82c3b360fdcf785e2e4a1757d18dd3172e6fa2a56c87744",
+  "HANDOFF_sha256": "35695b37f843e8962f81eb67390f888380a8efb20ac75857da5f48def73c96c8",
+  "file_count": 499,
+  "bytes": 2815326,
+  "all_declared_source_size_hash_and_unique_destination_members_verified": true,
+  "canonical_Service_Git_member_count": 122,
+  "canonical_Service_commit": "237c3427266e0849ebfa36b41f89c51572b44814",
+  "canonical_Service_manifest_sha256": "2c9147f77f51653b058b68e145263c80ee137f94c2465534ffbff912d57591db",
+  "original11_acceptance_fragment_card_bindings_exact": true,
+  "original16_packet_order_key_finding_pointer_preserved": true,
+  "criterion_states": [
+    [
+      "B120",
+      "closed_bounded_engineering_proposed_for_original_criterion"
+    ],
+    [
+      "B156",
+      "closed_bounded_engineering_proposed_for_original_criterion"
+    ],
+    [
+      "B157",
+      null
+    ],
+    [
+      "B158",
+      "closed_bounded_engineering_proposed_for_original_criterion"
+    ],
+    [
+      "B159",
+      "closed_bounded_engineering_proposed_for_original_criterion"
+    ],
+    [
+      "B160",
+      "closed_bounded_engineering_proposed_for_original_criterion"
+    ],
+    [
+      "B161",
+      null
+    ],
+    [
+      "B162",
+      "closed_bounded_engineering_proposed_for_original_criterion"
+    ],
+    [
+      "B163",
+      "closed_bounded_engineering_proposed_for_original_criterion"
+    ],
+    [
+      "B164",
+      null
+    ],
+    [
+      "B165",
+      "closed_bounded_engineering_proposed_for_original_criterion"
+    ]
+  ],
+  "runtime_scope": "Previously independently reconciled actuala7 raw32/cache18/HTTP30/owner292/native138/state113 and b652publicfactory10 plus independent real physicalunknown rollbackremoval1. Complete phases/ledger inputs retained. No new execution or changed output claims from sealing.",
+  "disposition_scope": "Eight bounded original engineering closed proposals and held B157/B161/B164 owner-positive law/authority gaps. Original historical disposition fields stay historical/formalopen; current proposal clearly separate. WholeD B111/B124 remain ownedopen, outside FUN original11 scope.",
+  "archive_availability": "Historical Service archive SHA only provenance, intentionally not exported again. Public deciding Service evidence is exact commit237 manifest and all122 member blobs, including firstcollectionERROR and actualcorrectedrollback1/Legacy2. HANDOFF mapping resolves cloudavailability without missing archive claim.",
+  "P37": "Actualcanonicalcurrent debit/receipt/pending and source-qualified freshconsumer within declaredprofile; native scientific/calibrationlaw/issuedpermit positive remainsnotestablished.",
+  "P38": "Tiny nonzero or invalid input cannot become truezero; paidHMAC cacheoperation does not replace financialpaidreceipt; staleold0 cannot replace currentphysicalpendingowner admission. Guardremoval changes actual protected effect.",
+  "limitations": [
+    "No invoice/native production sample law/refinement supersession/typedpromotionpermit authority or deployedcaller appointment",
+    "No distributed or arbitrarycross-key all-or-nothing guarantee beyond canonicalBdefined consumedprofile",
+    "Publicquality/schema/architecture/frontend completeoutputs and productionhistoricalrefs remain root/canonicalowner decisions, not runtimePASS",
+    "Future source changes require independentdelta and affectedconsumer checks; receipts retain originalmeasurementSHA"
+  ],
+  "future_source_delta": "New Runtime/service B111/B124 source is not this b652 receipt; qualify/replay affectedconsumer on finalfreeze before carry.",
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "remote_readback": "Root must publish exactdeclaredfiles and verify fetchedGit paths/hashes; scratchsealedmanifest is not itself remoteevidence."
+}

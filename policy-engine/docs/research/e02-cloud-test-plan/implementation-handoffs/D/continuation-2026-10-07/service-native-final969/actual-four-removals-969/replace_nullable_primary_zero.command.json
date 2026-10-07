@@ -1,0 +1,146 @@
+{
+  "control": {
+    "plugin": "replace_nullable_primary_zero",
+    "selector": "tests/unit/scientist/methods/search/test_service_trial_deduplication.py::test_actual_native_primary_quantity_preserves_unavailable_zero_and_fresh_cas_basis[missing-False-ok-1]",
+    "removed_property": "only actual Runner primary None\u21920 after native actual producer/evaluation/persistence",
+    "preserved": "actual owner holdout_metrics{}, statusok, promotableTrue, qualified refs, unavailable primary assessment/reason, feedbackREJECT",
+    "expected_result": "one assertion FAIL with actual returned/persisted primary0/best/front0, no setup or collection error"
+  },
+  "source_sha": "96905636726483fdea3a98d9313871d825b54a9e",
+  "source_tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "command": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-o",
+    "junit_family=xunit1",
+    "--noconftest",
+    "-p",
+    "no:cacheprovider",
+    "-p",
+    "replace_nullable_primary_zero",
+    "-s",
+    "-ra",
+    "--basetemp",
+    "/dev/shm/e02-D-B124-removal-four-exxj42mi/replace_nullable_primary_zero-fixtures",
+    "--junitxml",
+    "/dev/shm/e02-D-B124-removal-four-exxj42mi/replace_nullable_primary_zero.junit.xml",
+    "tests/unit/scientist/methods/search/test_service_trial_deduplication.py::test_actual_native_primary_quantity_preserves_unavailable_zero_and_fresh_cas_basis[missing-False-ok-1]"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "runtime": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "polisyos_origin": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/__init__.py",
+    "packages": {
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5",
+      "numpy": "2.3.5",
+      "cryptography": "46.0.4"
+    }
+  },
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine:/dev/shm/e02-D-B124-removal-plugins",
+    "UV_CACHE_DIR": "/dev/shm/e02-D-B124-removal-four-exxj42mi/uv-cache",
+    "POLISYOS_TOOLS_TIMING_LOG": "/dev/shm/e02-D-B124-removal-four-exxj42mi/timing.jsonl"
+  },
+  "no_artificial_resource_limits": true,
+  "numerical_backend_requirement": "not_applicable; actual native evaluator/CAS/service",
+  "inputs_before": {
+    "src/polisyos/scientist/methods/autotune/dedup.py": {
+      "bytes": 3073,
+      "sha256": "7c05548d3539ed98b20da6c11fe033af789e0b75672164654b97c68a28f0f5dc"
+    },
+    "src/polisyos/scientist/methods/autotune/runtime.py": {
+      "bytes": 23729,
+      "sha256": "4bcddcf8b7ef4696fe26a3daa3394053672eb8a43007e0bf0b993c5bf87e17eb"
+    },
+    "src/polisyos/scientist/methods/autotune/models.py": {
+      "bytes": 29441,
+      "sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5"
+    },
+    "src/polisyos/scientist/methods/autotune/registry.py": {
+      "bytes": 27732,
+      "sha256": "1339af524b604462021425b9d88f5cbe278f1a8c927827cb3e26fa4f8f0cc6ba"
+    },
+    "src/polisyos/scientist/methods/search/frontier.py": {
+      "bytes": 8212,
+      "sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b"
+    },
+    "src/polisyos/scientist/methods/search/controller.py": {
+      "bytes": 57668,
+      "sha256": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53"
+    },
+    "src/polisyos/scientist/methods/search/service.py": {
+      "bytes": 58588,
+      "sha256": "b73158016ef2a6e9324159b7de3d34206ef5a866bcdc1a675adb9281c815e127"
+    },
+    "src/polisyos/scientist/methods/search/contracts.py": {
+      "bytes": 14342,
+      "sha256": "e7a5b21bafddab30277ebe0e8eb54a31c3f7b3bfc207b8d97e14cbdbc31d78d5"
+    },
+    "src/polisyos/scientist/methods/search/run_state.py": {
+      "bytes": 19613,
+      "sha256": "411e2b5a922bf57af4f51735b44f7e491f98e75e3a83940b8fb3eb76e7fa3cb8"
+    },
+    "src/polisyos/scientist/methods/search/pareto_registry.py": {
+      "bytes": 37218,
+      "sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd"
+    },
+    "src/polisyos/scientist/methods/search/objective.py": {
+      "bytes": 10078,
+      "sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c"
+    },
+    "src/polisyos/core/artifacts/store.py": {
+      "bytes": 185595,
+      "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165"
+    },
+    "src/polisyos/core/artifacts/manifest.py": {
+      "bytes": 12758,
+      "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d"
+    },
+    "src/polisyos/core/artifacts/manifest_profile.py": {
+      "bytes": 756,
+      "sha256": "aa7ee9af617c1adc338a21a5b0186d41a690e6b86f2a0810ae9b5a7ee4ff7ce5"
+    },
+    "src/polisyos/core/artifacts/_integrity_ops.py": {
+      "bytes": 10425,
+      "sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b"
+    },
+    "src/polisyos/core/artifacts/_atomic_write.py": {
+      "bytes": 4074,
+      "sha256": "afa41fe64aa388d65ec89db504d2f651447c5a92b5a8cea0384a6793c924ebcf"
+    },
+    "src/polisyos/core/canon/canon_json.py": {
+      "bytes": 1882,
+      "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95"
+    },
+    "src/polisyos/common/serialization.py": {
+      "bytes": 14186,
+      "sha256": "485303bf79f150fa9df259d7354d3104a4bdb94d9114cddb6e17dcc424316f0d"
+    },
+    "tests/unit/scientist/methods/search/test_service_trial_deduplication.py": {
+      "bytes": 43697,
+      "sha256": "608942a8f9195491c846225050d030b47a6733d1d8602f31960afd852421a6b5"
+    },
+    "tests/unit/scientist/methods/search/test_semantic_dates_persisted_consumers.py": {
+      "bytes": 6236,
+      "sha256": "435a9bf8ab41bf2c31b22b69929f3e8864bced9e84f85397f3e96311a047a1aa"
+    }
+  },
+  "plugins": {
+    "replace_nullable_primary_zero.py": {
+      "bytes": 868,
+      "sha256": "a425bab7fd56efb15063597cfdc37ac272886cca5fbc3bfac24e4d44356d0290"
+    },
+    "removal_observation.py": {
+      "bytes": 2818,
+      "sha256": "8c34b5ab2ca4e24371962e3629771f0af125ee2390f8c46ea969946483c02c59"
+    }
+  },
+  "started_utc": "2026-10-07T10:41:23.443694+00:00"
+}

@@ -1,0 +1,82 @@
+{
+  "base": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "blocking_finding": {
+    "actual_result": "2 intended assertion FAIL;0ERROR/SKIP",
+    "complete_actual_output": "/dev/shm/e02-D-live-profile-v4-before-0if1omk0",
+    "counterexamples": [
+      {
+        "actual": "old configuration != new; next public ask returns[] and advancescursor1→2, suppressing physical reevaluation/refusal",
+        "mutation": "fixture declared checkpoint_configuration scale1→2 after first completed evaluation",
+        "profile": "evaluator_scale"
+      },
+      {
+        "actual": "old configuration != new; same returned[] and cursoradvance",
+        "mutation": "caller scope.split original→changed in aliased nested context after first completed evaluation",
+        "profile": "nested_context"
+      }
+    ],
+    "inputs_unchanged": true,
+    "junit_sha256": "96d826eb08ff50e11da43d36c63bef6183310b252e63bd1ffae7b138e1ca673f",
+    "predicate": "live configuration must remain equal to last acknowledged content-bound configuration before claiming completed membership and before checkpoint publication that could relabel old history",
+    "required_single_boundary_widening": "reuse existing qualified checkpointref configuration for live membership AND active checkpoint publication; avoid publiccheckpoint/tell laundering new configuration onto old history; first genuinely empty fresh run may bind new configuration",
+    "scientific_scope": "declared deterministic fixture/input profile only; no evaluator appointment, invoice, producer authority, production data or distributed guarantee",
+    "source": "service._deduplication_members: compares two freshly reconstructed current _configuration() objects; _checkpoint_context uses shallow dict copy",
+    "source_kind": "exact stable staged development tree, not immutable HEAD runtime PASS"
+  },
+  "decision": "CHANGES_REQUIRED",
+  "full_actual_files": {
+    "after.json": "adfbf99eca3a11fa51ee1e33aaf1310be4d62d4a57d003f1a4afe795265bf0b4",
+    "before.json": "adfbf99eca3a11fa51ee1e33aaf1310be4d62d4a57d003f1a4afe795265bf0b4",
+    "command.json": "f17f322a612535ba47a6148f76697ba33d7bcfdd911bd2ad9a005c7d015929fc",
+    "junit.xml": "96d826eb08ff50e11da43d36c63bef6183310b252e63bd1ffae7b138e1ca673f",
+    "path.json": "a9c29ac5e8a9b471aef0a1db1039a2b6fa49cbe274f63523db6192392fbfdb3f",
+    "result.json": "e4d6ba6abb71a9729ade76d2219cc2382fda001d726069a4386a150484eaf8d2",
+    "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout.txt": "01d93a4a618bb88dcb54317d6b56b1c3d4d2fa5977d14c7ec18a4c7fbf954ded",
+    "test_live_profile_before.py": "64c42c5c1708d064e045a4c9a5e9ed61ebd8bf0b60f4e55686a276a1294f0e46"
+  },
+  "independent_tests_path": "/dev/shm/e02-D-B124-independent-tests/v4/test_service_trial_deduplication.py",
+  "independent_tests_sha256": "a36a61d55d5cc9d960dce9822017543907ddabef89c4ebe0ccf2bc26c351b40d",
+  "original_occurrences": [
+    "B124@CTL-02",
+    "B111@OPT-01"
+  ],
+  "patch_path": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-a7.v4-final.patch",
+  "patch_sha256": "d2dab7c64e4b71cc63633558ca8cb9754aaa3389007c0337bb0afbdd1db000f2",
+  "reviewer": "gp_oct07 independent of Service production/Transfer test authors",
+  "runtime_after_repair": "UNRUN pending immutable corrected candidate",
+  "schema": "e02.D.independent-development-review.v1",
+  "source_bindings": {
+    "policy-engine/src/polisyos/scientist/methods/autotune/dedup.py": {
+      "actual_staged_source_sha256": "7c05548d3539ed98b20da6c11fe033af789e0b75672164654b97c68a28f0f5dc",
+      "b652_blob": "cec70d07b95504c45c89dbae8c3c72416148bff1",
+      "base_blob": "cec70d07b95504c45c89dbae8c3c72416148bff1",
+      "base_sha256": "a56a1f00a3a44b7ff3c2ac0c049a263a62889f89e724628c2804e090d274436f"
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py": {
+      "actual_staged_source_sha256": "4bcddcf8b7ef4696fe26a3daa3394053672eb8a43007e0bf0b993c5bf87e17eb",
+      "b652_blob": "2451c5520334a2765298314d53e46502c2b04c90",
+      "base_blob": "2451c5520334a2765298314d53e46502c2b04c90",
+      "base_sha256": "b64d2e6a49e173e58316bf843dab889a775d6b26c9ad6a81d10c2281bce94185"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/frontier.py": {
+      "actual_staged_source_sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+      "b652_blob": "3e8a49f58dbec650304023e19e372ab92af9ca72",
+      "base_blob": "3e8a49f58dbec650304023e19e372ab92af9ca72",
+      "base_sha256": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/service.py": {
+      "actual_staged_source_sha256": "a618e400332f0fb9e72db02bb0169aaab3f791aa1d6c3d26bd4dc5e81de0d7e1",
+      "b652_blob": "71694945c18fb573fa30b31f9b16942a4a30b508",
+      "base_blob": "71694945c18fb573fa30b31f9b16942a4a30b508",
+      "base_sha256": "3df2c3a05c0571065f8ac45c260a03a80c1493ebfab1b0f532d9e90a5a83a6b1"
+    }
+  },
+  "supported_sound_parts": [
+    "canonical content identity ignores returned equality markers; semantic nested dates remain content",
+    "configured optional canonical dedup derives membership from sole actual completed/pending history and resolves qualified candidate/evaluation/suite CAS; no cached EvaluationBundle/zero-charge/fake history",
+    "unavailable primary metric and noncomparable status now retain explicit None assessment; objective carrier unavailable and feedback refusal gate preserve genuine0",
+    "explicit replica/seed identity retained independently of proposal technical IDs",
+    "known native typed-mutation content-bound profile only; arbitrary callbacks fail closed; changed source/helper config refuses fresh restore"
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "schema": "e02.D.FUN.final969.actual_public_factory10.v1",
+  "candidate": "96905636726483fdea3a98d9313871d825b54a9e",
+  "tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "slice_base": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+  "exact_source_clean_before_after": true,
+  "check_result": "PASS",
+  "actual_phase_counts": {
+    "call:passed": 10,
+    "setup:passed": 10,
+    "teardown:passed": 10
+  },
+  "actual_deciding_ledger_count": 10,
+  "wall_seconds": 20.317721366882324,
+  "selected_tests": [
+    "tests/unit/scientist/methods/search/test_service_owner_budget_factory.py"
+  ],
+  "runtime_profile": "supported minimal actual Python/Pydantic/NumPy canonical local filesystem B1.2 budget ledger/Decimal HTTP decoder, actual configured SearchLoopRunner factory, CAS fresh restore/resume; optional Torch/BoTorch/HNSW numerical backends unused",
+  "bounded_consumer_properties": [
+    "actual canonical source-bound paid and literal-zero physical receipt fresh reader, declared distinct budget key",
+    "known paid cutoff before generator/evaluator",
+    "actual tiny raw JSON unknown-pending owner forbids proposal/evaluation and restores honest None costing",
+    "same factory CAS fresh restore/public resume and changed key/rule refusal",
+    "actual post-preflight durable owner change survives proposal rollback owner refresh"
+  ],
+  "independent_oracle": "actual canonical reopened ledger bytes and receipt/cost snapshot, complete runtime assertions; no invoice truth",
+  "negative": "Existing exact b652 original-budget-owner rollback-removal FAIL retained in canonical Service Git receipt at237c342, same financial preflight/rollback owner branches AST identity; current actual owner-change positive rerun10",
+  "historical_originals": "sealed499 untouched; prior c0 faults, a7 factory10 fixtureFAIL and V1 collectionERROR preserve original source/disposition",
+  "financial_six_a7_scope": "source/function-qualified carry only, not new execution. Changed Service/Runtime modules supplemented by actual current10; changed dedup/primary contracts have independent owner replays",
+  "Gaccepted": false,
+  "formal_closed": 0,
+  "held_positive_inputs": [
+    "B157 native actual sample/work estimand profile",
+    "B161 authority-bound same subject/value/time authorized refinement",
+    "B164 appointed issued permit/current verifier/write serialization"
+  ]
+}

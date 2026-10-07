@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="0.209" timestamp="2026-10-07T11:04:53.046118+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.methods.search.test_fiscal_numeric_admission" name="test_actual_response_text_nonzero_decimal_is_unavailable_to_fiscal_consumer[1e-1000-gov_balance]" file="tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py" line="158" time="0.002"><failure message="AssertionError: assert True is False&#10; +  where True = StoppingCondition(should_stop=True, reason='Improvement plateau: gain 0 &lt;= 0.01 declared_fixture_float64_units for 1 i...nits', 'direction': 'minimize', 'profile_version': '1.0', 'patience': 1, 'adequacy_status': 'observed_finite_history'}).should_stop">alias = 'gov_balance', token = '1e-1000'
+
+    @pytest.mark.parametrize("alias", ALIASES)
+    @pytest.mark.parametrize("token", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_actual_response_text_nonzero_decimal_is_unavailable_to_fiscal_consumer(
+        alias, token
+    ):
+        gateway = _TextGateway('{"' + alias + '":' + token + "}")
+        payload = await gateway._post_json(endpoint="/fixture", payload={}, timeout_s=1.0)
+        assert gateway.transport.calls == 1
+        assert isinstance(payload[alias], Decimal)
+        assert payload[alias] == Decimal(token) and payload[alias] != 0
+        objective = BudgetDeficitObjective(threshold=0.0)
+        evaluated = objective.evaluate(payload)
+        combined = CompositeObjective([objective]).evaluate(payload)
+        history = [{"objective_value": 0.0}, {"objective_value": combined.normalized_value}]
+        plateau = ImprovementPlateau(
+            patience=1, objective_unit="declared_fixture_float64_units"
+        ).check(history, {})
+&gt;       assert plateau.should_stop is False
+E       AssertionError: assert True is False
+E        +  where True = StoppingCondition(should_stop=True, reason='Improvement plateau: gain 0 &lt;= 0.01 declared_fixture_float64_units for 1 i...nits', 'direction': 'minimize', 'profile_version': '1.0', 'patience': 1, 'adequacy_status': 'observed_finite_history'}).should_stop
+
+tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py:177: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.test_fiscal_numeric_admission" name="test_actual_response_text_nonzero_decimal_is_unavailable_to_fiscal_consumer[-1e-1000-gov_balance]" file="tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py" line="158" time="0.001"><failure message="AssertionError: assert True is False&#10; +  where True = StoppingCondition(should_stop=True, reason='Improvement plateau: gain 0 &lt;= 0.01 declared_fixture_float64_units for 1 i...nits', 'direction': 'minimize', 'profile_version': '1.0', 'patience': 1, 'adequacy_status': 'observed_finite_history'}).should_stop">alias = 'gov_balance', token = '-1e-1000'
+
+    @pytest.mark.parametrize("alias", ALIASES)
+    @pytest.mark.parametrize("token", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_actual_response_text_nonzero_decimal_is_unavailable_to_fiscal_consumer(
+        alias, token
+    ):
+        gateway = _TextGateway('{"' + alias + '":' + token + "}")
+        payload = await gateway._post_json(endpoint="/fixture", payload={}, timeout_s=1.0)
+        assert gateway.transport.calls == 1
+        assert isinstance(payload[alias], Decimal)
+        assert payload[alias] == Decimal(token) and payload[alias] != 0
+        objective = BudgetDeficitObjective(threshold=0.0)
+        evaluated = objective.evaluate(payload)
+        combined = CompositeObjective([objective]).evaluate(payload)
+        history = [{"objective_value": 0.0}, {"objective_value": combined.normalized_value}]
+        plateau = ImprovementPlateau(
+            patience=1, objective_unit="declared_fixture_float64_units"
+        ).check(history, {})
+&gt;       assert plateau.should_stop is False
+E       AssertionError: assert True is False
+E        +  where True = StoppingCondition(should_stop=True, reason='Improvement plateau: gain 0 &lt;= 0.01 declared_fixture_float64_units for 1 i...nits', 'direction': 'minimize', 'profile_version': '1.0', 'patience': 1, 'adequacy_status': 'observed_finite_history'}).should_stop
+
+tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py:177: AssertionError</failure></testcase></testsuite></testsuites>

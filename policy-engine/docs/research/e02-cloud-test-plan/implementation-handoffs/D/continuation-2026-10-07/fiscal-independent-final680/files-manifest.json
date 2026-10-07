@@ -1,0 +1,145 @@
+{
+  "schema": "e02.D.fiscal_independent_sealed_files_manifest.v1",
+  "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "publication_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/fiscal-independent-final680/",
+  "entries": [
+    {
+      "path": "HANDOFF.json",
+      "sha256": "1c6e66639a85122e53883d701bd6beae3cb2d5d29afb8c60aef81e71abeb7c5c",
+      "bytes": 8004
+    },
+    {
+      "path": "PRELIMINARY_PACKET.json",
+      "sha256": "0c7cd1a7be8e2097b5d8c98356be87ee4d5ab6c830d43afaafed2c40cedabc67",
+      "bytes": 582
+    },
+    {
+      "path": "README.md",
+      "sha256": "97af54590eb9c32e2a06351e2a657762d0cd7a59d142b8ff8f2e8a4115584dc6",
+      "bytes": 1082
+    },
+    {
+      "path": "baseline969/actual969_decoder_probe.json",
+      "sha256": "32aa10932b350775367d184f287f29b0aa95f6ad0f7fad8d1f1a0e353a3e4e08",
+      "bytes": 9361
+    },
+    {
+      "path": "baseline969/actual969_decoder_probe.py",
+      "sha256": "7814909b536998044380d3f0c0a44077e9aefda3c154a0cc866e571718876d4c",
+      "bytes": 5320
+    },
+    {
+      "path": "controls/current_canonical_decoder_probe.py",
+      "sha256": "873f2b5bd0d3729a88659ce918d11bdaa2c2a1ab10d1704b6801d69a01091162",
+      "bytes": 5800
+    },
+    {
+      "path": "controls/remove_fiscal_underflow_guard.py",
+      "sha256": "1e0e6d550f5c0dc5fc14bbb467be1285e351d60362460b0825481ebad6929dc4",
+      "bytes": 3435
+    },
+    {
+      "path": "controls/run_current_fiscal_checks.py",
+      "sha256": "1a8a6092694f25d08b851bdbfb020d945eed1f8c5a77cd1f6f2ad57c53acb484",
+      "bytes": 6028
+    },
+    {
+      "path": "controls/run_current_fiscal_checks.v2.py",
+      "sha256": "202764e036799b9eb45d6a658d6140fa89f15d2401acfc1c1817d87c0977cb0b",
+      "bytes": 6375
+    },
+    {
+      "path": "current680/SUMMARY.json",
+      "sha256": "e78d960c7234cfeceb3a6b0556f7febf2cf5b271aeb62cf85ef29905b6c8e280",
+      "bytes": 1383
+    },
+    {
+      "path": "current680/canonical13.observations.json",
+      "sha256": "745fdfed47eecd1a707b653409e1738c5a954f4baef2887a9b9a83c6c4c95674",
+      "bytes": 16718
+    },
+    {
+      "path": "current680/canonical13.receipt.json",
+      "sha256": "af7cce939e67cdef294cd9a6d8dd97a4a31a03c6c630bfc4ea00843a89086fb5",
+      "bytes": 890
+    },
+    {
+      "path": "current680/canonical13.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "current680/canonical13.stdout.txt",
+      "sha256": "8906d385e5057db7e715edd2ca2c4bdfe081d28c8fb787da71014ebda3048eb3",
+      "bytes": 219
+    },
+    {
+      "path": "current680/guard-removal2.junit.xml",
+      "sha256": "5fba754e159d19d6bdb6984dc1550a3537c0463af776a6e4e62cc77b0379c9ea",
+      "bytes": 4520
+    },
+    {
+      "path": "current680/guard-removal2.receipt.json",
+      "sha256": "a4250fefc886002b07d80f8007d1f96cc59b4bd1a6037b643d88a7d70188a7e2",
+      "bytes": 8118
+    },
+    {
+      "path": "current680/guard-removal2.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "current680/guard-removal2.stdout.txt",
+      "sha256": "9312a9bbcef09d657c1d7a66f9072471aa87c8cba3ce579b7e307ed5e6683881",
+      "bytes": 9865
+    },
+    {
+      "path": "current680/inputs-before.json.gz",
+      "sha256": "913ca5e3176f7caa9b9cd1897bdc7118105b38f71221f3b092c3bd25d9a9f1d3",
+      "bytes": 968438
+    },
+    {
+      "path": "diagnostics/initial-census-launcher-diagnostic.json",
+      "sha256": "470faaebedb572ca5adb488a6f59c35bc2c4b26dd67c8c97efeb8af96f56b070",
+      "bytes": 470
+    },
+    {
+      "path": "original-criterion-binding.json",
+      "sha256": "65fe257e32dd6e5efa25d7d024b53119ae57ccb27b1ee824047404ed64ab490b",
+      "bytes": 1979
+    },
+    {
+      "path": "paired-exact-inputs.json",
+      "sha256": "8d22d4db65f493b6fd394a87cd58d6b73b283ae0acafef7152a569b8d5ff4e3b",
+      "bytes": 3366
+    },
+    {
+      "path": "reviews/fiscal-author73-independent-runtime-review.json",
+      "sha256": "68d2c64ad95ea2bd38215fb264d4840c5b361e6924c277125565155a3f74882b",
+      "bytes": 49504
+    },
+    {
+      "path": "reviews/fiscal-final-fourpath-independent-source-review.json",
+      "sha256": "07ec1fedcfb750a120108f49acf290edf9e48477bfdcded72206a1a595d28377",
+      "bytes": 6307
+    },
+    {
+      "path": "reviews/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+      "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+      "bytes": 5056
+    },
+    {
+      "path": "reviews/independent-canonical13-removal2-output-review.json",
+      "sha256": "97d63732085aa36cfe4eb2431dfbf36aaae0f31ddac0b845f42ab41688577e32",
+      "bytes": 9470
+    },
+    {
+      "path": "reviews/independent-negative-plugin-source-review.json",
+      "sha256": "e3fc59d280e64884e4d88aaea08827e49d66d8a818970df25b898ec6bfb39e68",
+      "bytes": 1507
+    }
+  ],
+  "entry_count": 27,
+  "total_bytes": 1133797,
+  "self_excluded": true
+}

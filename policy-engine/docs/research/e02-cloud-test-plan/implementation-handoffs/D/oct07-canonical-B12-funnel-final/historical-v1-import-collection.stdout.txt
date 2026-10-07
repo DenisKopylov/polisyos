@@ -1,0 +1,23 @@
+
+==================================== ERRORS ====================================
+_ ERROR collecting tests/unit/scientist/methods/search/test_strategy_adapter_factory_resume.py _
+ImportError while importing test module '/dev/shm/e02-D-oct07-continuation/policy-engine/tests/unit/scientist/methods/search/test_strategy_adapter_factory_resume.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/scientist/methods/search/test_strategy_adapter_factory_resume.py:30: in <module>
+    from tests.unit.scientist.methods.search.test_service_persistence import _direct, _runner
+E   ModuleNotFoundError: No module named 'tests'
+=============================== warnings summary ===============================
+../../../../tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR tests/unit/scientist/methods/search/test_strategy_adapter_factory_resume.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+no tests collected, 1 error in 1.00s

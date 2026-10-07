@@ -1,0 +1,798 @@
+{
+  "schema": "D.e02.original46.criterion-specific-gate-basis.v1",
+  "reviewer": "/root/census_oct07",
+  "created_utc": "2026-10-07T10:37:33.916073+00:00",
+  "denominator": {
+    "bundles": 17,
+    "unique_ids": 45,
+    "occurrences": 46
+  },
+  "original_ledger_sha256": "6be58b4678e372845eebe00f321c8017330d162aca93b8708e1d684e9694c1a5",
+  "decision_scope": "Predicate articulation only, not new execution/closure. Original text/hash unchanged; final frozen candidate/source-output bindings must be joined after actual owned B111/B124 repair and affected consumer checks.",
+  "rows": [
+    {
+      "occurrence_id": "B106@STR-01",
+      "finding_id": "B106",
+      "bundle": "STR-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "1d212bb12a7346fc8c2480723fddd43da874e2e1daa2d2070a6233ab75795d43",
+      "P37": {
+        "original_property_predicate": "Observed scenario stream has declared physical threshold/direction and attempted/finite/violated occurrence counts before top-k/grouping; full/partial/unknown/empty admitted separately.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Identical actual stream at top-k1/20 and distinct occurrence multiplicities keeps23/38; grouped issue count or zero-denominator score1 is divergent.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B107@STR-01",
+      "finding_id": "B107",
+      "bundle": "STR-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "83e4adcea92922a6991dbd16937e9dc47cca02d83f0beccf2eb7e2f43623e0a3",
+      "P37": {
+        "original_property_predicate": "Declared maximize/minimize objective and violation threshold map to independent table extrema; absent/nonfinite is unavailable.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Choosing largest raw value for every objective disagrees with cost-minimization worst violation, even when completeness markers persist.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B108@OPT-01",
+      "finding_id": "B108",
+      "bundle": "OPT-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "8d4cbd469a454de4a7f4a26aa91c3fdf8aabf3b2b59bb77651b99146bcaa888c",
+      "P37": {
+        "original_property_predicate": "Existing producer balance/deficit alias/sign and actual unit identity must be declared before claiming incompatible-unit admission. Numeric zero/absent/conflict/nonfinite handled by current typed boundary.",
+        "positive_input_label": "not_established",
+        "owner_authority_positive_required": true,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Float balance and deficit equivalence or metadata unit string does not establish issuer unit/sign law; incompatible-unit positive input remains not_established.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B109@OPT-01",
+      "finding_id": "B109",
+      "bundle": "OPT-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "784670e535c99a1baee35da6689f515779b3b616a5829ab125c608fcc4f712b3",
+      "P37": {
+        "original_property_predicate": "Normalized direction/full axis identities, distinct candidate records including equal coordinates, permutations and dimension1-4 enter exact direct-versus-fast front.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Independent all-pairs/Fraction oracle, tied-coordinate/permuted-front control disagrees with strict-per-axis fast path; optional A provider is not this comparator predicate.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B110@OPT-01",
+      "finding_id": "B110",
+      "bundle": "OPT-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "199ef2ac1ae718655b08fbb78829e6ed0768b46df5d1b99fad56aa69181c1184",
+      "P37": {
+        "original_property_predicate": "Coordinate identity metric+split+direction/unit/version complete and unique through frontier/CAS-registry serialization/readback and is_dominated.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Display label change preserves relation; different split retains separate coordinate; duplicate full identity refuses instead of dropping one labelled dimension.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B111@OPT-01",
+      "finding_id": "B111",
+      "bundle": "OPT-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "4d1c7ff7de3b274c2aa4e16230b323102adacd871d551f30616d9d8f3b2eec65",
+      "P37": {
+        "original_property_predicate": "Actual points/reference/primary evaluation quantities finite or explicitly unavailable with reason; permutation-invariant front and real CAS genesis/champion guards consume these states.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Producer assessment/available markers cannot substitute for actual quantity; typed metrics{} previously became numeric0 in native best/front/CAS. Genuine measured0 versus missing/status-error must diverge in current actual native consumer. Rational positive underflow is separate bounded class.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B112@OPT-02",
+      "finding_id": "B112",
+      "bundle": "OPT-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "346a175ccdf5884dc409464a2363ff08bee370b2e406d2aa45a103abcedf7234",
+      "P37": {
+        "original_property_predicate": "Ordinary configured SearchSpace first native suggest, physical/log/category admission and optional backend profile availability.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Contract-only or mock suggest can pass despite missing backend/configured-action bridge; actual supported SingleTaskGP acquisitions and minimal SKIP->UNRUN separate.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B113@OPT-02",
+      "finding_id": "B113",
+      "bundle": "OPT-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "a58659486c95650eb9a6228a8df62809daede33c44d147794b7f4e78d7ed7624",
+      "P37": {
+        "original_property_predicate": "Physical/categorical coordinates and complete IDs from both dict/SearchIteration histories reach actual public GP generate; absent output excluded with reason; actual CAS fresh checkpoint resumes.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Flattened short IDs, categorical coordinates or absent->0 can preserve input count while actual train_X/train_Y/full IDs are wrong; direct private fit is not public caller proof.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B114@OPT-03",
+      "finding_id": "B114",
+      "bundle": "OPT-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "b2eab2dd0f76dd6fe89611272edc500c3b3d5e0ef5fa5857251aa73944c096b3",
+      "P37": {
+        "original_property_predicate": "Exact suitable whole corpus versus warm+append has same actual native train corpus/next plan, rejection reasons, content-bound identity and deliberate repeat distinction.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Warm metadata/state alone does not prove GPtraining; actual8rows exclude identicalorigin duplicate but retain same-x independentreplica2, real CAS8/7 fits and dense independent oracle.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B115@OPT-03",
+      "finding_id": "B115",
+      "bundle": "OPT-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "60c5a8366edbd7193eafd15fb6c048061373a4dac4502e54b328c78b75225156",
+      "P37": {
+        "original_property_predicate": "Actual SingleTaskGP learned kernel/mean/noise/transforms/version/shape/basis/RNG survives allowed restore/append, with declared real fit clock and separately recorded resource costs.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "State markers or same-model posterior oracle do not prove learned restore; fixed-parameter independent NumPy fullcov, actual MLL traces initial1/resume0 and state mutation fail-or-diverge discriminate.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B116@OPT-04",
+      "finding_id": "B116",
+      "bundle": "OPT-04",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "838816f2bb639f8c98b0972d2433933f1d8c3f39d8d14f6ee03d52f59c4004ab",
+      "P37": {
+        "original_property_predicate": "Verified candidate/evaluation/suite content pair same loop/split/metric/profile/current accepted benchmark basis before actual registry pointer change; existing evaluator/reuse route.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Replay/cache labels or metadata pair permit swapped/foreign refs; actual canonical snapshot byte verification and pair/basis negatives refuse without pointer change.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B117@OPT-04",
+      "finding_id": "B117",
+      "bundle": "OPT-04",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "9bc6c9b17b4234d10455cb41f4a8e6380c31163687291bb38242529bb954d319",
+      "P37": {
+        "original_property_predicate": "Existing local POSIX lock/flock canonical reread admits true current-predecessor improvement and atomic old/new pointer crash state under accepted policy.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Pre-lock stale improvement can overwrite current best; actual competing writers/heldlock freshprocess and before/after os._exit show protected pointer, not distributed/powerloss claim.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B118@CTL-01",
+      "finding_id": "B118",
+      "bundle": "CTL-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "0b2c57a0df378303470a151c0d9ffa22e3e8eaa952e3f607113478a80e9581f0",
+      "P37": {
+        "original_property_predicate": "Two sequential runs same mutable controller scope counts/history/sentinels and durable paid events independently; first detached result and two fresh-owner equivalence; concurrent run explicitly refused.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "New SearchID/RUNNING marker can coexist with retained prior counters/history; removal run_reset retains markers and second charged scope2vs4 distinguishes.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B119@CTL-01",
+      "finding_id": "B119",
+      "bundle": "CTL-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "2df8d82c78083a0795327b04b6d0175330efa9f45f87e41b60ae40f89c635f97",
+      "P37": {
+        "original_property_predicate": "Actual empty/transient/exhausted/cancelled/failed generation preserves reason, finite pending result and paid provider receipt before fresh ledger read.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Generated batch length alone loses physical external paid cost and reason; real StopIteration/ValueError/CancelledError paid producers and fresh ledger discriminate.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B120@CTL-03",
+      "finding_id": "B120",
+      "bundle": "CTL-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "fc2bdc0f5a2f9ab501ed9195ce1b0116184989c4a1c66c6fd3ab34716b4fb8d6",
+      "P37": {
+        "original_property_predicate": "Canonical owner persisted debit/receipt and current snapshot/admission bind one measured event to stopping/result; exact retry/cache-origin reuse and unknown-ack fenced fresh resume.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Tracecost1 or estimate is not settlement; same retained trace/typed ACK without ledger charge refuses. Response-text±1e-1000 must remain tiny unknown, not literal0; after-preflight physicalunknown then rollback must remainNone/fenced, not stale known0.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B121@CTL-03",
+      "finding_id": "B121",
+      "bundle": "CTL-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "926f2f672300e9dd03830f1677ba7354bf461218ef9c41841e1f9f6a72f30548",
+      "P37": {
+        "original_property_predicate": "Declared new-evaluation allowance separate from suitable warm history and sentinel physical resource accounting; warm/sentinel excluded from new-count/best/front/training as applicable.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Counting warm rows against new allowance or unpaid sentinel can preserve stage count while wrong physical resource/usefulness; actual paid two-run and sentinel-removal controls expose.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B122@STP-01",
+      "finding_id": "B122",
+      "bundle": "STP-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "9fb880ce2c75c7770deca54b1861fb86071f57aa1e4db5e51793fcfac56b115e",
+      "P37": {
+        "original_property_predicate": "Declared objective unit/direction and tolerance max(0.01unit,0.01abs historical_best); zero/signed small/regress/progress normalization; current best preserved when next step plateau stops.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Absolute delta or signless relative improvement falsely declares plateau after real progress/regression; independent Decimal direction table and actual controller best readback discriminate.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B123@CTL-03",
+      "finding_id": "B123",
+      "bundle": "CTL-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "e38f999cb45a59fb619e7f89e35f20f752b4f0be6d279b6136de1f674b45befd",
+      "P37": {
+        "original_property_predicate": "Malformed-present typed vector/bundle resolver fails before real ObjectiveStack; genuinely absent legacy input remains valid; native best/front/history/publication consume same typed result.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Scalar fallback -/100 or positive typed marker can hide invalid-present; guard removal yields actual stack/result divergence, while absent legacy100 and typed vector/bundle JSON custody positive remain.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B124@CTL-02",
+      "finding_id": "B124",
+      "bundle": "CTL-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "dcfbad092c0072a6fb2c7094e9b53f0fa51977ab80a742ace74838785f9a1133",
+      "P37": {
+        "original_property_predicate": "Canonical semantic content/dates versus technical trace/load/JSON order/explicitreplicas reaches ordinary configured pre-evaluator dedup; exactCAS completed/pending membership binds current run/evaluator/data context.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Dedup option/helper PASS or supplied candidate-hash marker can coexist with extra actual Jan calls/date-collapse. Actual physical trace7/currenthistory4, fresh pending reader, valid retained marker registry2 and live/initialACK scope changes discriminate.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B125@CTL-02",
+      "finding_id": "B125",
+      "bundle": "CTL-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "0a36083564c7d95755126ca040b59efa5abd004855ffbaa995399a6915d6217d",
+      "P37": {
+        "original_property_predicate": "Every declared supported strategy family complete actual CAS fresh state and next proposal sequence, atomic malformed/foreign refusal and independent replica RNG.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "In-memory get/set/state marker can omit learned model/corpus/grid cursor/RNG; actual Random/Grid/RL/Bayesian/NN/MO CAS next-sequence/dense learned-state controls and marker-preserving mutation reveal.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B126@CTL-02",
+      "finding_id": "B126",
+      "bundle": "CTL-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "0054a0cfb74b77d2cfa02a6671ed1ee829854b1a9cf1cbadb05537ffa85ef532",
+      "P37": {
+        "original_property_predicate": "Supported Sobol algorithm-version logical index point identical across1+1/batch/cachefill/knownread/checkpoint; resumed independent stream preserved.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Cache list length/currentcursor labels are not point identity; explicit expected-index values and unchanged cached read/RNG compare distinguish preparation-order drift.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B127@OPT-02",
+      "finding_id": "B127",
+      "bundle": "OPT-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "0cb92c67b7ad455eb8cbb3bba8a88d7297d3ba6dd2e8ec6284edc152f670ac06",
+      "P37": {
+        "original_property_predicate": "Actual Evaluation adapter effective binary/int/category/continuous actions, relaxed alias/explicit independent replicas, complete pending/completed finite-space accounting and exhaustion.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Distinct relaxed vectors or generated requestIDs can count same effective action twice, or lose legitimate partial-last batch; actual physical integer/category and CAS cursor4 final Grid factory evaluate1..4.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B128@TRN-01",
+      "finding_id": "B128",
+      "bundle": "TRN-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "549b289852eaabc2275c031208657ce535c20cdd971105ff0e452e5f6662e5d7",
+      "P37": {
+        "original_property_predicate": "Real persisted Evaluation through ordinary bridge with accepted/rejected/unavailable reports; trueempty actualv2CAS history distinct from malformed/unsupported/nonempty.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Bridge constructor or empty initial list may pass while real serialized snapshot decoder silently emits empty; remove actual codec rows after exact resolve => invalid/unavailable/nonempty3FAIL vs trueemptyPASS.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B129@TRN-02",
+      "finding_id": "B129",
+      "bundle": "TRN-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "88b1c5aec30b187f76018f9b7e7c7b8f7aabd54e4479465a0b39a549af27c49a",
+      "P37": {
+        "original_property_predicate": "Selected exact history ArtifactRef found through native catalog>1000 addressable with discoveryNone/1/2 then all subsequent ANN forbidden; applicability before final quota.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Second ANN top-k, ordinalkeys alone or nearest replacement is not exact resolution;1002 actual registered snapshots, selectedsource exactref, freshchild26reads and same-ref altered bytes refuse.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B130@TRN-01",
+      "finding_id": "B130",
+      "bundle": "TRN-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "b70b31214ee588708f1536a62ef11dd85932c5bedf2e99e7b2d6320815ecabf3",
+      "P37": {
+        "original_property_predicate": "Declared scalar direction normalization and equal-score ordering/quota selection with freequota fill; migration scalar meaning explicit.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Sort-by-raw/incorrectquota can retain counts but invertminmax or underfill; independent tie/direction/quota table and actual transferselection consumer distinguish.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B131@TRN-01",
+      "finding_id": "B131",
+      "bundle": "TRN-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "e6742f51f48e338f3410307c69a2e42b12c6205c34d9c8c4947e784ba842b8dd",
+      "P37": {
+        "original_property_predicate": "Owner-approved source->target tenant/split/subject/basis and exact parameter/evaluation refs with declared lawful adapter; incompatible record can remain restricted idea.",
+        "positive_input_label": "not_established",
+        "owner_authority_positive_required": true,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Metadata owner/tenant labels or synthetic success do not appoint reuse rights; actual authority positive not_established despite mechanical space/conversion refusals.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B132@TRN-01",
+      "finding_id": "B132",
+      "bundle": "TRN-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "5833cd83c20ce8f2a897ab4c13b475daaabcfa4adec33cb2a1376fcba78c4fcb",
+      "P37": {
+        "original_property_predicate": "Different candidates retain exact actual qualified refs and metric-only scalar content, declared direction/holdout absence/nonpromotable through transferserialization/readback.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Placeholder ref/coordinate metric or automatic old-placeholder promotion can preserve count but corrupt actual history; exact refs/content/direction/absent-holdout controls discriminate.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B133@TRN-02",
+      "finding_id": "B133",
+      "bundle": "TRN-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "48f75c8fbb72fbc3c446e8677e4976ccc20d3f3624b34260ce20e01a26b39a3d",
+      "P37": {
+        "original_property_predicate": "Native/cold/warm exactrefs immutable snapshots, consumer mutations detached and cachecap does not hide actual addressable history; B129 exactref input.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Warm latest cache or shallow object copy may pass discovery but replayoldref drifts/mutationleaks; actual exact cold/warm/readback and same-ref tamper controls distinguish.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B134@TRN-02",
+      "finding_id": "B134",
+      "bundle": "TRN-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "36d571033f9b9e3b58f6f9f7bc93a01ed4c6e799a7791d815fa39932fd68de9d",
+      "P37": {
+        "original_property_predicate": "Single immutable index/keys/metadata/ref generation pointer published only after private native validation; actual add/load capacity/shape/C++ exceptions preserve coherent old readers.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Metadata pointer/composite valid markers can hide nativeNaN/bodycorruption or torn generation; real private loaded get_items finite, held-reader barriers and actual C++load RuntimeError retain oldquery/pointer.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B135@TRN-03",
+      "finding_id": "B135",
+      "bundle": "TRN-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "01ce84941fd8680e13557f709b04c7978d7003b2c358dcc81363e2d973aaa136",
+      "P37": {
+        "original_property_predicate": "Existing subject context decoder admits equivalent nested/serialized/explicit forms and authorized override; invalidbase addressable refusal, only unknownscope isolated fallback.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Fallbacksuccess/globalcontext label can replace invalid known subject or override silently; actual equivalent port inputs and explicit invalid/unknown controls discriminate.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B136@TRN-03",
+      "finding_id": "B136",
+      "bundle": "TRN-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "dbc583087ea526396c4d1b2b4230d2058a76565496b4bdac824060a759dee116",
+      "P37": {
+        "original_property_predicate": "Same threshold/trust/scope/source_run_id applicability before materialization on local and transferred queries, with truthful partialpolicy.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "ANN transferred hit or local miss can bypass declaredthreshold and materialize rejected evidence; actual consistentfilters/source and partial probes distinguish.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B137@TRN-03",
+      "finding_id": "B137",
+      "bundle": "TRN-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "a712c0b6eddcecf9e4b23c77fc2f4732fea66953462e3cb3bfcd4a6ed376be2f",
+      "P37": {
+        "original_property_predicate": "Evidence occurrence/creation anchor independent retention access time; real authorized newgrounds/purpose revalidation must issue newversion, restart/transfer cold/warm samefreshness.",
+        "positive_input_label": "not_established",
+        "owner_authority_positive_required": true,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Reads/last_accessed/TTL popularity can falselyrefreshconfidence; real future-asof/read/restart negatives establish isolation but owner-issued revalidation positive remains not_established.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B156@FUN-01",
+      "finding_id": "B156",
+      "bundle": "FUN-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "846c22dd69b5b1495efbaff0f982894e6e08b49e0c42e21e0f38b477aa243fa1",
+      "P37": {
+        "original_property_predicate": "Same effective originalrequest/inputversion/runstage scope admits realreuse; changed version and independent control actually execute while ordinaryattempt history immutable.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Cache class/flag or label same does not bind effective content; canonical context/content versions and physical native full/split controls discriminate.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B157@FUN-02",
+      "finding_id": "B157",
+      "bundle": "FUN-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "260d939d59a70f8f9acca08bc5386d4ac4e4070c4725b6287fd2c1a4d534444b",
+      "P37": {
+        "original_property_predicate": "Actual native sample/work artifact seed/config and unchangedcaller context establish reduced L3 cheaper versus direct/full L4 effectiveconfig/output equivalence.",
+        "positive_input_label": "not_established",
+        "owner_authority_positive_required": true,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Foundry20/80 draws or nativelabels500/64/32 do not prove actual native sample law/work; missing real producer samples/profile remains held.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B158@FUN-01",
+      "finding_id": "B158",
+      "bundle": "FUN-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "17cc0ecc4baa734906042063c70ef2cbd4394c206b868333448594ad8897fb9f",
+      "P37": {
+        "original_property_predicate": "Actual canonical permitted physical event set and durable spend/reasons match full versus split unchanged request; changedinput legitimate differingwork traced.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Scheduler stage counters or tracecost estimates can hide extra split debits; actual native provider/fullsplit receipts/freshledger and incomplete unknownACK controls discriminate.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B159@FUN-01",
+      "finding_id": "B159",
+      "bundle": "FUN-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "7c3b6b49bb03dfb2af6f56e6db82cd302fc5d9c2ae1f6e666b1ab16f11598f36",
+      "P37": {
+        "original_property_predicate": "No-new-ground retry noresource; actual authorized owned-prerequisite change rechecks remainingwork preserving lineage/spend; stable blocker remains blocked.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Unrelated spend/sameticket/stalebasis/newcall form cannot release blocker; actual owned reservation release plus unchanged physical lineage and refusal controls distinguish.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B160@FUN-02",
+      "finding_id": "B160",
+      "bundle": "FUN-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "7f3880ae72b62b26a91f8386be0ac3391e9188fb146b3ed1c757df1a7d2eafba",
+      "P37": {
+        "original_property_predicate": "Both empty configurations typedunassessed; genuine zero from actual method preserved; supported shortstage pipelines return correct outcome/status.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Zero aggregate/defaultscore under empty stages falselylooks success; actual emptyNone versus realzero JSONnull/readback/stageverdict compare discriminate.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B161@FUN-03",
+      "finding_id": "B161",
+      "bundle": "FUN-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "64bf6d3e30756d1ee3a22a8b81bc2164a41f51931333e269114da303a8fa3b78",
+      "P37": {
+        "original_property_predicate": "Authorized same value/subject/input/rule/time refinement relation identifies which estimate supersedes while independent highrisk/differentpopulation noterased.",
+        "positive_input_label": "not_established",
+        "owner_authority_positive_required": true,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Global min/last-write or laterstage label is not refinement law; actual owner-issued relation not_established, so held rather than fabricated aggregate success.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B162@FUN-02",
+      "finding_id": "B162",
+      "bundle": "FUN-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "806665be954b1b87fb1bcc5e05e2ef2779226c0558e4fa6a30cd18a680681075",
+      "P37": {
+        "original_property_predicate": "Invalid/absent/genuine-zero uncertainty width states separate, declared finite interval calculation preserved and other available stages retained.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Missing width->0 can look certain and produce successfulpublication label; actual absent/malformed/zero interval and partial aggregate controls discriminate.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B163@FUN-03",
+      "finding_id": "B163",
+      "bundle": "FUN-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "000272e0d8331087a33d20ff52c4d2a8696681b0c82513a8562f372789a48e92",
+      "P37": {
+        "original_property_predicate": "Existing public trackerinterfaces empty versus poor/correct corpus states and publicationrestriction agree; contentbound actual report snapshot→CASfreshNode→compatible reuse with unchangedprior rows.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Component tracker PASS or retained label loses native snapshot bridge; remove snapshot while metadata remains actualNode gets trackerNone, versus actual5prior+6th observation and emptyNone/observedzero controls.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B164@FUN-03",
+      "finding_id": "B164",
+      "bundle": "FUN-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "a367b70e08a3ff6f3515593c46fe2686a9c2f02532daf2c243f57613777b993e",
+      "P37": {
+        "original_property_predicate": "Existing real owner-issued typedpermit binds current run/candidate/ticketgeneration/purpose/schema/rule/provenance/time/revoke, verified atomically with effect at existingwriteowner boundary.",
+        "positive_input_label": "not_established",
+        "owner_authority_positive_required": true,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "promotion_write_allowedTrue or synthetic callback/issuer does not authority; revoke-after-preflightzeroeffects/validpersistedwrite positive requires appointedissuer/verifier absent, held bridge_missing.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B165@FUN-02",
+      "finding_id": "B165",
+      "bundle": "FUN-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "42c25e1cf8e4e9d84ab45a3cb8577b7c2d5d6791112006c30aa15b6d3ce7127e",
+      "P37": {
+        "original_property_predicate": "Same actual finalstage outcome with/without optional intermediateverdict yields same aggregate state/real score/noauthorityincrease through actual downstream consumer.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Convenient stagefield selection can report positive final action over rejectedaggregate; actual stage/aggregate final result and missingoptionalverdict controls distinguish.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "B41@STP-01",
+      "finding_id": "B41",
+      "bundle": "STP-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "4a76b7b1923f16245bdc19a10b05570aa47c2ca063e8e1a2faf3eb0112576937",
+      "P37": {
+        "original_property_predicate": "Actual current declared modelID/version and finite embeddingcoordinate, dimension/freshness basis before bounded semantic convergence; twofresh recovery observations required.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Stale previousembedding, absentprovenance marker or bool/nonfinitecurrentvector can masquerade equal;12metadata/4numeric removal FAIL versus genuinevalid currentvectors and alias profile controls distinguish; conditional deployed caller separate.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "LA-014@SRV-01",
+      "finding_id": "LA-014",
+      "bundle": "SRV-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "a94d827f2038968fc442e5801bf48f5a675dcacfb375b927e2de05cc541665fd",
+      "P37": {
+        "original_property_predicate": "Contract-only import lazy; literal actual Legacy ask/tell/run_search/unknownduplicateIDs and native typed/frontier/freshrestored state retain semantic compatibility.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Contract import/tellcount or inherited native driver alone is not literallegacyrun_search; actualb652aliasrun withdetachedpriorTellResult plus actualnative service/publicfactory/CASfresh resumes discriminate.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "LA-015@CTL-01",
+      "finding_id": "LA-015",
+      "bundle": "CTL-01",
+      "role": "supplier_companion_only",
+      "original_acceptance_sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8",
+      "P37": {
+        "original_property_predicate": "Native new/resumed/stopped/empty/failed/warm/sentinel lifecycles, real pendinggenerator/history/finalfrontier and rollback/readers/cutover subjects agree.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Same iterationcount/protocolpresence can hide wrong subject/oldcursor/droppedhistory; actualfactory freshCAS pending/fullhistory/cursorremoval and failure/boundedrollback controls distinguish. CTL-01 onlysuppliercompanion.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    },
+    {
+      "occurrence_id": "LA-015@SRV-03",
+      "finding_id": "LA-015",
+      "bundle": "SRV-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8",
+      "P37": {
+        "original_property_predicate": "Native new/resumed/stopped/empty/failed/warm/sentinel lifecycles, real pendinggenerator/history/finalfrontier and rollback/readers/cutover subjects agree.",
+        "positive_input_label": "recomputed_and_consumer_asserted_in_named_source_qualified_receipts",
+        "owner_authority_positive_required": false,
+        "source_rule": "Current frozen source/caller gate requires exactsource+complete deciding output and independent review; counts/marker-only PASS insufficient. B111/B124 remain ownedopen until final actual checks."
+      },
+      "P38": {
+        "divergent_proxy_and_falsifier": "Same iterationcount/protocolpresence can hide wrong subject/oldcursor/droppedhistory; actualfactory freshCAS pending/fullhistory/cursorremoval and failure/boundedrollback controls distinguish. CTL-01 onlysuppliercompanion.",
+        "negative_result_rule": "Record actual protected-effect/numerical assertion outcome; setupERROR/SKIP/UNRUN not substitute."
+      }
+    }
+  ],
+  "formal_G_closed": 0,
+  "accepted_in_G": false
+}

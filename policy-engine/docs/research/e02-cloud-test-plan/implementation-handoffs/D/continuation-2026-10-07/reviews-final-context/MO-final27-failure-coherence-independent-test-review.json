@@ -1,0 +1,29 @@
+{
+  "schema": "e02.D.independent.draft-review-delta.v1",
+  "reviewer": "census_oct07",
+  "status": "GO_MO27_FAILURE_COHERENCE_TEST_RUNTIME_PENDING",
+  "previous26_AST_unchanged": true,
+  "artifacts": [
+    {
+      "path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/test_mo_checkpoint.failure-coherent.final.patch",
+      "bytes": 20855,
+      "sha256": "8aa88aed79d80306ba0ade7b9e06a911069e97a0a679ea641570cd46f2908d46"
+    },
+    {
+      "path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/test_mo_checkpoint.failure-coherent.final.py",
+      "bytes": 20224,
+      "sha256": "09da631e0ae044d02eea10335abb1f3aed64348d95a5e3d5977185a5b921a7bf"
+    }
+  ],
+  "test_predicate": "Genuine native8row ModelListGP/EHVI fitted and actualCASsaved; declared derivedreference changes under real ninthcontrolledobservation. Injectedfit failure beforemodelpublication invokes actualpublic randomfallback; actualCAS/freshstore checkpoint must retain oldfittedtrainX/Y/ref/fullweights with logicalhistoryiteration9. Freshreceiverrestore0MLL/ambientunchanged; independent original8row per-component NumPy posteriorfullcovariance compares; subsequent live+fresh real9row nativeEHVI match and two realMLLfits.",
+  "P37": "Publish coherent fitted model/corpus/reference together, preserve last usable model under owned failure, truthful logical observation cursor distinct from fittedcorpus. Actual fresh receiver can use oldfittednumerics then recover on realnextask.",
+  "P38": "Changing derivedreference before failed fit while old learnedmodel/corpus remains makes actual persisted receiver incoherent even if each marker/field finite; control asserts rawcorpus/ref/weights and independent posterior, notjustserializedstateexists.",
+  "fault_classification": "Controlled native-refit boundary RuntimeError is negative failure injection. Positive initial/recovery model/MLL/EHVI calls execute actual backend; no fake model used as numerical witness.",
+  "production_owner_review": "Math independent atomic model/corpus/reference publication widening review separate; root sole source apply.",
+  "limitations": [
+    "Static GO only; actualimmutable native27 execution required before closure proposal.",
+    "No nativemodel quality/production evaluator authority or genericGPpolicy change.",
+    "Original26 remain exact reviewed semantics; no silent rewrite of originalcriterialaw.",
+    "G acceptance=false."
+  ]
+}

@@ -1,0 +1,540 @@
+{
+  "schema": "D.e02.B111.B124.final969.actual-native-and-four-removal-independent-review.v1",
+  "reviewer": "/root/census_oct07",
+  "created_utc": "2026-10-07T10:45:50.397190+00:00",
+  "decision": "GO_MATCHED_B111_B124_ORIGINAL_ENGINEERING_CRITERION_CLOSED_PROPOSALS_WITH_SCOPED_PRIOR_NUMERICAL_GUARDS",
+  "source": "96905636726483fdea3a98d9313871d825b54a9e",
+  "tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "positive_scopes_separate": [
+    {
+      "scope": "dedup",
+      "counts": {
+        "PASS": 48,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_sha256": "316cb3555f039ffb2fe12b04c9e610832040c86b735677a11985589e445bd88c",
+      "stdout_sha256": "f5eab7157e2ebd84432467e8508579c5ccd1651f38b744087dd1b5e658bdeaed",
+      "junit_sha256": "4cb203de5f7adce4f0dc1f609286f6ef37c9bedab04eea6795cb7ceeaf2b304a",
+      "seconds": 41.597796885995194,
+      "backend": "Actual native SearchLoopRunner/NativeSearchService/qualified FileSystemCAS/ChampionRegistry; actual supported typed mutation/evaluator/data-context profiles and physical invocation counts. No scientific law, appointed production caller, external identity migration or distributed atomicity inferred. Actual Torch/SALib only in native DOE cohort; provider fixtures are not invoice truth."
+    },
+    {
+      "scope": "service",
+      "counts": {
+        "PASS": 41,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_sha256": "685737ba7a8c01b9b7c326765d86bf5bc8de879440604fb74b7d8f5fc87c430d",
+      "stdout_sha256": "c8185fea219beab0693a272c06abf4f96844196d89f0ce4043a5464717d1b599",
+      "junit_sha256": "dc21afc250d1bf601ff8a38ebe85d8674b835d1f1be5775b12d83b4b70eb6184",
+      "seconds": 88.85287209399394,
+      "backend": "Actual native SearchLoopRunner/NativeSearchService/qualified FileSystemCAS/ChampionRegistry; actual supported typed mutation/evaluator/data-context profiles and physical invocation counts. No scientific law, appointed production caller, external identity migration or distributed atomicity inferred. Actual Torch/SALib only in native DOE cohort; provider fixtures are not invoice truth."
+    },
+    {
+      "scope": "champion",
+      "counts": {
+        "PASS": 44,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_sha256": "29c50960915278dd5ba9aaba3eca53c4028808d78b1c189bbbe50d8d90bfb1dc",
+      "stdout_sha256": "0731d6c4644e527dadb5d8693e3eaec9554ea882238b730c862b9aba7dbdaa31",
+      "junit_sha256": "6d399a81dbe973ffdb728a817a8f78957f6cf8fedaca602991ee50b91f16a6a3",
+      "seconds": 22.9915505219833,
+      "backend": "Actual native SearchLoopRunner/NativeSearchService/qualified FileSystemCAS/ChampionRegistry; actual supported typed mutation/evaluator/data-context profiles and physical invocation counts. No scientific law, appointed production caller, external identity migration or distributed atomicity inferred. Actual Torch/SALib only in native DOE cohort; provider fixtures are not invoice truth."
+    },
+    {
+      "scope": "paid-original",
+      "counts": {
+        "PASS": 2,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_sha256": "b61a1d1c114d674a462678fb137bc54ee266a1523a7634acec88a19229ce4b18",
+      "stdout_sha256": "8915700fe3adc1264652f38024f642d42a0322ebd6d06fd93efbc1187844e217",
+      "junit_sha256": "e0af50f026ab00686a3df4e8421ff7c796da784328070bce2632e764c3af54b9",
+      "seconds": 6.664492327981861,
+      "backend": "Actual native SearchLoopRunner/NativeSearchService/qualified FileSystemCAS/ChampionRegistry; actual supported typed mutation/evaluator/data-context profiles and physical invocation counts. No scientific law, appointed production caller, external identity migration or distributed atomicity inferred. Actual Torch/SALib only in native DOE cohort; provider fixtures are not invoice truth."
+    },
+    {
+      "scope": "native-doe",
+      "counts": {
+        "PASS": 13,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_sha256": "7867db037d0c4f4cb3d4d6b36841865f196fc50f8a1b2630adaf18232377cc9c",
+      "stdout_sha256": "5bd9d1643dca7c5aeac4582f1520f42e0b833337e49e562ac3884e807ff335ae",
+      "junit_sha256": "cc26cc53ec3a66474c3db6f74d1e30a4e2e32715bd2931385dd2b7511413fb64",
+      "seconds": 23.800183808984002,
+      "backend": "Actual native SearchLoopRunner/NativeSearchService/qualified FileSystemCAS/ChampionRegistry; actual supported typed mutation/evaluator/data-context profiles and physical invocation counts. No scientific law, appointed production caller, external identity migration or distributed atomicity inferred. Actual Torch/SALib only in native DOE cohort; provider fixtures are not invoice truth."
+    },
+    {
+      "scope": "contracts",
+      "counts": {
+        "PASS": 2,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_sha256": "3ba3c2aa88b4bfc1b61b3c3cdb1e2734f9d7e2460e36475325bb23883749847f",
+      "stdout_sha256": "7bc2169d07821287dde240d19f84c5826791e1e50c74e97827f5702163ad2877",
+      "junit_sha256": "faf53407ab4abfb6491082c2de9bcbb77bfe0f65222d57cb9cdb39e9377c5926",
+      "seconds": 6.795396675996017,
+      "backend": "Actual native SearchLoopRunner/NativeSearchService/qualified FileSystemCAS/ChampionRegistry; actual supported typed mutation/evaluator/data-context profiles and physical invocation counts. No scientific law, appointed production caller, external identity migration or distributed atomicity inferred. Actual Torch/SALib only in native DOE cohort; provider fixtures are not invoice truth."
+    }
+  ],
+  "full_tracked_census": {
+    "members": 15927,
+    "available_hashes_independently_read": 8858,
+    "sparse_unavailable": 7069,
+    "before_after_manifest_sha256": "9547da0175ec32a6502c98e95c298cc99f99536f43bc228fdc843448670e764d",
+    "not_P41": true
+  },
+  "actual_positive_records": 26,
+  "raw_verified_qualified_CAS_records": [
+    {
+      "ref": {
+        "artifact_id": "sha256:aaa59eccfc7d17306c3649e3d6df3551a656b46279600994247239b6654731e3",
+        "kind": "scientist.autotune.dedup.evaluation",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:9751b526eb9778ccf3c644fb7224027c584c89d4a4d8307ef8c259ab16ede49e"
+      },
+      "raw_path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures/test_actual_native_primary_qua0/cas/artifacts/sha256/aa/a5/aaa59eccfc7d17306c3649e3d6df3551a656b46279600994247239b6654731e3.blob",
+      "bytes": 1125,
+      "sha256": "aaa59eccfc7d17306c3649e3d6df3551a656b46279600994247239b6654731e3",
+      "manifest_view_sha256": "8747a8c5950a6a20ae5ce5efd42f3334a2493aba3ee9f4d579926176b8746540"
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:ea2f89bd265b6ba59278eb40764cf02bb153da3dff4bb168be06b3a16c0130ef",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "raw_path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures/test_actual_native_primary_qua0/cas/artifacts/sha256/ea/2f/ea2f89bd265b6ba59278eb40764cf02bb153da3dff4bb168be06b3a16c0130ef.blob",
+      "bytes": 8168,
+      "sha256": "ea2f89bd265b6ba59278eb40764cf02bb153da3dff4bb168be06b3a16c0130ef",
+      "manifest_view_sha256": "3a40c3c21a0e2eece06448b6c237e52187652c0e5c6d5c1d29e7191d66af7731"
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:570376eba031ffb5915cd8b13d9d23fd880bb33d51c8556b6eba0548c5cb6df7",
+        "kind": "scientist.autotune.dedup.evaluation",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:9751b526eb9778ccf3c644fb7224027c584c89d4a4d8307ef8c259ab16ede49e"
+      },
+      "raw_path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures/test_actual_native_primary_qua1/cas/artifacts/sha256/57/03/570376eba031ffb5915cd8b13d9d23fd880bb33d51c8556b6eba0548c5cb6df7.blob",
+      "bytes": 1164,
+      "sha256": "570376eba031ffb5915cd8b13d9d23fd880bb33d51c8556b6eba0548c5cb6df7",
+      "manifest_view_sha256": "59ac23853544d49517739985c935d15d932627184c690579c64cab6142d31a24"
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:ab5fbf0ce6c429eea776f9225d75926a0930a3299d023ad7fa4ff894751e5489",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "raw_path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures/test_actual_native_primary_qua1/cas/artifacts/sha256/ab/5f/ab5fbf0ce6c429eea776f9225d75926a0930a3299d023ad7fa4ff894751e5489.blob",
+      "bytes": 8187,
+      "sha256": "ab5fbf0ce6c429eea776f9225d75926a0930a3299d023ad7fa4ff894751e5489",
+      "manifest_view_sha256": "db99dadaa1cacf78b275158d11b4e4376375a28634156db7656ccbc8429dab11"
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:ddcb676fb3953809f628133a1a710018fad565245c525ec99c5a9f4e687624d2",
+        "kind": "scientist.autotune.dedup.evaluation",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:a4bcdd31236962e4b2aabf9d15b0700068e5082569e5b99dbab17991433e489d"
+      },
+      "raw_path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures/test_actual_native_primary_qua2/cas/artifacts/sha256/dd/cb/ddcb676fb3953809f628133a1a710018fad565245c525ec99c5a9f4e687624d2.blob",
+      "bytes": 1161,
+      "sha256": "ddcb676fb3953809f628133a1a710018fad565245c525ec99c5a9f4e687624d2",
+      "manifest_view_sha256": "f0919e7cb50b77f5eb634318bcdbc7ec2a22d35307e8084e1ec756d8ced61e32"
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:3e35503701d0bd797d93cd63a29ef7821bde3cae407fe66a21ad0883a7a53e6b",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "raw_path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures/test_actual_native_primary_qua2/cas/artifacts/sha256/3e/35/3e35503701d0bd797d93cd63a29ef7821bde3cae407fe66a21ad0883a7a53e6b.blob",
+      "bytes": 10610,
+      "sha256": "3e35503701d0bd797d93cd63a29ef7821bde3cae407fe66a21ad0883a7a53e6b",
+      "manifest_view_sha256": "db373017426db95597bc5baf5902ad66070ef9fcc1134d75a3cc9b0a53397684"
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:33be39dd3da9a849f879cd2bf532c36de145d17d8a84c50a4d2092ed8d4e2086",
+        "kind": "scientist.autotune.dedup.evaluation",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:9751b526eb9778ccf3c644fb7224027c584c89d4a4d8307ef8c259ab16ede49e"
+      },
+      "raw_path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures/test_native_dedup_uses_actual_0/cas/artifacts/sha256/33/be/33be39dd3da9a849f879cd2bf532c36de145d17d8a84c50a4d2092ed8d4e2086.blob",
+      "bytes": 1161,
+      "sha256": "33be39dd3da9a849f879cd2bf532c36de145d17d8a84c50a4d2092ed8d4e2086",
+      "manifest_view_sha256": "03c9173cbefa90551ed1ff2b22fadab8c3addeb42203841a182fdb3a5cbed2c8"
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:054db73f256e36afa197a254a74f7c3bc786d5ee0bd8d0ec1e48aaf79fab4211",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "raw_path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures/test_actual_native_primary_qua3/cas/artifacts/sha256/05/4d/054db73f256e36afa197a254a74f7c3bc786d5ee0bd8d0ec1e48aaf79fab4211.blob",
+      "bytes": 10604,
+      "sha256": "054db73f256e36afa197a254a74f7c3bc786d5ee0bd8d0ec1e48aaf79fab4211",
+      "manifest_view_sha256": "5d6f8672d4a581c8771f4093756328c5163263e9796778f024336fc5eadc5a9f"
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:2a7add26165389bc06e5aead7f05b1d40a1ca3e01a6e880982b777ae5729d9ac",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "raw_path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures/test_live_evaluator_configurat0/cas/artifacts/sha256/2a/7a/2a7add26165389bc06e5aead7f05b1d40a1ca3e01a6e880982b777ae5729d9ac.blob",
+      "bytes": 12211,
+      "sha256": "2a7add26165389bc06e5aead7f05b1d40a1ca3e01a6e880982b777ae5729d9ac",
+      "manifest_view_sha256": "4b6d83d97053a3b1eb8f8f8388c34fdf84b37e7d24bd9f1d98c89d32ce0eadd9"
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:7ed3fd4ffcf67f17324a877cdde078235b205d8f7c5b3fca44b0d8deb733d876",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "raw_path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures/test_live_evaluator_configurat1/cas/artifacts/sha256/7e/d3/7ed3fd4ffcf67f17324a877cdde078235b205d8f7c5b3fca44b0d8deb733d876.blob",
+      "bytes": 12557,
+      "sha256": "7ed3fd4ffcf67f17324a877cdde078235b205d8f7c5b3fca44b0d8deb733d876",
+      "manifest_view_sha256": "d10df294f74704e0a71e0dbbae73726be7902d73ec74b75d9e03ef2146b89906"
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:2499e87da834bc72e921390366c346152a6c030611f67a502d65583ad2bf32f0",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "raw_path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures/test_live_evaluator_configurat2/cas/artifacts/sha256/24/99/2499e87da834bc72e921390366c346152a6c030611f67a502d65583ad2bf32f0.blob",
+      "bytes": 12211,
+      "sha256": "2499e87da834bc72e921390366c346152a6c030611f67a502d65583ad2bf32f0",
+      "manifest_view_sha256": "211bdf794eb61f6cc1e43bc91d6be1ad95a85cb0a0ef88d3d0e013f9dd30d15f"
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:e523a672046f7ba1670c229c9c781c7bbd94a49ab0114c23a30ada97f5548a95",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "raw_path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures/test_live_evaluator_configurat3/cas/artifacts/sha256/e5/23/e523a672046f7ba1670c229c9c781c7bbd94a49ab0114c23a30ada97f5548a95.blob",
+      "bytes": 12557,
+      "sha256": "e523a672046f7ba1670c229c9c781c7bbd94a49ab0114c23a30ada97f5548a95",
+      "manifest_view_sha256": "36e2db4e2bec4d64a17f563a2faaa83db9d07f30c2fa4507c264108d6e2848e6"
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:3e687fe2a894baf07697d2b7f51639fe9c99c3446d52ee3b2ccf5151282a27f6",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "raw_path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures/test_nested_context_alias_cann0/cas/artifacts/sha256/3e/68/3e687fe2a894baf07697d2b7f51639fe9c99c3446d52ee3b2ccf5151282a27f6.blob",
+      "bytes": 7816,
+      "sha256": "3e687fe2a894baf07697d2b7f51639fe9c99c3446d52ee3b2ccf5151282a27f6",
+      "manifest_view_sha256": "df6c70e576f0ac3350c9ff94ac34897b91063454e4bfb6fb6ca7db477036165a"
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:48e49ad69b9c82476b8531e24baa238c0ba0a7014f16d0944e5fc3c468c90d28",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "raw_path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures/test_nested_context_alias_cann1/cas/artifacts/sha256/48/e4/48e49ad69b9c82476b8531e24baa238c0ba0a7014f16d0944e5fc3c468c90d28.blob",
+      "bytes": 7816,
+      "sha256": "48e49ad69b9c82476b8531e24baa238c0ba0a7014f16d0944e5fc3c468c90d28",
+      "manifest_view_sha256": "f0deec70fdb8bb38fcc4e9d2ae48cdd783ca1eb9d6d42bba655782b545ba6c5e"
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:f11b9d29cb58e3f98382812e843220980ccddd236d9a7740f700b0a91c7e22d6",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "raw_path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures/test_nested_context_alias_cann2/cas/artifacts/sha256/f1/1b/f11b9d29cb58e3f98382812e843220980ccddd236d9a7740f700b0a91c7e22d6.blob",
+      "bytes": 7816,
+      "sha256": "f11b9d29cb58e3f98382812e843220980ccddd236d9a7740f700b0a91c7e22d6",
+      "manifest_view_sha256": "966fc1a4b123eb83e1f31f16f73eb47dda3989b0161190cf9318205e2c5f92c7"
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:85cd14746aff51a80dce966676f0f0d8f7560000a8ecf1320d4af517a686ca74",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "raw_path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures/test_nested_context_alias_cann3/cas/artifacts/sha256/85/cd/85cd14746aff51a80dce966676f0f0d8f7560000a8ecf1320d4af517a686ca74.blob",
+      "bytes": 7816,
+      "sha256": "85cd14746aff51a80dce966676f0f0d8f7560000a8ecf1320d4af517a686ca74",
+      "manifest_view_sha256": "06c01ad7f61281bc0516d5dff98c50002a912a3e0b64a568c06fe5971f0a7cd0"
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:823dfc328eed64cbca953f6d119926ae309358dd8bd6723d42f86790f69e66d2",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "raw_path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures/test_explicit_new_run_admits_n0/cas/artifacts/sha256/82/3d/823dfc328eed64cbca953f6d119926ae309358dd8bd6723d42f86790f69e66d2.blob",
+      "bytes": 12269,
+      "sha256": "823dfc328eed64cbca953f6d119926ae309358dd8bd6723d42f86790f69e66d2",
+      "manifest_view_sha256": "23146aa07f03b3c990ceb08f9c829bc34a5b747fc66065992cf7263b5d3ca6d2"
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:7b20d48701d109fbbdb3d73876c0b31dd0ddcbcea824d91886f73b79a13bd16c",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "raw_path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures/test_explicit_new_run_admits_n0/cas/artifacts/sha256/7b/20/7b20d48701d109fbbdb3d73876c0b31dd0ddcbcea824d91886f73b79a13bd16c.blob",
+      "bytes": 13390,
+      "sha256": "7b20d48701d109fbbdb3d73876c0b31dd0ddcbcea824d91886f73b79a13bd16c",
+      "manifest_view_sha256": "56f743fd8a96e70b9c4b30db43a66237b97ee14d84e06653c0010784ff8e28c9"
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:d0775aacdb095aea5b29c19e2344c514a4f08174f2f20aa766d600dec6f19f06",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "raw_path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures/test_proposal_failure_after_in0/cas/artifacts/sha256/d0/77/d0775aacdb095aea5b29c19e2344c514a4f08174f2f20aa766d600dec6f19f06.blob",
+      "bytes": 7311,
+      "sha256": "d0775aacdb095aea5b29c19e2344c514a4f08174f2f20aa766d600dec6f19f06",
+      "manifest_view_sha256": "b73ee73b332d9fd67c8b47b0c5daf7efec0eee252a55d9aabfd7fd9a82de3214"
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:a3bb9dc18fb02525f5a55e623e7f661b6ce5651c13aca1ff1e645f3dcc51497b",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "raw_path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures/test_shared_helper_membership_0/cas/artifacts/sha256/a3/bb/a3bb9dc18fb02525f5a55e623e7f661b6ce5651c13aca1ff1e645f3dcc51497b.blob",
+      "bytes": 12199,
+      "sha256": "a3bb9dc18fb02525f5a55e623e7f661b6ce5651c13aca1ff1e645f3dcc51497b",
+      "manifest_view_sha256": "04fc5a4f8c28e4511380161377a64725780b4a77f582193f5f9e7709424531b1"
+    },
+    {
+      "ref": {
+        "artifact_id": "sha256:958e26b35523bcc16c140412f9a171b25e72e78772823720520429e79fdd2a57",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "raw_path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures/test_shared_helper_membership_0/cas/artifacts/sha256/95/8e/958e26b35523bcc16c140412f9a171b25e72e78772823720520429e79fdd2a57.blob",
+      "bytes": 6473,
+      "sha256": "958e26b35523bcc16c140412f9a171b25e72e78772823720520429e79fdd2a57",
+      "manifest_view_sha256": "f56673f6b49fda48c59f6663fbbe349c05214191ceaa51ee2de950def4b38a64"
+    }
+  ],
+  "independent_primary_quantity_oracle": [
+    {
+      "profile": "missing",
+      "actual_metrics": {},
+      "persisted_primary": null,
+      "objective_class": "NaN_unavailable",
+      "promising": false,
+      "best_candidate_present": false,
+      "front_count": 0,
+      "assessment": {
+        "status": "unavailable",
+        "metric": "score",
+        "split": "holdout",
+        "direction": "maximize",
+        "unit": "points",
+        "reason": "primary_metric_missing"
+      }
+    },
+    {
+      "profile": "status_not_ok",
+      "actual_metrics": {
+        "score": 1.0
+      },
+      "persisted_primary": null,
+      "objective_class": "NaN_unavailable",
+      "promising": false,
+      "best_candidate_present": false,
+      "front_count": 0,
+      "assessment": {
+        "status": "unavailable",
+        "metric": "score",
+        "split": "holdout",
+        "direction": "maximize",
+        "unit": "points",
+        "reason": "evaluation_status_not_comparable"
+      }
+    },
+    {
+      "profile": "genuine_zero",
+      "actual_metrics": {
+        "score": 0.0
+      },
+      "persisted_primary": 0.0,
+      "objective_class": "0.0",
+      "promising": true,
+      "best_candidate_present": true,
+      "front_count": 1,
+      "assessment": {
+        "status": "available",
+        "metric": "score",
+        "split": "holdout",
+        "direction": "maximize",
+        "unit": "points",
+        "reason": null
+      }
+    },
+    {
+      "profile": "ordinary_one",
+      "actual_metrics": {
+        "score": 1.0
+      },
+      "persisted_primary": 1.0,
+      "objective_class": "-1.0",
+      "promising": true,
+      "best_candidate_present": true,
+      "front_count": 1,
+      "assessment": {
+        "status": "available",
+        "metric": "score",
+        "split": "holdout",
+        "direction": "maximize",
+        "unit": "points",
+        "reason": null
+      }
+    }
+  ],
+  "actual_custody_and_scope_checks": [
+    "Real7call physicaltrace/history4 retains semantic Jan/Feb and independentreplicas; fresh separate process resumes exact pendingRef with4realcalls/3records, no fake cachedEvaluation.",
+    "Real unassessed/error/unknown/completed outcome stays eligible for realnextmeasurement; finite nonpromotable measuredok is not missing and admitsdedup.",
+    "Returned validhashmarker preserved all3history/fullIDs while actualfreshregistry2 retains differentdate; JSON/technicaldates canonical equivalence doesnottriggernewmeasurement.",
+    "Eight public ask/tell/checkpoint/resumepending liveevaluator/nestedcontext drifts refuse under oldqualifiedCAS basis, no extraeffect. Explicitnewrun admitsnewscale and keepsoldcheckpointbytes.",
+    "Initial acknowledgedemptycheckpoint survives realproposalexception withpublicationfence and actualfreshsamebasis restore/evaluate; equal-config A/B sharedcanonicalhelper actual barrier runIDs remainisolated."
+  ],
+  "removal_scopes_separate": [
+    {
+      "scope": "remove_run_scope",
+      "counts": {
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_sha256": "35164a80b9c92e4b85f6c7083c21b3275e64a77267f5bc524b096d6eda886b5c",
+      "junit_sha256": "c0ec7ee422a4d3e40358300c5ff0db9b43906e8558cb08d0dfdf2e113ebbd884",
+      "observations": 2,
+      "actual_divergence": {
+        "actual_calls": [
+          1,
+          1,
+          1
+        ],
+        "actual_history_count": 2
+      }
+    },
+    {
+      "scope": "remove_trial_lookup",
+      "counts": {
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_sha256": "aff6a4c74d448d46124d77920e9a3a98df6e1465886c51cf9fd3cbcbe1e11dfd",
+      "junit_sha256": "3e7a72ae4daf8321471c3d4d9bf09f50dc51f134dfcaeb1051507ca4364862be",
+      "observations": 1,
+      "actual_divergence": {
+        "actual_calls": [
+          1,
+          1,
+          1,
+          2,
+          1,
+          2,
+          2
+        ],
+        "actual_history_count": 4
+      }
+    },
+    {
+      "scope": "replace_nullable_primary_zero",
+      "counts": {
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_sha256": "92fd3e156935d6a556a5e179d944b2556422e51bf394ce768b85b9d46ba2b428",
+      "junit_sha256": "6521822dac5f850c51c17ec54740a7eee28b147398463044e39cb7536c87c9a8",
+      "observations": 1,
+      "actual_divergence": {
+        "actual_primary": 0.0,
+        "actual_assessment": {
+          "direction": "maximize",
+          "metric": "score",
+          "reason": "primary_metric_missing",
+          "split": "holdout",
+          "status": "unavailable",
+          "unit": "points"
+        },
+        "actual_best": 0.0,
+        "actual_front_count": 1
+      }
+    },
+    {
+      "scope": "restore_marker_override",
+      "counts": {
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_sha256": "54f6a5c3244bcdf55220d9fd0dc53d22f051c25f03b408bc99cae59ce8a1fe31",
+      "junit_sha256": "f0d2d3178343fa7330a9c5e5c23464265c59bd9abfe6e39bd1070a956aa40ccf",
+      "observations": 1,
+      "actual_divergence": {
+        "actual_fresh_subjects": 1,
+        "actual_history_count": 3
+      }
+    }
+  ],
+  "capture_addendum": "Original removal observation parser expected column0; corrected extraction reads marker after pytest testpath in unchanged complete stdout. Independently parsed marker anywhere, verified real persisted output; original receipts preserved, no rerun/outcome relabelling.",
+  "original_B111_join": "Original scalar/front/referencefinite-or-unavailable/CASgenesis/champion predicate: current actualnative missing/errorevaluation retainsNone/NaN unsatisfied/nonpromising and no best/front/champion; genuinezero/one admitted. Join exact historical/c0 numerical permutation/front/reference/hypervolume guards, currentChampion44 and sourcequalified unchanged quantity AST/test receipts; positiveunderflow separateclass.",
+  "original_B124_join": "Original semantic dates/content/trace-only/JSONorder normaldedup andreplicas: currentordinary nativeproducer/artifact/bridge/preevaluatorconsumer physicaltrace/CASfreshreadback plus validmarkernegative, scopedmembership/currentbasis and explicitrunboundary. No unsupported scientificreplicaindependence or distributedsame-runwriter guarantee.",
+  "P37": "Actualpositive profiledata/typedmutation/qualifiedCAS/currentack/recordedrun/evaluator configuration admitted before predicates; no markers-only inference.",
+  "P38": "Fourremovals cause actual extra physicalmeasurement, freshdated registrycollapse, scalarfalsezero best/front and crossrunreset repeatedmeasurement under retained source/assessment/ACK markers.",
+  "checks_vs_findings": "48/41/44/2/13/2 positive checks are separate scopes, overlapping; four1FAIL expectedcounterfactuals, not productFAIL/wholeDsum. Closedproposal pending root finalledger/Gformal decision.",
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "limitations": [
+    "Native boundeddeclared typedmutation/evaluator/datacontext profile only; no appointed deployed/defaultproduction authority or invoice truth",
+    "LocalPOSIX/CAS source/consumer property only, no distributed/powerloss guarantee",
+    "Missing held scientificlaw/issuer inputs remain their exact ownerpackets; neighboringcapability not substituted for originalcriterion",
+    "Oldb652nativezero and oldliveconfiguration failures preserved; no inherited-red waiver/P41"
+  ]
+}

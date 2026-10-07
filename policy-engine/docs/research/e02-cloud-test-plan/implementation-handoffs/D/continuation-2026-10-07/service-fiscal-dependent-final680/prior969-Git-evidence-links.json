@@ -1,0 +1,83 @@
+{
+  "immutable_old_test_source": "96905636726483fdea3a98d9313871d825b54a9e",
+  "successor_implementation": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "old_receipt_pack": {
+    "git_handoff_root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969",
+    "copied_root_manifest_sha256": "a2d7bb13205de36448e0937f29f97748e173c3ed66ae0f623a86b0f9d23eeec4",
+    "source_of_transferred_outputs": "All old full output bytes and frozen denominator are already preserved in the separate declared969 packet; no ignored scratch-only input is required after root receipt publication."
+  },
+  "old_output_mapping": [
+    {
+      "cohort": "dedup",
+      "check_result_source": "96905636726483fdea3a98d9313871d825b54a9e",
+      "receipt_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/dedup.receipt.json",
+      "receipt_sha256": "316cb3555f039ffb2fe12b04c9e610832040c86b735677a11985589e445bd88c",
+      "output_git_paths": {
+        "stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/dedup.stdout.txt",
+        "stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/dedup.stderr.txt",
+        "junit.xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/dedup.junit.xml"
+      },
+      "qualification": "old output retained and producer/property branch qualified; this record is NOT a new execution or new PASS on the successor source"
+    },
+    {
+      "cohort": "service",
+      "check_result_source": "96905636726483fdea3a98d9313871d825b54a9e",
+      "receipt_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/service.receipt.json",
+      "receipt_sha256": "685737ba7a8c01b9b7c326765d86bf5bc8de879440604fb74b7d8f5fc87c430d",
+      "output_git_paths": {
+        "stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/service.stdout.txt",
+        "stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/service.stderr.txt",
+        "junit.xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/service.junit.xml"
+      },
+      "qualification": "old output retained and producer/property branch qualified; this record is NOT a new execution or new PASS on the successor source"
+    },
+    {
+      "cohort": "champion",
+      "check_result_source": "96905636726483fdea3a98d9313871d825b54a9e",
+      "receipt_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/champion.receipt.json",
+      "receipt_sha256": "29c50960915278dd5ba9aaba3eca53c4028808d78b1c189bbbe50d8d90bfb1dc",
+      "output_git_paths": {
+        "stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/champion.stdout.txt",
+        "stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/champion.stderr.txt",
+        "junit.xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/champion.junit.xml"
+      },
+      "qualification": "old output retained and producer/property branch qualified; this record is NOT a new execution or new PASS on the successor source"
+    },
+    {
+      "cohort": "paid-original",
+      "check_result_source": "96905636726483fdea3a98d9313871d825b54a9e",
+      "receipt_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/paid-original.receipt.json",
+      "receipt_sha256": "b61a1d1c114d674a462678fb137bc54ee266a1523a7634acec88a19229ce4b18",
+      "output_git_paths": {
+        "stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/paid-original.stdout.txt",
+        "stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/paid-original.stderr.txt",
+        "junit.xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/paid-original.junit.xml"
+      },
+      "qualification": "old output retained and producer/property branch qualified; this record is NOT a new execution or new PASS on the successor source"
+    },
+    {
+      "cohort": "native-doe",
+      "check_result_source": "96905636726483fdea3a98d9313871d825b54a9e",
+      "receipt_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/native-doe.receipt.json",
+      "receipt_sha256": "7867db037d0c4f4cb3d4d6b36841865f196fc50f8a1b2630adaf18232377cc9c",
+      "output_git_paths": {
+        "stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/native-doe.stdout.txt",
+        "stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/native-doe.stderr.txt",
+        "junit.xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/native-doe.junit.xml"
+      },
+      "qualification": "old output retained and producer/property branch qualified; this record is NOT a new execution or new PASS on the successor source"
+    },
+    {
+      "cohort": "contracts",
+      "check_result_source": "96905636726483fdea3a98d9313871d825b54a9e",
+      "receipt_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/contracts.receipt.json",
+      "receipt_sha256": "3ba3c2aa88b4bfc1b61b3c3cdb1e2734f9d7e2460e36475325bb23883749847f",
+      "output_git_paths": {
+        "stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/contracts.stdout.txt",
+        "stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/contracts.stderr.txt",
+        "junit.xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/contracts.junit.xml"
+      },
+      "qualification": "old output retained and producer/property branch qualified; this record is NOT a new execution or new PASS on the successor source"
+    }
+  ]
+}

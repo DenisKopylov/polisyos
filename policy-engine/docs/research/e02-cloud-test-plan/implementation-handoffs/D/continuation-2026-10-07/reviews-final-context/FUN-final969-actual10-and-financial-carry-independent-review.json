@@ -1,0 +1,198 @@
+{
+  "schema": "D.e02.FUN.final969.actual10-and-financial-scoped-carry-independent-review.v1",
+  "reviewer": "/root/census_oct07",
+  "created_utc": "2026-10-07T10:50:01.692958+00:00",
+  "decision": "GO_CURRENT_FACTORY10_AND_SIX_SOURCE_QUALIFIED_FINANCIAL_CARRIES_27FILE_APPEND_SEAL",
+  "candidate": "96905636726483fdea3a98d9313871d825b54a9e",
+  "tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "manifest_sha256": "4543b88e73745692e5c69571299d41fb81669492704d32ba940fa4172beed479",
+  "handoff_sha256": "20d85bafe1269208a4a88ad6cd6704b54f5690e3728394d80c1cddbe7094ff92",
+  "declared_copy_files": 27,
+  "lossless_original_rows": 22,
+  "actual10": {
+    "PASS": 10,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0,
+    "all30_phases": true,
+    "junit_sha256": "f7d0bea91ac0206cdcacd01dd49c12f2eeaa0be615a8e37bba42b2d61ee67ae7",
+    "input_denominator": 6315,
+    "snapshots": [
+      {
+        "fixture": "test_actual_owner_change_after0/resource-budget.json",
+        "spent": {
+          "run": "0.0"
+        },
+        "reserved": {
+          "run": "0.00004"
+        },
+        "receipts": 1,
+        "pending": 1
+      },
+      {
+        "fixture": "test_public_factory_pending_ow0/resource-budget.json",
+        "spent": {
+          "run": "0.0"
+        },
+        "reserved": {
+          "run": "0.00004"
+        },
+        "receipts": 1,
+        "pending": 1
+      },
+      {
+        "fixture": "test_public_factory_pending_ow1/resource-budget.json",
+        "spent": {
+          "run": "0.0"
+        },
+        "reserved": {
+          "run": "0.00004"
+        },
+        "receipts": 1,
+        "pending": 1
+      },
+      {
+        "fixture": "test_public_factory_resume_ref0/resource-budget.json",
+        "spent": {
+          "run": "0.0"
+        },
+        "reserved": {
+          "run": "0"
+        },
+        "receipts": 1,
+        "pending": 0
+      },
+      {
+        "fixture": "test_public_factory_resume_ref1/resource-budget.json",
+        "spent": {
+          "run": "0.0"
+        },
+        "reserved": {
+          "run": "0"
+        },
+        "receipts": 1,
+        "pending": 0
+      },
+      {
+        "fixture": "test_public_runner_consumes_tr0/resource-budget.json",
+        "spent": {
+          "run": "0.0"
+        },
+        "reserved": {
+          "run": "0"
+        },
+        "receipts": 1,
+        "pending": 0
+      },
+      {
+        "fixture": "test_public_runner_consumes_tr1/resource-budget.json",
+        "spent": {
+          "run": "1.0"
+        },
+        "reserved": {
+          "run": "0"
+        },
+        "receipts": 1,
+        "pending": 0
+      },
+      {
+        "fixture": "test_public_runner_consumes_tr2/resource-budget.json",
+        "spent": {
+          "native-resource": "0.0"
+        },
+        "reserved": {
+          "native-resource": "0"
+        },
+        "receipts": 1,
+        "pending": 0
+      },
+      {
+        "fixture": "test_public_runner_consumes_tr3/resource-budget.json",
+        "spent": {
+          "native-resource": "1.0"
+        },
+        "reserved": {
+          "native-resource": "0"
+        },
+        "receipts": 1,
+        "pending": 0
+      },
+      {
+        "fixture": "test_public_runner_paid_cutoff0/resource-budget.json",
+        "spent": {
+          "run": "1.0"
+        },
+        "reserved": {
+          "run": "0"
+        },
+        "receipts": 1,
+        "pending": 0
+      }
+    ],
+    "standard_tokenizer_unchanged": true
+  },
+  "scoped_carry": {
+    "old_measurement_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+    "not_new_execution": true,
+    "cohorts": 6,
+    "Git_pairs_checked": 2382,
+    "observed_module_rows": 2936,
+    "changed_function_AST_records_verified": 78,
+    "unchanged_financial_boundary_AST": [
+      {
+        "method": "NativeSearchService.ask",
+        "boundary": "preflight_before_transaction",
+        "AST_sha256": "dfa31c996d77c4d56595b38d4002a4c66b1e8c2f066a670bccc304a2e72f4f53",
+        "equal": true,
+        "old_line": 558,
+        "current_line": 653
+      },
+      {
+        "method": "NativeSearchService.ask",
+        "boundary": "current_owner_refresh_after_rollback",
+        "AST_sha256": "24c3aa099da6f2cde2824b8705ea5436ea813c113b66d7dcc5c407a3bd297508",
+        "equal": true,
+        "old_line": 599,
+        "current_line": 705
+      },
+      {
+        "method": "NativeSearchService._stopping_reason",
+        "boundary": "stopping_owner_admission",
+        "AST_sha256": "eb123a8b6fe86a3eca2c76998e8d5e5791c85bf57fa2186ed857879de325124e",
+        "equal": true,
+        "current_line": 1288
+      },
+      {
+        "method": "SearchLoopRunner.__init__",
+        "boundary": "canonical_owner_key_limit_constructor",
+        "AST_sha256": "6f54bb8c994f17b3bb97c0bfc0668038f68c7a087b13d63a636043711a294505",
+        "equal": true,
+        "current_line": 235
+      }
+    ],
+    "canonical_owner_source_records": 9
+  },
+  "actual_consumer": "Actual canonical rawresponse/Decimal owner decoder/enforcer/B1.2 receipt/snapshot -> configured publicRunnerbudget port -> native Service stopping/preflight/rollback owner refresh -> real CAS fresh publicrestore/resume; zero/paid/cutoff/unknownpending/changedowner/key/rule tested on969.",
+  "scope_limits": "Raw32/cache18/HTTP30/owner292 unchanged consumed source/module profiles; affected138/state113 loaded overlap Runtime/Service/frontier qualifies financial component branches only. Local unchanged FUN _stable_candidate_hash and actual RuntimeNode/FunnelOrchestrator do not call changed searchhash/dedup/primary; actual new40/fourremovals separately establish those changed consumers. No whole-changed-module byte identity/new oldscopeexecution implied.",
+  "B120_join": "Original measured charge owner/stopping/result and retry/cache idempotency through canonical freshledger; actual32raw/18cache/30HTTP/292owner receipt originals exacta7; fullsplit/ownedprereq/finalFUN outputs sourcequalified; current nativefactory10 and independently measured969Service/paid/actualownerrollback removal reconcile changed ordinary edge.",
+  "P37": "Actual durable currentowner receipt/admission and cost None vs knownzero; full source/input/backend/output/snapshot bindings; providerfixture not invoice authority.",
+  "P38": "Current physicaltiny ownerpending with oldzero receipts cannot authorize work or projectzero; real afterpreflight pending survivesrollback refresh; historical settlement/cacheguard removal preserved exactsource.",
+  "original_held_inputs": [
+    "B157native sample/estimand",
+    "B161authorized same-subject refinementlaw",
+    "B164actualissuedpermit/currentverifier/writeboundary"
+  ],
+  "original_closed_proposals_supported": [
+    "B120",
+    "B156",
+    "B158",
+    "B159",
+    "B160",
+    "B162",
+    "B163",
+    "B165"
+  ],
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "P41": "not_established/notclaimed"
+}

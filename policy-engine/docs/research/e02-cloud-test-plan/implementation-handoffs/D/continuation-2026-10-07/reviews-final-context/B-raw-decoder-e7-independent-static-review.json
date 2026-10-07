@@ -1,0 +1,30 @@
+{
+  "schema": "e02.D.independent.owner-dependency-review.v1",
+  "reviewer": "census_oct07",
+  "owner": "B canonical Gateway text decoder",
+  "owner_implementation": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+  "owner_tree": "bd3d76242c3c222b0bee7dd2c81bc73c2ecb374f",
+  "full_changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-e02-b-gateway-exact-numeric-decode.toml",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py"
+  ],
+  "full_diff_sha256": "ce62b4f0628de4450b6141969081d3d8922f5a17f9659dfcad8d32936cfd90d1",
+  "status": "STATIC_GO_CANONICAL_OWNER_IMPORT_CURRENT_COMPOSED_RUNTIME_PENDING",
+  "actual_delta": "Only successful completion HTTP response-text fractional/exponent JSON tokens use standard json.loads parse_float=Decimal. Integer/bool tokens keep strict identity; modelcatalog/error/tool embedded argument parsers untouched.",
+  "B120_predicate": "Raw±1e-1000 remains nonzero signed Decimal until existing normalized monetary guard refuses unknown/invalid representability; literal0/0.0 remain true zero, ordinary representable paidcost preservesamount. This input decoder alone cannot establish actual durabledebit/retry/no_falsezero.",
+  "compatibility": "Diagnostic GatewayLLMResponse.raw fractional/exponent fields are now Decimal; normalized usage and float|None money DTO/signatures unchanged. Existing cacheJSON-safe string conversion and operatorrecipe documented. Raw consumers require actual affected validation; do not claim arbitrary oldfloat-only serialization.",
+  "P37": "Actual response-text bytes/lexeme before guard rather than pre-parsed dict underflow fixture; producer→normalizer→enforcer→canonical reopened ledger expected.",
+  "P38": "Ordinary floatjson parse can preserve all marker/costtrace fields while turning nonzero tinycost to0; raw actualtext controls must reject falsefree/settlementrelease.",
+  "required_current_checks": [
+    "Actual D raw24 positivezero/paid and signedtiny/malformed/conflict controls on imported immutable source",
+    "Affected native paidcache/receipt/settlement/stopping/funnel freshreadback on actual adopted Bledger contract",
+    "Owner and D ordinary rawpayload/cache consumers compatibility with Decimal"
+  ],
+  "limitations": [
+    "No observed current candidate PASS yet. Old46921FAIL3PASS does not describe new owner source.",
+    "Canonical B1.2 unknownack/durablemultikey successor remains separate owner code/fullcontract input; no newDledger or arbitraryschema project.",
+    "Providerfixture is not invoice truth; unrepresentablemoney refuses rather than billing inventedprecision.",
+    "G acceptance=false."
+  ]
+}

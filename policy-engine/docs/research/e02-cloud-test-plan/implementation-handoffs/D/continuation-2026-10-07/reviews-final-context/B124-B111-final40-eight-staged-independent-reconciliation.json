@@ -1,0 +1,106 @@
+{
+  "schema": "D.e02.final-dedup-primary-v5-staged-independent-source-reconciliation.v1",
+  "reviewer": "/root/census_oct07",
+  "created_utc": "2026-10-07T10:39:43.971522+00:00",
+  "base": "237c3427266e0849ebfa36b41f89c51572b44814",
+  "decision": "GO_FINAL8_SOURCE_40TESTS_COMPANIONS_FREEZE_FOR_ACTUAL_RUNTIME",
+  "staged_tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "full_changed_path_set_exact": true,
+  "paths": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "reviewed_sha256": "4dd398631e932f39c8cefd5d327dda3cfecb821c6df5c0de688dd337ed7a46c0",
+      "staged_sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+      "staged_blob": "2604b8369d6b5e98747ba27f2df4e52cf540ca3e",
+      "equivalence": "wholeASTexact",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-a7.v4-final.patch",
+        "patch_sha256": "d2dab7c64e4b71cc63633558ca8cb9754aaa3389007c0337bb0afbdd1db000f2",
+        "reconstructed_from_base": "237c3427266e0849ebfa36b41f89c51572b44814"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/dedup.py",
+      "reviewed_sha256": "97953d41ebfa0cb25c5414454725abe14d4d19580b09caeff1c3e08748502047",
+      "staged_sha256": "7c05548d3539ed98b20da6c11fe033af789e0b75672164654b97c68a28f0f5dc",
+      "staged_blob": "38eb98f6cc5999e7c889c3f79433cdfd2eb7730e",
+      "equivalence": "wholeASTexact",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-a7.v4-final.patch",
+        "patch_sha256": "d2dab7c64e4b71cc63633558ca8cb9754aaa3389007c0337bb0afbdd1db000f2",
+        "reconstructed_from_base": "237c3427266e0849ebfa36b41f89c51572b44814"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "reviewed_sha256": "699fa960f254281b56a1a66d3f6bcdb0f3ecd97c38d2a64d26050066feec81bd",
+      "staged_sha256": "4bcddcf8b7ef4696fe26a3daa3394053672eb8a43007e0bf0b993c5bf87e17eb",
+      "staged_blob": "c38f771300030cd9c84dff5de676c3b023fced68",
+      "equivalence": "wholeASTexact",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-a7.v4-final.patch",
+        "patch_sha256": "d2dab7c64e4b71cc63633558ca8cb9754aaa3389007c0337bb0afbdd1db000f2",
+        "reconstructed_from_base": "237c3427266e0849ebfa36b41f89c51572b44814"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "reviewed_sha256": "4dfd2ceff8c2fb89ef4631b3ac15a1c4d770cf2552303d518bfbbce6bb06b008",
+      "staged_sha256": "b73158016ef2a6e9324159b7de3d34206ef5a866bcdc1a675adb9281c815e127",
+      "staged_blob": "0e5d75cb492bf97dd61ceec2d6a94b9b6d8f13e5",
+      "equivalence": "wholeASTexact",
+      "provenance": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-service.v5.run-scope-final.py"
+    },
+    {
+      "path": "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+      "reviewed_sha256": "a68286479384fe7762897461220a3899b318f6b2e014851e4c03a58bf7b73652",
+      "staged_sha256": "a68286479384fe7762897461220a3899b318f6b2e014851e4c03a58bf7b73652",
+      "staged_blob": "4d68c66c263220594fe142490d51451ed3e5a50c",
+      "equivalence": "exactbytes",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-v5-run-scope-compat.incremental.patch",
+        "patch_sha256": "701942ba8c8b802e2caa01e83e38b55221593b1accef34deaa743ec7313e7ac3",
+        "reconstructed_from_base": "237c3427266e0849ebfa36b41f89c51572b44814"
+      }
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_dedup.py",
+      "reviewed_sha256": "57a85bfcc578d60940be0d68c5b3cf56b22f0f95ba7e98fffa666fb7015a2929",
+      "staged_sha256": "e8bfa6a4a8b2c3dc5ae3115402bb532487f27e437dd5af87ee4fdfa8d55213d9",
+      "staged_blob": "f49dc1bd0caba18d97539886e3e554678db79540",
+      "equivalence": "wholeASTexact",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-compat-b652.v2-final.patch",
+        "patch_sha256": "49c21acd1c4838f8ca4f381337c099abfe7ebab7c138a6e84f2f786cf17ed79b",
+        "reconstructed_from_base": "237c3427266e0849ebfa36b41f89c51572b44814"
+      }
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-native-trial-deduplication-and-primary-availability.toml",
+      "reviewed_sha256": "c9a2674c11f7b89c8c5253269799f0ca599d325d281cee63b143c5e0f896d710",
+      "staged_sha256": "c9a2674c11f7b89c8c5253269799f0ca599d325d281cee63b143c5e0f896d710",
+      "staged_blob": "f9bc99f21c913fc846971fd659347099a90cec64",
+      "equivalence": "exactbytes",
+      "provenance": {
+        "patch": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-v5-ack-compat.final.patch",
+        "patch_sha256": "550184b933a9b0b717b52955582fb434699ff7839f90fe91e75a3bd5cdb7bbee",
+        "reconstructed_from_base": "237c3427266e0849ebfa36b41f89c51572b44814"
+      }
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_service_trial_deduplication.py",
+      "reviewed_sha256": "8933c7b9fe73f5c402073fbff0b7c3ca2213c4f9aafddb7c760a5be8ffe08e81",
+      "staged_sha256": "608942a8f9195491c846225050d030b47a6733d1d8602f31960afd852421a6b5",
+      "staged_blob": "6b06edb7490579e73464b438480cc0c7c010d6af",
+      "equivalence": "wholeASTexact",
+      "provenance": "/dev/shm/e02-D-B124-independent-tests/v9/test_service_trial_deduplication.py"
+    }
+  ],
+  "tests": "Original39 function AST unchanged; added actual shared helper/equivalent configuration/different recorded runID barrier control; prior first acknowledged checkpoint proposal-failure control validates actual qualified CAS reference retained, changed context cannot rebind, no physical calls or cursor effects, actual fresh same-basis supported reader restore/resume then real evaluation. Static denominator40 is not executed PASS.",
+  "production_delta_read": "Read final whole supplemental v4-to-v5 and initial-to-final guard widening: live evaluator/nested context admission uses sole last-qualified CAS configuration before ask/tell/checkpoint/resume-pending; initial checkpoint publication now inside transaction establishes ref_before, rollback preserves acknowledgement and publication fence. No second persisted basis. Disposable membership adds actual recorded searchID to configuration scope; preexisting seen-dict/reset-by-scope remains. Equal-config real A/B barrier verifies isolation; same-run multiwriter/distributed authority not claimed. Independently appointed GP/Math/Transfer production reviewers also required by root.",
+  "compatibility": "Two companion payloads exactbytes/TOML parsed, separates additive ports from breaking run no-op narrowing/full digest/nullable quantities; explicitly documents last ack, first-empty checkpoint failure preservation, new-run lifecycle and no arbitrary concurrent external mutation guarantee.",
+  "runtime": "UNRUN_NEW_IMMUTABLE_CANDIDATE; B111/B124 original-owned residuals remain OPEN until actual current defining, affected consumers and three removal controls are completed/reviewed. Historical v4 staged GO superseded by found escapes; not a runtime closure.",
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "P41": "not_established; no inherited waiver"
+}

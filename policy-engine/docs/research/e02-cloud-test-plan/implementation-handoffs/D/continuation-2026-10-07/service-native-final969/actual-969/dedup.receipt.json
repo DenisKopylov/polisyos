@@ -1,0 +1,325 @@
+{
+  "name": "dedup",
+  "source_sha": "96905636726483fdea3a98d9313871d825b54a9e",
+  "source_tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "source_status_before": "",
+  "argv": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "--noconftest",
+    "-p",
+    "no:cacheprovider",
+    "-s",
+    "-ra",
+    "--basetemp",
+    "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures",
+    "--junitxml",
+    "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup.junit.xml",
+    "tests/unit/scientist/methods/search/test_service_trial_deduplication.py",
+    "tests/unit/scientist/methods/autotune/test_dedup.py"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine:/dev/shm/e02-D-oct07-service-start"
+  },
+  "harness": {
+    "path": "/dev/shm/e02-D-oct07-service-start/run_final_dedup_native_wave.py",
+    "sha256": "eaeeca33fc97d55ba5937f3781b3a05e29990d6f17bbe8a82ace03506bacb4c6"
+  },
+  "backend": "Actual native SearchLoopRunner/NativeSearchService/qualified FileSystemCAS/ChampionRegistry; actual supported typed mutation/evaluator/data-context profiles and physical invocation counts. No scientific law, appointed production caller, external identity migration or distributed atomicity inferred. Actual Torch/SALib only in native DOE cohort; provider fixtures are not invoice truth.",
+  "no_artificial_quotas": true,
+  "started_at": "2026-10-07T10:40:36.830254+00:00",
+  "complete_frozen_input_manifest": {
+    "path": "frozen-inputs.json.gz",
+    "bytes": 918281,
+    "sha256": "9547da0175ec32a6502c98e95c298cc99f99536f43bc228fdc843448670e764d",
+    "entries": 15927
+  },
+  "runtime": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "packages": {
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5",
+      "numpy": "2.3.5",
+      "scipy": "1.16.3"
+    }
+  },
+  "returncode": 0,
+  "elapsed_seconds": 41.597796885995194,
+  "completed_at": "2026-10-07T10:41:18.517089+00:00",
+  "source_sha_after": "96905636726483fdea3a98d9313871d825b54a9e",
+  "source_status_after": "",
+  "same_inputs": true,
+  "changed_inputs": [],
+  "case_phases": {
+    "PASS": 48,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "cases": [
+    {
+      "name": "test_native_dedup_uses_actual_semantic_content_and_retains_explicit_replicas[run]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_native_dedup_uses_actual_semantic_content_and_retains_explicit_replicas[create_service]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_native_completed_duplicates_stop_without_fabricated_evaluation_or_free_cache_row",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_native_pending_membership_and_fresh_public_resume_derive_from_real_cas_history",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_native_dedup_changed_effective_basis_refuses_before_cursor_or_evaluator[context]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_native_dedup_changed_effective_basis_refuses_before_cursor_or_evaluator[evaluator]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_native_dedup_changed_effective_basis_refuses_before_cursor_or_evaluator[suite]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_native_dedup_changed_effective_basis_refuses_before_cursor_or_evaluator[policy]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_native_dedup_changed_effective_basis_refuses_before_cursor_or_evaluator[opaque]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_native_dedup_live_context_change_refuses_before_next_proposal_effect",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_valid_returned_hash_markers_cannot_replace_actual_candidate_dates",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_completed_duplicate_admission_resolves_actual_cas_before_skipping_evaluation",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_returned_hash_marker_cannot_collapse_actual_native_dates_cas_and_fresh_registry",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_explicit_native_proposal_replicas_survive_technical_identity_projection[replicate_id]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_explicit_native_proposal_replicas_survive_technical_identity_projection[replica_id]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_explicit_native_proposal_replicas_survive_technical_identity_projection[seed]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_unavailable_actual_outcome_cannot_make_equivalent_next_proposal_free[error]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_unavailable_actual_outcome_cannot_make_equivalent_next_proposal_free[unknown]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_unavailable_actual_outcome_cannot_make_equivalent_next_proposal_free[unavailable]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_unavailable_actual_outcome_cannot_make_equivalent_next_proposal_free[completed]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_unavailable_actual_outcome_cannot_make_equivalent_next_proposal_free[missing_metric]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_completed_finite_nonpromotable_measurement_is_not_a_missing_or_failed_outcome",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_actual_native_primary_quantity_preserves_unavailable_zero_and_fresh_cas_basis[missing-False-ok-1]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_actual_native_primary_quantity_preserves_unavailable_zero_and_fresh_cas_basis[status_not_ok-True-error-1]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_actual_native_primary_quantity_preserves_unavailable_zero_and_fresh_cas_basis[genuine_zero-True-ok-0]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_actual_native_primary_quantity_preserves_unavailable_zero_and_fresh_cas_basis[ordinary_one-True-ok-1]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_optional_dedup_opaque_callback_context_refuses_before_generation_or_evaluation[direct]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_optional_dedup_opaque_callback_context_refuses_before_generation_or_evaluation[nested_mapping]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_optional_dedup_opaque_callback_context_refuses_before_generation_or_evaluation[nested_sequence]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_live_evaluator_configuration_cannot_rebind_old_measurement_membership[ask]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_live_evaluator_configuration_cannot_rebind_old_measurement_membership[tell]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_live_evaluator_configuration_cannot_rebind_old_measurement_membership[checkpoint]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_live_evaluator_configuration_cannot_rebind_old_measurement_membership[resume_pending]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_nested_context_alias_cannot_rebind_acknowledged_pending_scope[ask]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_nested_context_alias_cannot_rebind_acknowledged_pending_scope[tell]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_nested_context_alias_cannot_rebind_acknowledged_pending_scope[checkpoint]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_nested_context_alias_cannot_rebind_acknowledged_pending_scope[resume_pending]",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_explicit_new_run_admits_new_declared_profile_without_rebinding_old_checkpoint",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_proposal_failure_after_initial_ack_retains_basis_and_fresh_restore",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_shared_helper_membership_is_isolated_by_actual_run_with_barrier",
+      "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+      "status": "PASS"
+    },
+    {
+      "name": "test_unique_candidates",
+      "classname": "tests.unit.scientist.methods.autotune.test_dedup.TestTrialDeduplicator",
+      "status": "PASS"
+    },
+    {
+      "name": "test_duplicate_detected",
+      "classname": "tests.unit.scientist.methods.autotune.test_dedup.TestTrialDeduplicator",
+      "status": "PASS"
+    },
+    {
+      "name": "test_deterministic_fingerprint",
+      "classname": "tests.unit.scientist.methods.autotune.test_dedup.TestTrialDeduplicator",
+      "status": "PASS"
+    },
+    {
+      "name": "test_different_loop_ids",
+      "classname": "tests.unit.scientist.methods.autotune.test_dedup.TestTrialDeduplicator",
+      "status": "PASS"
+    },
+    {
+      "name": "test_dict_candidate",
+      "classname": "tests.unit.scientist.methods.autotune.test_dedup.TestTrialDeduplicator",
+      "status": "PASS"
+    },
+    {
+      "name": "test_count",
+      "classname": "tests.unit.scientist.methods.autotune.test_dedup.TestTrialDeduplicator",
+      "status": "PASS"
+    },
+    {
+      "name": "test_reset",
+      "classname": "tests.unit.scientist.methods.autotune.test_dedup.TestTrialDeduplicator",
+      "status": "PASS"
+    },
+    {
+      "name": "test_register_returns_fingerprint",
+      "classname": "tests.unit.scientist.methods.autotune.test_dedup.TestTrialDeduplicator",
+      "status": "PASS"
+    }
+  ],
+  "outputs": {
+    "stdout.txt": {
+      "available": true,
+      "bytes": 46633,
+      "sha256": "f5eab7157e2ebd84432467e8508579c5ccd1651f38b744087dd1b5e658bdeaed"
+    },
+    "stderr.txt": {
+      "available": true,
+      "bytes": 2203,
+      "sha256": "8feac52bea1b233336316f7666315792805a4fe40e2028a228ffa1b461f10286"
+    },
+    "junit.xml": {
+      "available": true,
+      "bytes": 9317,
+      "sha256": "4cb203de5f7adce4f0dc1f609286f6ef37c9bedab04eea6795cb7ceeaf2b304a"
+    }
+  }
+}

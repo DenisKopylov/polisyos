@@ -1,0 +1,40 @@
+{
+  "schema": "e02.D.final969.carry-definition-census-boundary.v1",
+  "author": "/root/gp_oct07",
+  "immutable_correction_sha256": "6c8c8bd904e3d4485814f1811388751d72c40f37674c887d2c4aa661369cc88a",
+  "immutable_original_carry_sha256": "315e983834ccc09de1aa23130f45b0651824e4e5340728fded3c37df3313defd",
+  "source": "96905636726483fdea3a98d9313871d825b54a9e",
+  "old_runtime_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "boundary_clarification": "The6c8 changed_definitions_by_full_AST inventory names top-level functions/classes and direct class methods. Each node comparison uses complete AST, including every nested function body, so nested behavior was already covered. It is not an independently named recursive nested-definition census. This addendum removes the ambiguous FULL-name census wording and supplies the exact recursive service inventory. Original6c8/315e retained; no source/output change or replay.",
+  "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+  "full_recursive_service_changed_definition_names": [
+    "NativeSearchService",
+    "NativeSearchService.__init__",
+    "NativeSearchService._admit_deduplication_configuration",
+    "NativeSearchService._admit_deduplication_configuration.data_context",
+    "NativeSearchService._ask_proposals",
+    "NativeSearchService._configuration",
+    "NativeSearchService._deduplication_members",
+    "NativeSearchService._deduplication_members.encode",
+    "NativeSearchService._deduplication_profile",
+    "NativeSearchService._evaluate_batch",
+    "NativeSearchService.ask",
+    "NativeSearchService.checkpoint",
+    "NativeSearchService.restore",
+    "NativeSearchService.resume_search",
+    "NativeSearchService.run_search",
+    "NativeSearchService.tell"
+  ],
+  "additional_independently_named_nested_definitions": [
+    "NativeSearchService._admit_deduplication_configuration.data_context",
+    "NativeSearchService._deduplication_members.encode"
+  ],
+  "same_full_enclosing_AST_boundary": [
+    "NativeSearchService._admit_deduplication_configuration",
+    "NativeSearchService._deduplication_members"
+  ],
+  "actual_runtime_scope": "final969transfer3 twoactual8/7MLL unchanged; separateService48/Adapter126 tests exercise changeddedup predicates",
+  "P41": "not_established",
+  "accepted_G": false,
+  "formal_closed": false
+}

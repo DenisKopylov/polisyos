@@ -1,0 +1,26 @@
+{
+  "schema": "e02.independent.compatibility.review.v1",
+  "author": "service_oct07",
+  "reviewer": "math_oct07",
+  "review_result": "GO bounded structured compatibility source review; runtime pending final frozen source",
+  "immutable_patch": {
+    "path": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-compat-b652.v2-final.patch",
+    "sha256": "49c21acd1c4838f8ca4f381337c099abfe7ebab7c138a6e84f2f786cf17ed79b",
+    "bytes": 10354
+  },
+  "production_binding": {
+    "path": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-a7.v4-final.patch",
+    "sha256": "d2dab7c64e4b71cc63633558ca8cb9754aaa3389007c0337bb0afbdd1db000f2"
+  },
+  "findings": [
+    "New create_service/resume canonical dedup keywords are classified additive separately from existing run dedup behavioral activation/type narrowing/refusal classified breaking.",
+    "Content-derived frontier identity and transient sixteen-to-sixty-four hex digest are explicitly breaking internal serialization changes; no silent old snapshot rewrite or fabricated generic migration.",
+    "Missing/noncomparable primary measurement None+retained unavailable assessment is explicitly a breaking internal producer output contract, with genuine measured zero preserved and unavailable not promising.",
+    "Recorded old source readers and immutable old marker-grouped snapshots are preserved; changed source/helper/context/config refuses restore. Guidance requires matching supported native run or an explicitly new run, not invented scientific identity equivalence.",
+    "Minimal digest test updates the declared full SHA256 contract without weakening actual consumer assertions."
+  ],
+  "limitations": [
+    "Compatibility source review only; final normalized source reconciliation and actual B111/B124 defining/consumer checks pending.",
+    "No formal closure/G acceptance or synthetic authority/replica law asserted."
+  ]
+}

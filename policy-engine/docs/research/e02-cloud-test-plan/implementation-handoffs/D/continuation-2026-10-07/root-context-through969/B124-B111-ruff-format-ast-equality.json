@@ -1,0 +1,56 @@
+{
+  "formatter_argv": [
+    "/workspace/e02-D-locked-env/bin/ruff",
+    "format",
+    "--config",
+    "policy-engine/pyproject.toml",
+    "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+    "policy-engine/src/polisyos/scientist/methods/search/service.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/dedup.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_service_trial_deduplication.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_dedup.py"
+  ],
+  "returncode": 0,
+  "stdout": "6 files reformatted\n",
+  "stderr": "",
+  "only_formatting_ast_equal": true,
+  "files": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "before_sha256": "4dd398631e932f39c8cefd5d327dda3cfecb821c6df5c0de688dd337ed7a46c0",
+      "after_sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+      "ast_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "before_sha256": "eb6cd4fbd9cb4ed154fa4a881e293a853d9cbc2383571f3cfec7a4dfb0de34ce",
+      "after_sha256": "a618e400332f0fb9e72db02bb0169aaab3f791aa1d6c3d26bd4dc5e81de0d7e1",
+      "ast_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/dedup.py",
+      "before_sha256": "97953d41ebfa0cb25c5414454725abe14d4d19580b09caeff1c3e08748502047",
+      "after_sha256": "7c05548d3539ed98b20da6c11fe033af789e0b75672164654b97c68a28f0f5dc",
+      "ast_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "before_sha256": "699fa960f254281b56a1a66d3f6bcdb0f3ecd97c38d2a64d26050066feec81bd",
+      "after_sha256": "4bcddcf8b7ef4696fe26a3daa3394053672eb8a43007e0bf0b993c5bf87e17eb",
+      "ast_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_service_trial_deduplication.py",
+      "before_sha256": "a36a61d55d5cc9d960dce9822017543907ddabef89c4ebe0ccf2bc26c351b40d",
+      "after_sha256": "33f413c201a1d10031cd85a2389dffc157974b72fd8e6955332be627f79f0cba",
+      "ast_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_dedup.py",
+      "before_sha256": "57a85bfcc578d60940be0d68c5b3cf56b22f0f95ba7e98fffa666fb7015a2929",
+      "after_sha256": "e8bfa6a4a8b2c3dc5ae3115402bb532487f27e437dd5af87ee4fdfa8d55213d9",
+      "ast_equal": true
+    }
+  ]
+}

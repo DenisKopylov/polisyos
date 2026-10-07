@@ -1,0 +1,25 @@
+{
+  "schema_version": "e02-D.independent-test-review.v1",
+  "reviewer": "census_oct07",
+  "author": "funnel_oct07",
+  "draft": "/dev/shm/e02-D-funnel-oct07/test_service_owner_budget_factory.py",
+  "sha256": "4ee61914412d57e3fab3c9d11278d3fafe7db72cff2e2dee6919706c2ee0d582",
+  "verdict": "GO_MATCHING_PUBLIC_FACTORY_API_TARGETED_RUNTIME",
+  "testcase_denominator": 10,
+  "runtime": "UNRUN",
+  "formal_finding_closure": false,
+  "G_accepted": false,
+  "basis": [
+    "Read full 218-line draft. Existing strict service/evaluator/CAS fixtures and actual response-text Gateway->Traced->canonical B1.2 enforcer/owner are used; no synthetic cost receipt or private config mutation.",
+    "Four literal zero/paid x actual budget-key positives read exact reopened ledger, public factory ask/checkpoint/fresh factory restore pending and evidence; one real paid cutoff before generator/evaluator.",
+    "Two signed tiny physically obtained unknowns retain genuine pending/reservation; public direct ask must not mutate candidate RNG/pending/history/checkpoint bytes, fresh public resume must fence and publish/read back truthful None evidence.",
+    "One after-preflight barrier delegates real owner pre_check then executes actual raw tiny provider completion, requiring rollback to preserve latest external unavailable evidence instead of old zero. Barrier monkeypatch is fault-timing control, not positive backend mock.",
+    "Two changed cost key/rule fresh public resume negatives enforce configuration binding before generator/evaluator/checkpoint effect.",
+    "Current c0 SearchLoopRunner lacks these budget constructor fields; test GO requires independently reviewed matching ordinary public factory API implementation. No assertion of runtime before root committed matching source."
+  ],
+  "negative_property_basis": "Actual source-bound raw tiny cost and live ledger pending; scalar trace/cached zero or saved stale state cannot admit next work.",
+  "limitations": [
+    "Technical controlled provider fixture, not invoice truth/evaluator authority/production appointment.",
+    "No new ledger, cross-process policy authority or multi-key debit claim: two keys are alternative independent scopes, not simultaneous multi-key settlement."
+  ]
+}

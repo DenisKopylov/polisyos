@@ -1,0 +1,182 @@
+{
+  "reviewer": "/root/census_oct07",
+  "decision": "GO_ACTUAL_LEGACY_ALIAS_AND_POSTROLLBACK_OWNER_REFRESH_NEGATIVE",
+  "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+  "tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+  "scoped_checks": [
+    {
+      "name": "contracts",
+      "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+      "tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+      "actual_argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-m",
+        "pytest",
+        "--noconftest",
+        "-p",
+        "no:cacheprovider",
+        "-s",
+        "-ra",
+        "--basetemp",
+        "/dev/shm/e02-D-oct07-service-start/final-native-b652/contracts-fixtures",
+        "--junitxml",
+        "/dev/shm/e02-D-oct07-service-start/final-native-b652/contracts.junit.xml",
+        "tests/unit/scientist/search/test_contracts.py"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine:/dev/shm/e02-D-oct07-service-start"
+      },
+      "counts": {
+        "PASS": 2,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "raw_command_sha256": "515fc7c11e6aa5ee5394c5418d073ebfdcde6400b2e28ff67b52de090f50ee1e",
+      "raw_command_bytes": 7328950,
+      "full_tracked_manifest_denominator": 15486,
+      "full_available_inputs": 8417,
+      "full_unavailable_sparse_inputs": 7069,
+      "before_after_complete_manifest_identical": true,
+      "outputs": {
+        "stdout.txt": {
+          "available": true,
+          "bytes": 519,
+          "sha256": "2bd3c648a3a835c8334c9593c0d3e45a6b15d1fe7bfdb85aeaa92abf9af43757"
+        },
+        "stderr.txt": {
+          "available": true,
+          "bytes": 210,
+          "sha256": "abe920a0a25a2651dd0f6e54a9d9bf45794466b088b4d8fffb54a886a76813c3"
+        },
+        "junit.xml": {
+          "available": true,
+          "bytes": 533,
+          "sha256": "dace80a968eb446e7c1e471f2b3cb557914cb37319ee082a595e11b070399382"
+        }
+      }
+    },
+    {
+      "name": "rollback-removal",
+      "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+      "tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+      "actual_argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-m",
+        "pytest",
+        "--noconftest",
+        "-p",
+        "no:cacheprovider",
+        "-s",
+        "-ra",
+        "--basetemp",
+        "/dev/shm/e02-D-oct07-service-start/final-native-b652/rollback-removal-fixtures",
+        "--junitxml",
+        "/dev/shm/e02-D-oct07-service-start/final-native-b652/rollback-removal.junit.xml",
+        "-p",
+        "budget_rollback_owner_refresh_removal",
+        "tests/unit/scientist/methods/search/test_service_owner_budget_factory.py::test_actual_owner_change_after_ask_preflight_is_not_rolled_back_to_known_zero"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine:/dev/shm/e02-D-oct07-service-start",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "counts": {
+        "PASS": 0,
+        "FAIL": 0,
+        "ERROR": 1,
+        "SKIP": 0
+      },
+      "raw_command_sha256": "a7748aaba4df7e25a6289ca178cc0127b53e89ca93e98a4a4a9a8b13ff90359f",
+      "raw_command_bytes": 7329287,
+      "full_tracked_manifest_denominator": 15486,
+      "full_available_inputs": 8417,
+      "full_unavailable_sparse_inputs": 7069,
+      "before_after_complete_manifest_identical": true,
+      "outputs": {
+        "stdout.txt": {
+          "available": true,
+          "bytes": 1319,
+          "sha256": "2f5a891a1e4f133adc827e4dcf7e863d1d89fb501f541bf91783c68ecc74e42b"
+        },
+        "stderr.txt": {
+          "available": true,
+          "bytes": 232,
+          "sha256": "02b774da4ba93369b818238fd269bda6360c0192da8ce17b0514af2e2c2d25b0"
+        },
+        "junit.xml": {
+          "available": true,
+          "bytes": 889,
+          "sha256": "0bb2bd8b07adc808f0d185e993d72c0c11704911f74712d3c578f8e45fa78223"
+        }
+      }
+    },
+    {
+      "name": "rollback-removal-discovery",
+      "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+      "tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+      "actual_argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-m",
+        "pytest",
+        "--noconftest",
+        "-p",
+        "no:cacheprovider",
+        "-s",
+        "-ra",
+        "--basetemp",
+        "/dev/shm/e02-D-oct07-service-start/final-native-b652/rollback-removal-discovery-fixtures",
+        "--junitxml",
+        "/dev/shm/e02-D-oct07-service-start/final-native-b652/rollback-removal-discovery.junit.xml",
+        "-p",
+        "budget_rollback_owner_refresh_removal",
+        "tests/unit/scientist/methods/search/test_service_owner_budget_factory.py::test_actual_owner_change_after_ask_preflight_is_not_rolled_back_to_known_zero"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine:/dev/shm/e02-D-oct07-service-start:/dev/shm/e02-D-oct07-continuation/policy-engine/tests/unit/scientist/methods/search",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "counts": {
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "raw_command_sha256": "d9e17aaa276a1fff847da578426666dfff732775704ae0a3692a46f8c94afb2f",
+      "raw_command_bytes": 7329399,
+      "full_tracked_manifest_denominator": 15486,
+      "full_available_inputs": 8417,
+      "full_unavailable_sparse_inputs": 7069,
+      "before_after_complete_manifest_identical": true,
+      "outputs": {
+        "stdout.txt": {
+          "available": true,
+          "bytes": 4315,
+          "sha256": "eacb34359d4c0577b420ab5334d4f1419a93ba9dd13b6db6850741cb887009b0"
+        },
+        "stderr.txt": {
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "junit.xml": {
+          "available": true,
+          "bytes": 4666,
+          "sha256": "edb640e77514dd80757c0c8fe1e58f33fe8d2e6b0b5fe375a474e63e3a7ba67a"
+        }
+      }
+    }
+  ],
+  "LA014": "ActualexistingLegacySearchServiceAdapter ask/tell followedbyactualsamealias.run_search freshnative run agreesknownsubject/history1/best1/counters1 and priorTellResultunchanged. Othercontractscell remainsboundedmockedFunnelWrapper; noCASclaim fromaliasfixture. Joined actualService41/Adapter126/publicpersistence/typedunknownduplicatecontracts supportoriginal nativecriterion.",
+  "B120_negative": "Actualownerpreflight admitsgenuineknownzero; actualtinyphysicalcompletion changescanonicalBledger to pending, then proposaltransactionfails. Removalonlypostrollbackfreshownerrefresh leavesactualgenerator/pending/history/oldqualifiedCASpreserved butcurrentlivebudget_spentstale0.0 insteadNone, actualassertionFAIL; positiveb652factory10 observedcurrentlive/stoppingNone andfreshfence/readback.",
+  "P37": "recomputed actualcanonicalpending/receipt/subjectstate; independentlyreconciled completedcalls/source/input/output.",
+  "P38": "Keep priorzero/oldCAS/cursor/proposal/history/trace/unknownACKmarkers, changeownerafteractualpreflight; freshownertruth unknown mustdominate snapshotrollbackzero. Marker-preserving removal proves proxyfalsezero visible.",
+  "historical_setup": "InitialisolatedrollbackcollectionERROR absent bare-sibling path retained; correctedonlyactualsupported PYTHONPATH loaderprofile, sameimmutabletestsource. No protectedpropertymeasurement fromfirstcollectionERROR.",
+  "compact_publication": "Fullraw7MB derivedinput command staysscratch; publishcompactreceipt actualargv/backend/criticalsource/outputhashes/fullmanifestdigests andcomplete decidingstdoutstderrJUnit. Thisreview doesnotdeclarealltrackedpathsavailable.",
+  "formal_closed": false,
+  "accepted_G": false,
+  "P41": "not_established; no inherited-red or universalzero-overlap waiver"
+}

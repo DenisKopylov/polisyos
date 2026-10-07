@@ -1,0 +1,31 @@
+{
+  "schema": "D.e02.fiscal680.harness-outputdocs-admission-independent-review.v1",
+  "reviewer": "/root/census_oct07",
+  "created_utc": "2026-10-07T11:05:38.555727+00:00",
+  "decision": "GO_TRACKED_SOURCE_CLEAN_PLUS_DECLARED_UNTRACKED_D_HANDOFF_OUTPUTS_ADMISSION",
+  "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "exact_two_admission_deltas": [
+    {
+      "original": "run_fiscal_affected_service_wave.py",
+      "original_sha256": "4f26b4ba9b437c81fb090a1158d3f560e5b780f4b3fc637088494f2b5936a954",
+      "qualified": "run_fiscal_affected_service_wave.docs-status-qualified.py",
+      "qualified_sha256": "a8a015bfd8ccdbc4bdc8e7bf3ea4a1e9e3b116bf43386cbff42959833fe074f1",
+      "full_delta": "--- /dev/shm/e02-D-oct07-service-start/run_fiscal_affected_service_wave.py\t2026-10-07 11:02:15.689826251 +0000\n+++ /dev/shm/e02-D-oct07-service-start/run_fiscal_affected_service_wave.docs-status-qualified.py\t2026-10-07 11:04:38.525029660 +0000\n@@ -26,7 +26,8 @@\n   if entry:\n    stage,path=entry.split('\\t',1);p=ROOT/path;result[path]={'git_index':stage,'available':p.is_file(),**({'sha256':digest(p)} if p.is_file() else {})}\n  return result\n-assert git('rev-parse','HEAD')==SOURCE and not git('status','--porcelain=v1')\n+assert git('rev-parse','HEAD')==SOURCE and not git('status','--porcelain=v1','-uno')\n+assert all(line.startswith('?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/') for line in git('status','--porcelain=v1').splitlines()), 'Only pre-existing untracked handoff outputs may be outside tracked deciding inputs'\n before=inputs();manifest=OUT/'frozen-inputs.json.gz'\n # Independent writers receive one identical deterministic manifest; no mutable shared fixture.\n manifest_bytes=gzip.compress((json.dumps(before,sort_keys=True,separators=(',',':'))+'\\n').encode(),mtime=0)\n"
+    },
+    {
+      "original": "qualify_969_fiscal_only_carry.py",
+      "original_sha256": "8f460280b2b7fb1c09639c17e350e3e329c5833402afcb3cb55e1914aa523060",
+      "qualified": "qualify_969_fiscal_only_carry.docs-status-qualified.py",
+      "qualified_sha256": "e19794957dd9f36e49340ada96862f6947148d10f918a3120415ae91c7112a3f",
+      "full_delta": "--- /dev/shm/e02-D-oct07-service-start/qualify_969_fiscal_only_carry.py\t2026-10-07 11:03:18.859003881 +0000\n+++ /dev/shm/e02-D-oct07-service-start/qualify_969_fiscal_only_carry.docs-status-qualified.py\t2026-10-07 11:04:38.525113847 +0000\n@@ -12,7 +12,8 @@\n   label=getattr(n,'name',None) or ast.dump(n,include_attributes=False)\n   result[label]=sha(ast.dump(n,include_attributes=False).encode())\n  return result\n-assert git('rev-parse','HEAD')==NEW and not git('status','--porcelain=v1')\n+assert git('rev-parse','HEAD')==NEW and not git('status','--porcelain=v1','-uno')\n+assert all(line.startswith('?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/') for line in git('status','--porcelain=v1').splitlines()), 'Only pre-existing untracked handoff outputs may be outside tracked deciding inputs'\n old,new=blob(OLD,OBJECTIVE),blob(NEW,OBJECTIVE);old_body,new_body=body(old),body(new)\n common_changes=[name for name in sorted(set(old_body)&set(new_body)) if old_body[name]!=new_body[name]]\n assert common_changes==['_read_metric_aliases'],common_changes\n"
+    }
+  ],
+  "actual_full_status_before_review": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-final969/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-B111-B124-removals-final969/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-through969/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/stress-stopping-469/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/\n",
+  "basis": "MatchingexactGitHEAD/trackedsourceindex clean. Eachuntracked entry must be D implementation-handoff docs outputprefix; currentpaths have only root pendingpublication outputs. Existing selectedtests/PYTHONPATH do not import thatdocs path. Completefullstatus stillreported before/after, trackedfilehashcensus retained; no source mutation concealed.",
+  "unchanged_runtime_capture": "Only preflight status predicate changes; observer3f51/18 selectors/assertions/provider/owner/artifact/ports unchanged. No monkeypatch, processlimit or outputverdict rewrite.",
+  "historical_attempt": "Strictwholeworkspace preflight refusal remainsUNRUN zero testcasephases, not productFAIL/OOM or positivePASS.",
+  "carry_static_scope": "Qualifier verifies successorproductiondelta onlyobjective aliases helper+one stdlibimport, fullunchangedruntime/testblobs; 18changed builtinobjective/sourceprofilecases excluded from oldcarry and require actualcurrentreplay. Old41 remains969, never a newwhole41positive.",
+  "formal_closed": false,
+  "accepted_G": false
+}

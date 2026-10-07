@@ -1,0 +1,19 @@
+{
+  "reviewer": "census_oct07",
+  "status": "GO_DECLARED_BATCH_PROFILE_NATIVE_FACTORY_TEST_RUNTIME_PENDING",
+  "patch": {
+    "path": "/dev/shm/e02-D-oct07-service-start/native-grid-four-factory-exhaustion-consumer-final-tests.patch",
+    "sha256": "8778f401b59b14edd8cec373519f04b97145e68673f21905a7a4faa1ee73793b",
+    "bytes": 5264
+  },
+  "review": [
+    "Fullnew99linetest read; actualSearchLoopRunner.create_service existingBenchmark/CAS/Championruntime, explicit mutableSearchConfig.batch_size3 productprofile, notcompute/testquota ordefaultfactorybatchpolicyclaim.",
+    "Realaskfirst3→actualevaluate/tell complete1,2,3→ordinaryadaptiveask legitimate remaining4, fullcursor4/syncedprefix3/pending4 retained. Actualfreshsameconfiguredfactoryrestore/publicresume evaluates4+actualincumbent3 once, preservesphysicalhistory1..4/frontier/Champion4 andactualtypedEvaluationArtifactRef CAS.",
+    "Freshterminalresume generation_exhausted performszeroevaluations andretains allcompletedIDs/empty pending; scalarGridexhaustion unchanged. No manufacturedcapacity/scientificunit/defaultservedowner.",
+    "This publicfiniteprofile test complements defaultadaptive50 and directGridbatch8; requirefinalactualrun and guardremoval negative onimmutable source, notstaticPASS."
+  ],
+  "P37": "Actualpublicfactory→Gridfinitegenerator→BenchmarkEvaluation CAS→NativeService checkpoint→freshsameconfiguredfactory publicresume andterminalreadback.",
+  "P38": "Lastremaining4 whileactualadaptivebatchasksbeyondfinitegrid exposes previous advancing-and-dropping proxy; all fullphysicalrecords andterminalzeroeffects retained.",
+  "runtime_result": "UNRUN_ON_FINAL_SOURCE",
+  "accepted_in_G": false
+}

@@ -1,0 +1,1199 @@
+{
+  "old_source": {
+    "sha": "96905636726483fdea3a98d9313871d825b54a9e",
+    "tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60"
+  },
+  "successor_source": {
+    "sha": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+    "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e"
+  },
+  "actual_production_delta": [
+    "policy-engine/src/polisyos/scientist/methods/search/objective.py"
+  ],
+  "objective": {
+    "old_sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+    "new_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+    "common_changed_top_level_ast": [
+      "_read_metric_aliases"
+    ],
+    "added_top_level_ast": [
+      "ImportFrom(module='decimal', names=[alias(name='Decimal'), alias(name='DecimalException')], level=0)"
+    ],
+    "removed_top_level_ast": [],
+    "unchanged_symbol_ast_sha256": {
+      "Assign(targets=[Name(id='_BALANCE_ALIASES', ctx=Store())], value=Tuple(elts=[Constant(value='gov_balance'), Constant(value='government_balance')], ctx=Load()))": "f76de1a939426bdc1944e3e7b8000b4e93fea4c355be362a490f976d86334687",
+      "Assign(targets=[Name(id='_DEFICIT_ALIASES', ctx=Store())], value=Tuple(elts=[Constant(value='budget_deficit'), Constant(value='deficit')], ctx=Load()))": "5c3b936e6e97f9201eaf9d4c25a318d687808ba1c7c2093273dbc65f2bd34aba",
+      "Assign(targets=[Name(id='_INVALID', ctx=Store())], value=Call(func=Name(id='object', ctx=Load()), args=[], keywords=[]))": "5675a332e68eb47c3bebc8540ff3cddd404dd6f010d90d7edf4795de72a55c1e",
+      "Assign(targets=[Name(id='_MISSING', ctx=Store())], value=Call(func=Name(id='object', ctx=Load()), args=[], keywords=[]))": "4f12f4ef899598ecf337e5faa51b148f9160cd6c2550bfcfdb7c47924afb281c",
+      "BaseObjective": "7873131f0731f04430c8d9d75a261033ad490c7d7460f32d68cf16d31a493c5b",
+      "BudgetDeficitObjective": "0c54c2770f55efce2c7045c29e6f82796f54ae54bddee2920de8d1dd553f9b0b",
+      "CompositeObjective": "c91d8c002dd53158844f9525b1d227a3debfcdb2790d48263a1e530e8735a4b1",
+      "EmploymentObjective": "30685ba13dd149541597385d73b3370c1f28272245b78e314cfe613c2e419af2",
+      "Expr(value=Constant(value='Public search objective module API.'))": "515835cb4d3ff9f3d03f5c6fa8ecfc056cd5d3952dadf03a69ddba6c20f10c6b",
+      "GDPGrowthObjective": "9910dde6ecd3169c9ae0d889982a96dd6d834f8c6afa643f481e79db51cfdc96",
+      "Import(names=[alias(name='math')])": "f329650e2c61a07a1bab85b32296a6d93760e313e108904819fa27d09cf3954d",
+      "ImportFrom(module='__future__', names=[alias(name='annotations')], level=0)": "890bede517510aea64e32258c9530f0172f5a6ea2fcbcb247fdadc40c714e8bf",
+      "ImportFrom(module='abc', names=[alias(name='ABC'), alias(name='abstractmethod')], level=0)": "eea79371f1b1503ac2c66340eff58827a5a6aaa7425e00bc3f8874df6407241c",
+      "ImportFrom(module='dataclasses', names=[alias(name='dataclass'), alias(name='field')], level=0)": "5a46818000a4ba65186172bb0cb9a4b5dbc848a8a97f892692ffc6df7d8c6953",
+      "ImportFrom(module='enum', names=[alias(name='Enum')], level=0)": "86da0b85cf79cc76349843b207846fc21d435fbfde34aea16e91d20000958b73",
+      "ImportFrom(module='typing', names=[alias(name='Any'), alias(name='Protocol')], level=0)": "77d4f3b60f4aac34e9a1463d27be1a483d7dcc9088bad6fef0965fc8c90b81b8",
+      "InequalityObjective": "c8e93e380303ae2a24022625e873ef6d1cac43f22d8978cfadbede380facfab7",
+      "ObjectivePresets": "db0c8877ee773bc1af895c6deac706939ca568b9faa3cc1d2a861e07ddb0d379",
+      "ObjectiveValue": "4b9303c2c0a95d97fb4b8afee47b92a7aa8ab66b3599df9f155a2973dc9bdd58",
+      "OptimizationDirection": "7e334083149e5882e1dc46b920ba48472fd7140d93c1d208c68fdd7684b55db3",
+      "SearchObjective": "f415957419d1ff0a61f97d1b5dc998fa701df624a8381161c82838f53ed301d9"
+    },
+    "semantic_dependency": "BudgetDeficitObjective alone calls _read_metric_aliases; all other objective classes/methods/constants retain exact AST and imports are additive standard library names with no existing binding collision."
+  },
+  "unchanged_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "old_git_blob": "0e5d75cb492bf97dd61ceec2d6a94b9b6d8f13e5",
+      "new_git_blob": "0e5d75cb492bf97dd61ceec2d6a94b9b6d8f13e5",
+      "sha256": "b73158016ef2a6e9324159b7de3d34206ef5a866bcdc1a675adb9281c815e127",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "old_git_blob": "7377be536dc63cb1f64f31878f6045c7a9f347e7",
+      "new_git_blob": "7377be536dc63cb1f64f31878f6045c7a9f347e7",
+      "sha256": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "old_git_blob": "c3a90ffe3db0cf7158bc847fb824b18b0502866d",
+      "new_git_blob": "c3a90ffe3db0cf7158bc847fb824b18b0502866d",
+      "sha256": "411e2b5a922bf57af4f51735b44f7e491f98e75e3a83940b8fb3eb76e7fa3cb8",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+      "old_git_blob": "533befa968e43ea734b729d0932c39b5128c26bf",
+      "new_git_blob": "533befa968e43ea734b729d0932c39b5128c26bf",
+      "sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "old_git_blob": "2604b8369d6b5e98747ba27f2df4e52cf540ca3e",
+      "new_git_blob": "2604b8369d6b5e98747ba27f2df4e52cf540ca3e",
+      "sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "old_git_blob": "c38f771300030cd9c84dff5de676c3b023fced68",
+      "new_git_blob": "c38f771300030cd9c84dff5de676c3b023fced68",
+      "sha256": "4bcddcf8b7ef4696fe26a3daa3394053672eb8a43007e0bf0b993c5bf87e17eb",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "old_git_blob": "68affc2d2354e1a3cdd1e339916d74b811d88bea",
+      "new_git_blob": "68affc2d2354e1a3cdd1e339916d74b811d88bea",
+      "sha256": "1339af524b604462021425b9d88f5cbe278f1a8c927827cb3e26fa4f8f0cc6ba",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/dedup.py",
+      "old_git_blob": "38eb98f6cc5999e7c889c3f79433cdfd2eb7730e",
+      "new_git_blob": "38eb98f6cc5999e7c889c3f79433cdfd2eb7730e",
+      "sha256": "7c05548d3539ed98b20da6c11fe033af789e0b75672164654b97c68a28f0f5dc",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/serialization.py",
+      "old_git_blob": "60cf8182efd1daaffc8060f5ac90376e690c48c2",
+      "new_git_blob": "60cf8182efd1daaffc8060f5ac90376e690c48c2",
+      "sha256": "485303bf79f150fa9df259d7354d3104a4bdb94d9114cddb6e17dcc424316f0d",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_service_trial_deduplication.py",
+      "old_git_blob": "6b06edb7490579e73464b438480cc0c7c010d6af",
+      "new_git_blob": "6b06edb7490579e73464b438480cc0c7c010d6af",
+      "sha256": "608942a8f9195491c846225050d030b47a6733d1d8602f31960afd852421a6b5",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_dedup.py",
+      "old_git_blob": "f49dc1bd0caba18d97539886e3e554678db79540",
+      "new_git_blob": "f49dc1bd0caba18d97539886e3e554678db79540",
+      "sha256": "e8bfa6a4a8b2c3dc5ae3115402bb532487f27e437dd5af87ee4fdfa8d55213d9",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_service_factory_fault_resume.py",
+      "old_git_blob": "1f92a1b34c5aeac9c57e1158a82d4da9fcd74d97",
+      "new_git_blob": "1f92a1b34c5aeac9c57e1158a82d4da9fcd74d97",
+      "sha256": "85bacc7cc6b42fd7af56498fb948551621629121004acc1a626f051f65f235e0",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_service_batch_control_reasons.py",
+      "old_git_blob": "40b109419d43a2dbbcbbae82946e2abdd31605da",
+      "new_git_blob": "40b109419d43a2dbbcbbae82946e2abdd31605da",
+      "sha256": "805df1d5a0ec45c4067b597b535c74696b3b4823da1405b89ea687107a0af035",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_service_control_cleanup_independent.py",
+      "old_git_blob": "629011d56f0d933963902bd7d2c3a2058ca8e686",
+      "new_git_blob": "629011d56f0d933963902bd7d2c3a2058ca8e686",
+      "sha256": "90c6cc8f0d58fa143666c064a86bceb80a12276d4bce77856816e17dce696672",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_service_ask_publication_review.py",
+      "old_git_blob": "85e1d2065279636f317f5fe3f2a8337c4d9b6ce3",
+      "new_git_blob": "85e1d2065279636f317f5fe3f2a8337c4d9b6ce3",
+      "sha256": "0becdae0dd7f8008b1f2b39e40dc44c25f114006c5bae1ec53877d5438d041bc",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+      "old_git_blob": "87b768988fab6907c782bb8202c2a61d93192145",
+      "new_git_blob": "87b768988fab6907c782bb8202c2a61d93192145",
+      "sha256": "f9d51f6132961fa3580ce86b64b058f7a068f94d616766721ba793c60a716e3f",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_execution_plan_autotune.py",
+      "old_git_blob": "4a2c236d3b9a9e041b79cb27bbb6f667f732bfef",
+      "new_git_blob": "4a2c236d3b9a9e041b79cb27bbb6f667f732bfef",
+      "sha256": "96f4e74a8c5ed8bcf53e6ae0892e58a1f3b9e77a8478230af132b145aa20bb4e",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+      "old_git_blob": "d888eb10cc7d45111c9ad7a960313e61bf8aca59",
+      "new_git_blob": "d888eb10cc7d45111c9ad7a960313e61bf8aca59",
+      "sha256": "adad9a5ea8c326703b0424c1820a77b7449dd962e399a1a7f31948efdf360cb2",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py",
+      "old_git_blob": "e5db88df8a2f115d886c592bdf291d4013d3f21a",
+      "new_git_blob": "e5db88df8a2f115d886c592bdf291d4013d3f21a",
+      "sha256": "f9a5a1453c99d51d1e09dd2f53f48f1d9547a0c1ca428560568dc1d304e1d0bf",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_benchmark_primitive_admission.py",
+      "old_git_blob": "308ad8610a03f5790e75a0d250b6f4f466c6397a",
+      "new_git_blob": "308ad8610a03f5790e75a0d250b6f4f466c6397a",
+      "sha256": "1838267e2bca47f37ca6bf76b90c1872dd4490567244fc40a110c255600ad3f4",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/test_controller.py",
+      "old_git_blob": "f9a9b0a6bc92b3c8ccf1737df54bc64ade704f87",
+      "new_git_blob": "f9a9b0a6bc92b3c8ccf1737df54bc64ade704f87",
+      "sha256": "a30f80d961f0e15eeb814ea0ad90325e566a540f354445379f82d5191e5769dc",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+      "old_git_blob": "6e7a803d4f4d762f6c1b082da57bb4abc75711d2",
+      "new_git_blob": "6e7a803d4f4d762f6c1b082da57bb4abc75711d2",
+      "sha256": "20b212a6ef13a69f3c1a0fd9bb0b9724d9da74e370ac004fe0747adb3e4ad6c0",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_contracts.py",
+      "old_git_blob": "eff3afe95caedf12e714b29878cf36975ccb9210",
+      "new_git_blob": "eff3afe95caedf12e714b29878cf36975ccb9210",
+      "sha256": "bc7fab63bbd4b900374fd9dba0fdcce43e8f3d93b3d0b2cb544ef685a07f0b07",
+      "unchanged": true
+    }
+  ],
+  "cohorts": [
+    {
+      "cohort": "dedup",
+      "immutable_test_source": "96905636726483fdea3a98d9313871d825b54a9e",
+      "check_results_remain_at": "96905636726483fdea3a98d9313871d825b54a9e",
+      "old_receipt": {
+        "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup.receipt.json",
+        "sha256": "316cb3555f039ffb2fe12b04c9e610832040c86b735677a11985589e445bd88c"
+      },
+      "old_case_phases": {
+        "PASS": 48,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "old_outputs": {
+        "stdout.txt": {
+          "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup.stdout.txt",
+          "bytes": 46633,
+          "sha256": "f5eab7157e2ebd84432467e8508579c5ccd1651f38b744087dd1b5e658bdeaed"
+        },
+        "stderr.txt": {
+          "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup.stderr.txt",
+          "bytes": 2203,
+          "sha256": "8feac52bea1b233336316f7666315792805a4fe40e2028a228ffa1b461f10286"
+        },
+        "junit.xml": {
+          "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup.junit.xml",
+          "bytes": 9317,
+          "sha256": "4cb203de5f7adce4f0dc1f609286f6ef37c9bedab04eea6795cb7ceeaf2b304a"
+        }
+      },
+      "carried_cases": [
+        {
+          "name": "test_native_dedup_uses_actual_semantic_content_and_retains_explicit_replicas[run]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_native_dedup_uses_actual_semantic_content_and_retains_explicit_replicas[create_service]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_native_completed_duplicates_stop_without_fabricated_evaluation_or_free_cache_row",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_native_pending_membership_and_fresh_public_resume_derive_from_real_cas_history",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_native_dedup_changed_effective_basis_refuses_before_cursor_or_evaluator[context]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_native_dedup_changed_effective_basis_refuses_before_cursor_or_evaluator[evaluator]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_native_dedup_changed_effective_basis_refuses_before_cursor_or_evaluator[suite]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_native_dedup_changed_effective_basis_refuses_before_cursor_or_evaluator[policy]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_native_dedup_changed_effective_basis_refuses_before_cursor_or_evaluator[opaque]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_native_dedup_live_context_change_refuses_before_next_proposal_effect",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_valid_returned_hash_markers_cannot_replace_actual_candidate_dates",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_completed_duplicate_admission_resolves_actual_cas_before_skipping_evaluation",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_returned_hash_marker_cannot_collapse_actual_native_dates_cas_and_fresh_registry",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_explicit_native_proposal_replicas_survive_technical_identity_projection[replicate_id]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_explicit_native_proposal_replicas_survive_technical_identity_projection[replica_id]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_explicit_native_proposal_replicas_survive_technical_identity_projection[seed]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_unavailable_actual_outcome_cannot_make_equivalent_next_proposal_free[error]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_unavailable_actual_outcome_cannot_make_equivalent_next_proposal_free[unknown]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_unavailable_actual_outcome_cannot_make_equivalent_next_proposal_free[unavailable]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_unavailable_actual_outcome_cannot_make_equivalent_next_proposal_free[completed]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_unavailable_actual_outcome_cannot_make_equivalent_next_proposal_free[missing_metric]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_completed_finite_nonpromotable_measurement_is_not_a_missing_or_failed_outcome",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_actual_native_primary_quantity_preserves_unavailable_zero_and_fresh_cas_basis[missing-False-ok-1]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_actual_native_primary_quantity_preserves_unavailable_zero_and_fresh_cas_basis[status_not_ok-True-error-1]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_actual_native_primary_quantity_preserves_unavailable_zero_and_fresh_cas_basis[genuine_zero-True-ok-0]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_actual_native_primary_quantity_preserves_unavailable_zero_and_fresh_cas_basis[ordinary_one-True-ok-1]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_optional_dedup_opaque_callback_context_refuses_before_generation_or_evaluation[direct]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_optional_dedup_opaque_callback_context_refuses_before_generation_or_evaluation[nested_mapping]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_optional_dedup_opaque_callback_context_refuses_before_generation_or_evaluation[nested_sequence]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_live_evaluator_configuration_cannot_rebind_old_measurement_membership[ask]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_live_evaluator_configuration_cannot_rebind_old_measurement_membership[tell]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_live_evaluator_configuration_cannot_rebind_old_measurement_membership[checkpoint]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_live_evaluator_configuration_cannot_rebind_old_measurement_membership[resume_pending]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_nested_context_alias_cannot_rebind_acknowledged_pending_scope[ask]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_nested_context_alias_cannot_rebind_acknowledged_pending_scope[tell]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_nested_context_alias_cannot_rebind_acknowledged_pending_scope[checkpoint]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_nested_context_alias_cannot_rebind_acknowledged_pending_scope[resume_pending]",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_explicit_new_run_admits_new_declared_profile_without_rebinding_old_checkpoint",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_proposal_failure_after_initial_ack_retains_basis_and_fresh_restore",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_shared_helper_membership_is_isolated_by_actual_run_with_barrier",
+          "classname": "tests.unit.scientist.methods.search.test_service_trial_deduplication",
+          "status": "PASS"
+        },
+        {
+          "name": "test_unique_candidates",
+          "classname": "tests.unit.scientist.methods.autotune.test_dedup.TestTrialDeduplicator",
+          "status": "PASS"
+        },
+        {
+          "name": "test_duplicate_detected",
+          "classname": "tests.unit.scientist.methods.autotune.test_dedup.TestTrialDeduplicator",
+          "status": "PASS"
+        },
+        {
+          "name": "test_deterministic_fingerprint",
+          "classname": "tests.unit.scientist.methods.autotune.test_dedup.TestTrialDeduplicator",
+          "status": "PASS"
+        },
+        {
+          "name": "test_different_loop_ids",
+          "classname": "tests.unit.scientist.methods.autotune.test_dedup.TestTrialDeduplicator",
+          "status": "PASS"
+        },
+        {
+          "name": "test_dict_candidate",
+          "classname": "tests.unit.scientist.methods.autotune.test_dedup.TestTrialDeduplicator",
+          "status": "PASS"
+        },
+        {
+          "name": "test_count",
+          "classname": "tests.unit.scientist.methods.autotune.test_dedup.TestTrialDeduplicator",
+          "status": "PASS"
+        },
+        {
+          "name": "test_reset",
+          "classname": "tests.unit.scientist.methods.autotune.test_dedup.TestTrialDeduplicator",
+          "status": "PASS"
+        },
+        {
+          "name": "test_register_returns_fingerprint",
+          "classname": "tests.unit.scientist.methods.autotune.test_dedup.TestTrialDeduplicator",
+          "status": "PASS"
+        }
+      ],
+      "needs_actual_replay_cases": [],
+      "qualification": "old output retained and producer/property branch qualified; this record is NOT a new execution or new PASS on the successor source",
+      "basis": "Actual40 native factory/CAS/profile controls use _AutotuneObjective._extract_value (common finite_real_scalar), plus8 dedup-only helper controls. Native replay v2 returns before objective_build; source/helper/configuration and full test blobs unchanged."
+    },
+    {
+      "cohort": "service",
+      "immutable_test_source": "96905636726483fdea3a98d9313871d825b54a9e",
+      "check_results_remain_at": "96905636726483fdea3a98d9313871d825b54a9e",
+      "old_receipt": {
+        "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/service.receipt.json",
+        "sha256": "685737ba7a8c01b9b7c326765d86bf5bc8de879440604fb74b7d8f5fc87c430d"
+      },
+      "old_case_phases": {
+        "PASS": 41,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "old_outputs": {
+        "stdout.txt": {
+          "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/service.stdout.txt",
+          "bytes": 174534,
+          "sha256": "c8185fea219beab0693a272c06abf4f96844196d89f0ce4043a5464717d1b599"
+        },
+        "stderr.txt": {
+          "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/service.stderr.txt",
+          "bytes": 3502,
+          "sha256": "6ec550a3322e631988b2bde8d1c4c14fc09b19312368d916da451b43cb2805a7"
+        },
+        "junit.xml": {
+          "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/service.junit.xml",
+          "bytes": 8156,
+          "sha256": "dc21afc250d1bf601ff8a38ebe85d8674b835d1f1be5775b12d83b4b70eb6184"
+        }
+      },
+      "carried_cases": [
+        {
+          "name": "test_public_factory_checkpoint_fault_fresh_process_resume_preserves_next_subject[write]",
+          "classname": "tests.unit.scientist.methods.search.test_service_factory_fault_resume",
+          "status": "PASS"
+        },
+        {
+          "name": "test_public_factory_checkpoint_fault_fresh_process_resume_preserves_next_subject[readback]",
+          "classname": "tests.unit.scientist.methods.search.test_service_factory_fault_resume",
+          "status": "PASS"
+        },
+        {
+          "name": "test_native_route_forbids_private_full_evaluation_and_preserves_warm_sentinel_empty_stop",
+          "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+          "status": "PASS"
+        },
+        {
+          "name": "test_native_failure_leaves_only_pending_candidate_then_same_instance_tell_continues",
+          "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+          "status": "PASS"
+        },
+        {
+          "name": "test_native_partial_batch_stop_retains_unaccepted_pending_without_double_count",
+          "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+          "status": "PASS"
+        },
+        {
+          "name": "test_public_call_removal_trap_is_reached_before_history_acceptance[ask]",
+          "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+          "status": "PASS"
+        },
+        {
+          "name": "test_public_call_removal_trap_is_reached_before_history_acceptance[tell]",
+          "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+          "status": "PASS"
+        },
+        {
+          "name": "test_public_runner_two_runs_detach_history_and_preserve_actual_cas_evaluation",
+          "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+          "status": "PASS"
+        },
+        {
+          "name": "test_public_runner_refuses_zero_iteration_budget_before_any_evaluation",
+          "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+          "status": "PASS"
+        },
+        {
+          "name": "test_native_empty_supplier_exhausts_without_accepting_history",
+          "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+          "status": "PASS"
+        },
+        {
+          "name": "test_execution_plan_params_only_preserves_method_dag_hash",
+          "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+          "status": "PASS"
+        },
+        {
+          "name": "test_benchmark_split_manifest_supports_extended_runtime_splits",
+          "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+          "status": "PASS"
+        },
+        {
+          "name": "test_benchmark_split_manifest_rejects_duplicate_assignments",
+          "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+          "status": "PASS"
+        },
+        {
+          "name": "test_execution_plan_topology_step_requires_single_mutation",
+          "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+          "status": "PASS"
+        },
+        {
+          "name": "test_execution_plan_promotion_is_blocked_when_new_blocker_appears",
+          "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+          "status": "PASS"
+        },
+        {
+          "name": "test_suggest_execution_plan_topology_mutations_for_removed_wrapper",
+          "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+          "status": "PASS"
+        },
+        {
+          "name": "test_suggest_execution_plan_topology_mutations_accepts_registry_provider",
+          "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+          "status": "PASS"
+        },
+        {
+          "name": "test_capability_aware_generator_emits_topology_candidate_for_missing_method",
+          "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+          "status": "PASS"
+        },
+        {
+          "name": "test_execution_plan_search_loop_defaults_to_capability_aware_generator",
+          "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+          "status": "PASS"
+        },
+        {
+          "name": "test_with_topology_mutation_uses_branch_local_method_dag_clone",
+          "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+          "status": "PASS"
+        },
+        {
+          "name": "test_with_topology_mutation_does_not_swallow_registry_assertion",
+          "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+          "status": "PASS"
+        },
+        {
+          "name": "test_coerce_candidate_config_does_not_swallow_assertion",
+          "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+          "status": "PASS"
+        },
+        {
+          "name": "test_backend_for_method_does_not_swallow_assertion",
+          "classname": "tests.unit.scientist.methods.autotune.test_execution_plan_autotune",
+          "status": "PASS"
+        }
+      ],
+      "needs_actual_replay_cases": [
+        {
+          "name": "test_empty_batch_then_declared_signal_preserves_cause_partial_cost_and_fresh_view[StopIteration]",
+          "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+          "status": "PASS"
+        },
+        {
+          "name": "test_empty_batch_then_declared_signal_preserves_cause_partial_cost_and_fresh_view[ValueError]",
+          "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+          "status": "PASS"
+        },
+        {
+          "name": "test_empty_batch_then_declared_signal_preserves_cause_partial_cost_and_fresh_view[CancelledError]",
+          "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+          "status": "PASS"
+        },
+        {
+          "name": "test_empty_batch_transient_and_persistent_preserve_actual_partial_cost[steps0-[max_iterations] Maximum iterations (2) reached-2]",
+          "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+          "status": "PASS"
+        },
+        {
+          "name": "test_empty_batch_transient_and_persistent_preserve_actual_partial_cost[steps1-generation_exhausted-1]",
+          "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+          "status": "PASS"
+        },
+        {
+          "name": "test_async_cancel_after_empty_public_batch_keeps_acknowledged_generator_and_partial_state",
+          "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+          "status": "PASS"
+        },
+        {
+          "name": "test_empty_batch_signal_retains_real_provider_settlement_receipt_and_fresh_ledger[StopIteration]",
+          "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+          "status": "PASS"
+        },
+        {
+          "name": "test_empty_batch_signal_retains_real_provider_settlement_receipt_and_fresh_ledger[ValueError]",
+          "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+          "status": "PASS"
+        },
+        {
+          "name": "test_empty_batch_signal_retains_real_provider_settlement_receipt_and_fresh_ledger[CancelledError0]",
+          "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+          "status": "PASS"
+        },
+        {
+          "name": "test_empty_batch_signal_retains_real_provider_settlement_receipt_and_fresh_ledger[CancelledError1]",
+          "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+          "status": "PASS"
+        },
+        {
+          "name": "test_async_generator_rollback_refusal_blocks_publication_and_preserves_original_cause",
+          "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+          "status": "PASS"
+        },
+        {
+          "name": "test_failure_checkpoint_io_refusal_retains_original_batch_reason_and_last_ack",
+          "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+          "status": "PASS"
+        },
+        {
+          "name": "test_async_rollback_refusal_keeps_original_cause_and_requires_fresh_ack_reader",
+          "classname": "tests.unit.scientist.methods.search.test_service_control_cleanup_independent",
+          "status": "PASS"
+        },
+        {
+          "name": "test_failure_checkpoint_publication_phase_keeps_primary_refusal_and_old_ack[put]",
+          "classname": "tests.unit.scientist.methods.search.test_service_control_cleanup_independent",
+          "status": "PASS"
+        },
+        {
+          "name": "test_failure_checkpoint_publication_phase_keeps_primary_refusal_and_old_ack[readback]",
+          "classname": "tests.unit.scientist.methods.search.test_service_control_cleanup_independent",
+          "status": "PASS"
+        },
+        {
+          "name": "test_ask_publication_live_state_matches_fresh_acknowledged_checkpoint[None]",
+          "classname": "tests.unit.scientist.methods.search.test_service_ask_publication_review",
+          "status": "PASS"
+        },
+        {
+          "name": "test_ask_publication_live_state_matches_fresh_acknowledged_checkpoint[put]",
+          "classname": "tests.unit.scientist.methods.search.test_service_ask_publication_review",
+          "status": "PASS"
+        },
+        {
+          "name": "test_ask_publication_live_state_matches_fresh_acknowledged_checkpoint[readback]",
+          "classname": "tests.unit.scientist.methods.search.test_service_ask_publication_review",
+          "status": "PASS"
+        }
+      ],
+      "qualification": "old output retained and producer/property branch qualified; this record is NOT a new execution or new PASS on the successor source",
+      "basis": "18 builtin BudgetDeficit extraction and module-digest replay controls require current execution. Remaining23 are factory _AutotuneObjective2, custom _Cost native lifecycle8, topology/execution-plan13; their actual branches and full test/runtime source bytes are unchanged."
+    },
+    {
+      "cohort": "champion",
+      "immutable_test_source": "96905636726483fdea3a98d9313871d825b54a9e",
+      "check_results_remain_at": "96905636726483fdea3a98d9313871d825b54a9e",
+      "old_receipt": {
+        "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/champion.receipt.json",
+        "sha256": "29c50960915278dd5ba9aaba3eca53c4028808d78b1c189bbbe50d8d90bfb1dc"
+      },
+      "old_case_phases": {
+        "PASS": 44,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "old_outputs": {
+        "stdout.txt": {
+          "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/champion.stdout.txt",
+          "bytes": 4659,
+          "sha256": "0731d6c4644e527dadb5d8693e3eaec9554ea882238b730c862b9aba7dbdaa31"
+        },
+        "stderr.txt": {
+          "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/champion.stderr.txt",
+          "bytes": 1470,
+          "sha256": "f321a5632186029ef46e4200b9647319d8cad46b0fe8c5671bd3413929bd916f"
+        },
+        "junit.xml": {
+          "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/champion.junit.xml",
+          "bytes": 8752,
+          "sha256": "6d399a81dbe973ffdb728a817a8f78957f6cf8fedaca602991ee50b91f16a6a3"
+        }
+      },
+      "carried_cases": [
+        {
+          "name": "test_default_store_uses_storage_factory",
+          "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "status": "PASS"
+        },
+        {
+          "name": "test_autotune_persistence_helpers_accept_protocol_backed_store",
+          "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "status": "PASS"
+        },
+        {
+          "name": "test_search_loop_runner_promotes_and_runtime_loader_reads_champion",
+          "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "status": "PASS"
+        },
+        {
+          "name": "test_champion_registry_is_idempotent_for_same_candidate_and_evaluation",
+          "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "status": "PASS"
+        },
+        {
+          "name": "test_champion_registry_rejects_omitted_suite_binding",
+          "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "status": "PASS"
+        },
+        {
+          "name": "test_champion_registry_rejects_evaluation_for_different_candidate",
+          "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "status": "PASS"
+        },
+        {
+          "name": "test_champion_registry_rejects_evaluation_for_different_loop",
+          "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "status": "PASS"
+        },
+        {
+          "name": "test_champion_registry_rejects_policy_for_different_loop",
+          "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "status": "PASS"
+        },
+        {
+          "name": "test_champion_registry_rejects_incompatible_suite[foreign_suite-1.0-suite_mismatch]",
+          "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "status": "PASS"
+        },
+        {
+          "name": "test_champion_registry_rejects_incompatible_suite[dummy_suite-2.0-suite_version_mismatch]",
+          "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "status": "PASS"
+        },
+        {
+          "name": "test_champion_registry_rejects_evaluation_from_different_suite_basis",
+          "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "status": "PASS"
+        },
+        {
+          "name": "test_champion_registry_rejects_bound_promotion_over_unknown_seed_basis",
+          "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "status": "PASS"
+        },
+        {
+          "name": "test_champion_registry_rejects_wrong_comparison_split",
+          "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "status": "PASS"
+        },
+        {
+          "name": "test_champion_registry_rejects_missing_runtime_split_when_resolution_disagrees",
+          "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "status": "PASS"
+        },
+        {
+          "name": "test_champion_registry_keeps_newer_champion_when_stale_score_arrives",
+          "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "status": "PASS"
+        },
+        {
+          "name": "test_champion_registry_serializes_compare_and_publish_against_new_predecessor",
+          "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "status": "PASS"
+        },
+        {
+          "name": "test_search_loop_runner_rejects_evaluator_from_foreign_suite",
+          "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "status": "PASS"
+        },
+        {
+          "name": "test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs",
+          "classname": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+          "status": "PASS"
+        },
+        {
+          "name": "test_actual_reused_content_keeps_old_qualified_view_and_refuses_wrong_candidate_profile",
+          "classname": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+          "status": "PASS"
+        },
+        {
+          "name": "test_native_seed_incumbent_is_actually_re_evaluated_on_active_immutable_suite",
+          "classname": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+          "status": "PASS"
+        },
+        {
+          "name": "test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread",
+          "classname": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+          "status": "PASS"
+        },
+        {
+          "name": "test_actual_process_exit_around_atomic_pointer_replace_has_complete_fresh_view[before-1]",
+          "classname": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+          "status": "PASS"
+        },
+        {
+          "name": "test_actual_process_exit_around_atomic_pointer_replace_has_complete_fresh_view[after-2]",
+          "classname": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+          "status": "PASS"
+        },
+        {
+          "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[selection_metrics-score-True]",
+          "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+          "status": "PASS"
+        },
+        {
+          "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[selection_metrics-score-1]",
+          "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+          "status": "PASS"
+        },
+        {
+          "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[holdout_metrics-score-False]",
+          "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+          "status": "PASS"
+        },
+        {
+          "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[holdout_metrics-score-1]",
+          "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+          "status": "PASS"
+        },
+        {
+          "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[sample_counts-selection-True]",
+          "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+          "status": "PASS"
+        },
+        {
+          "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[sample_counts-holdout-1]",
+          "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+          "status": "PASS"
+        },
+        {
+          "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[sample_counts-holdout-1.0]",
+          "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+          "status": "PASS"
+        },
+        {
+          "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[guardrails-finite-1]",
+          "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+          "status": "PASS"
+        },
+        {
+          "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[guardrails-finite-true]",
+          "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+          "status": "PASS"
+        },
+        {
+          "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[None-promotable-1]",
+          "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+          "status": "PASS"
+        },
+        {
+          "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[None-promotable-true]",
+          "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+          "status": "PASS"
+        },
+        {
+          "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[None-suite_version-True]",
+          "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+          "status": "PASS"
+        },
+        {
+          "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[comparison_basis-schema_version-benchmark-comparison.v2]",
+          "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+          "status": "PASS"
+        },
+        {
+          "name": "test_nonfinite_evidence_refused_before_producer_persistence[selection_metrics-nan]",
+          "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+          "status": "PASS"
+        },
+        {
+          "name": "test_nonfinite_evidence_refused_before_producer_persistence[selection_metrics-inf]",
+          "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+          "status": "PASS"
+        },
+        {
+          "name": "test_nonfinite_evidence_refused_before_producer_persistence[selection_metrics--inf]",
+          "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+          "status": "PASS"
+        },
+        {
+          "name": "test_nonfinite_evidence_refused_before_producer_persistence[holdout_metrics-nan]",
+          "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+          "status": "PASS"
+        },
+        {
+          "name": "test_nonfinite_evidence_refused_before_producer_persistence[holdout_metrics-inf]",
+          "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+          "status": "PASS"
+        },
+        {
+          "name": "test_nonfinite_evidence_refused_before_producer_persistence[holdout_metrics--inf]",
+          "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+          "status": "PASS"
+        },
+        {
+          "name": "test_declared_builtin_mutation_numeric_fields_refuse_coercion_in_real_cas",
+          "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+          "status": "PASS"
+        },
+        {
+          "name": "test_fresh_pointer_reader_refuses_boolean_cached_metric_without_rewrite",
+          "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+          "status": "PASS"
+        }
+      ],
+      "needs_actual_replay_cases": [],
+      "qualification": "old output retained and producer/property branch qualified; this record is NOT a new execution or new PASS on the successor source",
+      "basis": "Direct qualified registry primitive/snapshot cases and actual Runner promotion consumer use unchanged registry/common basis and native _AutotuneObjective; no fiscal alias extractor path."
+    },
+    {
+      "cohort": "paid-original",
+      "immutable_test_source": "96905636726483fdea3a98d9313871d825b54a9e",
+      "check_results_remain_at": "96905636726483fdea3a98d9313871d825b54a9e",
+      "old_receipt": {
+        "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/paid-original.receipt.json",
+        "sha256": "b61a1d1c114d674a462678fb137bc54ee266a1523a7634acec88a19229ce4b18"
+      },
+      "old_case_phases": {
+        "PASS": 2,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "old_outputs": {
+        "stdout.txt": {
+          "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/paid-original.stdout.txt",
+          "bytes": 5449,
+          "sha256": "8915700fe3adc1264652f38024f642d42a0322ebd6d06fd93efbc1187844e217"
+        },
+        "stderr.txt": {
+          "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/paid-original.stderr.txt",
+          "bytes": 1114,
+          "sha256": "393d8a55a544c3813f4714e4eae572c4d0ead7df4ee24883fe7398c57017f984"
+        },
+        "junit.xml": {
+          "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/paid-original.junit.xml",
+          "bytes": 619,
+          "sha256": "e0af50f026ab00686a3df4e8421ff7c796da784328070bce2632e764c3af54b9"
+        }
+      },
+      "carried_cases": [
+        {
+          "name": "test_native_paid_sentinel_stops_on_cost_without_training_or_new_evaluation_count",
+          "classname": "tests.integration.scientist.methods.search.test_controller",
+          "status": "PASS"
+        },
+        {
+          "name": "test_two_paid_runs_on_same_controller_match_fresh_controllers_with_scoped_sentinels",
+          "classname": "tests.integration.scientist.methods.search.test_controller",
+          "status": "PASS"
+        }
+      ],
+      "needs_actual_replay_cases": [],
+      "qualification": "old output retained and producer/property branch qualified; this record is NOT a new execution or new PASS on the successor source",
+      "basis": "Actual SearchController integration uses GDPGrowthObjective, whose complete AST/globals/Base/Composite AST is unchanged and does not call _read_metric_aliases; direct controller, no builtin-objective replay profile."
+    },
+    {
+      "cohort": "native-doe",
+      "immutable_test_source": "96905636726483fdea3a98d9313871d825b54a9e",
+      "check_results_remain_at": "96905636726483fdea3a98d9313871d825b54a9e",
+      "old_receipt": {
+        "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/native-doe.receipt.json",
+        "sha256": "7867db037d0c4f4cb3d4d6b36841865f196fc50f8a1b2630adaf18232377cc9c"
+      },
+      "old_case_phases": {
+        "PASS": 13,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "old_outputs": {
+        "stdout.txt": {
+          "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/native-doe.stdout.txt",
+          "bytes": 211637,
+          "sha256": "5bd9d1643dca7c5aeac4582f1520f42e0b833337e49e562ac3884e807ff335ae"
+        },
+        "stderr.txt": {
+          "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/native-doe.stderr.txt",
+          "bytes": 13529,
+          "sha256": "92fcaf4484e2930a32b4324264a33a6c1166fdc031dc2577046f6b13d8e82b76"
+        },
+        "junit.xml": {
+          "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/native-doe.junit.xml",
+          "bytes": 2746,
+          "sha256": "cc26cc53ec3a66474c3db6f74d1e30a4e2e32715bd2931385dd2b7511413fb64"
+        }
+      },
+      "carried_cases": [
+        {
+          "name": "test_ordinary_spec_metadata_changes_actual_proposal_and_typed_persisted_consumer",
+          "classname": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "status": "PASS"
+        },
+        {
+          "name": "test_fresh_configured_public_factory_preserves_next_proposal_and_exact_analysis",
+          "classname": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "status": "PASS"
+        },
+        {
+          "name": "test_invalid_factory_analysis_configuration_refuses_before_native_activity[missing_purpose]",
+          "classname": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "status": "PASS"
+        },
+        {
+          "name": "test_invalid_factory_analysis_configuration_refuses_before_native_activity[unknown_profile]",
+          "classname": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "status": "PASS"
+        },
+        {
+          "name": "test_invalid_factory_analysis_configuration_refuses_before_native_activity[unqualified]",
+          "classname": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "status": "PASS"
+        },
+        {
+          "name": "test_invalid_factory_analysis_configuration_refuses_before_native_activity[non_native]",
+          "classname": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "status": "PASS"
+        },
+        {
+          "name": "test_meaningful_or_forged_native_payload_is_not_dropped_by_typed_projection",
+          "classname": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "status": "PASS"
+        },
+        {
+          "name": "test_changed_native_subject_in_actual_checkpoint_refuses_before_live_effect[pending]",
+          "classname": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "status": "PASS"
+        },
+        {
+          "name": "test_changed_native_subject_in_actual_checkpoint_refuses_before_live_effect[history]",
+          "classname": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "status": "PASS"
+        },
+        {
+          "name": "test_changed_native_subject_in_actual_checkpoint_refuses_before_live_effect[best]",
+          "classname": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "status": "PASS"
+        },
+        {
+          "name": "test_changed_native_subject_in_actual_checkpoint_refuses_before_live_effect[frontier]",
+          "classname": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "status": "PASS"
+        },
+        {
+          "name": "test_actual_resolved_analysis_return_ref_cannot_change_before_factory_publication[missing]",
+          "classname": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "status": "PASS"
+        },
+        {
+          "name": "test_actual_resolved_analysis_return_ref_cannot_change_before_factory_publication[different]",
+          "classname": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "status": "PASS"
+        }
+      ],
+      "needs_actual_replay_cases": [],
+      "qualification": "old output retained and producer/property branch qualified; this record is NOT a new execution or new PASS on the successor source",
+      "basis": "Actual SearchLoopRunner typed mutation/qualified SALib artifact factory uses unchanged _AutotuneObjective and native replay v2; no sampler/scientific law inferred and old13 PASS remains exact969."
+    },
+    {
+      "cohort": "contracts",
+      "immutable_test_source": "96905636726483fdea3a98d9313871d825b54a9e",
+      "check_results_remain_at": "96905636726483fdea3a98d9313871d825b54a9e",
+      "old_receipt": {
+        "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/contracts.receipt.json",
+        "sha256": "3ba3c2aa88b4bfc1b61b3c3cdb1e2734f9d7e2460e36475325bb23883749847f"
+      },
+      "old_case_phases": {
+        "PASS": 2,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "old_outputs": {
+        "stdout.txt": {
+          "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/contracts.stdout.txt",
+          "bytes": 1372,
+          "sha256": "7bc2169d07821287dde240d19f84c5826791e1e50c74e97827f5702163ad2877"
+        },
+        "stderr.txt": {
+          "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/contracts.stderr.txt",
+          "bytes": 210,
+          "sha256": "05e04035ed8722609506fc8e559a7513b2570438732bd6caf305e23f7cc0d4c0"
+        },
+        "junit.xml": {
+          "path": "/dev/shm/e02-D-oct07-service-start/final-native-969/contracts.junit.xml",
+          "bytes": 533,
+          "sha256": "faf53407ab4abfb6491082c2de9bcbb77bfe0f65222d57cb9cdb39e9377c5926"
+        }
+      },
+      "carried_cases": [
+        {
+          "name": "test_legacy_search_service_adapter_exposes_ask_tell",
+          "classname": "tests.unit.scientist.search.test_contracts",
+          "status": "PASS"
+        },
+        {
+          "name": "test_orchestrator_funnel_service_submits_and_reads_outcome",
+          "classname": "tests.unit.scientist.search.test_contracts",
+          "status": "PASS"
+        }
+      ],
+      "needs_actual_replay_cases": [],
+      "qualification": "old output retained and producer/property branch qualified; this record is NOT a new execution or new PASS on the successor source",
+      "basis": "Actual Legacy adapter/controller uses custom _Objective with unchanged CompositeObjective; custom replay profile is unavailable by existing contract, not builtin objective_build."
+    }
+  ],
+  "mypy": {
+    "exact_prior_test_source": "96905636726483fdea3a98d9313871d825b54a9e",
+    "successor_runtime_source_blob_unchanged": true,
+    "successor_objective_public_annotations_unchanged": true,
+    "result": "prior strict runtime mypy0 retained at969; no successor typecheck execution asserted",
+    "prior_manifest": "/dev/shm/e02-D-runner-mypy-after-969-dy94hlnx/command.json"
+  },
+  "limitations": [
+    "This qualified transfer applies only to the exact fiscal-only source diff and listed unchanged runtime/test blobs.",
+    "No whole41 successor replay or whole-D PASS is claimed.",
+    "No original scientific/unit law, production caller appointment, migration authority or G integration acceptance follows from this source qualification.",
+    "Actual18 current execution is a separate deciding receipt and required before completing this delta."
+  ]
+}

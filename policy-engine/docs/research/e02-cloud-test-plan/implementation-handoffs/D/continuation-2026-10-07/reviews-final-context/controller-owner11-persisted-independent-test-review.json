@@ -1,0 +1,27 @@
+{
+  "schema": "e02.independent.consumer-test-review.v1",
+  "reviewer": "/root/census_oct07",
+  "decision": "GO_CANONICAL_OWNER_CONTROLLER11_PENDING_CHECKPOINT_CONSUMERS_RUNTIME_PENDING",
+  "artifact": {
+    "path": "/dev/shm/e02-D-funnel-oct07/test_controller_owner_admission_draft_v4.py",
+    "bytes": 10246,
+    "sha256": "ba130a9716929bb76f46a2e058e665fc46628738771d5bfae31c66c0756a8da3"
+  },
+  "denominator": 11,
+  "actual_chain": "Actual response-text Gateway decoder -> owner enforcer -> canonicalB1.2 durable pending/paid/initializedledger -> freshBudgetMiddleware -> ordinary SearchController/native directask -> actual state/stopping boundary -> JSON fresh SearchRunState restore. Only controlled transport supplies provider cost; actual owner implementation/persisted transition required.",
+  "scope": {
+    "pending4": "Both ±tiny and coststopping/MaxIterations preserve durable unknown operation/reservation; owner pre-check fences before actualgenerator/evaluator under run and directask. Telemetry plus live run/stopping budget_spentNone and absent cumulative key prevent display-only nullable projection.",
+    "known2_and_zero1": "Actual paid1 or exhausted5 snapshot remains known numeric; genuine initialized owner/no operation retains knownzero and allows one real evaluation. Fresh JSON state reproduces snapshot/evidence/known amount.",
+    "removal1": "Keep actual response cost1 and exact typed receipt DTO but remove actual ledger debit/receipt; durable completion pending cannot admit next search, live/stopping cost remains None, fresh state unavailable.",
+    "persisted_negatives3": "Actual pending state JSON is altered only available flag, fabricated zero snapshot or invalid admission token while preserving owner/run/receipt/source markers; fresh decoder must reject."
+  },
+  "P37": "Actual resource-owner pre_check and fresh durable receipt/obligation, ordinary proposed/evaluated effect count and actual stopping data inspected; callback/trace/floatcost alone insufficient.",
+  "P38": "Preserved paidresponse/typedACK with removed debit refuses; unknown versus genuine zero have opposite admission/effect outcomes. Marker-preserving checkpoint alterations cannot manufacture availability.",
+  "required_source": "Matching final persisted nullable Service/controller/run_state f360 source and adopted canonicalB1.2 plus rawtest helper port; no current candidate PASS.",
+  "limits": [
+    "Source author Service and test author Funnel independent; reviewer authored neither.",
+    "No provider invoice/scientific law/promotional authority.",
+    "JSON state fresh reader is additional contract evidence; full Service CAS envelope consumers/final lifecycle replay distinct.",
+    "FormalG acceptance/closure false."
+  ]
+}

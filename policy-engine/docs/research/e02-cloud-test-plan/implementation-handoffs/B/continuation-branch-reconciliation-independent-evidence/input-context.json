@@ -1,0 +1,58 @@
+{
+  "instruction_refs": [
+    {
+      "git_sha": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "path": "AGENTS.md",
+      "bytes": 22656,
+      "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50"
+    },
+    {
+      "git_sha": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "path": "policy-engine/CONTRIBUTING.md",
+      "bytes": 10553,
+      "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783"
+    },
+    {
+      "git_sha": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+      "bytes": 20260,
+      "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b"
+    },
+    {
+      "git_sha": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "bytes": 61268,
+      "sha256": "64f9fa40453980d9128443ee34a4bf3298b71c157a5ebcc3bd6cb786abeb090a"
+    },
+    {
+      "git_sha": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/B-resume-after-d030.md",
+      "bytes": 14802,
+      "sha256": "be849e6175ab46d61dcd87d17d97f82bf28cdd8e975fc7bf5e0c6db8124cf9af"
+    },
+    {
+      "git_sha": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/B.md",
+      "bytes": 15154,
+      "sha256": "56b4c0f6ccbf6816eb21d05dfd9ed032e6c07ae22458d5c3e1f3e5b0c2601fa7"
+    }
+  ],
+  "actual_resume_admission": {
+    "path": "/tmp/e02-B-tenth-wave-20261007/cas-generation-admission.json",
+    "bytes": 135795,
+    "sha256": "4cdcab98647dedd2835ddc3cb04c50a61b86c7a12184dd18e399dcbaf5a425a1",
+    "status": "admitted",
+    "requested": {
+      "branch": "codex/e02-B-current-cas-generation",
+      "mode": "resume",
+      "path": "/workspace/e02-B-current-cas-generation"
+    },
+    "unresolved_inputs": [],
+    "qualification": "Existing admitted own checkout read-only; snapshot consumer assertion, not an atomic worktree reservation/precreation claim"
+  },
+  "actual_own_attached_checkout_head": "a058426e743e8ce8c88c0b4469451b3180458915",
+  "actual_own_branch": "codex/e02-B-current-cas-generation",
+  "publication_parent_remote_verified": "8c292c4904462a1ecd57d250f06fdfd7ff293c95",
+  "runtime_by_reviewer": "UNRUN",
+  "baseline_role": "No baseline summaries or cells used as proof of a new change; no finding closure proposed"
+}

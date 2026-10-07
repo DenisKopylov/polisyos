@@ -41,10 +41,12 @@
       "outcome": "PASS",
       "expected_outcome": "PASS",
       "exit_code": 0,
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#commands/0",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
       "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
       "output_sha256": "f0fff4d6164970b24a958629e59da3f3886f76398c5e72eaa289c40058f4269c",
-      "outcome_details": "Actualversionstatus stdout preserved; does not establishnative/gates PASS"
+      "outcome_details": "Actualversionstatus stdout preserved; does not establishnative/gates PASS",
+      "output_json_pointer": "/commands/0",
+      "output_bytes": 14827
     },
     {
       "id": "tool-status-1",
@@ -69,10 +71,12 @@
       "outcome": "PASS",
       "expected_outcome": "PASS",
       "exit_code": 0,
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#commands/1",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
       "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
       "output_sha256": "f0fff4d6164970b24a958629e59da3f3886f76398c5e72eaa289c40058f4269c",
-      "outcome_details": "Actualversionstatus stdout preserved; does not establishnative/gates PASS"
+      "outcome_details": "Actualversionstatus stdout preserved; does not establishnative/gates PASS",
+      "output_json_pointer": "/commands/1",
+      "output_bytes": 14827
     },
     {
       "id": "tool-status-2",
@@ -97,10 +101,12 @@
       "outcome": "PASS",
       "expected_outcome": "PASS",
       "exit_code": 0,
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#commands/2",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
       "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
       "output_sha256": "f0fff4d6164970b24a958629e59da3f3886f76398c5e72eaa289c40058f4269c",
-      "outcome_details": "Actualversionstatus stdout preserved; does not establishnative/gates PASS"
+      "outcome_details": "Actualversionstatus stdout preserved; does not establishnative/gates PASS",
+      "output_json_pointer": "/commands/2",
+      "output_bytes": 14827
     },
     {
       "id": "tool-status-3",
@@ -125,10 +131,12 @@
       "outcome": "PASS",
       "expected_outcome": "PASS",
       "exit_code": 0,
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#commands/3",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
       "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
       "output_sha256": "f0fff4d6164970b24a958629e59da3f3886f76398c5e72eaa289c40058f4269c",
-      "outcome_details": "Actualversionstatus stdout preserved; does not establishnative/gates PASS"
+      "outcome_details": "Actualversionstatus stdout preserved; does not establishnative/gates PASS",
+      "output_json_pointer": "/commands/3",
+      "output_bytes": 14827
     },
     {
       "id": "tool-status-4",
@@ -153,10 +161,12 @@
       "outcome": "PASS",
       "expected_outcome": "PASS",
       "exit_code": 0,
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#commands/4",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
       "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
       "output_sha256": "f0fff4d6164970b24a958629e59da3f3886f76398c5e72eaa289c40058f4269c",
-      "outcome_details": "Actualversionstatus stdout preserved; does not establishnative/gates PASS"
+      "outcome_details": "Actualversionstatus stdout preserved; does not establishnative/gates PASS",
+      "output_json_pointer": "/commands/4",
+      "output_bytes": 14827
     },
     {
       "id": "tool-status-5",
@@ -184,10 +194,12 @@
       "outcome": "PASS",
       "expected_outcome": "PASS",
       "exit_code": 0,
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#commands/5",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
       "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
       "output_sha256": "f0fff4d6164970b24a958629e59da3f3886f76398c5e72eaa289c40058f4269c",
-      "outcome_details": "Actualversionstatus stdout preserved; does not establishnative/gates PASS"
+      "outcome_details": "Actualversionstatus stdout preserved; does not establishnative/gates PASS",
+      "output_json_pointer": "/commands/5",
+      "output_bytes": 14827
     },
     {
       "id": "tool-status-6",
@@ -217,10 +229,12 @@
       "outcome": "FAIL",
       "expected_outcome": "FAIL",
       "exit_code": 3,
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#commands/6",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
       "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
       "output_sha256": "f0fff4d6164970b24a958629e59da3f3886f76398c5e72eaa289c40058f4269c",
-      "outcome_details": "pg_ctl status3 is actualstoppedfixture, notproduct/gatefailure"
+      "outcome_details": "pg_ctl status3 is actualstoppedfixture, notproduct/gatefailure",
+      "output_json_pointer": "/commands/6",
+      "output_bytes": 14827
     },
     {
       "id": "tool-status-7",
@@ -246,10 +260,12 @@
       "outcome": "PASS",
       "expected_outcome": "PASS",
       "exit_code": 0,
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#commands/7",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
       "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
       "output_sha256": "f0fff4d6164970b24a958629e59da3f3886f76398c5e72eaa289c40058f4269c",
-      "outcome_details": "Actualversionstatus stdout preserved; does not establishnative/gates PASS"
+      "outcome_details": "Actualversionstatus stdout preserved; does not establishnative/gates PASS",
+      "output_json_pointer": "/commands/7",
+      "output_bytes": 14827
     }
   ],
   "property": {
@@ -295,5 +311,6 @@
     "rootcheckout edits",
     "cleanup/resourcecap"
   ],
-  "receiver_availability": "Ownmoderateobservedprofile14827B +proposal7945B are committed. ExistingprivateDSN/cache/toolbinaries remainlocal/root-supplied; no transitive portableenvironment claim."
+  "receiver_availability": "Ownmoderateobservedprofile14827B +proposal7945B are committed. ExistingprivateDSN/cache/toolbinaries remainlocal/root-supplied; no transitive portableenvironment claim.",
+  "output_binding_qualification": "Allchecks.output names the complete committed14827B observedJSON/hash; output_json_pointer identifies its exact preserved command object. No new execution or originalobserved bytes changed."
 }

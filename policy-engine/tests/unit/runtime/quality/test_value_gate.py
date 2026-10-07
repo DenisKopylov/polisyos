@@ -6,6 +6,8 @@ import json
 import os
 import subprocess
 import sys
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -172,6 +174,114 @@ def _simulation_execution_context(
         simulation=simulation,
         problem=problem,
     )
+
+
+def _persisted_n5_value_fixture(
+    tmp_path: Path,
+    *,
+    problem_seed: DesignProblem,
+) -> tuple[
+    object,
+    DesignProblem,
+    SimulationPortObservation,
+    EvaluationExecutionContext,
+    Any,
+]:
+    """Run the canonical N5 producer and bind N8 context to its verified CAS bytes."""
+
+    from unittest.mock import patch
+
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+    from tests.unit.remediation import test_cyc_02 as cyc_02
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _cyc01_owner_bound_n5_case,
+    )
+
+    store = FileSystemCAS(tmp_path / "n5-runtime-store")
+    with patch.object(
+        cyc_02,
+        "_cyc01_owner_bound_n5_case",
+        lambda: _cyc01_owner_bound_n5_case(problem_seed=problem_seed),
+    ):
+        problem, _substrate_context, candidate, simulation, produced, supplied_store = (
+            cyc_02._real_n5_observation(  # noqa: SLF001
+                tmp_path,
+                artifact_store=store,
+                single_step_horizon=True,
+                single_atom_candidate=True,
+            )
+        )
+
+    assert supplied_store is store
+    assert produced is not None
+    assert simulation.simulation_result_ref is not None
+    assert simulation.simulation_ref is not None
+    world = simulation.world_model_record
+    assert world is not None
+    assert store.has(simulation.simulation_result_ref)
+    expected_atom_ids = (candidate.atom.intervention_id,)
+    loaded = load_joint_simulation_result(
+        simulation.simulation_result_ref,
+        store=store,
+        expected_world_model_record_content_hash=world.content_hash,
+        expected_world_model_record_ref=world.world_model_record_id,
+        expected_receipt_payload_hash=simulation.simulation_ref,
+        expected_atom_ids=expected_atom_ids,
+        expected_selected_outcomes=produced.selected_outcomes,
+    )
+    assert loaded.receipt.payload_hash == simulation.simulation_ref
+    assert loaded.atom_ids == expected_atom_ids
+    execution_context = simulation_value_execution_context(
+        candidate=candidate,
+        simulation=simulation,
+        problem=problem,
+        artifact_store=store,
+    )
+    assert execution_context.attempt_class == "simulation"
+    assert len(execution_context.evaluation_input_refs) == 1
+    assert execution_context.evaluation_input_provenance[0].input_class == "simulation"
+    return candidate, problem, simulation, execution_context, store
+
+
+@contextmanager
+def _controlled_builtin_value_method_registry(
+    monkeypatch: pytest.MonkeyPatch,
+) -> Iterator[tuple[Any, Any]]:
+    """Bind consumer-side selection to the canonical built-in discovery report."""
+
+    import polisyos.foundry.methods as foundry_methods
+    import polisyos.foundry.methods.selection as method_selection
+    from polisyos.core.contracts.execution_plan import MethodCatalogSnapshot
+    from polisyos.foundry.extensions import controlled_builtin_foundry_method_registry_scope
+    from polisyos.foundry.methods.catalog.snapshot import build_method_catalog_snapshot
+
+    with controlled_builtin_foundry_method_registry_scope() as (registry, report):
+        snapshot: MethodCatalogSnapshot = build_method_catalog_snapshot(
+            registry=registry,
+            registry_report=report,
+            require_bound_discovery=True,
+        )
+        assert tuple(entry.fqn for entry in snapshot.entries) == report.registry_fqns
+
+        def controlled_report(active_registry: Any) -> Any:
+            if active_registry is not registry:
+                raise AssertionError("selector did not use the controlled registry")
+            return report
+
+        select_with_registry = method_selection.select_value_method_for_problem
+        hash_with_registry = method_selection.method_selection_context_hash
+
+        def controlled_select(**kwargs: Any) -> dict[str, Any]:
+            return select_with_registry(registry=registry, **kwargs)
+
+        def controlled_context_hash(**kwargs: Any) -> str:
+            return hash_with_registry(registry=registry, **kwargs)
+
+        monkeypatch.setattr(foundry_methods, "ensure_all_methods_registered", controlled_report)
+        monkeypatch.setattr(method_selection, "select_value_method_for_problem", controlled_select)
+        monkeypatch.setattr(method_selection, "method_selection_context_hash", controlled_context_hash)
+        yield registry, report
 
 
 def _execution_ref(
@@ -2703,24 +2813,27 @@ def test_value_advisor_projection_preserves_typed_design_problem_authority() -> 
     }
 
 
-def test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition() -> None:
-    world = _world_record()
-    problem = _avg_income_problem()
-    candidate = _avg_income_candidate()
-    simulation = _simulation(world, candidate_id="candidate_avg_income_real")
-    observation = FoundryValuePort(
-        evaluation_context=_simulation_execution_context(
+def test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A bound built-in registry routes persisted N5 to the owner-assignment gap."""
+
+    candidate, problem, simulation, execution_context, store = _persisted_n5_value_fixture(
+        tmp_path,
+        problem_seed=_avg_income_problem(),
+    )
+    with _controlled_builtin_value_method_registry(monkeypatch):
+        observation = FoundryValuePort(
+            evaluation_context=execution_context,
+            repo_root=Path.cwd(),
+            artifact_store=store,
+        )(
             candidate=candidate,
             simulation=simulation,
             problem=problem,
-        ),
-        repo_root=Path.cwd(),
-    )(
-        candidate=candidate,
-        simulation=simulation,
-        problem=problem,
-        cycle_index=0,
-    )
+            cycle_index=0,
+        )
 
     assert observation.status == "value_blocked"
     assert observation.selected_method_fqn is not None
@@ -2777,8 +2890,9 @@ def test_source_time_limitation_can_accompany_the_bound_treatment_gap() -> None:
 
 def test_n8_value_port_accepts_recomputed_foundry_receipt_context(
     monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
 ) -> None:
-    """An ordinary N8 call accepts the advisor receipt against recomputed context."""
+    """A bounded built-in registry supports N8 receipt recomputation, not default closure."""
     from polisyos.core.artifacts.ids import ArtifactID as CoreArtifactID
     from polisyos.core.artifacts.manifest import ArtifactRef as CoreArtifactRef
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
@@ -2787,9 +2901,12 @@ def test_n8_value_port_accepts_recomputed_foundry_receipt_context(
         ObservationProvenanceClass,
     )
 
-    candidate = _avg_income_candidate()
-    problem = _avg_income_problem()
-    world = _world_record()
+    candidate, problem, simulation, execution_context, store = _persisted_n5_value_fixture(
+        tmp_path,
+        problem_seed=_avg_income_problem(),
+    )
+    world = simulation.world_model_record
+    assert world is not None
     rows = []
     for unit_index in range(3):
         for period_id in range(4):
@@ -2892,16 +3009,15 @@ def test_n8_value_port_accepts_recomputed_foundry_receipt_context(
     monkeypatch.setattr(
         MethodSelectionReceipt, "verify_selection_context", capture_context
     )
-    simulation = _simulation(world, candidate_id=candidate.candidate_id)
-    observation = FoundryValuePort(
-        evaluation_context=_simulation_execution_context(
-            candidate=candidate, simulation=simulation, problem=problem
-        ),
-        owner_gateway=RealValueOwnerGateway(
-            repo_root=Path.cwd(),
-            activated_observation_projection=projection,
-        ),
-    )(candidate=candidate, simulation=simulation, problem=problem, cycle_index=0)
+    with _controlled_builtin_value_method_registry(monkeypatch):
+        observation = FoundryValuePort(
+            evaluation_context=execution_context,
+            owner_gateway=RealValueOwnerGateway(
+                repo_root=Path.cwd(),
+                activated_observation_projection=projection,
+            ),
+            artifact_store=store,
+        )(candidate=candidate, simulation=simulation, problem=problem, cycle_index=0)
 
     assert observation.status == "value_blocked"
     assert observation.authority_blockers == (
@@ -2922,10 +3038,16 @@ def test_n8_value_port_accepts_recomputed_foundry_receipt_context(
 
 def test_value_port_rejects_selection_receipt_replayed_from_other_owner_profile(
     monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
 ) -> None:
+    """A receipt from another owner profile fails under the bound built-in denominator."""
+
     from polisyos.runtime.quality import generation_cycle
 
-    problem = _avg_income_problem()
+    candidate, problem, simulation, execution_context, store = _persisted_n5_value_fixture(
+        tmp_path,
+        problem_seed=_avg_income_problem(),
+    )
     wrong_problem = {
         "design_problem_id": problem.design_problem_id,
         "problem_statement": problem.problem_statement,
@@ -2944,29 +3066,28 @@ def test_value_port_rejects_selection_receipt_replayed_from_other_owner_profile(
             "value_data_profile_content_hash": _hash("f"),
         },
     }
-    replayed = select_value_method_for_problem(
-        candidate=_avg_income_candidate(),
-        problem=wrong_problem,
-    )
-    monkeypatch.setattr(generation_cycle, "_select_value_method", lambda **_kwargs: replayed)
+    with _controlled_builtin_value_method_registry(monkeypatch) as (registry, _report):
+        replayed = select_value_method_for_problem(
+            candidate=candidate,
+            problem=wrong_problem,
+            registry=registry,
+        )
+        monkeypatch.setattr(
+            generation_cycle,
+            "_select_value_method",
+            lambda **_kwargs: replayed,
+        )
 
-    candidate = _avg_income_candidate()
-    simulation = _simulation(
-        _world_record(), candidate_id="candidate_avg_income_real"
-    )
-    observation = FoundryValuePort(
-        evaluation_context=_simulation_execution_context(
+        observation = FoundryValuePort(
+            evaluation_context=execution_context,
+            repo_root=Path.cwd(),
+            artifact_store=store,
+        )(
             candidate=candidate,
             simulation=simulation,
             problem=problem,
-        ),
-        repo_root=Path.cwd(),
-    )(
-        candidate=candidate,
-        simulation=simulation,
-        problem=problem,
-        cycle_index=0,
-    )
+            cycle_index=0,
+        )
 
     assert observation.status == "value_blocked"
     assert observation.authority_blockers == (
@@ -3027,7 +3148,10 @@ def test_shaped_relation_certificate_cannot_open_missing_value_input_lane() -> N
 
 def test_value_port_rejects_unowned_method_selection_receipt(
     monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
 ) -> None:
+    """A caller-asserted selection is rejected even with a bound built-in registry."""
+
     from polisyos.runtime.quality import generation_cycle
 
     monkeypatch.setattr(
@@ -3043,29 +3167,143 @@ def test_value_port_rejects_unowned_method_selection_receipt(
         },
     )
 
-    problem = _avg_income_problem()
-    candidate = _avg_income_candidate()
-    simulation = _simulation(
-        _world_record(), candidate_id="candidate_avg_income_real"
+    candidate, problem, simulation, execution_context, store = _persisted_n5_value_fixture(
+        tmp_path,
+        problem_seed=_avg_income_problem(),
     )
-    observation = FoundryValuePort(
-        evaluation_context=_simulation_execution_context(
+    with _controlled_builtin_value_method_registry(monkeypatch):
+        observation = FoundryValuePort(
+            evaluation_context=execution_context,
+            repo_root=Path.cwd(),
+            artifact_store=store,
+        )(
             candidate=candidate,
             simulation=simulation,
             problem=problem,
-        ),
-        repo_root=Path.cwd(),
+            cycle_index=0,
+        )
+
+    assert observation.status == "value_blocked"
+    assert observation.authority_blockers == (
+        "value_method_selection_authority_unresolved",
+    )
+    assert observation.value_receipt is None
+
+
+@pytest.mark.parametrize(
+    "extra_blocker",
+    ["unrecognized_n5_blocker", "n5_coupling_blocked"],
+    ids=("unknown", "fatal"),
+)
+def test_simulate_only_n8_rejects_unknown_or_fatal_n5_blocker_before_owner_gateway(
+    tmp_path: Path,
+    extra_blocker: str,
+) -> None:
+    candidate, problem, simulation, execution_context, store = _persisted_n5_value_fixture(
+        tmp_path,
+        problem_seed=_avg_income_problem(),
+    )
+    assert "simulation_only_k_sim_not_world_evidence" in simulation.authority_blockers
+    invalid_simulation = SimulationPortObservation.model_validate(
+        {
+            **simulation.model_dump(mode="python"),
+            "authority_blockers": (*simulation.authority_blockers, extra_blocker),
+        }
+    )
+    gateway_calls: list[str] = []
+
+    class GatewayMustNotRun:
+        def load_value_data_profile(self, **_kwargs: Any) -> ValueDataProfile:
+            gateway_calls.append("load_value_data_profile")
+            raise AssertionError("invalid N5 blocker reached the owner gateway")
+
+    observation = FoundryValuePort(
+        evaluation_context=execution_context,
+        owner_gateway=GatewayMustNotRun(),
+        artifact_store=store,
     )(
         candidate=candidate,
-        simulation=simulation,
+        simulation=invalid_simulation,
         problem=problem,
         cycle_index=0,
     )
 
     assert observation.status == "value_blocked"
     assert observation.authority_blockers == (
-        "value_method_selection_authority_unresolved",
+        "eval_safety_simulation_provenance_mismatch",
     )
+    assert gateway_calls == []
+
+
+def test_simulate_only_n8_rejects_tampered_persisted_n5_reference_before_owner_gateway(
+    tmp_path: Path,
+) -> None:
+    candidate, problem, simulation, execution_context, store = _persisted_n5_value_fixture(
+        tmp_path,
+        problem_seed=_avg_income_problem(),
+    )
+    from polisyos.core.artifacts.ids import ArtifactID as CASArtifactID
+
+    original_ref = simulation.simulation_result_ref
+    assert original_ref is not None
+    assert store.has(original_ref)
+    foreign_ref = original_ref.model_copy(
+        update={"artifact_id": CASArtifactID(_hash("e"))}
+    )
+    assert not store.has(foreign_ref)
+    invalid_simulation = simulation.model_copy(
+        update={"simulation_result_ref": foreign_ref}
+    )
+    gateway_calls: list[str] = []
+
+    class GatewayMustNotRun:
+        def load_value_data_profile(self, **_kwargs: Any) -> ValueDataProfile:
+            gateway_calls.append("load_value_data_profile")
+            raise AssertionError("unresolved N5 reference reached the owner gateway")
+
+    observation = FoundryValuePort(
+        evaluation_context=execution_context,
+        owner_gateway=GatewayMustNotRun(),
+        artifact_store=store,
+    )(
+        candidate=candidate,
+        simulation=invalid_simulation,
+        problem=problem,
+        cycle_index=0,
+    )
+
+    assert observation.status == "value_blocked"
+    assert observation.authority_blockers == (
+        "eval_safety_simulation_provenance_mismatch",
+    )
+    assert gateway_calls == []
+
+
+def test_n8_default_registry_refuses_unbound_entrypoint_closure_with_real_n5(
+    tmp_path: Path,
+) -> None:
+    from polisyos.foundry.methods.selection.registry import registry_scope
+
+    candidate, problem, simulation, execution_context, store = _persisted_n5_value_fixture(
+        tmp_path,
+        problem_seed=_avg_income_problem(),
+    )
+    with registry_scope():
+        observation = FoundryValuePort(
+            evaluation_context=execution_context,
+            repo_root=Path.cwd(),
+            artifact_store=store,
+        )(
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
+            cycle_index=0,
+        )
+
+    assert observation.status == "value_blocked"
+    assert observation.authority_blockers == ("value_method_registry_intake_incomplete",)
+    assert "entry_point_source_byte_closure_not_established" in observation.reason
+    assert observation.method_selection_receipt is None
     assert observation.value_receipt is None
 
 
